@@ -2,7 +2,9 @@
 	<info organisation="SolarNetwork" module="${bundle.name}" />
 	<dependencies>
 		<dependency org="org.apache.commons" name="com.springsource.org.apache.commons.beanutils" rev="1.8.0" />
-		<dependency org="org.apache.tomcat" name="com.springsource.org.apache.tomcat.jdbc" rev="1.0.9.3" />
+		<dependency org="org.apache.tomcat" name="tomcat-jdbc" rev="7.0.29">
+    		<artifact name="tomcat-jdbc" type="jar" />
+		</dependency>
 		<dependency org="org.osgi" name="org.osgi.core" rev="4.2.0"/>
 		<dependency org="org.osgi" name="org.osgi.enterprise" rev="4.2.0"/>
 		<dependency org="joda-time" name="joda-time" rev="2.1" >
