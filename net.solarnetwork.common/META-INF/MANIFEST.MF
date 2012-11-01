@@ -2,13 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common
 Bundle-SymbolicName: net.solarnetwork.common
-Bundle-Version: 1.10.0
+Bundle-Version: 1.11.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
  net.solarnetwork.dao.jdbc;version="1.0.0",
  net.solarnetwork.domain;version="1.2.0",
- net.solarnetwork.util;version="1.7.0"
+ net.solarnetwork.util;version="1.8.0"
 Import-Package: 
  javax.sql,
  org.apache.commons.beanutils;version="[1.8.0,2.0.0)",
