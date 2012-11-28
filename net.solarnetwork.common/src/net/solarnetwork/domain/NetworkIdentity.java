@@ -33,17 +33,38 @@ package net.solarnetwork.domain;
 public interface NetworkIdentity {
 
 	/**
+	 * Get the service host name.
+	 * 
+	 * @return map of service host name
+	 */
+	String getHost();
+
+	/**
+	 * The host port to use.
+	 * 
+	 * @return the port
+	 */
+	Integer getPort();
+
+	/**
+	 * Flag indicating if TLS must be used.
+	 * 
+	 * @return boolean
+	 */
+	boolean isForceTLS();
+
+	/**
 	 * Get a universally unique key that identifies this service.
 	 * 
 	 * @return unique key
 	 */
 	String getIdentityKey();
-	
+
 	/**
 	 * Get the terms of service for this service.
 	 * 
 	 * @return the terms of service
 	 */
 	String getTermsOfService();
-	
+
 }

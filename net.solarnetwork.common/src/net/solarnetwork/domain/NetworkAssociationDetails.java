@@ -31,60 +31,62 @@ import java.util.Date;
  * Command object for initial SolarNode and SolarNet association data.
  * 
  * @author matt
- * @version $Id$
+ * @version 1.0
  */
-public class NetworkAssociationDetails  implements Serializable {
+public class NetworkAssociationDetails extends BasicNetworkIdentity implements NetworkIdentity,
+		Serializable {
 
-	private static final long serialVersionUID = -697995949057732672L;
+	private static final long serialVersionUID = 6959315661640228127L;
 
-	private String identity;
-	private String tos;
 	private String confirmationKey;
 	private Long nodeId;
 	private String username;
 	private Date expiration;
-	
+	private String securityPhrase;
+
 	@Override
 	public String toString() {
-		return "NetworkAssociationDetails{nodeId=" +nodeId 
-				+",username=" +username +'}';
+		return "NetworkAssociationDetails{nodeId=" + nodeId + ",username=" + username + '}';
 	}
 
-	public String getTos() {
-		return tos;
-	}
-	public void setTos(String tos) {
-		this.tos = tos;
-	}
-	public String getIdentity() {
-		return identity;
-	}
-	public void setIdentity(String identity) {
-		this.identity = identity;
-	}
 	public Long getNodeId() {
 		return nodeId;
 	}
+
 	public void setNodeId(Long nodeId) {
 		this.nodeId = nodeId;
 	}
+
 	public String getUsername() {
 		return username;
 	}
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
 	public Date getExpiration() {
 		return expiration;
 	}
+
 	public void setExpiration(Date expiration) {
 		this.expiration = expiration;
 	}
+
 	public String getConfirmationKey() {
 		return confirmationKey;
 	}
+
 	public void setConfirmationKey(String confirmationKey) {
 		this.confirmationKey = confirmationKey;
+	}
+
+	public String getSecurityPhrase() {
+		return securityPhrase;
+	}
+
+	public void setSecurityPhrase(String secretPhrase) {
+		this.securityPhrase = secretPhrase;
 	}
 
 }

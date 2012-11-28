@@ -30,34 +30,45 @@ import java.io.Serializable;
  * Basic implementation of {@link NetworkIdentity}.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
 public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 
-	private static final long serialVersionUID = 6888385242844976306L;
+	private static final long serialVersionUID = 2961549409437223044L;
 
 	private String identityKey;
 	private String termsOfService;
-	
+	private String host;
+	private Integer port;
+	private boolean forceTLS;
+
 	/**
 	 * Default constructor.
 	 */
 	public BasicNetworkIdentity() {
 		super();
 	}
-	
+
 	/**
 	 * Construct with an identity key.
 	 * 
-	 * @param identityKey the identity key
-	 * @param termsOfService the TOS
+	 * @param identityKey
+	 *        the identity key
+	 * @param termsOfService
+	 *        the TOS
+	 * @param serviceURLs
+	 *        the service URLs
 	 */
-	public BasicNetworkIdentity(String identityKey, String termsOfService) {
+	public BasicNetworkIdentity(String identityKey, String termsOfService, String host, Integer port,
+			Boolean forceTLS) {
 		super();
 		setIdentityKey(identityKey);
 		setTermsOfService(termsOfService);
+		setHost(host);
+		setPort(port);
+		setForceTLS(forceTLS);
 	}
-	
+
 	@Override
 	public String getIdentityKey() {
 		return identityKey;
@@ -68,12 +79,39 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 		return termsOfService;
 	}
 
+	@Override
+	public String getHost() {
+		return host;
+	}
+
+	@Override
+	public Integer getPort() {
+		return port;
+	}
+
+	@Override
+	public boolean isForceTLS() {
+		return forceTLS;
+	}
+
 	public void setIdentityKey(String identityKey) {
 		this.identityKey = identityKey;
 	}
 
 	public void setTermsOfService(String termsOfService) {
 		this.termsOfService = termsOfService;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public void setPort(Integer port) {
+		this.port = port;
+	}
+
+	public void setForceTLS(boolean forceTLS) {
+		this.forceTLS = forceTLS;
 	}
 
 }
