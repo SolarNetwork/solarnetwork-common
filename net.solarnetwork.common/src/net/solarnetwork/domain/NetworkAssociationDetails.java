@@ -33,7 +33,7 @@ import java.util.Date;
  * @author matt
  * @version 1.0
  */
-public class NetworkAssociationDetails extends BasicNetworkIdentity implements NetworkIdentity,
+public class NetworkAssociationDetails extends BasicNetworkIdentity implements NetworkAssociation,
 		Serializable {
 
 	private static final long serialVersionUID = 6959315661640228127L;
@@ -43,6 +43,29 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity implements N
 	private String username;
 	private Date expiration;
 	private String securityPhrase;
+
+	/**
+	 * Default constructor.
+	 */
+	public NetworkAssociationDetails() {
+		super();
+	}
+
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param other
+	 *        the NetworkAssociation to copy
+	 */
+	public NetworkAssociationDetails(NetworkAssociation other) {
+		super();
+		setConfirmationKey(other.getConfirmationKey());
+		setHost(other.getHost());
+		setIdentityKey(other.getIdentityKey());
+		setPort(other.getPort());
+		setSecurityPhrase(other.getSecurityPhrase());
+		setTermsOfService(other.getTermsOfService());
+	}
 
 	@Override
 	public String toString() {
@@ -73,6 +96,7 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity implements N
 		this.expiration = expiration;
 	}
 
+	@Override
 	public String getConfirmationKey() {
 		return confirmationKey;
 	}
@@ -81,6 +105,7 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity implements N
 		this.confirmationKey = confirmationKey;
 	}
 
+	@Override
 	public String getSecurityPhrase() {
 		return securityPhrase;
 	}
