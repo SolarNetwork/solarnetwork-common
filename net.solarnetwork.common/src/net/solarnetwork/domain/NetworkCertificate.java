@@ -1,5 +1,5 @@
 /* ==================================================================
- * NetworkAssociation.java - Nov 29, 2012 10:30:24 AM
+ * NetworkCertificate.java - Nov 30, 2012 8:24:23 AM
  * 
  * Copyright 2007-2012 SolarNetwork.net Dev Team
  * 
@@ -23,32 +23,43 @@
 package net.solarnetwork.domain;
 
 /**
- * API for node/network association details.
+ * API for a network certificate.
  * 
  * @author matt
  * @version 1.0
  */
-public interface NetworkAssociation extends NetworkIdentity {
+public interface NetworkCertificate {
 
 	/**
-	 * Get a confirmation key, generated on the network side.
+	 * Get an ID associated with this certificate.
 	 * 
-	 * @return confirmation key
+	 * @return a unique ID, e.g. node ID, never <em>null</em>
+	 */
+	Long getNetworkId();
+
+	/**
+	 * Get a confirmation key, which can be used to later retrieve the network
+	 * certificate if not immediately available in
+	 * {@link #getNetworkCertificate()}.
+	 * 
+	 * @return confirmation key, never <em>null</em>
 	 */
 	String getConfirmationKey();
 
 	/**
-	 * Get a security phrase, generated on the network side.
+	 * Get a status associated with the certificate.
 	 * 
-	 * @return a security phrase
+	 * @return the status, which may indicate if the certificate is being
+	 *         processed, etc
 	 */
-	String getSecurityPhrase();
+	String getNetworkCertificateStatus();
 
 	/**
-	 * Get the username associated with this association.
+	 * Get the certificate, as Base64-encoded string.
 	 * 
-	 * @return the username
+	 * @return the certificate, or <em>null</em> if the certificate is not
+	 *         available yet
 	 */
-	String getUsername();
+	String getNetworkCertificate();
 
 }

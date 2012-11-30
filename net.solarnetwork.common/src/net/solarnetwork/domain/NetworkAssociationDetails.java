@@ -34,15 +34,17 @@ import java.util.Date;
  * @version 1.0
  */
 public class NetworkAssociationDetails extends BasicNetworkIdentity implements NetworkAssociation,
-		Serializable {
+		NetworkCertificate, Serializable {
 
-	private static final long serialVersionUID = 6959315661640228127L;
+	private static final long serialVersionUID = 3785411554091131473L;
 
 	private String confirmationKey;
-	private Long nodeId;
 	private String username;
 	private Date expiration;
 	private String securityPhrase;
+	private Long networkId;
+	private String networkCertificate;
+	private String networkCertificateStatus;
 
 	/**
 	 * Default constructor.
@@ -69,17 +71,11 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity implements N
 
 	@Override
 	public String toString() {
-		return "NetworkAssociationDetails{nodeId=" + nodeId + ",username=" + username + '}';
+		return "NetworkAssociationDetails{host=" + getHost() + ",username=" + username + ",networkId="
+				+ networkId + '}';
 	}
 
-	public Long getNodeId() {
-		return nodeId;
-	}
-
-	public void setNodeId(Long nodeId) {
-		this.nodeId = nodeId;
-	}
-
+	@Override
 	public String getUsername() {
 		return username;
 	}
@@ -112,6 +108,33 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity implements N
 
 	public void setSecurityPhrase(String secretPhrase) {
 		this.securityPhrase = secretPhrase;
+	}
+
+	@Override
+	public Long getNetworkId() {
+		return networkId;
+	}
+
+	public void setNetworkId(Long networkId) {
+		this.networkId = networkId;
+	}
+
+	@Override
+	public String getNetworkCertificate() {
+		return networkCertificate;
+	}
+
+	public void setNetworkCertificate(String networkCertificate) {
+		this.networkCertificate = networkCertificate;
+	}
+
+	@Override
+	public String getNetworkCertificateStatus() {
+		return networkCertificateStatus;
+	}
+
+	public void setNetworkCertificateStatus(String networkCertificateStatus) {
+		this.networkCertificateStatus = networkCertificateStatus;
 	}
 
 }
