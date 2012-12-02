@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,60 +41,72 @@ import org.springframework.util.StringUtils;
 
 /**
  * Utility class for performing a simple mail-merge.
- *
- * <p>This class parses a String source and substitutes variables in the form of
- * <code>${<b>name</b>}</code> for a corresponding property in a specified
- * data object. The data object can be either a <code>java.util.Map</code>
- * or an arbitrary JavaBean. If the data object is a Map, the variable
- * names will be treated as keys in that map, the the corresponding value
- * will be substituted in the output String. Otherwise, reflection will
- * be used to access JavaBean getter methods, using the Struts naming
- * conventions for bean property names and nested names.</p>
+ * 
+ * <p>
+ * This class parses a String source and substitutes variables in the form of
+ * <code>${<b>name</b>}</code> for a corresponding property in a specified data
+ * object. The data object can be either a <code>java.util.Map</code> or an
+ * arbitrary JavaBean. If the data object is a Map, the variable names will be
+ * treated as keys in that map, the the corresponding value will be substituted
+ * in the output String. Otherwise, reflection will be used to access JavaBean
+ * getter methods, using the Struts naming conventions for bean property names
+ * and nested names.
+ * </p>
  * 
  * @author matt.magoffin
  * @version $Revision$ $Date$
  */
 public final class StringMerger {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(StringMerger.class);
 	private static final Pattern MERGE_VAR_PAT = Pattern.compile("\\$\\{([^}]+)\\}");
 
 	private StringMerger() {
 		// do not instantiate
 	}
-	
+
 	/**
 	 * Merge from a Resource, and return the merged output as a String.
 	 * 
-	 * <p>This method calls the {@link #mergeResource(Resource, Object, String)}
-	 * method, passing an empty string for <code>nullValue</code>.</p>
+	 * <p>
+	 * This method calls the {@link #mergeResource(Resource, Object, String)}
+	 * method, passing an empty string for <code>nullValue</code>.
+	 * </p>
 	 * 
-	 * @param resource the resource
-	 * @param data the data to merge with
+	 * @param resource
+	 *        the resource
+	 * @param data
+	 *        the data to merge with
 	 * @return merged string
-	 * @throws IOException if an error occurs
+	 * @throws IOException
+	 *         if an error occurs
 	 */
-	public static String mergeResource(Resource resource, 
-			Object data) throws IOException {
+	public static String mergeResource(Resource resource, Object data) throws IOException {
 		return mergeResource(resource, data, "");
 	}
-	
+
 	/**
 	 * Merge from a Resource, and return the merged output as a String.
 	 * 
-	 * <p>This method will read the Resource as character data line by line,
-	 * merging each line as it goes.</p>
+	 * <p>
+	 * This method will read the Resource as character data line by line,
+	 * merging each line as it goes.
+	 * </p>
 	 * 
-	 * @param resource the resource
-	 * @param data the data to merge with
-	 * @param nullValue the value to substitute for null data elements
+	 * @param resource
+	 *        the resource
+	 * @param data
+	 *        the data to merge with
+	 * @param nullValue
+	 *        the value to substitute for null data elements
 	 * @return merged string
-	 * @throws IOException if an error occurs
+	 * @throws IOException
+	 *         if an error occurs
 	 */
-	public static String mergeResource(Resource resource, 
-			Object data, String nullValue) throws IOException {
+	public static String mergeResource(Resource resource, Object data, String nullValue)
+			throws IOException {
 		if ( LOG.isDebugEnabled() ) {
-			LOG.debug("Merging " +resource.getFilename() +" with " +data);
+			LOG.debug("Merging " + resource.getFilename() + " with " + data);
 		}
 		InputStream in = null;
 		try {
@@ -118,50 +129,67 @@ public final class StringMerger {
 			}
 		}
 	}
-	
+
 	/**
 	 * Merge from a file source, and return the merged output as a String.
 	 * 
 	 * @return the merged output
-	 * @param filePath path to the source file
-	 * @param data the <code>Map</code> or JavaBean with merge data
-	 * @exception java.io.IOException if an exception occurs
+	 * @param filePath
+	 *        path to the source file
+	 * @param data
+	 *        the <code>Map</code> or JavaBean with merge data
+	 * @exception java.io.IOException
+	 *            if an exception occurs
 	 */
 	public static String merge(String filePath, Object data) throws java.io.IOException {
 		if ( LOG.isDebugEnabled() ) {
-			LOG.debug("Merging " +filePath +" with " +data);
+			LOG.debug("Merging " + filePath + " with " + data);
 		}
-		BufferedReader in = new BufferedReader(new FileReader(filePath));
-		StringBuilder buf = new StringBuilder();
-		String oneLine = null;
-		while ( (oneLine = in.readLine()) != null ) {
-			mergeString(oneLine, data, "", buf);
-			buf.append("\n");
+		BufferedReader in = null;
+		try {
+			in = new BufferedReader(new FileReader(filePath));
+			StringBuilder buf = new StringBuilder();
+			String oneLine = null;
+			while ( (oneLine = in.readLine()) != null ) {
+				mergeString(oneLine, data, "", buf);
+				buf.append("\n");
+			}
+			return buf.toString();
+		} finally {
+			if ( in != null ) {
+				in.close();
+			}
 		}
-		return buf.toString();
 	}
-	
+
 	/**
 	 * Merge from a String source and return the result.
 	 * 
 	 * @return java.lang.String
-	 * @param src java.lang.String
-	 * @param nullValue the value to substitute for null data
-	 * @param data java.lang.Object
+	 * @param src
+	 *        java.lang.String
+	 * @param nullValue
+	 *        the value to substitute for null data
+	 * @param data
+	 *        java.lang.Object
 	 */
 	public static String mergeString(String src, String nullValue, Object data) {
 		StringBuilder buf = new StringBuilder();
 		mergeString(src, data, nullValue, buf);
 		return buf.toString();
 	}
-	
+
 	/**
 	 * Merge from a String source into a StringBuilder.
 	 * 
-	 * @param src the source String to substitute into
-	 * @param data the data object to substitute with
-	 * @param nullValue the value to substitute for null data
-	 * @param buf the StringBuilder to append the output to
+	 * @param src
+	 *        the source String to substitute into
+	 * @param data
+	 *        the data object to substitute with
+	 * @param nullValue
+	 *        the value to substitute for null data
+	 * @param buf
+	 *        the StringBuilder to append the output to
 	 */
 	public static void mergeString(String src, Object data, String nullValue, StringBuilder buf) {
 		Matcher matcher = MERGE_VAR_PAT.matcher(src);
@@ -178,34 +206,35 @@ public final class StringMerger {
 				// append everything from the end of the last
 				// match to the start of this match
 				buf.append(src.substring(endLastMatchIdx, matchResult.start()));
-	
+
 				// perform substitution here...
 				if ( data != null ) {
 					int s = matchResult.start(1);
 					int e = matchResult.end(1);
 					if ( (s > -1) && (e > -1) ) {
 						String varName = src.substring(s, e);
-						if ( data instanceof java.util.Map<?,?> ) {
+						if ( data instanceof java.util.Map<?, ?> ) {
 							Object o = null;
 							int sepIdx = varName.indexOf('.');
 							if ( sepIdx > 0 ) {
-								String varName2 = varName.substring(sepIdx+1);
+								String varName2 = varName.substring(sepIdx + 1);
 								varName = varName.substring(0, sepIdx);
-								o = ((Map<?, ?>)data).get(varName);
+								o = ((Map<?, ?>) data).get(varName);
 								if ( o != null ) {
 									try {
 										o = PropertyUtils.getProperty(o, varName2);
 									} catch ( Exception e2 ) {
-										LOG.warn("Exception getting property '" +varName2 
-												+"' out of " +o.getClass() +": " +e2);
+										LOG.warn("Exception getting property '" + varName2 + "' out of "
+												+ o.getClass() + ": " + e2);
 									}
 								}
 							} else {
 								// simply check for key
-								o = ((Map<?, ?>)data).get(varName);
+								o = ((Map<?, ?>) data).get(varName);
 							}
-							if ( o == null  || (String.class.isAssignableFrom(o.getClass()) 
-									&& !StringUtils.hasText(o.toString()))) {
+							if ( o == null
+									|| (String.class.isAssignableFrom(o.getClass()) && !StringUtils
+											.hasText(o.toString())) ) {
 								buf.append(nullValue);
 							} else {
 								buf.append(o);
@@ -214,15 +243,16 @@ public final class StringMerger {
 							// use reflection to get a bean property
 							try {
 								Object o = PropertyUtils.getProperty(data, varName);
-								if ( o == null || (String.class.isAssignableFrom(o.getClass()) 
-										&& !StringUtils.hasText(o.toString()))) {
+								if ( o == null
+										|| (String.class.isAssignableFrom(o.getClass()) && !StringUtils
+												.hasText(o.toString())) ) {
 									buf.append(nullValue);
 								} else {
 									buf.append(o);
 								}
 							} catch ( Exception ex ) {
-								LOG.warn("Exception getting property '" +varName +"' out of "
-										+data.getClass() +": " +ex);
+								LOG.warn("Exception getting property '" + varName + "' out of "
+										+ data.getClass() + ": " + ex);
 								buf.append(nullValue);
 							}
 						}
