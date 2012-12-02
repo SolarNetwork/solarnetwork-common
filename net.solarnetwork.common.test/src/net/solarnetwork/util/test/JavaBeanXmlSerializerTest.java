@@ -22,7 +22,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.test;
+package net.solarnetwork.util.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
