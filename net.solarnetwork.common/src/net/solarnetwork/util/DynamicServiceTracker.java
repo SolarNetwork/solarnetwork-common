@@ -25,7 +25,6 @@
 package net.solarnetwork.util;
 
 import java.util.Map;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -72,11 +71,11 @@ import org.springframework.beans.PropertyAccessorFactory;
  * </dl>
  * 
  * @param <T>
- *            the tracked service type
+ *        the tracked service type
  * @author matt
  * @version $Revision$
  */
-public class DynamicServiceTracker<T> {
+public class DynamicServiceTracker<T> implements OptionalService<T> {
 
 	private BundleContext bundleContext;
 
@@ -92,12 +91,13 @@ public class DynamicServiceTracker<T> {
 	 * 
 	 * @return the service, or <em>null</em> if not available
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public T service() {
 		ServiceReference[] refs;
 		try {
 			refs = bundleContext.getServiceReferences(serviceClassName, serviceFilter);
-		} catch (InvalidSyntaxException e) {
+		} catch ( InvalidSyntaxException e ) {
 			log.error("Error in service filter {}: {}", serviceFilter, e);
 			return null;
 		}
@@ -109,8 +109,7 @@ public class DynamicServiceTracker<T> {
 		for ( ServiceReference ref : refs ) {
 			Object service = bundleContext.getService(ref);
 			if ( propertyFilters == null || propertyFilters.size() < 1 ) {
-				log.debug("No property filter configured, returning first {} service",
-						serviceClassName);
+				log.debug("No property filter configured, returning first {} service", serviceClassName);
 				return (T) service;
 			}
 			log.trace("Examining service {} for property match {}", service, propertyFilters);
