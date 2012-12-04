@@ -30,6 +30,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import net.solarnetwork.pki.sun.SunCertificateService;
+import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -62,6 +63,14 @@ public class SunCertificateServiceTest {
 		KeyPair keypair = keyGen.generateKeyPair();
 		publicKey = keypair.getPublic();
 		privateKey = keypair.getPrivate();
+	}
+
+	@Test
+	public void generateCSR() {
+		byte[] req = service.generatePKCS10CertificateRequest("UID=1, O=SolarNetwork", publicKey,
+				privateKey);
+		assertNotNull(req);
+		log.debug("Got CSR: \n{}", Base64.encodeBase64String(req));
 	}
 
 	@Test
