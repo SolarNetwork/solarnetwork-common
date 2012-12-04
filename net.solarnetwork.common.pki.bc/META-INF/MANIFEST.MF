@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bouncy Castle PKI
+Bundle-SymbolicName: net.solarnetwork.common.pki.bc
+Bundle-Version: 1.0.0
+Bundle-Vendor: SolarNetwork
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: 
+ net.solarnetwork.support;version="1.0",
+ org.bouncycastle.asn1,
+ org.bouncycastle.asn1.x500,
+ org.bouncycastle.asn1.x509,
+ org.bouncycastle.cert,
+ org.bouncycastle.cert.jcajce,
+ org.bouncycastle.operator,
+ org.bouncycastle.operator.jcajce

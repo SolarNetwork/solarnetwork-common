@@ -31,6 +31,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.cert.Certificate;
 import net.solarnetwork.support.CertificateException;
 import net.solarnetwork.support.CertificateService;
 import sun.security.pkcs.PKCS10;
@@ -46,6 +47,12 @@ import sun.security.x509.X500Signer;
 public class SunCertificateService implements CertificateService {
 
 	private String pkcs10SignatureAlgorithm = "SHA1WithRSA";
+
+	@Override
+	public Certificate generateCertificate(String dn, PublicKey publicKey, PrivateKey privateKey)
+			throws CertificateException {
+		throw new UnsupportedOperationException();
+	}
 
 	private PKCS10 createPKCS10(String dn, PublicKey publicKey, PrivateKey privateKey) {
 		PKCS10 pkcs10 = new PKCS10(publicKey);

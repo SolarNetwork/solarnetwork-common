@@ -1,0 +1,8 @@
+<ivy-module version="2.0">
+	<info organisation="SolarNetwork" module="${bundle.name}" />
+	<dependencies>
+    	<dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.47" />
+    	<dependency org="org.bouncycastle" name="bcpkix-jdk15on" rev="1.47" />
+		<dependency org="org.slf4j" name="com.springsource.slf4j.api" rev="1.5.10" />
+	</dependencies>
+</ivy-module>

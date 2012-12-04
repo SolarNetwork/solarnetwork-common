@@ -24,6 +24,7 @@ package net.solarnetwork.support;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
 
 /**
  * API for PKI support.
@@ -32,6 +33,23 @@ import java.security.PublicKey;
  * @version 1.0
  */
 public interface CertificateService {
+
+	/**
+	 * Generate a new, self-signed certificate using the provided DN and keys.
+	 * 
+	 * @param dn
+	 *        the DN for the certificate, e.g.
+	 *        {@code CN=John Doe, OU=Accounting, O=Big Organization, C=US}
+	 * @param publicKey
+	 *        the public key
+	 * @param privateKey
+	 *        the private key
+	 * @return the certificate
+	 * @throws CertificateException
+	 *         if any error occurs
+	 */
+	Certificate generateCertificate(String dn, PublicKey publicKey, PrivateKey privateKey)
+			throws CertificateException;
 
 	/**
 	 * Generate a certificate request for a given DN, public key, and private
@@ -46,7 +64,7 @@ public interface CertificateService {
 	 *        the private key to sign the request with
 	 * @return the request, as a PKCS#10 encoded request
 	 * @throws CertificateException
-	 *         if any error occurrs
+	 *         if any error occurs
 	 */
 	byte[] generatePKCS10CertificateRequest(String dn, PublicKey publicKey, PrivateKey privateKey)
 			throws CertificateException;
@@ -64,7 +82,7 @@ public interface CertificateService {
 	 *        the private key to sign the request with
 	 * @return the request, as a Base64-encoded PKCS#10 request
 	 * @throws CertificateException
-	 *         if any error occurrs
+	 *         if any error occurs
 	 */
 	String generatePKCS10CertificateRequestString(String dn, PublicKey publicKey, PrivateKey privateKey)
 			throws CertificateException;
