@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PKI implementation using Sun provider
+Bundle-SymbolicName: net.solarnetwork.common.pki.sun
+Bundle-Version: 1.0.0
+Bundle-Vendor: SolarNetwork
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: 
+ net.solarnetwork.support;version="1.0",
+ sun.security.pkcs,
+ sun.security.x509
