@@ -45,7 +45,7 @@ import sun.security.x509.X500Signer;
  */
 public class SunCertificateService implements CertificateService {
 
-	private String pkcs10SignatureAlgorithm = "MD5WithRSA";
+	private String pkcs10SignatureAlgorithm = "SHA1WithRSA";
 
 	private PKCS10 createPKCS10(String dn, PublicKey publicKey, PrivateKey privateKey) {
 		PKCS10 pkcs10 = new PKCS10(publicKey);
