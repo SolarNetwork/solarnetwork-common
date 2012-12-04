@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
  net.solarnetwork.dao.jdbc;version="1.0.0",
  net.solarnetwork.domain;version="1.2.0",
+ net.solarnetwork.support;version="1.0.0",
  net.solarnetwork.util;version="1.9.0"
 Import-Package: 
  javax.sql,
