@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.pki.bc;
+package net.solarnetwork.pki.bc;
 
 import java.math.BigInteger;
 import java.security.PrivateKey;
@@ -47,8 +47,9 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 public class BCCertificateService implements CertificateService {
 
 	private final AtomicLong counter = new AtomicLong(System.currentTimeMillis());
-	private final int certificateExpireDays = 730;
-	private final String signatureAlgorithm = "SHA1WithRSA";
+
+	private int certificateExpireDays = 730;
+	private String signatureAlgorithm = "SHA1WithRSA";
 
 	@Override
 	public Certificate generateCertificate(String dn, PublicKey publicKey, PrivateKey privateKey) {
@@ -74,17 +75,18 @@ public class BCCertificateService implements CertificateService {
 	}
 
 	@Override
-	public byte[] generatePKCS10CertificateRequest(String dn, PublicKey publicKey, PrivateKey privateKey)
-			throws CertificateException {
+	public String generatePKCS10CertificateRequestString(Certificate cert, PublicKey publicKey,
+			PrivateKey privateKey) throws CertificateException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
-	public String generatePKCS10CertificateRequestString(String dn, PublicKey publicKey,
-			PrivateKey privateKey) throws CertificateException {
-		// TODO Auto-generated method stub
-		return null;
+	public void setCertificateExpireDays(int certificateExpireDays) {
+		this.certificateExpireDays = certificateExpireDays;
+	}
+
+	public void setSignatureAlgorithm(String signatureAlgorithm) {
+		this.signatureAlgorithm = signatureAlgorithm;
 	}
 
 }

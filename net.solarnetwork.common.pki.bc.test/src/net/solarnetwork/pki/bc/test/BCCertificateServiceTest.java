@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.pki.bc.test;
+package net.solarnetwork.pki.bc.test;
 
 import static org.junit.Assert.assertNotNull;
 import java.security.KeyPair;
@@ -30,7 +30,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
-import net.solarnetwork.common.pki.bc.BCCertificateService;
+import net.solarnetwork.pki.bc.BCCertificateService;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;

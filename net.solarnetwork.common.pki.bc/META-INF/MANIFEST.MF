@@ -5,6 +5,8 @@ Bundle-SymbolicName: net.solarnetwork.common.pki.bc
 Bundle-Version: 1.0.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: 
+ net.solarnetwork.pki.bc;version="1.0.0"
 Import-Package: 
  net.solarnetwork.support;version="1.0",
  org.bouncycastle.asn1,

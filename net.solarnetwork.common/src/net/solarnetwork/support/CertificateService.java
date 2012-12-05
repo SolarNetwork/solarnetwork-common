@@ -52,30 +52,12 @@ public interface CertificateService {
 			throws CertificateException;
 
 	/**
-	 * Generate a certificate request for a given DN, public key, and private
-	 * key.
+	 * Generate a certificate request for a given certificate, public key, and
+	 * private key, formatted as a Base64-encoded request string.
 	 * 
-	 * @param dn
-	 *        the request subject name, e.g.
-	 *        {@code CN=John Doe, OU=Accounting, O=Big Organization, C=US}
-	 * @param publicKey
-	 *        the public key to include in the request
-	 * @param privateKey
-	 *        the private key to sign the request with
-	 * @return the request, as a PKCS#10 encoded request
-	 * @throws CertificateException
-	 *         if any error occurs
-	 */
-	byte[] generatePKCS10CertificateRequest(String dn, PublicKey publicKey, PrivateKey privateKey)
-			throws CertificateException;
-
-	/**
-	 * Generate a certificate request for a given DN, public key, and private
-	 * key, formatted as a Base64-encoded request string.
-	 * 
-	 * @param dn
-	 *        the request subject name, e.g.
-	 *        {@code CN=John Doe, OU=Accounting, O=Big Organization, C=US}
+	 * @param cert
+	 *        the certificate to generate a CSR for, presumably a self-signed
+	 *        one
 	 * @param publicKey
 	 *        the public key to include in the request
 	 * @param privateKey
@@ -84,7 +66,7 @@ public interface CertificateService {
 	 * @throws CertificateException
 	 *         if any error occurs
 	 */
-	String generatePKCS10CertificateRequestString(String dn, PublicKey publicKey, PrivateKey privateKey)
-			throws CertificateException;
+	String generatePKCS10CertificateRequestString(Certificate cert, PublicKey publicKey,
+			PrivateKey privateKey) throws CertificateException;
 
 }
