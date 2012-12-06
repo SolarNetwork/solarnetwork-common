@@ -19,5 +19,6 @@ Import-Package:
  org.bouncycastle.operator.jcajce,
  org.bouncycastle.pkcs,
  org.bouncycastle.util.io.pem,
+ org.slf4j;version="[1.5.10,2.0.0)",
  org.springframework.beans.factory;version="[3.0,4.0)",
  org.springframework.osgi.compendium.cm;version="[1.2.0,2.0.0)"

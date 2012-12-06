@@ -22,7 +22,9 @@
 
 package net.solarnetwork.pki.bc.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import java.io.InputStreamReader;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -35,6 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.FileCopyUtils;
 
 /**
  * Test cases for the {@link BCCertificateService} class.
@@ -80,5 +83,14 @@ public class BCCertificateServiceTest {
 		String csr = service.generatePKCS10CertificateRequestString(cert, privateKey);
 		assertNotNull(csr);
 		log.debug("Got CSR:\n{}", csr);
+	}
+
+	@Test
+	public void parsePKCS7() throws Exception {
+		String pkcs7Pem = FileCopyUtils.copyToString(new InputStreamReader(getClass()
+				.getResourceAsStream("test-pkcs7-chain.pem"), "UTF-8"));
+		X509Certificate[] chain = service.parsePKCS7CertificateChainString(pkcs7Pem);
+		assertNotNull(chain);
+		assertEquals(3, chain.length);
 	}
 }

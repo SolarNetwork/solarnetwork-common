@@ -22,14 +22,20 @@
 
 package net.solarnetwork.pki.bc;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.security.auth.x500.X500Principal;
 import net.solarnetwork.support.CertificateException;
@@ -44,7 +50,10 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bouncy Castle implementation of {@link CertificateService}.
@@ -58,6 +67,8 @@ public class BCCertificateService implements CertificateService {
 
 	private int certificateExpireDays = 730;
 	private String signatureAlgorithm = "SHA256WithRSA";
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Override
 	public X509Certificate generateCertificate(String dn, PublicKey publicKey, PrivateKey privateKey) {
@@ -117,6 +128,31 @@ public class BCCertificateService implements CertificateService {
 			}
 		}
 		return writer.toString();
+	}
+
+	@Override
+	public X509Certificate[] parsePKCS7CertificateChainString(String pem) throws CertificateException {
+		PemReader reader = new PemReader(new StringReader(pem));
+		List<X509Certificate> results = new ArrayList<X509Certificate>(3);
+		try {
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			PemObject pemObj = reader.readPemObject();
+			log.debug("Parsed PEM type {}", pemObj.getType());
+			for ( Certificate c : cf.generateCertificates(new ByteArrayInputStream(pemObj.getContent())) ) {
+				results.add((X509Certificate) c);
+			}
+		} catch ( IOException e ) {
+			throw new CertificateException("Error reading certificate", e);
+		} catch ( java.security.cert.CertificateException e ) {
+			throw new CertificateException("Error loading CertificateFactory", e);
+		} finally {
+			try {
+				reader.close();
+			} catch ( IOException e ) {
+				// ignore me
+			}
+		}
+		return results.toArray(new X509Certificate[results.size()]);
 	}
 
 	public void setCertificateExpireDays(int certificateExpireDays) {
