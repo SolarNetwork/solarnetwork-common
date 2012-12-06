@@ -15,4 +15,6 @@ Import-Package:
  org.bouncycastle.cert,
  org.bouncycastle.cert.jcajce,
  org.bouncycastle.operator,
- org.bouncycastle.operator.jcajce
+ org.bouncycastle.operator.jcajce,
+ org.bouncycastle.pkcs,
+ org.bouncycastle.util.io.pem

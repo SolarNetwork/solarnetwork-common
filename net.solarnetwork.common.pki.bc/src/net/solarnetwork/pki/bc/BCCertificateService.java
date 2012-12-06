@@ -22,10 +22,13 @@
 
 package net.solarnetwork.pki.bc;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.security.auth.x500.X500Principal;
@@ -33,10 +36,15 @@ import net.solarnetwork.support.CertificateException;
 import net.solarnetwork.support.CertificateService;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemWriter;
 
 /**
  * Bouncy Castle implementation of {@link CertificateService}.
@@ -52,7 +60,7 @@ public class BCCertificateService implements CertificateService {
 	private String signatureAlgorithm = "SHA1WithRSA";
 
 	@Override
-	public Certificate generateCertificate(String dn, PublicKey publicKey, PrivateKey privateKey) {
+	public X509Certificate generateCertificate(String dn, PublicKey publicKey, PrivateKey privateKey) {
 		X500Principal issuer = new X500Principal(dn);
 		Date now = new Date();
 		Date expire = new Date(now.getTime() + (1000L * 60L * 60L * 24L * certificateExpireDays));
@@ -75,10 +83,40 @@ public class BCCertificateService implements CertificateService {
 	}
 
 	@Override
-	public String generatePKCS10CertificateRequestString(Certificate cert, PublicKey publicKey,
-			PrivateKey privateKey) throws CertificateException {
-		// TODO Auto-generated method stub
-		return null;
+	public String generatePKCS10CertificateRequestString(X509Certificate cert, PrivateKey privateKey)
+			throws CertificateException {
+		X509CertificateHolder holder;
+		try {
+			holder = new JcaX509CertificateHolder(cert);
+		} catch ( CertificateEncodingException e ) {
+			throw new CertificateException("Error creating CSR", e);
+		}
+		PKCS10CertificationRequestBuilder builder = new PKCS10CertificationRequestBuilder(
+				holder.getSubject(), holder.getSubjectPublicKeyInfo());
+		JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder(signatureAlgorithm);
+		ContentSigner signer;
+		try {
+			signer = signerBuilder.build(privateKey);
+		} catch ( OperatorCreationException e ) {
+			throw new CertificateException("Error signing certificate request", e);
+		}
+		PKCS10CertificationRequest csr = builder.build(signer);
+		StringWriter writer = new StringWriter();
+		PemWriter pemWriter = new PemWriter(writer);
+		try {
+			pemWriter.writeObject(new PemObject("CERTIFICATE REQUEST", csr.getEncoded()));
+		} catch ( IOException e ) {
+			throw new CertificateException("Error signing certificate", e);
+		} finally {
+			try {
+				pemWriter.flush();
+				pemWriter.close();
+				writer.close();
+			} catch ( IOException e ) {
+				// ignore this
+			}
+		}
+		return writer.toString();
 	}
 
 	public void setCertificateExpireDays(int certificateExpireDays) {

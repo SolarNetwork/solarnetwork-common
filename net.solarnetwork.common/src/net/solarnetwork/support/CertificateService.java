@@ -24,7 +24,7 @@ package net.solarnetwork.support;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 
 /**
  * API for PKI support.
@@ -48,7 +48,7 @@ public interface CertificateService {
 	 * @throws CertificateException
 	 *         if any error occurs
 	 */
-	Certificate generateCertificate(String dn, PublicKey publicKey, PrivateKey privateKey)
+	X509Certificate generateCertificate(String dn, PublicKey publicKey, PrivateKey privateKey)
 			throws CertificateException;
 
 	/**
@@ -66,7 +66,7 @@ public interface CertificateService {
 	 * @throws CertificateException
 	 *         if any error occurs
 	 */
-	String generatePKCS10CertificateRequestString(Certificate cert, PublicKey publicKey,
-			PrivateKey privateKey) throws CertificateException;
+	String generatePKCS10CertificateRequestString(X509Certificate cert, PrivateKey privateKey)
+			throws CertificateException;
 
 }

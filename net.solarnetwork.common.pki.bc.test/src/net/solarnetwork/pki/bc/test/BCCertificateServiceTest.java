@@ -29,7 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import net.solarnetwork.pki.bc.BCCertificateService;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BCCertificateServiceTest {
 
+	private static final String TEST_DN = "UID=1, O=SolarNetwork";
 	private BCCertificateService service;
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
@@ -67,9 +68,17 @@ public class BCCertificateServiceTest {
 
 	@Test
 	public void generateSelfSignedCertificate() {
-		Certificate cert = service.generateCertificate("UID=1, O=SolarNetwork", publicKey, privateKey);
+		X509Certificate cert = service.generateCertificate(TEST_DN, publicKey, privateKey);
 		assertNotNull(cert);
 		log.debug("Got cert: {}", cert);
 	}
 
+	@Test
+	public void generateCSR() {
+		X509Certificate cert = service.generateCertificate(TEST_DN, publicKey, privateKey);
+		assertNotNull(cert);
+		String csr = service.generatePKCS10CertificateRequestString(cert, privateKey);
+		assertNotNull(csr);
+		log.debug("Got CSR:\n{}", csr);
+	}
 }
