@@ -36,7 +36,7 @@ import java.util.Date;
 public class NetworkAssociationDetails extends BasicNetworkIdentity implements NetworkAssociation,
 		NetworkCertificate, Serializable {
 
-	private static final long serialVersionUID = 3785411554091131473L;
+	private static final long serialVersionUID = 1744090395428325254L;
 
 	private String confirmationKey;
 	private String username;
@@ -45,6 +45,7 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity implements N
 	private Long networkId;
 	private String networkCertificate;
 	private String networkCertificateStatus;
+	private String networkCertificateSubjectDN;
 
 	/**
 	 * Default constructor.
@@ -135,6 +136,15 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity implements N
 
 	public void setNetworkCertificateStatus(String networkCertificateStatus) {
 		this.networkCertificateStatus = networkCertificateStatus;
+	}
+
+	@Override
+	public String getNetworkCertificateSubjectDN() {
+		return networkCertificateSubjectDN;
+	}
+
+	public void setNetworkCertificateSubjectDN(String networkCertificateSubjectDN) {
+		this.networkCertificateSubjectDN = networkCertificateSubjectDN;
 	}
 
 }

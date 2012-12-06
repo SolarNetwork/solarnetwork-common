@@ -55,6 +55,19 @@ public interface NetworkCertificate {
 	String getNetworkCertificateStatus();
 
 	/**
+	 * Get the value of the node's expected public key certificate subject name.
+	 * 
+	 * <p>
+	 * The node must generate a certificate signing request (CSR) using this
+	 * subject name and then install the signed certificate when granted by the
+	 * SolarNet certification authority (CA).
+	 * </p>
+	 * 
+	 * @return the node's subject DN
+	 */
+	String getNetworkCertificateSubjectDN();
+
+	/**
 	 * Get the certificate, as Base64-encoded string.
 	 * 
 	 * @return the certificate, or <em>null</em> if the certificate is not
