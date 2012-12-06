@@ -57,7 +57,7 @@ public class BCCertificateService implements CertificateService {
 	private final AtomicLong counter = new AtomicLong(System.currentTimeMillis());
 
 	private int certificateExpireDays = 730;
-	private String signatureAlgorithm = "SHA1WithRSA";
+	private String signatureAlgorithm = "SHA256WithRSA";
 
 	@Override
 	public X509Certificate generateCertificate(String dn, PublicKey publicKey, PrivateKey privateKey) {
