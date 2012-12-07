@@ -58,8 +58,6 @@ public interface CertificateService {
 	 * @param cert
 	 *        the certificate to generate a CSR for, presumably a self-signed
 	 *        one
-	 * @param publicKey
-	 *        the public key to include in the request
 	 * @param privateKey
 	 *        the private key to sign the request with
 	 * @return the request, as a Base64-encoded PKCS#10 request
@@ -68,6 +66,18 @@ public interface CertificateService {
 	 */
 	String generatePKCS10CertificateRequestString(X509Certificate cert, PrivateKey privateKey)
 			throws CertificateException;
+
+	/**
+	 * Generate a certificate chain formatted as a Base64-encoded PKCS#7 string
+	 * (PEM).
+	 * 
+	 * @param certs
+	 *        the certificates to generate a PKCS#7 for
+	 * @return the certificate, as a Base64-encoded PKCS#7 request
+	 * @throws CertificateException
+	 *         if any error occurs
+	 */
+	String generatePKCS7CertificateChainString(X509Certificate[] chain) throws CertificateException;
 
 	/**
 	 * Parse a PKCS#7 certificate chain, formatted as a Base64-encoded request

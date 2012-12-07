@@ -29,13 +29,19 @@ import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.CertPath;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.security.auth.x500.X500Principal;
 import net.solarnetwork.support.CertificateException;
@@ -130,6 +136,32 @@ public class BCCertificateService implements CertificateService {
 		return writer.toString();
 	}
 
+	private void orderCertificateChain(Map<X500Principal, X509Certificate> map,
+			List<X509Certificate> results, X509Certificate c) {
+		X509Certificate parent = map.get(c.getIssuerX500Principal());
+		if ( parent != null ) {
+			orderCertificateChain(map, results, parent);
+		}
+
+		// find parent in results, or else add to end
+		for ( ListIterator<X509Certificate> itr = results.listIterator(); itr.hasNext(); ) {
+			X509Certificate p = itr.next();
+			if ( p.getSubjectDN().equals(c.getIssuerDN()) ) {
+				itr.previous();
+				itr.add(c);
+				break;
+			}
+		}
+		map.remove(c.getSubjectX500Principal());
+	}
+
+	private void orderCertificateChain(Map<X500Principal, X509Certificate> map,
+			List<X509Certificate> results) {
+		while ( map.size() > 0 ) {
+			orderCertificateChain(map, results, map.values().iterator().next());
+		}
+	}
+
 	@Override
 	public X509Certificate[] parsePKCS7CertificateChainString(String pem) throws CertificateException {
 		PemReader reader = new PemReader(new StringReader(pem));
@@ -138,8 +170,27 @@ public class BCCertificateService implements CertificateService {
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
 			PemObject pemObj = reader.readPemObject();
 			log.debug("Parsed PEM type {}", pemObj.getType());
-			for ( Certificate c : cf.generateCertificates(new ByteArrayInputStream(pemObj.getContent())) ) {
-				results.add((X509Certificate) c);
+			Collection<? extends Certificate> certs = cf.generateCertificates(new ByteArrayInputStream(
+					pemObj.getContent()));
+
+			// OK barf, generateCertificates() and even CertPath doesn't return the chain in order
+			// (see http://bugs.sun.com/view_bug.do?bug_id=6238093; but we can't use the Sun-specific
+			// workaround listed there). So let's try to order them ourselves
+			Map<X500Principal, X509Certificate> map = new LinkedHashMap<X500Principal, X509Certificate>();
+			for ( Certificate c : certs ) {
+				X509Certificate x509 = (X509Certificate) c;
+				if ( x509.getIssuerDN().equals(x509.getSubjectDN()) ) {
+					// root CA
+					results.add(x509);
+				} else {
+					map.put(x509.getSubjectX500Principal(), x509);
+				}
+			}
+			if ( results.size() == 0 ) {
+				// no root, just add everything to list
+				results.addAll(map.values());
+			} else {
+				orderCertificateChain(map, results);
 			}
 		} catch ( IOException e ) {
 			throw new CertificateException("Error reading certificate", e);
@@ -153,6 +204,31 @@ public class BCCertificateService implements CertificateService {
 			}
 		}
 		return results.toArray(new X509Certificate[results.size()]);
+	}
+
+	@Override
+	public String generatePKCS7CertificateChainString(X509Certificate[] chain)
+			throws CertificateException {
+		try {
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			List<X509Certificate> chainList = Arrays.asList(chain);
+			CertPath path = cf.generateCertPath(chainList);
+			StringWriter out = new StringWriter();
+			PemWriter writer = new PemWriter(out);
+			PemObject pemObj = new PemObject("CERTIFICATE" + (chain.length > 1 ? " CHAIN" : ""),
+					path.getEncoded("PKCS7"));
+			writer.writeObject(pemObj);
+			writer.flush();
+			writer.close();
+			out.close();
+			String result = out.toString();
+			log.debug("Generated cert chain:\n{}", result);
+			return result;
+		} catch ( IOException e ) {
+			throw new CertificateException("Error generating PKCS#7 chain", e);
+		} catch ( java.security.cert.CertificateException e ) {
+			throw new CertificateException("Error generating PKCS#7 chain", e);
+		}
 	}
 
 	public void setCertificateExpireDays(int certificateExpireDays) {
