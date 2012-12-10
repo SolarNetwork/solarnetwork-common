@@ -27,13 +27,15 @@ package net.solarnetwork.util;
 import org.osgi.framework.ServiceReference;
 
 /**
- * An OSGi service registration listener for any type of object,
- * so they can be used to dynamically configure and publish other OSGi
- * services.
+ * An OSGi service registration listener for any type of object, so they can be
+ * used to dynamically configure and publish other OSGi services.
  * 
- * <p>For example, this might be configured via Spring DM like this:</p>
+ * <p>
+ * For example, this might be configured via Spring DM like this:
+ * </p>
  * 
- * <pre> &lt;osgi:reference id="fooService"
+ * <pre>
+ * &lt;osgi:reference id="fooService"
  * 		interface="net.solarnetwork.node.FooService" cardinality="0..1">
  * 		&lt;osgi:listener bind-method="onBind" unbind-method="onUnbind" ref="optionalFooService">
  * &lt;/osgi:list>
@@ -49,23 +51,26 @@ import org.osgi.framework.ServiceReference;
  * &lt;/bean>
  * </pre>
  * 
- * <p>The configurable properties of this class are:</p>
+ * <p>
+ * The configurable properties of this class are:
+ * </p>
  * 
  * <dl class="class-properties">
- *   <dt>service</dt>
- *   <dd>The managed service to track.</dd>
+ * <dt>service</dt>
+ * <dd>The managed service to track.</dd>
  * </dl>
  * 
  * @author matt
  * @version $Revision$
  */
-public class OptionalServiceTracker<T> {
-	
+public class OptionalServiceTracker<T> implements OptionalService<T> {
+
 	private T service;
 	private boolean available;
-	
+
 	/**
-	 * Get the tracked service, or <em>null</em> if no service currently available.
+	 * Get the tracked service, or <em>null</em> if no service currently
+	 * available.
 	 * 
 	 * @return the service
 	 */
@@ -76,25 +81,34 @@ public class OptionalServiceTracker<T> {
 		return null;
 	}
 
+	@Override
+	public T service() {
+		return getService();
+	}
+
 	/**
 	 * Call when a matching service is available.
-	 * @param ref the service reference
+	 * 
+	 * @param ref
+	 *        the service reference
 	 */
 	public void onBind(ServiceReference ref) {
 		available = true;
 	}
-	
+
 	/**
 	 * Call when a service is no longer available.
 	 * 
-	 * @param ref the service reference
+	 * @param ref
+	 *        the service reference
 	 */
 	public void onUnbind(ServiceReference ref) {
 		available = false;
 	}
 
 	/**
-	 * @param service the service to set
+	 * @param service
+	 *        the service to set
 	 */
 	public void setService(T service) {
 		this.service = service;
@@ -106,5 +120,5 @@ public class OptionalServiceTracker<T> {
 	public boolean isAvailable() {
 		return available;
 	}
-	
+
 }
