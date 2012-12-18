@@ -1,6 +1,10 @@
 <ivy-module version="2.0">
     <info organisation="SolarNetwork" module="${bundle.name}" />
-    <dependencies>
+	<configurations defaultconf="compile,runtime">
+		<conf name="compile" visibility="public" description="Build dependencies"/>
+		<conf name="runtime" visibility="public" description="Runtime dependencies"/>
+	</configurations>
+	<dependencies defaultconfmapping="runtime->runtime(default);compile->compile(default)">
 		<dependency org="javax.servlet" name="com.springsource.javax.servlet" rev="2.5.0" />
     	<dependency org="org.apache.commons" name="com.springsource.org.apache.commons.csv" rev="1.0.0.BUILD-20080106" />
 		<dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.9.5">
