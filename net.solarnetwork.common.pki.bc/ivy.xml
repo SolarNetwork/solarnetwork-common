@@ -5,7 +5,9 @@
 		<conf name="runtime" visibility="public" description="Runtime dependencies"/>
 	</configurations>
 	<dependencies defaultconfmapping="runtime->runtime(default);compile->compile(default)">
-    	<dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.47" />
+    	<dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.47" >
+    		<artifact name="bcprov-jdk15on" type="jar"/>
+    	</dependency>
     	<dependency org="org.bouncycastle" name="bcpkix-jdk15on" rev="1.47" >
     		<artifact name="bcpkix-jdk15on" type="jar"/>
     	</dependency>
