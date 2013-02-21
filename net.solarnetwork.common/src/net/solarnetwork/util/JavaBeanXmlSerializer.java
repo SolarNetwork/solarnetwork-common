@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -46,45 +45,46 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * PropertySerializer that serializes JavaBean objects into XML strings.
  * 
- * <p>This class can also be used in a stand-alone manner, calling 
- * the public methods exposed for generating XML from JavaBean objects.</p>
+ * <p>
+ * This class can also be used in a stand-alone manner, calling the public
+ * methods exposed for generating XML from JavaBean objects.
+ * </p>
  * 
- * <p>The configurable properties of this class are:</p>
+ * <p>
+ * The configurable properties of this class are:
+ * </p>
  * 
  * <dl>
- *   <dt>propertySerializerRegistrar</dt>
- *   <dd>An optional registrar of PropertySerializer instances that can be used to 
- *   serialize specific objects into String values. This can be useful for 
- *   formatting Date objects into strings, for example.</dd>
+ * <dt>propertySerializerRegistrar</dt>
+ * <dd>An optional registrar of PropertySerializer instances that can be used to
+ * serialize specific objects into String values. This can be useful for
+ * formatting Date objects into strings, for example.</dd>
  * </dl>
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
 public class JavaBeanXmlSerializer implements PropertySerializer {
 
-	private static final ThreadLocal<SimpleDateFormat> SDF 
-		= new ThreadLocal<SimpleDateFormat>();
-	
-	private String rootElementName = "root";
-	private boolean singleBeanAsRoot = true;
-	private boolean useModelTimeZoneForDates = true;
-	private String modelKey = null;
-	private Set<String> classNamesAllowedForNesting = null;
-	private PropertySerializerRegistrar propertySerializerRegistrar = null;
-	
+	private static final ThreadLocal<SimpleDateFormat> SDF = new ThreadLocal<SimpleDateFormat>();
+
+	private final String rootElementName = "root";
+	private final boolean singleBeanAsRoot = true;
+	private final boolean useModelTimeZoneForDates = true;
+	private final String modelKey = null;
+	private final Set<String> classNamesAllowedForNesting = null;
+	private final PropertySerializerRegistrar propertySerializerRegistrar = null;
+
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	
+
 	@Override
-	public Object serialize(Object data, String propertyName,
-			Object propertyValue) {
+	public Object serialize(Object data, String propertyName, Object propertyValue) {
 		setupDateFormat(null);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		XMLStreamWriter writer = startXml(out);
@@ -97,12 +97,14 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 		}
 		return out.toString();
 	}
-	
+
 	/**
 	 * Render a JavaBean object as XML serialized to a given OutputStream.
 	 * 
-	 * @param bean the object to serialize as XML
-	 * @param out the OutputStream to write the XML to
+	 * @param bean
+	 *        the object to serialize as XML
+	 * @param out
+	 *        the OutputStream to write the XML to
 	 */
 	public void renderBean(Object bean, OutputStream out) {
 		setupDateFormat(null);
@@ -115,31 +117,31 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 			endXml(writer);
 		}
 	}
-	
+
 	/**
 	 * Render a Map as XML serialized to a given OutputStream.
 	 * 
-	 * @param model the data to serialize as XML
-	 * @param out the OutputStream to write the XML to
+	 * @param model
+	 *        the data to serialize as XML
+	 * @param out
+	 *        the OutputStream to write the XML to
 	 */
 	public void renderMap(Map<String, ?> model, OutputStream out) {
 		Map<String, Object> finalModel = setupDateFormat(model);
 		XMLStreamWriter writer = startXml(out);
 		try {
-			Object singleBean = finalModel.size() == 1 && this.singleBeanAsRoot
-				? finalModel.values().iterator().next() 
-				: null;
-			
+			Object singleBean = finalModel.size() == 1 && this.singleBeanAsRoot ? finalModel.values()
+					.iterator().next() : null;
+
 			if ( singleBean != null ) {
-				outputObject(singleBean, finalModel.keySet().iterator().next().toString(),
-						writer);
+				outputObject(singleBean, finalModel.keySet().iterator().next().toString(), writer);
 			} else {
 				writeElement(this.rootElementName, null, writer, false);
-	
+
 				for ( Map.Entry<String, Object> me : finalModel.entrySet() ) {
-					outputObject(me.getValue(), me.getKey(), writer);	
+					outputObject(me.getValue(), me.getKey(), writer);
 				}
-			
+
 				// end root element
 				writer.writeEndElement();
 			}
@@ -149,7 +151,7 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 			endXml(writer);
 		}
 	}
-	
+
 	private XMLStreamWriter startXml(OutputStream out) {
 		XMLStreamWriter writer = null;
 		try {
@@ -161,7 +163,7 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 		}
 		return writer;
 	}
-	
+
 	private void endXml(XMLStreamWriter writer) {
 		try {
 			writer.writeEndDocument();
@@ -172,12 +174,13 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 			SDF.remove();
 		}
 	}
-	
+
 	/**
-	 * Create a {@link SimpleDateFormat} and cache on the {@link #SDF} 
+	 * Create a {@link SimpleDateFormat} and cache on the {@link #SDF}
 	 * ThreadLocal to re-use for all dates within a single response.
 	 * 
-	 * @param model the model, to look for a TimeZone to format the dates in
+	 * @param model
+	 *        the model, to look for a TimeZone to format the dates in
 	 */
 	private Map<String, Object> setupDateFormat(Map<String, ?> model) {
 		TimeZone tz = TimeZone.getTimeZone("GMT");
@@ -187,7 +190,7 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 			for ( Map.Entry<String, ?> me : model.entrySet() ) {
 				Object o = me.getValue();
 				if ( useModelTimeZoneForDates && o instanceof TimeZone ) {
-						tz = (TimeZone)o;
+					tz = (TimeZone) o;
 				} else if ( modelKey != null ) {
 					if ( modelKey.equals(me.getKey()) ) {
 						result.put(modelKey, o);
@@ -205,49 +208,46 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 		}
 		sdf.setTimeZone(tz);
 		if ( logger.isTraceEnabled() ) {
-			logger.trace("TZ offset " +tz.getRawOffset());
+			logger.trace("TZ offset " + tz.getRawOffset());
 		}
 		SDF.set(sdf);
 		return result;
 	}
-	
-	private void outputObject(Object o, String name, XMLStreamWriter out) 
-	throws XMLStreamException {
+
+	private void outputObject(Object o, String name, XMLStreamWriter out) throws XMLStreamException {
 		if ( o instanceof Collection ) {
-			Collection<?> col = (Collection<?>)o;
+			Collection<?> col = (Collection<?>) o;
 			outputCollection(col, name, out);
 		} else if ( o instanceof Map ) {
-			Map<?, ?> map = (Map<?, ?>)o;
+			Map<?, ?> map = (Map<?, ?>) o;
 			outputMap(map, name, out);
 		} else if ( o instanceof String || o instanceof Number ) {
 			// for simple types, write as unified <value type="String" value="foo"/>
 			// this happens often in collections / maps of simple data types
 			Map<String, Object> params = new LinkedHashMap<String, Object>(2);
-			params.put("type", org.springframework.util.ClassUtils.getShortName(
-					o.getClass()));
+			params.put("type", org.springframework.util.ClassUtils.getShortName(o.getClass()));
 			params.put("value", o);
 			writeElement("value", params, out, true);
 		} else {
-			String elementName = (o == null 
-					? name : org.springframework.util.ClassUtils.getShortName(o.getClass()));
+			String elementName = (o == null ? name : org.springframework.util.ClassUtils.getShortName(o
+					.getClass()));
 			writeElement(elementName, o, out, true);
 		}
 	}
 
-	private void outputMap(Map<?, ?> map, String name, XMLStreamWriter out) 
-	throws XMLStreamException {
+	private void outputMap(Map<?, ?> map, String name, XMLStreamWriter out) throws XMLStreamException {
 		writeElement(name, null, out, false);
-		
+
 		// for each entry, write an <entry> element
 		for ( Map.Entry<?, ?> me : map.entrySet() ) {
 			String entryName = me.getKey().toString();
 			out.writeStartElement("entry");
 			out.writeAttribute("key", entryName);
-			
+
 			Object value = me.getValue();
 			if ( value instanceof Collection ) {
 				// special collection case, we don't add nested element
-				for ( Object o : (Collection<?>)value ) {
+				for ( Object o : (Collection<?>) value ) {
 					outputObject(o, "value", out);
 				}
 			} else {
@@ -255,21 +255,21 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 			}
 			out.writeEndElement();
 		}
-		
+
 		out.writeEndElement();
 	}
-	
-	private void outputCollection(Collection<?> col, String name, XMLStreamWriter out) 
-	throws XMLStreamException {
+
+	private void outputCollection(Collection<?> col, String name, XMLStreamWriter out)
+			throws XMLStreamException {
 		writeElement(name, null, out, false);
 		for ( Object o : col ) {
 			outputObject(o, null, out);
 		}
 		out.writeEndElement();
 	}
-	
+
 	private void writeElement(String name, Map<?, ?> props, XMLStreamWriter out, boolean close)
-	throws XMLStreamException {
+			throws XMLStreamException {
 		out.writeStartElement(name);
 		Map<String, Object> nested = null;
 		if ( props != null ) {
@@ -277,14 +277,14 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 				String key = me.getKey().toString();
 				Object val = me.getValue();
 				if ( propertySerializerRegistrar != null ) {
-					val = propertySerializerRegistrar.serializeProperty(
-						name, val.getClass(), props, val);
+					val = propertySerializerRegistrar
+							.serializeProperty(name, val.getClass(), props, val);
 				}
 				if ( val instanceof Date ) {
 					SimpleDateFormat sdf = SDF.get();
 					// SimpleDateFormat has no way to create xs:dateTime with tz,
 					// so use trick here to insert required colon for non GMT dates
-					Date date = (Date)val;
+					Date date = (Date) val;
 					StringBuilder buf = new StringBuilder(sdf.format(date));
 					if ( buf.charAt(buf.length() - 1) != 'Z' ) {
 						buf.insert(buf.length() - 2, ':');
@@ -314,7 +314,7 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 						}
 					}
 				}
-				
+
 				if ( val != null ) {
 					String attVal = val.toString();
 					out.writeAttribute(key, attVal);
@@ -330,9 +330,9 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 			}
 		}
 	}
-	
+
 	private void writeElement(String name, Object bean, XMLStreamWriter out, boolean close)
-	throws XMLStreamException {
+			throws XMLStreamException {
 		if ( propertySerializerRegistrar != null && bean != null ) {
 			// try whole-bean serialization first
 			Object o = propertySerializerRegistrar.serializeProperty(name, bean.getClass(), bean, bean);
@@ -346,15 +346,16 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 		Map<String, Object> props = ClassUtils.getBeanProperties(bean, null, true);
 		writeElement(name, props, out, close);
 	}
-	
+
 	/**
 	 * Parse XML into a simple Map structure.
 	 * 
-	 * @param in the input stream to parse
+	 * @param in
+	 *        the input stream to parse
 	 * @return a Map of the XML
 	 */
 	public Map<String, Object> parseXml(InputStream in) {
-		Deque<Map<String, Object>> stack = new LinkedList<Map<String,Object>>();
+		Deque<Map<String, Object>> stack = new LinkedList<Map<String, Object>>();
 		Map<String, Object> result = null;
 		XMLStreamReader reader = startParse(in);
 		try {
@@ -362,11 +363,11 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 			boolean parsing = true;
 			while ( parsing ) {
 				eventType = reader.next();
-				switch ( eventType ) {
+				switch (eventType) {
 					case XMLStreamConstants.END_DOCUMENT:
 						parsing = false;
 						break;
-					
+
 					case XMLStreamConstants.START_ELEMENT:
 						String name = reader.getLocalName();
 						if ( stack.isEmpty() ) {
@@ -379,16 +380,16 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 						}
 						parseElement(stack.peek(), reader);
 						break;
-						
+
 					case XMLStreamConstants.END_ELEMENT:
 						stack.pop();
 						break;
-						
+
 				}
 			}
 		} catch ( XMLStreamException e ) {
 			throw new RuntimeException(e);
-		} finally{
+		} finally {
 			endParse(reader);
 		}
 		return result;
@@ -402,14 +403,14 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 			putMapValue(result, name, val);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void putMapValue(Map<String, Object> result, String name, Object val) {
 		if ( result.containsKey(name) ) {
 			Object existingVal = result.get(name);
 			if ( existingVal instanceof List ) {
 				// add to existing list
-				((List<Object>)existingVal).add(val);
+				((List<Object>) existingVal).add(val);
 			} else {
 				// replace existing value with list
 				List<Object> list = new ArrayList<Object>();
@@ -433,7 +434,7 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 		}
 		return reader;
 	}
-	
+
 	private void endParse(XMLStreamReader reader) {
 		try {
 			reader.close();
