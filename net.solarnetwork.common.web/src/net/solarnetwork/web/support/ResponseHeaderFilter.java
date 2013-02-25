@@ -28,7 +28,6 @@ package net.solarnetwork.web.support;
 
 import java.io.IOException;
 import java.util.Enumeration;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -38,34 +37,33 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Filter for adding arbitrary HTTP headers to requests, to add cache
- * headers to static files.
+ * Filter for adding arbitrary HTTP headers to requests, to add cache headers to
+ * static files.
  * 
- * <p>Adapted from http://www.jspinsider.com/content/dev/afessh/another-filter-every-site-should-have.html</p>
+ * <p>
+ * Adapted from
+ * http://www.jspinsider.com/content/dev/afessh/another-filter-every
+ * -site-should-have.html
+ * </p>
  * 
  * @author matt
- * @version $Revision$ $Date$
+ * @version 1.0
  */
 public class ResponseHeaderFilter implements Filter {
 
 	private FilterConfig fc;
 
-	/* (non-Javadoc)
-	 * @see javax.servlet.Filter#destroy()
-	 */
+	@Override
 	public void destroy() {
 		this.fc = null;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
-	 */
-	@SuppressWarnings("unchecked")
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		// set the provided HTTP response parameters
-		for (Enumeration<String> e = fc.getInitParameterNames(); e.hasMoreElements(); ) {
+		for ( Enumeration<String> e = fc.getInitParameterNames(); e.hasMoreElements(); ) {
 			String headerName = e.nextElement();
 			httpResponse.setHeader(headerName, fc.getInitParameter(headerName));
 		}
@@ -73,9 +71,7 @@ public class ResponseHeaderFilter implements Filter {
 		chain.doFilter(request, response);
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
-	 */
+	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 		this.fc = filterConfig;
 	}
