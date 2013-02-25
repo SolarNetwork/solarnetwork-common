@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ctx="http://www.springframework.org/schema/context"
+	xmlns:osgix="http://www.eclipse.org/gemini/blueprint/schema/blueprint-compendium"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
+		http://www.osgi.org/xmlns/blueprint/v1.0.0
+		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+		http://www.eclipse.org/gemini/blueprint/schema/blueprint-compendium
+		http://www.eclipse.org/gemini/blueprint/schema/blueprint-compendium/gemini-blueprint-compendium.xsd
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+	
+	<!-- Configuration -->
+	
+	<ctx:property-placeholder properties-ref="settings.ca.cfg"/>
+
+	<osgix:cm-properties id="settings.ca.cfg" persistent-id="net.solarnetwork.pki.bc">
+		<beans:prop key="CertificateService.certificateExpireDays">730</beans:prop>
+		<beans:prop key="CertificateService.signatureAlgorithm">SHA256WithRSA</beans:prop>
+	</osgix:cm-properties>
+	
+	<bean id="certificateService" class="net.solarnetwork.pki.bc.BCCertificateService">
+		<property name="certificateExpireDays" value="${CertificateService.certificateExpireDays}"/>
+		<property name="signatureAlgorithm" value="${CertificateService.signatureAlgorithm}"/>
+	</bean>
+	
+	<service ref="certificateService" interface="net.solarnetwork.support.CertificateService"/>
+	
+</blueprint>
