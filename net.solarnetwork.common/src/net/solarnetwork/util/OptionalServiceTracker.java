@@ -92,7 +92,7 @@ public class OptionalServiceTracker<T> implements OptionalService<T> {
 	 * @param ref
 	 *        the service reference
 	 */
-	public void onBind(ServiceReference ref) {
+	public void onBind(ServiceReference<?> ref) {
 		available = true;
 	}
 
@@ -102,7 +102,7 @@ public class OptionalServiceTracker<T> implements OptionalService<T> {
 	 * @param ref
 	 *        the service reference
 	 */
-	public void onUnbind(ServiceReference ref) {
+	public void onUnbind(ServiceReference<?> ref) {
 		available = false;
 	}
 

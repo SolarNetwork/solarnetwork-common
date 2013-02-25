@@ -94,7 +94,7 @@ public class DynamicServiceTracker<T> implements OptionalService<T> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public T service() {
-		ServiceReference[] refs;
+		ServiceReference<?>[] refs;
 		try {
 			refs = bundleContext.getServiceReferences(serviceClassName, serviceFilter);
 		} catch ( InvalidSyntaxException e ) {
@@ -106,7 +106,7 @@ public class DynamicServiceTracker<T> implements OptionalService<T> {
 		if ( refs == null ) {
 			return null;
 		}
-		for ( ServiceReference ref : refs ) {
+		for ( ServiceReference<?> ref : refs ) {
 			Object service = bundleContext.getService(ref);
 			if ( propertyFilters == null || propertyFilters.size() < 1 ) {
 				log.debug("No property filter configured, returning first {} service", serviceClassName);
