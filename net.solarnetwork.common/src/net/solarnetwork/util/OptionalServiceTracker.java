@@ -61,7 +61,7 @@ import org.osgi.framework.ServiceReference;
  * </dl>
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.1
  */
 public class OptionalServiceTracker<T> implements OptionalService<T> {
 
@@ -92,7 +92,9 @@ public class OptionalServiceTracker<T> implements OptionalService<T> {
 	 * @param ref
 	 *        the service reference
 	 */
-	public void onBind(ServiceReference<?> ref) {
+	@SuppressWarnings("rawtypes")
+	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=402255
+	public void onBind(ServiceReference ref) {
 		available = true;
 	}
 
@@ -102,7 +104,8 @@ public class OptionalServiceTracker<T> implements OptionalService<T> {
 	 * @param ref
 	 *        the service reference
 	 */
-	public void onUnbind(ServiceReference<?> ref) {
+	@SuppressWarnings("rawtypes")
+	public void onUnbind(ServiceReference ref) {
 		available = false;
 	}
 
