@@ -9,6 +9,9 @@
 		<dependency org="org.apache.tomcat" name="tomcat-jdbc" rev="7.0.29" conf="compile">
     		<artifact name="tomcat-jdbc" type="jar" />
 		</dependency>
+		<dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.9.5">
+    		<artifact name="jackson-mapper-asl" type="jar" />
+		</dependency>
 		<dependency org="org.osgi" name="org.osgi.core" rev="5.0.0">
 			<artifact name="org.osgi.core" type="jar"/>
 		</dependency>
