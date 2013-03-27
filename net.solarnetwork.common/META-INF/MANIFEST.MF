@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common
 Bundle-SymbolicName: net.solarnetwork.common
-Bundle-Version: 1.13.0
+Bundle-Version: 1.14.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
@@ -10,7 +10,7 @@ Export-Package:
  net.solarnetwork.domain;version="1.2.0",
  net.solarnetwork.io;version="1.0.0",
  net.solarnetwork.support;version="1.0.0",
- net.solarnetwork.util;version="1.11.0"
+ net.solarnetwork.util;version="1.12.0"
 Import-Package: 
  javax.xml.stream,
  javax.sql,
