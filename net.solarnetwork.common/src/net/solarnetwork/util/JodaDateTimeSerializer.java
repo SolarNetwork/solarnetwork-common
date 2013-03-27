@@ -41,11 +41,11 @@ public class JodaDateTimeSerializer extends JodaBaseJsonSerializer<DateTime> {
 	 * Default constructor.
 	 * 
 	 * <p>
-	 * Uses the pattern <code>yyyy-MM-dd HH:mm:ss.SSSZ</code>.
+	 * Uses the pattern <code>yyyy-MM-dd HH:mm:ss.SSS'Z'</code>.
 	 * </p>
 	 */
 	public JodaDateTimeSerializer() {
-		this("yyyy-MM-dd HH:mm:ss.SSSZ", TimeZone.getTimeZone("GMT"));
+		this("yyyy-MM-dd HH:mm:ss.SSS'Z'", TimeZone.getTimeZone("GMT"));
 	}
 
 	/**
