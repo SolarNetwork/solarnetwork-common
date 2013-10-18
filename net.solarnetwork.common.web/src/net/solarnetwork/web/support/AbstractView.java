@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.web.support;
@@ -69,7 +67,7 @@ import net.solarnetwork.util.PropertySerializerRegistrar;
  * </dl>
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
 public abstract class AbstractView extends org.springframework.web.servlet.view.AbstractView {
 
@@ -149,8 +147,9 @@ public abstract class AbstractView extends org.springframework.web.servlet.view.
 			for ( Iterator<Map.Entry<String, Object>> itr = mergedModel.entrySet().iterator(); itr
 					.hasNext(); ) {
 				Map.Entry<String, Object> me = itr.next();
-				Object o = propertySerializerRegistrar.serializeProperty(me.getKey(), me.getValue()
-						.getClass(), me.getValue(), me.getValue());
+				Object o = (me.getValue() == null ? null : propertySerializerRegistrar
+						.serializeProperty(me.getKey(), me.getValue().getClass(), me.getValue(),
+								me.getValue()));
 				if ( o == null ) {
 					if ( logger.isDebugEnabled() ) {
 						logger.debug("Removing model entry [" + me.getKey()
