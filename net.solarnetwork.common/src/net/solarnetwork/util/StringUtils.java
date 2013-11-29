@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  * Common string helper utilities.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public final class StringUtils {
 
@@ -82,6 +82,60 @@ public final class StringUtils {
 			}
 			if ( o != null ) {
 				buf.append(o.toString());
+			}
+		}
+		return buf.toString();
+	}
+
+	/**
+	 * Get a delimited string from a map of objects.
+	 * 
+	 * <p>
+	 * This will call {@link #delimitedStringFromMap(Map, String, String)} using
+	 * a {@code =} key value delimieter and a {@code ,} pair delimiter.
+	 * </p>
+	 * 
+	 * @param map
+	 *        the map
+	 * @return the string
+	 */
+	public static String delimitedStringFromMap(final Map<?, ?> map) {
+		return delimitedStringFromMap(map, "=", ",");
+	}
+
+	/**
+	 * Get a delimited string from a map of objects.
+	 * 
+	 * <p>
+	 * This will call the {@link Object#toString()} method on each key and value
+	 * in the map, using the natural iteration ordering of the map. No attempt
+	 * to escape delimiters within the map's values is done.
+	 * </p>
+	 * 
+	 * @param map
+	 *        the map
+	 * @param keyValueDelim
+	 *        the delimited to use between keys and values
+	 * @param pairDelim
+	 *        the delimiter to use betwen key/value pairs
+	 * @return the string
+	 */
+	public static String delimitedStringFromMap(final Map<?, ?> map, String keyValueDelim,
+			String pairDelim) {
+		if ( map == null ) {
+			return null;
+		}
+		StringBuilder buf = new StringBuilder();
+		for ( Map.Entry<?, ?> me : map.entrySet() ) {
+			if ( buf.length() > 0 ) {
+				buf.append(pairDelim);
+			}
+			if ( me.getKey() != null ) {
+				buf.append(me.getKey().toString());
+			}
+			buf.append(keyValueDelim);
+			if ( me.getValue() != null ) {
+				buf.append(me.getValue().toString());
 			}
 		}
 		return buf.toString();
