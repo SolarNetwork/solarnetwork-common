@@ -1,10 +1,16 @@
-<ivy-module version="2.0">
-	<info organisation="SolarNetwork" module="${bundle.name}" />
+<ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
+    <info organisation="net.solarnetwork.common" module="${bundle.name}" />
 	<configurations defaultconf="compile,runtime">
 		<conf name="compile" visibility="public" description="Build dependencies"/>
 		<conf name="runtime" visibility="public" description="Runtime dependencies"/>
+		<conf name="sources"/>
 	</configurations>
-	<dependencies defaultconfmapping="runtime->runtime(default);compile->compile(default)">
-		<dependency org="org.eclipse.osgi" name="org.eclipse.osgi" rev="3.5.1.R35x_v20091005" />
+	<publications>
+		<artifact type="pom" ext="pom" conf="compile"/>
+		<artifact type="bundle" ext="jar" conf="runtime"/>
+		<artifact type="sources" ext="jar" conf="sources" m:classifier="sources"/>
+	</publications>
+	<dependencies defaultconfmapping="runtime->default(runtime);compile->default(runtime)">
+		<dependency org="org.osgi" name="org.osgi.core" rev="5.0.0"/>
 	</dependencies>
 </ivy-module>
