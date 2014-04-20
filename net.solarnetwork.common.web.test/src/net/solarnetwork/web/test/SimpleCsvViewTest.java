@@ -26,15 +26,13 @@ package net.solarnetwork.web.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import net.solarnetwork.test.AbstractTest;
 import net.solarnetwork.web.support.SimpleCsvView;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;

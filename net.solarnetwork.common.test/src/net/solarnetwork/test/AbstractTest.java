@@ -22,7 +22,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.web.test;
+package net.solarnetwork.test;
 
 import org.springframework.test.context.ContextConfiguration;
 

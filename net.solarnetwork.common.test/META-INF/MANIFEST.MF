@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Test
 Bundle-SymbolicName: net.solarnetwork.common.test
-Bundle-Version: 1.1.0
+Bundle-Version: 1.2.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
- net.solarnetwork.test;version="1.0.0"
+ net.solarnetwork.test;version="1.1.0"
 Import-Package: 
  net.solarnetwork.io;version="1.1.0",
  net.solarnetwork.util;version="1.10.0",
