@@ -148,26 +148,30 @@ public class SimpleCsvView extends AbstractView {
 		final String[] fields = fieldList.toArray(new String[fieldList.size()]);
 
 		final ICsvMapWriter writer = new CsvMapWriter(response.getWriter(),
-				CsvPreference.STANDARD_PREFERENCE);
+				CsvPreference.EXCEL_PREFERENCE);
 
-		// output header
-		if ( true ) { // TODO make configurable property
-			Map<String, String> headerMap = new HashMap<String, String>(fields.length);
-			for ( String field : fields ) {
-				headerMap.put(field, field);
+		try {
+			// output header
+			if ( true ) { // TODO make configurable property
+				Map<String, String> headerMap = new HashMap<String, String>(fields.length);
+				for ( String field : fields ) {
+					headerMap.put(field, field);
+				}
+				writeCSV(writer, fields, headerMap);
 			}
-			writeCSV(writer, fields, headerMap);
-		}
 
-		// output first row
-		writeCSV(writer, fields, row);
-
-		// output remainder rows
-		while ( rowIterator.hasNext() ) {
-			row = rowIterator.next();
+			// output first row
 			writeCSV(writer, fields, row);
-		}
 
+			// output remainder rows
+			while ( rowIterator.hasNext() ) {
+				row = rowIterator.next();
+				writeCSV(writer, fields, row);
+			}
+		} finally {
+			writer.flush();
+			writer.close();
+		}
 	}
 
 	private List<String> getCSVFields(Object row, final Collection<String> fieldOrder) {
