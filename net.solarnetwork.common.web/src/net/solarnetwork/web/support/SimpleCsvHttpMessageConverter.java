@@ -131,6 +131,11 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 		final List<String> fieldList = getCSVFields(row, null);
 		final String[] fields = fieldList.toArray(new String[fieldList.size()]);
 
+		if ( fields == null || fields.length < 1 ) {
+			// could happen with empty Map, for example
+			return;
+		}
+
 		final ICsvMapWriter writer = new CsvMapWriter(new OutputStreamWriter(outputMessage.getBody(),
 				"UTF-8"), CsvPreference.EXCEL_PREFERENCE);
 		try {
