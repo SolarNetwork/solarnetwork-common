@@ -132,7 +132,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 		final String[] fields = fieldList.toArray(new String[fieldList.size()]);
 
 		final ICsvMapWriter writer = new CsvMapWriter(new OutputStreamWriter(outputMessage.getBody(),
-				"UTF-8"), CsvPreference.STANDARD_PREFERENCE);
+				"UTF-8"), CsvPreference.EXCEL_PREFERENCE);
 		try {
 			// output header
 			if ( includeHeader ) {
