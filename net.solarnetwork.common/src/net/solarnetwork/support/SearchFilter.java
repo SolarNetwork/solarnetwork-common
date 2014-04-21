@@ -25,6 +25,7 @@
 package net.solarnetwork.support;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -172,6 +173,33 @@ public class SearchFilter {
 		this.filter = filter;
 		this.compareOp = compareOp;
 		this.logicOp = logicOp;
+	}
+
+	/**
+	 * Construct with a single key-value pair.
+	 * 
+	 * @param key
+	 *        the key
+	 * @param value
+	 *        the value
+	 * @param compareOp
+	 *        the comparison operator
+	 */
+	public SearchFilter(String key, String value, CompareOperator compareOp) {
+		this(Collections.singletonMap(key, value), compareOp, LogicOperator.AND);
+	}
+
+	/**
+	 * Construct with a filter and logic operator and
+	 * {@link CompareOperator#EQUAL} comparison operator.
+	 * 
+	 * @param filter
+	 *        the filter
+	 * @param logicOp
+	 *        the logic operator
+	 */
+	public SearchFilter(Map<String, ?> filter, LogicOperator logicOp) {
+		this(filter, CompareOperator.EQUAL, logicOp);
 	}
 
 	/**
