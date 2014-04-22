@@ -185,7 +185,7 @@ public class SearchFilter {
 	 * @param compareOp
 	 *        the comparison operator
 	 */
-	public SearchFilter(String key, String value, CompareOperator compareOp) {
+	public SearchFilter(String key, Object value, CompareOperator compareOp) {
 		this(Collections.singletonMap(key, value), compareOp, LogicOperator.AND);
 	}
 
