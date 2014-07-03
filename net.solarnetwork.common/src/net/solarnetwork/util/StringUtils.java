@@ -94,7 +94,7 @@ public final class StringUtils {
 	 * 
 	 * <p>
 	 * This will call {@link #delimitedStringFromMap(Map, String, String)} using
-	 * a {@code =} key value delimieter and a {@code ,} pair delimiter.
+	 * a {@code =} key value delimiter and a {@code ,} pair delimiter.
 	 * </p>
 	 * 
 	 * @param map
@@ -163,7 +163,8 @@ public final class StringUtils {
 	 * The format of the {@code list} String should be a delimited list of
 	 * values. Whitespace is permitted around the delimiter, and will be
 	 * stripped from the values. Whitespace is also trimmed from the start and
-	 * end of the input string.
+	 * end of the input string. The list order is preserved in the iteration
+	 * order of the returned Set.
 	 * </p>
 	 * 
 	 * @param list
