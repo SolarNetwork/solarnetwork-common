@@ -25,20 +25,9 @@ package net.solarnetwork.util;
 import java.util.Map;
 
 /**
- * FIXME
- * 
- * <p>
- * TODO
- * </p>
- * 
- * <p>
- * The configurable properties of this class are:
- * </p>
- * 
- * <dl class="class-properties">
- * <dt></dt>
- * <dd></dd>
- * </dl>
+ * API for a service that supports filtering properties, to support narrowing
+ * down a possible collection of services to one or more specific services
+ * matching the filter.
  * 
  * @author matt
  * @version 1.0
