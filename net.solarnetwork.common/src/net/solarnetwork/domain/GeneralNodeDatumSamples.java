@@ -23,6 +23,7 @@
 package net.solarnetwork.domain;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.solarnetwork.util.SerializeIgnore;
@@ -76,6 +77,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return a map with all sample data combined
 	 */
 	@JsonIgnore
+	@SerializeIgnore
 	public Map<String, ?> getSampleData() {
 		if ( instantaneous == null && accumulating == null && status == null ) {
 			return null;
@@ -91,6 +93,308 @@ public class GeneralNodeDatumSamples implements Serializable {
 			results.putAll(status);
 		}
 		return results;
+	}
+
+	/**
+	 * Put a value into the {@link #getInstantaneous()} map, creating the map if
+	 * it doesn't exist.
+	 * 
+	 * @param key
+	 *        the key to put
+	 * @param n
+	 *        the value to put
+	 */
+	public void putInstantaneousSampleValue(String key, Number n) {
+		Map<String, Number> m = instantaneous;
+		if ( m == null ) {
+			m = new LinkedHashMap<String, Number>(4);
+			instantaneous = m;
+		}
+		m.put(key, n);
+	}
+
+	/**
+	 * Put a value into the {@link #getAccumulating()} map, creating the map if
+	 * it doesn't exist.
+	 * 
+	 * @param key
+	 *        the key to put
+	 * @param n
+	 *        the value to put
+	 */
+	public void putAccumulatingSampleValue(String key, Number n) {
+		Map<String, Number> m = accumulating;
+		if ( m == null ) {
+			m = new LinkedHashMap<String, Number>(4);
+			accumulating = m;
+		}
+		m.put(key, n);
+	}
+
+	/**
+	 * Put a value into the {@link #getStatus()} map, creating the map if it
+	 * doesn't exist.
+	 * 
+	 * @param key
+	 *        the key to put
+	 * @param value
+	 *        the value to put
+	 */
+	public void putStatusSampleValue(String key, String value) {
+		Map<String, String> m = status;
+		if ( m == null ) {
+			m = new LinkedHashMap<String, String>(4);
+			status = m;
+		}
+		m.put(key, value);
+	}
+
+	/**
+	 * Get an Integer value from the {@link #getInstantaneous()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Integer, or <em>null</em> if not available
+	 */
+	public Integer getInstantaneousSampleInteger(String key) {
+		return getSampleInteger(key, instantaneous);
+	}
+
+	/**
+	 * Get a Long value from the {@link #getInstantaneous()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Long, or <em>null</em> if not available
+	 */
+	public Long getInstantaneousSampleLong(String key) {
+		return getSampleLong(key, instantaneous);
+	}
+
+	/**
+	 * Get a Float value from the {@link #getInstantaneous()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Float, or <em>null</em> if not available
+	 */
+	public Float getInstantaneousSampleFloat(String key) {
+		return getSampleFloat(key, instantaneous);
+	}
+
+	/**
+	 * Get a Double value from the {@link #getInstantaneous()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Double, or <em>null</em> if not available
+	 */
+	public Double getInstantaneousSampleDouble(String key) {
+		return getSampleDouble(key, instantaneous);
+	}
+
+	/**
+	 * Get a BigDecimal value from the {@link #getInstantaneous()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an BigDecimal, or <em>null</em> if not available
+	 */
+	public BigDecimal getInstantaneousSampleBigDecimal(String key) {
+		return getSampleBigDecimal(key, instantaneous);
+	}
+
+	/**
+	 * Get an Integer value from the {@link #getAccumulating()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Integer, or <em>null</em> if not available
+	 */
+	public Integer getAccumulatingSampleInteger(String key) {
+		return getSampleInteger(key, accumulating);
+	}
+
+	/**
+	 * Get a Long value from the {@link #getAccumulating()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Long, or <em>null</em> if not available
+	 */
+	public Long getAccumulatingSampleLong(String key) {
+		return getSampleLong(key, accumulating);
+	}
+
+	/**
+	 * Get a Float value from the {@link #getAccumulating()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Float, or <em>null</em> if not available
+	 */
+	public Float getAccumulatingSampleFloat(String key) {
+		return getSampleFloat(key, accumulating);
+	}
+
+	/**
+	 * Get a Double value from the {@link #getAccumulating()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Double, or <em>null</em> if not available
+	 */
+	public Double getAccumulatingSampleDouble(String key) {
+		return getSampleDouble(key, accumulating);
+	}
+
+	/**
+	 * Get a BigDecimal value from the {@link #getAccumulating()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an BigDecimal, or <em>null</em> if not available
+	 */
+	public BigDecimal getAccumulatingSampleBigDecimal(String key) {
+		return getSampleBigDecimal(key, accumulating);
+	}
+
+	/**
+	 * Get a String value from the {@link #getSample()} map, or <em>null</em> if
+	 * not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as a String, or <em>null</em> if not available
+	 */
+	public String getStatusSampleString(String key) {
+		return getSampleString(key, status);
+	}
+
+	private String getSampleString(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object s = map.get(key);
+		if ( s == null ) {
+			return null;
+		}
+		if ( s instanceof String ) {
+			return (String) s;
+		}
+		return s.toString();
+	}
+
+	private Integer getSampleInteger(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Integer ) {
+			return (Integer) n;
+		}
+		if ( n instanceof Number ) {
+			return ((Number) n).intValue();
+		}
+		try {
+			return Integer.valueOf(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
+	}
+
+	private Long getSampleLong(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Long ) {
+			return (Long) n;
+		}
+		if ( n instanceof Number ) {
+			return ((Number) n).longValue();
+		}
+		try {
+			return Long.valueOf(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
+	}
+
+	private Float getSampleFloat(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Float ) {
+			return (Float) n;
+		}
+		if ( n instanceof Number ) {
+			return ((Number) n).floatValue();
+		}
+		try {
+			return Float.valueOf(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
+	}
+
+	private Double getSampleDouble(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Double ) {
+			return (Double) n;
+		}
+		if ( n instanceof Number ) {
+			return ((Number) n).doubleValue();
+		}
+		try {
+			return Double.valueOf(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
+	}
+
+	private BigDecimal getSampleBigDecimal(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof BigDecimal ) {
+			return (BigDecimal) n;
+		}
+		try {
+			return new BigDecimal(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
 	}
 
 	@Override
