@@ -44,7 +44,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 
 	private Map<String, Number> instantaneous;
 	private Map<String, Number> accumulating;
-	private Map<String, String> status;
+	private Map<String, Object> status;
 
 	/**
 	 * Default constructor.
@@ -64,7 +64,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 *        the status data
 	 */
 	public GeneralNodeDatumSamples(Map<String, Number> instantaneous, Map<String, Number> accumulating,
-			Map<String, String> status) {
+			Map<String, Object> status) {
 		super();
 		this.instantaneous = instantaneous;
 		this.accumulating = accumulating;
@@ -140,10 +140,10 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @param value
 	 *        the value to put
 	 */
-	public void putStatusSampleValue(String key, String value) {
-		Map<String, String> m = status;
+	public void putStatusSampleValue(String key, Object value) {
+		Map<String, Object> m = status;
 		if ( m == null ) {
-			m = new LinkedHashMap<String, String>(4);
+			m = new LinkedHashMap<String, Object>(4);
 			status = m;
 		}
 		m.put(key, value);
@@ -267,6 +267,66 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 */
 	public BigDecimal getAccumulatingSampleBigDecimal(String key) {
 		return getSampleBigDecimal(key, accumulating);
+	}
+
+	/**
+	 * Get an Integer value from the {@link #getInstantaneous()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Integer, or <em>null</em> if not available
+	 */
+	public Integer getStatusSampleInteger(String key) {
+		return getSampleInteger(key, status);
+	}
+
+	/**
+	 * Get a Long value from the {@link #getInstantaneous()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Long, or <em>null</em> if not available
+	 */
+	public Long getStatusSampleLong(String key) {
+		return getSampleLong(key, status);
+	}
+
+	/**
+	 * Get a Float value from the {@link #getInstantaneous()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Float, or <em>null</em> if not available
+	 */
+	public Float getStatusSampleFloat(String key) {
+		return getSampleFloat(key, status);
+	}
+
+	/**
+	 * Get a Double value from the {@link #getInstantaneous()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Double, or <em>null</em> if not available
+	 */
+	public Double getStatusSampleDouble(String key) {
+		return getSampleDouble(key, status);
+	}
+
+	/**
+	 * Get a BigDecimal value from the {@link #getInstantaneous()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an BigDecimal, or <em>null</em> if not available
+	 */
+	public BigDecimal getStatusSampleBigDecimal(String key) {
+		return getSampleBigDecimal(key, status);
 	}
 
 	/**
@@ -474,11 +534,11 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * 
 	 * @return map
 	 */
-	public Map<String, String> getS() {
+	public Map<String, Object> getS() {
 		return getStatus();
 	}
 
-	public void setS(Map<String, String> map) {
+	public void setS(Map<String, Object> map) {
 		setStatus(map);
 	}
 
@@ -516,17 +576,17 @@ public class GeneralNodeDatumSamples implements Serializable {
 	}
 
 	/**
-	 * Get a map of <em>status</em> sample values. These are arbitrary strings.
+	 * Get a map of <em>status</em> sample values. These are arbitrary values.
 	 * 
 	 * @return map of status messages
 	 */
 	@JsonIgnore
 	@SerializeIgnore
-	public Map<String, String> getStatus() {
+	public Map<String, Object> getStatus() {
 		return status;
 	}
 
-	public void setStatus(Map<String, String> status) {
+	public void setStatus(Map<String, Object> status) {
 		this.status = status;
 	}
 
