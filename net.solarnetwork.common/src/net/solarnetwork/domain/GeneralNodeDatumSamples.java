@@ -25,7 +25,9 @@ package net.solarnetwork.domain;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import net.solarnetwork.util.SerializeIgnore;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
@@ -37,14 +39,15 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
  * @author matt
  * @version 1.0
  */
-@JsonPropertyOrder({ "i", "a", "s" })
+@JsonPropertyOrder({ "i", "a", "s", "t" })
 public class GeneralNodeDatumSamples implements Serializable {
 
-	private static final long serialVersionUID = -4820458070622781600L;
+	private static final long serialVersionUID = 5341803687740991462L;
 
 	private Map<String, Number> instantaneous;
 	private Map<String, Number> accumulating;
 	private Map<String, Object> status;
+	private Set<String> tags;
 
 	/**
 	 * Default constructor.
@@ -91,6 +94,9 @@ public class GeneralNodeDatumSamples implements Serializable {
 		}
 		if ( status != null ) {
 			results.putAll(status);
+		}
+		if ( tags != null ) {
+			results.put("tags", tags.toArray());
 		}
 		return results;
 	}
@@ -588,6 +594,63 @@ public class GeneralNodeDatumSamples implements Serializable {
 
 	public void setStatus(Map<String, Object> status) {
 		this.status = status;
+	}
+
+	/**
+	 * Get an array of <em>tags</em>.
+	 * 
+	 * @return array of tags
+	 */
+	@JsonIgnore
+	@SerializeIgnore
+	public Set<String> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<String> tags) {
+		this.tags = tags;
+	}
+
+	/**
+	 * Shortcut for {@link #getTags()}.
+	 * 
+	 * @return map
+	 */
+	public Set<String> getT() {
+		return getTags();
+	}
+
+	public void setT(Set<String> set) {
+		setTags(set);
+	}
+
+	/**
+	 * Return <em>true</em> if {@code tags} contains {@code tag}.
+	 * 
+	 * @param tag
+	 *        the tag value to test for existence
+	 * @return boolean
+	 */
+	public boolean hasTag(String tag) {
+		return (tags != null && tags.contains(tag));
+	}
+
+	/**
+	 * Add a tag value.
+	 * 
+	 * @param tag
+	 *        the tag value to add
+	 */
+	public void addTag(String tag) {
+		if ( tag == null ) {
+			return;
+		}
+		Set<String> set = tags;
+		if ( set == null ) {
+			set = new LinkedHashSet<String>(2);
+			tags = set;
+		}
+		set.add(tag);
 	}
 
 }

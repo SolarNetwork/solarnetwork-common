@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
  net.solarnetwork.test;version="1.1.0"
 Import-Package: 
+ net.solarnetwork.domain;version="1.3.0",
  net.solarnetwork.io;version="1.1.0",
  net.solarnetwork.support;version="1.1.0",
  net.solarnetwork.util;version="1.10.0",
@@ -15,6 +16,13 @@ Import-Package:
  org.apache.commons.logging;version="[1.1,1.2)",
  org.apache.juli.logging,
  org.apache.log4j;version="[1.2.15,1.3)",
+ org.codehaus.jackson;version="[1.9,2.0)",
+ org.codehaus.jackson.annotate;version="[1.9,2.0)",
+ org.codehaus.jackson.map;version="[1.9,2.0)",
+ org.codehaus.jackson.map.annotate;version="[1.9,2.0)",
+ org.codehaus.jackson.map.module;version="[1.9,2.0)",
+ org.codehaus.jackson.map.ser.std;version="[1.9,2.0)",
+ org.codehaus.jackson.type;version="[1.9,2.0)",
  org.junit;version="[4.5,5.0)",
  org.junit.runner;version="[4.5,5.0)",
  org.slf4j;version="[1.6.1,2.0.0)",
