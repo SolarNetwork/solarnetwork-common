@@ -653,4 +653,20 @@ public class GeneralNodeDatumSamples implements Serializable {
 		set.add(tag);
 	}
 
+	/**
+	 * Remove a tag value.
+	 * 
+	 * @param tag
+	 *        the tag value to add
+	 */
+	public void removeTag(String tag) {
+		if ( tag == null ) {
+			return;
+		}
+		Set<String> set = tags;
+		if ( set != null ) {
+			set.remove(tag);
+		}
+	}
+
 }
