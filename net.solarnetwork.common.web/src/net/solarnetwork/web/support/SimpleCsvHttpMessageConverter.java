@@ -198,6 +198,12 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 		return result;
 	}
 
+	// this method exists so we don't have to add @SuppressWarnings to other (real) methods
+	@SuppressWarnings("unchecked")
+	private <T> T cast(Object o) {
+		return (T) o;
+	}
+
 	private void writeCSV(ICsvMapWriter writer, String[] fields, Object row) throws IOException {
 		if ( row instanceof Map ) {
 			@SuppressWarnings("unchecked")
@@ -215,25 +221,19 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 				}
 			}
 
-			BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(row);
-			for ( String name : fields ) {
-				Object val = wrapper.getPropertyValue(name);
-				if ( val != null ) {
-					if ( getPropertySerializerRegistrar() != null ) {
-						val = getPropertySerializerRegistrar().serializeProperty(name, val.getClass(),
-								row, val);
-					} else {
-						// Spring does not apply PropertyEditors on read methods, so manually handle
-						PropertyEditor editor = wrapper.findCustomEditor(null, name);
-						if ( editor != null ) {
-							editor.setValue(val);
-							val = editor.getAsText();
-						}
+			if ( row instanceof Map ) {
+				Map<String, ?> rowMap = cast(row);
+				for ( Map.Entry<String, ?> me : rowMap.entrySet() ) {
+					Object val = getRowPropertyValue(row, me.getKey(), me.getValue(), null);
+					if ( val != null ) {
+						map.put(me.getKey(), val);
 					}
-					if ( val instanceof Enum<?> || javaBeanTreatAsStringValues != null
-							&& javaBeanTreatAsStringValues.contains(val.getClass()) ) {
-						val = val.toString();
-					}
+				}
+			} else {
+				BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(row);
+				for ( String name : fields ) {
+					Object val = wrapper.getPropertyValue(name);
+					val = getRowPropertyValue(row, name, val, wrapper);
 					if ( val != null ) {
 						map.put(name, val);
 					}
@@ -242,6 +242,26 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 
 			writer.write(map, fields);
 		}
+	}
+
+	private Object getRowPropertyValue(Object row, String name, Object val, BeanWrapper wrapper) {
+		if ( val != null ) {
+			if ( getPropertySerializerRegistrar() != null ) {
+				val = getPropertySerializerRegistrar().serializeProperty(name, val.getClass(), row, val);
+			} else if ( wrapper != null ) {
+				// Spring does not apply PropertyEditors on read methods, so manually handle
+				PropertyEditor editor = wrapper.findCustomEditor(null, name);
+				if ( editor != null ) {
+					editor.setValue(val);
+					val = editor.getAsText();
+				}
+			}
+			if ( val instanceof Enum<?> || javaBeanTreatAsStringValues != null
+					&& javaBeanTreatAsStringValues.contains(val.getClass()) ) {
+				val = val.toString();
+			}
+		}
+		return val;
 	}
 
 	public PropertySerializerRegistrar getPropertySerializerRegistrar() {

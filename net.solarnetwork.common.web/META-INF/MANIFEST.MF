@@ -3,12 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Web
 Bundle-SymbolicName: net.solarnetwork.common.web
 Bundle-Description: Common supporting infrastructure for SolarNode and SolarNet web applications.
-Bundle-Version: 1.7.1
+Bundle-Version: 1.7.2
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
  net.solarnetwork.web.domain;version="1.0.0",
- net.solarnetwork.web.support;version="1.6.2"
+ net.solarnetwork.web.support;version="1.6.3"
 Import-Package: 
  javax.servlet;version="2.5.0",
  javax.servlet.http;version="2.4.0",
