@@ -25,9 +25,7 @@ package net.solarnetwork.domain;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import net.solarnetwork.util.SerializeIgnore;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
@@ -37,17 +35,16 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
  * type.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 @JsonPropertyOrder({ "i", "a", "s", "t" })
-public class GeneralNodeDatumSamples implements Serializable {
+public class GeneralNodeDatumSamples extends GeneralDatumSupport implements Serializable {
 
-	private static final long serialVersionUID = 5341803687740991462L;
+	private static final long serialVersionUID = 6496582787026424990L;
 
 	private Map<String, Number> instantaneous;
 	private Map<String, Number> accumulating;
 	private Map<String, Object> status;
-	private Set<String> tags;
 
 	/**
 	 * Default constructor.
@@ -95,8 +92,8 @@ public class GeneralNodeDatumSamples implements Serializable {
 		if ( status != null ) {
 			results.putAll(status);
 		}
-		if ( tags != null ) {
-			results.put("tags", tags.toArray());
+		if ( getTags() != null ) {
+			results.put("tags", getTags().toArray());
 		}
 		return results;
 	}
@@ -164,7 +161,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Integer, or <em>null</em> if not available
 	 */
 	public Integer getInstantaneousSampleInteger(String key) {
-		return getSampleInteger(key, instantaneous);
+		return getMapInteger(key, instantaneous);
 	}
 
 	/**
@@ -176,7 +173,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Long, or <em>null</em> if not available
 	 */
 	public Long getInstantaneousSampleLong(String key) {
-		return getSampleLong(key, instantaneous);
+		return getMapLong(key, instantaneous);
 	}
 
 	/**
@@ -188,7 +185,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Float, or <em>null</em> if not available
 	 */
 	public Float getInstantaneousSampleFloat(String key) {
-		return getSampleFloat(key, instantaneous);
+		return getMapFloat(key, instantaneous);
 	}
 
 	/**
@@ -200,7 +197,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Double, or <em>null</em> if not available
 	 */
 	public Double getInstantaneousSampleDouble(String key) {
-		return getSampleDouble(key, instantaneous);
+		return getMapDouble(key, instantaneous);
 	}
 
 	/**
@@ -212,7 +209,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an BigDecimal, or <em>null</em> if not available
 	 */
 	public BigDecimal getInstantaneousSampleBigDecimal(String key) {
-		return getSampleBigDecimal(key, instantaneous);
+		return getMapBigDecimal(key, instantaneous);
 	}
 
 	/**
@@ -224,7 +221,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Integer, or <em>null</em> if not available
 	 */
 	public Integer getAccumulatingSampleInteger(String key) {
-		return getSampleInteger(key, accumulating);
+		return getMapInteger(key, accumulating);
 	}
 
 	/**
@@ -236,7 +233,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Long, or <em>null</em> if not available
 	 */
 	public Long getAccumulatingSampleLong(String key) {
-		return getSampleLong(key, accumulating);
+		return getMapLong(key, accumulating);
 	}
 
 	/**
@@ -248,7 +245,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Float, or <em>null</em> if not available
 	 */
 	public Float getAccumulatingSampleFloat(String key) {
-		return getSampleFloat(key, accumulating);
+		return getMapFloat(key, accumulating);
 	}
 
 	/**
@@ -260,7 +257,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Double, or <em>null</em> if not available
 	 */
 	public Double getAccumulatingSampleDouble(String key) {
-		return getSampleDouble(key, accumulating);
+		return getMapDouble(key, accumulating);
 	}
 
 	/**
@@ -272,7 +269,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an BigDecimal, or <em>null</em> if not available
 	 */
 	public BigDecimal getAccumulatingSampleBigDecimal(String key) {
-		return getSampleBigDecimal(key, accumulating);
+		return getMapBigDecimal(key, accumulating);
 	}
 
 	/**
@@ -284,7 +281,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Integer, or <em>null</em> if not available
 	 */
 	public Integer getStatusSampleInteger(String key) {
-		return getSampleInteger(key, status);
+		return getMapInteger(key, status);
 	}
 
 	/**
@@ -296,7 +293,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Long, or <em>null</em> if not available
 	 */
 	public Long getStatusSampleLong(String key) {
-		return getSampleLong(key, status);
+		return getMapLong(key, status);
 	}
 
 	/**
@@ -308,7 +305,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Float, or <em>null</em> if not available
 	 */
 	public Float getStatusSampleFloat(String key) {
-		return getSampleFloat(key, status);
+		return getMapFloat(key, status);
 	}
 
 	/**
@@ -320,7 +317,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an Double, or <em>null</em> if not available
 	 */
 	public Double getStatusSampleDouble(String key) {
-		return getSampleDouble(key, status);
+		return getMapDouble(key, status);
 	}
 
 	/**
@@ -332,7 +329,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as an BigDecimal, or <em>null</em> if not available
 	 */
 	public BigDecimal getStatusSampleBigDecimal(String key) {
-		return getSampleBigDecimal(key, status);
+		return getMapBigDecimal(key, status);
 	}
 
 	/**
@@ -344,123 +341,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 	 * @return the value as a String, or <em>null</em> if not available
 	 */
 	public String getStatusSampleString(String key) {
-		return getSampleString(key, status);
-	}
-
-	private String getSampleString(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object s = map.get(key);
-		if ( s == null ) {
-			return null;
-		}
-		if ( s instanceof String ) {
-			return (String) s;
-		}
-		return s.toString();
-	}
-
-	private Integer getSampleInteger(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object n = map.get(key);
-		if ( n == null ) {
-			return null;
-		}
-		if ( n instanceof Integer ) {
-			return (Integer) n;
-		}
-		if ( n instanceof Number ) {
-			return ((Number) n).intValue();
-		}
-		try {
-			return Integer.valueOf(n.toString());
-		} catch ( NumberFormatException e ) {
-			return null;
-		}
-	}
-
-	private Long getSampleLong(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object n = map.get(key);
-		if ( n == null ) {
-			return null;
-		}
-		if ( n instanceof Long ) {
-			return (Long) n;
-		}
-		if ( n instanceof Number ) {
-			return ((Number) n).longValue();
-		}
-		try {
-			return Long.valueOf(n.toString());
-		} catch ( NumberFormatException e ) {
-			return null;
-		}
-	}
-
-	private Float getSampleFloat(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object n = map.get(key);
-		if ( n == null ) {
-			return null;
-		}
-		if ( n instanceof Float ) {
-			return (Float) n;
-		}
-		if ( n instanceof Number ) {
-			return ((Number) n).floatValue();
-		}
-		try {
-			return Float.valueOf(n.toString());
-		} catch ( NumberFormatException e ) {
-			return null;
-		}
-	}
-
-	private Double getSampleDouble(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object n = map.get(key);
-		if ( n == null ) {
-			return null;
-		}
-		if ( n instanceof Double ) {
-			return (Double) n;
-		}
-		if ( n instanceof Number ) {
-			return ((Number) n).doubleValue();
-		}
-		try {
-			return Double.valueOf(n.toString());
-		} catch ( NumberFormatException e ) {
-			return null;
-		}
-	}
-
-	private BigDecimal getSampleBigDecimal(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object n = map.get(key);
-		if ( n == null ) {
-			return null;
-		}
-		if ( n instanceof BigDecimal ) {
-			return (BigDecimal) n;
-		}
-		try {
-			return new BigDecimal(n.toString());
-		} catch ( NumberFormatException e ) {
-			return null;
-		}
+		return getMapString(key, status);
 	}
 
 	@Override
@@ -470,6 +351,7 @@ public class GeneralNodeDatumSamples implements Serializable {
 		result = prime * result + ((accumulating == null) ? 0 : accumulating.hashCode());
 		result = prime * result + ((instantaneous == null) ? 0 : instantaneous.hashCode());
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((getTags() == null) ? 0 : getTags().hashCode());
 		return result;
 	}
 
@@ -504,6 +386,13 @@ public class GeneralNodeDatumSamples implements Serializable {
 				return false;
 			}
 		} else if ( !status.equals(other.status) ) {
+			return false;
+		}
+		if ( getTags() == null ) {
+			if ( other.getTags() != null ) {
+				return false;
+			}
+		} else if ( !getTags().equals(other.getTags()) ) {
 			return false;
 		}
 		return true;
@@ -594,79 +483,6 @@ public class GeneralNodeDatumSamples implements Serializable {
 
 	public void setStatus(Map<String, Object> status) {
 		this.status = status;
-	}
-
-	/**
-	 * Get an array of <em>tags</em>.
-	 * 
-	 * @return array of tags
-	 */
-	@JsonIgnore
-	@SerializeIgnore
-	public Set<String> getTags() {
-		return tags;
-	}
-
-	public void setTags(Set<String> tags) {
-		this.tags = tags;
-	}
-
-	/**
-	 * Shortcut for {@link #getTags()}.
-	 * 
-	 * @return map
-	 */
-	public Set<String> getT() {
-		return getTags();
-	}
-
-	public void setT(Set<String> set) {
-		setTags(set);
-	}
-
-	/**
-	 * Return <em>true</em> if {@code tags} contains {@code tag}.
-	 * 
-	 * @param tag
-	 *        the tag value to test for existence
-	 * @return boolean
-	 */
-	public boolean hasTag(String tag) {
-		return (tags != null && tags.contains(tag));
-	}
-
-	/**
-	 * Add a tag value.
-	 * 
-	 * @param tag
-	 *        the tag value to add
-	 */
-	public void addTag(String tag) {
-		if ( tag == null ) {
-			return;
-		}
-		Set<String> set = tags;
-		if ( set == null ) {
-			set = new LinkedHashSet<String>(2);
-			tags = set;
-		}
-		set.add(tag);
-	}
-
-	/**
-	 * Remove a tag value.
-	 * 
-	 * @param tag
-	 *        the tag value to add
-	 */
-	public void removeTag(String tag) {
-		if ( tag == null ) {
-			return;
-		}
-		Set<String> set = tags;
-		if ( set != null ) {
-			set.remove(tag);
-		}
 	}
 
 }
