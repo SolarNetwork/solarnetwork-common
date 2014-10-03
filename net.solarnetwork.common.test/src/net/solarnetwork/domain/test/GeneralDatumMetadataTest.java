@@ -71,11 +71,31 @@ public class GeneralDatumMetadataTest {
 	}
 
 	@Test
+	public void serializeJsonWithPropertyMeta() throws Exception {
+		GeneralDatumMetadata meta = getTestInstance();
+		meta.putInfoValue("watts", "unit", "W");
+		String json = objectMapper.writeValueAsString(meta);
+		Assert.assertEquals(
+				"{\"m\":{\"msg\":\"Hello, world.\"},\"pm\":{\"watts\":{\"unit\":\"W\"}},\"t\":[\"test\"]}",
+				json);
+	}
+
+	@Test
 	public void deserializeJson() throws Exception {
 		String json = "{\"m\":{\"ploc\":2502287},\"t\":[\"test\"]}";
 		GeneralDatumMetadata samples = objectMapper.readValue(json, GeneralDatumMetadata.class);
 		Assert.assertNotNull(samples);
 		Assert.assertEquals(Long.valueOf(2502287), samples.getInfoLong("ploc"));
+		Assert.assertTrue("Tag exists", samples.hasTag("test"));
+	}
+
+	@Test
+	public void deserializeJsonWithPropertyMeta() throws Exception {
+		String json = "{\"m\":{\"ploc\":2502287},\"pm\":{\"watts\":{\"unit\":\"W\"}},\"t\":[\"test\"]}";
+		GeneralDatumMetadata samples = objectMapper.readValue(json, GeneralDatumMetadata.class);
+		Assert.assertNotNull(samples);
+		Assert.assertEquals(Long.valueOf(2502287), samples.getInfoLong("ploc"));
+		Assert.assertEquals("W", samples.getInfoString("watts", "unit"));
 		Assert.assertTrue("Tag exists", samples.hasTag("test"));
 	}
 }

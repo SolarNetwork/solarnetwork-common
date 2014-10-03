@@ -36,12 +36,13 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
  * @author matt
  * @version 1.0
  */
-@JsonPropertyOrder({ "m", "t" })
+@JsonPropertyOrder({ "m", "pm", "t" })
 public class GeneralDatumMetadata extends GeneralDatumSupport implements Serializable {
 
-	private static final long serialVersionUID = -4826262935168396741L;
+	private static final long serialVersionUID = -2571643375746163527L;
 
 	private Map<String, Object> info;
+	private Map<String, Map<String, Object>> propertyInfo;
 
 	/**
 	 * Default constructor.
@@ -59,6 +60,20 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	public GeneralDatumMetadata(Map<String, Object> info) {
 		super();
 		this.info = info;
+	}
+
+	/**
+	 * Construct with values.
+	 * 
+	 * @param info
+	 *        the info data
+	 * @param propertyInfo
+	 *        the property info data
+	 */
+	public GeneralDatumMetadata(Map<String, Object> info, Map<String, Map<String, Object>> propertyInfo) {
+		super();
+		this.info = info;
+		this.propertyInfo = propertyInfo;
 	}
 
 	/**
@@ -80,8 +95,8 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	}
 
 	/**
-	 * Get an Integer value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * Get an Integer value from the {@link #getInfo()} map, or <em>null</em> if
+	 * not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
@@ -92,8 +107,8 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	}
 
 	/**
-	 * Get a Long value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * Get a Long value from the {@link #getInfo()} map, or <em>null</em> if not
+	 * available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
@@ -104,8 +119,8 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	}
 
 	/**
-	 * Get a Float value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * Get a Float value from the {@link #getInfo()} map, or <em>null</em> if
+	 * not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
@@ -116,8 +131,8 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	}
 
 	/**
-	 * Get a Double value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * Get a Double value from the {@link #getInfo()} map, or <em>null</em> if
+	 * not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
@@ -128,8 +143,8 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	}
 
 	/**
-	 * Get a BigDecimal value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * Get a BigDecimal value from the {@link #getInfo()} map, or <em>null</em>
+	 * if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
@@ -140,7 +155,7 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	}
 
 	/**
-	 * Get a String value from the {@link #getMap()} map, or <em>null</em> if
+	 * Get a String value from the {@link #getInfo()} map, or <em>null</em> if
 	 * not available.
 	 * 
 	 * @param key
@@ -156,6 +171,7 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((info == null) ? 0 : info.hashCode());
+		result = prime * result + ((propertyInfo == null) ? 0 : propertyInfo.hashCode());
 		result = prime * result + ((getTags() == null) ? 0 : getTags().hashCode());
 		return result;
 	}
@@ -177,6 +193,13 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 				return false;
 			}
 		} else if ( !info.equals(other.info) ) {
+			return false;
+		}
+		if ( propertyInfo == null ) {
+			if ( other.propertyInfo != null ) {
+				return false;
+			}
+		} else if ( !propertyInfo.equals(other.propertyInfo) ) {
 			return false;
 		}
 		if ( getTags() == null ) {
@@ -205,7 +228,7 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	}
 
 	/**
-	 * Shortcut for {@link #getStatus()}.
+	 * Shortcut for {@link #getInfo()}.
 	 * 
 	 * @return map
 	 */
@@ -223,4 +246,147 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 		setInfo(map);
 	}
 
+	/**
+	 * Get a map of <em>property info</em> maps. Each top-level key represents a
+	 * property name and the associated map the metadata for that property.
+	 * 
+	 * @return map
+	 */
+	@JsonIgnore
+	@SerializeIgnore
+	public Map<String, Map<String, Object>> getPropertyInfo() {
+		return propertyInfo;
+	}
+
+	public void setPropertyInfo(Map<String, Map<String, Object>> propertyInfo) {
+		this.propertyInfo = propertyInfo;
+	}
+
+	/**
+	 * Shortcut for {@link #getPropertyInfo()}.
+	 * 
+	 * @return the map
+	 */
+	public Map<String, Map<String, Object>> getPm() {
+		return getPropertyInfo();
+	}
+
+	/**
+	 * Shortcut for {@link GeneralDatumMetadata#setPropertyInfo(Map)}.
+	 * 
+	 * @param map
+	 *        the map to set
+	 */
+	public void setPm(Map<String, Map<String, Object>> map) {
+		setPropertyInfo(map);
+	}
+
+	/**
+	 * Put a value into the {@link #getPropertyInfo()} map, creating the map if
+	 * it doesn't exist.
+	 * 
+	 * @param property
+	 *        the property name
+	 * @param key
+	 *        the key to put
+	 * @param value
+	 *        the value to put
+	 */
+	public void putInfoValue(String property, String key, Object value) {
+		Map<String, Map<String, Object>> pm = propertyInfo;
+		if ( pm == null ) {
+			pm = new LinkedHashMap<String, Map<String, Object>>(4);
+			propertyInfo = pm;
+		}
+		Map<String, Object> m = pm.get(property);
+		if ( m == null ) {
+			m = new LinkedHashMap<String, Object>(4);
+			pm.put(property, m);
+		}
+		m.put(key, value);
+	}
+
+	/**
+	 * Get an Integer value from the {@link #getPropertyInfo()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param property
+	 *        the property name
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Integer, or <em>null</em> if not available
+	 */
+	public Integer getInfoInteger(String property, String key) {
+		return getMapInteger(key, (propertyInfo == null ? null : propertyInfo.get(property)));
+	}
+
+	/**
+	 * Get a Long value from the {@link #getPropertyInfo()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param property
+	 *        the property name
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Long, or <em>null</em> if not available
+	 */
+	public Long getInfoLong(String property, String key) {
+		return getMapLong(key, (propertyInfo == null ? null : propertyInfo.get(property)));
+	}
+
+	/**
+	 * Get a Float value from the {@link #getPropertyInfo()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param property
+	 *        the property name
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Float, or <em>null</em> if not available
+	 */
+	public Float getInfoFloat(String property, String key) {
+		return getMapFloat(key, (propertyInfo == null ? null : propertyInfo.get(property)));
+	}
+
+	/**
+	 * Get a Double value from the {@link #getPropertyInfo()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param property
+	 *        the property name
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Double, or <em>null</em> if not available
+	 */
+	public Double getInfoDouble(String property, String key) {
+		return getMapDouble(key, (propertyInfo == null ? null : propertyInfo.get(property)));
+	}
+
+	/**
+	 * Get a BigDecimal value from the {@link #getPropertyInfo()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param property
+	 *        the property name
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an BigDecimal, or <em>null</em> if not available
+	 */
+	public BigDecimal getInfoBigDecimal(String property, String key) {
+		return getMapBigDecimal(key, (propertyInfo == null ? null : propertyInfo.get(property)));
+	}
+
+	/**
+	 * Get a String value from the {@link #getPropertyInfo()} map, or
+	 * <em>null</em> if not available.
+	 * 
+	 * @param property
+	 *        the property name
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as a String, or <em>null</em> if not available
+	 */
+	public String getInfoString(String property, String key) {
+		return getMapString(key, (propertyInfo == null ? null : propertyInfo.get(property)));
+	}
 }
