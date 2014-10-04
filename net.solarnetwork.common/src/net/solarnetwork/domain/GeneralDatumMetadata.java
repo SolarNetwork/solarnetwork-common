@@ -25,6 +25,7 @@ package net.solarnetwork.domain;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import net.solarnetwork.util.SerializeIgnore;
 import org.codehaus.jackson.annotate.JsonIgnore;
@@ -49,6 +50,22 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	 */
 	public GeneralDatumMetadata() {
 		super();
+	}
+
+	/**
+	 * Copy constructor.
+	 */
+	public GeneralDatumMetadata(GeneralDatumMetadata other) {
+		super();
+		if ( other.getTags() != null ) {
+			setTags(new LinkedHashSet<String>(other.getTags()));
+		}
+		if ( other.info != null ) {
+			info = new LinkedHashMap<String, Object>(other.info);
+		}
+		if ( other.propertyInfo != null ) {
+			propertyInfo = new LinkedHashMap<String, Map<String, Object>>(other.propertyInfo);
+		}
 	}
 
 	/**
