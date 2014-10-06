@@ -69,6 +69,54 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	}
 
 	/**
+	 * Merge the values from another {@link GeneralDatumMetadata} instance into
+	 * this one. Existing values will <b>not</b> be replaced by values in the
+	 * provided instance, only new values will be merged.
+	 * 
+	 * @param meta
+	 *        the metadata to merge into this object
+	 * @param replace
+	 *        if <em>true</em> then replace values in this object with
+	 *        equivalent ones in the provided object, otherwise keep the values
+	 *        from this object
+	 */
+	public void merge(final GeneralDatumMetadata meta, final boolean replace) {
+		if ( meta.getTags() != null ) {
+			for ( String tag : meta.getTags() ) {
+				addTag(tag);
+			}
+		}
+		if ( meta.getInfo() != null ) {
+			for ( Map.Entry<String, Object> me : meta.getInfo().entrySet() ) {
+				// only overwrite keys, if replace is true
+				if ( replace || getInfo() == null || getInfo().containsKey(me.getKey()) == false ) {
+					putInfoValue(me.getKey(), me.getValue());
+				}
+			}
+		}
+		if ( meta.getPropertyInfo() != null ) {
+			Map<String, Map<String, Object>> gdmPropertyMeta = getPropertyInfo();
+			if ( gdmPropertyMeta == null ) {
+				setPropertyInfo(meta.getPropertyInfo());
+			} else {
+				for ( Map.Entry<String, Map<String, Object>> me : meta.getPropertyInfo().entrySet() ) {
+					if ( gdmPropertyMeta.get(me.getKey()) == null ) {
+						gdmPropertyMeta.put(me.getKey(), me.getValue());
+					} else {
+						for ( Map.Entry<String, Object> pme : me.getValue().entrySet() ) {
+							if ( replace == false
+									&& gdmPropertyMeta.get(me.getKey()).containsKey(pme.getKey()) ) {
+								continue;
+							}
+							putInfoValue(me.getKey(), pme.getKey(), pme.getValue());
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Construct with values.
 	 * 
 	 * @param info
