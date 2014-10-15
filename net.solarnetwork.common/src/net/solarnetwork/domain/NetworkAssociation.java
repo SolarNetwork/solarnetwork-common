@@ -26,7 +26,7 @@ package net.solarnetwork.domain;
  * API for node/network association details.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface NetworkAssociation extends NetworkIdentity {
 
@@ -50,5 +50,13 @@ public interface NetworkAssociation extends NetworkIdentity {
 	 * @return the username
 	 */
 	String getUsername();
+
+	/**
+	 * Get a password to use for this association's keystore.
+	 * 
+	 * @return a keystore password
+	 * @since 1.1
+	 */
+	String getKeystorePassword();
 
 }
