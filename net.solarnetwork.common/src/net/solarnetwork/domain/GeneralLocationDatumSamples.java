@@ -1,5 +1,5 @@
 /* ==================================================================
- * GeneralNodeDatumSamples.java - Aug 22, 2014 6:26:13 AM
+ * GeneralLocationDatumSamples.java - Oct 17, 2014 12:10:57 PM
  * 
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
@@ -30,11 +30,11 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
  * type.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.0
  */
 @JsonPropertyOrder({ "i", "a", "s", "t" })
-public class GeneralNodeDatumSamples extends GeneralDatumSamples implements Serializable {
+public class GeneralLocationDatumSamples extends GeneralDatumSamples implements Serializable {
 
-	private static final long serialVersionUID = 1412166842747615064L;
+	private static final long serialVersionUID = 3113752106266124096L;
 
 }
