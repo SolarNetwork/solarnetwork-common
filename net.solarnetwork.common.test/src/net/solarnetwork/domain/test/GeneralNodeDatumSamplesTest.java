@@ -1,17 +1,3 @@
-
-package net.solarnetwork.domain.test;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import net.solarnetwork.domain.GeneralNodeDatumSamples;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 /* ==================================================================
  * GeneralNodeDatumSamplesTest.java - Aug 29, 2014 1:09:38 PM
  * 
@@ -33,6 +19,19 @@ import org.junit.Test;
  * 02111-1307 USA
  * ==================================================================
  */
+
+package net.solarnetwork.domain.test;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+import net.solarnetwork.domain.GeneralNodeDatumSamples;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Test cases for {@link GeneralNodeDatumSamples}.
