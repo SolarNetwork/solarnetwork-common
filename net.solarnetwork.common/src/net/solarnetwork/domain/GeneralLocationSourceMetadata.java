@@ -1,5 +1,5 @@
 /* ==================================================================
- * GeneralNodeDatumSamples.java - Aug 22, 2014 6:26:13 AM
+ * GeneralLocationSourceMetadata.java - Oct 21, 2014 1:37:21 PM
  * 
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
@@ -22,19 +22,39 @@
 
 package net.solarnetwork.domain;
 
-import java.io.Serializable;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
 /**
- * A collection of different types of sample data, grouped by logical sample
- * type.
+ * Metadata about a source associated with a location.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.0
  */
-@JsonPropertyOrder({ "i", "a", "s", "t" })
-public class GeneralNodeDatumSamples extends GeneralDatumSamples implements Serializable {
+@JsonPropertyOrder({ "created", "updated", "locationId", "sourceId", "location" })
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 
-	private static final long serialVersionUID = 1412166842747615064L;
+	private Long locationId;
+
+	private Location location;
+
+	public Long getLocationId() {
+		return locationId;
+	}
+
+	public void setLocationId(Long locationId) {
+		this.locationId = locationId;
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	@JsonDeserialize(as = BasicLocation.class)
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
 }

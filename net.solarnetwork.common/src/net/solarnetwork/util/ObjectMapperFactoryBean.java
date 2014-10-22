@@ -24,9 +24,12 @@ package net.solarnetwork.util;
 
 import java.util.List;
 import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.JsonDeserializer;
 import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.Module;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.deser.std.StdDeserializer;
 import org.codehaus.jackson.map.module.SimpleModule;
 import org.springframework.beans.factory.FactoryBean;
 
@@ -53,12 +56,20 @@ import org.springframework.beans.factory.FactoryBean;
  * <dt>serializers</dt>
  * <dd>A list of serializers to register with the module.</dd>
  * 
- * <dd>mapper</dt>
+ * <dt>deserializers</dt>
+ * <dd>A list of deserializers to register with the module. Note that these must
+ * be subclasses of {@link StdDeserializer}.</dd>
+ * 
+ * <dt>mapper</dt>
  * <dd>The {@link ObjectMapper} to configure.</dd>
+ * 
+ * <dt>serializationInclusion</dt>
+ * <dd>A serialization inclusion setting to configure.</dd>
+ * 
  * </dl>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 
@@ -66,6 +77,14 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 	private String moduleName = "SolarNetworkModule";
 	private Version moduleVersion = new Version(1, 0, 0, null);
 	private List<JsonSerializer<?>> serializers;
+	private List<JsonDeserializer<?>> deserializers;
+	private JsonSerialize.Inclusion serializationInclusion = JsonSerialize.Inclusion.NON_NULL;
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void registerStdDeserializer(SimpleModule module, StdDeserializer stdDeserializer) {
+		Class deserType = stdDeserializer.getValueClass();
+		module.addDeserializer(deserType, stdDeserializer);
+	}
 
 	@Override
 	public ObjectMapper getObject() throws Exception {
@@ -77,6 +96,16 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 			for ( JsonSerializer<?> serializer : serializers ) {
 				module.addSerializer(serializer);
 			}
+		}
+		if ( deserializers != null ) {
+			for ( JsonDeserializer<?> deserializer : deserializers ) {
+				if ( deserializer instanceof StdDeserializer<?> ) {
+					registerStdDeserializer(module, (StdDeserializer<?>) deserializer);
+				}
+			}
+		}
+		if ( serializationInclusion != null ) {
+			mapper.setSerializationInclusion(serializationInclusion);
 		}
 		mapper.registerModule(module);
 		return mapper;
@@ -122,6 +151,44 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 
 	public void setMapper(ObjectMapper obj) {
 		this.mapper = obj;
+	}
+
+	/**
+	 * Get the serialization inclusion setting.
+	 * 
+	 * @return the serialization inclusion
+	 * @since 1.1
+	 */
+	public JsonSerialize.Inclusion getSerializationInclusion() {
+		return serializationInclusion;
+	}
+
+	/**
+	 * Set the serialization inclusion to use.
+	 * 
+	 * @param serializationInclusion
+	 *        the inclusion setting
+	 * @since 1.1
+	 */
+	public void setSerializationInclusion(JsonSerialize.Inclusion serializationInclusion) {
+		this.serializationInclusion = serializationInclusion;
+		;
+	}
+
+	public List<JsonDeserializer<?>> getDeserializers() {
+		return deserializers;
+	}
+
+	/**
+	 * Set a list of {@link JsonDeserializer} objects to configure on the
+	 * mapper.
+	 * 
+	 * @param deserializers
+	 *        the deserializers
+	 * @since 1.1
+	 */
+	public void setDeserializers(List<JsonDeserializer<?>> deserializers) {
+		this.deserializers = deserializers;
 	}
 
 }

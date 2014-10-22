@@ -1,5 +1,5 @@
 /* ==================================================================
- * GeneralNodeDatumSamples.java - Aug 22, 2014 6:26:13 AM
+ * GeneralNodeSourceMetadata.java - Oct 21, 2014 1:35:14 PM
  * 
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
@@ -22,19 +22,27 @@
 
 package net.solarnetwork.domain;
 
-import java.io.Serializable;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 
 /**
- * A collection of different types of sample data, grouped by logical sample
- * type.
+ * Metadata about a source associated with a node.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.0
  */
-@JsonPropertyOrder({ "i", "a", "s", "t" })
-public class GeneralNodeDatumSamples extends GeneralDatumSamples implements Serializable {
+@JsonPropertyOrder({ "created", "updated", "nodeId", "sourceId" })
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class GeneralNodeSourceMetadata extends GeneralSourceMetadata {
 
-	private static final long serialVersionUID = 1412166842747615064L;
+	private Long nodeId;
+
+	public Long getNodeId() {
+		return nodeId;
+	}
+
+	public void setNodeId(Long nodeId) {
+		this.nodeId = nodeId;
+	}
 
 }
