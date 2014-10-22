@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 
 /**
@@ -31,6 +32,7 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
  * @version 1.0
  */
 @JsonPropertyOrder({ "created", "updated", "nodeId", "sourceId" })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GeneralNodeSourceMetadata extends GeneralSourceMetadata {
 
 	private Long nodeId;

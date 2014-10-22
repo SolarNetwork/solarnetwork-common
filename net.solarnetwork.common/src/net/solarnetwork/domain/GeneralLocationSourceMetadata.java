@@ -22,7 +22,9 @@
 
 package net.solarnetwork.domain;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
+import org.codehaus.jackson.map.annotate.JsonDeserialize;
 
 /**
  * Metadata about a source associated with a location.
@@ -30,10 +32,13 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
  * @author matt
  * @version 1.0
  */
-@JsonPropertyOrder({ "created", "updated", "locationId", "sourceId" })
+@JsonPropertyOrder({ "created", "updated", "locationId", "sourceId", "location" })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 
 	private Long locationId;
+
+	private Location location;
 
 	public Long getLocationId() {
 		return locationId;
@@ -41,6 +46,15 @@ public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 
 	public void setLocationId(Long locationId) {
 		this.locationId = locationId;
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	@JsonDeserialize(as = BasicLocation.class)
+	public void setLocation(Location location) {
+		this.location = location;
 	}
 
 }
