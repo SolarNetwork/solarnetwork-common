@@ -35,7 +35,7 @@ import org.codehaus.jackson.annotate.JsonPropertyOrder;
  * Metadata about general node datum streams of data.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 @JsonPropertyOrder({ "m", "pm", "t" })
 public class GeneralDatumMetadata extends GeneralDatumSupport implements Serializable {
@@ -142,21 +142,28 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	}
 
 	/**
-	 * Put a value into the {@link #getInfo()} map, creating the map if it
-	 * doesn't exist.
+	 * Put a value into or remove a value from the {@link #getInfo()} map,
+	 * creating the map if it doesn't exist.
 	 * 
 	 * @param key
 	 *        the key to put
 	 * @param value
-	 *        the value to put
+	 *        the value to put, or <em>null</em> to remove the key
 	 */
 	public void putInfoValue(String key, Object value) {
 		Map<String, Object> m = info;
 		if ( m == null ) {
+			if ( value == null ) {
+				return;
+			}
 			m = new LinkedHashMap<String, Object>(4);
 			info = m;
 		}
-		m.put(key, value);
+		if ( value == null ) {
+			m.remove(key);
+		} else {
+			m.put(key, value);
+		}
 	}
 
 	/**
@@ -347,28 +354,38 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	}
 
 	/**
-	 * Put a value into the {@link #getPropertyInfo()} map, creating the map if
-	 * it doesn't exist.
+	 * Put a value into or remove a value from the {@link #getPropertyInfo()}
+	 * map, creating the map if it doesn't exist.
 	 * 
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key to put
 	 * @param value
-	 *        the value to put
+	 *        the value to put, or <em>null</em> to remove the key
 	 */
 	public void putInfoValue(String property, String key, Object value) {
 		Map<String, Map<String, Object>> pm = propertyInfo;
 		if ( pm == null ) {
+			if ( value == null ) {
+				return;
+			}
 			pm = new LinkedHashMap<String, Map<String, Object>>(4);
 			propertyInfo = pm;
 		}
 		Map<String, Object> m = pm.get(property);
 		if ( m == null ) {
+			if ( value == null ) {
+				return;
+			}
 			m = new LinkedHashMap<String, Object>(4);
 			pm.put(property, m);
 		}
-		m.put(key, value);
+		if ( value == null ) {
+			m.remove(key);
+		} else {
+			m.put(key, value);
+		}
 	}
 
 	/**

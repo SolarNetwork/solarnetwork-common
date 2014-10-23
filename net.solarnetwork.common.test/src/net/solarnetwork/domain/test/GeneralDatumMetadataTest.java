@@ -1,16 +1,3 @@
-
-package net.solarnetwork.domain.test;
-
-import java.util.HashMap;
-import java.util.Map;
-import net.solarnetwork.domain.GeneralDatumMetadata;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 /* ==================================================================
  * GeneralNodeDatumSamplesTest.java - Aug 29, 2014 1:09:38 PM
  * 
@@ -33,11 +20,23 @@ import org.junit.Test;
  * ==================================================================
  */
 
+package net.solarnetwork.domain.test;
+
+import java.util.HashMap;
+import java.util.Map;
+import net.solarnetwork.domain.GeneralDatumMetadata;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * Test cases for {@link GeneralDatumMetadata}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class GeneralDatumMetadataTest {
 
@@ -98,4 +97,16 @@ public class GeneralDatumMetadataTest {
 		Assert.assertEquals("W", samples.getInfoString("watts", "unit"));
 		Assert.assertTrue("Tag exists", samples.hasTag("test"));
 	}
+
+	@Test
+	public void removeInfoKey() {
+		GeneralDatumMetadata meta = getTestInstance();
+		meta.putInfoValue("msg", null);
+		meta.putInfoValue("does.not.exist", null);
+		meta.putInfoValue("foo", "bar", "bam");
+		meta.putInfoValue("foo", "bar", null);
+		Assert.assertNull(meta.getInfoString("msg"));
+		Assert.assertNull(meta.getInfoString("foo", "bar"));
+	}
+
 }

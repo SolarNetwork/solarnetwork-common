@@ -37,7 +37,7 @@ import org.junit.Test;
  * Test cases for {@link GeneralNodeDatumSamples}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class GeneralNodeDatumSamplesTest {
 
@@ -89,4 +89,29 @@ public class GeneralNodeDatumSamplesTest {
 		Assert.assertEquals(Long.valueOf(2502287), samples.getStatusSampleLong("ploc"));
 		Assert.assertEquals(new BigDecimal("21.2"), samples.getInstantaneousSampleBigDecimal("temp"));
 	}
+
+	@Test
+	public void removeAccumulatingKey() {
+		GeneralNodeDatumSamples meta = getTestInstance();
+		meta.putAccumulatingSampleValue("watt_hours", null);
+		meta.putStatusSampleValue("does.not.exist", null);
+		Assert.assertNull(meta.getAccumulatingSampleInteger("watt_hours"));
+	}
+
+	@Test
+	public void removeInstantaneousKey() {
+		GeneralNodeDatumSamples meta = getTestInstance();
+		meta.putInstantaneousSampleValue("watts", null);
+		meta.putInstantaneousSampleValue("does.not.exist", null);
+		Assert.assertNull(meta.getInstantaneousSampleInteger("watts"));
+	}
+
+	@Test
+	public void removeStatusKey() {
+		GeneralNodeDatumSamples meta = getTestInstance();
+		meta.putStatusSampleValue("msg", null);
+		meta.putStatusSampleValue("does.not.exist", null);
+		Assert.assertNull(meta.getStatusSampleString("msg"));
+	}
+
 }

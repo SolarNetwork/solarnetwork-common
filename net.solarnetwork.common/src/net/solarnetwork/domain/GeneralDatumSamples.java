@@ -34,7 +34,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
  * type.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class GeneralDatumSamples extends GeneralDatumSupport implements Serializable {
 
@@ -97,57 +97,78 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 	}
 
 	/**
-	 * Put a value into the {@link #getInstantaneous()} map, creating the map if
-	 * it doesn't exist.
+	 * Put a value into or remove a value from the {@link #getInstantaneous()}
+	 * map, creating the map if it doesn't exist.
 	 * 
 	 * @param key
 	 *        the key to put
 	 * @param n
-	 *        the value to put
+	 *        the value to put, or <em>null</em> to remove the key
 	 */
 	public void putInstantaneousSampleValue(String key, Number n) {
 		Map<String, Number> m = instantaneous;
 		if ( m == null ) {
+			if ( n == null ) {
+				return;
+			}
 			m = new LinkedHashMap<String, Number>(4);
 			instantaneous = m;
 		}
-		m.put(key, n);
+		if ( n == null ) {
+			m.remove(key);
+		} else {
+			m.put(key, n);
+		}
 	}
 
 	/**
-	 * Put a value into the {@link #getAccumulating()} map, creating the map if
-	 * it doesn't exist.
+	 * Put a value into or remove a value from the {@link #getAccumulating()}
+	 * map, creating the map if it doesn't exist.
 	 * 
 	 * @param key
 	 *        the key to put
 	 * @param n
-	 *        the value to put
+	 *        the value to put, or <em>null</em> to remove the key
 	 */
 	public void putAccumulatingSampleValue(String key, Number n) {
 		Map<String, Number> m = accumulating;
 		if ( m == null ) {
+			if ( n == null ) {
+				return;
+			}
 			m = new LinkedHashMap<String, Number>(4);
 			accumulating = m;
 		}
-		m.put(key, n);
+		if ( n == null ) {
+			m.remove(key);
+		} else {
+			m.put(key, n);
+		}
 	}
 
 	/**
-	 * Put a value into the {@link #getStatus()} map, creating the map if it
-	 * doesn't exist.
+	 * Put a value into or remove a value from the {@link #getStatus()} map,
+	 * creating the map if it doesn't exist.
 	 * 
 	 * @param key
 	 *        the key to put
 	 * @param value
-	 *        the value to put
+	 *        the value to put, or <em>null</em> to remove the key
 	 */
 	public void putStatusSampleValue(String key, Object value) {
 		Map<String, Object> m = status;
 		if ( m == null ) {
+			if ( value == null ) {
+				return;
+			}
 			m = new LinkedHashMap<String, Object>(4);
 			status = m;
 		}
-		m.put(key, value);
+		if ( value == null ) {
+			m.remove(key);
+		} else {
+			m.put(key, value);
+		}
 	}
 
 	/**
