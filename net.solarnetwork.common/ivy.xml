@@ -14,7 +14,6 @@
 		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.4.3" />
 		<dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.3"/>
 		<dependency org="org.apache.tomcat" name="tomcat-jdbc" rev="7.0.29" conf="compile"/>
-		<dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.9.5"/>
 		<dependency org="org.osgi" name="org.osgi.core" rev="5.0.0"/>
 		<dependency org="org.osgi" name="org.osgi.enterprise" rev="4.2.0"/>
 		<dependency org="joda-time" name="joda-time" rev="2.1"/>
