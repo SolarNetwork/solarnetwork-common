@@ -25,12 +25,13 @@ package net.solarnetwork.util;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import org.codehaus.jackson.map.JsonSerializer;
 import org.joda.time.DateTimeZone;
 import org.joda.time.ReadableInstant;
 import org.joda.time.ReadablePartial;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
 /**
  * Abstract {@link JsonSerializer} class for converting Joda objects into simple
@@ -39,8 +40,7 @@ import org.joda.time.format.DateTimeFormatter;
  * @author matt
  * @version 1.0
  */
-public abstract class JodaBaseJsonSerializer<T> extends
-		org.codehaus.jackson.map.ser.std.SerializerBase<T> {
+public abstract class JodaBaseJsonSerializer<T> extends StdScalarSerializer<T> {
 
 	private final DateTimeFormatter formatter;
 
