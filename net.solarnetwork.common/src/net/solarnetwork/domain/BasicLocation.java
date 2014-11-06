@@ -24,7 +24,7 @@ package net.solarnetwork.domain;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Basic implementation of {@link Location}.

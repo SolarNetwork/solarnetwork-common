@@ -22,16 +22,19 @@
 
 package net.solarnetwork.util;
 
+import java.util.Collection;
 import java.util.List;
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.JsonDeserializer;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.Module;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.map.deser.std.StdDeserializer;
-import org.codehaus.jackson.map.module.SimpleModule;
 import org.springframework.beans.factory.FactoryBean;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * Factory for {@link ObjectMapper} that allows configuring an application-wide
@@ -66,23 +69,32 @@ import org.springframework.beans.factory.FactoryBean;
  * <dt>serializationInclusion</dt>
  * <dd>A serialization inclusion setting to configure.</dd>
  * 
+ * <dt>featuresToEnable</dt>
+ * <dd>A list of {@link SerializationFeature} or {@link DeserializationFeature}
+ * flags to enable.</dd>
+ * 
+ * <dt>featuresToDisable</dt>
+ * <dd>A list of {@link SerializationFeature} or {@link DeserializationFeature}
+ * flags to disable.</dd>
  * </dl>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 
 	private ObjectMapper mapper = new ObjectMapper();
 	private String moduleName = "SolarNetworkModule";
-	private Version moduleVersion = new Version(1, 0, 0, null);
+	private Version moduleVersion = new Version(1, 0, 0, null, null, null);
 	private List<JsonSerializer<?>> serializers;
 	private List<JsonDeserializer<?>> deserializers;
-	private JsonSerialize.Inclusion serializationInclusion = JsonSerialize.Inclusion.NON_NULL;
+	private JsonInclude.Include serializationInclusion = JsonInclude.Include.NON_NULL;
+	private List<Object> featuresToEnable = null;
+	private List<Object> featuresToDisable = null;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void registerStdDeserializer(SimpleModule module, StdDeserializer stdDeserializer) {
-		Class deserType = stdDeserializer.getValueClass();
+		Class deserType = stdDeserializer.handledType();
 		module.addDeserializer(deserType, stdDeserializer);
 	}
 
@@ -107,8 +119,23 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 		if ( serializationInclusion != null ) {
 			mapper.setSerializationInclusion(serializationInclusion);
 		}
+		setupFeatures(mapper, featuresToEnable, true);
+		setupFeatures(mapper, featuresToDisable, false);
 		mapper.registerModule(module);
 		return mapper;
+	}
+
+	private void setupFeatures(final ObjectMapper m, final Collection<?> features, final boolean state) {
+		if ( features == null ) {
+			return;
+		}
+		for ( Object o : features ) {
+			if ( o instanceof SerializationFeature ) {
+				m.configure((SerializationFeature) o, state);
+			} else if ( o instanceof DeserializationFeature ) {
+				m.configure((DeserializationFeature) o, state);
+			}
+		}
 	}
 
 	@Override
@@ -157,9 +184,9 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 	 * Get the serialization inclusion setting.
 	 * 
 	 * @return the serialization inclusion
-	 * @since 1.1
+	 * @since 1.2
 	 */
-	public JsonSerialize.Inclusion getSerializationInclusion() {
+	public JsonInclude.Include getSerializationInclusion() {
 		return serializationInclusion;
 	}
 
@@ -168,11 +195,10 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 	 * 
 	 * @param serializationInclusion
 	 *        the inclusion setting
-	 * @since 1.1
+	 * @since 1.2
 	 */
-	public void setSerializationInclusion(JsonSerialize.Inclusion serializationInclusion) {
+	public void setSerializationInclusion(JsonInclude.Include serializationInclusion) {
 		this.serializationInclusion = serializationInclusion;
-		;
 	}
 
 	public List<JsonDeserializer<?>> getDeserializers() {
@@ -189,6 +215,36 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 	 */
 	public void setDeserializers(List<JsonDeserializer<?>> deserializers) {
 		this.deserializers = deserializers;
+	}
+
+	public List<Object> getFeaturesToEnable() {
+		return featuresToEnable;
+	}
+
+	/**
+	 * Set a list of {@link SerializationFeature} or
+	 * {@link DeserializationFeature} flags to enable.
+	 * 
+	 * @param featuresToEnable
+	 * @since 1.2
+	 */
+	public void setFeaturesToEnable(List<Object> featuresToEnable) {
+		this.featuresToEnable = featuresToEnable;
+	}
+
+	public List<Object> getFeaturesToDisable() {
+		return featuresToDisable;
+	}
+
+	/**
+	 * Set a list of {@link SerializationFeature} or
+	 * {@link DeserializationFeature} flags to disable.
+	 * 
+	 * @param featuresToDisable
+	 * @since 1.2
+	 */
+	public void setFeaturesToDisable(List<Object> featuresToDisable) {
+		this.featuresToDisable = featuresToDisable;
 	}
 
 }

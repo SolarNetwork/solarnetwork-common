@@ -26,13 +26,13 @@ import java.util.HashMap;
 import java.util.Map;
 import net.solarnetwork.domain.GeneralDatumMetadata;
 import net.solarnetwork.domain.GeneralSourceMetadata;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Test cases for {@link GeneralSourceMetadata}.
@@ -49,10 +49,8 @@ public class GeneralSourceMetadataTest {
 	@Before
 	public void setup() {
 		objectMapper = new ObjectMapper();
-		objectMapper.setSerializationInclusion(Inclusion.NON_NULL);
-		objectMapper.setDeserializationConfig(objectMapper.getDeserializationConfig().with(
-				DeserializationConfig.Feature.USE_BIG_DECIMAL_FOR_FLOATS));
-
+		objectMapper.setSerializationInclusion(Include.NON_NULL);
+		objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
 	}
 
 	private GeneralSourceMetadata getTestInstance() {

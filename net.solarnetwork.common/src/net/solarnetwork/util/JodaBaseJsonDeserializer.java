@@ -23,11 +23,11 @@
 package net.solarnetwork.util;
 
 import java.util.TimeZone;
-import org.codehaus.jackson.map.JsonDeserializer;
-import org.codehaus.jackson.map.deser.std.StdScalarDeserializer;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
 /**
  * Abstract {@link JsonDeserializer} class for converting strings into Joda
@@ -37,6 +37,8 @@ import org.joda.time.format.DateTimeFormatter;
  * @version 1.0
  */
 public abstract class JodaBaseJsonDeserializer<T> extends StdScalarDeserializer<T> {
+
+	private static final long serialVersionUID = -7136078168225301983L;
 
 	/** The {@link DateTimeFormatter} for parsing dates. */
 	protected final DateTimeFormatter formatter;

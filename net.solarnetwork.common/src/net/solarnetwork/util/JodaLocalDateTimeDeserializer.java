@@ -24,10 +24,10 @@ package net.solarnetwork.util;
 
 import java.io.IOException;
 import java.util.TimeZone;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.DeserializationContext;
 import org.joda.time.LocalDateTime;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
 
 /**
  * JsonDeserializer for {@link LocalDateTime} objects from formatted strings.
@@ -36,6 +36,8 @@ import org.joda.time.LocalDateTime;
  * @version 1.0
  */
 public class JodaLocalDateTimeDeserializer extends JodaBaseJsonDeserializer<LocalDateTime> {
+
+	private static final long serialVersionUID = 5709750413856542012L;
 
 	/**
 	 * Default constructor.

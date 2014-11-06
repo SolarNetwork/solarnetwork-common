@@ -23,7 +23,7 @@
 package net.solarnetwork.domain;
 
 import java.io.Serializable;
-import org.codehaus.jackson.annotate.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * A collection of different types of sample data, grouped by logical sample
