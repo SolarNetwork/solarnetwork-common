@@ -1,5 +1,5 @@
 /* ==================================================================
- * FilterableService.java - Mar 25, 2014 11:26:25 AM
+ * GeneralNodeDatumSamples.java - Aug 22, 2014 6:26:13 AM
  * 
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
@@ -20,45 +20,21 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.domain;
 
-import java.util.Map;
+import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
- * API for a service that supports filtering properties, to support narrowing
- * down a possible collection of services to one or more specific services
- * matching the filter.
+ * A collection of different types of sample data, grouped by logical sample
+ * type.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.2
  */
-public interface FilterableService {
+@JsonPropertyOrder({ "i", "a", "s", "t" })
+public class GeneralNodeDatumSamples extends GeneralDatumSamples implements Serializable {
 
-	/**
-	 * Get the current map of property filters, with keys representing property
-	 * names and value their desired associated value.
-	 * 
-	 * @return filters
-	 */
-	Map<String, ?> getPropertyFilters();
-
-	/**
-	 * Set a property filter value.
-	 * 
-	 * @param key
-	 *        the key to add
-	 * @param value
-	 *        the value
-	 */
-	void setPropertyFilter(String key, Object value);
-
-	/**
-	 * Remove a property filter value.
-	 * 
-	 * @param key
-	 *        the key to remove
-	 * @return the removed value, or <em>null</em> if no value was available
-	 */
-	Object removePropertyFilter(String key);
+	private static final long serialVersionUID = 1412166842747615064L;
 
 }

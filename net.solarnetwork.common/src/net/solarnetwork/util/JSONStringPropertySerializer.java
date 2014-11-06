@@ -1,5 +1,5 @@
 /* ==================================================================
- * FilterableService.java - Mar 25, 2014 11:26:25 AM
+ * JSONStringPropertySerializer.java - Aug 29, 2014 2:51:51 PM
  * 
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
@@ -22,43 +22,38 @@
 
 package net.solarnetwork.util;
 
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * API for a service that supports filtering properties, to support narrowing
- * down a possible collection of services to one or more specific services
- * matching the filter.
+ * Serialize objects to a JSON string value.
  * 
  * @author matt
  * @version 1.0
  */
-public interface FilterableService {
+public class JSONStringPropertySerializer implements PropertySerializer {
 
-	/**
-	 * Get the current map of property filters, with keys representing property
-	 * names and value their desired associated value.
-	 * 
-	 * @return filters
-	 */
-	Map<String, ?> getPropertyFilters();
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	/**
-	 * Set a property filter value.
-	 * 
-	 * @param key
-	 *        the key to add
-	 * @param value
-	 *        the value
-	 */
-	void setPropertyFilter(String key, Object value);
+	private ObjectMapper objectMapper;
 
-	/**
-	 * Remove a property filter value.
-	 * 
-	 * @param key
-	 *        the key to remove
-	 * @return the removed value, or <em>null</em> if no value was available
-	 */
-	Object removePropertyFilter(String key);
+	@Override
+	public Object serialize(Object data, String propertyName, Object propertyValue) {
+		try {
+			return objectMapper.writeValueAsString(propertyValue);
+		} catch ( Exception e ) {
+			log.error("Exception marshalling {} to JSON", propertyValue, e);
+		}
+		return null;
+	}
+
+	public ObjectMapper getObjectMapper() {
+		return objectMapper;
+	}
+
+	public void setObjectMapper(ObjectMapper objectMapper) {
+		this.objectMapper = objectMapper;
+	}
 
 }

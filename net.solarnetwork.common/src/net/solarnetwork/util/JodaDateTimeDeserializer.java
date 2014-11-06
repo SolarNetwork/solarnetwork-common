@@ -1,7 +1,7 @@
 /* ==================================================================
- * JodaLocalDateSerializer.java - Mar 20, 2013 7:57:57 PM
+ * JodaDateTimeDeserializer.java - Oct 22, 2014 10:59:45 AM
  * 
- * Copyright 2007-2013 SolarNetwork.net Dev Team
+ * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -24,28 +24,30 @@ package net.solarnetwork.util;
 
 import java.io.IOException;
 import java.util.TimeZone;
-import org.joda.time.LocalDate;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import org.joda.time.DateTime;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
 
 /**
- * JsonSerializer for {@link LocalDate} into simple strings.
+ * JsonDeserializer for {@link DateTime} objects from formatted strings.
  * 
  * @author matt
  * @version 1.0
  */
-public class JodaLocalDateSerializer extends JodaBaseJsonSerializer<LocalDate> {
+public class JodaDateTimeDeserializer extends JodaBaseJsonDeserializer<DateTime> {
+
+	private static final long serialVersionUID = -4973232210335660362L;
 
 	/**
 	 * Default constructor.
 	 * 
 	 * <p>
-	 * Uses the pattern <code>yyyy-MM-dd</code>.
+	 * Uses the pattern <code>yyyy-MM-dd HH:mm:ss.SSS'Z'</code>.
 	 * </p>
 	 */
-	public JodaLocalDateSerializer() {
-		super(LocalDate.class, "yyyy-MM-dd");
+	public JodaDateTimeDeserializer() {
+		this("yyyy-MM-dd HH:mm:ss.SSS'Z'", TimeZone.getTimeZone("GMT"));
 	}
 
 	/**
@@ -56,8 +58,8 @@ public class JodaLocalDateSerializer extends JodaBaseJsonSerializer<LocalDate> {
 	 * @param timeZone
 	 *        the time zone
 	 */
-	public JodaLocalDateSerializer(String pattern, TimeZone timeZone) {
-		super(LocalDate.class, pattern, timeZone);
+	public JodaDateTimeDeserializer(String pattern, TimeZone timeZone) {
+		super(DateTime.class, pattern, timeZone);
 	}
 
 	/**
@@ -66,17 +68,14 @@ public class JodaLocalDateSerializer extends JodaBaseJsonSerializer<LocalDate> {
 	 * @param pattern
 	 *        the pattern
 	 */
-	public JodaLocalDateSerializer(String pattern) {
-		super(LocalDate.class, pattern);
+	public JodaDateTimeDeserializer(String pattern) {
+		super(DateTime.class, pattern);
 	}
 
 	@Override
-	public void serialize(LocalDate o, JsonGenerator generator, SerializerProvider provider)
-			throws IOException, JsonGenerationException {
-		if ( o == null ) {
-			return;
-		}
-		generator.writeString(serializeWithFormatter(o));
+	public DateTime deserialize(JsonParser parser, DeserializationContext context) throws IOException,
+			JsonProcessingException {
+		return formatter.parseDateTime(parser.getText());
 	}
 
 }

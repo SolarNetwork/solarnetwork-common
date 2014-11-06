@@ -24,10 +24,10 @@ package net.solarnetwork.util;
 
 import java.io.IOException;
 import java.util.TimeZone;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.SerializerProvider;
 import org.joda.time.DateTime;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
  * JsonSerializer for {@link DateTime} into simple strings.

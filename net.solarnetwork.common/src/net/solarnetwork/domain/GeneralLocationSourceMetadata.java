@@ -1,5 +1,5 @@
 /* ==================================================================
- * FilterableService.java - Mar 25, 2014 11:26:25 AM
+ * GeneralLocationSourceMetadata.java - Oct 21, 2014 1:37:21 PM
  * 
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
@@ -20,45 +20,41 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.domain;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
- * API for a service that supports filtering properties, to support narrowing
- * down a possible collection of services to one or more specific services
- * matching the filter.
+ * Metadata about a source associated with a location.
  * 
  * @author matt
  * @version 1.0
  */
-public interface FilterableService {
+@JsonPropertyOrder({ "created", "updated", "locationId", "sourceId", "location" })
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 
-	/**
-	 * Get the current map of property filters, with keys representing property
-	 * names and value their desired associated value.
-	 * 
-	 * @return filters
-	 */
-	Map<String, ?> getPropertyFilters();
+	private Long locationId;
 
-	/**
-	 * Set a property filter value.
-	 * 
-	 * @param key
-	 *        the key to add
-	 * @param value
-	 *        the value
-	 */
-	void setPropertyFilter(String key, Object value);
+	private Location location;
 
-	/**
-	 * Remove a property filter value.
-	 * 
-	 * @param key
-	 *        the key to remove
-	 * @return the removed value, or <em>null</em> if no value was available
-	 */
-	Object removePropertyFilter(String key);
+	public Long getLocationId() {
+		return locationId;
+	}
+
+	public void setLocationId(Long locationId) {
+		this.locationId = locationId;
+	}
+
+	public Location getLocation() {
+		return location;
+	}
+
+	@JsonDeserialize(as = BasicLocation.class)
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
 }

@@ -41,12 +41,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.solarnetwork.util.SerializeIgnore;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonGenerator;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.PropertyEditorRegistrar;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
 
 /**
  * View to return JSON encoded data.
@@ -133,7 +133,7 @@ public class JSONView extends AbstractView {
 		if ( this.includeParentheses ) {
 			writer.write('(');
 		}
-		JsonGenerator json = new JsonFactory().createJsonGenerator(writer);
+		JsonGenerator json = new JsonFactory().createGenerator(writer);
 		json.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
 		if ( indentAmount > 0 ) {
 			json.useDefaultPrettyPrinter();

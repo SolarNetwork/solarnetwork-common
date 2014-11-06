@@ -1,7 +1,7 @@
 /* ==================================================================
- * SimpleCsvViewTest.java - Feb 11, 2012 7:04:18 PM
+ * GeneralLocationDatumSamples.java - Oct 17, 2014 12:10:57 PM
  * 
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -18,21 +18,23 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
-package net.solarnetwork.web.test;
+package net.solarnetwork.domain;
 
-import org.springframework.test.context.ContextConfiguration;
+import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
- * Abstract base test class.
+ * A collection of different types of sample data, grouped by logical sample
+ * type.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
-@ContextConfiguration(locations={"classpath:/net/solarnetwork/web/test/test-context.xml"})
-public class AbstractTest {
+@JsonPropertyOrder({ "i", "a", "s", "t" })
+public class GeneralLocationDatumSamples extends GeneralDatumSamples implements Serializable {
+
+	private static final long serialVersionUID = 3113752106266124096L;
 
 }

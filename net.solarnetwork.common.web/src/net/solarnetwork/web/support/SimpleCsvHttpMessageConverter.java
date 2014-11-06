@@ -37,8 +37,6 @@ import java.util.Map;
 import java.util.Set;
 import net.solarnetwork.util.ClassUtils;
 import net.solarnetwork.util.PropertySerializerRegistrar;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVStrategy;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.http.HttpInputMessage;
@@ -48,12 +46,15 @@ import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.supercsv.io.CsvMapWriter;
+import org.supercsv.io.ICsvMapWriter;
+import org.supercsv.prefs.CsvPreference;
 
 /**
  * {@link HttpMessageConverter} that marshals objects into CSV documents.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
@@ -127,31 +128,40 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 			return;
 		}
 
-		final List<String> fields = getCSVFields(row, null);
+		final List<String> fieldList = getCSVFields(row, null);
+		final String[] fields = fieldList.toArray(new String[fieldList.size()]);
 
-		final CSVStrategy config = (CSVStrategy) CSVStrategy.DEFAULT_STRATEGY.clone();
-		final CSVPrinter writer = new CSVPrinter(
-				new OutputStreamWriter(outputMessage.getBody(), "UTF-8"));
-		writer.setStrategy(config);
+		if ( fields == null || fields.length < 1 ) {
+			// could happen with empty Map, for example
+			return;
+		}
 
-		// output header
-		if ( includeHeader ) {
-			Map<String, String> headerMap = new HashMap<String, String>(fields.size());
-			for ( String field : fields ) {
-				headerMap.put(field, field);
+		final ICsvMapWriter writer = new CsvMapWriter(new OutputStreamWriter(outputMessage.getBody(),
+				"UTF-8"), CsvPreference.EXCEL_PREFERENCE);
+		try {
+			// output header
+			if ( includeHeader ) {
+				writer.writeHeader(fields);
 			}
-			writeCSV(writer, fields, headerMap);
-		}
 
-		// output first row
-		writeCSV(writer, fields, row);
-
-		// output remainder rows
-		while ( rowIterator.hasNext() ) {
-			row = rowIterator.next();
+			// output first row
 			writeCSV(writer, fields, row);
-		}
 
+			// output remainder rows
+			while ( rowIterator.hasNext() ) {
+				row = rowIterator.next();
+				writeCSV(writer, fields, row);
+			}
+		} finally {
+			if ( writer != null ) {
+				try {
+					writer.flush();
+					writer.close();
+				} catch ( IOException e ) {
+					// ignore these
+				}
+			}
+		}
 	}
 
 	private List<String> getCSVFields(Object row, final Collection<String> fieldOrder) {
@@ -188,11 +198,19 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 		return result;
 	}
 
-	private void writeCSV(CSVPrinter writer, List<String> fields, Object row) {
+	// this method exists so we don't have to add @SuppressWarnings to other (real) methods
+	@SuppressWarnings("unchecked")
+	private <T> T cast(Object o) {
+		return (T) o;
+	}
+
+	private void writeCSV(ICsvMapWriter writer, String[] fields, Object row) throws IOException {
 		if ( row instanceof Map ) {
-			writeRecord(writer, (Map<?, ?>) row, fields);
+			@SuppressWarnings("unchecked")
+			Map<String, ?> map = (Map<String, ?>) row;
+			writer.write(map, fields);
 		} else if ( row != null ) {
-			Map<String, Object> map = new HashMap<String, Object>(fields.size());
+			Map<String, Object> map = new HashMap<String, Object>(fields.length);
 
 			// use bean properties
 			if ( propertySerializerRegistrar != null ) {
@@ -203,41 +221,47 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 				}
 			}
 
-			BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(row);
-			for ( String name : fields ) {
-				Object val = wrapper.getPropertyValue(name);
-				if ( val != null ) {
-					if ( getPropertySerializerRegistrar() != null ) {
-						val = getPropertySerializerRegistrar().serializeProperty(name, val.getClass(),
-								row, val);
-					} else {
-						// Spring does not apply PropertyEditors on read methods, so manually handle
-						PropertyEditor editor = wrapper.findCustomEditor(null, name);
-						if ( editor != null ) {
-							editor.setValue(val);
-							val = editor.getAsText();
-						}
+			if ( row instanceof Map ) {
+				Map<String, ?> rowMap = cast(row);
+				for ( Map.Entry<String, ?> me : rowMap.entrySet() ) {
+					Object val = getRowPropertyValue(row, me.getKey(), me.getValue(), null);
+					if ( val != null ) {
+						map.put(me.getKey(), val);
 					}
-					if ( val instanceof Enum<?> || javaBeanTreatAsStringValues != null
-							&& javaBeanTreatAsStringValues.contains(val.getClass()) ) {
-						val = val.toString();
-					}
+				}
+			} else {
+				BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(row);
+				for ( String name : fields ) {
+					Object val = wrapper.getPropertyValue(name);
+					val = getRowPropertyValue(row, name, val, wrapper);
 					if ( val != null ) {
 						map.put(name, val);
 					}
 				}
 			}
 
-			writeRecord(writer, map, fields);
+			writer.write(map, fields);
 		}
 	}
 
-	private void writeRecord(CSVPrinter writer, Map<?, ?> row, List<String> fields) {
-		for ( String key : fields ) {
-			Object val = row.get(key);
-			writer.print(val == null ? "" : val.toString());
+	private Object getRowPropertyValue(Object row, String name, Object val, BeanWrapper wrapper) {
+		if ( val != null ) {
+			if ( getPropertySerializerRegistrar() != null ) {
+				val = getPropertySerializerRegistrar().serializeProperty(name, val.getClass(), row, val);
+			} else if ( wrapper != null ) {
+				// Spring does not apply PropertyEditors on read methods, so manually handle
+				PropertyEditor editor = wrapper.findCustomEditor(null, name);
+				if ( editor != null ) {
+					editor.setValue(val);
+					val = editor.getAsText();
+				}
+			}
+			if ( val instanceof Enum<?> || javaBeanTreatAsStringValues != null
+					&& javaBeanTreatAsStringValues.contains(val.getClass()) ) {
+				val = val.toString();
+			}
 		}
-		writer.println();
+		return val;
 	}
 
 	public PropertySerializerRegistrar getPropertySerializerRegistrar() {

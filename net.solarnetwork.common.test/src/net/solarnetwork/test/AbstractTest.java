@@ -1,5 +1,5 @@
 /* ==================================================================
- * NetworkAssociation.java - Nov 29, 2012 10:30:24 AM
+ * SimpleCsvViewTest.java - Feb 11, 2012 7:04:18 PM
  * 
  * Copyright 2007-2012 SolarNetwork.net Dev Team
  * 
@@ -20,43 +20,17 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain;
+package net.solarnetwork.test;
+
+import org.springframework.test.context.ContextConfiguration;
 
 /**
- * API for node/network association details.
+ * Abstract base test class.
  * 
  * @author matt
  * @version 1.1
  */
-public interface NetworkAssociation extends NetworkIdentity {
-
-	/**
-	 * Get a confirmation key, generated on the network side.
-	 * 
-	 * @return confirmation key
-	 */
-	String getConfirmationKey();
-
-	/**
-	 * Get a security phrase, generated on the network side.
-	 * 
-	 * @return a security phrase
-	 */
-	String getSecurityPhrase();
-
-	/**
-	 * Get the username associated with this association.
-	 * 
-	 * @return the username
-	 */
-	String getUsername();
-
-	/**
-	 * Get a password to use for this association's keystore.
-	 * 
-	 * @return a keystore password
-	 * @since 1.1
-	 */
-	String getKeystorePassword();
+@ContextConfiguration(locations = { "classpath:/net/solarnetwork/test/test-context.xml" })
+public class AbstractTest {
 
 }

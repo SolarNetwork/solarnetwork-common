@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bouncy Castle PKI
 Bundle-SymbolicName: net.solarnetwork.common.pki.bc
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.1
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
- net.solarnetwork.pki.bc;version="1.0.0"
+ net.solarnetwork.pki.bc;version="1.0.1"
 Import-Package: 
  javax.security.auth.x500,
  net.solarnetwork.support;version="1.0",

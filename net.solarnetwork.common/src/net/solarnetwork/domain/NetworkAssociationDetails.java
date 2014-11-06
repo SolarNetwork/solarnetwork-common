@@ -31,12 +31,12 @@ import java.util.Date;
  * Command object for initial SolarNode and SolarNet association data.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class NetworkAssociationDetails extends BasicNetworkIdentity implements NetworkAssociation,
 		NetworkCertificate, Serializable {
 
-	private static final long serialVersionUID = 1744090395428325254L;
+	private static final long serialVersionUID = -6264228260215100345L;
 
 	private String confirmationKey;
 	private String username;
@@ -46,6 +46,7 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity implements N
 	private String networkCertificate;
 	private String networkCertificateStatus;
 	private String networkCertificateSubjectDN;
+	private String keystorePassword;
 
 	/**
 	 * Default constructor.
@@ -68,6 +69,25 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity implements N
 		setPort(other.getPort());
 		setSecurityPhrase(other.getSecurityPhrase());
 		setTermsOfService(other.getTermsOfService());
+		setForceTLS(other.isForceTLS());
+	}
+
+	/**
+	 * Construct with association details.
+	 * 
+	 * @param username
+	 *        the username
+	 * @param confirmationKey
+	 *        the confirmation key
+	 * @param keystorePassword
+	 *        the keystore password
+	 * @since 1.1
+	 */
+	public NetworkAssociationDetails(String username, String confirmationKey, String keystorePassword) {
+		super();
+		setUsername(username);
+		setConfirmationKey(confirmationKey);
+		setKeystorePassword(keystorePassword);
 	}
 
 	@Override
@@ -145,6 +165,15 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity implements N
 
 	public void setNetworkCertificateSubjectDN(String networkCertificateSubjectDN) {
 		this.networkCertificateSubjectDN = networkCertificateSubjectDN;
+	}
+
+	@Override
+	public String getKeystorePassword() {
+		return keystorePassword;
+	}
+
+	public void setKeystorePassword(String keystorePassword) {
+		this.keystorePassword = keystorePassword;
 	}
 
 }

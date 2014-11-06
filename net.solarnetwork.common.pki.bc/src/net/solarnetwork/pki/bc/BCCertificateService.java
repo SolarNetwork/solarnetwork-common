@@ -164,6 +164,10 @@ public class BCCertificateService implements CertificateService {
 
 	@Override
 	public X509Certificate[] parsePKCS7CertificateChainString(String pem) throws CertificateException {
+		if ( !pem.matches("(?i)^\\s*-----BEGIN.*") ) {
+			// let's throw in the guards
+			pem = "-----BEGIN CERTIFICATE CHAIN-----\n" + pem + "\n-----END CERTIFICATE CHAIN-----\n";
+		}
 		PemReader reader = new PemReader(new StringReader(pem));
 		List<X509Certificate> results = new ArrayList<X509Certificate>(3);
 		try {

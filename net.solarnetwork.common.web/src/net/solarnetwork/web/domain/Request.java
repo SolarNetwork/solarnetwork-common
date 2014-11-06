@@ -1,7 +1,7 @@
 /* ==================================================================
- * FilterableService.java - Mar 25, 2014 11:26:25 AM
+ * Request.java - Nov 20, 2012 7:04:41 AM
  * 
- * Copyright 2007-2014 SolarNetwork.net Dev Team
+ * Copyright 2007-2012 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,45 +20,39 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.web.domain;
 
 import java.util.Map;
 
 /**
- * API for a service that supports filtering properties, to support narrowing
- * down a possible collection of services to one or more specific services
- * matching the filter.
+ * A web request envelope object.
  * 
  * @author matt
  * @version 1.0
  */
-public interface FilterableService {
+public class Request {
 
-	/**
-	 * Get the current map of property filters, with keys representing property
-	 * names and value their desired associated value.
-	 * 
-	 * @return filters
-	 */
-	Map<String, ?> getPropertyFilters();
+	private final String username;
+	private final String password;
+	private final Map<String, Object> data;
 
-	/**
-	 * Set a property filter value.
-	 * 
-	 * @param key
-	 *        the key to add
-	 * @param value
-	 *        the value
-	 */
-	void setPropertyFilter(String key, Object value);
+	public Request(String username, String password, Map<String, Object> data) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.data = data;
+	}
 
-	/**
-	 * Remove a property filter value.
-	 * 
-	 * @param key
-	 *        the key to remove
-	 * @return the removed value, or <em>null</em> if no value was available
-	 */
-	Object removePropertyFilter(String key);
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public Map<String, Object> getData() {
+		return data;
+	}
 
 }

@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Pidfile
 Bundle-SymbolicName: net.solarnetwork.common.pidfile
+Bundle-Description: Creates a process ID file when deployed to aid system management tasks.
 Bundle-Version: 1.0.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

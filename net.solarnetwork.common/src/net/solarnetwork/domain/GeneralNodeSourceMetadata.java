@@ -1,5 +1,5 @@
 /* ==================================================================
- * FilterableService.java - Mar 25, 2014 11:26:25 AM
+ * GeneralNodeSourceMetadata.java - Oct 21, 2014 1:35:14 PM
  * 
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
@@ -20,45 +20,29 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.domain;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
- * API for a service that supports filtering properties, to support narrowing
- * down a possible collection of services to one or more specific services
- * matching the filter.
+ * Metadata about a source associated with a node.
  * 
  * @author matt
  * @version 1.0
  */
-public interface FilterableService {
+@JsonPropertyOrder({ "created", "updated", "nodeId", "sourceId" })
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class GeneralNodeSourceMetadata extends GeneralSourceMetadata {
 
-	/**
-	 * Get the current map of property filters, with keys representing property
-	 * names and value their desired associated value.
-	 * 
-	 * @return filters
-	 */
-	Map<String, ?> getPropertyFilters();
+	private Long nodeId;
 
-	/**
-	 * Set a property filter value.
-	 * 
-	 * @param key
-	 *        the key to add
-	 * @param value
-	 *        the value
-	 */
-	void setPropertyFilter(String key, Object value);
+	public Long getNodeId() {
+		return nodeId;
+	}
 
-	/**
-	 * Remove a property filter value.
-	 * 
-	 * @param key
-	 *        the key to remove
-	 * @return the removed value, or <em>null</em> if no value was available
-	 */
-	Object removePropertyFilter(String key);
+	public void setNodeId(Long nodeId) {
+		this.nodeId = nodeId;
+	}
 
 }
