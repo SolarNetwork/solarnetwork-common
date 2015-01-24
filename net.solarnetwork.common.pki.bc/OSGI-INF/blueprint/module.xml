@@ -28,6 +28,11 @@
 		<property name="signatureAlgorithm" value="${CertificateService.signatureAlgorithm}"/>
 	</bean>
 	
-	<service ref="certificateService" interface="net.solarnetwork.support.CertificateService"/>
+	<service ref="certificateService">
+		<interfaces>
+			<value>net.solarnetwork.support.CertificateService</value>
+			<value>net.solarnetwork.support.CertificationAuthorityService</value>
+		</interfaces>
+	</service>
 	
 </blueprint>
