@@ -115,7 +115,7 @@ public class BCCertificateService implements CertificateService, CertificationAu
 		if ( !csrPEM.matches("(?i)^\\s*-----BEGIN.*") ) {
 			// let's throw in the guards
 			csrPEM = "-----BEGIN CERTIFICATE SIGNING REQUEST-----\n" + csrPEM
-					+ "\n-----END CERTIFICATE  SIGNING REQUEST-----\n";
+					+ "\n-----END CERTIFICATE SIGNING REQUEST-----\n";
 		}
 		PemReader reader = null;
 		try {
