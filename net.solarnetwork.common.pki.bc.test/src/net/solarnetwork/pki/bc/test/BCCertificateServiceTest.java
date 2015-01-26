@@ -48,6 +48,7 @@ import org.springframework.util.FileCopyUtils;
 public class BCCertificateServiceTest {
 
 	private static final String TEST_DN = "UID=1, O=SolarNetwork";
+	private static final String TEST_CA_DN = "CN=Test CA, O=SolarTest";
 	private BCCertificateService service;
 	private PublicKey publicKey;
 	private PrivateKey privateKey;
@@ -93,4 +94,29 @@ public class BCCertificateServiceTest {
 		assertNotNull(chain);
 		assertEquals(3, chain.length);
 	}
+
+	@Test
+	public void createCACertificate() throws Exception {
+		X509Certificate cert = service.generateCertificationAuthorityCertificate(TEST_CA_DN, publicKey,
+				privateKey);
+		assertEquals("Is a CA", Integer.MAX_VALUE, cert.getBasicConstraints()); // should be a CA
+		assertEquals("Self signed", cert.getIssuerX500Principal(), cert.getSubjectX500Principal());
+	}
+
+	@Test
+	public void signCertificate() throws Exception {
+		X509Certificate cert = service.generateCertificate(TEST_DN, publicKey, privateKey);
+		String csr = service.generatePKCS10CertificateRequestString(cert, privateKey);
+
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+		keyGen.initialize(2048, new SecureRandom());
+		KeyPair caKeypair = keyGen.generateKeyPair();
+		X509Certificate caCert = service.generateCertificationAuthorityCertificate(TEST_CA_DN,
+				caKeypair.getPublic(), caKeypair.getPrivate());
+
+		X509Certificate signed = service.signCertificate(csr, caCert, caKeypair.getPrivate());
+		assertEquals("Issuer", caCert.getSubjectX500Principal(), signed.getIssuerX500Principal());
+		assertEquals("Subject", cert.getSubjectX500Principal(), signed.getSubjectX500Principal());
+	}
+
 }
