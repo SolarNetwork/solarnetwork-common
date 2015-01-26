@@ -49,13 +49,16 @@ import net.solarnetwork.support.CertificateService;
 import net.solarnetwork.support.CertificationAuthorityService;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DigestCalculatorProvider;
@@ -82,6 +85,7 @@ public class BCCertificateService implements CertificateService, CertificationAu
 	private final AtomicLong counter = new AtomicLong(System.currentTimeMillis());
 
 	private int certificateExpireDays = 730;
+	private int authorityExpireDays = 7300;
 	private String signatureAlgorithm = "SHA256WithRSA";
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -99,6 +103,47 @@ public class BCCertificateService implements CertificateService, CertificationAu
 			signer = signerBuilder.build(privateKey);
 		} catch ( OperatorCreationException e ) {
 			throw new CertificateException("Error signing certificate", e);
+		}
+		X509CertificateHolder holder = builder.build(signer);
+		JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
+		try {
+			return converter.getCertificate(holder);
+		} catch ( java.security.cert.CertificateException e ) {
+			throw new CertificateException("Error creating certificate", e);
+		}
+	}
+
+	@Override
+	public X509Certificate generateCertificationAuthorityCertificate(String dn, PublicKey publicKey,
+			PrivateKey privateKey) {
+		X500Principal issuer = new X500Principal(dn);
+		Date now = new Date();
+		Date expire = new Date(now.getTime() + (1000L * 60L * 60L * 24L * authorityExpireDays));
+		JcaX509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(issuer,
+				new BigInteger("0"), now, expire, issuer, publicKey);
+		JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder(signatureAlgorithm);
+		DefaultDigestAlgorithmIdentifierFinder digestAlgFinder = new DefaultDigestAlgorithmIdentifierFinder();
+		ContentSigner signer;
+		try {
+			DigestCalculatorProvider digestCalcProvider = new JcaDigestCalculatorProviderBuilder()
+					.setProvider(new BouncyCastleProvider()).build();
+			JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils(
+					digestCalcProvider.get(digestAlgFinder.find("SHA-256")));
+			builder.addExtension(X509Extension.basicConstraints, true, new BasicConstraints(true));
+			builder.addExtension(X509Extension.subjectKeyIdentifier, false,
+					extUtils.createSubjectKeyIdentifier(publicKey));
+			builder.addExtension(X509Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature
+					| KeyUsage.nonRepudiation | KeyUsage.keyCertSign | KeyUsage.cRLSign));
+			builder.addExtension(X509Extension.authorityKeyIdentifier, false,
+					extUtils.createAuthorityKeyIdentifier(publicKey));
+
+			signer = signerBuilder.build(privateKey);
+		} catch ( OperatorCreationException e ) {
+			log.error("Error generating CA certificate [{}]", dn, e);
+			throw new CertificateException("Error signing CA certificate", e);
+		} catch ( CertIOException e ) {
+			log.error("Error generating CA certificate [{}]", dn, e);
+			throw new CertificateException("Error signing CA certificate", e);
 		}
 		X509CertificateHolder holder = builder.build(signer);
 		JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
@@ -136,7 +181,7 @@ public class BCCertificateService implements CertificateService, CertificationAu
 			DefaultDigestAlgorithmIdentifierFinder digestAlgFinder = new DefaultDigestAlgorithmIdentifierFinder();
 			try {
 				DigestCalculatorProvider digestCalcProvider = new JcaDigestCalculatorProviderBuilder()
-						.build();
+						.setProvider(new BouncyCastleProvider()).build();
 				JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils(
 						digestCalcProvider.get(digestAlgFinder.find("SHA-256")));
 				builder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
@@ -318,6 +363,10 @@ public class BCCertificateService implements CertificateService, CertificationAu
 
 	public void setSignatureAlgorithm(String signatureAlgorithm) {
 		this.signatureAlgorithm = signatureAlgorithm;
+	}
+
+	public void setAuthorityExpireDays(int authorityExpireDays) {
+		this.authorityExpireDays = authorityExpireDays;
 	}
 
 }

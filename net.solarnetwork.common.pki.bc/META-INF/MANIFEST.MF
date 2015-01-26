@@ -16,6 +16,7 @@ Import-Package:
  org.bouncycastle.asn1.x509,
  org.bouncycastle.cert,
  org.bouncycastle.cert.jcajce,
+ org.bouncycastle.jce.provider,
  org.bouncycastle.operator,
  org.bouncycastle.operator.jcajce,
  org.bouncycastle.pkcs,

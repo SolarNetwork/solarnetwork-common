@@ -23,6 +23,7 @@
 package net.solarnetwork.support;
 
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 
 /**
@@ -49,4 +50,18 @@ public interface CertificationAuthorityService {
 	X509Certificate signCertificate(String csr, X509Certificate caCert, PrivateKey privateKey)
 			throws CertificateException;
 
+	/**
+	 * Create a new self-signed certification authority certificate.
+	 * 
+	 * @param dn
+	 *        The distinguished name of the certificate.
+	 * @param publicKey
+	 *        The public key.
+	 * @param privateKey
+	 *        The private key.
+	 * @return The self-signed certificate, with certification authority
+	 *         extensions applied.
+	 */
+	X509Certificate generateCertificationAuthorityCertificate(String dn, PublicKey publicKey,
+			PrivateKey privateKey);
 }
