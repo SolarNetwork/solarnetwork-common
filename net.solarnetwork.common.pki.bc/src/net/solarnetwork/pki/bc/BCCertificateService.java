@@ -112,10 +112,10 @@ public class BCCertificateService implements CertificateService, CertificationAu
 	@Override
 	public X509Certificate signCertificate(String csrPEM, X509Certificate caCert, PrivateKey privateKey)
 			throws CertificateException {
-		if ( !csrPEM.matches("(?i)^\\s*-----BEGIN.*") ) {
+		if ( !csrPEM.matches("(?is)^\\s*-----BEGIN.*") ) {
 			// let's throw in the guards
-			csrPEM = "-----BEGIN CERTIFICATE SIGNING REQUEST-----\n" + csrPEM
-					+ "\n-----END CERTIFICATE SIGNING REQUEST-----\n";
+			csrPEM = "-----BEGIN CERTIFICATE REQUEST-----\n" + csrPEM
+					+ "\n-----END CERTIFICATE REQUEST-----\n";
 		}
 		PemReader reader = null;
 		try {
@@ -241,7 +241,7 @@ public class BCCertificateService implements CertificateService, CertificationAu
 
 	@Override
 	public X509Certificate[] parsePKCS7CertificateChainString(String pem) throws CertificateException {
-		if ( !pem.matches("(?i)^\\s*-----BEGIN.*") ) {
+		if ( !pem.matches("(?is)^\\s*-----BEGIN.*") ) {
 			// let's throw in the guards
 			pem = "-----BEGIN CERTIFICATE CHAIN-----\n" + pem + "\n-----END CERTIFICATE CHAIN-----\n";
 		}
