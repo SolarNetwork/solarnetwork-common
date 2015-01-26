@@ -47,13 +47,13 @@ import javax.security.auth.x500.X500Principal;
 import net.solarnetwork.support.CertificateException;
 import net.solarnetwork.support.CertificateService;
 import net.solarnetwork.support.CertificationAuthorityService;
-import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX500NameUtil;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
@@ -169,12 +169,12 @@ public class BCCertificateService implements CertificateService, CertificationAu
 			log.debug("Parsed PEM type {}", pemObj.getType());
 			PKCS10CertificationRequest csr = new PKCS10CertificationRequest(pemObj.getContent());
 
-			X500Principal issuer = caCert.getSubjectX500Principal();
 			Date now = new Date();
 			Date expire = new Date(now.getTime() + (1000L * 60L * 60L * 24L * certificateExpireDays));
-			X509v3CertificateBuilder builder = new X509v3CertificateBuilder(new X500Name(
-					issuer.getName()), new BigInteger(String.valueOf(counter.incrementAndGet())), now,
-					expire, csr.getSubject(), csr.getSubjectPublicKeyInfo());
+			X509v3CertificateBuilder builder = new X509v3CertificateBuilder(
+					JcaX500NameUtil.getIssuer(caCert), new BigInteger(String.valueOf(counter
+							.incrementAndGet())), now, expire, csr.getSubject(),
+					csr.getSubjectPublicKeyInfo());
 
 			JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder(signatureAlgorithm);
 			ContentSigner signer;
