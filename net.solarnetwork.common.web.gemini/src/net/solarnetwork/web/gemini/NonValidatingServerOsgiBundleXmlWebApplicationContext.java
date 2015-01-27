@@ -22,7 +22,6 @@
 
 package net.solarnetwork.web.gemini;
 
-import org.eclipse.virgo.web.dm.ServerOsgiBundleXmlWebApplicationContext;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 

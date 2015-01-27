@@ -9,7 +9,7 @@
  *   VMware Inc. - initial contribution
  *******************************************************************************/
 
-package org.eclipse.virgo.web.dm;
+package net.solarnetwork.web.gemini;
 
 import java.io.IOException;
 import java.util.Map;
