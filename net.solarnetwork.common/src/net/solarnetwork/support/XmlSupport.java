@@ -82,7 +82,7 @@ import org.w3c.dom.Node;
  * </dl>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class XmlSupport {
 
@@ -413,8 +413,16 @@ public class XmlSupport {
 	public XPathFactory getXpathFactory() {
 		XPathFactory result = this.xpathFactory;
 		if ( result == null ) {
-			result = XPathFactory.newInstance();
-			this.xpathFactory = result;
+			// work around Oracle JDK issues loading XPathFactory, see
+			// https://java.net/projects/glassfish/lists/users/archive/2012-02/message/371
+			final ClassLoader origClassLoader = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(XPathFactory.class.getClassLoader());
+			try {
+				result = XPathFactory.newInstance();
+				this.xpathFactory = result;
+			} finally {
+				Thread.currentThread().setContextClassLoader(origClassLoader);
+			}
 		}
 		return result;
 	}
@@ -426,8 +434,16 @@ public class XmlSupport {
 	public TransformerFactory getTransformerFactory() {
 		TransformerFactory result = this.transformerFactory;
 		if ( result == null ) {
-			result = TransformerFactory.newInstance();
-			this.transformerFactory = result;
+			// work around Oracle JDK issues loading XPathFactory, see
+			// https://java.net/projects/glassfish/lists/users/archive/2012-02/message/371
+			final ClassLoader origClassLoader = Thread.currentThread().getContextClassLoader();
+			Thread.currentThread().setContextClassLoader(XPathFactory.class.getClassLoader());
+			try {
+				result = TransformerFactory.newInstance();
+				this.transformerFactory = result;
+			} finally {
+				Thread.currentThread().setContextClassLoader(origClassLoader);
+			}
 		}
 		return result;
 	}
