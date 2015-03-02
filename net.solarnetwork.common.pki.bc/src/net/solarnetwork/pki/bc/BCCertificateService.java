@@ -46,13 +46,26 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.security.auth.x500.X500Principal;
 import net.solarnetwork.support.CertificateException;
 import net.solarnetwork.support.CertificateService;
+import net.solarnetwork.support.CertificationAuthorityService;
+import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.KeyUsage;
+import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX500NameUtil;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
+import org.bouncycastle.operator.DigestCalculatorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.OperatorException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
@@ -67,11 +80,12 @@ import org.slf4j.LoggerFactory;
  * @author matt
  * @version 1.0
  */
-public class BCCertificateService implements CertificateService {
+public class BCCertificateService implements CertificateService, CertificationAuthorityService {
 
 	private final AtomicLong counter = new AtomicLong(System.currentTimeMillis());
 
 	private int certificateExpireDays = 730;
+	private int authorityExpireDays = 7300;
 	private String signatureAlgorithm = "SHA256WithRSA";
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -96,6 +110,114 @@ public class BCCertificateService implements CertificateService {
 			return converter.getCertificate(holder);
 		} catch ( java.security.cert.CertificateException e ) {
 			throw new CertificateException("Error creating certificate", e);
+		}
+	}
+
+	@Override
+	public X509Certificate generateCertificationAuthorityCertificate(String dn, PublicKey publicKey,
+			PrivateKey privateKey) {
+		X500Principal issuer = new X500Principal(dn);
+		Date now = new Date();
+		Date expire = new Date(now.getTime() + (1000L * 60L * 60L * 24L * authorityExpireDays));
+		JcaX509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(issuer,
+				new BigInteger("0"), now, expire, issuer, publicKey);
+		JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder(signatureAlgorithm);
+		DefaultDigestAlgorithmIdentifierFinder digestAlgFinder = new DefaultDigestAlgorithmIdentifierFinder();
+		ContentSigner signer;
+		try {
+			DigestCalculatorProvider digestCalcProvider = new JcaDigestCalculatorProviderBuilder()
+					.setProvider(new BouncyCastleProvider()).build();
+			JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils(
+					digestCalcProvider.get(digestAlgFinder.find("SHA-256")));
+			builder.addExtension(X509Extension.basicConstraints, true, new BasicConstraints(true));
+			builder.addExtension(X509Extension.subjectKeyIdentifier, false,
+					extUtils.createSubjectKeyIdentifier(publicKey));
+			builder.addExtension(X509Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature
+					| KeyUsage.nonRepudiation | KeyUsage.keyCertSign | KeyUsage.cRLSign));
+			builder.addExtension(X509Extension.authorityKeyIdentifier, false,
+					extUtils.createAuthorityKeyIdentifier(publicKey));
+
+			signer = signerBuilder.build(privateKey);
+		} catch ( OperatorCreationException e ) {
+			log.error("Error generating CA certificate [{}]", dn, e);
+			throw new CertificateException("Error signing CA certificate", e);
+		} catch ( CertIOException e ) {
+			log.error("Error generating CA certificate [{}]", dn, e);
+			throw new CertificateException("Error signing CA certificate", e);
+		}
+		X509CertificateHolder holder = builder.build(signer);
+		JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
+		try {
+			return converter.getCertificate(holder);
+		} catch ( java.security.cert.CertificateException e ) {
+			throw new CertificateException("Error creating certificate", e);
+		}
+	}
+
+	@Override
+	public X509Certificate signCertificate(String csrPEM, X509Certificate caCert, PrivateKey privateKey)
+			throws CertificateException {
+		if ( !csrPEM.matches("(?is)^\\s*-----BEGIN.*") ) {
+			// let's throw in the guards
+			csrPEM = "-----BEGIN CERTIFICATE REQUEST-----\n" + csrPEM
+					+ "\n-----END CERTIFICATE REQUEST-----\n";
+		}
+		PemReader reader = null;
+		try {
+			reader = new PemReader(new StringReader(csrPEM));
+			PemObject pemObj = reader.readPemObject();
+			log.debug("Parsed PEM type {}", pemObj.getType());
+			PKCS10CertificationRequest csr = new PKCS10CertificationRequest(pemObj.getContent());
+
+			Date now = new Date();
+			Date expire = new Date(now.getTime() + (1000L * 60L * 60L * 24L * certificateExpireDays));
+			X509v3CertificateBuilder builder = new X509v3CertificateBuilder(
+					JcaX500NameUtil.getIssuer(caCert), new BigInteger(String.valueOf(counter
+							.incrementAndGet())), now, expire, csr.getSubject(),
+					csr.getSubjectPublicKeyInfo());
+
+			JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder(signatureAlgorithm);
+			ContentSigner signer;
+			DefaultDigestAlgorithmIdentifierFinder digestAlgFinder = new DefaultDigestAlgorithmIdentifierFinder();
+			try {
+				DigestCalculatorProvider digestCalcProvider = new JcaDigestCalculatorProviderBuilder()
+						.setProvider(new BouncyCastleProvider()).build();
+				JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils(
+						digestCalcProvider.get(digestAlgFinder.find("SHA-256")));
+				builder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
+				builder.addExtension(X509Extension.subjectKeyIdentifier, false,
+						extUtils.createSubjectKeyIdentifier(csr.getSubjectPublicKeyInfo()));
+				builder.addExtension(X509Extension.authorityKeyIdentifier, false,
+						extUtils.createAuthorityKeyIdentifier(caCert));
+
+				signer = signerBuilder.build(privateKey);
+			} catch ( OperatorException e ) {
+				log.error("Error signing CSR {}", csr.getSubject(), e);
+				throw new CertificateException("Error signing CSR" + csr.getSubject() + ": "
+						+ e.getMessage());
+			} catch ( CertificateEncodingException e ) {
+				log.error("Error signing CSR {}", csr.getSubject().toString(), e);
+				throw new CertificateException("Error signing CSR" + csr.getSubject() + ": "
+						+ e.getMessage());
+			}
+
+			X509CertificateHolder holder = builder.build(signer);
+			JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
+			try {
+				return converter.getCertificate(holder);
+			} catch ( java.security.cert.CertificateException e ) {
+				throw new CertificateException("Error creating certificate", e);
+			}
+		} catch ( IOException e ) {
+			throw new CertificateException("Error signing CSR", e);
+		} finally {
+			if ( reader != null ) {
+				try {
+					reader.close();
+				} catch ( IOException e2 ) {
+					log.warn("IOException closing PemReader", e2);
+				}
+			}
 		}
 	}
 
@@ -164,7 +286,7 @@ public class BCCertificateService implements CertificateService {
 
 	@Override
 	public X509Certificate[] parsePKCS7CertificateChainString(String pem) throws CertificateException {
-		if ( !pem.matches("(?i)^\\s*-----BEGIN.*") ) {
+		if ( !pem.matches("(?is)^\\s*-----BEGIN.*") ) {
 			// let's throw in the guards
 			pem = "-----BEGIN CERTIFICATE CHAIN-----\n" + pem + "\n-----END CERTIFICATE CHAIN-----\n";
 		}
@@ -241,6 +363,10 @@ public class BCCertificateService implements CertificateService {
 
 	public void setSignatureAlgorithm(String signatureAlgorithm) {
 		this.signatureAlgorithm = signatureAlgorithm;
+	}
+
+	public void setAuthorityExpireDays(int authorityExpireDays) {
+		this.authorityExpireDays = authorityExpireDays;
 	}
 
 }
