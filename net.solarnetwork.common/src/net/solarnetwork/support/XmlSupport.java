@@ -82,7 +82,7 @@ import org.w3c.dom.Node;
  * </dl>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class XmlSupport {
 
@@ -416,12 +416,17 @@ public class XmlSupport {
 			// work around Oracle JDK issues loading XPathFactory, see
 			// https://java.net/projects/glassfish/lists/users/archive/2012-02/message/371
 			final ClassLoader origClassLoader = Thread.currentThread().getContextClassLoader();
-			Thread.currentThread().setContextClassLoader(XPathFactory.class.getClassLoader());
+			final ClassLoader newClassLoader = XPathFactory.class.getClassLoader();
+			if ( newClassLoader != null ) {
+				Thread.currentThread().setContextClassLoader(newClassLoader);
+			}
 			try {
 				result = XPathFactory.newInstance();
 				this.xpathFactory = result;
 			} finally {
-				Thread.currentThread().setContextClassLoader(origClassLoader);
+				if ( newClassLoader != null ) {
+					Thread.currentThread().setContextClassLoader(origClassLoader);
+				}
 			}
 		}
 		return result;
