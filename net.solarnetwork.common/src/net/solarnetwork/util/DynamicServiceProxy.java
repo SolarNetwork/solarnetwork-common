@@ -23,6 +23,7 @@
 package net.solarnetwork.util;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
@@ -99,7 +100,15 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 			}
 			Method delegateMethod = delegate.getClass().getMethod(method.getName(),
 					method.getParameterTypes());
-			return delegateMethod.invoke(delegate, args);
+			try {
+				return delegateMethod.invoke(delegate, args);
+			} catch ( InvocationTargetException proxyException ) {
+				log.debug("Exception calling proxy method " + method.getName());
+				if ( proxyException.getCause() != null ) {
+					throw proxyException.getCause();
+				}
+				throw proxyException;
+			}
 		}
 	}
 
