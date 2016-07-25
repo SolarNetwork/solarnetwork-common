@@ -23,12 +23,22 @@
 package net.solarnetwork.dao.jdbc;
 
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Statement;
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.logging.Logger;
+import javax.sql.ConnectionEvent;
+import javax.sql.ConnectionEventListener;
 import javax.sql.DataSource;
+import javax.sql.PooledConnection;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -41,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author matt
  * @version 1.0
  */
-public class SQLExceptionHandlerDataSourceProxy implements DataSource {
+public class SQLExceptionHandlerDataSourceProxy implements DataSource, ConnectionEventListener {
 
 	private final DataSource delegate;
 	private final BundleContext bundleContext;
@@ -74,17 +84,10 @@ public class SQLExceptionHandlerDataSourceProxy implements DataSource {
 	@Override
 	public Connection getConnection() throws SQLException {
 		try {
-			return delegate.getConnection();
+			Connection conn = delegate.getConnection();
+			return getWrappedConnection(conn);
 		} catch ( final SQLException e ) {
-			if ( bundleContext != null ) {
-				doWithHandlers(new SQLExceptionHandlerCallback() {
-
-					@Override
-					public void doWithHandler(SQLExceptionHandler handler) throws Exception {
-						handler.handleGetConnectionException(e);
-					}
-				});
-			}
+			handleSQLException(null, e);
 			throw e;
 		}
 	}
@@ -92,18 +95,124 @@ public class SQLExceptionHandlerDataSourceProxy implements DataSource {
 	@Override
 	public Connection getConnection(String username, String password) throws SQLException {
 		try {
-			return delegate.getConnection(username, password);
+			Connection conn = delegate.getConnection(username, password);
+			return getWrappedConnection(conn);
 		} catch ( final SQLException e ) {
-			if ( bundleContext != null ) {
-				doWithHandlers(new SQLExceptionHandlerCallback() {
-
-					@Override
-					public void doWithHandler(SQLExceptionHandler handler) throws Exception {
-						handler.handleGetConnectionException(e);
-					}
-				});
-			}
+			handleSQLException(null, e);
 			throw e;
+		}
+	}
+
+	private Connection getWrappedConnection(Connection conn) {
+		// if we have a PooledConnection we can tap into that...
+		if ( conn instanceof PooledConnection ) {
+			PooledConnection pooledConn = (PooledConnection) conn;
+			pooledConn.addConnectionEventListener(this);
+		} else {
+			// not a PooledConnection, so use a Proxy to catch exceptions
+			conn = wrapJdbcObjectWithProxy(conn);
+		}
+		return conn;
+	}
+
+	private void collectAllInterfaces(Class<?> clazz, Set<Class<?>> interfaces) {
+		for ( Class<?> i : clazz.getInterfaces() ) {
+			interfaces.add(i);
+		}
+		if ( clazz.getSuperclass() != null ) {
+			collectAllInterfaces(clazz.getSuperclass(), interfaces);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> T wrapJdbcObjectWithProxy(T delegate) {
+		Set<Class<?>> allInterfaces = new LinkedHashSet<Class<?>>();
+		collectAllInterfaces(delegate.getClass(), allInterfaces);
+		Class<?>[] interfaces = allInterfaces.toArray(new Class<?>[allInterfaces.size()]);
+		Object proxy = Proxy.newProxyInstance(delegate.getClass().getClassLoader(), interfaces,
+				new JDBCDelegatingHandler(delegate));
+		return (T) proxy;
+	}
+
+	/**
+	 * An {@link InvocationHandler} for JDBC objects that looks for thrown
+	 * {@link SQLException} exceptions to pass to the registered
+	 * {@link SQLExceptionHandler} instacnes.
+	 */
+	private class JDBCDelegatingHandler implements InvocationHandler {
+
+		private final Object delegate;
+
+		/**
+		 * Delegate all method calls to another JDBC object.
+		 * 
+		 * @param delegate
+		 *        the delegate
+		 */
+		public JDBCDelegatingHandler(Object delegate) {
+			super();
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+			Method delegateMethod = delegate.getClass().getMethod(method.getName(),
+					method.getParameterTypes());
+			try {
+				Object res = delegateMethod.invoke(delegate, args);
+				if ( res instanceof Statement ) {
+					// to catch SQLExceptions thrown by statements, wrap those
+					res = wrapJdbcObjectWithProxy(res);
+				}
+				return res;
+			} catch ( InvocationTargetException e ) {
+				Throwable t = e.getCause();
+				if ( t instanceof SQLException ) {
+					Connection conn = null;
+					if ( delegate instanceof Connection ) {
+						conn = (Connection) delegate;
+					} else if ( delegate instanceof Statement ) {
+						conn = ((Statement) delegate).getConnection();
+					}
+					handleSQLException(conn, (SQLException) t);
+				}
+				throw e.getCause();
+			}
+		}
+
+	}
+
+	@Override
+	public void connectionClosed(ConnectionEvent event) {
+		// nothing to do
+	}
+
+	@Override
+	public void connectionErrorOccurred(ConnectionEvent event) {
+		SQLException ex = event.getSQLException();
+		try {
+			handleSQLException((Connection) event.getSource(), ex);
+		} catch ( SQLException e ) {
+			log.warn("SQLException handling exception {}", ex, e);
+		}
+	}
+
+	private void handleSQLException(final Connection conn, final SQLException e) throws SQLException {
+		if ( e == null ) {
+			return;
+		}
+		if ( bundleContext != null ) {
+			doWithHandlers(new SQLExceptionHandlerCallback() {
+
+				@Override
+				public void doWithHandler(SQLExceptionHandler handler) throws Exception {
+					if ( conn == null ) {
+						handler.handleGetConnectionException(e);
+					} else {
+						handler.handleConnectionException(conn, e);
+					}
+				}
+			});
 		}
 	}
 

@@ -61,7 +61,8 @@ public class TomcatJdbcPoolDataSourceFactoryBean
 		} catch ( SQLException e ) {
 			throw new BeanInstantiationException(DataSource.class, "SQL exception", e);
 		}
-		return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
+		DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
+		return ds;
 	}
 
 	@Override

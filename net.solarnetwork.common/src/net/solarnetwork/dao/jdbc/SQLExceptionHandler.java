@@ -22,6 +22,7 @@
 
 package net.solarnetwork.dao.jdbc;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -39,5 +40,15 @@ public interface SQLExceptionHandler {
 	 *        The exception to handle.
 	 */
 	void handleGetConnectionException(SQLException e);
+
+	/**
+	 * Handle an exception triggered on an active Connection.
+	 * 
+	 * @param conn
+	 *        The {@code Connection} the exception occurred on.
+	 * @param e
+	 *        The exception.
+	 */
+	void handleConnectionException(Connection conn, SQLException e);
 
 }
