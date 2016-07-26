@@ -26,10 +26,9 @@ package net.solarnetwork.dao.jdbc;
 
 import java.sql.SQLException;
 import java.util.Properties;
-
 import javax.sql.DataSource;
-
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.jdbc.DataSourceFactory;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
@@ -40,24 +39,30 @@ import org.springframework.beans.factory.ObjectFactory;
  * {@link javax.sql.DataSource} using a Tomcat Pool.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.1
  */
-public class TomcatJdbcPoolDataSourceFactoryBean implements ObjectFactory<javax.sql.DataSource>, FactoryBean<javax.sql.DataSource> {
-	
+public class TomcatJdbcPoolDataSourceFactoryBean
+		implements ObjectFactory<javax.sql.DataSource>, FactoryBean<javax.sql.DataSource> {
+
 	private DataSourceFactory dataSourceFactory;
 	private Properties dataSourceProperties;
 	private PoolProperties poolProperties;
+	private BundleContext bundleContext;
+	private boolean sqlExceptionHandlerSupport = false;
 
 	@Override
 	public DataSource getObject() throws BeansException {
 		try {
-			poolProperties.setDataSource(dataSourceFactory.createDataSource(
-					dataSourceProperties));
+			DataSource ds = dataSourceFactory.createDataSource(dataSourceProperties);
+			if ( bundleContext != null && isSqlExceptionHandlerSupport() ) {
+				ds = new SQLExceptionHandlerDataSourceProxy(ds, bundleContext);
+			}
+			poolProperties.setDataSource(ds);
 		} catch ( SQLException e ) {
-			throw new BeanInstantiationException(DataSource.class, 
-					"SQL exception", e);
+			throw new BeanInstantiationException(DataSource.class, "SQL exception", e);
 		}
-		return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
+		DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
+		return ds;
 	}
 
 	@Override
@@ -92,6 +97,22 @@ public class TomcatJdbcPoolDataSourceFactoryBean implements ObjectFactory<javax.
 
 	public void setDataSourceProperties(Properties dataSourceProperties) {
 		this.dataSourceProperties = dataSourceProperties;
+	}
+
+	public BundleContext getBundleContext() {
+		return bundleContext;
+	}
+
+	public void setBundleContext(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
+	}
+
+	public boolean isSqlExceptionHandlerSupport() {
+		return sqlExceptionHandlerSupport;
+	}
+
+	public void setSqlExceptionHandlerSupport(boolean sqlExceptionHandlerSupport) {
+		this.sqlExceptionHandlerSupport = sqlExceptionHandlerSupport;
 	}
 
 }

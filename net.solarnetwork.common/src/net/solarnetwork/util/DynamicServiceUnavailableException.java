@@ -1,7 +1,7 @@
 /* ==================================================================
- * RegistrationReceipt.java - Dec 18, 2009 3:55:41 PM
+ * DynamicServiceUnavailableException.java - 8/06/2015 3:20:17 pm
  * 
- * Copyright 2007-2009 SolarNetwork.net Dev Team
+ * Copyright 2007-2015 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -18,42 +18,34 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
-package net.solarnetwork.domain;
-
-import java.io.Serializable;
+package net.solarnetwork.util;
 
 /**
- * A receipt for registration.
+ * Exception thrown when a dynamic service is not available.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
  */
-public interface RegistrationReceipt extends Serializable {
+public class DynamicServiceUnavailableException extends RuntimeException {
 
-	/**
-	 * Get the username that has been registered.
-	 * 
-	 * @return the email address
-	 */
-	String getUsername();
+	private static final long serialVersionUID = -6082514393080966631L;
 
-	/**
-	 * Get the uesrname that has been registered, encoded as a URL component.
-	 * 
-	 * @return the uesrname, URL encoded
-	 * @since 1.1
-	 */
-	String getUsernameURLComponent();
+	public DynamicServiceUnavailableException() {
+		super();
+	}
 
-	/**
-	 * Get the confirmation code required to activate the registered user.
-	 * 
-	 * @return confirmation code
-	 */
-	String getConfirmationCode();
+	public DynamicServiceUnavailableException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public DynamicServiceUnavailableException(String message) {
+		super(message);
+	}
+
+	public DynamicServiceUnavailableException(Throwable cause) {
+		super(cause);
+	}
 
 }

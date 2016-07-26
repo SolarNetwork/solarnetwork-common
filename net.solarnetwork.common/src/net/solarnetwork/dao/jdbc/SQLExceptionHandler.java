@@ -1,7 +1,7 @@
 /* ==================================================================
- * RegistrationReceipt.java - Dec 18, 2009 3:55:41 PM
+ * SQLExceptionHandler.java - 24/07/2016 3:14:47 PM
  * 
- * Copyright 2007-2009 SolarNetwork.net Dev Team
+ * Copyright 2007-2016 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -18,42 +18,37 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
-package net.solarnetwork.domain;
+package net.solarnetwork.dao.jdbc;
 
-import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
- * A receipt for registration.
+ * A handler for SQL exceptions.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
  */
-public interface RegistrationReceipt extends Serializable {
+public interface SQLExceptionHandler {
 
 	/**
-	 * Get the username that has been registered.
+	 * Handle an exception triggered when a connection cannot be obtained.
 	 * 
-	 * @return the email address
+	 * @param e
+	 *        The exception to handle.
 	 */
-	String getUsername();
+	void handleGetConnectionException(SQLException e);
 
 	/**
-	 * Get the uesrname that has been registered, encoded as a URL component.
+	 * Handle an exception triggered on an active Connection.
 	 * 
-	 * @return the uesrname, URL encoded
-	 * @since 1.1
+	 * @param conn
+	 *        The {@code Connection} the exception occurred on.
+	 * @param e
+	 *        The exception.
 	 */
-	String getUsernameURLComponent();
-
-	/**
-	 * Get the confirmation code required to activate the registered user.
-	 * 
-	 * @return confirmation code
-	 */
-	String getConfirmationCode();
+	void handleConnectionException(Connection conn, SQLException e);
 
 }

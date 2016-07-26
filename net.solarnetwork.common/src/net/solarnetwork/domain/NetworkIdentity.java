@@ -18,19 +18,33 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.domain;
+
+import java.util.Map;
 
 /**
  * Information that identifies the central SolarNet network.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.1
  */
 public interface NetworkIdentity {
+
+	/**
+	 * The {@link #getNetworkServiceURLs()} key for the SolarUser service.
+	 * 
+	 * @since 1.1
+	 */
+	final String SOLARUSER_NETWORK_SERVICE_KEY = "solaruser";
+
+	/**
+	 * The {@link #getNetworkServiceURLs()} key for the SolarQuery service.
+	 * 
+	 * @since 1.1
+	 */
+	final String SOLARQUERY_NETWORK_SERVICE_KEY = "solarquery";
 
 	/**
 	 * Get the service host name.
@@ -66,5 +80,14 @@ public interface NetworkIdentity {
 	 * @return the terms of service
 	 */
 	String getTermsOfService();
+
+	/**
+	 * Get a mapping of pre-defined network service URLs, to be used by clients
+	 * to provide links to the SolarNetwork they are associated with.
+	 * 
+	 * @return a mapping of keys to string URLs
+	 * @since 1.1
+	 */
+	Map<String, String> getNetworkServiceURLs();
 
 }
