@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Core SolarNetwork Support
 Bundle-SymbolicName: net.solarnetwork.common
 Bundle-Description: Common supporting infrastructure for SolarNode and SolarNet applications.
-Bundle-Version: 1.31.0
+Bundle-Version: 1.32.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
@@ -32,9 +32,9 @@ Import-Package:
  org.osgi.framework.wiring; version="[1.0,2.0)",
  org.osgi.service.jdbc;version="[1.0,2.0)",
  org.slf4j;version="[1.5.10,2.0.0)",
- org.springframework.beans;version="[3.0,4.0)",
- org.springframework.beans.factory;version="[3.0,4.0)",
- org.springframework.core;version="[3.0,4.0)",
- org.springframework.core.io;version="[3.0,4.0)",
- org.springframework.util;version="[3.0,4.0)",
- org.springframework.validation;version="[3.0,4.0)"
+ org.springframework.beans;version="[4.2,5.0)",
+ org.springframework.beans.factory;version="[4.2,5.0)",
+ org.springframework.core;version="[4.2,5.0)",
+ org.springframework.core.io;version="[4.2,5.0)",
+ org.springframework.util;version="[4.2,5.0)",
+ org.springframework.validation;version="[4.2,5.0)"

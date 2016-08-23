@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bouncy Castle PKI
 Bundle-SymbolicName: net.solarnetwork.common.pki.bc
-Bundle-Version: 1.1.0
+Bundle-Version: 1.2.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
@@ -21,6 +21,6 @@ Import-Package:
  org.bouncycastle.operator.jcajce,
  org.bouncycastle.pkcs,
  org.bouncycastle.util.io.pem,
- org.eclipse.gemini.blueprint.compendium.cm;version="[1.0,2.0)",
+ org.eclipse.gemini.blueprint.compendium.cm;version="[2.0,3.0)",
  org.slf4j;version="[1.5.10,2.0.0)",
- org.springframework.beans.factory;version="[3.0,4.0)"
+ org.springframework.beans.factory;version="[4.2,5.0)"
