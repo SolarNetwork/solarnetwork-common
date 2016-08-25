@@ -31,7 +31,7 @@ Import-Package:
  org.osgi.framework;version="[1.7,2.0)",
  org.osgi.framework.wiring; version="[1.0,2.0)",
  org.osgi.service.jdbc;version="[1.0,2.0)",
- org.slf4j;version="[1.5.10,2.0.0)",
+ org.slf4j;version="[1.7,2.0)",
  org.springframework.beans;version="[4.2,5.0)",
  org.springframework.beans.factory;version="[4.2,5.0)",
  org.springframework.core;version="[4.2,5.0)",
