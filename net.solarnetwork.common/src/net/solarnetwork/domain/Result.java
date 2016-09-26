@@ -1,5 +1,5 @@
 /* ==================================================================
- * Response.java - Nov 20, 2012 6:55:06 AM
+ * Result.java - Nov 20, 2012 6:55:06 AM
  * 
  * Copyright 2007-2012 SolarNetwork.net Dev Team
  * 
@@ -20,22 +20,27 @@
  * ==================================================================
  */
 
-package net.solarnetwork.web.domain;
+package net.solarnetwork.domain;
 
 /**
- * A simple service response envelope object.
+ * A simple service result envelope object.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
  * @param <T>
  *        the object type
  */
-public class Response<T> extends net.solarnetwork.domain.Result<T> {
+public class Result<T> {
+
+	private final Boolean success;
+	private final String code;
+	private final String message;
+	private final T data;
 
 	/**
 	 * Construct a successful response with no data.
 	 */
-	public Response() {
+	public Result() {
 		this(Boolean.TRUE, null, null, null);
 	}
 
@@ -45,7 +50,7 @@ public class Response<T> extends net.solarnetwork.domain.Result<T> {
 	 * @param data
 	 *        the data
 	 */
-	public Response(T data) {
+	public Result(T data) {
 		this(Boolean.TRUE, null, null, data);
 	}
 
@@ -61,22 +66,42 @@ public class Response<T> extends net.solarnetwork.domain.Result<T> {
 	 * @param data
 	 *        optional data in the response
 	 */
-	public Response(Boolean success, String code, String message, T data) {
-		super(success, code, message, data);
+	public Result(Boolean success, String code, String message, T data) {
+		super();
+		this.success = success;
+		this.code = code;
+		this.message = message;
+		this.data = data;
 	}
 
 	/**
 	 * Helper method to construct instance using generic return type inference.
 	 * If you import this static method, then in your code you can write
-	 * {@code return response(myData)} instead of
-	 * {@code new Response&lt;Object&gt;(myData)}.
+	 * {@code return result(myData)} instead of
+	 * {@code new Result&lt;Object&gt;(myData)}.
 	 * 
 	 * @param data
 	 *        the data
 	 * @return the response
 	 */
-	public static <V> Response<V> response(V data) {
-		return new Response<V>(data);
+	public static <V> Result<V> result(V data) {
+		return new Result<V>(data);
+	}
+
+	public Boolean getSuccess() {
+		return success;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public T getData() {
+		return data;
 	}
 
 }

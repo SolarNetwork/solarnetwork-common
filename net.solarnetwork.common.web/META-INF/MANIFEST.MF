@@ -7,13 +7,14 @@ Bundle-Version: 1.10.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
- net.solarnetwork.web.domain;version="1.0.0",
+ net.solarnetwork.web.domain;version="1.1.0",
  net.solarnetwork.web.support;version="1.8.0"
 Import-Package: 
  com.fasterxml.jackson.core;version="[2.4,3.0)";resolution:=optional,
  javax.servlet;version="2.5.0",
  javax.servlet.http;version="2.4.0",
  javax.xml.stream,
+ net.solarnetwork.domain;version="1.10.0",
  net.solarnetwork.util;version="1.10.0",
  org.apache.commons.logging;version="[1.1.0,2.0.0)",
  org.springframework.beans;version="[4.2,5.0)",

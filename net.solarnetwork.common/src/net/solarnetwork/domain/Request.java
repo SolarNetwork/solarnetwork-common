@@ -20,20 +20,39 @@
  * ==================================================================
  */
 
-package net.solarnetwork.web.domain;
+package net.solarnetwork.domain;
 
 import java.util.Map;
 
 /**
- * A web request envelope object.
+ * A request envelope object.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
  */
-public class Request extends net.solarnetwork.domain.Request {
+public class Request {
+
+	private final String username;
+	private final String password;
+	private final Map<String, Object> data;
 
 	public Request(String username, String password, Map<String, Object> data) {
-		super(username, password, data);
+		super();
+		this.username = username;
+		this.password = password;
+		this.data = data;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public Map<String, Object> getData() {
+		return data;
 	}
 
 }
