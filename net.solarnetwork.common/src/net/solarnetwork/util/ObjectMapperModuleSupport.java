@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -42,6 +43,8 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 	private Version moduleVersion = new Version(1, 0, 0, null, null, null);
 	private List<JsonSerializer<?>> serializers;
 	private List<JsonDeserializer<?>> deserializers;
+	private List<TypedKeyDeserializer> keyDeserializers;
+	private List<JsonSerializer<?>> keySerializers;
 
 	/**
 	 * Helper method for registering {@link JsonDeserializer} instances of
@@ -56,6 +59,21 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 	protected void registerDeserializer(SimpleModule module, JsonDeserializer deserializer) {
 		Class deserType = deserializer.handledType();
 		module.addDeserializer(deserType, deserializer);
+	}
+
+	/**
+	 * Helper method for registering key {@link JsonSerializer} instances of
+	 * unknown types at runtime, ignoring compiler warnings.
+	 * 
+	 * @param module
+	 *        The module to register with.
+	 * @param serializer
+	 *        A {@link JsonSerializer} instance.
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected void registerKeySerializer(SimpleModule module, JsonSerializer serializer) {
+		Class serType = serializer.handledType();
+		module.addKeySerializer(serType, serializer);
 	}
 
 	public String getModuleName() {
@@ -157,6 +175,39 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 	 */
 	public void setDeserializers(List<JsonDeserializer<?>> deserializers) {
 		this.deserializers = deserializers;
+	}
+
+	/**
+	 * Get the configured list of {@link KeyDeserializer} objects to register.
+	 * 
+	 * @return List of key deserializers.
+	 */
+	public List<TypedKeyDeserializer> getKeyDeserializers() {
+		return keyDeserializers;
+	}
+
+	/**
+	 * Set a list of {@link TypedKeyDeserializer} objects.
+	 * 
+	 * @param keyDeserializers
+	 *        The key deserializers.
+	 */
+	public void setKeyDeserializers(List<TypedKeyDeserializer> keyDeserializers) {
+		this.keyDeserializers = keyDeserializers;
+	}
+
+	public List<JsonSerializer<?>> getKeySerializers() {
+		return keySerializers;
+	}
+
+	/**
+	 * Set a list of key serializers to register.
+	 * 
+	 * @param keySerializers
+	 *        The key serializers to register.
+	 */
+	public void setKeySerializers(List<JsonSerializer<?>> keySerializers) {
+		this.keySerializers = keySerializers;
 	}
 
 }

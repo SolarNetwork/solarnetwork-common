@@ -54,6 +54,16 @@ public class ObjectMapperModuleContributor extends ObjectMapperModuleSupport {
 				registerDeserializer(module, deserializer);
 			}
 		}
+		if ( getKeyDeserializers() != null ) {
+			for ( TypedKeyDeserializer deserializer : getKeyDeserializers() ) {
+				module.addKeyDeserializer(deserializer.getClass(), deserializer.getKeyDeserializer());
+			}
+		}
+		if ( getKeySerializers() != null ) {
+			for ( JsonSerializer<?> serializer : getKeySerializers() ) {
+				registerKeySerializer(module, serializer);
+			}
+		}
 		getObjectMapper().registerModule(module);
 	}
 
