@@ -24,13 +24,13 @@ package net.solarnetwork.domain.test;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.solarnetwork.domain.GeneralDatumMetadata;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.solarnetwork.domain.GeneralDatumMetadata;
 
 /**
  * Test cases for {@link GeneralDatumMetadata}.
@@ -94,6 +94,19 @@ public class GeneralDatumMetadataTest {
 		Assert.assertEquals(Long.valueOf(2502287), samples.getInfoLong("ploc"));
 		Assert.assertEquals("W", samples.getInfoString("watts", "unit"));
 		Assert.assertTrue("Tag exists", samples.hasTag("test"));
+	}
+
+	@Test
+	public void deserializeJsonWithNestedMeta() throws Exception {
+		String json = "{\"m\":{\"map\":{\"foo\":1,\"bar\":\"bam\"}}}";
+		GeneralDatumMetadata samples = objectMapper.readValue(json, GeneralDatumMetadata.class);
+		Assert.assertNotNull(samples);
+		Object map = samples.getInfo().get("map");
+		Assert.assertTrue("Nested map parsed", map instanceof Map);
+		@SuppressWarnings("unchecked")
+		Map<String, ?> stringMap = (Map<String, ?>) map;
+		Assert.assertEquals("Nested number", Integer.valueOf(1), stringMap.get("foo"));
+		Assert.assertEquals("Nested string", "bam", stringMap.get("bar"));
 	}
 
 	@Test
