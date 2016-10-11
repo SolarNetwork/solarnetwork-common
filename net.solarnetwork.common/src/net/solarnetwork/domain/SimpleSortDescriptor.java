@@ -1,7 +1,7 @@
 /* ==================================================================
- * Request.java - Nov 20, 2012 7:04:41 AM
+ * SimpleSortDescriptor.java - Jun 10, 2011 7:09:23 PM
  * 
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2007-2011 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,20 +20,45 @@
  * ==================================================================
  */
 
-package net.solarnetwork.web.domain;
-
-import java.util.Map;
+package net.solarnetwork.domain;
 
 /**
- * A web request envelope object.
+ * Implementation of {@link SortDescriptor}.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
  */
-public class Request extends net.solarnetwork.domain.Request {
+public class SimpleSortDescriptor implements SortDescriptor {
 
-	public Request(String username, String password, Map<String, Object> data) {
-		super(username, password, data);
+	private final String sortKey;
+	private final boolean descending;
+
+	/**
+	 * Construct with a sort key.
+	 * 
+	 * Ascending order will be used.
+	 * 
+	 * @param sortKey
+	 *        the sort key
+	 */
+	public SimpleSortDescriptor(String sortKey) {
+		this(sortKey, false);
+	}
+
+	public SimpleSortDescriptor(String sortKey, boolean descending) {
+		super();
+		this.sortKey = sortKey;
+		this.descending = descending;
+	}
+
+	@Override
+	public String getSortKey() {
+		return sortKey;
+	}
+
+	@Override
+	public boolean isDescending() {
+		return descending;
 	}
 
 }

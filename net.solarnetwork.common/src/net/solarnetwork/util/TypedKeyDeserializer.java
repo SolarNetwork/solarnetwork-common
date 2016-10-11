@@ -1,7 +1,7 @@
 /* ==================================================================
- * Request.java - Nov 20, 2012 7:04:41 AM
+ * TypedKeyDeserializer.java - 1/10/2016 5:12:12 PM
  * 
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2007-2016 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,20 +20,33 @@
  * ==================================================================
  */
 
-package net.solarnetwork.web.domain;
+package net.solarnetwork.util;
 
-import java.util.Map;
+import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.Module;
 
 /**
- * A web request envelope object.
+ * {@KeyDeserializer} does not implement an interface, nor provide a default
+ * "type" the deserializer supports. This API provides a way to configure them
+ * on a {@link Module}.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
  */
-public class Request extends net.solarnetwork.domain.Request {
+public interface TypedKeyDeserializer {
 
-	public Request(String username, String password, Map<String, Object> data) {
-		super(username, password, data);
-	}
+	/**
+	 * The type to register the key deserializer with.
+	 * 
+	 * @return A type.
+	 */
+	Class<?> getKeyType();
+
+	/**
+	 * The key deserializer to register.
+	 * 
+	 * @return The key deserializer.
+	 */
+	KeyDeserializer getKeyDeserializer();
 
 }

@@ -1,7 +1,7 @@
 /* ==================================================================
- * Request.java - Nov 20, 2012 7:04:41 AM
+ * ObjectMapperService.java - 24/09/2016 1:21:21 PM
  * 
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2007-2016 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,20 +20,23 @@
  * ==================================================================
  */
 
-package net.solarnetwork.web.domain;
+package net.solarnetwork.util;
 
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * A web request envelope object.
+ * API for exposing {@link ObjectMapper} as a service.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
  */
-public class Request extends net.solarnetwork.domain.Request {
+public interface ObjectMapperService {
 
-	public Request(String username, String password, Map<String, Object> data) {
-		super(username, password, data);
-	}
+	/**
+	 * Get the {@link ObjectMapper} instance.
+	 * 
+	 * @return the mapper
+	 */
+	ObjectMapper getObjectMapper();
 
 }

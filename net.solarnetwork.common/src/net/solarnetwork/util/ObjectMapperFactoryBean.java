@@ -79,41 +79,41 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * </dl>
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
-public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
+public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
+		implements FactoryBean<ObjectMapper> {
 
-	private ObjectMapper mapper = new ObjectMapper();
-	private String moduleName = "SolarNetworkModule";
-	private Version moduleVersion = new Version(1, 0, 0, null, null, null);
-	private List<JsonSerializer<?>> serializers;
-	private List<JsonDeserializer<?>> deserializers;
 	private JsonInclude.Include serializationInclusion = JsonInclude.Include.NON_NULL;
 	private List<Object> featuresToEnable = null;
 	private List<Object> featuresToDisable = null;
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void registerStdDeserializer(SimpleModule module, StdDeserializer stdDeserializer) {
-		Class deserType = stdDeserializer.handledType();
-		module.addDeserializer(deserType, stdDeserializer);
-	}
-
 	@Override
 	public ObjectMapper getObject() throws Exception {
+		ObjectMapper mapper = getObjectMapper();
 		if ( mapper == null ) {
 			mapper = new ObjectMapper();
+			setObjectMapper(mapper);
 		}
-		SimpleModule module = new SimpleModule(moduleName, moduleVersion);
-		if ( serializers != null ) {
-			for ( JsonSerializer<?> serializer : serializers ) {
+		SimpleModule module = new SimpleModule(getModuleName(), getModuleVersion());
+		if ( getSerializers() != null ) {
+			for ( JsonSerializer<?> serializer : getSerializers() ) {
 				module.addSerializer(serializer);
 			}
 		}
-		if ( deserializers != null ) {
-			for ( JsonDeserializer<?> deserializer : deserializers ) {
-				if ( deserializer instanceof StdDeserializer<?> ) {
-					registerStdDeserializer(module, (StdDeserializer<?>) deserializer);
-				}
+		if ( getDeserializers() != null ) {
+			for ( JsonDeserializer<?> deserializer : getDeserializers() ) {
+				registerDeserializer(module, deserializer);
+			}
+		}
+		if ( getKeyDeserializers() != null ) {
+			for ( TypedKeyDeserializer deserializer : getKeyDeserializers() ) {
+				module.addKeyDeserializer(deserializer.getClass(), deserializer.getKeyDeserializer());
+			}
+		}
+		if ( getKeySerializers() != null ) {
+			for ( JsonSerializer<?> serializer : getKeySerializers() ) {
+				registerKeySerializer(module, serializer);
 			}
 		}
 		if ( serializationInclusion != null ) {
@@ -148,36 +148,27 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 		return true;
 	}
 
-	public String getModuleName() {
-		return moduleName;
-	}
-
-	public void setModuleName(String moduleName) {
-		this.moduleName = moduleName;
-	}
-
-	public Version getModuleVersion() {
-		return moduleVersion;
-	}
-
-	public void setModuleVersion(Version moduleVersion) {
-		this.moduleVersion = moduleVersion;
-	}
-
-	public List<JsonSerializer<?>> getSerializers() {
-		return serializers;
-	}
-
-	public void setSerializers(List<JsonSerializer<?>> serializers) {
-		this.serializers = serializers;
-	}
-
+	/**
+	 * Get the {@code ObjectMapper} to use.
+	 * 
+	 * @return the mapper
+	 * @deprecated see {@link #getObjectMapper()}
+	 */
+	@Deprecated
 	public ObjectMapper getMapper() {
-		return mapper;
+		return getObjectMapper();
 	}
 
+	/**
+	 * Set the {@code ObjectMapper} to use.
+	 * 
+	 * @param obj
+	 *        the mapper to use
+	 * @deprecated see @link {@link #setObjectMapper(ObjectMapper)}
+	 */
+	@Deprecated
 	public void setMapper(ObjectMapper obj) {
-		this.mapper = obj;
+		setObjectMapper(obj);
 	}
 
 	/**
@@ -199,22 +190,6 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
 	 */
 	public void setSerializationInclusion(JsonInclude.Include serializationInclusion) {
 		this.serializationInclusion = serializationInclusion;
-	}
-
-	public List<JsonDeserializer<?>> getDeserializers() {
-		return deserializers;
-	}
-
-	/**
-	 * Set a list of {@link JsonDeserializer} objects to configure on the
-	 * mapper.
-	 * 
-	 * @param deserializers
-	 *        the deserializers
-	 * @since 1.1
-	 */
-	public void setDeserializers(List<JsonDeserializer<?>> deserializers) {
-		this.deserializers = deserializers;
 	}
 
 	public List<Object> getFeaturesToEnable() {
