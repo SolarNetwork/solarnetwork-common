@@ -24,17 +24,12 @@ package net.solarnetwork.util;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 
 /**
- * Factory bean to facilitate auto-wiring of a
- * {@link SimpMessageSendingOperations}.
- * 
- * With Spring's websocket support, the automatically registered
- * {@code SimpMessageSendingOperations} has a generated ID, and cannot be easily
- * exported as an OSGi service. This factory can overcome that, by auto-wiring
- * the object as a property, then exporting the bean with a known ID (or simply
- * as an OSGi service).
+ * {@link FactoryBean} where the exposed object is actually configured via
+ * auto-wiring on {@link #setObject(Object)}. This is to facilitate exposing
+ * services with known bean IDs, for situations where a bean might be injected
+ * into the application context with an ID generated at runtime.
  * 
  * @author matt
  * @version 1.0
