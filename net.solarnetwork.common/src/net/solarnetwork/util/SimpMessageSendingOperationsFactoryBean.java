@@ -25,20 +25,14 @@ package net.solarnetwork.util;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 
 /**
- * FIXME
+ * Factory bean to facilitate auto-wiring of a
+ * {@link SimpMessageSendingOperations}.
  * 
- * <p>
- * TODO
- * </p>
- * 
- * <p>
- * The configurable properties of this class are:
- * </p>
- * 
- * <dl class="class-properties">
- * <dt></dt>
- * <dd></dd>
- * </dl>
+ * With Spring's websocket support, the automatically registered
+ * {@code SimpMessageSendingOperations} has a generated ID, and cannot be easily
+ * exported as an OSGi service. This factory can overcome that, by auto-wiring
+ * the object as a property, then exporting the bean with a known ID (or simply
+ * as an OSGi service).
  * 
  * @author matt
  * @version 1.0

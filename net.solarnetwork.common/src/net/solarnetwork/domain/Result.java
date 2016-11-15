@@ -22,14 +22,17 @@
 
 package net.solarnetwork.domain;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 /**
  * A simple service result envelope object.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @param <T>
  *        the object type
  */
+@JsonPropertyOrder({ "success", "code", "message", "data" })
 public class Result<T> {
 
 	private final Boolean success;
