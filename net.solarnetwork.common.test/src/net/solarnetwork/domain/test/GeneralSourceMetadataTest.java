@@ -24,21 +24,23 @@ package net.solarnetwork.domain.test;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.solarnetwork.domain.GeneralDatumMetadata;
-import net.solarnetwork.domain.GeneralSourceMetadata;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import net.solarnetwork.domain.GeneralDatumMetadata;
+import net.solarnetwork.domain.GeneralSourceMetadata;
 
 /**
  * Test cases for {@link GeneralSourceMetadata}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class GeneralSourceMetadataTest {
 
@@ -51,6 +53,10 @@ public class GeneralSourceMetadataTest {
 		objectMapper = new ObjectMapper();
 		objectMapper.setSerializationInclusion(Include.NON_NULL);
 		objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
+
+		SimpleModule module = new SimpleModule("TestModule", new Version(1, 0, 0, null, null, null));
+		module.addSerializer(new net.solarnetwork.util.JodaDateTimeSerializer());
+		objectMapper.registerModule(module);
 	}
 
 	private GeneralSourceMetadata getTestInstance() {
@@ -84,8 +90,9 @@ public class GeneralSourceMetadataTest {
 	public void serializeJson() throws Exception {
 		String json = objectMapper.writeValueAsString(getTestInstance());
 		Assert.assertEquals(
-				"{\"created\":1413846000000,\"sourceId\":\"test.source\",\"m\":{\"currency\":\"NZD\"}"
-						+ ",\"pm\":{\"amount\":{\"units\":\"MWh\"}}" + ",\"t\":[\"price\"]}", json);
+				"{\"created\":\"2014-10-20 23:00:00.000Z\",\"sourceId\":\"test.source\",\"m\":{\"currency\":\"NZD\"}"
+						+ ",\"pm\":{\"amount\":{\"units\":\"MWh\"}}" + ",\"t\":[\"price\"]}",
+				json);
 	}
 
 	@Test
