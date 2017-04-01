@@ -38,9 +38,11 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
  * strings.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public abstract class JodaBaseJsonSerializer<T> extends StdScalarSerializer<T> {
+
+	private static final long serialVersionUID = -7898014390210021054L;
 
 	private final DateTimeFormatter formatter;
 
@@ -97,8 +99,8 @@ public abstract class JodaBaseJsonSerializer<T> extends StdScalarSerializer<T> {
 		} else if ( propertyValue instanceof Calendar ) {
 			return formatter.print(((Calendar) propertyValue).getTimeInMillis());
 		}
-		throw new IllegalArgumentException("Unsupported date object [" + propertyValue.getClass()
-				+ "]: " + propertyValue);
+		throw new IllegalArgumentException(
+				"Unsupported date object [" + propertyValue.getClass() + "]: " + propertyValue);
 	}
 
 }

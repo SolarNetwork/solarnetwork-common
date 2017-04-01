@@ -33,9 +33,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * JsonSerializer for {@link LocalDate} into simple strings.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class JodaLocalDateSerializer extends JodaBaseJsonSerializer<LocalDate> {
+
+	private static final long serialVersionUID = -619186863552732118L;
 
 	/**
 	 * Default constructor.
