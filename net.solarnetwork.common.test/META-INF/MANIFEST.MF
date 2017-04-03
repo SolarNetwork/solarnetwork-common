@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Test
 Bundle-SymbolicName: net.solarnetwork.common.test
-Bundle-Version: 1.5.0
+Bundle-Version: 1.6.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
@@ -18,7 +18,8 @@ Import-Package:
  com.fasterxml.jackson.datatype.joda;version="[2.4,3.0)",
  net.solarnetwork.domain;version="1.7.0",
  net.solarnetwork.io;version="1.1.0",
- net.solarnetwork.support;version="1.1.0",
+ net.solarnetwork.pki.bc;version="1.1.0",
+ net.solarnetwork.support;version="1.4.0",
  net.solarnetwork.util;version="1.18.0",
  org.apache.commons.codec.binary;version="[1.7,2.0)",
  org.apache.commons.logging;version="[1.1,2.0)",
