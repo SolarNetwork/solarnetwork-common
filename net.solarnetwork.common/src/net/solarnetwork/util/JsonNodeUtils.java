@@ -23,6 +23,7 @@
 package net.solarnetwork.util;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -85,7 +86,7 @@ public class JsonNodeUtils {
 	 * @return the parsed {@link Date} instance, or <em>null</em> if an error
 	 *         occurs or the specified attribute {@code key} is not available
 	 */
-	public static Date parseDateAttribute(JsonNode node, String key, SimpleDateFormat dateFormat) {
+	public static Date parseDateAttribute(JsonNode node, String key, DateFormat dateFormat) {
 		Date result = null;
 		if ( node != null ) {
 			JsonNode attrNode = node.get(key);
@@ -102,7 +103,11 @@ public class JsonNodeUtils {
 					result = dateFormat.parse(dateString);
 				} catch ( ParseException e ) {
 					LOG.debug("Error parsing date attribute [{}] value [{}] using pattern {}: {}",
-							new Object[] { key, attrNode, dateFormat.toPattern(), e.getMessage() });
+							new Object[] { key, attrNode,
+									(dateFormat instanceof SimpleDateFormat
+											? ((SimpleDateFormat) dateFormat).toPattern()
+											: dateFormat.toString()),
+									e.getMessage() });
 				}
 			}
 		}
