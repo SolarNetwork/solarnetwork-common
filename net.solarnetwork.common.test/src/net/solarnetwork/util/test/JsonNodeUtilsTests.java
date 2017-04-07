@@ -117,6 +117,43 @@ public class JsonNodeUtilsTests {
 				JsonNodeUtils.parseIntegerAttribute(node, "is"));
 	}
 
+	@Test
+	public void parseLong() {
+		JsonNode node = parseJsonResource("test-1.json");
+		assertEquals("Parsed Long", Long.valueOf(948457394876394876L),
+				JsonNodeUtils.parseLongAttribute(node, "l"));
+	}
+
+	@Test
+	public void parseLongNullNode() {
+		assertNull("Null node", JsonNodeUtils.parseLongAttribute(null, "l"));
+	}
+
+	@Test
+	public void parseLongNullValue() {
+		JsonNode node = parseJsonResource("test-1.json");
+		assertNull("Null attribute", JsonNodeUtils.parseLongAttribute(node, "no"));
+	}
+
+	@Test
+	public void parseLongMissingValue() {
+		JsonNode node = parseJsonResource("test-1.json");
+		assertNull("Missing attribute", JsonNodeUtils.parseLongAttribute(node, "does_not_exist"));
+	}
+
+	@Test
+	public void parseLongMalformedValue() {
+		JsonNode node = parseJsonResource("test-1.json");
+		assertNull("Malformed attribute", JsonNodeUtils.parseLongAttribute(node, "s"));
+	}
+
+	@Test
+	public void parseLongStringValue() {
+		JsonNode node = parseJsonResource("test-1.json");
+		assertEquals("Long string attribute", Long.valueOf(993729384798127974L),
+				JsonNodeUtils.parseLongAttribute(node, "ls"));
+	}
+
 	private SimpleDateFormat tsDateFormat() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'");
 		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));

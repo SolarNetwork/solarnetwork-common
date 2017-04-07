@@ -147,6 +147,38 @@ public class JsonNodeUtils {
 	}
 
 	/**
+	 * Parse a Long from a JSON object attribute value.
+	 * 
+	 * If the Long cannot be parsed, <em>null</em> will be returned.
+	 * 
+	 * @param node
+	 *        the JSON node (e.g. object)
+	 * @param key
+	 *        the attribute key to obtain from {@code node} node
+	 * @return the parsed {@link Long}, or <em>null</em> if an error occurs or
+	 *         the specified attribute {@code key} is not available
+	 */
+	public static Long parseLongAttribute(JsonNode node, String key) {
+		Long num = null;
+		if ( node != null ) {
+			JsonNode attrNode = node.get(key);
+			if ( attrNode != null && !attrNode.isNull() ) {
+				if ( attrNode.isIntegralNumber() ) {
+					num = attrNode.asLong();
+				} else {
+					try {
+						num = Long.valueOf(attrNode.asText());
+					} catch ( NumberFormatException e ) {
+						LOG.debug("Error parsing long attribute [{}] value [{}]: {}",
+								new Object[] { key, attrNode, e.getMessage() });
+					}
+				}
+			}
+		}
+		return num;
+	}
+
+	/**
 	 * Parse a String from a JSON object attribute value.
 	 * 
 	 * If the String cannot be parsed, <em>null</em> will be returned.
