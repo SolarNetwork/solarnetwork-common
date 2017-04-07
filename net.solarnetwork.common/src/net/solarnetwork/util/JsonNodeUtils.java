@@ -55,7 +55,7 @@ public class JsonNodeUtils {
 		BigDecimal num = null;
 		if ( node != null ) {
 			JsonNode attrNode = node.get(key);
-			if ( attrNode != null ) {
+			if ( attrNode != null && !attrNode.isNull() ) {
 				String txt = attrNode.asText();
 				if ( txt.indexOf('.') < 0 ) {
 					txt += ".0"; // force to decimal notation, so round-trip into samples doesn't result in int
@@ -89,7 +89,7 @@ public class JsonNodeUtils {
 		Date result = null;
 		if ( node != null ) {
 			JsonNode attrNode = node.get(key);
-			if ( attrNode != null ) {
+			if ( attrNode != null && !attrNode.isNull() ) {
 				try {
 					String dateString = attrNode.asText();
 
@@ -125,7 +125,7 @@ public class JsonNodeUtils {
 		Integer num = null;
 		if ( node != null ) {
 			JsonNode attrNode = node.get(key);
-			if ( attrNode != null ) {
+			if ( attrNode != null && !attrNode.isNull() ) {
 				if ( attrNode.isIntegralNumber() ) {
 					num = attrNode.asInt();
 				} else {
@@ -157,7 +157,7 @@ public class JsonNodeUtils {
 		String s = null;
 		if ( node != null ) {
 			JsonNode attrNode = node.get(key);
-			if ( attrNode != null ) {
+			if ( attrNode != null && !attrNode.isNull() ) {
 				try {
 					s = attrNode.asText();
 				} catch ( NumberFormatException e ) {
