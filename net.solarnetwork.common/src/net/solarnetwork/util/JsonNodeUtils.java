@@ -158,12 +158,7 @@ public class JsonNodeUtils {
 		if ( node != null ) {
 			JsonNode attrNode = node.get(key);
 			if ( attrNode != null && !attrNode.isNull() ) {
-				try {
-					s = attrNode.asText();
-				} catch ( NumberFormatException e ) {
-					LOG.debug("Error parsing string attribute [{}] value [{}]: {}",
-							new Object[] { key, attrNode, e.getMessage() });
-				}
+				s = attrNode.asText();
 			}
 		}
 		return s;
