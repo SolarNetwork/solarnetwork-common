@@ -18,5 +18,8 @@
 		<!-- Testing support -->
 		<dependency org="com.fasterxml.jackson.datatype" name="jackson-datatype-joda" rev="2.4.3" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.7"/>
-    </dependencies>
+ 		
+		<!-- SolarNetwork -->
+		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.pki.bc" rev="latest.release"/>
+	</dependencies>
 </ivy-module>
