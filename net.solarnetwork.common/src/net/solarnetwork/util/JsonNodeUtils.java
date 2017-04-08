@@ -134,8 +134,12 @@ public class JsonNodeUtils {
 				if ( attrNode.isIntegralNumber() ) {
 					num = attrNode.asInt();
 				} else {
+					String s = attrNode.asText();
+					if ( s != null ) {
+						s = s.trim();
+					}
 					try {
-						num = Integer.valueOf(attrNode.asText());
+						num = Integer.valueOf(s);
 					} catch ( NumberFormatException e ) {
 						LOG.debug("Error parsing integer attribute [{}] value [{}]: {}",
 								new Object[] { key, attrNode, e.getMessage() });
