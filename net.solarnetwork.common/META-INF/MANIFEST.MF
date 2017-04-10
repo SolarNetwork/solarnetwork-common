@@ -21,6 +21,7 @@ Import-Package:
  com.fasterxml.jackson.databind.module;version="[2.4,3.0)",
  com.fasterxml.jackson.databind.ser.std;version="[2.4,3.0)",
  com.fasterxml.jackson.databind.type;version="[2.4,3.0)",
+ javax.net.ssl,
  javax.sql,
  javax.xml.stream,
  org.apache.commons.beanutils;version="[1.8.0,2.0.0)",
