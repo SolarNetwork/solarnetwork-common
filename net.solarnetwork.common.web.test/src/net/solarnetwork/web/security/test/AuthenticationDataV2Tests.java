@@ -25,6 +25,7 @@ package net.solarnetwork.web.security.test;
 import static net.solarnetwork.web.security.AuthenticationData.nullSafeHeaderValue;
 import static net.solarnetwork.web.security.AuthenticationData.uriEncode;
 import static net.solarnetwork.web.security.test.SecurityWebTestUtils.computeHMACSHA256;
+import static net.solarnetwork.web.security.test.SecurityWebTestUtils.httpDate;
 import static net.solarnetwork.web.security.test.SecurityWebTestUtils.iso8601Date;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -44,11 +45,13 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.util.StringUtils;
 import net.solarnetwork.web.security.AuthenticationDataV2;
 import net.solarnetwork.web.security.AuthenticationScheme;
+import net.solarnetwork.web.security.AuthorizationV2Builder;
 import net.solarnetwork.web.security.SecurityHttpServletRequestWrapper;
 import net.solarnetwork.web.security.WebConstants;
 
@@ -56,7 +59,7 @@ import net.solarnetwork.web.security.WebConstants;
  * Unit tests for the {@link AuthenticationDataV2} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class AuthenticationDataV2Tests {
 
@@ -302,7 +305,7 @@ public class AuthenticationDataV2Tests {
 	public void badPassword() throws ServletException, IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
 		final Date now = new Date();
-		request.addHeader("Date", now);
+		request.addHeader("Date", httpDate(now));
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, "foobar", request, now);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
 		AuthenticationDataV2 authData = new AuthenticationDataV2(
@@ -317,7 +320,7 @@ public class AuthenticationDataV2Tests {
 	public void tooMuchSkew() throws ServletException, IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
 		final Date now = new Date(System.currentTimeMillis() - 16L * 60L * 1000L);
-		request.addHeader("Date", now);
+		request.addHeader("Date", httpDate(now));
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
@@ -331,11 +334,16 @@ public class AuthenticationDataV2Tests {
 	public void simplePath() throws ServletException, IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
 		final Date now = new Date();
-		request.addHeader("Date", now);
+		request.addHeader("Date", httpDate(now));
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
 		verifyRequest(request, TEST_PASSWORD);
+
+		final AuthorizationV2Builder builder = new AuthorizationV2Builder(TEST_AUTH_TOKEN);
+		String builderAuthHeader = builder.date(now).host(TEST_HOST).path(request.getRequestURI())
+				.build(TEST_PASSWORD);
+		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
 	}
 
 	@Test
@@ -343,10 +351,18 @@ public class AuthenticationDataV2Tests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
 		final Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
 		final Date now = cal.getTime();
-		request.addHeader("Date", now);
+		request.addHeader("Date", httpDate(now));
+
+		final AuthorizationV2Builder builder = new AuthorizationV2Builder(TEST_AUTH_TOKEN);
+
 		for ( int i = 0; i < 7; i++, cal.add(Calendar.DATE, -1) ) {
 			String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 					now, cal.getTime(), null);
+
+			String builderAuthHeader = builder.reset().date(cal.getTime()).saveSigningKey(TEST_PASSWORD)
+					.date(now).host(TEST_HOST).path(request.getRequestURI()).build();
+			Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
+
 			request.addHeader(HTTP_HEADER_AUTH, authHeader);
 			verifyRequest(request, TEST_PASSWORD);
 		}
@@ -358,7 +374,7 @@ public class AuthenticationDataV2Tests {
 		final Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
 		final Date now = cal.getTime();
 		cal.add(Calendar.DATE, -8);
-		request.addHeader("Date", now);
+		request.addHeader("Date", httpDate(now));
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now, cal.getTime(), null);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
@@ -374,11 +390,16 @@ public class AuthenticationDataV2Tests {
 	public void simplePathWithXDate() throws ServletException, IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
 		final Date now = new Date();
-		request.addHeader("X-SN-Date", now);
+		request.addHeader("X-SN-Date", httpDate(now));
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
 		verifyRequest(request, TEST_PASSWORD);
+
+		final AuthorizationV2Builder builder = new AuthorizationV2Builder(TEST_AUTH_TOKEN);
+		String builderAuthHeader = builder.date(now).host(TEST_HOST).path(request.getRequestURI())
+				.header(WebConstants.HEADER_DATE, httpDate(now)).build(TEST_PASSWORD);
+		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
 	}
 
 	@Test
@@ -390,11 +411,16 @@ public class AuthenticationDataV2Tests {
 		params.put("zog", "dog");
 		request.setParameters(params);
 		final Date now = new Date();
-		request.addHeader("Date", now);
+		request.addHeader("Date", httpDate(now));
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
 		verifyRequest(request, TEST_PASSWORD);
+
+		final AuthorizationV2Builder builder = new AuthorizationV2Builder(TEST_AUTH_TOKEN);
+		String builderAuthHeader = builder.date(now).host(TEST_HOST).path(request.getRequestURI())
+				.queryParams(params).build(TEST_PASSWORD);
+		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
 	}
 
 	@Test
@@ -406,11 +432,16 @@ public class AuthenticationDataV2Tests {
 		params.put("zog", "dog");
 		request.setParameters(params);
 		final Date now = new Date();
-		request.addHeader("Date", now);
+		request.addHeader("Date", httpDate(now));
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
 		verifyRequest(request, TEST_PASSWORD);
+
+		final AuthorizationV2Builder builder = new AuthorizationV2Builder(TEST_AUTH_TOKEN);
+		String builderAuthHeader = builder.date(now).host(TEST_HOST).path(request.getRequestURI())
+				.queryParams(params).build(TEST_PASSWORD);
+		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
 	}
 
 	@Test
@@ -423,11 +454,18 @@ public class AuthenticationDataV2Tests {
 		params.put("zog", "dog");
 		request.setParameters(params);
 		final Date now = new Date();
-		request.addHeader("Date", now);
+		request.addHeader("Date", httpDate(now));
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now, "application/x-www-form-urlencoded; charset=UTF-8");
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
 		verifyRequest(request, TEST_PASSWORD);
+
+		final AuthorizationV2Builder builder = new AuthorizationV2Builder(TEST_AUTH_TOKEN);
+		String builderAuthHeader = builder.date(now).host(TEST_HOST).method(HttpMethod.POST)
+				.path(request.getRequestURI())
+				.header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+				.queryParams(params).build(TEST_PASSWORD);
+		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
 	}
 
 	@Test
@@ -440,11 +478,18 @@ public class AuthenticationDataV2Tests {
 		request.setContent(content.getBytes("UTF-8"));
 		request.addHeader("Content-MD5", contentMD5);
 		final Date now = new Date();
-		request.addHeader("Date", now);
+		request.addHeader("Date", httpDate(now));
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now, contentType);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
 		verifyRequest(request, TEST_PASSWORD);
+
+		final AuthorizationV2Builder builder = new AuthorizationV2Builder(TEST_AUTH_TOKEN);
+		String builderAuthHeader = builder.date(now).host(TEST_HOST).method(HttpMethod.POST)
+				.path(request.getRequestURI()).header("Content-Type", contentType)
+				.header("Content-MD5", contentMD5).contentSHA256(DigestUtils.sha256(content))
+				.build(TEST_PASSWORD);
+		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
 	}
 
 	@Test
@@ -457,10 +502,17 @@ public class AuthenticationDataV2Tests {
 		request.setContent(content.getBytes("UTF-8"));
 		request.addHeader("Content-MD5", contentMD5);
 		final Date now = new Date();
-		request.addHeader("Date", now);
+		request.addHeader("Date", httpDate(now));
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now, contentType);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
 		verifyRequest(request, TEST_PASSWORD);
+
+		final AuthorizationV2Builder builder = new AuthorizationV2Builder(TEST_AUTH_TOKEN);
+		String builderAuthHeader = builder.date(now).host(TEST_HOST).method(HttpMethod.POST)
+				.path(request.getRequestURI()).header("Content-Type", contentType)
+				.header("Content-MD5", contentMD5).contentSHA256(DigestUtils.sha256(content))
+				.build(TEST_PASSWORD);
+		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
 	}
 }
