@@ -69,7 +69,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 		Map<String, String> tokenData = tokenStringToMap(headerValue);
 		authTokenId = tokenData.get(TOKEN_COMPONENT_KEY_CREDENTIAL);
-		if ( authTokenId == null || authTokenId.length() != AUTH_TOKEN_ID_LENGTH ) {
+		if ( authTokenId == null ) {
 			throw new BadCredentialsException("Invalid " + TOKEN_COMPONENT_KEY_CREDENTIAL + " value");
 		}
 		signatureDigest = tokenData.get(TOKEN_COMPONENT_KEY_SIGNATURE);
