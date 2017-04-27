@@ -226,8 +226,21 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 	private void appendHeaders(HttpServletRequest request, StringBuilder buf) {
 		for ( String headerName : sortedSignedHeaderNames ) {
-			buf.append(headerName).append(':').append(nullSafeHeaderValue(request, headerName).trim())
-					.append('\n');
+			buf.append(headerName).append(':');
+			String value = nullSafeHeaderValue(request, headerName).trim();
+			if ( value.length() < 1 && "host".equals(headerName) ) {
+				value = request.getServerName();
+				if ( value != null ) {
+					buf.append(value);
+					int port = request.getServerPort();
+					if ( port != 80 ) {
+						buf.append(':').append(port);
+					}
+				}
+			} else {
+				buf.append(value);
+			}
+			buf.append('\n');
 		}
 	}
 

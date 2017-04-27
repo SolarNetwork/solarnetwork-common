@@ -147,7 +147,7 @@ public final class AuthorizationV2Builder {
 	 * Set the HTTP host.
 	 * 
 	 * This is a shortcut for calling {@code HttpHeaders#set(String, String)}
-	 * with a {@code Host} key.
+	 * with a {@literal Host} key.
 	 * 
 	 * @param host
 	 *        The host to use.
@@ -155,6 +155,51 @@ public final class AuthorizationV2Builder {
 	 */
 	public AuthorizationV2Builder host(String host) {
 		httpHeaders.set(HttpHeaders.HOST, host);
+		return this;
+	}
+
+	/**
+	 * Set the HTTP content type.
+	 * 
+	 * This is a shortcut for calling {@code HttpHeaders#set(String, String)}
+	 * with a {@literal Content-Type} key.
+	 * 
+	 * @param contentType
+	 *        The content type to use.
+	 * @return The builder.
+	 */
+	public AuthorizationV2Builder contentType(String contentType) {
+		httpHeaders.set(HttpHeaders.CONTENT_TYPE, contentType);
+		return this;
+	}
+
+	/**
+	 * Set the HTTP body content MD5 digest.
+	 * 
+	 * This is a shortcut for calling {@code HttpHeaders#set(String, String)}
+	 * with a {@literal Content-MD5} key.
+	 * 
+	 * @param md5
+	 *        The content MD5 to use.
+	 * @return The builder.
+	 */
+	public AuthorizationV2Builder contentMD5(String md5) {
+		httpHeaders.set("Content-MD5", md5);
+		return this;
+	}
+
+	/**
+	 * Set the HTTP body content digest.
+	 * 
+	 * This is a shortcut for calling {@code HttpHeaders#set(String, String)}
+	 * with a {@literal Digest} key.
+	 * 
+	 * @param digest
+	 *        The digest to use.
+	 * @return The builder.
+	 */
+	public AuthorizationV2Builder digest(String digest) {
+		httpHeaders.set("Digest", digest);
 		return this;
 	}
 
