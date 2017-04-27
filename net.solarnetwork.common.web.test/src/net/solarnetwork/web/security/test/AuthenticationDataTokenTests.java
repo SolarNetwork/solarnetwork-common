@@ -78,7 +78,7 @@ public class AuthenticationDataTokenTests {
 		assertEquals("Issued", TEST_DATE.getTime() / 1000, obj.getIssued());
 		assertEquals("Expires", TEST_JTW_EXPIRATION, obj.getExpires());
 		assertArrayEquals("Signature", Base64.decodeBase64(TEST_JWT_SIG), obj.getSignature());
-		obj.verify(TEST_SECRET, 0);
+		obj.verify(TEST_SECRET, TEST_DATE.getTime());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -95,7 +95,7 @@ public class AuthenticationDataTokenTests {
 	@Test(expected = SecurityException.class)
 	public void expired() {
 		AuthenticationDataToken obj = new AuthenticationDataToken(new Cookie("foo", TEST_JWT));
-		obj.verify(TEST_SECRET, TEST_JTW_EXPIRATION + 1);
+		obj.verify(TEST_SECRET, TEST_JTW_EXPIRATION * 1000 + 1);
 	}
 
 }

@@ -323,7 +323,7 @@ public class AuthenticationDataToken {
 		if ( !Arrays.equals(signature, computed) ) {
 			throw new SecurityException("Signature does not match.");
 		}
-		if ( expires < date ) {
+		if ( expires * 1000 < date ) {
 			throw new SecurityException("Token expired");
 		}
 	}
