@@ -38,9 +38,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -72,6 +74,7 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 	private UserDetailsService userDetailsService;
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
+	private AuthenticationEntryPoint authenticationEntryPoint;
 	private long maxDateSkew = 15 * 60 * 1000; // 15 minutes default
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -97,75 +100,86 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 			FilterChain filterChain) throws ServletException, IOException {
+		try {
+			doAuthentication(request, response);
+			filterChain.doFilter(request, response);
+		} catch ( AuthenticationException e ) {
+			if ( authenticationEntryPoint != null ) {
+				authenticationEntryPoint.commence(request, response, e);
+			} else {
+				throw e;
+			}
+		}
+	}
+
+	private void doAuthentication(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 
 		Authentication authenticatedUser = null;
 
-		// look for a token provided via cookies
-		Cookie[] cookies = request.getCookies();
-		if ( cookies != null ) {
-			for ( Cookie cookie : cookies ) {
-				if ( COOKIE_NAME_AUTH_TOKEN.equals(cookie.getName()) ) {
-					try {
-						AuthenticationDataToken tokenCookie = new AuthenticationDataToken(cookie);
-						UserDetails user = userDetailsService
-								.loadUserByUsername(tokenCookie.getIdentity());
+		// first look for Authorization HTTP header
+		SecurityHttpServletRequestWrapper secRequest = new SecurityHttpServletRequestWrapper(request,
+				65536);
+		AuthenticationData data = AuthenticationDataFactory
+				.authenticationDataForAuthorizationHeader(secRequest);
+		if ( data != null ) {
+			UserDetails user = userDetailsService.loadUserByUsername(data.getAuthTokenId());
+			final String computedDigest = data.computeSignatureDigest(user.getPassword());
+			if ( computedDigest.equals(data.getSignatureDigest()) ) {
+				if ( data.isDateValid(maxDateSkew) ) {
+					// check if cookie should be set
+					if ( "true".equalsIgnoreCase(request.getParameter(REQUEST_PARAM_SET_COOKIE)) ) {
 						byte[] secret = computeJWTSigningKey(user.getPassword(),
-								tokenCookie.getIssued() * 1000);
-						tokenCookie.verify(secret);
-						authenticatedUser = createSuccessfulAuthentication(request, user);
-						break;
-					} catch ( SecurityException e ) {
-						throw new BadCredentialsException("Bad token credentials", e);
+								data.getDate().getTime());
+						AuthenticationDataToken tokenCookie = new AuthenticationDataToken(data, secret);
+						Cookie cookie = new Cookie(COOKIE_NAME_AUTH_TOKEN, tokenCookie.cookieValue());
+						cookie.setHttpOnly(true);
+						cookie.setMaxAge(-1); // expire when browser session ends
+						response.addCookie(cookie);
 					}
+
+					authenticatedUser = createSuccessfulAuthentication(request, user);
+					log.debug("Authentication success for user: '{}'", user.getUsername());
+				} else {
+					log.debug("Request date '{}' diff too large: {}", data.getDate(),
+							data.getDateSkew());
+					throw new BadCredentialsException("Request date skew too large");
 				}
+			} else {
+				log.debug("Expected digest: '{}' but received: '{}'", computedDigest,
+						data.getSignatureDigest());
+				throw new BadCredentialsException("Bad signature digest");
 			}
+		} else {
+			log.trace("Missing Authorization header or unsupported scheme");
 		}
 
 		if ( authenticatedUser == null ) {
-			SecurityHttpServletRequestWrapper secRequest = new SecurityHttpServletRequestWrapper(request,
-					65536);
-			AuthenticationData data = AuthenticationDataFactory
-					.authenticationDataForAuthorizationHeader(secRequest);
-			if ( data instanceof AuthenticationDataV2 ) {
-				UserDetails user = userDetailsService.loadUserByUsername(data.getAuthTokenId());
-				final String computedDigest = data.computeSignatureDigest(user.getPassword());
-				if ( computedDigest.equals(data.getSignatureDigest()) ) {
-					if ( data.isDateValid(maxDateSkew) ) {
-						// check if cookie should be set
-						if ( "true".equalsIgnoreCase(request.getParameter(REQUEST_PARAM_SET_COOKIE)) ) {
+			// look for a token provided via cookies
+			Cookie[] cookies = request.getCookies();
+			if ( cookies != null ) {
+				for ( Cookie cookie : cookies ) {
+					if ( COOKIE_NAME_AUTH_TOKEN.equals(cookie.getName()) ) {
+						try {
+							AuthenticationDataToken tokenCookie = new AuthenticationDataToken(cookie);
+							UserDetails user = userDetailsService
+									.loadUserByUsername(tokenCookie.getIdentity());
 							byte[] secret = computeJWTSigningKey(user.getPassword(),
-									data.getDate().getTime());
-							AuthenticationDataToken tokenCookie = new AuthenticationDataToken(data,
-									secret);
-							Cookie cookie = new Cookie(COOKIE_NAME_AUTH_TOKEN,
-									tokenCookie.cookieValue());
-							cookie.setHttpOnly(true);
-							cookie.setMaxAge(-1); // expire when browser session ends
-							response.addCookie(cookie);
+									tokenCookie.getIssued() * 1000);
+							tokenCookie.verify(secret);
+							authenticatedUser = createSuccessfulAuthentication(request, user);
+							break;
+						} catch ( SecurityException e ) {
+							throw new BadCredentialsException(e.getMessage(), e);
 						}
-
-						authenticatedUser = createSuccessfulAuthentication(request, user);
-						log.debug("Authentication success for user: '{}'", user.getUsername());
-					} else {
-						log.debug("Request date '{}' diff too large: {}", data.getDate(),
-								data.getDateSkew());
-						throw new BadCredentialsException("Request date skew too large");
 					}
-				} else {
-					log.debug("Expected digest: '{}' but received: '{}'", computedDigest,
-							data.getSignatureDigest());
-					throw new BadCredentialsException("Bad signature digest");
 				}
-			} else {
-				log.trace("Missing Authorization header or unsupported scheme");
 			}
 		}
 
 		if ( authenticatedUser != null ) {
 			SecurityContextHolder.getContext().setAuthentication(authenticatedUser);
 		}
-
-		filterChain.doFilter(request, response);
 	}
 
 	private String formatJWTSigningDate(Calendar cal) {
@@ -255,6 +269,20 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 	 */
 	public void setMaxDateSkew(long maxDateSkew) {
 		this.maxDateSkew = maxDateSkew;
+	}
+
+	/**
+	 * Set an {@link AuthenticationEntryPoint} to handle authentication errors.
+	 * 
+	 * If this is configured, any {@link AuthenticationException} thrown during
+	 * processing will be directed to the configured instance. Otherwise those
+	 * exceptions will be re-thrown.
+	 * 
+	 * @param authenticationEntryPoint
+	 *        the authenticationEntryPoint to set
+	 */
+	public void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
+		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
 }
