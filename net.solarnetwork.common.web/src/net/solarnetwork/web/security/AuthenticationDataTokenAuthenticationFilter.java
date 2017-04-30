@@ -101,7 +101,7 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 			FilterChain filterChain) throws ServletException, IOException {
 		try {
-			doAuthentication(request, response);
+			request = doAuthentication(request, response);
 			filterChain.doFilter(request, response);
 		} catch ( AuthenticationException e ) {
 			if ( authenticationEntryPoint != null ) {
@@ -112,7 +112,7 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 		}
 	}
 
-	private void doAuthentication(HttpServletRequest request, HttpServletResponse response)
+	private HttpServletRequest doAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
 		Authentication authenticatedUser = null;
@@ -180,6 +180,8 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 		if ( authenticatedUser != null ) {
 			SecurityContextHolder.getContext().setAuthentication(authenticatedUser);
 		}
+
+		return secRequest;
 	}
 
 	private String formatJWTSigningDate(Calendar cal) {
