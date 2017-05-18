@@ -48,7 +48,7 @@ import net.solarnetwork.util.OptionalService;
  * Basic support for HTTP client actions.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.35
  */
 public class HttpClientSupport {
@@ -104,7 +104,7 @@ public class HttpClientSupport {
 		InputStream is = conn.getInputStream();
 		if ( "gzip".equalsIgnoreCase(enc) ) {
 			is = new GZIPInputStream(is);
-		} else if ( "deflate".equalsIgnoreCase("enc") ) {
+		} else if ( "deflate".equalsIgnoreCase(enc) ) {
 			is = new DeflaterInputStream(is);
 		}
 		return is;
