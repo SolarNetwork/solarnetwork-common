@@ -3,7 +3,7 @@
  * 
  * Created Jan 3, 2007 12:20:21 PM
  * 
- * Copyright (c) 2007 Matt Magoffin (spamsqr@msqr.us)
+ * Copyright (c) 2007 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -19,8 +19,6 @@
  * along with this program; if not, write to the Free Software 
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
- * ===================================================================
- * $Id$
  * ===================================================================
  */
 
@@ -94,7 +92,7 @@ import net.solarnetwork.util.SerializeIgnore;
  * </dl>
  * 
  * @author Matt Magoffin
- * @version $Revision$ $Date$
+ * @version 1.1
  */
 public class JSONView extends AbstractView {
 
