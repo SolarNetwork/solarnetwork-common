@@ -33,6 +33,7 @@ import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -230,6 +231,12 @@ public class JSONView extends AbstractView {
 				json.writeNumber((BigDecimal) val);
 			} else {
 				json.writeNumberField(key, (BigDecimal) val);
+			}
+		} else if ( val instanceof BigInteger ) {
+			if ( key == null ) {
+				json.writeNumber((BigInteger) val);
+			} else {
+				json.writeNumberField(key, new BigDecimal((BigInteger) val));
 			}
 		} else if ( val instanceof Boolean ) {
 			if ( key == null ) {
