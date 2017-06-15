@@ -43,5 +43,8 @@ Import-Package:
  org.springframework.messaging;version="[4.2,5.0)";resolution:=optional,
  org.springframework.messaging.core;version="[4.2,5.0)";resolution:=optional,
  org.springframework.messaging.simp;version="[4.2,5.0)";resolution:=optional,
+ org.springframework.transaction;version="[4.2,5.0)";resolution:=optional,
+ org.springframework.transaction.event;version="[4.2,5.0)";resolution:=optional,
+ org.springframework.transaction.support;version="[4.2,5.0)";resolution:=optional,
  org.springframework.util;version="[4.2,5.0)",
  org.springframework.validation;version="[4.2,5.0)"
