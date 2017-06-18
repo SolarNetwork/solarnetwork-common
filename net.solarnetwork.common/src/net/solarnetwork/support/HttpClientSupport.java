@@ -48,7 +48,7 @@ import net.solarnetwork.util.OptionalService;
  * Basic support for HTTP client actions.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.35
  */
 public class HttpClientSupport {
@@ -246,24 +246,17 @@ public class HttpClientSupport {
 		}
 		StringBuilder buf = new StringBuilder();
 		for ( Map.Entry<String, ?> me : data.entrySet() ) {
-			String key;
-			try {
-				key = URLEncoder.encode(me.getKey(), "UTF-8");
-			} catch ( UnsupportedEncodingException e ) {
-				// should not get here ever
-				throw new RuntimeException(e);
-			}
 			Object val = me.getValue();
 			if ( val instanceof Collection<?> ) {
 				for ( Object colVal : (Collection<?>) val ) {
-					appendXWWWFormURLEncodedValue(buf, key, colVal);
+					appendXWWWFormURLEncodedValue(buf, me.getKey(), colVal);
 				}
 			} else if ( val.getClass().isArray() ) {
 				for ( Object arrayVal : (Object[]) val ) {
-					appendXWWWFormURLEncodedValue(buf, key, arrayVal);
+					appendXWWWFormURLEncodedValue(buf, me.getKey(), arrayVal);
 				}
 			} else {
-				appendXWWWFormURLEncodedValue(buf, key, val);
+				appendXWWWFormURLEncodedValue(buf, me.getKey(), val);
 			}
 		}
 		return buf.toString();
