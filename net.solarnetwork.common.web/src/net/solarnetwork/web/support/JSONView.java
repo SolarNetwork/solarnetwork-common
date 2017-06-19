@@ -3,7 +3,7 @@
  * 
  * Created Jan 3, 2007 12:20:21 PM
  * 
- * Copyright (c) 2007 Matt Magoffin (spamsqr@msqr.us)
+ * Copyright (c) 2007 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,8 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ===================================================================
- * $Id$
- * ===================================================================
  */
 
 package net.solarnetwork.web.support;
@@ -32,6 +30,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,13 +40,13 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import net.solarnetwork.util.SerializeIgnore;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.PropertyEditorRegistrar;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+import net.solarnetwork.util.SerializeIgnore;
 
 /**
  * View to return JSON encoded data.
@@ -81,7 +81,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
  * 
  * <dt>includeParentheses</dt>
  * <dd>If true, the entire response will be enclosed in parentheses, required
- * for JSON evaluation support in certain browsers. Defaults to <em>false</em>.</dd>
+ * for JSON evaluation support in certain browsers. Defaults to
+ * <em>false</em>.</dd>
  * 
  * <dt>propertyEditorRegistrar</dt>
  * <dd>An optional registrar of PropertyEditor instances that can be used to
@@ -91,7 +92,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
  * </dl>
  * 
  * @author Matt Magoffin
- * @version $Revision$ $Date$
+ * @version 1.1
  */
 public class JSONView extends AbstractView {
 
@@ -222,6 +223,18 @@ public class JSONView extends AbstractView {
 				json.writeNumber((Long) val);
 			} else {
 				json.writeNumberField(key, (Long) val);
+			}
+		} else if ( val instanceof BigDecimal ) {
+			if ( key == null ) {
+				json.writeNumber((BigDecimal) val);
+			} else {
+				json.writeNumberField(key, (BigDecimal) val);
+			}
+		} else if ( val instanceof BigInteger ) {
+			if ( key == null ) {
+				json.writeNumber((BigInteger) val);
+			} else {
+				json.writeNumberField(key, new BigDecimal((BigInteger) val));
 			}
 		} else if ( val instanceof Boolean ) {
 			if ( key == null ) {

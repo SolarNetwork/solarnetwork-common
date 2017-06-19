@@ -3,20 +3,29 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Web
 Bundle-SymbolicName: net.solarnetwork.common.web
 Bundle-Description: Common supporting infrastructure for SolarNode and SolarNet web applications.
-Bundle-Version: 1.10.0
+Bundle-Version: 1.11.1
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
  net.solarnetwork.web.domain;version="1.1.0",
- net.solarnetwork.web.support;version="1.8.0"
+ net.solarnetwork.web.security;version="1.0.0",
+ net.solarnetwork.web.support;version="1.8.1"
 Import-Package: 
- com.fasterxml.jackson.core;version="[2.4,3.0)";resolution:=optional,
+ com.fasterxml.jackson.core;version="[2.4,3.0)",
+ com.fasterxml.jackson.core.type;version="[2.4,3.0)",
+ com.fasterxml.jackson.databind;version="[2.4,3.0)",
+ javax.crypto,
+ javax.crypto.spec,
  javax.servlet;version="2.5.0",
  javax.servlet.http;version="2.4.0",
  javax.xml.stream,
  net.solarnetwork.domain;version="1.10.0",
  net.solarnetwork.util;version="1.10.0",
+ org.apache.commons.codec;version="[1.7,2.0)",
+ org.apache.commons.codec.binary;version="[1.7,2.0)",
+ org.apache.commons.codec.digest;version="[1.7,2.0)",
  org.apache.commons.logging;version="[1.1.0,2.0.0)",
+ org.slf4j;version="[1.7,2.0)",
  org.springframework.beans;version="[4.2,5.0)",
  org.springframework.beans.factory;version="[4.2,5.0)",
  org.springframework.context;version="[4.2,5.0)",
@@ -26,6 +35,16 @@ Import-Package:
  org.springframework.core.io.support;version="[4.2,5.0)",
  org.springframework.http;version="[4.2,5.0)",
  org.springframework.http.converter;version="[4.2,5.0)",
+ org.springframework.security.access;version="[4.1,5.0)",
+ org.springframework.security.access.vote;version="[4.1,5.0)",
+ org.springframework.security.authentication;version="[4.1,5.0)",
+ org.springframework.security.core;version="[4.1,5.0)",
+ org.springframework.security.core.authority;version="[4.1,5.0)",
+ org.springframework.security.core.context;version="[4.1,5.0)",
+ org.springframework.security.core.userdetails;version="[4.1,5.0)",
+ org.springframework.security.web;version="[4.1,5.0)",
+ org.springframework.security.web.authentication;version="[4.1,5.0)",
+ org.springframework.security.web.authentication.preauth;version="[4.1,5.0)",
  org.springframework.util;version="[4.2,5.0)",
  org.springframework.validation;version="[4.2,5.0)",
  org.springframework.web.bind;version="[4.2,5.0)",
