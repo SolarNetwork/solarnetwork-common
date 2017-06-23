@@ -11,10 +11,11 @@ Export-Package:
  net.solarnetwork.domain;version="1.10.1",
  net.solarnetwork.io;version="1.1.0",
  net.solarnetwork.support;version="1.6.0",
- net.solarnetwork.util;version="1.23.0"
+ net.solarnetwork.util;version="1.24.0"
 Import-Package: 
  com.fasterxml.jackson.annotation;version="[2.4,3.0)",
  com.fasterxml.jackson.core;version="[2.4,3.0)",
+ com.fasterxml.jackson.core.type;version="[2.4,3.0)",
  com.fasterxml.jackson.databind;version="[2.4,3.0)",
  com.fasterxml.jackson.databind.annotation;version="[2.4,3.0)",
  com.fasterxml.jackson.databind.deser.std;version="[2.4,3.0)",
