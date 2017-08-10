@@ -228,12 +228,28 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		for ( String headerName : sortedSignedHeaderNames ) {
 			buf.append(headerName).append(':');
 			String value = nullSafeHeaderValue(request, headerName).trim();
-			if ( value.length() < 1 && "host".equals(headerName) ) {
-				value = request.getServerName();
-				if ( value != null ) {
+			if ( "host".equals(headerName) ) {
+				if ( value.length() < 1 ) {
+					value = request.getServerName();
+					if ( value != null ) {
+						buf.append(value);
+						int port = request.getServerPort();
+						if ( port != 80 ) {
+							buf.append(':').append(port);
+						}
+					}
+				} else if ( value.indexOf(":") < 0 ) {
 					buf.append(value);
-					int port = request.getServerPort();
-					if ( port != 80 ) {
+					// look for proxy port
+					String port = nullSafeHeaderValue(request, "X-Forwarded-Port").trim();
+					if ( port.length() < 1 ) {
+						String proto = nullSafeHeaderValue(request, "X-Forwarded-Proto").trim()
+								.toLowerCase();
+						if ( "https".equals(proto) ) {
+							port = "443";
+						}
+					}
+					if ( port.length() > 0 && !"80".equals(port) ) {
 						buf.append(':').append(port);
 					}
 				}
