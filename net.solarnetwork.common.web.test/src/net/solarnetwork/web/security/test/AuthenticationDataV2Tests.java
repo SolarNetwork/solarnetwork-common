@@ -289,12 +289,11 @@ public class AuthenticationDataV2Tests {
 	}
 
 	private AuthenticationDataV2 verifyRequest(HttpServletRequest request, String secretKey,
-			String expectedDigest) throws IOException {
+			Date signDate, String expectedDigest) throws IOException {
 		AuthenticationDataV2 authData = new AuthenticationDataV2(
 				new SecurityHttpServletRequestWrapper(request, 1024), request.getHeader(HTTP_HEADER_AUTH)
 						.substring(AuthenticationScheme.V2.getSchemeName().length() + 1));
-		Assert.assertTrue("The date skew is OK", authData.isDateValid(TEST_MAX_DATE_SKEW));
-		String computedDigest = authData.computeSignatureDigest(secretKey);
+		String computedDigest = authData.computeSignatureDigest(secretKey, signDate);
 		Assert.assertEquals(expectedDigest, computedDigest);
 		return authData;
 	}
@@ -358,6 +357,19 @@ public class AuthenticationDataV2Tests {
 	}
 
 	@Test
+	public void simplePathNonStandardPort() throws ServletException, IOException {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
+		request.addHeader("Host", "localhost:8080");
+		final Date now = new Date(1502340082000L); // Thu, 10 Aug 2017 04:41:22 GMT
+		request.addHeader("X-SN-Date", httpDate(now));
+		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
+				now);
+		request.addHeader(HTTP_HEADER_AUTH, authHeader);
+		verifyRequest(request, TEST_PASSWORD, now,
+				"0574baabdb8c97c0961d04f1a3e9a328dde3219b3898982af18b0c9675463fb1");
+	}
+
+	@Test
 	public void simplePathHttpsThroughProxy() throws ServletException, IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
 		request.addHeader("Host", "localhost");
@@ -368,7 +380,7 @@ public class AuthenticationDataV2Tests {
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
-		verifyRequest(request, TEST_PASSWORD,
+		verifyRequest(request, TEST_PASSWORD, now,
 				"85028cb8b15bc3a7557aa9607c419697e0a942a95511728318e290c1d27ffd41");
 	}
 
@@ -383,7 +395,7 @@ public class AuthenticationDataV2Tests {
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
-		verifyRequest(request, TEST_PASSWORD,
+		verifyRequest(request, TEST_PASSWORD, now,
 				"409bc3bd69fd95d6b67fe7cde94ae412221d61a92ee52dc3bfc82ae535f9f8a9");
 	}
 
@@ -398,7 +410,7 @@ public class AuthenticationDataV2Tests {
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
-		verifyRequest(request, TEST_PASSWORD,
+		verifyRequest(request, TEST_PASSWORD, now,
 				"9584e63cd1c3e8e6fd007b982f99ffb63a6feb8a9db06bd3f4879bf7867a290f");
 	}
 
@@ -413,7 +425,7 @@ public class AuthenticationDataV2Tests {
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
-		verifyRequest(request, TEST_PASSWORD,
+		verifyRequest(request, TEST_PASSWORD, now,
 				"0574baabdb8c97c0961d04f1a3e9a328dde3219b3898982af18b0c9675463fb1");
 	}
 
