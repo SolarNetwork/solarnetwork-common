@@ -38,9 +38,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestExecution;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.FileCopyUtils;
 
 /**
@@ -59,6 +62,39 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 
 	private static final Logger REQ_LOG = LoggerFactory.getLogger("net.solarnetwork.http.REQ");
 	private static final Logger RES_LOG = LoggerFactory.getLogger("net.solarnetwork.http.RES");
+
+	/**
+	 * Get a client request factory with logging support if either request or
+	 * response logging is enabled.
+	 * 
+	 * <p>
+	 * This method will check if either {@code REQ_LOG} or {@code RES_LOG} have
+	 * {@literal TRACE} level logging enabled, and if so return a
+	 * {@link BufferingClientHttpRequestFactory} suitable for logging. Otherwise
+	 * the default {@link SimpleClientHttpRequestFactory} is returned.
+	 * 
+	 * @return a new request factory
+	 */
+	public static ClientHttpRequestFactory requestFactory() {
+		ClientHttpRequestFactory reqFactory = new SimpleClientHttpRequestFactory();
+		if ( REQ_LOG.isTraceEnabled() || RES_LOG.isTraceEnabled() ) {
+			reqFactory = new BufferingClientHttpRequestFactory(reqFactory);
+		}
+		return reqFactory;
+	}
+
+	/**
+	 * Test if a {@link ClientHttpRequestFactory} supports logging with this
+	 * interceptor.
+	 * 
+	 * @param reqFactory
+	 *        the request factory to test
+	 * @return {@literal true} if the factory is a
+	 *         {@link BufferingClientHttpRequestFactory}
+	 */
+	public static boolean supportsLogging(ClientHttpRequestFactory reqFactory) {
+		return (reqFactory instanceof BufferingClientHttpRequestFactory);
+	}
 
 	@Override
 	public ClientHttpResponse intercept(HttpRequest request, byte[] body,
