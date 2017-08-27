@@ -22,6 +22,7 @@ Import-Package:
  com.fasterxml.jackson.databind.jsonFormatVisitors;version="[2.4,3.0)",
  com.fasterxml.jackson.databind.jsontype;version="[2.4,3.0)",
  com.fasterxml.jackson.databind.module;version="[2.4,3.0)",
+ com.fasterxml.jackson.databind.node;version="[2.4,3.0)",
  com.fasterxml.jackson.databind.ser.std;version="[2.4,3.0)",
  com.fasterxml.jackson.databind.type;version="[2.4,3.0)",
  javax.net.ssl,
