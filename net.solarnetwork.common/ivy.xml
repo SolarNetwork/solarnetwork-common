@@ -11,7 +11,7 @@
 		<artifact type="sources" ext="jar" conf="sources" m:classifier="sources"/>
 	</publications>
 	<dependencies defaultconfmapping="runtime->default(runtime);compile->default(runtime)">
-		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.4.3" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.8.7" />
 		<dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.3"/>
 		<dependency org="org.apache.tomcat" name="tomcat-jdbc" rev="7.0.29" conf="compile"/>
 		<dependency org="org.osgi" name="org.osgi.core" rev="5.0.0"/>
