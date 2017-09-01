@@ -40,6 +40,7 @@ import net.solarnetwork.util.JsonNodeUtils;
  * @author matt
  * @version 1.0
  */
+@SuppressWarnings("deprecation")
 public class JsonNodeUtilsTests {
 
 	private JsonNode parseJsonResource(String resource) {
