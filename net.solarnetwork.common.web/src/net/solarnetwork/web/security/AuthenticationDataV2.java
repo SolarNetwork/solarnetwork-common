@@ -25,6 +25,7 @@ package net.solarnetwork.web.security;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
@@ -44,7 +45,7 @@ import net.solarnetwork.util.StringUtils;
  * the signature calculation in {@link #computeSignatureDigest(String)}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.11
  */
 public class AuthenticationDataV2 extends AuthenticationData {
@@ -122,9 +123,31 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 	@Override
 	public String computeSignatureDigest(String secretKey) {
+		return computeSignatureDigest(secretKey, new Date());
+	}
+
+	/**
+	 * Compute the signature digest, using a specific signing date.
+	 * 
+	 * <p>
+	 * Generally the current date/time is used to sign the request, which is
+	 * what the {@link #computeSignatureDigest(String)} method uses. This method
+	 * can be useful for testing purposes.
+	 * </p>
+	 * 
+	 * @param secretKey
+	 *        the secret key
+	 * @param signDate
+	 *        the signature date
+	 * @return the computed digest
+	 * @see #computeSignatureDigest(String)
+	 * @since 1.1
+	 */
+	public String computeSignatureDigest(String secretKey, Date signDate) {
 		// signing keys are valid for 7 days, so starting with today work backwards at most
 		// 7 days to see if we get a match
 		Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+		cal.setTime(signDate);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
@@ -228,17 +251,31 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		for ( String headerName : sortedSignedHeaderNames ) {
 			buf.append(headerName).append(':');
 			String value = nullSafeHeaderValue(request, headerName).trim();
-			if ( value.length() < 1 && "host".equals(headerName) ) {
-				value = request.getServerName();
-				if ( value != null ) {
-					buf.append(value);
-					int port = request.getServerPort();
-					if ( port != 80 ) {
+			buf.append(value);
+			if ( "host".equals(headerName) ) {
+				if ( value.length() < 1 ) {
+					value = request.getServerName();
+					if ( value != null ) {
+						buf.append(value);
+						int port = request.getServerPort();
+						if ( port != 80 ) {
+							buf.append(':').append(port);
+						}
+					}
+				} else if ( value.indexOf(":") < 0 ) {
+					// look for proxy port
+					String port = nullSafeHeaderValue(request, "X-Forwarded-Port").trim();
+					if ( port.length() < 1 ) {
+						String proto = nullSafeHeaderValue(request, "X-Forwarded-Proto").trim()
+								.toLowerCase();
+						if ( "https".equals(proto) ) {
+							port = "443";
+						}
+					}
+					if ( port.length() > 0 && !"80".equals(port) ) {
 						buf.append(':').append(port);
 					}
 				}
-			} else {
-				buf.append(value);
 			}
 			buf.append('\n');
 		}
