@@ -174,6 +174,10 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 					// nothing to do
 				}
 			});
+			// make sure we have a terminating newline, for the closing "response end" line
+			if ( buf.charAt(buf.length() - 1) != '\n' ) {
+				buf.append('\n');
+			}
 		} else {
 			// dump binary data as Hex encoded text, wrapped to 80 characters
 			byte[] byteBuf = new byte[40];
