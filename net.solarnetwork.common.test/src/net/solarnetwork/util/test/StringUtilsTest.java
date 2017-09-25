@@ -24,18 +24,23 @@
 
 package net.solarnetwork.util.test;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import net.solarnetwork.util.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * Unit test for the StringUtils class.
@@ -280,6 +285,41 @@ public class StringUtilsTest {
 				Pattern.compile("bam") };
 		Matcher r = StringUtils.matches(pat, "FOO");
 		assertNull("No match found", r);
+	}
+
+	@Test
+	public void expandTemplateNull() {
+		String result = StringUtils.expandTemplateString(null, null);
+		assertThat(result, nullValue());
+	}
+
+	@Test
+	public void expandTemplateSimple() {
+		String result = StringUtils.expandTemplateString("Hello {name}",
+				Collections.singletonMap("name", "world"));
+		assertThat(result, equalTo("Hello world"));
+	}
+
+	@Test
+	public void expandTemplateMissingKey() {
+		String result = StringUtils.expandTemplateString("Hello {name}", null);
+		assertThat(result, equalTo("Hello "));
+	}
+
+	@Test
+	public void expandTemplateMulti() {
+		Map<String, Object> vars = new HashMap<String, Object>();
+		vars.put("greeting", "Hello");
+		vars.put("name", "world");
+		String result = StringUtils.expandTemplateString("{greeting} {name}", vars);
+		assertThat(result, equalTo("Hello world"));
+	}
+
+	@Test
+	public void expandTemplateWithDefaults() {
+		String result = StringUtils.expandTemplateString("{greeting:Hello} {name:universe}",
+				Collections.singletonMap("name", "world"));
+		assertThat(result, equalTo("Hello world"));
 	}
 
 }
