@@ -23,6 +23,7 @@
 package net.solarnetwork.util;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -35,12 +36,107 @@ import java.util.regex.PatternSyntaxException;
  * Common string helper utilities.
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public final class StringUtils {
 
 	private StringUtils() {
 		// don't construct me
+	}
+
+	/**
+	 * Pattern to capture template variable names of the form
+	 * <code>{name}</code>.
+	 */
+	public static final Pattern NAMES_PATTERN = Pattern.compile("\\{([^/]+?)\\}");
+
+	/**
+	 * Replace variables in a string template with corresponding values.
+	 * 
+	 * <p>
+	 * Template variables are encoded like <code>{name:default}</code> where the
+	 * {@code :default} part is optional. The {@code name} value is treated as a
+	 * key in the provided {@code variables} map, and any corresponding value
+	 * found is turned into a string and replaces the template variable in the
+	 * resulting string. The optional {@code default} value, if provided, will
+	 * be used as the variable value if {@code name} is not found in
+	 * {@code variables}.
+	 * </p>
+	 * 
+	 * <p>
+	 * Adapted from the {@code org.springframework.web.util.UriComponents}
+	 * class, mimicking URI path variable substitutions.
+	 * </p>
+	 * 
+	 * @param source
+	 *        the template string to replace variables in
+	 * @param variables
+	 *        the variables
+	 * @return the string with variables replaced, or {@literal null} if
+	 *         {@code source} is {@literal null}
+	 * @since 1.4
+	 */
+	public static String expandTemplateString(String source, Map<String, ?> variables) {
+		if ( source == null ) {
+			return null;
+		}
+		if ( source.indexOf('{') == -1 ) {
+			return source;
+		}
+		if ( source.indexOf(':') != -1 ) {
+			source = sanitizeVariableTemplate(source);
+		}
+		if ( variables == null ) {
+			variables = Collections.emptyMap();
+		}
+		Matcher matcher = NAMES_PATTERN.matcher(source);
+		StringBuffer sb = new StringBuffer();
+		while ( matcher.find() ) {
+			String match = matcher.group(1);
+			Object variableValue = getVariableValue(match, variables);
+			String variableValueString = getVariableValueAsString(variableValue);
+			String replacement = Matcher.quoteReplacement(variableValueString);
+			matcher.appendReplacement(sb, replacement);
+		}
+		matcher.appendTail(sb);
+		return sb.toString();
+	}
+
+	/**
+	 * Remove nested "{}" such as in template variables with regular
+	 * expressions.
+	 */
+	private static String sanitizeVariableTemplate(String source) {
+		int level = 0;
+		StringBuilder sb = new StringBuilder();
+		for ( char c : source.toCharArray() ) {
+			if ( c == '{' ) {
+				level++;
+			}
+			if ( c == '}' ) {
+				level--;
+			}
+			if ( level > 1 || (level == 1 && c == '}') ) {
+				continue;
+			}
+			sb.append(c);
+		}
+		return sb.toString();
+	}
+
+	private static Object getVariableValue(String match, Map<String, ?> variables) {
+		int colonIdx = match.indexOf(':');
+		String name = (colonIdx != -1 ? match.substring(0, colonIdx) : match);
+		String fallback = (colonIdx != -1 ? match.substring(colonIdx + 1) : null);
+		Object val = variables.get(name);
+		if ( val == null ) {
+			val = fallback;
+		}
+		return val;
+	}
+
+	private static String getVariableValueAsString(Object variableValue) {
+		return (variableValue != null ? variableValue.toString() : "");
 	}
 
 	/**
@@ -251,8 +347,8 @@ public final class StringUtils {
 	/**
 	 * Create an array of regular expressions from strings. If
 	 * {@code expressions} is <em>null</em> or empty, the result will be
-	 * <em>null</em>. Pass {@bold 0} for {@code flags} if no special
-	 * flags are desired.
+	 * <em>null</em>. Pass {@bold 0} for {@code flags} if no special flags are
+	 * desired.
 	 * 
 	 * @param expressions
 	 *        the array of expressions to compile into {@link Pattern} objects
@@ -268,8 +364,8 @@ public final class StringUtils {
 		if ( expressions != null && expressions.length > 0 ) {
 			result = new Pattern[expressions.length];
 			for ( int i = 0, len = expressions.length; i < len; i++ ) {
-				result[i] = (flags == 0 ? Pattern.compile(expressions[i]) : Pattern.compile(
-						expressions[i], flags));
+				result[i] = (flags == 0 ? Pattern.compile(expressions[i])
+						: Pattern.compile(expressions[i], flags));
 			}
 		}
 		return result;
