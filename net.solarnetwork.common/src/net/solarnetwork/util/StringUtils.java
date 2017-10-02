@@ -36,7 +36,7 @@ import java.util.regex.PatternSyntaxException;
  * Common string helper utilities.
  * 
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public final class StringUtils {
 
@@ -335,7 +335,7 @@ public final class StringUtils {
 		final Map<String, String> map = new LinkedHashMap<String, String>();
 		final Pattern fieldSplit = Pattern.compile("\\s*" + Pattern.quote(fieldDelim) + "\\s*");
 		for ( String pair : pairs ) {
-			String[] kv = fieldSplit.split(pair);
+			String[] kv = fieldSplit.split(pair, 2);
 			if ( kv == null || kv.length != 2 ) {
 				continue;
 			}

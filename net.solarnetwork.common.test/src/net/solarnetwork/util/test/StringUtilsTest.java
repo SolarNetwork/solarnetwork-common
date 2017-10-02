@@ -150,6 +150,20 @@ public class StringUtilsTest {
 	}
 
 	@Test
+	public void commaDelimitedStringToMapWithNestedEquals() {
+		Map<String, String> result = StringUtils
+				.commaDelimitedStringToMap("foo = bar=bam, bar = bim=bam");
+		assertEquals(result.get("foo"), "bar=bam");
+		assertEquals(result.get("bar"), "bim=bam");
+	}
+
+	@Test
+	public void commaDelimitedStringToMapWithSingleNestedEquals() {
+		Map<String, String> result = StringUtils.commaDelimitedStringToMap("foo = bar=bam");
+		assertEquals(result.get("foo"), "bar=bam");
+	}
+
+	@Test
 	public void patternsForNull() {
 		Pattern[] r = StringUtils.patterns(null, 0);
 		assertNull("Null expressions", r);
