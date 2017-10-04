@@ -20,8 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ===================================================================
- * $Id$
- * ===================================================================
  */
 
 package net.solarnetwork.util;
@@ -30,31 +28,29 @@ package net.solarnetwork.util;
  * API for items that can be cached.
  *
  * @author matt.magoffin
- * @version $Revision$ $Date$
+ * @version 1.0
  */
 public interface Cachable {
-	
+
 	/**
 	 * Get a unique cache key that identifies this cachable item.
 	 * 
 	 * @return the cache key
 	 */
 	String getCacheKey();
-	
+
 	/**
 	 * Get a suggested time-to-live, in seconds.
 	 * 
-	 * @return TTL in seconds, or <em>null</em> if should use a 
-	 * default value
+	 * @return TTL in seconds, or {@literal null} if should use a default value
 	 */
-	Long getTtl(); 
+	Long getTtl();
 
 	/**
 	 * Get a suggested time-to-idle, in seconds.
 	 * 
-	 * @return TTI in seconds, or <em>null</em> if should use a 
-	 * default value
+	 * @return TTI in seconds, or {@literal null} if should use a default value
 	 */
-	Long getTti(); 
+	Long getTti();
 
 }
