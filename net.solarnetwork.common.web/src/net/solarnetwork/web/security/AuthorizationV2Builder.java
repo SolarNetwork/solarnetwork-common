@@ -22,7 +22,7 @@
 
 package net.solarnetwork.web.security;
 
-import static net.solarnetwork.web.security.AuthenticationData.uriEncode;
+import static net.solarnetwork.web.security.AuthenticationUtils.uriEncode;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
