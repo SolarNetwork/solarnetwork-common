@@ -22,7 +22,7 @@
 
 package net.solarnetwork.web.security;
 
-import static net.solarnetwork.web.security.AuthenticationData.uriEncode;
+import static net.solarnetwork.web.security.AuthenticationUtils.uriEncode;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -88,7 +88,7 @@ import org.springframework.util.StringUtils;
  * </pre>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.11
  */
 public final class AuthorizationV2Builder {
@@ -354,11 +354,13 @@ public final class AuthorizationV2Builder {
 	/**
 	 * Compute and cache the signing key.
 	 * 
+	 * <p>
 	 * Signing keys are derived from the token secret and valid for 7 days, so
 	 * this method can be used to compute a signing key so that {@link #build()}
 	 * can be called later. The signing date will be set to whatever date is
 	 * currently configured via {@link #date(Date)}, which defaults to the
 	 * current time for newly created builder instances.
+	 * </p>
 	 * 
 	 * @param tokenSecret
 	 *        The secret to sign the digest with.
@@ -369,6 +371,37 @@ public final class AuthorizationV2Builder {
 	public AuthorizationV2Builder saveSigningKey(String tokenSecret) {
 		signingKey = computeSigningKey(tokenSecret);
 		return this;
+	}
+
+	/**
+	 * Set the signing key directly.
+	 * 
+	 * <p>
+	 * Use this method if a signing key has been computed externally. The effect
+	 * is the same as in {@link #saveSigningKey(String)} in that the
+	 * {@link #build()} method can then be called to compute the authorization
+	 * value using this key.
+	 * </p>
+	 * 
+	 * @param key
+	 *        The signing key to set.
+	 * @return The builder.
+	 * @since 1.1
+	 */
+	public AuthorizationV2Builder signingKey(byte[] key) {
+		signingKey = key;
+		return this;
+	}
+
+	/**
+	 * Get the signing key, encoded as hex.
+	 * 
+	 * @return the computed or saved signing key encoded as hex, or
+	 *         {@literal null} if none computed or saved yet
+	 * @since 1.1
+	 */
+	public String signingKeyHex() {
+		return Hex.encodeHexString(this.signingKey);
 	}
 
 	/**

@@ -155,8 +155,8 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		String result = null;
 		for ( int i = 0; i < 7; i += 1, cal.add(Calendar.DATE, -1) ) {
 			final byte[] signingKey = computeSigningKey(secretKey, cal);
-			String computed = Hex
-					.encodeHexString(computeMACDigest(signingKey, signatureData, "HmacSHA256"));
+			String computed = Hex.encodeHexString(
+					AuthenticationUtils.computeMACDigest(signingKey, signatureData, "HmacSHA256"));
 			if ( computed.equals(signatureDigest) ) {
 				return computed;
 			} else if ( result == null ) {
@@ -190,8 +190,10 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		HMACSHA256(HMACSHA256("SNWS2"+secretKey, "20160301"), "snws2_request")
 		*/
 		String dateStr = formatSigningDate(cal);
-		return computeMACDigest(computeMACDigest(AuthenticationScheme.V2.getSchemeName() + secretKey,
-				dateStr, "HmacSHA256"), "snws2_request", "HmacSHA256");
+		return AuthenticationUtils.computeMACDigest(
+				AuthenticationUtils.computeMACDigest(AuthenticationScheme.V2.getSchemeName() + secretKey,
+						dateStr, "HmacSHA256"),
+				"snws2_request", "HmacSHA256");
 	}
 
 	private String computeSignatureData(String canonicalRequestData) {
@@ -201,7 +203,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		 	20170301T120000Z\n
 		 	Hex(SHA256(canonicalRequestData))
 		*/
-		return "SNWS2-HMAC-SHA256\n" + iso8601Date(getDate()) + "\n"
+		return "SNWS2-HMAC-SHA256\n" + AuthenticationUtils.iso8601Date(getDate()) + "\n"
 				+ Hex.encodeHexString(DigestUtils.sha256(canonicalRequestData));
 	}
 
@@ -296,7 +298,8 @@ public class AuthenticationDataV2 extends AuthenticationData {
 			} else {
 				buf.append('&');
 			}
-			buf.append(uriEncode(key)).append('=').append(uriEncode(request.getParameter(key)));
+			buf.append(AuthenticationUtils.uriEncode(key)).append('=')
+					.append(AuthenticationUtils.uriEncode(request.getParameter(key)));
 		}
 		buf.append('\n');
 	}
