@@ -7,7 +7,7 @@ Bundle-Version: 1.40.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
- net.solarnetwork.dao.jdbc;version="1.1.0",
+ net.solarnetwork.dao.jdbc;version="1.2.0",
  net.solarnetwork.domain;version="1.11.0",
  net.solarnetwork.io;version="1.1.0",
  net.solarnetwork.support;version="1.6.0",
@@ -25,6 +25,7 @@ Import-Package:
  com.fasterxml.jackson.databind.node;version="[2.4,3.0)",
  com.fasterxml.jackson.databind.ser.std;version="[2.4,3.0)",
  com.fasterxml.jackson.databind.type;version="[2.4,3.0)",
+ javax.management,
  javax.net.ssl,
  javax.sql,
  javax.xml.stream,
