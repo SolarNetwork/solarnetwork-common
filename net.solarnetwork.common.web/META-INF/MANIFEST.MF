@@ -3,24 +3,25 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Web
 Bundle-SymbolicName: net.solarnetwork.common.web
 Bundle-Description: Common supporting infrastructure for SolarNode and SolarNet web applications.
-Bundle-Version: 1.13.0
+Bundle-Version: 1.14.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
  net.solarnetwork.web.domain;version="1.1.0",
- net.solarnetwork.web.security;version="1.1.0",
- net.solarnetwork.web.support;version="1.9.1"
+ net.solarnetwork.web.security;version="1.2.0",
+ net.solarnetwork.web.support;version="1.10.0"
 Import-Package: 
  com.fasterxml.jackson.core;version="[2.4,3.0)",
  com.fasterxml.jackson.core.type;version="[2.4,3.0)",
  com.fasterxml.jackson.databind;version="[2.4,3.0)",
  javax.crypto,
  javax.crypto.spec,
+ javax.security.auth,
  javax.servlet;version="2.5.0",
  javax.servlet.http;version="2.4.0",
  javax.xml.stream,
  net.solarnetwork.domain;version="1.10.0",
- net.solarnetwork.util;version="1.10.0",
+ net.solarnetwork.util;version="1.28.0",
  org.apache.commons.codec;version="[1.7,2.0)",
  org.apache.commons.codec.binary;version="[1.7,2.0)",
  org.apache.commons.codec.digest;version="[1.7,2.0)",
@@ -36,6 +37,11 @@ Import-Package:
  org.springframework.http;version="[4.2,5.0)",
  org.springframework.http.client;version="[4.2,5.0)",
  org.springframework.http.converter;version="[4.2,5.0)",
+ org.springframework.http.server;version="[4.2,5.0)",
+ org.springframework.messaging;version="[4.2,5.0)",
+ org.springframework.messaging.simp;version="[4.2,5.0)",
+ org.springframework.messaging.simp.stomp;version="[4.2,5.0)",
+ org.springframework.messaging.support;version="[4.2,5.0)",
  org.springframework.security.access;version="[4.1,5.0)",
  org.springframework.security.access.vote;version="[4.1,5.0)",
  org.springframework.security.authentication;version="[4.1,5.0)",
@@ -55,6 +61,8 @@ Import-Package:
  org.springframework.web.servlet;version="[4.2,5.0)",
  org.springframework.web.servlet.theme;version="[4.2,5.0)",
  org.springframework.web.servlet.view;version="[4.2,5.0)",
+ org.springframework.web.socket;version="[4.2,5.0)",
+ org.springframework.web.socket.server;version="[4.2,5.0)",
  org.supercsv.io;version="[2.0,3.0)";resolution:=optional,
  org.supercsv.prefs;version="[2.0,3.0)";resolution:=optional,
  org.supercsv.util;version="[2.0,3.0)";resolution:=optional
