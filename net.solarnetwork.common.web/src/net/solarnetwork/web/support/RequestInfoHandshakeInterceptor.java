@@ -24,6 +24,7 @@ package net.solarnetwork.web.support;
 
 import java.net.URI;
 import java.util.Map;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.socket.WebSocketHandler;
@@ -34,7 +35,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  * message headers.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.14
  */
 public class RequestInfoHandshakeInterceptor implements HandshakeInterceptor {
@@ -47,6 +48,9 @@ public class RequestInfoHandshakeInterceptor implements HandshakeInterceptor {
 
 	/** The attribute name for the {@link URI} of the HTTP request. */
 	public static final String REQUEST_URI_ATTR = "requestUri";
+
+	/** The attribute name for the {@link HttpHeaders} of the HTTP request. */
+	public static final String REQUEST_HEADERS = "requestHeaders";
 
 	/**
 	 * Populate request information as session attributes.
@@ -65,6 +69,7 @@ public class RequestInfoHandshakeInterceptor implements HandshakeInterceptor {
 			WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 		attributes.putIfAbsent(REQUEST_URI_ATTR, request.getURI());
 		attributes.putIfAbsent(REQUEST_METHOD_ATTR, request.getMethod());
+		attributes.putIfAbsent(REQUEST_HEADERS, request.getHeaders());
 		return true;
 	}
 
