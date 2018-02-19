@@ -23,7 +23,7 @@
 package net.solarnetwork.web.security.test;
 
 import static net.solarnetwork.web.security.AuthenticationData.nullSafeHeaderValue;
-import static net.solarnetwork.web.security.AuthenticationData.uriEncode;
+import static net.solarnetwork.web.security.AuthenticationUtils.uriEncode;
 import static net.solarnetwork.web.security.test.SecurityWebTestUtils.computeHMACSHA256;
 import static net.solarnetwork.web.security.test.SecurityWebTestUtils.httpDate;
 import static net.solarnetwork.web.security.test.SecurityWebTestUtils.iso8601Date;
@@ -59,7 +59,7 @@ import net.solarnetwork.web.security.WebConstants;
  * Unit tests for the {@link AuthenticationDataV2} class.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class AuthenticationDataV2Tests {
 
