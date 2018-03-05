@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.domain;
@@ -28,16 +26,16 @@ package net.solarnetwork.domain;
  * Enumeration of supported node component property types.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
 public enum NodeControlPropertyType {
 
 	Boolean,
-	
+
 	Float,
-	
+
 	Integer,
-	
+
 	Percent;
-	
+
 }

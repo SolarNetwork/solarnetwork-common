@@ -18,32 +18,30 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.util;
 
 import java.beans.PropertyEditorSupport;
-
 import org.joda.time.Period;
 import org.joda.time.ReadablePeriod;
 import org.joda.time.format.ISOPeriodFormat;
 import org.joda.time.format.PeriodFormatter;
 
 /**
- * PropertyEditor using Joda Time's PeriodFormatter for thread-safe date
- * parsing and formatting.
+ * PropertyEditor using Joda Time's PeriodFormatter for thread-safe date parsing
+ * and formatting.
  * 
- * <p>This class has been designed with {@link CloningPropertyEditorRegistrar}
- * in mind, so that one instance of a {@link JodaPeriodFormatEditor} can be shared
- * between multiple threads to parse or format Joda date objects.</p>
+ * <p>
+ * This class has been designed with {@link CloningPropertyEditorRegistrar} in
+ * mind, so that one instance of a {@link JodaPeriodFormatEditor} can be shared
+ * between multiple threads to parse or format Joda date objects.
+ * </p>
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
-public class JodaPeriodFormatEditor extends PropertyEditorSupport
-implements Cloneable {
+public class JodaPeriodFormatEditor extends PropertyEditorSupport implements Cloneable {
 
 	private PeriodFormatter[] periodFormatters = null;
 
@@ -52,9 +50,9 @@ implements Cloneable {
 	 */
 	public JodaPeriodFormatEditor() {
 		super();
-		periodFormatters = new PeriodFormatter[]{ISOPeriodFormat.standard()};
+		periodFormatters = new PeriodFormatter[] { ISOPeriodFormat.standard() };
 	}
-	
+
 	@Override
 	public String getAsText() {
 		Object val = getValue();
@@ -62,11 +60,10 @@ implements Cloneable {
 			return null;
 		}
 		PeriodFormatter format = this.periodFormatters[0];
-		if ( val instanceof ReadablePeriod  ) {
-			return format.print((ReadablePeriod)val);
-		} 
-		throw new IllegalArgumentException("Unsupported period object [" 
-				+val.getClass() +"]: " +val);
+		if ( val instanceof ReadablePeriod ) {
+			return format.print((ReadablePeriod) val);
+		}
+		throw new IllegalArgumentException("Unsupported period object [" + val.getClass() + "]: " + val);
 	}
 
 	@Override
@@ -97,5 +94,5 @@ implements Cloneable {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 }

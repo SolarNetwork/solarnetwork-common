@@ -18,48 +18,46 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.util;
 
 import java.beans.PropertyEditorSupport;
-
 import org.joda.time.Duration;
 import org.joda.time.ReadableDuration;
 
 /**
  * PropertyEditor for Joda Time's Duration objects.
  * 
- * <p>This class has been designed with {@link CloningPropertyEditorRegistrar}
- * in mind, so that one instance of a {@link JodaDurationEditor} can be shared
- * between multiple threads to parse or format Joda date objects.</p>
+ * <p>
+ * This class has been designed with {@link CloningPropertyEditorRegistrar} in
+ * mind, so that one instance of a {@link JodaDurationEditor} can be shared
+ * between multiple threads to parse or format Joda date objects.
+ * </p>
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
-public class JodaDurationEditor extends PropertyEditorSupport
-implements Cloneable {
-	
+public class JodaDurationEditor extends PropertyEditorSupport implements Cloneable {
+
 	/**
 	 * Default constructor.
 	 */
 	public JodaDurationEditor() {
 		super();
 	}
-	
+
 	@Override
 	public String getAsText() {
 		Object val = getValue();
 		if ( val == null ) {
 			return null;
 		}
-		if ( val instanceof ReadableDuration  ) {
+		if ( val instanceof ReadableDuration ) {
 			return val.toString();
-		} 
-		throw new IllegalArgumentException("Unsupported duration object [" 
-				+val.getClass() +"]: " +val);
+		}
+		throw new IllegalArgumentException(
+				"Unsupported duration object [" + val.getClass() + "]: " + val);
 	}
 
 	@Override
@@ -81,5 +79,5 @@ implements Cloneable {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 }

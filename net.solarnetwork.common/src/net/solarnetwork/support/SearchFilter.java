@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Revision$
- * ==================================================================
  */
 
 package net.solarnetwork.support;
@@ -87,7 +85,9 @@ public class SearchFilter {
 		/** Match attribute values less than this attribute value. */
 		LESS_THAN,
 
-		/** Match attribute values less than or equal to this attribute value. */
+		/**
+		 * Match attribute values less than or equal to this attribute value.
+		 */
 		LESS_THAN_EQUAL,
 
 		/** Match attribute values greater than this attribute value. */
@@ -207,10 +207,10 @@ public class SearchFilter {
 	 * value in the {@code filter} is itself a {@code SearchFilter}, the
 	 * associated key is ignored and the {@code SearchFilter} is itself appended
 	 * to the buffer. If the {@code filter} has only one key-value pair, the
-	 * {@code logicOp} is ignored and {@bold not} appended to the buffer.
-	 * If the {@code filter} has more than one key-value pair and the
-	 * {@code logicOp} is {@link LogicOperator#NOT}, the filter will
-	 * automatically be written as {@code NOT(AND((x)(y)))}.
+	 * {@code logicOp} is ignored and {@bold not} appended to the buffer. If the
+	 * {@code filter} has more than one key-value pair and the {@code logicOp}
+	 * is {@link LogicOperator#NOT}, the filter will automatically be written as
+	 * {@code NOT(AND((x)(y)))}.
 	 * 
 	 * @param buf
 	 *        the buffer to append to

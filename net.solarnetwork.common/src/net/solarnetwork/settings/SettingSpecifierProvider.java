@@ -18,22 +18,19 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.settings;
 
 import java.util.List;
-
 import org.springframework.context.MessageSource;
 
 /**
- * API for a provider of {@link SettingSpecifier} instances, to 
- * publish application-managed settings.
+ * API for a provider of {@link SettingSpecifier} instances, to publish
+ * application-managed settings.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
 public interface SettingSpecifierProvider {
 
@@ -67,7 +64,7 @@ public interface SettingSpecifierProvider {
 	 * @return the MessageSource, or <em>null</em>
 	 */
 	MessageSource getMessageSource();
-	
+
 	/**
 	 * Get a list of {@link SettingSpecifier} instances.
 	 * 

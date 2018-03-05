@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.util;
@@ -27,23 +25,24 @@ package net.solarnetwork.util;
 import java.util.TimeZone;
 
 /**
- * {@link PropertySerializer} for {@link TimeZone} objects into TimeZone ID strings.
+ * {@link PropertySerializer} for {@link TimeZone} objects into TimeZone ID
+ * strings.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  * @since 1.2
  */
 public class TimeZonePropertySerializer implements PropertySerializer {
 
 	@Override
-	public Object serialize(Object data, String propertyName,
-			Object propertyValue) {
+	public Object serialize(Object data, String propertyName, Object propertyValue) {
 		if ( propertyValue == null ) {
 			return null;
-		} else if ( propertyValue instanceof TimeZone  ) {
-			return ((TimeZone)propertyValue).getID();
-		} 
-		throw new IllegalArgumentException("Unsupported date object [" 
-				+propertyValue.getClass() +"]: " +propertyValue);	}
+		} else if ( propertyValue instanceof TimeZone ) {
+			return ((TimeZone) propertyValue).getID();
+		}
+		throw new IllegalArgumentException(
+				"Unsupported date object [" + propertyValue.getClass() + "]: " + propertyValue);
+	}
 
 }

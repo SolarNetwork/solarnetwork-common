@@ -18,22 +18,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.util;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.springframework.validation.BindingResult;
 
 /**
- * Serialize a {@link BindingResult} into a simple Map, to eliminate circular references.
+ * Serialize a {@link BindingResult} into a simple Map, to eliminate circular
+ * references.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
 public class BindingResultSerializer implements PropertySerializer {
 
@@ -43,9 +41,9 @@ public class BindingResultSerializer implements PropertySerializer {
 			return null;
 		}
 		if ( !(propertyValue instanceof BindingResult) ) {
-			throw new IllegalArgumentException("Not a BindingResult: " +propertyValue.getClass());
+			throw new IllegalArgumentException("Not a BindingResult: " + propertyValue.getClass());
 		}
-		BindingResult br = (BindingResult)propertyValue;
+		BindingResult br = (BindingResult) propertyValue;
 		if ( !br.hasErrors() ) {
 			return null;
 		}
