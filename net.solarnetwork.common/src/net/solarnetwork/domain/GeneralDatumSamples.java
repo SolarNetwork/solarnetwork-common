@@ -259,6 +259,33 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 	}
 
 	/**
+	 * Get a sample value.
+	 * 
+	 * <p>
+	 * If {@code type} is {@link GeneralDatumSamplesType#Tag}, then this method
+	 * will return {@code key} if a tag by that name exists and otherwise it
+	 * will return {@literal null}.
+	 * </p>
+	 * 
+	 * @param type
+	 *        the type of sample data to get
+	 * @param key
+	 *        the key of the value, or tag name, to get
+	 * @return the value cast as a {@code V}, or {@literal null} if not
+	 *         available
+	 * @since 1.2
+	 */
+	@SuppressWarnings("unchecked")
+	public <V> V getSampleValue(GeneralDatumSamplesType type, String key) {
+		if ( type == GeneralDatumSamplesType.Tag ) {
+			Set<String> tags = getTags();
+			return (V) (tags != null && tags.contains(key) ? key : null);
+		}
+		Map<String, ?> m = getSampleData(type);
+		return (V) (m != null ? m.get(key) : null);
+	}
+
+	/**
 	 * Put a value into or remove a value from the {@link #getInstantaneous()}
 	 * map, creating the map if it doesn't exist.
 	 * 
