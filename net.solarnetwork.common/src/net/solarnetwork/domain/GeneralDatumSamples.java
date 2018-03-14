@@ -26,15 +26,16 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import net.solarnetwork.util.SerializeIgnore;
+import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import net.solarnetwork.util.SerializeIgnore;
 
 /**
  * A collection of different types of sample data, grouped by logical sample
  * type.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class GeneralDatumSamples extends GeneralDatumSupport implements Serializable {
 
@@ -97,13 +98,246 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 	}
 
 	/**
+	 * Get specific sample data.
+	 * 
+	 * @param type
+	 *        the type of sample data to get
+	 * @return a map with the specific sample data, or {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code type} is not supported
+	 * @since 1.2
+	 */
+	public Map<String, ?> getSampleData(GeneralDatumSamplesType type) {
+		Map<String, ?> data;
+		switch (type) {
+			case Instantaneous:
+				data = instantaneous;
+				break;
+
+			case Accumulating:
+				data = accumulating;
+				break;
+
+			case Status:
+				data = status;
+				break;
+
+			default:
+				throw new IllegalArgumentException("Sample type [" + type + "] not supported");
+		}
+		return data;
+	}
+
+	/**
+	 * Set specific sample data.
+	 * 
+	 * @param type
+	 *        the type of sample data to set
+	 * @param data
+	 *        the data to set; this is cast to the appropriate type without
+	 *        checking
+	 * @throws IllegalArgumentException
+	 *         if {@code type} is not supported
+	 * @since 1.2
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void setSampleData(GeneralDatumSamplesType type, Map<String, ?> data) {
+		switch (type) {
+			case Instantaneous:
+				setInstantaneous((Map) data);
+				break;
+
+			case Accumulating:
+				setAccumulating((Map) data);
+				break;
+
+			case Status:
+				setStatus((Map) data);
+				break;
+
+			default:
+				throw new IllegalArgumentException("Sample type [" + type + "] not supported");
+		}
+	}
+
+	/**
+	 * Get an Integer value from a sample map, or {@literal null} if not
+	 * available.
+	 * 
+	 * @param type
+	 *        the type of sample data to get
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Integer, or {@literal null} if not available
+	 * @since 1.2
+	 */
+	public Integer getSampleInteger(GeneralDatumSamplesType type, String key) {
+		return getMapInteger(key, getSampleData(type));
+	}
+
+	/**
+	 * Get a Long value from a sample map, or {@literal null} if not available.
+	 * 
+	 * @param type
+	 *        the type of sample data to get
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Long, or {@literal null} if not available
+	 * @since 1.2
+	 */
+	public Long getSampleLong(GeneralDatumSamplesType type, String key) {
+		return getMapLong(key, getSampleData(type));
+	}
+
+	/**
+	 * Get a Float value from a sample map, or {@literal null} if not available.
+	 * 
+	 * @param type
+	 *        the type of sample data to get
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Float, or {@literal null} if not available
+	 * @since 1.2
+	 */
+	public Float getSampleFloat(GeneralDatumSamplesType type, String key) {
+		return getMapFloat(key, getSampleData(type));
+	}
+
+	/**
+	 * Get a Double value from a sample map, or {@literal null} if not
+	 * available.
+	 * 
+	 * @param type
+	 *        the type of sample data to get
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an Double, or {@literal null} if not available
+	 * @since 1.2
+	 */
+	public Double getSampleDouble(GeneralDatumSamplesType type, String key) {
+		return getMapDouble(key, getSampleData(type));
+	}
+
+	/**
+	 * Get a BigDecimal value from a sample map, or {@literal null} if not
+	 * available.
+	 * 
+	 * @param type
+	 *        the type of sample data to get
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as an BigDecimal, or {@literal null} if not available
+	 * @since 1.2
+	 */
+	public BigDecimal getSampleBigDecimal(GeneralDatumSamplesType type, String key) {
+		return getMapBigDecimal(key, getSampleData(type));
+	}
+
+	/**
+	 * Get a String value from a sample map, or {@literal null} if not
+	 * available.
+	 * 
+	 * <p>
+	 * If {@code type} is {@link GeneralDatumSamplesType#Tag}, then this method
+	 * will return {@code key} if a tag by that name exists and otherwise it
+	 * will return {@literal null}.
+	 * </p>
+	 * 
+	 * @param type
+	 *        the type of sample data to get
+	 * @param key
+	 *        the key of the value, or tag name, to get
+	 * @return the value as an String, or {@literal null} if not available
+	 * @since 1.2
+	 */
+	public String getSampleString(GeneralDatumSamplesType type, String key) {
+		if ( type == GeneralDatumSamplesType.Tag ) {
+			Set<String> tags = getTags();
+			return (tags != null && tags.contains(key) ? key : null);
+		}
+		return getMapString(key, getSampleData(type));
+	}
+
+	/**
+	 * Put a value into or remove a value from the {@link #getInstantaneous()}
+	 * map, creating the map if it doesn't exist.
+	 * 
+	 * <p>
+	 * To add a tag, pass the tag name for both {@code key} and {@code value}.
+	 * To remove a tag, pass the tag name for {@code key} and {@literal null}
+	 * for {@code value}. To replace a tag, pass the tag to remove for
+	 * {@code key} and the tag to add as {@code value}.
+	 * </p>
+	 * 
+	 * @param type
+	 *        the type of sample data to get
+	 * @param key
+	 *        the key to put, or tag to add/remove for
+	 *        {@link GeneralDatumSamplesType#Tag}
+	 * @param value
+	 *        the value to put, or tag to add, or {@literal null} to remove the
+	 *        value; this will be cast without checking
+	 * @since 1.2
+	 */
+	public void putSampleValue(GeneralDatumSamplesType type, String key, Object value) {
+		if ( type == GeneralDatumSamplesType.Tag ) {
+			if ( value == null ) {
+				removeTag(key);
+			} else {
+				if ( !key.equals(value) ) {
+					removeTag(key);
+				}
+				addTag(value.toString());
+			}
+			return;
+		}
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		Map<String, Object> m = (Map) getSampleData(type);
+		if ( m == null ) {
+			if ( value == null ) {
+				return;
+			}
+			m = new LinkedHashMap<String, Object>(4);
+			setSampleData(type, m);
+		}
+		if ( value == null ) {
+			m.remove(key);
+		} else {
+			m.put(key, value);
+		}
+	}
+
+	/**
+	 * Test is a sample value is present for a given key.
+	 * 
+	 * <p>
+	 * Tags can be tested for as well by passing
+	 * {@link GeneralDatumSamplesType#Tag} and the tag name as {@code key}.
+	 * </p>
+	 * 
+	 * @param type
+	 *        the type of sample data to test
+	 * @param key
+	 *        the key of the value, or name of the tag, to look for
+	 * @return {@literal true} if a value is present for the given key
+	 * @since 1.2
+	 */
+	public boolean hasSampleValue(GeneralDatumSamplesType type, String key) {
+		if ( type == GeneralDatumSamplesType.Tag ) {
+			return hasTag(key);
+		}
+		Map<String, ?> data = getSampleData(type);
+		return (data != null ? data.containsKey(key) : false);
+	}
+
+	/**
 	 * Put a value into or remove a value from the {@link #getInstantaneous()}
 	 * map, creating the map if it doesn't exist.
 	 * 
 	 * @param key
 	 *        the key to put
 	 * @param n
-	 *        the value to put, or <em>null</em> to remove the key
+	 *        the value to put, or {@literal null} to remove the key
 	 */
 	public void putInstantaneousSampleValue(String key, Number n) {
 		Map<String, Number> m = instantaneous;
@@ -128,7 +362,7 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 	 * @param key
 	 *        the key to put
 	 * @param n
-	 *        the value to put, or <em>null</em> to remove the key
+	 *        the value to put, or {@literal null} to remove the key
 	 */
 	public void putAccumulatingSampleValue(String key, Number n) {
 		Map<String, Number> m = accumulating;
@@ -153,7 +387,7 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 	 * @param key
 	 *        the key to put
 	 * @param value
-	 *        the value to put, or <em>null</em> to remove the key
+	 *        the value to put, or {@literal null} to remove the key
 	 */
 	public void putStatusSampleValue(String key, Object value) {
 		Map<String, Object> m = status;
@@ -173,11 +407,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get an Integer value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Integer, or <em>null</em> if not available
+	 * @return the value as an Integer, or {@literal null} if not available
 	 */
 	public Integer getInstantaneousSampleInteger(String key) {
 		return getMapInteger(key, instantaneous);
@@ -185,11 +419,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a Long value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Long, or <em>null</em> if not available
+	 * @return the value as an Long, or {@literal null} if not available
 	 */
 	public Long getInstantaneousSampleLong(String key) {
 		return getMapLong(key, instantaneous);
@@ -197,11 +431,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a Float value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Float, or <em>null</em> if not available
+	 * @return the value as an Float, or {@literal null} if not available
 	 */
 	public Float getInstantaneousSampleFloat(String key) {
 		return getMapFloat(key, instantaneous);
@@ -209,11 +443,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a Double value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Double, or <em>null</em> if not available
+	 * @return the value as an Double, or {@literal null} if not available
 	 */
 	public Double getInstantaneousSampleDouble(String key) {
 		return getMapDouble(key, instantaneous);
@@ -221,11 +455,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a BigDecimal value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or <em>null</em> if not available
+	 * @return the value as an BigDecimal, or {@literal null} if not available
 	 */
 	public BigDecimal getInstantaneousSampleBigDecimal(String key) {
 		return getMapBigDecimal(key, instantaneous);
@@ -233,11 +467,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get an Integer value from the {@link #getAccumulating()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Integer, or <em>null</em> if not available
+	 * @return the value as an Integer, or {@literal null} if not available
 	 */
 	public Integer getAccumulatingSampleInteger(String key) {
 		return getMapInteger(key, accumulating);
@@ -245,11 +479,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a Long value from the {@link #getAccumulating()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Long, or <em>null</em> if not available
+	 * @return the value as an Long, or {@literal null} if not available
 	 */
 	public Long getAccumulatingSampleLong(String key) {
 		return getMapLong(key, accumulating);
@@ -257,11 +491,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a Float value from the {@link #getAccumulating()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Float, or <em>null</em> if not available
+	 * @return the value as an Float, or {@literal null} if not available
 	 */
 	public Float getAccumulatingSampleFloat(String key) {
 		return getMapFloat(key, accumulating);
@@ -269,11 +503,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a Double value from the {@link #getAccumulating()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Double, or <em>null</em> if not available
+	 * @return the value as an Double, or {@literal null} if not available
 	 */
 	public Double getAccumulatingSampleDouble(String key) {
 		return getMapDouble(key, accumulating);
@@ -281,11 +515,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a BigDecimal value from the {@link #getAccumulating()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or <em>null</em> if not available
+	 * @return the value as an BigDecimal, or {@literal null} if not available
 	 */
 	public BigDecimal getAccumulatingSampleBigDecimal(String key) {
 		return getMapBigDecimal(key, accumulating);
@@ -293,11 +527,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get an Integer value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Integer, or <em>null</em> if not available
+	 * @return the value as an Integer, or {@literal null} if not available
 	 */
 	public Integer getStatusSampleInteger(String key) {
 		return getMapInteger(key, status);
@@ -305,11 +539,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a Long value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Long, or <em>null</em> if not available
+	 * @return the value as an Long, or {@literal null} if not available
 	 */
 	public Long getStatusSampleLong(String key) {
 		return getMapLong(key, status);
@@ -317,11 +551,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a Float value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Float, or <em>null</em> if not available
+	 * @return the value as an Float, or {@literal null} if not available
 	 */
 	public Float getStatusSampleFloat(String key) {
 		return getMapFloat(key, status);
@@ -329,11 +563,11 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a Double value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Double, or <em>null</em> if not available
+	 * @return the value as an Double, or {@literal null} if not available
 	 */
 	public Double getStatusSampleDouble(String key) {
 		return getMapDouble(key, status);
@@ -341,23 +575,23 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 
 	/**
 	 * Get a BigDecimal value from the {@link #getInstantaneous()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or <em>null</em> if not available
+	 * @return the value as an BigDecimal, or {@literal null} if not available
 	 */
 	public BigDecimal getStatusSampleBigDecimal(String key) {
 		return getMapBigDecimal(key, status);
 	}
 
 	/**
-	 * Get a String value from the {@link #getSample()} map, or <em>null</em> if
-	 * not available.
+	 * Get a String value from the {@link #getSample()} map, or {@literal null}
+	 * if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as a String, or <em>null</em> if not available
+	 * @return the value as a String, or {@literal null} if not available
 	 */
 	public String getStatusSampleString(String key) {
 		return getMapString(key, status);
