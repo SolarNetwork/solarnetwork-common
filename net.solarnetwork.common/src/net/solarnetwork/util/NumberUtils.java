@@ -23,6 +23,7 @@
 package net.solarnetwork.util;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Utilities for dealing with numbers.
@@ -61,15 +62,43 @@ public final class NumberUtils {
 	 * 
 	 * @param data
 	 *        the bytes
-	 * @return the unsigned values
+	 * @return the unsigned values, or {@literal null} if {@code data} is
+	 *         {@literal null}
 	 */
-	public static short[] getUnsignedValues(byte[] data) {
+	public static short[] unsigned(byte[] data) {
 		// convert bytes into "unsigned" integer values, i.e. 0..255
+		if ( data == null ) {
+			return null;
+		}
 		short[] unsigned = new short[data.length];
 		for ( int i = 0; i < data.length; i++ ) {
 			unsigned[i] = (short) (data[i] & 0xFF);
 		}
 		return unsigned;
+	}
+
+	/**
+	 * Convert a signed whole number into an unsigned equivalent.
+	 * 
+	 * <p>
+	 * This method attempts to return the next-largest data type for the
+	 * unsigned conversion, e.g. an unsigned int will be returned for a signed
+	 * short.
+	 * </p>
+	 * 
+	 * @param value
+	 *        the signed whole number to convert
+	 * @return the unsigned value
+	 */
+	public static Number unsignedNumber(Number value) {
+		if ( value instanceof Byte ) {
+			return Byte.toUnsignedInt(value.byteValue());
+		} else if ( value instanceof Short ) {
+			return Short.toUnsignedInt(value.shortValue());
+		} else if ( value instanceof Integer ) {
+			return Integer.toUnsignedLong(value.intValue());
+		}
+		return new BigInteger(Long.toUnsignedString(value.longValue()));
 	}
 
 	/**
