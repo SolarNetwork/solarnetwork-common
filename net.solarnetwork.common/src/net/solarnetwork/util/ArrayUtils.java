@@ -69,7 +69,7 @@ public final class ArrayUtils {
 	 * @param factory
 	 *        a factory to create new array items, or {@literal null} to create
 	 *        {@code itemClass} instances directly
-	 * @return a copy of {@literal array} with the adjusted length, or
+	 * @return a copy of {@code array} with the adjusted length, or
 	 *         {@code array} if no adjustment was necessary
 	 */
 	public static <T> T[] arrayWithLength(T[] array, int count, Class<T> itemClass,
