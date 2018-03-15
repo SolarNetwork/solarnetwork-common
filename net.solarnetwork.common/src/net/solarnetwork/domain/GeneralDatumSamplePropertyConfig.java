@@ -120,6 +120,43 @@ public class GeneralDatumSamplePropertyConfig<V> {
 	}
 
 	/**
+	 * Get the property type key.
+	 * 
+	 * <p>
+	 * This returns the configured {@link #getPropertyType()}
+	 * {@link GeneralDatumSamplesType#toKey()} value as a string.
+	 * </p>
+	 * 
+	 * @return the property type key
+	 */
+	public String getPropertyTypeKey() {
+		GeneralDatumSamplesType type = getPropertyType();
+		if ( type == null ) {
+			return null;
+		}
+		return Character.toString(type.toKey());
+	}
+
+	/**
+	 * Set the property type via a key value.
+	 * 
+	 * <p>
+	 * This uses the first character of {@code key} as a
+	 * {@link GeneralDatumSamplesType} key value to call
+	 * {@link #setPropertyType(GeneralDatumSamplesType)}.
+	 * </p>
+	 * 
+	 * @param key
+	 *        the datum property type key to set
+	 */
+	public void setPropertyTypeKey(String key) {
+		if ( key == null || key.length() < 1 ) {
+			return;
+		}
+		setPropertyType(GeneralDatumSamplesType.valueOf(key.charAt(0)));
+	}
+
+	/**
 	 * Get the configuration object.
 	 * 
 	 * @return the configuration to associate with the sample property key and
