@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URI;
 import java.util.List;
@@ -175,7 +176,7 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 		try {
 			traceResponse(null, null, null, null, e);
 		} catch ( Exception ex ) {
-			RES_LOG.trace("Exception tracing response: {}", ex.getMessage());
+			RES_LOG.trace("{} tracing response", ex.getClass().getName(), ex);
 		}
 	}
 
@@ -184,7 +185,7 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 			traceResponse(response.getStatusCode(), response.getStatusText(), response.getHeaders(),
 					response.getBody(), null);
 		} catch ( Exception ex ) {
-			RES_LOG.trace("Exception tracing response: {}", ex.getMessage());
+			RES_LOG.trace("{} tracing response", ex.getClass().getName(), ex);
 		}
 	}
 
@@ -206,65 +207,73 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 						.append(me.getValue().stream().collect(Collectors.joining(", "))).append('\n');
 			}
 			buf.append('\n');
-			MediaType contentType = headers.getContentType();
-			if ( contentType.isCompatibleWith(MediaType.APPLICATION_JSON)
-					|| contentType.isCompatibleWith(MediaType.valueOf("text/*"))
-					|| contentType.isCompatibleWith(MediaType.APPLICATION_XML) ) {
-				// print out textual content; possibly decoding gzip/defalte
-				if ( headers.containsKey(HttpHeaders.CONTENT_ENCODING) ) {
-					String enc = headers.getFirst(HttpHeaders.CONTENT_ENCODING);
-					if ( "gzip".equalsIgnoreCase(enc) ) {
-						in = new GZIPInputStream(in);
-					} else if ( "deflate".equalsIgnoreCase(enc) ) {
-						in = new DeflaterInputStream(in);
-					}
-				}
-				FileCopyUtils.copy(new InputStreamReader(in, "UTF-8"), new Writer() {
-
-					@Override
-					public void write(char[] cbuf, int off, int len) throws IOException {
-						buf.append(cbuf, off, len);
-					}
-
-					@Override
-					public void flush() throws IOException {
-						// nothing to do
-					}
-
-					@Override
-					public void close() throws IOException {
-						// nothing to do
-					}
-				});
-				// make sure we have a terminating newline, for the closing "response end" line
-				if ( buf.charAt(buf.length() - 1) != '\n' ) {
-					buf.append('\n');
-				}
-			} else {
-				// dump binary data as Hex encoded text, wrapped to 80 characters
-				byte[] byteBuf = new byte[40];
-				int readLength = 0;
-				int bufPos = 0;
-				while ( true ) {
-					readLength = in.read(byteBuf, bufPos, byteBuf.length - bufPos);
-					bufPos += readLength;
-					if ( readLength < 0 ) {
-						break;
-					}
-					if ( bufPos >= byteBuf.length ) {
-						buf.append(Hex.encodeHex(byteBuf)).append('\n');
-						bufPos = 0;
-					}
-				}
-				if ( bufPos < byteBuf.length && bufPos > 0 ) {
-					byte[] tmp = new byte[bufPos];
-					System.arraycopy(byteBuf, 0, tmp, 0, bufPos);
-					buf.append(Hex.encodeHex(tmp)).append('\n');
-				}
-			}
+			traceResponseBody(headers, in, buf);
 		}
 		buf.append("<<<<<<<<<< response end   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 		RES_LOG.trace(buf.toString());
+	}
+
+	private void traceResponseBody(HttpHeaders headers, InputStream in, final StringBuilder buf)
+			throws IOException, UnsupportedEncodingException {
+		if ( headers == null || in == null || buf == null ) {
+			return;
+		}
+		MediaType contentType = headers.getContentType();
+		if ( contentType != null && (contentType.isCompatibleWith(MediaType.APPLICATION_JSON)
+				|| contentType.isCompatibleWith(MediaType.valueOf("text/*"))
+				|| contentType.isCompatibleWith(MediaType.APPLICATION_XML)) ) {
+			// print out textual content; possibly decoding gzip/defalte
+			if ( headers.containsKey(HttpHeaders.CONTENT_ENCODING) ) {
+				String enc = headers.getFirst(HttpHeaders.CONTENT_ENCODING);
+				if ( "gzip".equalsIgnoreCase(enc) ) {
+					in = new GZIPInputStream(in);
+				} else if ( "deflate".equalsIgnoreCase(enc) ) {
+					in = new DeflaterInputStream(in);
+				}
+			}
+			FileCopyUtils.copy(new InputStreamReader(in, "UTF-8"), new Writer() {
+
+				@Override
+				public void write(char[] cbuf, int off, int len) throws IOException {
+					buf.append(cbuf, off, len);
+				}
+
+				@Override
+				public void flush() throws IOException {
+					// nothing to do
+				}
+
+				@Override
+				public void close() throws IOException {
+					// nothing to do
+				}
+			});
+			// make sure we have a terminating newline, for the closing "response end" line
+			if ( buf.charAt(buf.length() - 1) != '\n' ) {
+				buf.append('\n');
+			}
+		} else {
+			// dump binary data as Hex encoded text, wrapped to 80 characters
+			byte[] byteBuf = new byte[40];
+			int readLength = 0;
+			int bufPos = 0;
+			while ( true ) {
+				readLength = in.read(byteBuf, bufPos, byteBuf.length - bufPos);
+				bufPos += readLength;
+				if ( readLength < 0 ) {
+					break;
+				}
+				if ( bufPos >= byteBuf.length ) {
+					buf.append(Hex.encodeHex(byteBuf)).append('\n');
+					bufPos = 0;
+				}
+			}
+			if ( bufPos < byteBuf.length && bufPos > 0 ) {
+				byte[] tmp = new byte[bufPos];
+				System.arraycopy(byteBuf, 0, tmp, 0, bufPos);
+				buf.append(Hex.encodeHex(tmp)).append('\n');
+			}
+		}
 	}
 
 }
