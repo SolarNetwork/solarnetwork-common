@@ -179,8 +179,8 @@ public class GeneralDatumSamplePropertyConfig<V> {
 
 	@Override
 	public String toString() {
-		return "GeneralDatumSamplePropertyConfig [propertyKey=" + propertyKey + ", propertyType="
-				+ propertyType + ", config=" + config + "]";
+		return "GeneralDatumSamplePropertyConfig{propertyKey=" + propertyKey + ", propertyType="
+				+ propertyType + ", config=" + config + "}";
 	}
 
 }
