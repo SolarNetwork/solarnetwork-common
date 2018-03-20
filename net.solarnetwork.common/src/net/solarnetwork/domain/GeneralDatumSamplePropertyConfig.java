@@ -177,4 +177,10 @@ public class GeneralDatumSamplePropertyConfig<V> {
 		this.config = config;
 	}
 
+	@Override
+	public String toString() {
+		return "GeneralDatumSamplePropertyConfig{propertyKey=" + propertyKey + ", propertyType="
+				+ propertyType + ", config=" + config + "}";
+	}
+
 }
