@@ -22,6 +22,13 @@
 
 package net.solarnetwork.domain.test;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;
@@ -64,7 +71,7 @@ public class GeneralDatumMetadataTest {
 	@Test
 	public void serializeJson() throws Exception {
 		String json = objectMapper.writeValueAsString(getTestInstance());
-		Assert.assertEquals("{\"m\":{\"msg\":\"Hello, world.\"},\"t\":[\"test\"]}", json);
+		assertThat(json, equalTo("{\"m\":{\"msg\":\"Hello, world.\"},\"t\":[\"test\"]}"));
 	}
 
 	@Test
@@ -72,28 +79,27 @@ public class GeneralDatumMetadataTest {
 		GeneralDatumMetadata meta = getTestInstance();
 		meta.putInfoValue("watts", "unit", "W");
 		String json = objectMapper.writeValueAsString(meta);
-		Assert.assertEquals(
-				"{\"m\":{\"msg\":\"Hello, world.\"},\"pm\":{\"watts\":{\"unit\":\"W\"}},\"t\":[\"test\"]}",
-				json);
+		assertThat(json, equalTo(
+				"{\"m\":{\"msg\":\"Hello, world.\"},\"pm\":{\"watts\":{\"unit\":\"W\"}},\"t\":[\"test\"]}"));
 	}
 
 	@Test
 	public void deserializeJson() throws Exception {
 		String json = "{\"m\":{\"ploc\":2502287},\"t\":[\"test\"]}";
 		GeneralDatumMetadata samples = objectMapper.readValue(json, GeneralDatumMetadata.class);
-		Assert.assertNotNull(samples);
-		Assert.assertEquals(Long.valueOf(2502287), samples.getInfoLong("ploc"));
-		Assert.assertTrue("Tag exists", samples.hasTag("test"));
+		assertThat(samples, notNullValue());
+		assertThat(samples.getInfoLong("ploc"), equalTo(2502287L));
+		assertThat("Tag exists", samples.hasTag("test"), equalTo(true));
 	}
 
 	@Test
 	public void deserializeJsonWithPropertyMeta() throws Exception {
 		String json = "{\"m\":{\"ploc\":2502287},\"pm\":{\"watts\":{\"unit\":\"W\"}},\"t\":[\"test\"]}";
 		GeneralDatumMetadata samples = objectMapper.readValue(json, GeneralDatumMetadata.class);
-		Assert.assertNotNull(samples);
-		Assert.assertEquals(Long.valueOf(2502287), samples.getInfoLong("ploc"));
-		Assert.assertEquals("W", samples.getInfoString("watts", "unit"));
-		Assert.assertTrue("Tag exists", samples.hasTag("test"));
+		assertThat(samples, notNullValue());
+		assertThat(samples.getInfoLong("ploc"), equalTo(2502287L));
+		assertThat(samples.getInfoString("watts", "unit"), equalTo("W"));
+		assertThat("Tag exists", samples.hasTag("test"), equalTo(true));
 	}
 
 	@Test
@@ -102,11 +108,11 @@ public class GeneralDatumMetadataTest {
 		GeneralDatumMetadata samples = objectMapper.readValue(json, GeneralDatumMetadata.class);
 		Assert.assertNotNull(samples);
 		Object map = samples.getInfo().get("map");
-		Assert.assertTrue("Nested map parsed", map instanceof Map);
+		assertThat("Nested map parsed", map, instanceOf(Map.class));
 		@SuppressWarnings("unchecked")
 		Map<String, ?> stringMap = (Map<String, ?>) map;
-		Assert.assertEquals("Nested number", Integer.valueOf(1), stringMap.get("foo"));
-		Assert.assertEquals("Nested string", "bam", stringMap.get("bar"));
+		assertThat("Nested number", stringMap.get("foo"), equalTo((Object) 1));
+		assertThat("Nested string", stringMap.get("bar"), equalTo((Object) "bam"));
 	}
 
 	@Test
@@ -116,8 +122,30 @@ public class GeneralDatumMetadataTest {
 		meta.putInfoValue("does.not.exist", null);
 		meta.putInfoValue("foo", "bar", "bam");
 		meta.putInfoValue("foo", "bar", null);
-		Assert.assertNull(meta.getInfoString("msg"));
-		Assert.assertNull(meta.getInfoString("foo", "bar"));
+		assertThat(meta.getInfoString("msg"), nullValue());
+		assertThat(meta.getInfoString("foo", "bar"), nullValue());
+	}
+
+	@Test
+	public void copyConstructorInfo() {
+		GeneralDatumMetadata meta = getTestInstance();
+		GeneralDatumMetadata copy = new GeneralDatumMetadata(meta);
+		assertThat(copy.getInfo(), notNullValue());
+		assertThat(copy.getInfo(), equalTo(meta.getInfo()));
+		assertThat(copy.getInfo(), not(sameInstance(meta.getInfo())));
+	}
+
+	@Test
+	public void copyConstructorPropertyInfo() {
+		GeneralDatumMetadata meta = getTestInstance();
+		meta.putInfoValue("foo", "bar", "bam");
+		GeneralDatumMetadata copy = new GeneralDatumMetadata(meta);
+		assertThat(copy.getPropertyInfo(), notNullValue());
+		assertThat(copy.getPropertyInfo(), equalTo(meta.getPropertyInfo()));
+		assertThat(copy.getPropertyInfo(), not(sameInstance(meta.getPropertyInfo())));
+		assertThat(copy.getPropertyInfo().get("foo"), equalTo(meta.getPropertyInfo().get("foo")));
+		assertThat(copy.getPropertyInfo().get("foo"),
+				not(sameInstance(meta.getPropertyInfo().get("foo"))));
 	}
 
 }

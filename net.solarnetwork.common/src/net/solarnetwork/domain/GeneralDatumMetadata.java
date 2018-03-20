@@ -27,15 +27,15 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import net.solarnetwork.util.SerializeIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import net.solarnetwork.util.SerializeIgnore;
 
 /**
  * Metadata about general node datum streams of data.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 @JsonPropertyOrder({ "m", "pm", "t" })
 public class GeneralDatumMetadata extends GeneralDatumSupport implements Serializable {
@@ -54,6 +54,14 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 
 	/**
 	 * Copy constructor.
+	 * 
+	 * <p>
+	 * This constructor will copy all the top-level collections into new
+	 * collection instances, but preserving all value instances.
+	 * </p>
+	 * 
+	 * @param other
+	 *        the metadata to copy
 	 */
 	public GeneralDatumMetadata(GeneralDatumMetadata other) {
 		super();
@@ -64,7 +72,10 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 			info = new LinkedHashMap<String, Object>(other.info);
 		}
 		if ( other.propertyInfo != null ) {
-			propertyInfo = new LinkedHashMap<String, Map<String, Object>>(other.propertyInfo);
+			propertyInfo = new LinkedHashMap<String, Map<String, Object>>(other.propertyInfo.size());
+			for ( Map.Entry<String, Map<String, Object>> me : other.propertyInfo.entrySet() ) {
+				propertyInfo.put(me.getKey(), new LinkedHashMap<String, Object>(me.getValue()));
+			}
 		}
 	}
 
@@ -135,7 +146,8 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	 * @param propertyInfo
 	 *        the property info data
 	 */
-	public GeneralDatumMetadata(Map<String, Object> info, Map<String, Map<String, Object>> propertyInfo) {
+	public GeneralDatumMetadata(Map<String, Object> info,
+			Map<String, Map<String, Object>> propertyInfo) {
 		super();
 		this.info = info;
 		this.propertyInfo = propertyInfo;
