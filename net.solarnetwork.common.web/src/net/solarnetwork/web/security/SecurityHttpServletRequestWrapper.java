@@ -26,7 +26,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -46,9 +45,15 @@ import org.apache.commons.codec.digest.DigestUtils;
  */
 public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
+	/** The default value for the {@code minimumCompressLength} property. */
+	public static final int DEFAULT_MINIMUM_COMPRESS_LENGTH = 4096;
+
 	private final int maximumLength;
 	private final boolean compressBody;
+	private final int minimumCompressLength;
+
 	private boolean requestBodyCached;
+	private boolean cachedRequestBodyCompressed;
 	private byte[] cachedRequestBody; // TODO: support writing to temp file if body > maximumLength!
 
 	private byte[] cachedMD5 = null;
@@ -81,9 +86,30 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 	 */
 	public SecurityHttpServletRequestWrapper(HttpServletRequest request, int maxLength,
 			boolean compressBody) {
+		this(request, maxLength, compressBody, DEFAULT_MINIMUM_COMPRESS_LENGTH);
+	}
+
+	/**
+	 * Construct from a request.
+	 * 
+	 * @param request
+	 *        the request to wrap
+	 * @param maxLength
+	 *        the maximum body length allowed (in bytes)
+	 * @param compressBody
+	 *        {@literal true} to compress the cached body in memory,
+	 *        {@literal false} to not compress
+	 * @param minimumCompressLength
+	 *        The minimum size (in bytes) a request body must be before
+	 *        compressing it.
+	 * @since 1.1
+	 */
+	public SecurityHttpServletRequestWrapper(HttpServletRequest request, int maxLength,
+			boolean compressBody, int minimumCompressLength) {
 		super(request);
 		this.maximumLength = maxLength;
 		this.compressBody = compressBody;
+		this.minimumCompressLength = minimumCompressLength;
 	}
 
 	private void cacheRequestBody() throws IOException {
@@ -96,26 +122,31 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 		InputStream in = super.getInputStream();
 		ByteArrayOutputStream byos = new ByteArrayOutputStream(4096);
 		GZIPOutputStream zip = null;
-		OutputStream out;
-		if ( compressBody ) {
-			zip = new GZIPOutputStream(byos);
-			out = zip;
-		} else {
-			out = byos;
-		}
 		try {
 			int byteCount = 0;
 			byte[] buffer = new byte[4096];
 			int bytesRead = -1;
 			while ( (bytesRead = in.read(buffer)) != -1 ) {
-				out.write(buffer, 0, bytesRead);
+				if ( zip != null ) {
+					zip.write(buffer, 0, bytesRead);
+				} else {
+					byos.write(buffer, 0, bytesRead);
+				}
 				byteCount += bytesRead;
+				if ( byteCount >= minimumCompressLength && compressBody && zip == null ) {
+					// switch to compression now
+					byte[] currBytes = byos.toByteArray();
+					byos.reset();
+					zip = new GZIPOutputStream(byos);
+					zip.write(currBytes);
+					cachedRequestBodyCompressed = true;
+				}
 				if ( byteCount > this.maximumLength ) {
 					throw new SecurityException("Request body too large.");
 				}
 			}
-			out.flush();
 			if ( zip != null ) {
+				zip.flush();
 				zip.finish();
 			}
 			cachedRequestBody = byos.toByteArray();
@@ -125,11 +156,13 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 			} catch ( IOException ex ) {
 			}
 			try {
-				zip.close();
+				if ( zip != null ) {
+					zip.close();
+				}
 			} catch ( IOException ex ) {
 			}
 			try {
-				out.close();
+				byos.close();
 			} catch ( IOException ex ) {
 			}
 		}
@@ -139,13 +172,16 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 		if ( cachedRequestBody == null || cachedRequestBody.length < 1 ) {
 			return null;
 		}
-		GZIPInputStream zip = null;
+		InputStream in = null;
 		try {
-			zip = new GZIPInputStream(new ByteArrayInputStream(cachedRequestBody));
-			DigestUtils.updateDigest(digest, zip);
+			in = new ByteArrayInputStream(cachedRequestBody);
+			if ( cachedRequestBodyCompressed ) {
+				in = new GZIPInputStream(in);
+			}
+			DigestUtils.updateDigest(digest, in);
 		} finally {
 			try {
-				zip.close();
+				in.close();
 			} catch ( IOException e ) {
 			}
 		}
@@ -229,7 +265,7 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 		if ( requestBodyCached ) {
 			return new ServletInputStream() {
 
-				final private InputStream is = (cachedRequestBody != null && cachedRequestBody.length > 0
+				final private InputStream is = (cachedRequestBodyCompressed
 						? new GZIPInputStream(new ByteArrayInputStream(cachedRequestBody))
 						: new ByteArrayInputStream(cachedRequestBody));
 
