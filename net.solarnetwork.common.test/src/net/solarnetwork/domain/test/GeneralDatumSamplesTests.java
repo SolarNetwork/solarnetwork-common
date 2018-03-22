@@ -33,6 +33,7 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -284,6 +285,14 @@ public class GeneralDatumSamplesTests {
 		s.putSampleValue(Tag, TEST_TAG, TEST_TAG);
 		assertThat(s.getT(), hasSize(1));
 		assertThat(s.getT(), contains(TEST_TAG));
+	}
+
+	@Test
+	public void setSampleDataTag() {
+		GeneralDatumSamples s = new GeneralDatumSamples();
+		s.setSampleData(Tag, Collections.singletonMap(TEST_TAG, TEST_TAG));
+		assertThat(s.getTags(), hasSize(1));
+		assertThat(s.getTags(), containsInAnyOrder(TEST_TAG));
 	}
 
 	@Test

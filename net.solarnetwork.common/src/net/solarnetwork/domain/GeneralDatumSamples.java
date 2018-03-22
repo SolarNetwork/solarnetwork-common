@@ -37,7 +37,8 @@ import net.solarnetwork.util.SerializeIgnore;
  * @author matt
  * @version 1.2
  */
-public class GeneralDatumSamples extends GeneralDatumSupport implements Serializable {
+public class GeneralDatumSamples extends GeneralDatumSupport
+		implements MutableGeneralDatumSamplesOperations, Serializable {
 
 	private static final long serialVersionUID = 3704506858283891128L;
 
@@ -97,16 +98,7 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 		return results;
 	}
 
-	/**
-	 * Get specific sample data.
-	 * 
-	 * @param type
-	 *        the type of sample data to get
-	 * @return a map with the specific sample data, or {@literal null}
-	 * @throws IllegalArgumentException
-	 *         if {@code type} is not supported
-	 * @since 1.2
-	 */
+	@Override
 	public Map<String, ?> getSampleData(GeneralDatumSamplesType type) {
 		Map<String, ?> data;
 		switch (type) {
@@ -128,18 +120,7 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 		return data;
 	}
 
-	/**
-	 * Set specific sample data.
-	 * 
-	 * @param type
-	 *        the type of sample data to set
-	 * @param data
-	 *        the data to set; this is cast to the appropriate type without
-	 *        checking
-	 * @throws IllegalArgumentException
-	 *         if {@code type} is not supported
-	 * @since 1.2
-	 */
+	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void setSampleData(GeneralDatumSamplesType type, Map<String, ?> data) {
 		switch (type) {
@@ -155,101 +136,41 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 				setStatus((Map) data);
 				break;
 
+			case Tag:
+				setTags(data.keySet());
+				break;
+
 			default:
 				throw new IllegalArgumentException("Sample type [" + type + "] not supported");
 		}
 	}
 
-	/**
-	 * Get an Integer value from a sample map, or {@literal null} if not
-	 * available.
-	 * 
-	 * @param type
-	 *        the type of sample data to get
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Integer, or {@literal null} if not available
-	 * @since 1.2
-	 */
+	@Override
 	public Integer getSampleInteger(GeneralDatumSamplesType type, String key) {
 		return getMapInteger(key, getSampleData(type));
 	}
 
-	/**
-	 * Get a Long value from a sample map, or {@literal null} if not available.
-	 * 
-	 * @param type
-	 *        the type of sample data to get
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Long, or {@literal null} if not available
-	 * @since 1.2
-	 */
+	@Override
 	public Long getSampleLong(GeneralDatumSamplesType type, String key) {
 		return getMapLong(key, getSampleData(type));
 	}
 
-	/**
-	 * Get a Float value from a sample map, or {@literal null} if not available.
-	 * 
-	 * @param type
-	 *        the type of sample data to get
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Float, or {@literal null} if not available
-	 * @since 1.2
-	 */
+	@Override
 	public Float getSampleFloat(GeneralDatumSamplesType type, String key) {
 		return getMapFloat(key, getSampleData(type));
 	}
 
-	/**
-	 * Get a Double value from a sample map, or {@literal null} if not
-	 * available.
-	 * 
-	 * @param type
-	 *        the type of sample data to get
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Double, or {@literal null} if not available
-	 * @since 1.2
-	 */
+	@Override
 	public Double getSampleDouble(GeneralDatumSamplesType type, String key) {
 		return getMapDouble(key, getSampleData(type));
 	}
 
-	/**
-	 * Get a BigDecimal value from a sample map, or {@literal null} if not
-	 * available.
-	 * 
-	 * @param type
-	 *        the type of sample data to get
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or {@literal null} if not available
-	 * @since 1.2
-	 */
+	@Override
 	public BigDecimal getSampleBigDecimal(GeneralDatumSamplesType type, String key) {
 		return getMapBigDecimal(key, getSampleData(type));
 	}
 
-	/**
-	 * Get a String value from a sample map, or {@literal null} if not
-	 * available.
-	 * 
-	 * <p>
-	 * If {@code type} is {@link GeneralDatumSamplesType#Tag}, then this method
-	 * will return {@code key} if a tag by that name exists and otherwise it
-	 * will return {@literal null}.
-	 * </p>
-	 * 
-	 * @param type
-	 *        the type of sample data to get
-	 * @param key
-	 *        the key of the value, or tag name, to get
-	 * @return the value as an String, or {@literal null} if not available
-	 * @since 1.2
-	 */
+	@Override
 	public String getSampleString(GeneralDatumSamplesType type, String key) {
 		if ( type == GeneralDatumSamplesType.Tag ) {
 			Set<String> tags = getTags();
@@ -258,23 +179,7 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 		return getMapString(key, getSampleData(type));
 	}
 
-	/**
-	 * Get a sample value.
-	 * 
-	 * <p>
-	 * If {@code type} is {@link GeneralDatumSamplesType#Tag}, then this method
-	 * will return {@code key} if a tag by that name exists and otherwise it
-	 * will return {@literal null}.
-	 * </p>
-	 * 
-	 * @param type
-	 *        the type of sample data to get
-	 * @param key
-	 *        the key of the value, or tag name, to get
-	 * @return the value cast as a {@code V}, or {@literal null} if not
-	 *         available
-	 * @since 1.2
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <V> V getSampleValue(GeneralDatumSamplesType type, String key) {
 		if ( type == GeneralDatumSamplesType.Tag ) {
@@ -285,27 +190,7 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 		return (V) (m != null ? m.get(key) : null);
 	}
 
-	/**
-	 * Put a value into or remove a value from the {@link #getInstantaneous()}
-	 * map, creating the map if it doesn't exist.
-	 * 
-	 * <p>
-	 * To add a tag, pass the tag name for both {@code key} and {@code value}.
-	 * To remove a tag, pass the tag name for {@code key} and {@literal null}
-	 * for {@code value}. To replace a tag, pass the tag to remove for
-	 * {@code key} and the tag to add as {@code value}.
-	 * </p>
-	 * 
-	 * @param type
-	 *        the type of sample data to get
-	 * @param key
-	 *        the key to put, or tag to add/remove for
-	 *        {@link GeneralDatumSamplesType#Tag}
-	 * @param value
-	 *        the value to put, or tag to add, or {@literal null} to remove the
-	 *        value; this will be cast without checking
-	 * @since 1.2
-	 */
+	@Override
 	public void putSampleValue(GeneralDatumSamplesType type, String key, Object value) {
 		if ( type == GeneralDatumSamplesType.Tag ) {
 			if ( value == null ) {
@@ -334,21 +219,7 @@ public class GeneralDatumSamples extends GeneralDatumSupport implements Serializ
 		}
 	}
 
-	/**
-	 * Test is a sample value is present for a given key.
-	 * 
-	 * <p>
-	 * Tags can be tested for as well by passing
-	 * {@link GeneralDatumSamplesType#Tag} and the tag name as {@code key}.
-	 * </p>
-	 * 
-	 * @param type
-	 *        the type of sample data to test
-	 * @param key
-	 *        the key of the value, or name of the tag, to look for
-	 * @return {@literal true} if a value is present for the given key
-	 * @since 1.2
-	 */
+	@Override
 	public boolean hasSampleValue(GeneralDatumSamplesType type, String key) {
 		if ( type == GeneralDatumSamplesType.Tag ) {
 			return hasTag(key);
