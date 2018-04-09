@@ -18,31 +18,28 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.domain;
-
 
 /**
  * API for a user-manageable node component.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
 public interface NodeControlInfo {
 
 	String getControlId();
-	
+
 	String getPropertyName();
-	
+
 	NodeControlPropertyType getType();
-	
+
 	String getValue();
-	
+
 	Boolean getReadonly();
-	
+
 	String getUnit();
 
 }

@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.util;
@@ -30,23 +28,24 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to signal a field or method should not be used
- * during introspection-based serialization or de-serialization.
+ * Annotation to signal a field or method should not be used during
+ * introspection-based serialization or de-serialization.
  * 
- * <p>This is designed to be used during view rendering, for
- * example, where specific properties should not be rendered
- * into the view output format (e.g. JSON, XML, etc).
+ * <p>
+ * This is designed to be used during view rendering, for example, where
+ * specific properties should not be rendered into the view output format (e.g.
+ * JSON, XML, etc).
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
-@Target({ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD})
+@Target({ ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SerializeIgnore {
-    
+
 	/**
-     * Optional argument that defines if this annotation is active.
-     */
-    boolean value() default true;
+	 * Optional argument that defines if this annotation is active.
+	 */
+	boolean value() default true;
 
 }

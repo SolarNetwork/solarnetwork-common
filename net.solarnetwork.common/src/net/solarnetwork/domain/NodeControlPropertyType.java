@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.domain;
@@ -28,16 +26,57 @@ package net.solarnetwork.domain;
  * Enumeration of supported node component property types.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.1
  */
 public enum NodeControlPropertyType {
 
-	Boolean,
-	
-	Float,
-	
-	Integer,
-	
-	Percent;
-	
+	/** A boolean on/off toggle control property. */
+	Boolean('b'),
+
+	/** A floating point decimal control property. */
+	Float('f'),
+
+	/** A whole number control property. */
+	Integer('i'),
+
+	/** A percentage control property. */
+	Percent('p'),
+
+	/** A string control property. */
+	String('s');
+
+	private final char key;
+
+	private NodeControlPropertyType(char key) {
+		this.key = key;
+	}
+
+	/**
+	 * Get a key value for this enum.
+	 * 
+	 * @return the key
+	 * @since 1.1
+	 */
+	public char getKey() {
+		return key;
+	}
+
+	/**
+	 * Get an enum instance for a key value.
+	 * 
+	 * @param key
+	 *        the key
+	 * @return the enum
+	 * @throws IllegalArgumentException
+	 *         if {@code key} is not a valid value
+	 * @since 1.1
+	 */
+	public static NodeControlPropertyType forKey(char key) {
+		for ( NodeControlPropertyType e : NodeControlPropertyType.values() ) {
+			if ( key == e.key ) {
+				return e;
+			}
+		}
+		throw new IllegalArgumentException("Unknown NodeControlPropertyType key [" + key + "]");
+	}
 }

@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.domain;
@@ -33,8 +31,8 @@ import java.util.Date;
  * @author matt
  * @version 1.1
  */
-public class NetworkAssociationDetails extends BasicNetworkIdentity implements NetworkAssociation,
-		NetworkCertificate, Serializable {
+public class NetworkAssociationDetails extends BasicNetworkIdentity
+		implements NetworkAssociation, NetworkCertificate, Serializable {
 
 	private static final long serialVersionUID = -6264228260215100345L;
 

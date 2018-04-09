@@ -36,7 +36,7 @@ import java.util.regex.PatternSyntaxException;
  * Common string helper utilities.
  * 
  * @author matt
- * @version 1.5
+ * @version 1.6
  */
 public final class StringUtils {
 
@@ -419,4 +419,43 @@ public final class StringUtils {
 		return null;
 	}
 
+	/**
+	 * Get a boolean value from a String.
+	 * 
+	 * <p>
+	 * This method is more generous than {@link Boolean#parseBoolean(String)}.
+	 * The following values are considered {@literal true}, all ignoring case:
+	 * </p>
+	 * 
+	 * <ul>
+	 * <li>{@literal 1}</li>
+	 * <li>{@literal t}</li>
+	 * <li>{@literal true}</li>
+	 * <li>{@literal y}</li>
+	 * <li>{@literal yes}</li>
+	 * </ul>
+	 * 
+	 * <p>
+	 * All other values (or a missing value) is considered {@literal false}.
+	 * </p>
+	 * 
+	 * @param s
+	 *        the string to parse as a boolean
+	 * @return the parsed boolean result
+	 * @since 1.6
+	 */
+	public static boolean parseBoolean(String s) {
+		boolean result = false;
+		if ( s != null ) {
+			s = s.trim();
+			if ( s.length() < 5 ) {
+				s = s.toLowerCase();
+				if ( s.equals("true") || s.equals("yes") || s.equals("y") || s.equals("t")
+						|| s.equals("1") ) {
+					result = true;
+				}
+			}
+		}
+		return result;
+	}
 }

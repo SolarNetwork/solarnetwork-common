@@ -48,7 +48,7 @@ import org.springframework.util.StringUtils;
  * Utility methods for dealing with classes at runtime.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public final class ClassUtils {
 
@@ -138,6 +138,7 @@ public final class ClassUtils {
 	 */
 	public static void setBeanProperties(Object o, Map<String, ?> values) {
 		BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(o);
+		bean.setAutoGrowNestedPaths(true);
 		bean.setPropertyValues(values);
 	}
 
@@ -158,6 +159,7 @@ public final class ClassUtils {
 			return;
 		}
 		BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(o);
+		bean.setAutoGrowNestedPaths(true);
 		MutablePropertyValues pvs = new MutablePropertyValues(values);
 		try {
 			bean.setPropertyValues(pvs, ignoreErrors, ignoreErrors);

@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.util;
@@ -130,8 +128,9 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 		Map<String, Object> finalModel = setupDateFormat(model);
 		XMLStreamWriter writer = startXml(out);
 		try {
-			Object singleBean = finalModel.size() == 1 && this.singleBeanAsRoot ? finalModel.values()
-					.iterator().next() : null;
+			Object singleBean = finalModel.size() == 1 && this.singleBeanAsRoot
+					? finalModel.values().iterator().next()
+					: null;
 
 			if ( singleBean != null ) {
 				outputObject(singleBean, finalModel.keySet().iterator().next().toString(), writer);
@@ -229,8 +228,8 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 			params.put("value", o);
 			writeElement("value", params, out, true);
 		} else {
-			String elementName = (o == null ? name : org.springframework.util.ClassUtils.getShortName(o
-					.getClass()));
+			String elementName = (o == null ? name
+					: org.springframework.util.ClassUtils.getShortName(o.getClass()));
 			writeElement(elementName, o, out, true);
 		}
 	}
@@ -277,8 +276,8 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 				String key = me.getKey().toString();
 				Object val = me.getValue();
 				if ( propertySerializerRegistrar != null ) {
-					val = propertySerializerRegistrar
-							.serializeProperty(name, val.getClass(), props, val);
+					val = propertySerializerRegistrar.serializeProperty(name, val.getClass(), props,
+							val);
 				}
 				if ( val instanceof Date ) {
 					SimpleDateFormat sdf = SDF.get();

@@ -22,9 +22,13 @@
 
 package net.solarnetwork.web.support;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URI;
 import java.util.List;
@@ -37,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -45,6 +50,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.web.client.HttpStatusCodeException;
 
 /**
  * A client HTTP interceptor for logging the full details of each request.
@@ -56,7 +62,7 @@ import org.springframework.util.FileCopyUtils;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class LoggingHttpRequestInterceptor implements ClientHttpRequestInterceptor {
 
@@ -76,9 +82,29 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 	 * @return a new request factory
 	 */
 	public static ClientHttpRequestFactory requestFactory() {
-		ClientHttpRequestFactory reqFactory = new SimpleClientHttpRequestFactory();
+		return requestFactory(new SimpleClientHttpRequestFactory());
+	}
+
+	/**
+	 * Wrap a client request factory with logging support if either request or
+	 * response logging is enabled.
+	 * 
+	 * <p>
+	 * This method will check if either {@code REQ_LOG} or {@code RES_LOG} have
+	 * {@literal TRACE} level logging enabled, and if so return a
+	 * {@link BufferingClientHttpRequestFactory} suitable for logging. Otherwise
+	 * {@code requestFactory} is returned directly.
+	 * </p>
+	 * 
+	 * @param requestFactory
+	 *        request factory to possibly wrap
+	 * @return the request factory
+	 * @since 1.1
+	 */
+	public static ClientHttpRequestFactory requestFactory(ClientHttpRequestFactory requestFactory) {
+		ClientHttpRequestFactory reqFactory = requestFactory;
 		if ( REQ_LOG.isTraceEnabled() || RES_LOG.isTraceEnabled() ) {
-			reqFactory = new BufferingClientHttpRequestFactory(reqFactory);
+			reqFactory = new BufferingClientHttpRequestFactory(requestFactory);
 		}
 		return reqFactory;
 	}
@@ -102,11 +128,23 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 		if ( REQ_LOG.isTraceEnabled() ) {
 			traceRequest(request, body);
 		}
-		ClientHttpResponse response = execution.execute(request, body);
-		if ( RES_LOG.isTraceEnabled() ) {
-			traceResponse(response);
+		try {
+			ClientHttpResponse response = execution.execute(request, body);
+			if ( RES_LOG.isTraceEnabled() ) {
+				traceResponse(response);
+			}
+			return response;
+		} catch ( HttpStatusCodeException e ) {
+			traceResponse(e.getStatusCode(), e.getStatusText(), e.getResponseHeaders(),
+					new ByteArrayInputStream(e.getResponseBodyAsByteArray()), null);
+			throw e;
+		} catch ( IOException e ) {
+			traceResponse(e);
+			throw e;
+		} catch ( RuntimeException e ) {
+			traceResponse(e);
+			throw e;
 		}
-		return response;
 	}
 
 	private void traceRequest(HttpRequest request, byte[] body) throws IOException {
@@ -134,20 +172,56 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 		REQ_LOG.trace(buf.toString());
 	}
 
-	private void traceResponse(ClientHttpResponse response) throws IOException {
+	private void traceResponse(Throwable e) {
+		try {
+			traceResponse(null, null, null, null, e);
+		} catch ( Exception ex ) {
+			RES_LOG.trace("{} tracing response", ex.getClass().getName(), ex);
+		}
+	}
+
+	private void traceResponse(ClientHttpResponse response) {
+		try {
+			traceResponse(response.getStatusCode(), response.getStatusText(), response.getHeaders(),
+					response.getBody(), null);
+		} catch ( Exception ex ) {
+			RES_LOG.trace("{} tracing response", ex.getClass().getName(), ex);
+		}
+	}
+
+	private void traceResponse(HttpStatus statusCode, String statusText, HttpHeaders headers,
+			InputStream in, Throwable exception) throws IOException {
 		final StringBuilder buf = new StringBuilder("Request response:\n");
 		buf.append("<<<<<<<<<< response begin <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
-		buf.append(response.getStatusCode()).append(' ').append(response.getStatusText()).append('\n');
-		for ( Map.Entry<String, List<String>> me : response.getHeaders().entrySet() ) {
-			buf.append(me.getKey()).append(": ")
-					.append(me.getValue().stream().collect(Collectors.joining(", "))).append('\n');
+		if ( statusCode != null ) {
+			buf.append(statusCode).append(' ').append(statusText).append('\n');
 		}
-		buf.append('\n');
-		HttpHeaders headers = response.getHeaders();
+		if ( exception != null ) {
+			StringWriter w = new StringWriter();
+			exception.printStackTrace(new PrintWriter(w));
+			buf.append(w.toString());
+		}
+		if ( headers != null ) {
+			for ( Map.Entry<String, List<String>> me : headers.entrySet() ) {
+				buf.append(me.getKey()).append(": ")
+						.append(me.getValue().stream().collect(Collectors.joining(", "))).append('\n');
+			}
+			buf.append('\n');
+			traceResponseBody(headers, in, buf);
+		}
+		buf.append("<<<<<<<<<< response end   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+		RES_LOG.trace(buf.toString());
+	}
+
+	private void traceResponseBody(HttpHeaders headers, InputStream in, final StringBuilder buf)
+			throws IOException, UnsupportedEncodingException {
+		if ( headers == null || in == null || buf == null ) {
+			return;
+		}
 		MediaType contentType = headers.getContentType();
-		InputStream in = response.getBody();
-		if ( contentType.isCompatibleWith(MediaType.APPLICATION_JSON)
-				|| contentType.isCompatibleWith(MediaType.valueOf("text/*")) ) {
+		if ( contentType != null && (contentType.isCompatibleWith(MediaType.APPLICATION_JSON)
+				|| contentType.isCompatibleWith(MediaType.valueOf("text/*"))
+				|| contentType.isCompatibleWith(MediaType.APPLICATION_XML)) ) {
 			// print out textual content; possibly decoding gzip/defalte
 			if ( headers.containsKey(HttpHeaders.CONTENT_ENCODING) ) {
 				String enc = headers.getFirst(HttpHeaders.CONTENT_ENCODING);
@@ -189,19 +263,17 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 				if ( readLength < 0 ) {
 					break;
 				}
-				if ( bufPos + 1 == byteBuf.length ) {
+				if ( bufPos >= byteBuf.length ) {
 					buf.append(Hex.encodeHex(byteBuf)).append('\n');
 					bufPos = 0;
 				}
 			}
-			if ( bufPos + 1 < byteBuf.length && bufPos > 0 ) {
-				byte[] tmp = new byte[bufPos + 1];
+			if ( bufPos < byteBuf.length && bufPos > 0 ) {
+				byte[] tmp = new byte[bufPos];
 				System.arraycopy(byteBuf, 0, tmp, 0, bufPos);
 				buf.append(Hex.encodeHex(tmp)).append('\n');
 			}
 		}
-		buf.append("<<<<<<<<<< response end   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-		RES_LOG.trace(buf.toString());
 	}
 
 }

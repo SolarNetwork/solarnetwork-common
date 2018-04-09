@@ -53,6 +53,8 @@ public class EasyMockArgumentAssertionMatcher<E> implements IArgumentMatcher {
 
 	@Override
 	public void appendTo(StringBuffer buffer) {
-		buffer.append(throwable.getMessage());
+		if ( throwable != null ) {
+			buffer.append(throwable.getMessage());
+		}
 	}
 }

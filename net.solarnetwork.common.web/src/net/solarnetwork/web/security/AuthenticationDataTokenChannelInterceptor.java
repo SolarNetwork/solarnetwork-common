@@ -28,9 +28,11 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -82,7 +84,7 @@ import net.solarnetwork.web.support.RequestInfoHandshakeInterceptor;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.14
  */
 public class AuthenticationDataTokenChannelInterceptor extends ChannelInterceptorAdapter {
@@ -181,6 +183,7 @@ public class AuthenticationDataTokenChannelInterceptor extends ChannelIntercepto
 
 		private final HttpMethod requestMethod;
 		private final URI requestUri;
+		private final HttpHeaders requestHeaders;
 		private final HttpHeaders nativeHeaders;
 
 		public MessageHttpServletRequestAdapter(SimpMessageHeaderAccessor accessor) {
@@ -189,6 +192,8 @@ public class AuthenticationDataTokenChannelInterceptor extends ChannelIntercepto
 					RequestInfoHandshakeInterceptor.REQUEST_URI_ATTR, HttpMethod.class);
 			this.requestUri = getSessionAttribute(accessor,
 					RequestInfoHandshakeInterceptor.REQUEST_URI_ATTR, URI.class);
+			this.requestHeaders = getSessionAttribute(accessor,
+					RequestInfoHandshakeInterceptor.REQUEST_HEADERS, HttpHeaders.class);
 			this.nativeHeaders = new HttpHeaders();
 			this.nativeHeaders.putAll(accessor.toNativeHeaderMap());
 		}
@@ -302,7 +307,12 @@ public class AuthenticationDataTokenChannelInterceptor extends ChannelIntercepto
 
 		@Override
 		public int getServerPort() {
-			return (requestUri != null ? requestUri.getPort() : null);
+			int port = (requestUri != null ? requestUri.getPort() : -1);
+			if ( port < 1 ) {
+				String scheme = requestUri.getScheme();
+				port = ("https".equals(scheme) ? 443 : 80);
+			}
+			return port;
 		}
 
 		@Override
@@ -421,17 +431,36 @@ public class AuthenticationDataTokenChannelInterceptor extends ChannelIntercepto
 
 		@Override
 		public long getDateHeader(String name) {
-			return nativeHeaders.getFirstDate(name);
+			long date = nativeHeaders.getFirstDate(name);
+			if ( date < 0 && requestHeaders != null ) {
+				date = requestHeaders.getFirstDate(name);
+			}
+			return date;
 		}
 
 		@Override
 		public String getHeader(String name) {
-			return nativeHeaders.getFirst(name);
+			String value = nativeHeaders.getFirst(name);
+			if ( value == null && requestHeaders != null ) {
+				value = requestHeaders.getFirst(name);
+			}
+			return value;
 		}
 
 		@Override
 		public Enumeration<String> getHeaders(String name) {
 			List<String> str = nativeHeaders.get(name);
+			if ( requestHeaders != null ) {
+				if ( str == null ) {
+					str = requestHeaders.get(name);
+				} else {
+					List<String> reqStr = requestHeaders.get(name);
+					if ( reqStr != null ) {
+						str = new ArrayList<String>(str);
+						str.addAll(reqStr);
+					}
+				}
+			}
 			return new IteratorEnumeration<String>(
 					str != null ? str.iterator() : Collections.<String> emptyIterator());
 		}
@@ -439,6 +468,10 @@ public class AuthenticationDataTokenChannelInterceptor extends ChannelIntercepto
 		@Override
 		public Enumeration<String> getHeaderNames() {
 			Set<String> keys = nativeHeaders.keySet();
+			if ( requestHeaders != null ) {
+				keys = new LinkedHashSet<String>(keys);
+				keys.addAll(requestHeaders.keySet());
+			}
 			return new IteratorEnumeration<String>(
 					keys != null ? keys.iterator() : Collections.<String> emptyIterator());
 		}
@@ -446,7 +479,7 @@ public class AuthenticationDataTokenChannelInterceptor extends ChannelIntercepto
 		@Override
 		public int getIntHeader(String name) {
 			String str = getHeader(name);
-			return (str != null ? Integer.parseInt(str) : 0);
+			return (str != null ? Integer.parseInt(str) : -1);
 		}
 
 		@Override

@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.util;
@@ -54,7 +52,7 @@ import org.springframework.util.StringUtils;
  * </p>
  * 
  * @author matt.magoffin
- * @version $Revision$ $Date$
+ * @version 1.0
  */
 public final class StringMerger {
 
@@ -232,9 +230,8 @@ public final class StringMerger {
 								// simply check for key
 								o = ((Map<?, ?>) data).get(varName);
 							}
-							if ( o == null
-									|| (String.class.isAssignableFrom(o.getClass()) && !StringUtils
-											.hasText(o.toString())) ) {
+							if ( o == null || (String.class.isAssignableFrom(o.getClass())
+									&& !StringUtils.hasText(o.toString())) ) {
 								buf.append(nullValue);
 							} else {
 								buf.append(o);
@@ -243,9 +240,8 @@ public final class StringMerger {
 							// use reflection to get a bean property
 							try {
 								Object o = PropertyUtils.getProperty(data, varName);
-								if ( o == null
-										|| (String.class.isAssignableFrom(o.getClass()) && !StringUtils
-												.hasText(o.toString())) ) {
+								if ( o == null || (String.class.isAssignableFrom(o.getClass())
+										&& !StringUtils.hasText(o.toString())) ) {
 									buf.append(nullValue);
 								} else {
 									buf.append(o);
