@@ -1,7 +1,7 @@
 /* ==================================================================
- * BaseSettingSpecifier.java - Mar 12, 2012 9:53:59 AM
+ * ConfigurableLocalizedServiceInfo.java - 13/04/2018 7:05:50 AM
  * 
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2018 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,37 +20,26 @@
  * ==================================================================
  */
 
-package net.solarnetwork.settings.support;
+package net.solarnetwork.settings;
 
-import net.solarnetwork.settings.SettingSpecifier;
+import java.util.List;
+import net.solarnetwork.domain.LocalizedServiceInfo;
 
 /**
- * Base implementation of {@link SettingSpecifier}.
+ * Extension of {@link LocalizedServiceInfo} that adds configurable setting
+ * information.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
+ * @since 1.43
  */
-public abstract class BaseSettingSpecifier implements SettingSpecifier {
+public interface ConfigurableLocalizedServiceInfo extends LocalizedServiceInfo {
 
-	private String title;
-
-	@Override
-	public String getTitle() {
-		return this.title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	@Override
-	public String getType() {
-		Class<? extends BaseSettingSpecifier> clazz = getClass();
-		Class<?>[] interfaces = clazz.getInterfaces();
-		if ( interfaces != null && interfaces.length > 0 ) {
-			return interfaces[0].getName();
-		}
-		return clazz.getName();
-	}
+	/**
+	 * Get a list of {@link SettingSpecifier} instances.
+	 * 
+	 * @return list of {@link SettingSpecifier}
+	 */
+	List<SettingSpecifier> getSettingSpecifiers();
 
 }

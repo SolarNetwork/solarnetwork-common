@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.springframework.context.MessageSource;
+import net.solarnetwork.domain.LocalizedServiceInfo;
 import net.solarnetwork.settings.KeyedSettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
@@ -59,6 +60,12 @@ public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK exten
 	public String getSettingUID() {
 		PK id = getId();
 		return (id != null ? id.toString() : null);
+	}
+
+	@Override
+	public LocalizedServiceInfo getLocalizedServiceInfo(Locale locale) {
+		return new BasicConfigurableLocalizedServiceInfo(super.getLocalizedServiceInfo(locale),
+				getSettingSpecifiers());
 	}
 
 	@Override
