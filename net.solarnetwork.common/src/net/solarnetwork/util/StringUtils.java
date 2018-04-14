@@ -22,6 +22,8 @@
 
 package net.solarnetwork.util;
 
+import java.io.UnsupportedEncodingException;
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -31,12 +33,14 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  * Common string helper utilities.
  * 
  * @author matt
- * @version 1.6
+ * @version 1.7
  */
 public final class StringUtils {
 
@@ -458,4 +462,72 @@ public final class StringUtils {
 		}
 		return result;
 	}
+
+	private static final SecureRandom rng = new SecureRandom();
+
+	/**
+	 * Compute a Base64-encoded SHA-256 digest of a string value with a random
+	 * salt.
+	 * 
+	 * @param propertyValue
+	 *        the current property value
+	 * @return a Base64 encoded SHA-256 digest with a <code>{SSHA256}</code>
+	 *         prefix
+	 * @since 1.7
+	 */
+	public static final String ssha256Base64Value(String propertyValue) {
+		byte[] salt = new byte[8];
+		rng.nextBytes(salt);
+		return ssha256Base64Value(propertyValue, salt);
+	}
+
+	/**
+	 * Compute a Base64-encoded SHA-256 digest of a string value with optional
+	 * salt.
+	 * 
+	 * <p>
+	 * When salt is provided, the digest is computed from
+	 * {@literal propertyValue + salt} and then the returned Base64 value
+	 * contains {@literal digest + salt}. The length of the salt can be
+	 * determined after decoding the Base64 value, as
+	 * {@literal decodedLength - 32}.
+	 * </p>
+	 * 
+	 * @param propertyValue
+	 *        the current property value
+	 * @param salt
+	 *        the optional salt to add
+	 * @return a Base64 encoded SHA-256 digest with a <code>{SSHA256}</code>
+	 *         prefix (if salt provided) or <code>{SHA256}</code> if no salt
+	 *         provided
+	 * @since 1.7
+	 */
+	public static final String ssha256Base64Value(String propertyValue, byte[] salt) {
+		byte[] plain;
+		try {
+			plain = (propertyValue != null ? propertyValue.getBytes("UTF-8") : new byte[0]);
+		} catch ( UnsupportedEncodingException e ) {
+			throw new RuntimeException(e);
+		}
+		if ( salt != null && salt.length > 0 ) {
+			byte[] tmp = new byte[plain.length + salt.length];
+			System.arraycopy(plain, 0, tmp, 0, plain.length);
+			System.arraycopy(salt, 0, tmp, tmp.length - salt.length, salt.length);
+			plain = tmp;
+		}
+		byte[] cipher = DigestUtils.sha256(plain);
+		if ( salt != null && salt.length > 0 ) {
+			byte[] tmp = new byte[cipher.length + salt.length];
+			System.arraycopy(cipher, 0, tmp, 0, cipher.length);
+			System.arraycopy(salt, 0, tmp, tmp.length - salt.length, salt.length);
+			cipher = tmp;
+		}
+		try {
+			return (salt != null && salt.length > 0 ? "{SSHA256}" : "{SHA256}")
+					+ new String(Base64.encodeBase64(cipher, false), "UTF-8");
+		} catch ( UnsupportedEncodingException e ) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

@@ -25,7 +25,9 @@
 package net.solarnetwork.util.test;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -38,6 +40,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import org.apache.commons.codec.binary.Hex;
 import org.junit.Assert;
 import org.junit.Test;
 import net.solarnetwork.util.StringUtils;
@@ -46,7 +49,7 @@ import net.solarnetwork.util.StringUtils;
  * Unit test for the StringUtils class.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.1
  */
 public class StringUtilsTest {
 
@@ -336,4 +339,24 @@ public class StringUtilsTest {
 		assertThat(result, equalTo("Hello world"));
 	}
 
+	@Test
+	public void sha256PropertyNoSalt() {
+		String result = StringUtils.ssha256Base64Value("password", null);
+		assertThat(result, equalTo("{SHA256}XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="));
+	}
+
+	@Test
+	public void sha256PropertyFixedSalt() throws Exception {
+		byte[] salt = Hex.decodeHex("6ae3b4c425b8d0b6");
+		String result = StringUtils.ssha256Base64Value("password", salt);
+		assertThat(result, equalTo("{SSHA256}BDHkL7DnK8AOtcT4+GRI++kjOER7Zmr5YcVflkwQ/bhq47TEJbjQtg=="));
+	}
+
+	@Test
+	public void sha256PropertyRandomSalt() throws Exception {
+		String result = StringUtils.ssha256Base64Value("password");
+		assertThat(result, startsWith("{SSHA256}"));
+		assertThat("Value not same as unsalted", result,
+				not(equalTo("{SHA256}XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=")));
+	}
 }
