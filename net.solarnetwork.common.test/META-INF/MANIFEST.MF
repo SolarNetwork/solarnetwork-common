@@ -2,26 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Test
 Bundle-SymbolicName: net.solarnetwork.common.test
-Bundle-Version: 1.11.0
+Bundle-Version: 1.12.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
  net.solarnetwork.test;version="1.4.0"
 Import-Package: 
- com.fasterxml.jackson.annotation;version="[2.4,3.0)",
- com.fasterxml.jackson.core;version="[2.4,3.0)",
- com.fasterxml.jackson.databind;version="[2.4,3.0)",
- com.fasterxml.jackson.databind.annotation;version="[2.4,3.0)",
- com.fasterxml.jackson.databind.module;version="[2.4,3.0)",
- com.fasterxml.jackson.databind.ser.std;version="[2.4,3.0)",
- com.fasterxml.jackson.databind.type;version="[2.4,3.0)",
- com.fasterxml.jackson.datatype.joda;version="[2.4,3.0)",
- net.solarnetwork.domain;version="1.12.0",
- net.solarnetwork.io;version="1.1.0",
- net.solarnetwork.pki.bc;version="1.1.0",
- net.solarnetwork.support;version="1.4.0",
- net.solarnetwork.util;version="1.29.0",
- org.apache.commons.codec.binary;version="[1.7,2.0)",
  org.apache.commons.logging;version="[1.1,2.0)",
  org.apache.juli.logging,
  org.apache.log4j;version="[1.2.15,1.3)",
