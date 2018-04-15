@@ -41,8 +41,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import net.solarnetwork.domain.KeyValuePair;
 import net.solarnetwork.util.StringUtils;
 
 /**
@@ -341,22 +343,45 @@ public class StringUtilsTest {
 
 	@Test
 	public void sha256PropertyNoSalt() {
-		String result = StringUtils.ssha256Base64Value("password", null);
-		assertThat(result, equalTo("{SHA256}XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="));
+		String result = StringUtils.sha256Base64Value("password", null);
+		assertThat(result, equalTo("{SHA-256}XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="));
 	}
 
 	@Test
 	public void sha256PropertyFixedSalt() throws Exception {
 		byte[] salt = Hex.decodeHex("6ae3b4c425b8d0b6");
-		String result = StringUtils.ssha256Base64Value("password", salt);
-		assertThat(result, equalTo("{SSHA256}BDHkL7DnK8AOtcT4+GRI++kjOER7Zmr5YcVflkwQ/bhq47TEJbjQtg=="));
+		String result = StringUtils.sha256Base64Value("password", salt);
+		assertThat(result,
+				equalTo("{SSHA-256}BDHkL7DnK8AOtcT4+GRI++kjOER7Zmr5YcVflkwQ/bhq47TEJbjQtg=="));
 	}
 
 	@Test
 	public void sha256PropertyRandomSalt() throws Exception {
-		String result = StringUtils.ssha256Base64Value("password");
-		assertThat(result, startsWith("{SSHA256}"));
+		String result = StringUtils.sha256Base64Value("password");
+		assertThat(result, startsWith("{SSHA-256}"));
 		assertThat("Value not same as unsalted", result,
 				not(equalTo("{SHA256}XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=")));
+	}
+
+	@Test
+	public void decodeBase64Sha256DigestNoSalt() {
+		KeyValuePair pair = StringUtils
+				.decodeBase64DigestComponents("{SHA-256}XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=");
+		assertThat("Digest as hex", pair.getKey(),
+				equalTo("5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"));
+		assertThat("No salt", pair.getValue(), nullValue());
+	}
+
+	@Test
+	public void decodeBase64Sha256DigestWithSalt() throws Exception {
+		String expectedSalt = "6ae3b4c425b8d0b6";
+		KeyValuePair pair = StringUtils.decodeBase64DigestComponents(
+				"{SSHA-256}BDHkL7DnK8AOtcT4+GRI++kjOER7Zmr5YcVflkwQ/bhq47TEJbjQtg==");
+		assertThat("Salt as hex", pair.getValue(), equalTo(expectedSalt));
+
+		byte[] plain = new byte[16];
+		System.arraycopy("password".getBytes("UTF-8"), 0, plain, 0, 8);
+		System.arraycopy(Hex.decodeHex(expectedSalt), 0, plain, 8, 8);
+		assertThat("Digest as hex", pair.getKey(), equalTo(DigestUtils.sha256Hex(plain)));
 	}
 }

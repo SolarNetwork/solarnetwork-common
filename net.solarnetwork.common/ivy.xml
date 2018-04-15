@@ -13,6 +13,7 @@
 	<dependencies defaultconfmapping="runtime->default(runtime);compile->default(runtime)">
 		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.8.7" />
 		<dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.3"/>
+		<dependency org="commons-codec" name="commons-codec" rev="1.7"/>
 		<dependency org="org.apache.tomcat" name="tomcat-jdbc" rev="7.0.29" conf="compile"/>
 		<dependency org="org.osgi" name="org.osgi.core" rev="5.0.0"/>
 		<dependency org="org.osgi" name="org.osgi.enterprise" rev="4.2.0"/>

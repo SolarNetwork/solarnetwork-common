@@ -32,6 +32,8 @@ Import-Package:
  javax.sql,
  javax.xml.stream,
  org.apache.commons.beanutils;version="[1.8.0,2.0.0)",
+ org.apache.commons.codec.binary;version="[1.7,2.0)",
+ org.apache.commons.codec.digest;version="[1.7,2.0)",
  org.apache.tomcat.jdbc.pool;version="1.0.9.3",
  org.joda.time;version="[2.4,3.0)",
  org.joda.time.base;version="[2.4,3.0)",

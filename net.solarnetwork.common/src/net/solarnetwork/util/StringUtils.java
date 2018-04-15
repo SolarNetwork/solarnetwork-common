@@ -34,7 +34,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import net.solarnetwork.domain.KeyValuePair;
 
 /**
  * Common string helper utilities.
@@ -471,14 +473,14 @@ public final class StringUtils {
 	 * 
 	 * @param propertyValue
 	 *        the current property value
-	 * @return a Base64 encoded SHA-256 digest with a <code>{SSHA256}</code>
+	 * @return a Base64 encoded SHA-256 digest with a <code>{SSHA-256}</code>
 	 *         prefix
 	 * @since 1.7
 	 */
-	public static final String ssha256Base64Value(String propertyValue) {
+	public static final String sha256Base64Value(String propertyValue) {
 		byte[] salt = new byte[8];
 		rng.nextBytes(salt);
-		return ssha256Base64Value(propertyValue, salt);
+		return sha256Base64Value(propertyValue, salt);
 	}
 
 	/**
@@ -497,12 +499,12 @@ public final class StringUtils {
 	 *        the current property value
 	 * @param salt
 	 *        the optional salt to add
-	 * @return a Base64 encoded SHA-256 digest with a <code>{SSHA256}</code>
-	 *         prefix (if salt provided) or <code>{SHA256}</code> if no salt
+	 * @return a Base64 encoded SHA-256 digest with a <code>{SSHA-256}</code>
+	 *         prefix (if salt provided) or <code>{SHA-256}</code> if no salt
 	 *         provided
 	 * @since 1.7
 	 */
-	public static final String ssha256Base64Value(String propertyValue, byte[] salt) {
+	public static final String sha256Base64Value(String propertyValue, byte[] salt) {
 		byte[] plain;
 		try {
 			plain = (propertyValue != null ? propertyValue.getBytes("UTF-8") : new byte[0]);
@@ -523,11 +525,77 @@ public final class StringUtils {
 			cipher = tmp;
 		}
 		try {
-			return (salt != null && salt.length > 0 ? "{SSHA256}" : "{SHA256}")
-					+ new String(Base64.encodeBase64(cipher, false), "UTF-8");
+			return (salt != null && salt.length > 0 ? "{SSHA-256}" : "{SHA-256}")
+					+ new String(Base64.encodeBase64(cipher, false), "US-ASCII");
 		} catch ( UnsupportedEncodingException e ) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * A pattern for matching <code>{type-len}digest</code> style digest
+	 * strings.
+	 * 
+	 * @since 1.7
+	 */
+	public static final Pattern DIGEST_PREFIX_PATTERN = Pattern
+			.compile("\\{(\\w+)-?((?<=-)\\d+)?\\}(.*)");
+
+	/**
+	 * Decode a digest string in the form <code>{key}value</code> into a
+	 * key-value pair composed of digest (key) and salt (value) hex-encoded
+	 * values.
+	 * 
+	 * <p>
+	 * The returned pair's {@code value} will be {@literal null} if no salt was
+	 * included in the digest. Both values will be returned as hex-encoded
+	 * strings.
+	 * </p>
+	 * 
+	 * @param digest
+	 *        a Base64-encoded digest string, in the form returned by
+	 *        {@link #sha256Base64Value(String)}
+	 * @return a key/value pair of the
+	 * @since 1.7
+	 */
+	public static final KeyValuePair decodeBase64DigestComponents(String digest) {
+		if ( digest == null ) {
+			return null;
+		}
+		Matcher m = DIGEST_PREFIX_PATTERN.matcher(digest);
+		if ( !m.matches() ) {
+			return null;
+		}
+		String type = m.group(1).toUpperCase();
+		String len = m.group(2);
+		int algLen = 0;
+		if ( len != null ) {
+			algLen = Integer.parseInt(len);
+		}
+		byte[] salt = null;
+		byte[] data = Base64.decodeBase64(m.group(3));
+
+		int digestByteLen = 0;
+		if ( type.endsWith("SHA") ) {
+			if ( algLen < 2 ) {
+				digestByteLen = 20;
+			} else {
+				digestByteLen = algLen / 8;
+			}
+		} else if ( type.endsWith("MD5") ) {
+			digestByteLen = 16;
+		}
+
+		if ( digestByteLen < data.length ) {
+			byte[] tmp = new byte[digestByteLen];
+			System.arraycopy(data, 0, tmp, 0, digestByteLen);
+			salt = new byte[data.length - digestByteLen];
+			System.arraycopy(data, digestByteLen, salt, 0, salt.length);
+			data = tmp;
+		}
+
+		return new KeyValuePair(Hex.encodeHexString(data),
+				salt != null ? Hex.encodeHexString(salt) : null);
 	}
 
 }
