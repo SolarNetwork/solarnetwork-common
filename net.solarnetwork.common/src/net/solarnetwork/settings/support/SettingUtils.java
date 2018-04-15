@@ -1,7 +1,7 @@
 /* ==================================================================
- * SettingsUtil.java - 26/06/2015 2:46:00 pm
+ * SettingUtils.java - 16/04/2018 9:32:39 AM
  * 
- * Copyright 2007-2015 SolarNetwork.net Dev Team
+ * Copyright 2018 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -25,21 +25,23 @@ package net.solarnetwork.settings.support;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import net.solarnetwork.settings.GroupSettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifier;
+import net.solarnetwork.settings.TextFieldSettingSpecifier;
 
 /**
  * Helper utilities for settings.
  * 
  * @author matt
- * @version 1.1
- * @deprecated since {@code 1.1} use {@link SettingUtils}
+ * @version 1.0
+ * @since 1.43
  */
-@Deprecated
-public final class SettingsUtil {
+public final class SettingUtils {
 
-	private SettingsUtil() {
+	private SettingUtils() {
 		// Do not construct me.
 	}
 
@@ -48,9 +50,7 @@ public final class SettingsUtil {
 	 * 
 	 * @param <T>
 	 *        The collection type.
-	 * @deprecated since {@code 1.1} use {@link SettingUtils.KeyedListCallback}
 	 */
-	@Deprecated
 	public interface KeyedListCallback<T> {
 
 		/**
@@ -97,6 +97,46 @@ public final class SettingsUtil {
 			}
 		}
 		return new BasicGroupSettingSpecifier(key, listStringGroupSettings, true);
+	}
+
+	/**
+	 * Get a set of setting keys that require secure handling.
+	 * 
+	 * <p>
+	 * This method considers the following settings for secure handling :
+	 * </p>
+	 * 
+	 * <ol>
+	 * <li>{@link TextFieldSettingSpecifier#isSecureTextEntry()} that returns
+	 * {@literal true}</li>
+	 * </ol>
+	 * 
+	 * <p>
+	 * The returned set maintains the same iteration order as {@code settings}.
+	 * </p>
+	 * 
+	 * @param settings
+	 *        the settings to check ({@literal null} allowed)
+	 * @return the set of secure entry keys, never {@literal null}
+	 */
+	public static Set<String> secureKeys(List<SettingSpecifier> settings) {
+		if ( settings == null || settings.isEmpty() ) {
+			return Collections.emptySet();
+		}
+		Set<String> secureProps = null;
+		for ( SettingSpecifier setting : settings ) {
+			if ( setting instanceof TextFieldSettingSpecifier ) {
+				TextFieldSettingSpecifier text = (TextFieldSettingSpecifier) setting;
+				if ( text.isSecureTextEntry() ) {
+					String key = text.getKey();
+					if ( secureProps == null ) {
+						secureProps = new LinkedHashSet<String>(4);
+					}
+					secureProps.add(key);
+				}
+			}
+		}
+		return (secureProps != null ? secureProps : Collections.<String> emptySet());
 	}
 
 }

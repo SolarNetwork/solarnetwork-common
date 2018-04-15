@@ -1,5 +1,5 @@
 /* ==================================================================
- * StringUtilsTest.java - Nov 1, 2012 2:13:33 PM
+ * StringUtilsTests.java - Nov 1, 2012 2:13:33 PM
  * 
  * Copyright 2007-2012 SolarNetwork.net Dev Team
  * 
@@ -25,16 +25,22 @@
 package net.solarnetwork.util.test;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -53,7 +59,7 @@ import net.solarnetwork.util.StringUtils;
  * @author matt
  * @version 1.1
  */
-public class StringUtilsTest {
+public class StringUtilsTests {
 
 	@Test
 	public void commaDelimitedStringToSetNullInput() {
@@ -383,5 +389,59 @@ public class StringUtilsTest {
 		System.arraycopy("password".getBytes("UTF-8"), 0, plain, 0, 8);
 		System.arraycopy(Hex.decodeHex(expectedSalt), 0, plain, 8, 8);
 		assertThat("Digest as hex", pair.getKey(), equalTo(DigestUtils.sha256Hex(plain)));
+	}
+
+	@Test
+	public void maskedMapNullArguments() {
+		Map<String, Object> masked = StringUtils.sha256MaskedMap(null, null);
+		assertThat("Null arguments results in null", masked, nullValue());
+	}
+
+	@Test
+	public void maskedMapNullMapArgument() {
+		Set<String> secureKeys = Collections.singleton("a");
+		Map<String, Object> masked = StringUtils.sha256MaskedMap(null, secureKeys);
+		assertThat("Null map argument results in null", masked, nullValue());
+	}
+
+	@Test
+	public void maskedMapNullKeysArgument() {
+		Map<String, String> map = Collections.singletonMap("a", "b");
+		Map<String, String> masked = StringUtils.sha256MaskedMap(map, null);
+		assertThat("Null keys argument results in map argument", masked, sameInstance(map));
+	}
+
+	@Test
+	public void maskedMapNoChange() {
+		Map<String, String> map = Collections.singletonMap("a", "b");
+		Set<String> secureKeys = Collections.singleton("c");
+		Map<String, String> masked = StringUtils.sha256MaskedMap(map, secureKeys);
+		assertThat("No change results in map argument", masked, sameInstance(map));
+	}
+
+	@Test
+	public void maskedMapSingleChange() {
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		map.put("a", "b");
+		map.put("c", "d");
+		Set<String> secureKeys = Collections.singleton("c");
+		Map<String, String> masked = StringUtils.sha256MaskedMap(map, secureKeys);
+		assertThat("Change results in new map instance", masked, not(sameInstance(map)));
+		assertThat("Change results in map of same size", masked.keySet(), hasSize(map.size()));
+		assertThat("Unchanged key", masked, hasEntry("a", "b"));
+		assertThat("Masked key", masked.get("c"), startsWith("{SSHA-256}"));
+	}
+
+	@Test
+	public void maskedMapMultiChange() {
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		map.put("a", "b");
+		map.put("c", "d");
+		Set<String> secureKeys = new HashSet<String>(Arrays.asList("a", "c"));
+		Map<String, String> masked = StringUtils.sha256MaskedMap(map, secureKeys);
+		assertThat("Change results in new map instance", masked, not(sameInstance(map)));
+		assertThat("Change results in map of same size", masked.keySet(), hasSize(map.size()));
+		assertThat("Masked key", masked.get("a"), startsWith("{SSHA-256}"));
+		assertThat("Masked key", masked.get("c"), startsWith("{SSHA-256}"));
 	}
 }

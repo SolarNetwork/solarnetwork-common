@@ -598,4 +598,48 @@ public final class StringUtils {
 				salt != null ? Hex.encodeHexString(salt) : null);
 	}
 
+	/**
+	 * "Mask" a set of map values by replacing them with SHA-256 digest values.
+	 * 
+	 * <p>
+	 * This method will return a new map instance, unless no values need masking
+	 * in which case {@code map} itself will be returned. For any key in
+	 * {@code maskKeys} found in {@code map}, the returned map's value will be
+	 * the SHA-256 digest value computed from the string form of the value
+	 * passed to {@link #sha256Base64Value(String)}.
+	 * </p>
+	 * 
+	 * @param map
+	 *        the map of values to mask
+	 * @param maskKeys
+	 *        the set of map keys whose values should be masked
+	 * @return either a new map instance with one or more values masked, or
+	 *         {@code map} when no values need masking
+	 * @see #sha256Base64Value(String)
+	 * @since 1.7
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <K, V> Map<K, V> sha256MaskedMap(Map<K, V> map, Set<K> maskKeys) {
+		Map<K, V> res = map;
+		if ( map != null && maskKeys != null && !map.isEmpty() && !maskKeys.isEmpty() ) {
+			for ( K propName : maskKeys ) {
+				if ( map.containsKey(propName) ) {
+					Map<K, V> maskedMap = new LinkedHashMap<K, V>(map.size());
+					for ( Map.Entry<K, V> me : map.entrySet() ) {
+						K key = me.getKey();
+						V val = me.getValue();
+						if ( val != null && maskKeys.contains(key.toString()) ) {
+							String maskedVal = StringUtils.sha256Base64Value(val.toString());
+							((Map) maskedMap).put(key, maskedVal);
+						} else {
+							maskedMap.put(key, val);
+						}
+					}
+					res = maskedMap;
+					break;
+				}
+			}
+		}
+		return res;
+	}
 }
