@@ -1,5 +1,5 @@
 /* ==================================================================
- * JavaBeanXmlSerializerTest.java - Sep 9, 2011 6:42:55 PM
+ * JavaBeanXmlSerializerTests.java - Sep 9, 2011 6:42:55 PM
  * 
  * Copyright 2007-2011 SolarNetwork.net Dev Team
  * 
@@ -48,7 +48,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
  * @version $Revision$
  */
 @ContextConfiguration(locations={"classpath:/net/solarnetwork/test/test-context.xml"})
-public class JavaBeanXmlSerializerTest extends AbstractJUnit4SpringContextTests {
+public class JavaBeanXmlSerializerTests extends AbstractJUnit4SpringContextTests {
 
 	@Test
 	public void testParseSimple() {
