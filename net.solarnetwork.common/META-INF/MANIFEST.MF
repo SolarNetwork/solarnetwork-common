@@ -9,7 +9,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
  net.solarnetwork.dao.jdbc;version="1.2.0",
  net.solarnetwork.domain;version="1.13.0",
- net.solarnetwork.io;version="1.1.0",
+ net.solarnetwork.io;version="1.2.0",
  net.solarnetwork.settings;version="1.1.0",
  net.solarnetwork.settings.support;version="1.1.0",
  net.solarnetwork.support;version="1.7.0",
