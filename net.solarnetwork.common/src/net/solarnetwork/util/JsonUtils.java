@@ -404,4 +404,15 @@ public final class JsonUtils {
 		return s;
 	}
 
+	/**
+	 * Create a new {@link ObjectMapper} based on the internal configuration
+	 * used by other methods in this class.
+	 * 
+	 * @return a new {@link ObjectMapper}
+	 * @since 1.1
+	 */
+	public static ObjectMapper newObjectMapper() {
+		return OBJECT_MAPPER.copy();
+	}
+
 }
