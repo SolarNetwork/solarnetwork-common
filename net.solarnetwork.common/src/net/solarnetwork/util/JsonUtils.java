@@ -64,6 +64,8 @@ public final class JsonUtils {
 	private static final ObjectMapper createObjectMapper() {
 		ObjectMapperFactoryBean factory = new ObjectMapperFactoryBean();
 		factory.setSerializationInclusion(Include.NON_NULL);
+		factory.setFeaturesToDisable(
+				Arrays.asList((Object) DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
 		factory.setFeaturesToEnable(
 				Arrays.asList((Object) DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
 		List<com.fasterxml.jackson.databind.JsonSerializer<?>> serializers = new ArrayList<JsonSerializer<?>>();
