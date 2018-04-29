@@ -22,6 +22,8 @@
 
 package net.solarnetwork.util;
 
+import java.io.UnsupportedEncodingException;
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -31,12 +33,16 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
+import net.solarnetwork.domain.KeyValuePair;
 
 /**
  * Common string helper utilities.
  * 
  * @author matt
- * @version 1.6
+ * @version 1.7
  */
 public final class StringUtils {
 
@@ -457,5 +463,183 @@ public final class StringUtils {
 			}
 		}
 		return result;
+	}
+
+	private static final SecureRandom rng = new SecureRandom();
+
+	/**
+	 * Compute a Base64-encoded SHA-256 digest of a string value with a random
+	 * salt.
+	 * 
+	 * @param propertyValue
+	 *        the current property value
+	 * @return a Base64 encoded SHA-256 digest with a <code>{SSHA-256}</code>
+	 *         prefix
+	 * @since 1.7
+	 */
+	public static final String sha256Base64Value(String propertyValue) {
+		byte[] salt = new byte[8];
+		rng.nextBytes(salt);
+		return sha256Base64Value(propertyValue, salt);
+	}
+
+	/**
+	 * Compute a Base64-encoded SHA-256 digest of a string value with optional
+	 * salt.
+	 * 
+	 * <p>
+	 * When salt is provided, the digest is computed from
+	 * {@literal propertyValue + salt} and then the returned Base64 value
+	 * contains {@literal digest + salt}. The length of the salt can be
+	 * determined after decoding the Base64 value, as
+	 * {@literal decodedLength - 32}.
+	 * </p>
+	 * 
+	 * @param propertyValue
+	 *        the current property value
+	 * @param salt
+	 *        the optional salt to add
+	 * @return a Base64 encoded SHA-256 digest with a <code>{SSHA-256}</code>
+	 *         prefix (if salt provided) or <code>{SHA-256}</code> if no salt
+	 *         provided
+	 * @since 1.7
+	 */
+	public static final String sha256Base64Value(String propertyValue, byte[] salt) {
+		byte[] plain;
+		try {
+			plain = (propertyValue != null ? propertyValue.getBytes("UTF-8") : new byte[0]);
+		} catch ( UnsupportedEncodingException e ) {
+			throw new RuntimeException(e);
+		}
+		if ( salt != null && salt.length > 0 ) {
+			byte[] tmp = new byte[plain.length + salt.length];
+			System.arraycopy(plain, 0, tmp, 0, plain.length);
+			System.arraycopy(salt, 0, tmp, tmp.length - salt.length, salt.length);
+			plain = tmp;
+		}
+		byte[] cipher = DigestUtils.sha256(plain);
+		if ( salt != null && salt.length > 0 ) {
+			byte[] tmp = new byte[cipher.length + salt.length];
+			System.arraycopy(cipher, 0, tmp, 0, cipher.length);
+			System.arraycopy(salt, 0, tmp, tmp.length - salt.length, salt.length);
+			cipher = tmp;
+		}
+		try {
+			return (salt != null && salt.length > 0 ? "{SSHA-256}" : "{SHA-256}")
+					+ new String(Base64.encodeBase64(cipher, false), "US-ASCII");
+		} catch ( UnsupportedEncodingException e ) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * A pattern for matching <code>{type-len}digest</code> style digest
+	 * strings.
+	 * 
+	 * @since 1.7
+	 */
+	public static final Pattern DIGEST_PREFIX_PATTERN = Pattern
+			.compile("\\{(\\w+)-?((?<=-)\\d+)?\\}(.*)");
+
+	/**
+	 * Decode a digest string in the form <code>{key}value</code> into a
+	 * key-value pair composed of digest (key) and salt (value) hex-encoded
+	 * values.
+	 * 
+	 * <p>
+	 * The returned pair's {@code value} will be {@literal null} if no salt was
+	 * included in the digest. Both values will be returned as hex-encoded
+	 * strings.
+	 * </p>
+	 * 
+	 * @param digest
+	 *        a Base64-encoded digest string, in the form returned by
+	 *        {@link #sha256Base64Value(String)}
+	 * @return a key/value pair of the
+	 * @since 1.7
+	 */
+	public static final KeyValuePair decodeBase64DigestComponents(String digest) {
+		if ( digest == null ) {
+			return null;
+		}
+		Matcher m = DIGEST_PREFIX_PATTERN.matcher(digest);
+		if ( !m.matches() ) {
+			return null;
+		}
+		String type = m.group(1).toUpperCase();
+		String len = m.group(2);
+		int algLen = 0;
+		if ( len != null ) {
+			algLen = Integer.parseInt(len);
+		}
+		byte[] salt = null;
+		byte[] data = Base64.decodeBase64(m.group(3));
+
+		int digestByteLen = 0;
+		if ( type.endsWith("SHA") ) {
+			if ( algLen < 2 ) {
+				digestByteLen = 20;
+			} else {
+				digestByteLen = algLen / 8;
+			}
+		} else if ( type.endsWith("MD5") ) {
+			digestByteLen = 16;
+		}
+
+		if ( digestByteLen < data.length ) {
+			byte[] tmp = new byte[digestByteLen];
+			System.arraycopy(data, 0, tmp, 0, digestByteLen);
+			salt = new byte[data.length - digestByteLen];
+			System.arraycopy(data, digestByteLen, salt, 0, salt.length);
+			data = tmp;
+		}
+
+		return new KeyValuePair(Hex.encodeHexString(data),
+				salt != null ? Hex.encodeHexString(salt) : null);
+	}
+
+	/**
+	 * "Mask" a set of map values by replacing them with SHA-256 digest values.
+	 * 
+	 * <p>
+	 * This method will return a new map instance, unless no values need masking
+	 * in which case {@code map} itself will be returned. For any key in
+	 * {@code maskKeys} found in {@code map}, the returned map's value will be
+	 * the SHA-256 digest value computed from the string form of the value
+	 * passed to {@link #sha256Base64Value(String)}.
+	 * </p>
+	 * 
+	 * @param map
+	 *        the map of values to mask
+	 * @param maskKeys
+	 *        the set of map keys whose values should be masked
+	 * @return either a new map instance with one or more values masked, or
+	 *         {@code map} when no values need masking
+	 * @see #sha256Base64Value(String)
+	 * @since 1.7
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <K, V> Map<K, V> sha256MaskedMap(Map<K, V> map, Set<K> maskKeys) {
+		Map<K, V> res = map;
+		if ( map != null && maskKeys != null && !map.isEmpty() && !maskKeys.isEmpty() ) {
+			for ( K propName : maskKeys ) {
+				if ( map.containsKey(propName) ) {
+					Map<K, V> maskedMap = new LinkedHashMap<K, V>(map.size());
+					for ( Map.Entry<K, V> me : map.entrySet() ) {
+						K key = me.getKey();
+						V val = me.getValue();
+						if ( val != null && maskKeys.contains(key.toString()) ) {
+							String maskedVal = StringUtils.sha256Base64Value(val.toString());
+							((Map) maskedMap).put(key, maskedVal);
+						} else {
+							maskedMap.put(key, val);
+						}
+					}
+					res = maskedMap;
+					break;
+				}
+			}
+		}
+		return res;
 	}
 }

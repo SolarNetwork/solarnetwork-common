@@ -1,7 +1,7 @@
 /* ==================================================================
- * BaseSettingSpecifier.java - Mar 12, 2012 9:53:59 AM
+ * ProgressListener.java - 11/04/2018 10:24:01 AM
  * 
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2018 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,37 +20,26 @@
  * ==================================================================
  */
 
-package net.solarnetwork.settings.support;
-
-import net.solarnetwork.settings.SettingSpecifier;
+package net.solarnetwork.util;
 
 /**
- * Base implementation of {@link SettingSpecifier}.
+ * API for a contextual progress listener.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
+ * @since 1.43
  */
-public abstract class BaseSettingSpecifier implements SettingSpecifier {
+public interface ProgressListener<T> {
 
-	private String title;
-
-	@Override
-	public String getTitle() {
-		return this.title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	@Override
-	public String getType() {
-		Class<? extends BaseSettingSpecifier> clazz = getClass();
-		Class<?>[] interfaces = clazz.getInterfaces();
-		if ( interfaces != null && interfaces.length > 0 ) {
-			return interfaces[0].getName();
-		}
-		return clazz.getName();
-	}
+	/**
+	 * Progress change callback.
+	 * 
+	 * @param context
+	 *        the context object
+	 * @param amountComplete
+	 *        the overall amount complete, as a percentage from {@literal 0} to
+	 *        {@literal 1}
+	 */
+	void progressChanged(T context, double amountComplete);
 
 }

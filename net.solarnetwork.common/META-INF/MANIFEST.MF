@@ -3,17 +3,17 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Core SolarNetwork Support
 Bundle-SymbolicName: net.solarnetwork.common
 Bundle-Description: Common supporting infrastructure for SolarNode and SolarNet applications.
-Bundle-Version: 1.42.0
+Bundle-Version: 1.43.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
  net.solarnetwork.dao.jdbc;version="1.2.0",
- net.solarnetwork.domain;version="1.12.0",
- net.solarnetwork.io;version="1.1.0",
- net.solarnetwork.settings;version="1.0.0",
- net.solarnetwork.settings.support;version="1.0.0",
- net.solarnetwork.support;version="1.6.0",
- net.solarnetwork.util;version="1.29.0"
+ net.solarnetwork.domain;version="1.13.0",
+ net.solarnetwork.io;version="1.2.0",
+ net.solarnetwork.settings;version="1.1.0",
+ net.solarnetwork.settings.support;version="1.1.0",
+ net.solarnetwork.support;version="1.7.0",
+ net.solarnetwork.util;version="1.30.0"
 Import-Package: 
  com.fasterxml.jackson.annotation;version="[2.4,3.0)",
  com.fasterxml.jackson.core;version="[2.4,3.0)",
@@ -32,6 +32,8 @@ Import-Package:
  javax.sql,
  javax.xml.stream,
  org.apache.commons.beanutils;version="[1.8.0,2.0.0)",
+ org.apache.commons.codec.binary;version="[1.7,2.0)",
+ org.apache.commons.codec.digest;version="[1.7,2.0)",
  org.apache.tomcat.jdbc.pool;version="1.0.9.3",
  org.joda.time;version="[2.4,3.0)",
  org.joda.time.base;version="[2.4,3.0)",

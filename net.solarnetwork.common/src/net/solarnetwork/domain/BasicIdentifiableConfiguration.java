@@ -23,6 +23,7 @@
 package net.solarnetwork.domain;
 
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -44,6 +45,32 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 	private String name;
 	private String serviceIdentifier;
 	private Map<String, Object> serviceProps;
+
+	/**
+	 * Default constructor.
+	 */
+	public BasicIdentifiableConfiguration() {
+		super();
+	}
+
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param other
+	 *        the configuration to copy
+	 */
+	public BasicIdentifiableConfiguration(IdentifiableConfiguration other) {
+		super();
+		if ( other == null ) {
+			return;
+		}
+		setName(other.getName());
+		setServiceIdentifier(other.getServiceIdentifier());
+		if ( other.getServiceProperties() != null ) {
+			Map<String, Object> sprops = new LinkedHashMap<String, Object>(other.getServiceProperties());
+			setServiceProps(sprops);
+		}
+	}
 
 	/**
 	 * Get a name for this configuration

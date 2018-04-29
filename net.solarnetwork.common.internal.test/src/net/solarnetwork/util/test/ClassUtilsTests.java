@@ -30,8 +30,8 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 import net.solarnetwork.domain.BasicLocation;
-import net.solarnetwork.domain.GeneralDatumSamples;
 import net.solarnetwork.domain.Location;
+import net.solarnetwork.domain.Request;
 import net.solarnetwork.util.ClassUtils;
 
 /**
@@ -78,8 +78,7 @@ public class ClassUtilsTests {
 
 	@Test
 	public void getAllInterfacesExcludingJavaPackagesNoInterface() {
-		Set<Class<?>> interfaces = ClassUtils
-				.getAllNonJavaInterfacesForClassAsSet(GeneralDatumSamples.class);
+		Set<Class<?>> interfaces = ClassUtils.getAllNonJavaInterfacesForClassAsSet(Request.class);
 		Assert.assertEquals(Collections.emptySet(), interfaces);
 	}
 

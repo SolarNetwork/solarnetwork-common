@@ -1,7 +1,7 @@
 /* ==================================================================
- * BaseSettingSpecifier.java - Mar 12, 2012 9:53:59 AM
+ * LocalizedServiceInfoProvider.java - 11/04/2018 4:15:54 PM
  * 
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2018 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,37 +20,27 @@
  * ==================================================================
  */
 
-package net.solarnetwork.settings.support;
+package net.solarnetwork.support;
 
-import net.solarnetwork.settings.SettingSpecifier;
+import java.util.Locale;
+import net.solarnetwork.domain.LocalizedServiceInfo;
 
 /**
- * Base implementation of {@link SettingSpecifier}.
+ * API for a service that can provide locailzed information about itself.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
+ * @since 1.43
  */
-public abstract class BaseSettingSpecifier implements SettingSpecifier {
+public interface LocalizedServiceInfoProvider {
 
-	private String title;
-
-	@Override
-	public String getTitle() {
-		return this.title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	@Override
-	public String getType() {
-		Class<? extends BaseSettingSpecifier> clazz = getClass();
-		Class<?>[] interfaces = clazz.getInterfaces();
-		if ( interfaces != null && interfaces.length > 0 ) {
-			return interfaces[0].getName();
-		}
-		return clazz.getName();
-	}
+	/**
+	 * Get localized information for a specific locale.
+	 * 
+	 * @param locale
+	 *        the locale to get localized information for
+	 * @return the localized info, never {@literal null}
+	 */
+	LocalizedServiceInfo getLocalizedServiceInfo(Locale locale);
 
 }

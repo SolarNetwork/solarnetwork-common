@@ -27,8 +27,11 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -38,6 +41,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.solarnetwork.domain.GeneralDatumMetadata;
 
@@ -45,7 +49,7 @@ import net.solarnetwork.domain.GeneralDatumMetadata;
  * Utilities for JSON data.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.36
  */
 public final class JsonUtils {
@@ -55,9 +59,29 @@ public final class JsonUtils {
 
 	private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
 
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-			.setSerializationInclusion(Include.NON_NULL)
-			.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
+	private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
+
+	private static final ObjectMapper createObjectMapper() {
+		ObjectMapperFactoryBean factory = new ObjectMapperFactoryBean();
+		factory.setSerializationInclusion(Include.NON_NULL);
+		factory.setFeaturesToDisable(
+				Arrays.asList((Object) DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+		factory.setFeaturesToEnable(
+				Arrays.asList((Object) DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
+		List<com.fasterxml.jackson.databind.JsonSerializer<?>> serializers = new ArrayList<JsonSerializer<?>>();
+		serializers.add(new net.solarnetwork.util.JodaDateTimeSerializer());
+		serializers.add(new net.solarnetwork.util.JodaLocalDateSerializer());
+		serializers.add(new net.solarnetwork.util.JodaLocalDateTimeSerializer());
+		serializers.add(new net.solarnetwork.util.JodaLocalTimeSerializer());
+		factory.setSerializers(serializers);
+		try {
+			return factory.getObject();
+		} catch ( RuntimeException e ) {
+			throw e;
+		} catch ( Exception e ) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	private static final class StringMapTypeReference
 			extends TypeReference<LinkedHashMap<String, Object>> {
@@ -74,10 +98,13 @@ public final class JsonUtils {
 	}
 
 	/**
-	 * Convert an object to a JSON string. This is designed for simple values.
-	 * An internal {@link ObjectMapper} will be used, and null values will not
-	 * be included in the output. All exceptions while serializing the object
-	 * are caught and ignored.
+	 * Convert an object to a JSON string.
+	 * 
+	 * <p>
+	 * This is designed for simple values. An internal {@link ObjectMapper} will
+	 * be used, and null values will not be included in the output. All
+	 * exceptions while serializing the object are caught and ignored.
+	 * </p>
 	 * 
 	 * @param o
 	 *        the object to serialize to JSON
@@ -99,11 +126,14 @@ public final class JsonUtils {
 	}
 
 	/**
-	 * Convert a JSON string to an object. This is designed for simple values.
-	 * An internal {@link ObjectMapper} will be used, and all floating point
-	 * values will be converted to {@link BigDecimal} values to faithfully
-	 * represent the data. All exceptions while deserializing the object are
-	 * caught and ignored.
+	 * Convert a JSON string to an object.
+	 * 
+	 * <p>
+	 * This is designed for simple values. An internal {@link ObjectMapper} will
+	 * be used, and all floating point values will be converted to
+	 * {@link BigDecimal} values to faithfully represent the data. All
+	 * exceptions while deserializing the object are caught and ignored.
+	 * </p>
 	 * 
 	 * @param json
 	 *        the JSON string to convert
@@ -374,6 +404,17 @@ public final class JsonUtils {
 			}
 		}
 		return s;
+	}
+
+	/**
+	 * Create a new {@link ObjectMapper} based on the internal configuration
+	 * used by other methods in this class.
+	 * 
+	 * @return a new {@link ObjectMapper}
+	 * @since 1.1
+	 */
+	public static ObjectMapper newObjectMapper() {
+		return OBJECT_MAPPER.copy();
 	}
 
 }

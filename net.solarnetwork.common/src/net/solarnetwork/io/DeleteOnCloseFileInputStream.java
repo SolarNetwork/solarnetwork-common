@@ -1,7 +1,7 @@
 /* ==================================================================
- * BaseSettingSpecifier.java - Mar 12, 2012 9:53:59 AM
+ * DeleteOnCloseFileInputStream.java - 23/04/2018 12:00:37 PM
  * 
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2018 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,37 +20,45 @@
  * ==================================================================
  */
 
-package net.solarnetwork.settings.support;
+package net.solarnetwork.io;
 
-import net.solarnetwork.settings.SettingSpecifier;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
- * Base implementation of {@link SettingSpecifier}.
+ * Extension of {@link FileInputStream} that deletes the file once
+ * {@link #close()} is called.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
+ * @since 1.43
  */
-public abstract class BaseSettingSpecifier implements SettingSpecifier {
+public class DeleteOnCloseFileInputStream extends FileInputStream {
 
-	private String title;
+	private final File file;
 
-	@Override
-	public String getTitle() {
-		return this.title;
+	/**
+	 * Construct with a file.
+	 * 
+	 * @param file
+	 *        the file to delete
+	 * @throws FileNotFoundException
+	 *         if the file is not available
+	 */
+	public DeleteOnCloseFileInputStream(File file) throws FileNotFoundException {
+		super(file);
+		this.file = file;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
 	@Override
-	public String getType() {
-		Class<? extends BaseSettingSpecifier> clazz = getClass();
-		Class<?>[] interfaces = clazz.getInterfaces();
-		if ( interfaces != null && interfaces.length > 0 ) {
-			return interfaces[0].getName();
+	public void close() throws IOException {
+		try {
+			super.close();
+		} finally {
+			file.delete();
 		}
-		return clazz.getName();
 	}
 
 }

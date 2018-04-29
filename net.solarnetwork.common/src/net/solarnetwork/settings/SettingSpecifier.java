@@ -31,9 +31,21 @@ package net.solarnetwork.settings;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface SettingSpecifier {
+
+	/**
+	 * A unique identifier for the type of setting specifier this represents.
+	 * 
+	 * <p>
+	 * Generally this will be a fully-qualified interface name.
+	 * </p>
+	 * 
+	 * @return the type
+	 * @since 1.1
+	 */
+	String getType();
 
 	/**
 	 * Localizable text to display with the setting's content.

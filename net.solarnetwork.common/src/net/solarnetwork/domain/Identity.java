@@ -1,7 +1,7 @@
 /* ==================================================================
- * BaseSettingSpecifier.java - Mar 12, 2012 9:53:59 AM
+ * Identity.java - Aug 8, 2010 7:42:21 PM
  * 
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2007-2010 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -18,39 +18,28 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
+ * $Revision$
+ * ==================================================================
  */
 
-package net.solarnetwork.settings.support;
-
-import net.solarnetwork.settings.SettingSpecifier;
+package net.solarnetwork.domain;
 
 /**
- * Base implementation of {@link SettingSpecifier}.
+ * Common API for identity information in SolarNetwork participating services.
  * 
+ * @param <PK>
+ *        the primary data type that uniquely identifies the object
+ * @version 1.0
  * @author matt
- * @version 1.1
+ * @since 1.43
  */
-public abstract class BaseSettingSpecifier implements SettingSpecifier {
+public interface Identity<PK> extends Comparable<PK> {
 
-	private String title;
-
-	@Override
-	public String getTitle() {
-		return this.title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	@Override
-	public String getType() {
-		Class<? extends BaseSettingSpecifier> clazz = getClass();
-		Class<?>[] interfaces = clazz.getInterfaces();
-		if ( interfaces != null && interfaces.length > 0 ) {
-			return interfaces[0].getName();
-		}
-		return clazz.getName();
-	}
+	/**
+	 * Get the primary identifier of the object
+	 * 
+	 * @return the primary identifier
+	 */
+	PK getId();
 
 }

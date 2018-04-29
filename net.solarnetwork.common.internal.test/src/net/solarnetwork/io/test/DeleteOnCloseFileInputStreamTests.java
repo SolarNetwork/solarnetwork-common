@@ -1,7 +1,7 @@
 /* ==================================================================
- * BaseSettingSpecifier.java - Mar 12, 2012 9:53:59 AM
+ * DeleteOnCloseFileInputStreamTests.java - 23/04/2018 12:27:33 PM
  * 
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2018 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,37 +20,36 @@
  * ==================================================================
  */
 
-package net.solarnetwork.settings.support;
+package net.solarnetwork.io.test;
 
-import net.solarnetwork.settings.SettingSpecifier;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import java.io.File;
+import java.io.IOException;
+import org.junit.Test;
+import net.solarnetwork.io.DeleteOnCloseFileInputStream;
 
 /**
- * Base implementation of {@link SettingSpecifier}.
+ * Test cases for the {@link DeleteOnCloseFileInputStream} class.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
  */
-public abstract class BaseSettingSpecifier implements SettingSpecifier {
+public class DeleteOnCloseFileInputStreamTests {
 
-	private String title;
-
-	@Override
-	public String getTitle() {
-		return this.title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	@Override
-	public String getType() {
-		Class<? extends BaseSettingSpecifier> clazz = getClass();
-		Class<?>[] interfaces = clazz.getInterfaces();
-		if ( interfaces != null && interfaces.length > 0 ) {
-			return interfaces[0].getName();
+	@Test
+	public void deleteOnClose() throws IOException {
+		File tempFile = File.createTempFile("foo-", ".bar");
+		assertThat("File exists", tempFile.exists(), equalTo(true));
+		DeleteOnCloseFileInputStream in = null;
+		try {
+			in = new DeleteOnCloseFileInputStream(tempFile);
+		} finally {
+			if ( in != null ) {
+				in.close();
+			}
 		}
-		return clazz.getName();
+		assertThat("File deleted", tempFile.exists(), equalTo(false));
 	}
 
 }
