@@ -72,7 +72,7 @@ public class ConcatenatingResource extends AbstractResource implements Resource 
 	 */
 	@Override
 	public InputStream getInputStream() throws IOException {
-		InputStream[] streams = delegates.toArray(new InputStream[delegates.size()]);
+		InputStream[] streams = new InputStream[delegates.size()];
 		int i = 0;
 		for ( Resource r : delegates ) {
 			streams[i] = r.getInputStream();
