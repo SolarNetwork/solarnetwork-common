@@ -24,6 +24,7 @@ package net.solarnetwork.util.test;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import org.hamcrest.Matchers;
@@ -121,6 +122,48 @@ public class NumberUtilsTests {
 	@Test
 	public void bigDecimalForDouble() {
 		assertThat(NumberUtils.bigDecimalForNumber(123.123456), equalTo(new BigDecimal("123.123456")));
+	}
+
+	@Test
+	public void calcualteCrcSimple() throws UnsupportedEncodingException {
+		byte[] bytes = "123456789".getBytes("US-ASCII");
+		int result = NumberUtils.crc16(bytes, 0, 9);
+		assertThat("CRC", result, equalTo(0xBB3D));
+	}
+
+	@Test
+	public void calcualteCrcOffsetPrefix() throws UnsupportedEncodingException {
+		byte[] bytes = "0000123456789".getBytes("US-ASCII");
+		int result = NumberUtils.crc16(bytes, 4, 9);
+		assertThat("CRC", result, equalTo(0xBB3D));
+	}
+
+	@Test
+	public void calcualteCrcOffsetMiddle() throws UnsupportedEncodingException {
+		byte[] bytes = "00001234567890000".getBytes("US-ASCII");
+		int result = NumberUtils.crc16(bytes, 4, 9);
+		assertThat("CRC", result, equalTo(0xBB3D));
+	}
+
+	@Test
+	public void calcualteCrcOffsetSuffix() throws UnsupportedEncodingException {
+		byte[] bytes = "1234567890000".getBytes("US-ASCII");
+		int result = NumberUtils.crc16(bytes, 0, 9);
+		assertThat("CRC", result, equalTo(0xBB3D));
+	}
+
+	@Test
+	public void calcualteCrcNotEnoughData() throws UnsupportedEncodingException {
+		byte[] bytes = "123".getBytes("US-ASCII");
+		int result = NumberUtils.crc16(bytes, 0, 9);
+		assertThat("CRC", result, equalTo(0x0000));
+	}
+
+	@Test
+	public void calculateCrcEmptyPacket() {
+		byte[] bytes = new byte[] { 0x02, 0x05, 0x01, 0x00, 0x01, 0x01 };
+		int result = NumberUtils.crc16(bytes, 1, bytes.length - 1);
+		assertThat("CRC", result, equalTo(0xAC0D));
 	}
 
 }
