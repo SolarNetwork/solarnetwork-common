@@ -88,7 +88,7 @@ import org.springframework.util.StringUtils;
  * </pre>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.11
  */
 public final class AuthorizationV2Builder {
@@ -608,6 +608,20 @@ public final class AuthorizationV2Builder {
 	}
 
 	private byte[] computeSigningKey(String secretKey) {
+		return computeSigningKey(secretKey, this.date);
+	}
+
+	/**
+	 * Compute a signing key from a secret key and date.
+	 * 
+	 * @param secretKey
+	 *        the secret key to derive the signing key from
+	 * @param date
+	 *        the signing date
+	 * @return the signing key
+	 * @since 1.2
+	 */
+	public static byte[] computeSigningKey(String secretKey, Date date) {
 		/*- signing key is like:
 		 
 		HMACSHA256(HMACSHA256("SNWS2"+secretKey, "20160301"), "snws2_request")
