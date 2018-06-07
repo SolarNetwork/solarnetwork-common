@@ -30,7 +30,7 @@ import java.util.Map;
  * Basic implementation of {@link NetworkIdentity}.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 
@@ -152,7 +152,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * {@link NetworkIdentity#SOLARUSER_NETWORK_SERVICE_KEY} key.
 	 * 
 	 * @param url
-	 *        The URL to set, or <em>null</em> to remove.
+	 *        The URL to set, or {@literal null} to remove.
 	 */
 	public void setSolarUserServiceURL(String url) {
 		putServiceURL(SOLARUSER_NETWORK_SERVICE_KEY, url);
@@ -161,6 +161,8 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	/**
 	 * Get the {@link NetworkIdentity#SOLARUSER_NETWORK_SERVICE_KEY}
 	 * {@code networkServiceURLs} value.
+	 * 
+	 * @return the URL
 	 */
 	public String getSolarUserServiceURL() {
 		return getServiceURL(SOLARUSER_NETWORK_SERVICE_KEY);
@@ -171,7 +173,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * {@link NetworkIdentity#SOLARQUERY_NETWORK_SERVICE_KEY} key.
 	 * 
 	 * @param url
-	 *        The URL to set, or <em>null</em> to remove.
+	 *        The URL to set, or {@literal null} to remove.
 	 */
 	public void setSolarQueryServiceURL(String url) {
 		putServiceURL(SOLARQUERY_NETWORK_SERVICE_KEY, url);
@@ -180,9 +182,32 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	/**
 	 * Get the {@link NetworkIdentity#SOLARQUERY_NETWORK_SERVICE_KEY}
 	 * {@code networkServiceURLs} value.
+	 * 
+	 * @return the URL
 	 */
 	public String getSolarQueryServiceURL() {
 		return getServiceURL(SOLARQUERY_NETWORK_SERVICE_KEY);
+	}
+
+	/**
+	 * Put a {@code networkServiceURLs} value for the
+	 * {@link NetworkIdentity#SOLARIN_MQTT_NETWORK_SERVICE_KEY} key.
+	 * 
+	 * @param url
+	 *        The URL to set, or {@literal null} to remove.
+	 */
+	public void setSolarInMqttServiceURL(String url) {
+		putServiceURL(SOLARIN_MQTT_NETWORK_SERVICE_KEY, url);
+	}
+
+	/**
+	 * Get the {@link NetworkIdentity#SOLARIN_MQTT_NETWORK_SERVICE_KEY}
+	 * {@code networkServiceURLs} value.
+	 * 
+	 * @return the URL
+	 */
+	public String getSolarInMqttServiceURL() {
+		return getServiceURL(SOLARIN_MQTT_NETWORK_SERVICE_KEY);
 	}
 
 }
