@@ -23,8 +23,10 @@
 package net.solarnetwork.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,47 +52,20 @@ import org.springframework.beans.PropertyAccessorFactory;
  * </p>
  * 
  * <p>
- * The configurable properties of this class are:
+ * Conceptually this is very similar to what OSGi Blueprint service references
+ * provide, just with more features such as filtering on service JavaBean
+ * properties.
  * </p>
- * 
- * <dl class="class-properties">
- * <dt>bundleContext</dt>
- * <dd>The OSGi {@link BundleContext} to use.</dd>
- * 
- * <dt>serviceClassName</dt>
- * <dd>The OSGi service class name to look for, or <em>null</em> for all
- * services.</dd>
- * 
- * <dt>serviceFilter</dt>
- * <dd>An OSGi service filter to match services to, or <em>null</em> for no
- * filter.</dd>
- * 
- * <dt>propertyFilters</dt>
- * <dd>A map of bean property names and associated values to match against all
- * found OSGi services. The first service to match will be returned in
- * {@link #service()}. This can be <em>null</em>, in which case the first
- * service found matching {@code serviceClassName} and {@code serviceFilter}
- * will be returned.</dd>
- * 
- * <dt>ignoreEmptyPropertyFilterValues</dt>
- * <dd>If <em>true</em>, then ignore property filter values that are
- * <em>null</em> or, if strings, have no length for purposes of filtering
- * services. If <em>false</em> then the property filters must match even if
- * empty, that is a <em>null</em> filter value will only match services whose
- * corresponding property is also <em>null</em>. Defaults to <em>true</em>.</dd>
- * 
- * <dt>fallbackService</dt>
- * <dd>If no matching service is available and this property is configured, then
- * this service will be returned as a fallback.</dd>
- * </dl>
  * 
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
-public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalServiceCollection<T>,
-		FilterableService {
+public class DynamicServiceTracker<T>
+		implements OptionalService<T>, OptionalServiceCollection<T>, FilterableService {
+
+	private static final Comparator<ServiceReference<?>> RANK_COMPARATOR = new ServiceReferenceRankComparator();
 
 	private BundleContext bundleContext;
 
@@ -102,12 +77,6 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	/**
-	 * Get the tracked service, or <em>null</em> if no service currently
-	 * available.
-	 * 
-	 * @return the service, or <em>null</em> if not available
-	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public T service() {
@@ -118,15 +87,19 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 			log.error("Error in service filter {}: {}", serviceFilter, e);
 			return null;
 		}
-		log.debug("Found {} possible services of type {} matching filter {}", new Object[] {
-				(refs == null ? 0 : refs.length), serviceClassName, serviceFilter });
+		log.debug("Found {} possible services of type {} matching filter {}",
+				new Object[] { (refs == null ? 0 : refs.length), serviceClassName, serviceFilter });
 		if ( refs != null ) {
+			if ( refs.length > 1 ) {
+				// make sure sorted highest rank first
+				Arrays.sort(refs, RANK_COMPARATOR);
+			}
 			for ( ServiceReference<?> ref : refs ) {
 				Object service = bundleContext.getService(ref);
 				final boolean match = serviceMatchesFilters(service);
 				if ( match ) {
-					log.debug("Found {} service matching properties {}: {}", new Object[] {
-							serviceClassName, propertyFilters, service });
+					log.debug("Found {} service matching properties {}: {}",
+							new Object[] { serviceClassName, propertyFilters, service });
 					return (T) service;
 				}
 			}
@@ -148,8 +121,8 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 			log.error("Error in service filter {}: {}", serviceFilter, e);
 			return Collections.emptyList();
 		}
-		log.debug("Found {} possible services of type {} matching filter {}", new Object[] {
-				(refs == null ? 0 : refs.length), serviceClassName, serviceFilter });
+		log.debug("Found {} possible services of type {} matching filter {}",
+				new Object[] { (refs == null ? 0 : refs.length), serviceClassName, serviceFilter });
 		if ( refs == null ) {
 			return Collections.emptyList();
 		}
@@ -158,8 +131,8 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 			Object service = bundleContext.getService(ref);
 			final boolean match = serviceMatchesFilters(service);
 			if ( match ) {
-				log.debug("Found {} service matching properties {}: {}", new Object[] {
-						serviceClassName, propertyFilters, service });
+				log.debug("Found {} service matching properties {}: {}",
+						new Object[] { serviceClassName, propertyFilters, service });
 				results.add((T) service);
 			}
 		}
@@ -185,8 +158,8 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 			if ( accessor.isReadableProperty(me.getKey()) ) {
 				Object requiredValue = me.getValue();
 				if ( ignoreEmptyPropertyFilterValues
-						&& (requiredValue == null || ((requiredValue instanceof String) && ((String) requiredValue)
-								.length() == 0)) ) {
+						&& (requiredValue == null || ((requiredValue instanceof String)
+								&& ((String) requiredValue).length() == 0)) ) {
 					// ignore empty filter values, so this is a matching property... skip to the next filter
 					continue;
 				}
@@ -233,26 +206,68 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 		return result;
 	}
 
+	/**
+	 * Get the OSGi bundle context.
+	 * 
+	 * @return the bundle context
+	 */
 	public BundleContext getBundleContext() {
 		return bundleContext;
 	}
 
+	/**
+	 * Set the OSGi bundle context to use.
+	 * 
+	 * <p>
+	 * In OSGi Blueprint, this is available via an implicit
+	 * {@literal bundleContext} bean ID.
+	 * </p>
+	 * 
+	 * @param bundleContext
+	 *        the bundle context to use
+	 */
 	public void setBundleContext(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
 	}
 
+	/**
+	 * Get the service class name to filter on.
+	 * 
+	 * @return the service class name, or {@literal null} to consider all
+	 *         services
+	 */
 	public String getServiceClassName() {
 		return serviceClassName;
 	}
 
+	/**
+	 * Set the OSGi service class name to filter on.
+	 * 
+	 * @param serviceClassName
+	 *        the service class name to look for , or {@literal null} to
+	 *        consider all services
+	 */
 	public void setServiceClassName(String serviceClassName) {
 		this.serviceClassName = serviceClassName;
 	}
 
+	/**
+	 * Get the OSGi service filter to filter services on.
+	 * 
+	 * @return the service filter expression, or {@link null} to not restrict by
+	 *         any service filter
+	 */
 	public String getServiceFilter() {
 		return serviceFilter;
 	}
 
+	/**
+	 * Set an OSGi service filter to filter services on.
+	 * 
+	 * @param serviceFilter
+	 *        the OSGi service filter expression, or {@literal null} to not
+	 *        restrict by any service filter
+	 */
 	public void setServiceFilter(String serviceFilter) {
 		this.serviceFilter = serviceFilter;
 	}
@@ -262,22 +277,72 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 		return propertyFilters;
 	}
 
+	/**
+	 * Set a map of bean property names and associated values to match against
+	 * all found OSGi services.
+	 * 
+	 * <p>
+	 * The first service to match will be returned in {@link #service()}. This
+	 * can be {@literal null}, in which case the first service found matching
+	 * {@code serviceClassName} and {@code serviceFilter} will be returned.
+	 * </p>
+	 * 
+	 * @param propertyFilters
+	 *        the JavaBean property values to filter services on, or
+	 *        {@literal null} to not restrict by bean properties
+	 */
 	public void setPropertyFilters(Map<String, Object> propertyFilters) {
 		this.propertyFilters = propertyFilters;
 	}
 
+	/**
+	 * Get the fallback service.
+	 * 
+	 * @return the fallback service
+	 */
 	public T getFallbackService() {
 		return fallbackService;
 	}
 
+	/**
+	 * Set a service to use if no other matching service is available.
+	 * 
+	 * <p>
+	 * If no matching service is available when {@link #service()} is called,
+	 * this value will be returned.
+	 * </p>
+	 * 
+	 * @param fallbackService
+	 *        the fallback service to use when no other service is available
+	 */
 	public void setFallbackService(T fallbackService) {
 		this.fallbackService = fallbackService;
 	}
 
+	/**
+	 * Get a flag to ignore empty property filter values.
+	 * 
+	 * @return {@literal true} to ignore empty property values when filtering;
+	 *         defaults to {@literal true}.
+	 */
 	public boolean isIgnoreEmptyPropertyFilterValues() {
 		return ignoreEmptyPropertyFilterValues;
 	}
 
+	/**
+	 * Set a flag to ignore empty property filter values.
+	 * 
+	 * <p>
+	 * If {@literal true}, then ignore property filter values that are
+	 * {@literal null} or, if strings, have no length, for purposes of filtering
+	 * services. If {@literal false} then the property filters must match even
+	 * if empty, that is a {@literal null} filter value will only match services
+	 * whose corresponding property is also {@literal null}.
+	 * </p>
+	 * 
+	 * @param ignoreEmptyPropertyFilterValues
+	 *        the ignore setting to use
+	 */
 	public void setIgnoreEmptyPropertyFilterValues(boolean ignoreEmptyPropertyFilterValues) {
 		this.ignoreEmptyPropertyFilterValues = ignoreEmptyPropertyFilterValues;
 	}
