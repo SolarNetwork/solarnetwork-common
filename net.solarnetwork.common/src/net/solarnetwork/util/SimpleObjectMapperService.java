@@ -22,13 +22,14 @@
 
 package net.solarnetwork.util;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Basic implementation of {@link ObjectMapperService}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SimpleObjectMapperService implements ObjectMapperService {
 
@@ -47,6 +48,22 @@ public class SimpleObjectMapperService implements ObjectMapperService {
 	 */
 	public void setObjectMapper(ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
+	}
+
+	/**
+	 * Set the {@link JsonFactory} to use.
+	 * 
+	 * <p>
+	 * This will cause a new {@link ObjectMapper} to be instantiated with the
+	 * given factory.
+	 * </p>
+	 * 
+	 * @param factory
+	 *        the factory to use
+	 * @since 1.1
+	 */
+	public void setJsonFactory(JsonFactory factory) {
+		setObjectMapper(new ObjectMapper(factory));
 	}
 
 }

@@ -28,7 +28,7 @@ import java.util.Map;
  * Information that identifies the central SolarNet network.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public interface NetworkIdentity {
 
@@ -45,6 +45,13 @@ public interface NetworkIdentity {
 	 * @since 1.1
 	 */
 	final String SOLARQUERY_NETWORK_SERVICE_KEY = "solarquery";
+
+	/**
+	 * The {@link #getNetworkServiceURLs()} key for the SolarIn MQTT service.
+	 * 
+	 * @since 1.2
+	 */
+	final String SOLARIN_MQTT_NETWORK_SERVICE_KEY = "solarin-mqtt";
 
 	/**
 	 * Get the service host name.

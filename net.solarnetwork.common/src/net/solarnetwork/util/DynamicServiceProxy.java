@@ -26,7 +26,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.osgi.framework.BundleContext;
@@ -72,9 +74,11 @@ import org.springframework.beans.factory.FactoryBean;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>, FilterableService {
+
+	private static final Comparator<ServiceReference<?>> RANK_COMPARATOR = new ServiceReferenceRankComparator();
 
 	private BundleContext bundleContext;
 
@@ -94,9 +98,9 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 			// call on the service!
 			T delegate = getServiceInstance();
 			if ( delegate == null ) {
-				throw new DynamicServiceUnavailableException("No " + serviceClass.getName()
-						+ " service available matching service filter " + serviceFilter
-						+ ", property filters " + propertyFilters);
+				throw new DynamicServiceUnavailableException(
+						"No " + serviceClass.getName() + " service available matching service filter "
+								+ serviceFilter + ", property filters " + propertyFilters);
 			}
 			Method delegateMethod = delegate.getClass().getMethod(method.getName(),
 					method.getParameterTypes());
@@ -144,15 +148,18 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 			log.error("Error in service filter {}: {}", serviceFilter, e);
 			return null;
 		}
-		log.debug("Found {} possible services of type {} matching filter {}", new Object[] {
-				(refs == null ? 0 : refs.length), serviceClassName, serviceFilter });
+		log.debug("Found {} possible services of type {} matching filter {}",
+				new Object[] { (refs == null ? 0 : refs.length), serviceClassName, serviceFilter });
 		if ( refs != null ) {
+			if ( refs.length > 1 ) {
+				Arrays.sort(refs, RANK_COMPARATOR);
+			}
 			for ( ServiceReference<?> ref : refs ) {
 				Object service = bundleContext.getService(ref);
 				final boolean match = serviceMatchesFilters(service);
 				if ( match ) {
-					log.debug("Found {} service matching properties {}: {}", new Object[] {
-							serviceClassName, propertyFilters, service });
+					log.debug("Found {} service matching properties {}: {}",
+							new Object[] { serviceClassName, propertyFilters, service });
 					return (T) service;
 				}
 			}
@@ -175,8 +182,8 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 			if ( accessor.isReadableProperty(me.getKey()) ) {
 				Object requiredValue = me.getValue();
 				if ( ignoreEmptyPropertyFilterValues
-						&& (requiredValue == null || ((requiredValue instanceof String) && ((String) requiredValue)
-								.length() == 0)) ) {
+						&& (requiredValue == null || ((requiredValue instanceof String)
+								&& ((String) requiredValue).length() == 0)) ) {
 					// ignore empty filter values, so this is a matching property... skip to the next filter
 					continue;
 				}
