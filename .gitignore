@@ -1,3 +1,5 @@
 /solarnetwork-osgi-lib
 *.jpage
 *.DS_Store
+build/
+target/
