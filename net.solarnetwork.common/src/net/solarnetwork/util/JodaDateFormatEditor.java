@@ -65,7 +65,7 @@ import org.joda.time.format.DateTimeFormatter;
  * </dl>
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class JodaDateFormatEditor extends PropertyEditorSupport implements Cloneable {
 
@@ -74,14 +74,21 @@ public class JodaDateFormatEditor extends PropertyEditorSupport implements Clone
 	 */
 	public enum ParseMode {
 
-		/** Parse text into DateTime objects. */
-		DateTime,
+	/** Parse text into DateTime objects. */
+	DateTime,
 
-		/** Parse text into LocalDate objects. */
-		LocalDate,
+	/** Parse text into LocalDate objects. */
+	LocalDate,
 
-		/** Parse text into LocalTime objects. */
-		LocalTime,
+	/** Parse text into LocalTime objects. */
+	LocalTime,
+
+	/**
+	 * Parse text into LocalDateTime objects.
+	 * 
+	 * @since 1.1
+	 */
+	LocalDateTime,
 
 	}
 
@@ -158,8 +165,29 @@ public class JodaDateFormatEditor extends PropertyEditorSupport implements Clone
 	 *        the time zone
 	 */
 	public JodaDateFormatEditor(String[] datePatterns, TimeZone timeZone) {
+		this(datePatterns, timeZone, ParseMode.DateTime);
+	}
+
+	/**
+	 * Construct from multiple date pattern values.
+	 * 
+	 * <p>
+	 * This will also call the {@link #init()} method.
+	 * </p>
+	 * 
+	 * @param datePatterns
+	 *        the date patterns
+	 * @param timeZone
+	 *        the time zone
+	 * @param parseMode
+	 *        the parse mode
+	 * @since 1.1
+	 */
+	public JodaDateFormatEditor(String[] datePatterns, TimeZone timeZone, ParseMode parseMode) {
 		super();
 		this.datePatterns = datePatterns;
+		this.timeZone = timeZone;
+		this.parseMode = parseMode;
 		this.timeZone = timeZone;
 		init();
 	}
@@ -211,6 +239,10 @@ public class JodaDateFormatEditor extends PropertyEditorSupport implements Clone
 
 					case LocalTime:
 						val = dt.toLocalTime();
+						break;
+
+					case LocalDateTime:
+						val = dt.toLocalDateTime();
 						break;
 
 					default:
