@@ -35,6 +35,7 @@ Import-Package:
  org.apache.commons.beanutils;version="[1.8.0,2.0.0)",
  org.apache.commons.codec.binary;version="[1.7,2.0)",
  org.apache.commons.codec.digest;version="[1.7,2.0)",
+ org.apache.commons.compress.compressors;version="[1.18,2.0)";resolution:=optional,
  org.apache.tomcat.jdbc.pool;version="1.0.9.3",
  org.joda.time;version="[2.4,3.0)",
  org.joda.time.base;version="[2.4,3.0)",
@@ -58,4 +59,5 @@ Import-Package:
  org.springframework.transaction.event;version="[4.2,5.0)";resolution:=optional,
  org.springframework.transaction.support;version="[4.2,5.0)";resolution:=optional,
  org.springframework.util;version="[4.2,5.0)",
- org.springframework.validation;version="[4.2,5.0)"
+ org.springframework.validation;version="[4.2,5.0)",
+ org.tukaani.xz;resolution:=optional
