@@ -26,6 +26,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
@@ -116,21 +117,6 @@ public class DecompressingResource extends AbstractResource {
 		}
 	}
 
-	@Override
-	public URL getURL() throws IOException {
-		return source.getURL();
-	}
-
-	@Override
-	public File getFile() throws IOException {
-		return source.getFile();
-	}
-
-	@Override
-	public String getFilename() {
-		return source.getFilename();
-	}
-
 	/**
 	 * Get the detected compression type.
 	 * 
@@ -146,6 +132,56 @@ public class DecompressingResource extends AbstractResource {
 			}
 		}
 		return compressionType;
+	}
+
+	@Override
+	public URL getURL() throws IOException {
+		return source.getURL();
+	}
+
+	@Override
+	public File getFile() throws IOException {
+		return source.getFile();
+	}
+
+	@Override
+	public String getFilename() {
+		return source.getFilename();
+	}
+
+	@Override
+	public boolean exists() {
+		return source.exists();
+	}
+
+	@Override
+	public boolean isReadable() {
+		return source.isReadable();
+	}
+
+	@Override
+	public boolean isOpen() {
+		return source.isOpen();
+	}
+
+	@Override
+	public URI getURI() throws IOException {
+		return source.getURI();
+	}
+
+	@Override
+	public long contentLength() throws IOException {
+		return source.contentLength();
+	}
+
+	@Override
+	public long lastModified() throws IOException {
+		return source.lastModified();
+	}
+
+	@Override
+	public Resource createRelative(String relativePath) throws IOException {
+		return source.createRelative(relativePath);
 	}
 
 }
