@@ -41,7 +41,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.solarnetwork.domain.GeneralDatumMetadata;
 
@@ -49,7 +48,7 @@ import net.solarnetwork.domain.GeneralDatumMetadata;
  * Utilities for JSON data.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.36
  */
 public final class JsonUtils {
@@ -68,12 +67,20 @@ public final class JsonUtils {
 				Arrays.asList((Object) DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
 		factory.setFeaturesToEnable(
 				Arrays.asList((Object) DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
-		List<com.fasterxml.jackson.databind.JsonSerializer<?>> serializers = new ArrayList<JsonSerializer<?>>();
+		List<com.fasterxml.jackson.databind.JsonSerializer<?>> serializers = new ArrayList<>();
 		serializers.add(new net.solarnetwork.util.JodaDateTimeSerializer());
 		serializers.add(new net.solarnetwork.util.JodaLocalDateSerializer());
 		serializers.add(new net.solarnetwork.util.JodaLocalDateTimeSerializer());
 		serializers.add(new net.solarnetwork.util.JodaLocalTimeSerializer());
 		factory.setSerializers(serializers);
+
+		List<com.fasterxml.jackson.databind.JsonDeserializer<?>> deserializers = new ArrayList<>();
+		deserializers.add(new net.solarnetwork.util.JodaDateTimeDeserializer());
+		deserializers.add(new net.solarnetwork.util.JodaLocalDateDeserializer());
+		deserializers.add(new net.solarnetwork.util.JodaLocalDateTimeDeserializer());
+		deserializers.add(new net.solarnetwork.util.JodaLocalTimeDeserializer());
+		factory.setDeserializers(deserializers);
+
 		try {
 			return factory.getObject();
 		} catch ( RuntimeException e ) {
