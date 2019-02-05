@@ -25,12 +25,14 @@ package net.solarnetwork.settings.support;
 import java.io.IOException;
 import java.util.Properties;
 import net.solarnetwork.settings.CronExpressionSettingSpecifier;
+import net.solarnetwork.settings.MappableSpecifier;
+import net.solarnetwork.settings.SettingSpecifier;
 
 /**
  * Basic implementation of {@link CronExpressionSettingSpecifier}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicCronExpressionSettingSpecifier extends BasicTextFieldSettingSpecifier
 		implements CronExpressionSettingSpecifier {
@@ -68,4 +70,23 @@ public class BasicCronExpressionSettingSpecifier extends BasicTextFieldSettingSp
 		return result;
 	}
 
+	@Override
+	public SettingSpecifier mappedWithPlaceholer(String template) {
+		BasicCronExpressionSettingSpecifier spec = new BasicCronExpressionSettingSpecifier(
+				String.format(template, getKey()), getDefaultValue());
+		spec.setTitle(getTitle());
+		spec.setValueTitles(getValueTitles());
+		spec.setDescriptionArguments(getDescriptionArguments());
+		return spec;
+	}
+
+	@Override
+	public SettingSpecifier mappedWithMapper(MappableSpecifier.Mapper mapper) {
+		BasicCronExpressionSettingSpecifier spec = new BasicCronExpressionSettingSpecifier(
+				mapper.mapKey(getKey()), getDefaultValue());
+		spec.setTitle(getTitle());
+		spec.setValueTitles(getValueTitles());
+		spec.setDescriptionArguments(getDescriptionArguments());
+		return spec;
+	}
 }

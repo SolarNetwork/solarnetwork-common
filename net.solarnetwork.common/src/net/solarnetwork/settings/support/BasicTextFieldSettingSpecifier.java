@@ -70,6 +70,7 @@ public class BasicTextFieldSettingSpecifier extends BasicTitleSettingSpecifier
 				String.format(template, getKey()), getDefaultValue());
 		spec.setTitle(getTitle());
 		spec.setValueTitles(getValueTitles());
+		spec.setDescriptionArguments(getDescriptionArguments());
 		spec.secureTextEntry = isSecureTextEntry();
 		return spec;
 	}
@@ -80,6 +81,7 @@ public class BasicTextFieldSettingSpecifier extends BasicTitleSettingSpecifier
 				getDefaultValue());
 		spec.setTitle(getTitle());
 		spec.setValueTitles(getValueTitles());
+		spec.setDescriptionArguments(getDescriptionArguments());
 		spec.secureTextEntry = isSecureTextEntry();
 		return spec;
 	}
