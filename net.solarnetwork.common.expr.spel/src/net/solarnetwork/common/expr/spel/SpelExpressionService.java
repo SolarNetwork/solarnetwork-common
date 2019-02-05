@@ -25,6 +25,7 @@ package net.solarnetwork.common.expr.spel;
 import java.util.Map;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionException;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
@@ -68,7 +69,12 @@ public class SpelExpressionService implements ExpressionService {
 
 	@Override
 	public Expression parseExpression(String expression) {
-		return parser.parseExpression(expression);
+		try {
+			return parser.parseExpression(expression);
+		} catch ( NullPointerException e ) {
+			throw new ExpressionException(
+					"NullPointerException evaluating expression `" + expression + "`");
+		}
 	}
 
 	@Override
