@@ -35,7 +35,7 @@ import net.solarnetwork.util.SerializeIgnore;
  * type.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class GeneralDatumSamples extends GeneralDatumSupport
 		implements MutableGeneralDatumSamplesOperations, Serializable {
@@ -96,6 +96,32 @@ public class GeneralDatumSamples extends GeneralDatumSupport
 			results.put("tags", getTags().toArray());
 		}
 		return results;
+	}
+
+	/**
+	 * Test if there are any properties configured in the instantaneous,
+	 * accumulating, status, or tag data sets.
+	 * 
+	 * @return {@literal true} if there is at least one value in one of the data
+	 *         sets of this object
+	 * @since 1.3
+	 */
+	@JsonIgnore
+	@SerializeIgnore
+	public boolean isEmpty() {
+		if ( instantaneous != null && !instantaneous.isEmpty() ) {
+			return false;
+		}
+		if ( accumulating != null && !accumulating.isEmpty() ) {
+			return false;
+		}
+		if ( status != null && !status.isEmpty() ) {
+			return false;
+		}
+		if ( getTags() != null && !getTags().isEmpty() ) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
