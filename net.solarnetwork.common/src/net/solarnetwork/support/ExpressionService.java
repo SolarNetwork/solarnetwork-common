@@ -22,7 +22,12 @@
 
 package net.solarnetwork.support;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Properties;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
@@ -72,6 +77,44 @@ public interface ExpressionService extends Identifiable {
 	 */
 	@Override
 	String getUid();
+
+	/**
+	 * Get a link to a language reference guide.
+	 * 
+	 * @return a link to a reference guide for the language supported by this
+	 *         service
+	 */
+	URI getLanguageReferenceLink();
+
+	/**
+	 * Get a link to a general expression service guide.
+	 * 
+	 * @return a link to a general guide
+	 */
+	static URI getGeneralExpressionReferenceLink() {
+		String result = "https://github.com/SolarNetwork/solarnetwork/wiki/Expression-Languages";
+		Properties props = new Properties();
+		try (InputStream in = ExpressionService.class
+				.getResourceAsStream("ExpressionService.properties")) {
+			if ( in != null ) {
+				props.load(in);
+				if ( props.containsKey("help.url") ) {
+					result = props.getProperty("help.url");
+				}
+			}
+		} catch ( IOException e ) {
+			// ignore this
+		}
+		URI uri = null;
+		if ( result != null ) {
+			try {
+				uri = new URI(result);
+			} catch ( URISyntaxException e ) {
+				throw new RuntimeException(e);
+			}
+		}
+		return uri;
+	}
 
 	/**
 	 * Create a reusable evaluation context.

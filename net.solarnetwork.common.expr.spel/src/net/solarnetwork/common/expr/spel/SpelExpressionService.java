@@ -22,6 +22,8 @@
 
 package net.solarnetwork.common.expr.spel;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -40,8 +42,21 @@ import net.solarnetwork.support.ExpressionService;
  */
 public class SpelExpressionService implements ExpressionService {
 
+	/** The default value for the {@code languageReferenceLink} property. */
+	public static final URI DEFAULT_LANG_REF_LINK = defaultLangRefLink();
+
 	private final ExpressionParser parser;
 	private String groupUid;
+	private URI languageReferenceLink = DEFAULT_LANG_REF_LINK;
+
+	private static final URI defaultLangRefLink() {
+		try {
+			return new URI(
+					"https://github.com/SolarNetwork/solarnetwork/wiki/Spring-Expression-Language");
+		} catch ( URISyntaxException e ) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	public SpelExpressionService() {
 		this(new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,
@@ -97,6 +112,15 @@ public class SpelExpressionService implements ExpressionService {
 	public <T> T evaluateExpression(String expression, Map<String, Object> variables, Object root,
 			EvaluationContext context, Class<T> resultClass) {
 		return evaluateExpression(parseExpression(expression), variables, root, context, resultClass);
+	}
+
+	@Override
+	public URI getLanguageReferenceLink() {
+		return languageReferenceLink;
+	}
+
+	public void setLanguageReferenceLink(URI languageReferenceLink) {
+		this.languageReferenceLink = languageReferenceLink;
 	}
 
 	@Override
