@@ -25,6 +25,8 @@ package net.solarnetwork.common.expr.spel;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionException;
@@ -92,6 +94,19 @@ public class SpelExpressionService implements ExpressionService {
 		}
 	}
 
+	private static final Pattern VAR_NAME_RESERVED = Pattern.compile("([^a-zA-Z_$])");
+
+	private String safeVariableName(String varName) {
+		Matcher m = VAR_NAME_RESERVED.matcher(varName);
+		StringBuffer buf = new StringBuffer();
+		while ( m.find() ) {
+			char ch = m.group(1).charAt(0);
+			m.appendReplacement(buf, Integer.toString(ch, 16));
+		}
+		m.appendTail(buf);
+		return buf.toString();
+	}
+
 	@Override
 	public <T> T evaluateExpression(Expression expression, Map<String, Object> variables, Object root,
 			EvaluationContext context, Class<T> resultClass) {
@@ -101,7 +116,8 @@ public class SpelExpressionService implements ExpressionService {
 
 		if ( variables != null && !variables.isEmpty() ) {
 			for ( Map.Entry<String, Object> me : variables.entrySet() ) {
-				context.setVariable(me.getKey(), me.getValue());
+				String varName = safeVariableName(me.getKey());
+				context.setVariable(varName, me.getValue());
 			}
 		}
 

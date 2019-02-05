@@ -128,4 +128,26 @@ public class SpelExpressionServiceTests {
 					equalTo(SpelMessage.TYPE_NOT_FOUND));
 		}
 	}
+
+	@Test
+	public void funkyVariableName() {
+		Map<String, Object> vars = new HashMap<>(2);
+		vars.put("a+", new BigInteger("3"));
+		vars.put("b-", new BigDecimal("2.2"));
+		BigDecimal result = service.evaluateExpression("#a2b * #b2d", vars, null, null,
+				BigDecimal.class);
+		assertThat("Decimal result", result, equalTo(new BigDecimal("6.6")));
+
+	}
+
+	@Test
+	public void stringConcat() {
+		Map<String, Object> vars = new HashMap<>(2);
+		vars.put("a", "3");
+		vars.put("b", "2.2");
+		String result = service.evaluateExpression("#a + ' ' + #b", vars, null, null, String.class);
+		assertThat("Decimal result", result, equalTo("3 2.2"));
+
+	}
+
 }
