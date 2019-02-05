@@ -24,8 +24,8 @@ package net.solarnetwork.support;
 
 import java.util.Map;
 import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionException;
 import net.solarnetwork.domain.Identifiable;
 
 /**
@@ -39,9 +39,24 @@ import net.solarnetwork.domain.Identifiable;
  * 
  * @author matt
  * @version 1.0
- * @since 1.9
+ * @since 1.49
  */
 public interface ExpressionService extends Identifiable {
+
+	/**
+	 * API for configuration of the expression runtime.
+	 * 
+	 * @version 1.0
+	 */
+	interface EvaluationConfiguration {
+
+		/**
+		 * Get custom implementation-specific options.
+		 * 
+		 * @return the options
+		 */
+		Map<String, Object> getOptions();
+	}
 
 	/**
 	 * Get a unique identifier for the language this expression service
@@ -66,11 +81,54 @@ public interface ExpressionService extends Identifiable {
 	 * called to create a thread-safe and reusable context instance.
 	 * </p>
 	 * 
+	 * @param configuration
+	 *        optional configuration to apply to the context
 	 * @param root
 	 *        an optional root object to use during expression evaluation
 	 * @return the newly created context
 	 */
-	EvaluationContext createEvaluationContext(Object root);
+	EvaluationContext createEvaluationContext(EvaluationConfiguration configuration, Object root);
+
+	/**
+	 * Parse an expression.
+	 * 
+	 * @param expression
+	 *        the expression to parse
+	 * @return the parsed expression
+	 */
+	Expression parseExpression(String expression);
+
+	/**
+	 * Evaluate an expression.
+	 * 
+	 * <p>
+	 * Calling this method, instead of
+	 * {@link #evaluateExpression(String, Map, Object, EvaluationContext, Class)},
+	 * can result in faster evaluation times if the same {@code expression} is
+	 * passed multiple times. If an {@code expression} is only used once, then
+	 * calling
+	 * {@link #evaluateExpression(String, Map, Object, EvaluationContext, Class)}
+	 * can be more convenient.
+	 * </p>
+	 * 
+	 * @param expression
+	 *        the expression to evaluate
+	 * @param variables
+	 *        optional variables to pass into the evaluation
+	 * @param root
+	 *        optional "root" object to set for the evaluation
+	 * @param context
+	 *        a context, such as one returned from
+	 *        {@link #createEvaluationContext(Object)}, or {@literal null} to
+	 *        create a new context
+	 * @param resultClass
+	 *        the expected result object type
+	 * @return the expression result
+	 * @throws EvaluationException
+	 *         if any error occurs
+	 */
+	<T> T evaluateExpression(Expression expression, Map<String, Object> variables, Object root,
+			EvaluationContext context, Class<T> resultClass);
 
 	/**
 	 * Evaluate an expression.
@@ -88,7 +146,7 @@ public interface ExpressionService extends Identifiable {
 	 * @param resultClass
 	 *        the expected result object type
 	 * @return the expression result
-	 * @throws ExpressionException
+	 * @throws EvaluationException
 	 *         if any error occurs
 	 */
 	<T> T evaluateExpression(String expression, Map<String, Object> variables, Object root,

@@ -26,9 +26,9 @@ import java.util.Map;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import net.solarnetwork.support.ExpressionService;
 
 /**
@@ -43,23 +43,39 @@ public class SpelExpressionService implements ExpressionService {
 	private String groupUid;
 
 	public SpelExpressionService() {
-		this(new SpelParserConfiguration());
+		this(new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,
+				SpelExpressionService.class.getClassLoader()));
 	}
 
 	public SpelExpressionService(SpelParserConfiguration configuration) {
 		this.parser = new SpelExpressionParser(configuration);
 	}
 
+	/**
+	 * Create a reusable evaluation context.
+	 * 
+	 * <p>
+	 * This creates a {@link RestrictedEvaluationContext}.
+	 * </p>
+	 * 
+	 * {@inheritDoc}
+	 */
 	@Override
-	public EvaluationContext createEvaluationContext(Object root) {
-		return new StandardEvaluationContext(root);
+	public EvaluationContext createEvaluationContext(EvaluationConfiguration configuration,
+			Object root) {
+		return new RestrictedEvaluationContext(root);
 	}
 
 	@Override
-	public <T> T evaluateExpression(String expression, Map<String, Object> variables, Object root,
+	public Expression parseExpression(String expression) {
+		return parser.parseExpression(expression);
+	}
+
+	@Override
+	public <T> T evaluateExpression(Expression expression, Map<String, Object> variables, Object root,
 			EvaluationContext context, Class<T> resultClass) {
 		if ( context == null ) {
-			context = createEvaluationContext(root);
+			context = createEvaluationContext(null, root);
 		}
 
 		if ( variables != null && !variables.isEmpty() ) {
@@ -68,8 +84,13 @@ public class SpelExpressionService implements ExpressionService {
 			}
 		}
 
-		Expression expr = parser.parseExpression(expression);
-		return expr.getValue(context, root, resultClass);
+		return expression.getValue(context, root, resultClass);
+	}
+
+	@Override
+	public <T> T evaluateExpression(String expression, Map<String, Object> variables, Object root,
+			EvaluationContext context, Class<T> resultClass) {
+		return evaluateExpression(parseExpression(expression), variables, root, context, resultClass);
 	}
 
 	@Override
