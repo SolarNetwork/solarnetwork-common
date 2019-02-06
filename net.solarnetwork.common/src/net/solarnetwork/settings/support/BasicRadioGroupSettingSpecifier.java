@@ -30,7 +30,7 @@ import net.solarnetwork.settings.SettingSpecifier;
  * Basic implementation of {@link RadioGroupSettingSpecifier}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicRadioGroupSettingSpecifier extends BasicTextFieldSettingSpecifier
 		implements RadioGroupSettingSpecifier {
@@ -60,6 +60,7 @@ public class BasicRadioGroupSettingSpecifier extends BasicTextFieldSettingSpecif
 				String.format(template, getKey()), getDefaultValue());
 		spec.setTitle(getTitle());
 		spec.setValueTitles(getValueTitles());
+		spec.setDescriptionArguments(getDescriptionArguments());
 		return spec;
 	}
 
@@ -69,6 +70,7 @@ public class BasicRadioGroupSettingSpecifier extends BasicTextFieldSettingSpecif
 				mapper.mapKey(getKey()), getDefaultValue());
 		spec.setTitle(getTitle());
 		spec.setValueTitles(getValueTitles());
+		spec.setDescriptionArguments(getDescriptionArguments());
 		return spec;
 	}
 
