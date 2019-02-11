@@ -35,6 +35,8 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import net.solarnetwork.util.StringUtils;
 
@@ -45,10 +47,12 @@ import net.solarnetwork.util.StringUtils;
  * the signature calculation in {@link #computeSignatureDigest(String)}.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.11
  */
 public class AuthenticationDataV2 extends AuthenticationData {
+
+	private static final Logger log = LoggerFactory.getLogger(AuthenticationDataV2.class);
 
 	private static final int SIGNATURE_HEX_LENGTH = 64;
 
@@ -227,6 +231,8 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		// 6: Content SHA256
 		appendContentSHA256(request, buf);
 
+		log.trace("Canonical request data: {}", buf);
+
 		return buf.toString();
 	}
 
@@ -254,6 +260,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 			buf.append(headerName).append(':');
 			String value = nullSafeHeaderValue(request, headerName).trim();
 			buf.append(value);
+			log.trace("Signed req header: {}", value);
 			if ( "host".equals(headerName) ) {
 				if ( value.length() < 1 ) {
 					value = request.getServerName();
@@ -267,9 +274,11 @@ public class AuthenticationDataV2 extends AuthenticationData {
 				} else if ( value.indexOf(":") < 0 ) {
 					// look for proxy port
 					String port = nullSafeHeaderValue(request, "X-Forwarded-Port").trim();
+					log.trace("X-Forwarded-Port header: {}", port);
 					if ( port.length() < 1 ) {
 						String proto = nullSafeHeaderValue(request, "X-Forwarded-Proto").trim()
 								.toLowerCase();
+						log.trace("X-Forwarded-Proto header: {}", proto);
 						if ( "https".equals(proto) ) {
 							port = "443";
 						}
