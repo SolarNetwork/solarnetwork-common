@@ -25,6 +25,11 @@ package net.solarnetwork.util;
 import java.io.IOException;
 import java.util.TimeZone;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -32,12 +37,29 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 /**
  * JsonDeserializer for {@link DateTime} objects from formatted strings.
  * 
+ * <p>
+ * This deserializer handles timestamps in the following forms:
+ * </p>
+ * 
+ * <ul>
+ * <li><code>yyyy-MM-dd HH:mm:ss.SSS'Z'</code> (UTC time zone)</li>
+ * <li><code>yyyy-MM-dd HH:mm:ss.SSS</code> (UTC time zone)</li>
+ * <li><code>yyyy-MM-dd'T'HH:mm:ss.SSSZZ</code> (ISO 8601)</li>
+ * <li><code>yyyy-MM-dd'T'HH:mm:ssZZ</code> (ISO 8601, no milliseconds)</li>
+ * <li>millisecond epoch</li>
+ * </ul>
+ * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class JodaDateTimeDeserializer extends JodaBaseJsonDeserializer<DateTime> {
 
 	private static final long serialVersionUID = -4973232210335660362L;
+
+	private static final DateTimeFormatter[] FORMATS = {
+			DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS'Z'").withZone(DateTimeZone.UTC),
+			DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS").withZone(DateTimeZone.UTC),
+			ISODateTimeFormat.dateTime(), ISODateTimeFormat.dateTimeNoMillis(), };
 
 	/**
 	 * Default constructor.
@@ -73,9 +95,27 @@ public class JodaDateTimeDeserializer extends JodaBaseJsonDeserializer<DateTime>
 	}
 
 	@Override
-	public DateTime deserialize(JsonParser parser, DeserializationContext context) throws IOException,
-			JsonProcessingException {
-		return formatter.parseDateTime(parser.getText());
+	public DateTime deserialize(JsonParser parser, DeserializationContext context)
+			throws IOException, JsonProcessingException {
+		String s = parser.getText();
+		for ( int i = 0, len = s.length(); i < len; i++ ) {
+			if ( !Character.isDigit(s.charAt(i)) ) {
+				for ( DateTimeFormatter fmt : FORMATS ) {
+					try {
+						return fmt.parseDateTime(s);
+					} catch ( IllegalArgumentException e ) {
+						// try next
+					}
+				}
+				throw new JsonParseException(parser, "Unable to parse timestamp from [" + s + "]");
+			}
+		}
+		try {
+			long l = Long.parseLong(s);
+			return new DateTime(l);
+		} catch ( NumberFormatException e ) {
+			throw new JsonParseException(parser, "Unable to parse timestamp from [" + s + "]", e);
+		}
 	}
 
 }
