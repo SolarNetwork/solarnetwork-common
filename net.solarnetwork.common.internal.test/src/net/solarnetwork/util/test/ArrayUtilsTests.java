@@ -22,6 +22,7 @@
 
 package net.solarnetwork.util.test;
 
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
@@ -37,7 +38,7 @@ import net.solarnetwork.util.ArrayUtils;
  * Test cases for the {@link ArrayUtils} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ArrayUtilsTests {
 
@@ -141,4 +142,67 @@ public class ArrayUtilsTests {
 		}
 	}
 
+	@Test
+	public void filterByEnabledDisabledWithNullArgs() {
+		String[] src = new String[] { "a", "b", "c" };
+		String[] res = ArrayUtils.filterByEnabledDisabled(src, null, null);
+		assertThat("Input returned", res, sameInstance(src));
+		assertThat("Result", res, arrayContaining("a", "b", "c"));
+	}
+
+	@Test
+	public void filterByEnabledDisabledWithEnabled() {
+		String[] src = new String[] { "a", "b", "c" };
+		String[] res = ArrayUtils.filterByEnabledDisabled(src, new String[] { "a", "c" }, null);
+		assertThat("New array returned", res, not(sameInstance(src)));
+		assertThat("Result", res, arrayContaining("a", "c"));
+	}
+
+	@Test
+	public void filterByEnabledDisabledWithDisabled() {
+		String[] src = new String[] { "a", "b", "c" };
+		String[] res = ArrayUtils.filterByEnabledDisabled(src, null, new String[] { "a", "c" });
+		assertThat("New array returned", res, not(sameInstance(src)));
+		assertThat("Result", res, arrayContaining("b"));
+	}
+
+	@Test
+	public void filterByEnabledDisabledWithEnabledAndDisabled() {
+		String[] src = new String[] { "a", "b", "c" };
+		String[] res = ArrayUtils.filterByEnabledDisabled(src, new String[] { "a", "b" },
+				new String[] { "a" });
+		assertThat("New array returned", res, not(sameInstance(src)));
+		assertThat("Result", res, arrayContaining("b"));
+	}
+
+	@Test
+	public void filterByEnabledDisabledWithEnabledAndDisabledNoneLeft() {
+		String[] src = new String[] { "a", "b", "c" };
+		String[] res = ArrayUtils.filterByEnabledDisabled(src, new String[] { "a", "b" },
+				new String[] { "a", "b" });
+		assertThat("New array returned", res, not(sameInstance(src)));
+		assertThat("Result", res, arrayWithSize(0));
+	}
+
+	@Test
+	public void filterByEnabledDisabledWithEnabledAndDisabledPatterns() {
+		String[] src = new String[] { "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+				"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_RSA_WITH_AES_128_CBC_SHA256",
+				"TLS_RSA_WITH_AES_128_GCM_SHA256" };
+		String[] res = ArrayUtils.filterByEnabledDisabled(src, new String[] { "^TLS_ECDHE" },
+				new String[] { "_CBC_" });
+		assertThat("New array returned", res, not(sameInstance(src)));
+		assertThat("Result", res, arrayContaining("TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"));
+	}
+
+	@Test
+	public void filterByEnabledDisabledWithDisabledPatterns() {
+		String[] src = new String[] { "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+				"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_RSA_WITH_AES_128_CBC_SHA256",
+				"TLS_RSA_WITH_AES_128_GCM_SHA256" };
+		String[] res = ArrayUtils.filterByEnabledDisabled(src, null, new String[] { "_CBC_" });
+		assertThat("New array returned", res, not(sameInstance(src)));
+		assertThat("Result", res, arrayContaining("TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+				"TLS_RSA_WITH_AES_128_GCM_SHA256"));
+	}
 }

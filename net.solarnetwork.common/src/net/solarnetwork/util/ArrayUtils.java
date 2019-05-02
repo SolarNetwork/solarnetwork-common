@@ -23,13 +23,18 @@
 package net.solarnetwork.util;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.ObjectFactory;
 
 /**
  * Utilities for dealing with arrays.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.42
  */
 public final class ArrayUtils {
@@ -105,4 +110,44 @@ public final class ArrayUtils {
 		return result;
 	}
 
+	/**
+	 * Filter a set of strings based on enabled/disabled patterns.
+	 * 
+	 * <p>
+	 * The {@code enabled} patterns are applied first, followed by
+	 * {@code disabled}. Both arguments are optional. The patterns are treated
+	 * in a case-insensitive manner, using {@link Matcher#find()} to find
+	 * partial matches.
+	 * </p>
+	 * 
+	 * @param list
+	 *        the list to filter
+	 * @param enabled
+	 *        an optional list of regular expressions to limit the result to
+	 * @param disabled
+	 *        an optional list of regular expressions to exclude from the
+	 *        results
+	 * @return the filtered list of protocols
+	 * @since 1.1
+	 */
+	public static String[] filterByEnabledDisabled(String[] list, String[] enabled, String[] disabled) {
+		String[] finalEnabledProtocols = list;
+		if ( enabled != null ) {
+			Set<Pattern> pats = new LinkedHashSet<>(enabled.length);
+			for ( String proto : enabled ) {
+				pats.add(Pattern.compile(proto, Pattern.CASE_INSENSITIVE));
+			}
+			finalEnabledProtocols = Arrays.stream(finalEnabledProtocols).filter(
+					p -> pats.stream().filter(pat -> pat.matcher(p).find()).findAny().isPresent())
+					.toArray(String[]::new);
+		}
+		if ( disabled != null ) {
+			for ( String proto : disabled ) {
+				Pattern pat = Pattern.compile(proto, Pattern.CASE_INSENSITIVE);
+				finalEnabledProtocols = Arrays.stream(finalEnabledProtocols)
+						.filter(p -> !pat.matcher(p).find()).toArray(String[]::new);
+			}
+		}
+		return finalEnabledProtocols;
+	}
 }
