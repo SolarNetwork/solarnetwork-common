@@ -40,7 +40,7 @@ import net.solarnetwork.support.ExpressionService;
  * Spring Expression Language implementation of {@link ExpressionService}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SpelExpressionService implements ExpressionService {
 
@@ -60,9 +60,18 @@ public class SpelExpressionService implements ExpressionService {
 		}
 	}
 
+	/**
+	 * Default constructor.
+	 * 
+	 * <p>
+	 * The expression compiler mode can be set via the
+	 * <code>spring.expression.compiler.mode</code> system property, set to one
+	 * of the {@link SpelCompilerMode} values, e.g. <code>OFF</code>,
+	 * <code>IMMEDIATE</code>, or <code>MIXED</code>.
+	 * </p>
+	 */
 	public SpelExpressionService() {
-		this(new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,
-				SpelExpressionService.class.getClassLoader()));
+		this(new SpelParserConfiguration(null, SpelExpressionService.class.getClassLoader()));
 	}
 
 	public SpelExpressionService(SpelParserConfiguration configuration) {
