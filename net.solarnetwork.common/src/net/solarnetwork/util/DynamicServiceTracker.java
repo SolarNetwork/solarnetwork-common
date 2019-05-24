@@ -60,7 +60,7 @@ import org.springframework.beans.PropertyAccessorFactory;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class DynamicServiceTracker<T>
 		implements OptionalService<T>, OptionalServiceCollection<T>, FilterableService {
@@ -125,6 +125,10 @@ public class DynamicServiceTracker<T>
 				new Object[] { (refs == null ? 0 : refs.length), serviceClassName, serviceFilter });
 		if ( refs == null ) {
 			return Collections.emptyList();
+		}
+		if ( refs.length > 1 ) {
+			// make sure sorted highest rank first
+			Arrays.sort(refs, RANK_COMPARATOR);
 		}
 		List<T> results = new ArrayList<T>(refs.length);
 		for ( ServiceReference<?> ref : refs ) {
