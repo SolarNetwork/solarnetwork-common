@@ -41,7 +41,7 @@ import org.springframework.util.PathMatcher;
  * application context environment.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.36
  */
 public class SimpleEventAdmin
@@ -77,6 +77,11 @@ public class SimpleEventAdmin
 		if ( bean instanceof EventHandler ) {
 			deregisterEventHandler((EventHandler) bean);
 		}
+	}
+
+	@Override
+	public boolean requiresDestruction(Object bean) {
+		return true;
 	}
 
 	@Override
