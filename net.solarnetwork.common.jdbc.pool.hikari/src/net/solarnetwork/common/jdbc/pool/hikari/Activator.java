@@ -37,12 +37,18 @@ import org.osgi.service.cm.ManagedServiceFactory;
  */
 public class Activator implements BundleActivator {
 
-	public ServiceRegistration<ManagedServiceFactory> msf = null;
+	/**
+	 * The service PID used for the
+	 * {@link HikariDataSourceManagedServiceFactory}.
+	 */
+	public static final String SERVICE_PID = "net.solarnetwork.jdbc.pool.hikari";
+
+	private ServiceRegistration<ManagedServiceFactory> msf = null;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
 		Hashtable<String, Object> properties = new Hashtable<>();
-		properties.put(Constants.SERVICE_PID, "net.solarnetwork.jdbc.pool.hikari");
+		properties.put(Constants.SERVICE_PID, SERVICE_PID);
 		HikariDataSourceManagedServiceFactory dsmsf = new HikariDataSourceManagedServiceFactory(context);
 		msf = context.registerService(ManagedServiceFactory.class, dsmsf, properties);
 	}
