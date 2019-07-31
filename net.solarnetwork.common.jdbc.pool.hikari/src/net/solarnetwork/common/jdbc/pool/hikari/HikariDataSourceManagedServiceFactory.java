@@ -43,7 +43,10 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.sql.DataSource;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
@@ -177,42 +180,22 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 			if ( v == null ) {
 				// create new
 				Properties poolProps = new Properties();
-				Hashtable<String, Object> instanceProps = new Hashtable<>();
-				Properties dsProps = new Properties();
+				Hashtable<String, Object> serviceProps = new Hashtable<>();
+				Properties dataSourceProps = new Properties();
 				Enumeration<String> keys = properties.keys();
-				DataSourceFactory dsFactory = null;
 				String pingTestQuery = null;
+				String dataSourceFactoryFilter = null;
 				while ( keys.hasMoreElements() ) {
 					String key = keys.nextElement();
 					if ( key.equals(DATA_SOURCE_FACTORY_FILTER_PROPERTY) ) {
-						final String dsFactoryFilter = (String) properties.get(key);
-						Collection<ServiceReference<DataSourceFactory>> dsFactoryRefs;
-						try {
-							dsFactoryRefs = bundleContext.getServiceReferences(DataSourceFactory.class,
-									dsFactoryFilter);
-							Iterator<ServiceReference<DataSourceFactory>> itr = (dsFactoryRefs != null
-									? dsFactoryRefs.iterator()
-									: null);
-							ServiceReference<DataSourceFactory> dsFactoryRef = itr.next();
-							dsFactory = bundleContext.getService(dsFactoryRef);
-							if ( dsFactory == null ) {
-								throw new NoSuchElementException();
-							}
-						} catch ( NoSuchElementException e ) {
-							throw new RuntimeException(
-									"No DataSourceFactory available for service filter "
-											+ dsFactoryFilter);
-						} catch ( InvalidSyntaxException e ) {
-							throw new RuntimeException(
-									"DataSourceFactory service filter invalid: " + e.getMessage(), e);
-						}
+						dataSourceFactoryFilter = (String) properties.get(key);
 					} else if ( key.equals(DATA_SOURCE_PING_TEST_QUERY_PROPERTY) ) {
 						pingTestQuery = (String) properties.get(key);
 					} else if ( key.startsWith(DATA_SOURCE_PROPERTY_PREFIX) ) {
-						dsProps.put(key.substring(DATA_SOURCE_PROPERTY_PREFIX.length()),
+						dataSourceProps.put(key.substring(DATA_SOURCE_PROPERTY_PREFIX.length()),
 								properties.get(key));
 					} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
-						instanceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
+						serviceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
 								properties.get(key));
 					} else if ( ignoredPropertyPrefixes != null
 							&& ignoredPropertyPrefixes.stream().anyMatch(s -> key.startsWith(s)) ) {
@@ -222,48 +205,29 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 						poolProps.put(key, properties.get(key));
 					}
 				}
-				HikariConfig config = new HikariConfig(poolProps);
-				if ( dsFactory != null ) {
-					try {
-						config.setDataSource(dsFactory.createDataSource(dsProps));
-					} catch ( SQLException e ) {
-						throw new RuntimeException(
-								"Error creating managed DataSource from DataSourceFactory: "
-										+ e.getMessage(),
-								e);
-					}
-				}
 
-				String jdbcUrl = (String) dsProps.get("url");
-				HikariDataSource ds = new HikariDataSource(config);
-
-				log.info("Registering pooled JDBC DataSource for {} with props {} and pool settings {}",
-						jdbcUrl, instanceProps, poolProps);
-				ServiceRegistration<DataSource> reg = bundleContext.registerService(DataSource.class, ds,
-						instanceProps);
-
-				ServiceRegistration<PingTest> pingTestReg = null;
-				if ( pingTestQuery != null ) {
-					DataSourcePingTest pingTest = new DataSourcePingTest(ds, pingTestQuery);
-					pingTestReg = bundleContext.registerService(PingTest.class, pingTest, null);
-				}
-
-				return new ManagedHikariDataSource(ds, reg, jdbcUrl, instanceProps, pingTestReg);
+				String jdbcUrl = (String) dataSourceProps.get("url");
+				ManagedHikariDataSource mds = new ManagedHikariDataSource(pid, dataSourceFactoryFilter,
+						jdbcUrl, pingTestQuery, serviceProps, dataSourceProps, poolProps);
+				mds.register();
+				return mds;
 			} else {
 				// apply updates
-				HikariConfigMXBean bean = v.dataSource.getHikariConfigMXBean();
+				HikariConfigMXBean bean = v.poolDataSource.getHikariConfigMXBean();
 				Map<String, Object> p = new HashMap<>(8);
-				Hashtable<String, Object> instanceProps = new Hashtable<>();
+				Hashtable<String, Object> serviceProps = new Hashtable<>();
 				Enumeration<String> keys = properties.keys();
 				while ( keys.hasMoreElements() ) {
 					String key = keys.nextElement();
 					if ( key.equals(DATA_SOURCE_FACTORY_FILTER_PROPERTY) ) {
-						// TODO: handle DS change?
+						// TODO: handle change?
+					} else if ( key.equals(DATA_SOURCE_PING_TEST_QUERY_PROPERTY) ) {
+						// TODO: handle change?
 					} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
-						instanceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
+						serviceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
 								properties.get(key));
 					} else if ( key.startsWith(DATA_SOURCE_PROPERTY_PREFIX) ) {
-						// TODO: handle DS prop change?
+						// TODO: handle change?
 					} else if ( ignoredPropertyPrefixes != null
 							&& ignoredPropertyPrefixes.stream().anyMatch(s -> key.startsWith(s)) ) {
 						// ignore this prop
@@ -272,8 +236,8 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 						p.put(key, properties.get(key));
 					}
 				}
-				if ( !instanceProps.isEmpty() ) {
-					v.serviceReg.setProperties(instanceProps);
+				if ( !serviceProps.isEmpty() ) {
+					v.poolDataSourceReg.setProperties(serviceProps);
 				}
 				ClassUtils.setBeanProperties(bean, p, true);
 				return v;
@@ -283,52 +247,209 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 	private void doDelete(String pid) {
 		instances.computeIfPresent(pid, (k, v) -> {
-			log.info("Unregistering pooled JDBC DataSource for {} with props {}", v.jdbcUrl,
-					v.serviceProps);
-			if ( v.pingTestReg != null ) {
-				try {
-					v.pingTestReg.unregister();
-				} catch ( IllegalStateException e ) {
-					// shouldn't be here, just ignore
-				} catch ( Throwable t ) {
-					log.warn("Error unregistering PingTest for DataSource {}: {}", pid, t.toString(), t);
-				}
-			}
-			try {
-				v.serviceReg.unregister();
-			} catch ( IllegalStateException e ) {
-				// shouldn't be here, just ignore
-			} catch ( Throwable t ) {
-				log.warn("Error unregistering HikariCP DataSource {}: {}", pid, t.toString(), t);
-			} finally {
-				try {
-					v.dataSource.close();
-				} catch ( Throwable t2 ) {
-					log.warn("Error closing HikariCP DataSource {}: {}", pid, t2.toString(), t2);
-				}
-			}
+			v.unregister();
 			return null;
 		});
 	}
 
-	private static final class ManagedHikariDataSource {
+	private final class ManagedHikariDataSource implements ServiceListener {
 
-		private final HikariDataSource dataSource;
-		private final ServiceRegistration<DataSource> serviceReg;
+		private final String pid;
+		private final String dataSourceFactoryFilter;
 		private final String jdbcUrl;
-		private final Map<String, ?> serviceProps;
-		private final ServiceRegistration<PingTest> pingTestReg;
+		private final String pingTestQuery;
+		private final Dictionary<String, ?> serviceProps;
+		private final Properties dataSourceProps;
+		private final Properties poolProps;
 
-		private ManagedHikariDataSource(HikariDataSource dataSource,
-				ServiceRegistration<DataSource> serviceReg, String jdbcUrl, Map<String, ?> serviceProps,
-				ServiceRegistration<PingTest> pingTestReg) {
+		private DataSource dataSource;
+		private HikariDataSource poolDataSource;
+		private ServiceRegistration<DataSource> poolDataSourceReg;
+		private ServiceRegistration<PingTest> pingTestReg;
+		private boolean dataSourceFactoryListening;
+
+		private ManagedHikariDataSource(String pid, String dataSourceFactoryFilter, String jdbcUrl,
+				String pingTestQuery, Dictionary<String, ?> serviceProps, Properties dataSourceProps,
+				Properties poolProps) {
 			super();
-			this.dataSource = dataSource;
-			this.serviceReg = serviceReg;
+			this.pid = pid;
+			this.dataSourceFactoryFilter = dataSourceFactoryFilter;
 			this.jdbcUrl = jdbcUrl;
+			this.pingTestQuery = pingTestQuery;
 			this.serviceProps = serviceProps;
-			this.pingTestReg = pingTestReg;
+			this.dataSourceProps = dataSourceProps;
+			this.poolProps = poolProps;
+			this.dataSourceFactoryListening = false;
 		}
+
+		private boolean isRegistered() {
+			return poolDataSourceReg != null;
+		}
+
+		@Override
+		public void serviceChanged(ServiceEvent event) {
+			if ( event.getType() == ServiceEvent.REGISTERED && !isRegistered() ) {
+				Object service = bundleContext.getService(event.getServiceReference());
+				if ( service instanceof DataSourceFactory ) {
+					executor.execute(new Runnable() {
+
+						@Override
+						public void run() {
+							if ( destroyed.get() ) {
+								return;
+							}
+							createDataSource((DataSourceFactory) service);
+						}
+					});
+				}
+			}
+		}
+
+		private synchronized void createDataSource(DataSourceFactory dataSourceFactory) {
+			try {
+				dataSource = dataSourceFactory.createDataSource(dataSourceProps);
+				register();
+			} catch ( SQLException e ) {
+				log.error("Error creating managed DataSource {} from DataSourceFactory {}: {}", pid,
+						dataSourceFactoryFilter, e.getMessage(), e);
+			}
+		}
+
+		/**
+		 * Create the pooled DataSource and register it with the OSGi runtime.
+		 * 
+		 * <p>
+		 * If {@code dataSourceFactoryFilter} is configured, this will obtain a
+		 * DataSource from the available factory to use with the registered
+		 * pooled DataSource, or if a factory isn't available wait for one to
+		 * become available before registering the pooled DataSource.
+		 * </p>
+		 */
+		private synchronized void register() {
+			if ( isRegistered() ) {
+				return;
+			}
+
+			if ( dataSource == null && dataSourceFactoryFilter != null ) {
+				createDataSourceOrListenForFactory();
+				return;
+			}
+
+			HikariConfig poolConfig = new HikariConfig(poolProps);
+			if ( dataSource != null ) {
+				poolConfig.setDataSource(dataSource);
+			}
+			HikariDataSource ds = new HikariDataSource(poolConfig);
+
+			log.info("Registering pooled JDBC DataSource for {} with props {} and pool settings {}",
+					jdbcUrl, serviceProps, poolProps);
+			ServiceRegistration<DataSource> reg = bundleContext.registerService(DataSource.class, ds,
+					serviceProps);
+
+			ServiceRegistration<PingTest> pingReg = null;
+			if ( pingTestQuery != null ) {
+				DataSourcePingTest pingTest = new DataSourcePingTest(ds, pingTestQuery);
+				log.info("Registering PingTest for pooled JDBC DataSource {} with props {}", jdbcUrl,
+						serviceProps);
+				pingReg = bundleContext.registerService(PingTest.class, pingTest, null);
+			}
+
+			this.poolDataSource = ds;
+			this.poolDataSourceReg = reg;
+			this.pingTestReg = pingReg;
+
+			if ( dataSourceFactoryListening ) {
+				bundleContext.removeServiceListener(this);
+				dataSourceFactoryListening = false;
+			}
+		}
+
+		private void createDataSourceOrListenForFactory() {
+			if ( dataSourceFactoryFilter == null ) {
+				return;
+			}
+			// first try to get immediately
+			DataSourceFactory dsFactory = null;
+			Collection<ServiceReference<DataSourceFactory>> dsFactoryRefs;
+			try {
+				dsFactoryRefs = bundleContext.getServiceReferences(DataSourceFactory.class,
+						dataSourceFactoryFilter);
+				Iterator<ServiceReference<DataSourceFactory>> itr = (dsFactoryRefs != null
+						? dsFactoryRefs.iterator()
+						: null);
+				ServiceReference<DataSourceFactory> dsFactoryRef = itr.next();
+				dsFactory = bundleContext.getService(dsFactoryRef);
+				if ( dsFactory == null ) {
+					throw new NoSuchElementException();
+				}
+			} catch ( NoSuchElementException e ) {
+				log.debug(
+						"No DataSourceFactory available for service filter {}; will wait for one to be registered",
+						dataSourceFactoryFilter);
+			} catch ( InvalidSyntaxException e ) {
+				throw new RuntimeException("DataSourceFactory service filter invalid: " + e.getMessage(),
+						e);
+			}
+
+			if ( dsFactory != null ) {
+				// we've got a factory, so get the DataSource and register immediately
+				createDataSource(dsFactory);
+			}
+
+			if ( dataSource == null && !dataSourceFactoryListening ) {
+				// no DataSource available yet; register as a listener for when it becomes available
+				String filter = "(&(" + Constants.OBJECTCLASS + "=" + DataSourceFactory.class.getName()
+						+ ")" + dataSourceFactoryFilter + ")";
+				log.info("Registering listener for DataSourceFactory {}", filter);
+				try {
+					bundleContext.addServiceListener(this, filter);
+					dataSourceFactoryListening = true;
+				} catch ( InvalidSyntaxException e ) {
+					log.error(
+							"Invalid DataSourceFactory service filter {} for managed DataSource {} with props: {}",
+							dataSourceFactoryFilter, jdbcUrl, serviceProps, e.toString(), e);
+				}
+			}
+		}
+
+		private synchronized void unregister() {
+			if ( pingTestReg != null ) {
+				log.info("Unregistering PingTest for pooled JDBC DataSource {} with props {}", jdbcUrl,
+						serviceProps);
+				try {
+					pingTestReg.unregister();
+				} catch ( IllegalStateException e ) {
+					// shouldn't be here, just ignore
+				} catch ( Throwable t ) {
+					log.warn("Error unregistering PingTest for DataSource {}: {}", pid, t.toString(), t);
+				} finally {
+					pingTestReg = null;
+				}
+			}
+			if ( poolDataSourceReg != null ) {
+				log.info("Unregistering pooled JDBC DataSource for {} with props {}", jdbcUrl,
+						serviceProps);
+				try {
+					poolDataSourceReg.unregister();
+				} catch ( IllegalStateException e ) {
+					// shouldn't be here, just ignore
+				} catch ( Throwable t ) {
+					log.warn("Error unregistering HikariCP DataSource {}: {}", pid, t.toString(), t);
+				} finally {
+					poolDataSourceReg = null;
+				}
+			}
+			if ( poolDataSource != null ) {
+				try {
+					poolDataSource.close();
+				} catch ( Throwable t2 ) {
+					log.warn("Error closing HikariCP DataSource {}: {}", pid, t2.toString(), t2);
+				} finally {
+					poolDataSource = null;
+				}
+			}
+		}
+
 	}
 
 	/**
