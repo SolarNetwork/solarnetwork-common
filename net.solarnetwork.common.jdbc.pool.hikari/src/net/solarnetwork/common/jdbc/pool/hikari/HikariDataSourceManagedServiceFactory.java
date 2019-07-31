@@ -22,11 +22,15 @@
 
 package net.solarnetwork.common.jdbc.pool.hikari;
 
+import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -35,9 +39,12 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.sql.DataSource;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
+import org.osgi.service.jdbc.DataSourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.zaxxer.hikari.HikariConfig;
@@ -53,7 +60,17 @@ import net.solarnetwork.util.ClassUtils;
  */
 public class HikariDataSourceManagedServiceFactory implements ManagedServiceFactory {
 
-	private static final String SERVICE_PROPERTY_PREFIX = "serviceProperty.";
+	/** Configuration property prefix for service instance properties. */
+	public static final String SERVICE_PROPERTY_PREFIX = "serviceProperty.";
+
+	/** Configuration property prefix for data source properties. */
+	public static final String DATA_SOURCE_PROPERTY_PREFIX = "dataSource.";
+
+	/**
+	 * Configuration property for the {@link DataSourceFactory} filter to use.
+	 */
+	public static final String DATA_SOURCE_FACTORY_FILTER_PROPERTY = "dataSourceFactory.filter";
+
 	private final BundleContext bundleContext;
 	private final Executor executor;
 	private final AtomicBoolean destroyed;
@@ -62,11 +79,33 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	/**
+	 * Constructor.
+	 * 
+	 * <p>
+	 * The {@link ForkJoinPool#commonPool()} will be used as the executor.
+	 * </p>
+	 * 
+	 * @param bundleContext
+	 *        the bundle context
+	 */
 	public HikariDataSourceManagedServiceFactory(BundleContext bundleContext) {
+		this(bundleContext, ForkJoinPool.commonPool());
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param bundleContext
+	 *        the bundle context
+	 * @param executor
+	 *        the executor to use
+	 */
+	public HikariDataSourceManagedServiceFactory(BundleContext bundleContext, Executor executor) {
 		super();
 		this.bundleContext = bundleContext;
+		this.executor = executor;
 		this.destroyed = new AtomicBoolean(false);
-		this.executor = ForkJoinPool.commonPool();
 		this.instances = new ConcurrentHashMap<>(4, 0.9f, 1);
 	}
 
@@ -123,10 +162,37 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				// create new
 				Properties p = new Properties();
 				Hashtable<String, Object> instanceProps = new Hashtable<>();
+				Properties dsProps = new Properties();
 				Enumeration<String> keys = properties.keys();
+				DataSourceFactory dsFactory = null;
 				while ( keys.hasMoreElements() ) {
 					String key = keys.nextElement();
-					if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
+					if ( key.equals(DATA_SOURCE_FACTORY_FILTER_PROPERTY) ) {
+						final String dsFactoryFilter = (String) properties.get(key);
+						Collection<ServiceReference<DataSourceFactory>> dsFactoryRefs;
+						try {
+							dsFactoryRefs = bundleContext.getServiceReferences(DataSourceFactory.class,
+									dsFactoryFilter);
+							Iterator<ServiceReference<DataSourceFactory>> itr = (dsFactoryRefs != null
+									? dsFactoryRefs.iterator()
+									: null);
+							ServiceReference<DataSourceFactory> dsFactoryRef = itr.next();
+							dsFactory = bundleContext.getService(dsFactoryRef);
+							if ( dsFactory == null ) {
+								throw new NoSuchElementException();
+							}
+						} catch ( NoSuchElementException e ) {
+							throw new RuntimeException(
+									"No DataSourceFactory available for service filter "
+											+ dsFactoryFilter);
+						} catch ( InvalidSyntaxException e ) {
+							throw new RuntimeException(
+									"DataSourceFactory service filter invalid: " + e.getMessage(), e);
+						}
+					} else if ( key.startsWith(DATA_SOURCE_PROPERTY_PREFIX) ) {
+						dsProps.put(key.substring(DATA_SOURCE_PROPERTY_PREFIX.length()),
+								properties.get(key));
+					} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
 						instanceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
 								properties.get(key));
 					} else {
@@ -134,10 +200,20 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 					}
 				}
 				HikariConfig config = new HikariConfig(p);
+				if ( dsFactory != null ) {
+					try {
+						config.setDataSource(dsFactory.createDataSource(dsProps));
+					} catch ( SQLException e ) {
+						throw new RuntimeException(
+								"Error creating managed DataSource from DataSourceFactory: "
+										+ e.getMessage(),
+								e);
+					}
+				}
 				HikariDataSource ds = new HikariDataSource(config);
 
-				ServiceRegistration<javax.sql.DataSource> reg = bundleContext
-						.registerService(javax.sql.DataSource.class, ds, instanceProps);
+				ServiceRegistration<DataSource> reg = bundleContext.registerService(DataSource.class, ds,
+						instanceProps);
 				return new ManagedHikariDataSource(ds, reg);
 			} else {
 				// apply updates
@@ -147,9 +223,13 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				Enumeration<String> keys = properties.keys();
 				while ( keys.hasMoreElements() ) {
 					String key = keys.nextElement();
-					if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
+					if ( key.equals(DATA_SOURCE_FACTORY_FILTER_PROPERTY) ) {
+						// TODO: handle DS change?
+					} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
 						instanceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
 								properties.get(key));
+					} else if ( key.startsWith(DATA_SOURCE_PROPERTY_PREFIX) ) {
+						// TODO: handle DS prop change?
 					} else {
 						p.put(key, properties.get(key));
 					}

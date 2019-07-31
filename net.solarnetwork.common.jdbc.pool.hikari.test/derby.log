@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Wed Jul 31 12:44:13 NZST 2019:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-016c-457c-0cf2-00001b265148 
+on database directory memory:/Users/matt/Documents/SolarNetwork/Developer/git/solarnetwork-common/net.solarnetwork.common.jdbc.pool.hikari.test/c65be5b9-7637-408c-afeb-b53d099fde79 with class loader sun.misc.Launcher$AppClassLoader@2c7b84de 
+Loaded from file:/Users/matt/Documents/SolarNetwork/Developer/git/solarnetwork-build/solarnetwork-osgi-target/platform/org.apache.servicemix.bundles.derby-10.12.1.1_1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_211-b12
+user.dir=/Users/matt/Documents/SolarNetwork/Developer/git/solarnetwork-common/net.solarnetwork.common.jdbc.pool.hikari.test
+os.name=Mac OS X
+os.arch=x86_64
+os.version=10.14.6
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''
