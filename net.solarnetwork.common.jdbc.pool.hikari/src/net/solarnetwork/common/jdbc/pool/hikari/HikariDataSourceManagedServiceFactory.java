@@ -23,15 +23,19 @@
 package net.solarnetwork.common.jdbc.pool.hikari;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
@@ -50,6 +54,8 @@ import org.slf4j.LoggerFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariConfigMXBean;
 import com.zaxxer.hikari.HikariDataSource;
+import net.solarnetwork.dao.jdbc.DataSourcePingTest;
+import net.solarnetwork.domain.PingTest;
 import net.solarnetwork.util.ClassUtils;
 
 /**
@@ -71,9 +77,19 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	 */
 	public static final String DATA_SOURCE_FACTORY_FILTER_PROPERTY = "dataSourceFactory.filter";
 
+	/**
+	 * Configuration property for the SQL to use to register a
+	 * {@link DataSourcePingTest} with.
+	 */
+	public static final String DATA_SOURCE_PING_TEST_QUERY_PROPERTY = "pingTest.query";
+
+	public static final Set<String> DEFAULT_IGNORED_PROPERTY_PREFIXES = Collections
+			.unmodifiableSet(new LinkedHashSet<>(Arrays.asList("felix.", "service.", "uid")));
+
 	private final BundleContext bundleContext;
 	private final Executor executor;
 	private final AtomicBoolean destroyed;
+	private Set<String> ignoredPropertyPrefixes = DEFAULT_IGNORED_PROPERTY_PREFIXES;
 
 	private final ConcurrentMap<String, ManagedHikariDataSource> instances;
 
@@ -160,11 +176,12 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 		instances.compute(pid, (k, v) -> {
 			if ( v == null ) {
 				// create new
-				Properties p = new Properties();
+				Properties poolProps = new Properties();
 				Hashtable<String, Object> instanceProps = new Hashtable<>();
 				Properties dsProps = new Properties();
 				Enumeration<String> keys = properties.keys();
 				DataSourceFactory dsFactory = null;
+				String pingTestQuery = null;
 				while ( keys.hasMoreElements() ) {
 					String key = keys.nextElement();
 					if ( key.equals(DATA_SOURCE_FACTORY_FILTER_PROPERTY) ) {
@@ -189,17 +206,23 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 							throw new RuntimeException(
 									"DataSourceFactory service filter invalid: " + e.getMessage(), e);
 						}
+					} else if ( key.equals(DATA_SOURCE_PING_TEST_QUERY_PROPERTY) ) {
+						pingTestQuery = (String) properties.get(key);
 					} else if ( key.startsWith(DATA_SOURCE_PROPERTY_PREFIX) ) {
 						dsProps.put(key.substring(DATA_SOURCE_PROPERTY_PREFIX.length()),
 								properties.get(key));
 					} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
 						instanceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
 								properties.get(key));
+					} else if ( ignoredPropertyPrefixes != null
+							&& ignoredPropertyPrefixes.stream().anyMatch(s -> key.startsWith(s)) ) {
+						// ignore this prop
+						log.debug("Ignoring DataSource property {}", key);
 					} else {
-						p.put(key, properties.get(key));
+						poolProps.put(key, properties.get(key));
 					}
 				}
-				HikariConfig config = new HikariConfig(p);
+				HikariConfig config = new HikariConfig(poolProps);
 				if ( dsFactory != null ) {
 					try {
 						config.setDataSource(dsFactory.createDataSource(dsProps));
@@ -210,11 +233,22 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 								e);
 					}
 				}
+
+				String jdbcUrl = (String) dsProps.get("url");
 				HikariDataSource ds = new HikariDataSource(config);
 
+				log.info("Registering pooled JDBC DataSource for {} with props {} and pool settings {}",
+						jdbcUrl, instanceProps, poolProps);
 				ServiceRegistration<DataSource> reg = bundleContext.registerService(DataSource.class, ds,
 						instanceProps);
-				return new ManagedHikariDataSource(ds, reg);
+
+				ServiceRegistration<PingTest> pingTestReg = null;
+				if ( pingTestQuery != null ) {
+					DataSourcePingTest pingTest = new DataSourcePingTest(ds, pingTestQuery);
+					pingTestReg = bundleContext.registerService(PingTest.class, pingTest, null);
+				}
+
+				return new ManagedHikariDataSource(ds, reg, jdbcUrl, instanceProps, pingTestReg);
 			} else {
 				// apply updates
 				HikariConfigMXBean bean = v.dataSource.getHikariConfigMXBean();
@@ -230,6 +264,10 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 								properties.get(key));
 					} else if ( key.startsWith(DATA_SOURCE_PROPERTY_PREFIX) ) {
 						// TODO: handle DS prop change?
+					} else if ( ignoredPropertyPrefixes != null
+							&& ignoredPropertyPrefixes.stream().anyMatch(s -> key.startsWith(s)) ) {
+						// ignore this prop
+						log.debug("Ignoring DataSource property {}", key);
 					} else {
 						p.put(key, properties.get(key));
 					}
@@ -245,6 +283,17 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 	private void doDelete(String pid) {
 		instances.computeIfPresent(pid, (k, v) -> {
+			log.info("Unregistering pooled JDBC DataSource for {} with props {}", v.jdbcUrl,
+					v.serviceProps);
+			if ( v.pingTestReg != null ) {
+				try {
+					v.pingTestReg.unregister();
+				} catch ( IllegalStateException e ) {
+					// shouldn't be here, just ignore
+				} catch ( Throwable t ) {
+					log.warn("Error unregistering PingTest for DataSource {}: {}", pid, t.toString(), t);
+				}
+			}
 			try {
 				v.serviceReg.unregister();
 			} catch ( IllegalStateException e ) {
@@ -266,13 +315,30 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 		private final HikariDataSource dataSource;
 		private final ServiceRegistration<DataSource> serviceReg;
+		private final String jdbcUrl;
+		private final Map<String, ?> serviceProps;
+		private final ServiceRegistration<PingTest> pingTestReg;
 
 		private ManagedHikariDataSource(HikariDataSource dataSource,
-				ServiceRegistration<DataSource> serviceReg) {
+				ServiceRegistration<DataSource> serviceReg, String jdbcUrl, Map<String, ?> serviceProps,
+				ServiceRegistration<PingTest> pingTestReg) {
 			super();
 			this.dataSource = dataSource;
 			this.serviceReg = serviceReg;
+			this.jdbcUrl = jdbcUrl;
+			this.serviceProps = serviceProps;
+			this.pingTestReg = pingTestReg;
 		}
+	}
+
+	/**
+	 * Configure a set of configuration property prefixes to ignore.
+	 * 
+	 * @param ignoredPropertyPrefixes
+	 *        the prefixes to ignore
+	 */
+	public void setIgnoredPropertyPrefixes(Set<String> ignoredPropertyPrefixes) {
+		this.ignoredPropertyPrefixes = ignoredPropertyPrefixes;
 	}
 
 }
