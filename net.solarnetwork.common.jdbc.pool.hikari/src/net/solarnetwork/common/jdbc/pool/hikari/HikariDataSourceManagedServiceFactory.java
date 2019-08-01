@@ -291,6 +291,8 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 			if ( event.getType() == ServiceEvent.REGISTERED && !isRegistered() ) {
 				Object service = bundleContext.getService(event.getServiceReference());
 				if ( service instanceof DataSourceFactory ) {
+					log.info("DataSourceFactory discovered for managed DataSource {} with props {}",
+							jdbcUrl, serviceProps);
 					executor.execute(new Runnable() {
 
 						@Override

@@ -42,11 +42,14 @@ import java.util.UUID;
 import javax.sql.DataSource;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.jdbc.DataSourceFactory;
@@ -234,6 +237,92 @@ public class HikariDataSourceManagedServiceFactoryTests {
 				instanceOf(DataSourcePingTest.class));
 		DataSourcePingTest dsPingTest = (DataSourcePingTest) pingTest;
 		assertThat("PingTest query", dsPingTest.getQuery(), equalTo(pingTestQuery));
+
+		// save PID for other tests
+		factoryPid = pid;
+	}
+
+	@Test
+	public void configurationUpdated_regisgerServiceViaDelayedListener() throws Exception {
+		// given
+		final String uuid = UUID.randomUUID().toString();
+		final String pid = net.solarnetwork.common.jdbc.pool.hikari.Activator.SERVICE_PID + "-" + uuid;
+		final String dsFactoryFilter = "(osgi.jdbc.driver.class=org.apache.derby.jdbc.EmbeddedDriver)";
+		final String jdbcUrlAttributes = "create=true";
+		final String jdbcUrl = "jdbc:derby:memory:" + uuid + ";" + jdbcUrlAttributes;
+
+		Map<String, Object> props = new LinkedHashMap<>(8);
+		props.put(HikariDataSourceManagedServiceFactory.DATA_SOURCE_FACTORY_FILTER_PROPERTY,
+				dsFactoryFilter);
+		props.put("dataSource.url", jdbcUrl);
+		props.put("dataSource.user", "user");
+		props.put("dataSource.password", "password");
+		props.put("serviceProperty.db", "test");
+		props.put("serviceProperty.foo", "bar");
+
+		Capture<ServiceListener> dataSourceFactoryListenerCaptor = new Capture<>(CaptureType.ALL);
+		Capture<Properties> dataSourcePropCaptor = new Capture<>();
+		Capture<DataSource> dataSourceCaptor = new Capture<>();
+		Capture<Dictionary<String, ?>> servicePropCaptor = new Capture<>();
+
+		// no DataSourceFactory registered at first
+		expect(bundleContext.getServiceReferences(DataSourceFactory.class, dsFactoryFilter))
+				.andReturn(Collections.emptySet());
+
+		// so register ServiceListener to wait for event
+		bundleContext.addServiceListener(capture(dataSourceFactoryListenerCaptor),
+				eq("(&(objectClass=org.osgi.service.jdbc.DataSourceFactory)" + dsFactoryFilter + ")"));
+
+		// after REGISTERED event is received, the process continues
+		expect(bundleContext.getService(dataSourceFactoryRef)).andReturn(dataSourceFactory);
+
+		EmbeddedDataSource ds = new EmbeddedDataSource();
+		ds.setDatabaseName("memory:" + uuid);
+		ds.setConnectionAttributes(jdbcUrlAttributes);
+		expect(dataSourceFactory.createDataSource(capture(dataSourcePropCaptor))).andReturn(ds);
+
+		expect(bundleContext.registerService(eq(DataSource.class), capture(dataSourceCaptor),
+				capture(servicePropCaptor))).andReturn(dataSourceReg);
+
+		// finally, clean up and remove listener
+		bundleContext.removeServiceListener(capture(dataSourceFactoryListenerCaptor));
+
+		// when
+		replayAll();
+		factory.updated(pid, new Hashtable<String, Object>(props));
+
+		// followed by a service event
+		ServiceListener dataSourceFactoryListener = dataSourceFactoryListenerCaptor.getValues().get(0);
+		assertThat("ServiceListener for DataSourceFactory available", dataSourceFactoryListener,
+				notNullValue());
+		ServiceEvent event = new ServiceEvent(ServiceEvent.REGISTERED, dataSourceFactoryRef);
+		dataSourceFactoryListener.serviceChanged(event);
+
+		// then
+		Properties dataSourceProps = dataSourcePropCaptor.getValue();
+		assertThat("DataSource URL", dataSourceProps, hasEntry("url", jdbcUrl));
+		assertThat("DataSource user", dataSourceProps, hasEntry("user", "user"));
+		assertThat("DataSource password", dataSourceProps, hasEntry("password", "password"));
+
+		DataSource dataSource = dataSourceCaptor.getValue();
+		assertThat("Registered DataSource is Hikari pool", dataSource,
+				instanceOf(HikariDataSource.class));
+		assertThat("Hikari DataSource is from DataSourceFactory",
+				((HikariDataSource) dataSource).getDataSource(), sameInstance(ds));
+
+		Dictionary<String, ?> serviceProps = servicePropCaptor.getValue();
+		assertThat("Service propery values", serviceProps.get("db"), equalTo("test"));
+		assertThat("Service propery values", serviceProps.get("foo"), equalTo("bar"));
+
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		java.sql.Date result = jdbcTemplate.queryForObject("VALUES CURRENT_DATE", java.sql.Date.class);
+		assertThat("Date returned from JDBC", result, notNullValue());
+
+		assertThat("2nd ServiceListener captured from removal",
+				dataSourceFactoryListenerCaptor.getValues().size(), equalTo(2));
+		assertThat("Same ServiceListener removed as added",
+				dataSourceFactoryListenerCaptor.getValues().get(1),
+				sameInstance(dataSourceFactoryListenerCaptor.getValues().get(0)));
 
 		// save PID for other tests
 		factoryPid = pid;
