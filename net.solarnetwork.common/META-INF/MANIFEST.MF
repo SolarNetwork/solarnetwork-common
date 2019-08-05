@@ -36,7 +36,7 @@ Import-Package:
  org.apache.commons.codec.binary;version="[1.7,2.0)",
  org.apache.commons.codec.digest;version="[1.7,2.0)",
  org.apache.commons.compress.compressors;version="[1.18,2.0)";resolution:=optional,
- org.apache.tomcat.jdbc.pool;version="1.0.9.3",
+ org.apache.tomcat.jdbc.pool;version="1.0.9.3";resolution:=optional,
  org.joda.time;version="[2.4,3.0)",
  org.joda.time.base;version="[2.4,3.0)",
  org.joda.time.format;version="[2.4,3.0)",
