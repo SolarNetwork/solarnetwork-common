@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Web Test
 Bundle-SymbolicName: net.solarnetwork.common.web.test
-Bundle-Version: 1.4.0
+Bundle-Version: 1.5.0
 Bundle-Vendor: SolarNetwork
-Fragment-Host: net.solarnetwork.common.web;bundle-version="1.15.0"
+Fragment-Host: net.solarnetwork.common.web;bundle-version="1.16.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: 
  net.solarnetwork.test;version="1.1.0",
@@ -34,4 +34,7 @@ Import-Package:
  org.springframework.test.context.junit4;version="[4.2,5.0)",
  org.springframework.test.context.support;version="[4.2,5.0)",
  org.springframework.test.context.transaction;version="[4.2,5.0)",
+ org.springframework.test.web.client;version="[4.2,5.0)",
+ org.springframework.test.web.client.match;version="[4.2,5.0)",
+ org.springframework.test.web.client.response;version="[4.2,5.0)",
  org.springframework.web.multipart.commons;version="[4.2,5.0)"
