@@ -88,7 +88,7 @@ import org.springframework.util.StringUtils;
  * </pre>
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.11
  */
 public final class AuthorizationV2Builder {
@@ -217,6 +217,13 @@ public final class AuthorizationV2Builder {
 
 	/**
 	 * Set the HTTP request body content SHA-256 digest value.
+	 * 
+	 * <p>
+	 * <b>Note</b> if the content is form-encoded parameters set via the
+	 * {@link #queryParams(Map)} method, this method should not be called, or
+	 * called only with {@link WebConstants#EMPTY_STRING_SHA256_HEX}, as this
+	 * type of body is treated as request parameters.
+	 * </p>
 	 * 
 	 * @param digest
 	 *        The digest value to use.
