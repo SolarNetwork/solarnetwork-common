@@ -35,19 +35,26 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import net.solarnetwork.web.security.AuthorizationCredentialsProvider;
+import net.solarnetwork.web.security.AuthorizationV2Builder;
 import net.solarnetwork.web.support.AuthorizationV2RequestInterceptor;
 import net.solarnetwork.web.support.StaticAuthorizationCredentialsProvider;
 
@@ -60,7 +67,8 @@ import net.solarnetwork.web.support.StaticAuthorizationCredentialsProvider;
 public class AuthorizationV2RequestInterceptorTests {
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
-	private static final String TEST_BASE_URL = "http://localhost";
+	private static final String TEST_HOST = "localhost";
+	private static final String TEST_BASE_URL = "http://" + TEST_HOST;
 
 	private AuthorizationCredentialsProvider credentialsProvider;
 	private RestTemplate restTemplate;
@@ -105,6 +113,51 @@ public class AuthorizationV2RequestInterceptorTests {
 
 		// when
 		ResponseEntity<Map> result = restTemplate.getForEntity(TEST_BASE_URL + "/foo/bar", Map.class);
+
+		// then
+		assertThat("Result returned", result, notNullValue());
+		assertThat("Result OK", result.getStatusCode(), equalTo(HttpStatus.OK));
+		assertThat("Result map", (Map<String, Object>) result.getBody(),
+				hasEntry("success", Boolean.TRUE));
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Test
+	public void postFormParameters() {
+		// given
+		final String responseBody = "{\"success\":true}";
+		HttpHeaders respHeaders = new HttpHeaders();
+		respHeaders.setContentLength(responseBody.getBytes(UTF8).length);
+
+		final long reqDate = System.currentTimeMillis();
+
+		// @formatter:off
+		AuthorizationV2Builder auth = new AuthorizationV2Builder(credentialsProvider.getAuthorizationId())
+				.method(HttpMethod.POST)
+				.host(TEST_HOST)
+				.path("/foo/bar")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED.toString())
+				.date(new Date(reqDate))
+				.parameterMap(Collections.singletonMap("topic", new String[] { "foo" }));
+		final String authHeader = auth.build(credentialsProvider.getAuthorizationSecret());
+
+	    server.expect(requestTo(startsWith(TEST_BASE_URL + "/foo/bar")))
+	        .andExpect(method(HttpMethod.POST))
+	        .andExpect(header(HttpHeaders.HOST, "localhost"))
+	        .andExpect(header(HttpHeaders.AUTHORIZATION, equalTo(authHeader)))
+	        .andRespond(withSuccess(responseBody, APPLICATION_JSON_UTF8).headers(respHeaders));
+	    // @formatter:on
+
+		// when
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		headers.setDate(reqDate);
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>(4);
+		params.add("topic", "foo");
+
+		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+		ResponseEntity<Map> result = restTemplate.postForEntity(TEST_BASE_URL + "/foo/bar", request,
+				Map.class);
 
 		// then
 		assertThat("Result returned", result, notNullValue());

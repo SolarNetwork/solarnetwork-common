@@ -54,7 +54,7 @@ import net.solarnetwork.web.security.AuthorizationV2Builder;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.16
  */
 public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInterceptor {
@@ -94,7 +94,7 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 		if ( uri.getRawQuery() != null ) {
 			builder.queryParams(queryParams(uri.getRawQuery(), charset));
 		} else if ( body != null && body.length > 0 && HttpMethod.POST.equals(request.getMethod())
-				&& contentType.isCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED) ) {
+				&& MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType) ) {
 			builder.queryParams(queryParams(new String(body, charset.name()), charset));
 		}
 		builder.method(request.getMethod()).path(uri.getPath()).headers(headers);
@@ -104,7 +104,8 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 			headers.setDate(reqDate);
 		}
 		builder.date(new Date(reqDate));
-		if ( body != null && body.length > 0 ) {
+		if ( body != null && body.length > 0
+				&& !MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType) ) {
 			builder.contentSHA256(DigestUtils.sha256(body));
 		}
 		headers.set(HttpHeaders.AUTHORIZATION,
