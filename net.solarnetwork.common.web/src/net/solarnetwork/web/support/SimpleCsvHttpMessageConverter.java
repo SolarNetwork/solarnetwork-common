@@ -35,8 +35,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import net.solarnetwork.util.ClassUtils;
-import net.solarnetwork.util.PropertySerializerRegistrar;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.http.HttpInputMessage;
@@ -49,12 +47,15 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.supercsv.io.CsvMapWriter;
 import org.supercsv.io.ICsvMapWriter;
 import org.supercsv.prefs.CsvPreference;
+import net.solarnetwork.domain.Result;
+import net.solarnetwork.util.ClassUtils;
+import net.solarnetwork.util.PropertySerializerRegistrar;
 
 /**
  * {@link HttpMessageConverter} that marshals objects into CSV documents.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
@@ -95,9 +96,20 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 	}
 
 	@Override
-	protected void writeInternal(Object t, HttpOutputMessage outputMessage) throws IOException,
-			HttpMessageNotWritableException {
+	protected void writeInternal(Object t, HttpOutputMessage outputMessage)
+			throws IOException, HttpMessageNotWritableException {
 		Iterable<?> rows = null;
+		if ( t instanceof Result<?> ) {
+			// for Result objects that are successful, treat the `data` property as our desired output
+			// if that is available, instead of the Result wrapper itself
+			Result<?> r = (Result<?>) t;
+			if ( r.getSuccess() != null && r.getSuccess().booleanValue() ) {
+				Object d = r.getData();
+				if ( d != null ) {
+					t = d;
+				}
+			}
+		}
 		if ( t instanceof Iterable ) {
 			rows = (Iterable<?>) t;
 		} else {
@@ -136,8 +148,9 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 			return;
 		}
 
-		final ICsvMapWriter writer = new CsvMapWriter(new OutputStreamWriter(outputMessage.getBody(),
-				"UTF-8"), CsvPreference.EXCEL_PREFERENCE);
+		final ICsvMapWriter writer = new CsvMapWriter(
+				new OutputStreamWriter(outputMessage.getBody(), "UTF-8"),
+				CsvPreference.EXCEL_PREFERENCE);
 		try {
 			// output header
 			if ( includeHeader ) {
@@ -182,8 +195,8 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 			// use bean properties
 			if ( propertySerializerRegistrar != null ) {
 				// try whole-bean serialization first
-				Object o = propertySerializerRegistrar
-						.serializeProperty("row", row.getClass(), row, row);
+				Object o = propertySerializerRegistrar.serializeProperty("row", row.getClass(), row,
+						row);
 				if ( o != row ) {
 					if ( o != null ) {
 						result = getCSVFields(o, fieldOrder);
@@ -191,8 +204,8 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 					}
 				}
 			}
-			Map<String, Object> props = ClassUtils
-					.getBeanProperties(row, javaBeanIgnoreProperties, true);
+			Map<String, Object> props = ClassUtils.getBeanProperties(row, javaBeanIgnoreProperties,
+					true);
 			result = getCSVFields(props, fieldOrder);
 		}
 		return result;
