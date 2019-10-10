@@ -49,6 +49,64 @@ public final class ByteUtils {
 	/** The ASCII character set. */
 	public static final Charset ASCII = Charset.forName(ASCII_CHARSET);
 
+	// adapted from Apache Commons Codec Hex.java
+
+	private static final char[] DIGITS_UPPER = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A',
+			'B', 'C', 'D', 'E', 'F' };
+
+	/**
+	 * Encode a single byte as hex characters.
+	 * 
+	 * @param b
+	 *        the byte to encode
+	 * @param toDigits
+	 *        the hex digits to use
+	 * @param dest
+	 *        the destination character buffer to write the hex encoding to
+	 * @param destIndex
+	 *        the index within {@code dest} to write the hex encoding at, along
+	 *        with {@code destIndex + 1}
+	 * @return the {@code dest} array
+	 */
+	public static char[] encodeHex(final byte b, final char[] toDigits, final char[] dest,
+			int destIndex) {
+		dest[destIndex] = toDigits[(0xF0 & b) >>> 4];
+		dest[destIndex + 1] = toDigits[0x0F & b];
+		return dest;
+	}
+
+	/**
+	 * Encode a byte array into a hex-encoded upper-case string.
+	 * 
+	 * @param data
+	 *        the data to encode as hex strings
+	 * @param fromIndex
+	 *        the starting index within {@code data} to encode (inclusive)
+	 * @param toIndex
+	 *        the ending index within {@code data} to encode (exclusive)
+	 * @param space
+	 *        {@literal true} to add a single space character between each hex
+	 *        pair
+	 * @return the string, never {@literal null}
+	 */
+	public static String encodeHexString(final byte[] data, final int fromIndex, final int toIndex,
+			final boolean space) {
+		if ( data == null || data.length < 1 || fromIndex < 0 || fromIndex >= data.length || toIndex < 0
+				|| toIndex <= fromIndex ) {
+			return "";
+		}
+		StringBuilder hexData = new StringBuilder(
+				2 * (toIndex - fromIndex) + (space ? (toIndex - fromIndex) : 0));
+		char[] buffer = new char[2];
+		for ( int i = fromIndex; i < toIndex; i++ ) {
+			if ( space && i > fromIndex ) {
+				hexData.append(' ');
+			}
+			hexData.append(encodeHex(data[i], DIGITS_UPPER, buffer, 0));
+		}
+		return hexData.toString();
+	}
+
 	/**
 	 * Encode an 8-bit signed integer value into a raw byte value.
 	 * 

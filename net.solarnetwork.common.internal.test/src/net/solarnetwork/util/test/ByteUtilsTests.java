@@ -45,6 +45,41 @@ import net.solarnetwork.util.ByteUtils;
 public class ByteUtilsTests {
 
 	@Test
+	public void encodeHex_null() {
+		byte[] b = new byte[0];
+		String r = ByteUtils.encodeHexString(b, 0, b.length, false);
+		assertThat("Empty range encodes empty string", r, equalTo(""));
+	}
+
+	@Test
+	public void encodeHex_basic() {
+		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
+		String r = ByteUtils.encodeHexString(b, 0, b.length, false);
+		assertThat("Bytes encode to hex string", r, equalTo("1199FF"));
+	}
+
+	@Test
+	public void encodeHex_basicWithSpace() {
+		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
+		String r = ByteUtils.encodeHexString(b, 0, b.length, true);
+		assertThat("Bytes encode to hex string", r, equalTo("11 99 FF"));
+	}
+
+	@Test
+	public void encodeHex_subset() {
+		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
+		String r = ByteUtils.encodeHexString(b, 1, b.length, false);
+		assertThat("Bytes subrange encode to hex string", r, equalTo("99FF"));
+	}
+
+	@Test
+	public void encodeHex_subsetWithSpace() {
+		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
+		String r = ByteUtils.encodeHexString(b, 1, b.length, true);
+		assertThat("Bytes subrange encode to hex string", r, equalTo("99 FF"));
+	}
+
+	@Test
 	public void encodeInt8() {
 		byte[] dest = new byte[1];
 		ByteUtils.encodeInt8((byte) -56, dest, 0);
