@@ -45,38 +45,71 @@ import net.solarnetwork.util.ByteUtils;
 public class ByteUtilsTests {
 
 	@Test
-	public void encodeHex_null() {
+	public void encodeHexString_null() {
 		byte[] b = new byte[0];
 		String r = ByteUtils.encodeHexString(b, 0, b.length, false);
 		assertThat("Empty range encodes empty string", r, equalTo(""));
 	}
 
 	@Test
-	public void encodeHex_basic() {
+	public void encodeHexString_basic() {
 		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
 		String r = ByteUtils.encodeHexString(b, 0, b.length, false);
 		assertThat("Bytes encode to hex string", r, equalTo("1199FF"));
 	}
 
 	@Test
-	public void encodeHex_basicWithSpace() {
+	public void encodeHexString_basicLowerCase() {
+		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
+		String r = ByteUtils.encodeHexString(b, 0, b.length, false, true);
+		assertThat("Bytes encode to hex string", r, equalTo("1199ff"));
+	}
+
+	@Test
+	public void encodeHexString_basicWithSpace() {
 		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
 		String r = ByteUtils.encodeHexString(b, 0, b.length, true);
 		assertThat("Bytes encode to hex string", r, equalTo("11 99 FF"));
 	}
 
 	@Test
-	public void encodeHex_subset() {
+	public void encodeHexString_subset() {
 		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
 		String r = ByteUtils.encodeHexString(b, 1, b.length, false);
 		assertThat("Bytes subrange encode to hex string", r, equalTo("99FF"));
 	}
 
 	@Test
-	public void encodeHex_subsetWithSpace() {
+	public void encodeHexString_subsetWithSpace() {
 		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
 		String r = ByteUtils.encodeHexString(b, 1, b.length, true);
 		assertThat("Bytes subrange encode to hex string", r, equalTo("99 FF"));
+	}
+
+	@Test
+	public void decodeHexString_basic() {
+		// GIVEN
+		String s = "1F2B01";
+
+		// WHEN
+		byte[] b = ByteUtils.decodeHexString(s);
+
+		// THEN
+		assertThat("Decoded bytes",
+				Arrays.equals(b, new byte[] { (byte) 0x1F, (byte) 0x2B, (byte) 0x01 }), equalTo(true));
+	}
+
+	@Test
+	public void decodeHexString_oddLength() {
+		// GIVEN
+		String s = "F2B01";
+
+		// WHEN
+		byte[] b = ByteUtils.decodeHexString(s);
+
+		// THEN
+		assertThat("Decoded bytes",
+				Arrays.equals(b, new byte[] { (byte) 0x0F, (byte) 0x2B, (byte) 0x01 }), equalTo(true));
 	}
 
 	@Test

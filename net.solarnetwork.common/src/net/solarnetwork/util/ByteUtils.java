@@ -31,6 +31,11 @@ import net.solarnetwork.domain.ByteOrdering;
 /**
  * Utilities for working with bytes.
  * 
+ * <p>
+ * Some routines have been adapted from Apache Commons Codec's
+ * {@literal Hex.java} class.
+ * </p>
+ * 
  * @author matt
  * @version 1.0
  * @since 1.54
@@ -49,10 +54,10 @@ public final class ByteUtils {
 	/** The ASCII character set. */
 	public static final Charset ASCII = Charset.forName(ASCII_CHARSET);
 
-	// adapted from Apache Commons Codec Hex.java
-
 	private static final char[] DIGITS_UPPER = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A',
 			'B', 'C', 'D', 'E', 'F' };
+	private static final char[] DIGITS_LOWER = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
+			'b', 'c', 'd', 'e', 'f' };
 
 	/**
 	 * Encode a single byte as hex characters.
@@ -60,7 +65,7 @@ public final class ByteUtils {
 	 * @param b
 	 *        the byte to encode
 	 * @param toDigits
-	 *        the hex digits to use
+	 *        the hex alphabet to use
 	 * @param dest
 	 *        the destination character buffer to write the hex encoding to
 	 * @param destIndex
@@ -74,6 +79,49 @@ public final class ByteUtils {
 		dest[destIndex + 1] = toDigits[0x0F & b];
 		return dest;
 	}
+
+	/**
+	 * Encode a single byte as upper-case hex characters.
+	 * 
+	 * @param b
+	 *        the byte to encode
+	 * @param dest
+	 *        the destination character buffer to write the hex encoding to
+	 * @param destIndex
+	 *        the index within {@code dest} to write the hex encoding at, along
+	 *        with {@code destIndex + 1}
+	 * @return the {@code dest} array
+	 */
+	public static char[] encodeHexUpperCase(final byte b, final char[] dest, int destIndex) {
+		return encodeHex(b, DIGITS_UPPER, dest, destIndex);
+	}
+
+	/**
+	 * Encode a single byte as lower-case hex characters.
+	 * 
+	 * @param b
+	 *        the byte to encode
+	 * @param dest
+	 *        the destination character buffer to write the hex encoding to
+	 * @param destIndex
+	 *        the index within {@code dest} to write the hex encoding at, along
+	 *        with {@code destIndex + 1}
+	 * @return the {@code dest} array
+	 */
+	public static char[] encodeHexLowerCase(final byte b, final char[] dest, int destIndex) {
+		return encodeHex(b, DIGITS_LOWER, dest, destIndex);
+	}
+
+	/*- maybe someday
+	private static char[] encodeHex(final byte[] data, final char[] toDigits) {
+		final int l = data.length;
+		final char[] out = new char[l << 1];
+		for ( int i = 0, j = 0; i < l; i++ ) {
+			encodeHex(data[i], toDigits, out, j);
+		}
+		return out;
+	}
+	*/
 
 	/**
 	 * Encode a byte array into a hex-encoded upper-case string.
@@ -105,6 +153,97 @@ public final class ByteUtils {
 			hexData.append(encodeHex(data[i], DIGITS_UPPER, buffer, 0));
 		}
 		return hexData.toString();
+	}
+
+	/**
+	 * Encode a byte array into a hex-encoded upper-case string.
+	 * 
+	 * @param data
+	 *        the data to encode as hex strings
+	 * @param fromIndex
+	 *        the starting index within {@code data} to encode (inclusive)
+	 * @param toIndex
+	 *        the ending index within {@code data} to encode (exclusive)
+	 * @param space
+	 *        {@literal true} to add a single space character between each hex
+	 * @param lowerCase
+	 *        {@literal true} to use lower case, {@literal false} for upper case
+	 *        pair
+	 * @return the string, never {@literal null}
+	 */
+	public static String encodeHexString(final byte[] data, final int fromIndex, final int toIndex,
+			final boolean space, final boolean lowerCase) {
+		if ( data == null || data.length < 1 || fromIndex < 0 || fromIndex >= data.length || toIndex < 0
+				|| toIndex <= fromIndex ) {
+			return "";
+		}
+		final char[] digits = (lowerCase ? DIGITS_LOWER : DIGITS_UPPER);
+		StringBuilder hexData = new StringBuilder(
+				2 * (toIndex - fromIndex) + (space ? (toIndex - fromIndex) : 0));
+		char[] buffer = new char[2];
+		for ( int i = fromIndex; i < toIndex; i++ ) {
+			if ( space && i > fromIndex ) {
+				hexData.append(' ');
+			}
+			hexData.append(encodeHex(data[i], digits, buffer, 0));
+		}
+		return hexData.toString();
+	}
+
+	/**
+	 * Convert a hex-encoded string to a byte array.
+	 * 
+	 * <p>
+	 * If the string does not have an even number of characters, a {@literal 0}
+	 * will be inserted at the start of the string.
+	 * </p>
+	 * 
+	 * @param s
+	 *        the string to decode
+	 * @return the bytes, never {@literal null}
+	 * @see #decodeHexStringPadStart(String)
+	 */
+	public static byte[] decodeHexString(String s) {
+		if ( s == null ) {
+			return new byte[0];
+		}
+		return decodeHexPadStart(s.toCharArray());
+	}
+
+	/**
+	 * Convert a hex-encoded string to a byte array.
+	 * 
+	 * <p>
+	 * If the string does not have an even number of characters, a {@literal 0}
+	 * will be inserted at the start of the string.
+	 * </p>
+	 * 
+	 * @param chars
+	 *        the characters to decode
+	 * @return the bytes, never {@literal null}
+	 */
+	public static byte[] decodeHexPadStart(final char[] chars) {
+		if ( chars == null || chars.length < 1 ) {
+			return new byte[0];
+		}
+		final int len = chars.length;
+		final boolean even = (len & 0x01) == 0;
+		final byte[] data = new byte[(even ? len : len + 1) / 2];
+		int i = 0;
+		int j = 0;
+		if ( !even ) {
+			data[i] = (byte) (Character.digit(chars[j], 16) & 0xFF);
+			i++;
+			j++;
+		}
+		for ( ; j < len; i++ ) {
+			int n = Character.digit(chars[j], 16) << 4;
+			j++;
+			n |= Character.digit(chars[j], 16);
+			j++;
+			data[i] = (byte) (n & 0xFF);
+		}
+		return data;
 	}
 
 	/**
