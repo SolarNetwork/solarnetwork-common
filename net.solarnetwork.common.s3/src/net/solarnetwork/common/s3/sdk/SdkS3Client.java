@@ -20,10 +20,11 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.s3;
+package net.solarnetwork.common.s3.sdk;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,10 +43,12 @@ import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import net.solarnetwork.common.s3.S3Client;
+import net.solarnetwork.common.s3.S3ObjectReference;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.support.BaseSettingsSpecifierLocalizedServiceInfoProvider;
+import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 import net.solarnetwork.support.RemoteServiceException;
 
 /**
@@ -57,9 +60,15 @@ import net.solarnetwork.support.RemoteServiceException;
 public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
 		implements S3Client {
 
+	/** The default value for the {@code regionName} property. */
+	public static final String DEFAULT_REGION_NAME = Regions.US_WEST_2.getName();
+
+	/** The default value for the {@code maximumKeysPerRequest} property. */
+	public static final int DEFAULT_MAXIMUM_KEYS_PER_REQUEST = 500;
+
 	private String bucketName;
-	private String regionName = Regions.US_WEST_2.getName();
-	private int maximumKeysPerRequest = 500;
+	private String regionName = DEFAULT_REGION_NAME;
+	private int maximumKeysPerRequest = DEFAULT_MAXIMUM_KEYS_PER_REQUEST;
 	private AWSCredentialsProvider credentialsProvider;
 
 	private AmazonS3 s3Client;
@@ -146,10 +155,11 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	}
 
 	@Override
-	public S3Object getObject(String key) throws IOException {
+	public net.solarnetwork.common.s3.S3Object getObject(String key) throws IOException {
 		AmazonS3 client = getClient();
 		try {
-			return client.getObject(bucketName, key);
+			com.amazonaws.services.s3.model.S3Object obj = client.getObject(bucketName, key);
+			return new SdkS3Object(obj);
 		} catch ( AmazonServiceException e ) {
 			log.warn("AWS error: {}; HTTP code {}; AWS code {}; type {}; request ID {}", e.getMessage(),
 					e.getStatusCode(), e.getErrorCode(), e.getErrorType(), e.getRequestId());
@@ -205,8 +215,14 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	@Override
 	public List<SettingSpecifier> getSettingSpecifiers() {
-		// TODO Auto-generated method stub
-		return null;
+		List<SettingSpecifier> result = new ArrayList<>(5);
+		result.add(new BasicTextFieldSettingSpecifier("accessToken", ""));
+		result.add(new BasicTextFieldSettingSpecifier("accessSecret", "", true));
+		result.add(new BasicTextFieldSettingSpecifier("regionName", DEFAULT_REGION_NAME));
+		result.add(new BasicTextFieldSettingSpecifier("bucketName", ""));
+		result.add(new BasicTextFieldSettingSpecifier("maximumKeysPerRequest",
+				String.valueOf(DEFAULT_MAXIMUM_KEYS_PER_REQUEST)));
+		return result;
 	}
 
 	// Accessors

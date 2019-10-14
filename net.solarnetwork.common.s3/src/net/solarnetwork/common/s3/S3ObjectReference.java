@@ -25,7 +25,7 @@ package net.solarnetwork.common.s3;
 import java.util.Date;
 
 /**
- * A reference to an S3 object.
+ * An immutable reference to an S3 object.
  * 
  * @author matt
  * @version 1.0
@@ -63,6 +63,15 @@ public class S3ObjectReference {
 		this.modified = modified;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("S3ObjectReference{key=");
+		builder.append(key);
+		builder.append("}");
+		return builder.toString();
+	}
+
 	/**
 	 * Get the object key.
 	 * 
@@ -98,6 +107,15 @@ public class S3ObjectReference {
 		return result;
 	}
 
+	/**
+	 * Test for equality.
+	 * 
+	 * <p>
+	 * Only the {@code key} property is compared for equality.
+	 * </p>
+	 * 
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if ( this == obj ) {

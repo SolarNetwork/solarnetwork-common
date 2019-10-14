@@ -22,18 +22,26 @@
 
 package net.solarnetwork.common.s3;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.stream.Collectors;
 import org.springframework.core.io.Resource;
+import net.solarnetwork.common.s3.sdk.SdkS3Client;
 import net.solarnetwork.io.ResourceStorageService;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
 import net.solarnetwork.settings.support.BaseSettingsSpecifierLocalizedServiceInfoProvider;
+import net.solarnetwork.settings.support.SettingUtils;
 import net.solarnetwork.util.ProgressListener;
 
 /**
- * AWS S3 based implementation of {@link ResourceStorageService}.
+ * AWS S3 based implementation of {@link ResourceStorageService} using the
+ * {@link S3Client} API.
  * 
  * @author matt
  * @version 1.0
@@ -42,12 +50,18 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 		implements ResourceStorageService, SettingSpecifierProvider {
 
 	private S3Client s3Client;
+	private Executor executor;
 
 	/**
-	 * Default constructor.
+	 * Constructor.
+	 * 
+	 * @param executor
+	 *        the executor to use
+	 * @throws IllegalArgumentException
+	 *         if {@code executor} is {@literal null}
 	 */
-	public S3ResourceStorageService() {
-		this(S3ResourceStorageService.class.getName());
+	public S3ResourceStorageService(Executor executor) {
+		this(S3ResourceStorageService.class.getName(), executor);
 	}
 
 	/**
@@ -55,10 +69,15 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * 
 	 * @param id
 	 *        the settings UID to use
+	 * @param executor
+	 *        the executor to use
+	 * @throws IllegalArgumentException
+	 *         if {@code executor} is {@literal null}
 	 */
-	public S3ResourceStorageService(String id) {
+	public S3ResourceStorageService(String id, Executor executor) {
 		super(id);
-		s3Client = new SdkS3Client();
+		setS3Client(new SdkS3Client());
+		setExecutor(executor);
 	}
 
 	@Override
@@ -66,10 +85,59 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 		return s3Client.isConfigured();
 	}
 
+	/**
+	 * Execute a callable, setting the returned object as a completable future's
+	 * result.
+	 * 
+	 * @param <R>
+	 *        the future result value type
+	 * @param future
+	 *        the completable future to manage
+	 * @param task
+	 *        the task to execute
+	 */
+	private <R> void execute(CompletableFuture<R> future, Callable<R> task) {
+		final Executor executor = getExecutor();
+		try {
+			executor.execute(alwaysComplete(future, task));
+		} catch ( RejectedExecutionException e ) {
+			future.completeExceptionally(e);
+		}
+	}
+
+	private <R> Runnable alwaysComplete(CompletableFuture<R> future, Callable<R> r) {
+		return new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					R result = r.call();
+					future.complete(result);
+				} catch ( Throwable t ) {
+					future.completeExceptionally(t);
+				} finally {
+					if ( !future.isDone() ) {
+						future.completeExceptionally(new RuntimeException("Task failed to complete!"));
+					}
+				}
+			}
+		};
+	}
+
 	@Override
 	public CompletableFuture<Iterable<Resource>> listResources(String pathPrefix) {
-		// TODO Auto-generated method stub
-		return null;
+		final CompletableFuture<Iterable<Resource>> result = new CompletableFuture<Iterable<Resource>>();
+		execute(result, new Callable<Iterable<Resource>>() {
+
+			@Override
+			public Iterable<Resource> call() throws Exception {
+				S3Client c = getS3Client();
+				Set<S3ObjectReference> refs = c.listObjects(pathPrefix);
+				return refs.stream().map(r -> new S3ClientResource(c, r)).collect(Collectors.toList());
+			}
+
+		});
+		return result;
 	}
 
 	@Override
@@ -94,8 +162,16 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	@Override
 	public List<SettingSpecifier> getSettingSpecifiers() {
-		// TODO Auto-generated method stub
-		return null;
+		List<SettingSpecifier> result = new ArrayList<>(8);
+		S3Client c = getS3Client();
+		if ( c != null ) {
+			List<SettingSpecifier> clientSettings = SettingUtils
+					.mappedWithPrefix(c.getSettingSpecifiers(), "s3Client.");
+			if ( clientSettings != null ) {
+				result.addAll(clientSettings);
+			}
+		}
+		return result;
 	}
 
 	// Accessors
@@ -122,6 +198,30 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 			throw new IllegalArgumentException("The S3 client argument must not be null.");
 		}
 		this.s3Client = s3Client;
+	}
+
+	/**
+	 * Get the executor that handles asynchronous operations.
+	 * 
+	 * @return the executor, never {@literal null}
+	 */
+	public Executor getExecutor() {
+		return executor;
+	}
+
+	/**
+	 * Set the executor that handles asynchronous operations.
+	 * 
+	 * @param executor
+	 *        the executor to set
+	 * @throws IllegalArgumentException
+	 *         if {@code Executor} is {@literal null}
+	 */
+	public void setExecutor(Executor executor) {
+		if ( executor == null ) {
+			throw new IllegalArgumentException("The executor argument must not be null.");
+		}
+		this.executor = executor;
 	}
 
 }
