@@ -32,4 +32,11 @@ import org.springframework.core.io.InputStreamSource;
  */
 public interface S3Object extends InputStreamSource {
 
+	/**
+	 * Get the metadata associated with this object.
+	 * 
+	 * @return the metadata
+	 */
+	S3ObjectMetadata getMetadata();
+
 }

@@ -179,6 +179,8 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 		AmazonS3 client = getClient();
 		try {
 			com.amazonaws.services.s3.model.S3Object obj = client.getObject(bucketName, key);
+			log.debug("Got S3 object {}/{} ({})", bucketName, key,
+					obj.getObjectMetadata().getContentLength());
 			return new SdkS3Object(obj);
 		} catch ( AmazonServiceException e ) {
 			log.warn("AWS error: {}; HTTP code {}; AWS code {}; type {}; request ID {}", e.getMessage(),

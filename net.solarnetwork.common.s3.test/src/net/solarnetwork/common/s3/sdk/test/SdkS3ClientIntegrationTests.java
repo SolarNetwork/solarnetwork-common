@@ -23,11 +23,21 @@
 package net.solarnetwork.common.s3.sdk.test;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,6 +49,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.util.FileCopyUtils;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
@@ -48,12 +59,15 @@ import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
 import com.amazonaws.services.s3.model.DeleteObjectsResult;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import net.solarnetwork.common.s3.S3ObjectMeta;
+import net.solarnetwork.common.s3.S3ObjectMetadata;
 import net.solarnetwork.common.s3.S3ObjectRef;
 import net.solarnetwork.common.s3.S3ObjectReference;
 import net.solarnetwork.common.s3.sdk.SdkS3Client;
 import net.solarnetwork.test.SystemPropertyMatchTestRule;
+import net.solarnetwork.util.ProgressListener;
 
 /**
  * Test cases for {@link SdkS3Client} that tests actual network operations.
@@ -144,6 +158,21 @@ public class SdkS3ClientIntegrationTests {
 		return builder.build();
 	}
 
+	private String objectAsString(AmazonS3 client, String key) {
+		AmazonS3URI uri = new AmazonS3URI(TEST_PROPS.getProperty("path"));
+		S3Object obj = client.getObject(uri.getBucket(), key);
+		try {
+			return FileCopyUtils.copyToString(new InputStreamReader(obj.getObjectContent(), "UTF-8"));
+		} catch ( IOException e ) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void putStringOject(AmazonS3 client, String key, String content) {
+		AmazonS3URI uri = new AmazonS3URI(TEST_PROPS.getProperty("path"));
+		client.putObject(uri.getBucket(), key, content);
+	}
+
 	private ListObjectsV2Result listS3(AmazonS3 client) {
 		AmazonS3URI uri = new AmazonS3URI(TEST_PROPS.getProperty("path"));
 		return client.listObjectsV2(uri.getBucket(), uri.getKey());
@@ -173,7 +202,7 @@ public class SdkS3ClientIntegrationTests {
 	}
 
 	@Test
-	public void saveResource() throws Exception {
+	public void putObject() throws Exception {
 		// GIVEN
 		s3 = getS3();
 		final String uniqueKey = objectKey(UUID.randomUUID().toString());
@@ -187,5 +216,69 @@ public class SdkS3ClientIntegrationTests {
 		// THEN
 		assertThat("Result success", result,
 				equalTo(new S3ObjectRef(uniqueKey, meta.getSize(), meta.getModified())));
+		assertThat("Remote content", objectAsString(s3, uniqueKey), equalTo(data));
+	}
+
+	@Test
+	public void putObject_withProgress() throws Exception {
+		// GIVEN
+		final String data = "All work and no play makes Jack a dull boy.";
+		final Path tmpFile = Files.createTempFile("s3-client-test-", ".txt");
+		try (PrintWriter out = new PrintWriter(
+				Files.newBufferedWriter(tmpFile, Charset.forName("UTF-8")))) {
+			for ( int i = 0; i < 1000; i++ ) {
+				out.println(data);
+			}
+		}
+		final S3ObjectMeta meta = new S3ObjectMeta(Files.size(tmpFile),
+				new Date(Files.getLastModifiedTime(tmpFile).toMillis()));
+		final String uniqueKey = objectKey(UUID.randomUUID().toString());
+		final List<Double> progressAmounts = new ArrayList<Double>(4);
+		final ProgressListener<Path> listener = new ProgressListener<Path>() {
+
+			@Override
+			public void progressChanged(Path context, double amountComplete) {
+				assertThat("Progress context is expected", context, sameInstance(tmpFile));
+				progressAmounts.add(amountComplete);
+			}
+		};
+		s3 = getS3();
+
+		// WHEN
+		S3ObjectReference result = client.putObject(uniqueKey, Files.newInputStream(tmpFile), meta,
+				listener, tmpFile);
+
+		// THEN
+		log.debug("Upload progress values: {}", progressAmounts);
+		assertThat("Result success", result,
+				equalTo(new S3ObjectRef(uniqueKey, meta.getSize(), meta.getModified())));
+		assertThat("Progress obtained", progressAmounts.size(), greaterThan(0));
+	}
+
+	@Test
+	public void getObject() throws Exception {
+		// GIVEN
+		s3 = getS3();
+		final long start = System.currentTimeMillis();
+		final String uniqueKey = objectKey(UUID.randomUUID().toString());
+		final String data = "Hello, world.";
+		putStringOject(s3, uniqueKey, data);
+
+		// WHEN
+		net.solarnetwork.common.s3.S3Object obj = client.getObject(uniqueKey);
+
+		// THEN
+		assertThat("Object returned", obj, notNullValue());
+		assertThat("Object content",
+				FileCopyUtils.copyToString(
+						new InputStreamReader(obj.getInputStream(), Charset.forName("UTF-8"))),
+				equalTo(data));
+
+		S3ObjectMetadata meta = obj.getMetadata();
+		assertThat("Metadata returned", meta, notNullValue());
+		assertThat("Metadata modified date returned", meta.getModified(), notNullValue());
+		assertThat("Metadata mod date", meta.getModified().getTime(), greaterThanOrEqualTo(start));
+		assertThat("Metadata content length", meta.getSize(),
+				equalTo((long) data.getBytes(Charset.forName("UTF-8")).length));
 	}
 }

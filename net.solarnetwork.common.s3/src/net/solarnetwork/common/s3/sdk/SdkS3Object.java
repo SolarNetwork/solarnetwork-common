@@ -24,7 +24,10 @@ package net.solarnetwork.common.s3.sdk;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import net.solarnetwork.common.s3.S3Object;
+import net.solarnetwork.common.s3.S3ObjectMetadata;
 
 /**
  * AWS SDK implementation of {@link S3Object}.
@@ -32,7 +35,7 @@ import net.solarnetwork.common.s3.S3Object;
  * @author matt
  * @version 1.0
  */
-public class SdkS3Object implements S3Object {
+public class SdkS3Object implements S3Object, S3ObjectMetadata {
 
 	private final com.amazonaws.services.s3.model.S3Object s3Object;
 
@@ -50,6 +53,23 @@ public class SdkS3Object implements S3Object {
 	@Override
 	public InputStream getInputStream() throws IOException {
 		return s3Object.getObjectContent();
+	}
+
+	@Override
+	public S3ObjectMetadata getMetadata() {
+		return this;
+	}
+
+	@Override
+	public Date getModified() {
+		ObjectMetadata m = s3Object.getObjectMetadata();
+		return (m != null ? m.getLastModified() : null);
+	}
+
+	@Override
+	public long getSize() {
+		ObjectMetadata m = s3Object.getObjectMetadata();
+		return (m != null ? m.getContentLength() : null);
 	}
 
 }
