@@ -221,7 +221,9 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 			for ( Map.Entry<String, ?> me : customMap.entrySet() ) {
 				meta.setHeader(me.getKey(), me.getValue());
 			}
-			meta.setLastModified(objectMetadata.getModified());
+			if ( objectMetadata.getModified() != null ) {
+				meta.setLastModified(objectMetadata.getModified());
+			}
 			meta.setContentLength(objectMetadata.getSize());
 			meta.setContentType(objectMetadata.getContentType().toString());
 			PutObjectRequest req = new PutObjectRequest(bucketName, key, in, meta);
