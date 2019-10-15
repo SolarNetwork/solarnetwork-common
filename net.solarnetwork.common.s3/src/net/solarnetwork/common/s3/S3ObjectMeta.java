@@ -23,7 +23,9 @@
 package net.solarnetwork.common.s3;
 
 import java.util.Date;
+import java.util.Map;
 import org.springframework.util.MimeType;
+import net.solarnetwork.io.SimpleResourceMetadata;
 
 /**
  * Immutable implementation of {@link S3ObjectMetadata}.
@@ -31,11 +33,9 @@ import org.springframework.util.MimeType;
  * @author matt
  * @version 1.0
  */
-public class S3ObjectMeta implements S3ObjectMetadata {
+public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMetadata {
 
-	private final Date modified;
 	private final long size;
-	private final MimeType contentType;
 
 	/**
 	 * Constructor.
@@ -46,7 +46,7 @@ public class S3ObjectMeta implements S3ObjectMetadata {
 	 *        the modified date
 	 */
 	public S3ObjectMeta(long size, Date modified) {
-		this(size, modified, DEFAULT_CONTENT_TYPE);
+		this(size, modified, DEFAULT_CONTENT_TYPE, null);
 	}
 
 	/**
@@ -60,15 +60,25 @@ public class S3ObjectMeta implements S3ObjectMetadata {
 	 *        the content type
 	 */
 	public S3ObjectMeta(long size, Date modified, MimeType contentType) {
-		super();
-		this.size = size;
-		this.modified = modified;
-		this.contentType = (contentType != null ? contentType : DEFAULT_CONTENT_TYPE);
+		this(size, modified, contentType, null);
 	}
 
-	@Override
-	public Date getModified() {
-		return modified;
+	/**
+	 * Constructor.
+	 * 
+	 * @param size
+	 *        the content size
+	 * @param modified
+	 *        the modified date
+	 * @param contentType
+	 *        the content type
+	 * @param extendedMetadata
+	 *        extended metadata
+	 */
+	public S3ObjectMeta(long size, Date modified, MimeType contentType,
+			Map<String, ?> extendedMetadata) {
+		super(modified, contentType, extendedMetadata);
+		this.size = size;
 	}
 
 	@Override
@@ -77,8 +87,9 @@ public class S3ObjectMeta implements S3ObjectMetadata {
 	}
 
 	@Override
-	public MimeType getContentType() {
-		return contentType;
+	public void populateMap(Map<String, Object> map) {
+		map.put(CONTENT_TYPE_KEY, size);
+		super.populateMap(map);
 	}
 
 }

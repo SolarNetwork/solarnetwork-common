@@ -1,5 +1,5 @@
 /* ==================================================================
- * S3Object.java - 15/10/2019 10:49:44 am
+ * ResourceMetadataHolder.java - 16/10/2019 6:47:49 am
  * 
  * Copyright 2019 SolarNetwork.net Dev Team
  * 
@@ -20,25 +20,22 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.s3;
-
-import org.springframework.core.io.InputStreamSource;
-import net.solarnetwork.io.ResourceMetadataHolder;
+package net.solarnetwork.io;
 
 /**
- * API for an object in S3.
+ * An object that holds a reference to resource metadata.
  * 
  * @author matt
  * @version 1.0
+ * @since 1.54
  */
-public interface S3Object extends InputStreamSource, ResourceMetadataHolder {
+public interface ResourceMetadataHolder {
 
 	/**
-	 * Get the metadata associated with this object.
+	 * Get the resource metadata.
 	 * 
-	 * @return the metadata
+	 * @return the metadata, or {@literal null} if not available
 	 */
-	@Override
-	S3ObjectMetadata getMetadata();
+	ResourceMetadata getMetadata();
 
 }

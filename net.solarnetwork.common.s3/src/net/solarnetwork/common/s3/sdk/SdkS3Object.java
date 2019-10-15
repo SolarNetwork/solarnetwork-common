@@ -25,6 +25,7 @@ package net.solarnetwork.common.s3.sdk;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.Map;
 import org.springframework.util.MimeType;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import net.solarnetwork.common.s3.S3Object;
@@ -78,6 +79,16 @@ public class SdkS3Object implements S3Object, S3ObjectMetadata {
 		ObjectMetadata m = s3Object.getObjectMetadata();
 		return (m != null && m.getContentType() != null ? MimeType.valueOf(m.getContentType())
 				: S3ObjectMetadata.DEFAULT_CONTENT_TYPE);
+	}
+
+	@Override
+	public void populateMap(Map<String, Object> map) {
+		ObjectMetadata m = s3Object.getObjectMetadata();
+		Map<String, Object> extra = (m != null ? m.getRawMetadata() : null);
+		if ( extra != null ) {
+			map.putAll(extra);
+		}
+		S3ObjectMetadata.super.populateMap(map);
 	}
 
 }

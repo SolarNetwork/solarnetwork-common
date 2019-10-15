@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -357,6 +358,9 @@ public class SdkS3ClientIntegrationTests {
 		assertThat("Metadata content length", meta.getSize(),
 				equalTo((long) data.getBytes(Charset.forName("UTF-8")).length));
 		assertThat("Metadata content type", meta.getContentType(), equalTo(contentType));
+
+		Map<String, ?> mm = meta.asMap();
+		log.debug("Got meta map: {}", mm);
 	}
 
 	@Test

@@ -22,8 +22,7 @@
 
 package net.solarnetwork.common.s3;
 
-import java.util.Date;
-import org.springframework.util.MimeType;
+import net.solarnetwork.io.ResourceMetadata;
 
 /**
  * Metadata related to an S3 object.
@@ -31,17 +30,10 @@ import org.springframework.util.MimeType;
  * @author matt
  * @version 1.0
  */
-public interface S3ObjectMetadata {
+public interface S3ObjectMetadata extends ResourceMetadata {
 
-	/** The default content type value. */
-	MimeType DEFAULT_CONTENT_TYPE = MimeType.valueOf("application/octet-stream");
-
-	/**
-	 * Get the modification date.
-	 * 
-	 * @return the modified date
-	 */
-	Date getModified();
+	/** The metadata map key for the {@link #getSize()} value. */
+	String SIZE_KEY = "Content-Length";
 
 	/**
 	 * Get the object's content size.
@@ -49,12 +41,5 @@ public interface S3ObjectMetadata {
 	 * @return the size, in bytes
 	 */
 	long getSize();
-
-	/**
-	 * Get the MIME type of the object content.
-	 * 
-	 * @return the content type, never {@literal null}
-	 */
-	MimeType getContentType();
 
 }
