@@ -54,7 +54,7 @@ public class S3ClientResource extends AbstractResource implements Resource {
 			throw new IllegalArgumentException("The S3Client argument must not be null.");
 		}
 		if ( ref == null ) {
-			throw new IllegalArgumentException("The S3ObjectReference argument must not be null.");
+			throw new IllegalArgumentException("The S3ObjectRef argument must not be null.");
 		}
 		this.client = client;
 		this.ref = ref;
@@ -85,7 +85,7 @@ public class S3ClientResource extends AbstractResource implements Resource {
 	 * 
 	 * <p>
 	 * This implementation returns a hash built from
-	 * {@link S3Client#getSettingUID()} and {@link S3ObjectReference}.
+	 * {@link S3Client#getSettingUID()} and {@link S3ObjectRef}.
 	 * </p>
 	 * 
 	 * {@inheritDoc}
@@ -100,7 +100,7 @@ public class S3ClientResource extends AbstractResource implements Resource {
 	 * 
 	 * <p>
 	 * This implementation compares the {@link S3Client#getSettingUID()} and
-	 * {@link S3ObjectReference} values.
+	 * {@link S3ObjectRef} values.
 	 * </p>
 	 * 
 	 * {@inheritDoc}

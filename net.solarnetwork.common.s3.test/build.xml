@@ -5,6 +5,8 @@
 		<include name="net.solarnetwork.common.s3"/>
 	</dirset>
 
+	<!--property name="dir.env.input" value="../net.solarnetwork.common.test"/-->
+
 	<property name="compile.source" value="1.8"/>
 	<property name="compile.target" value="1.8"/>
 	<property name="dir.osgi.base" value="${basedir}/../../solarnetwork-build/solarnetwork-osgi-lib"/>	

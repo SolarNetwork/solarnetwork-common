@@ -1,5 +1,5 @@
 /* ==================================================================
- * S3ObjectReference.java - 15/10/2019 10:52:43 am
+ * S3ObjectMeta.java - 15/10/2019 1:55:27 pm
  * 
  * Copyright 2019 SolarNetwork.net Dev Team
  * 
@@ -25,32 +25,38 @@ package net.solarnetwork.common.s3;
 import java.util.Date;
 
 /**
- * API for information about an S3 object.
+ * Immutable implementation of {@link S3ObjectMetadata}.
  * 
  * @author matt
  * @version 1.0
  */
-public interface S3ObjectReference {
+public class S3ObjectMeta implements S3ObjectMetadata {
+
+	private final Date modified;
+	private final long size;
 
 	/**
-	 * Get the object key.
+	 * Constructor.
 	 * 
-	 * @return the key
+	 * @param size
+	 *        the content size
+	 * @param modified
+	 *        the modified date
 	 */
-	String getKey();
+	public S3ObjectMeta(long size, Date modified) {
+		super();
+		this.size = size;
+		this.modified = modified;
+	}
 
-	/**
-	 * Get the object size.
-	 * 
-	 * @return the size, in bytes
-	 */
-	long getSize();
+	@Override
+	public Date getModified() {
+		return modified;
+	}
 
-	/**
-	 * Get the modification date.
-	 * 
-	 * @return the modified date
-	 */
-	Date getModified();
+	@Override
+	public long getSize() {
+		return size;
+	}
 
 }

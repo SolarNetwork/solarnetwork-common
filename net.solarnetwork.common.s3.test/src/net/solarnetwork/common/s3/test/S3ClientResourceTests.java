@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import net.solarnetwork.common.s3.S3Client;
 import net.solarnetwork.common.s3.S3ClientResource;
-import net.solarnetwork.common.s3.S3ObjectReference;
+import net.solarnetwork.common.s3.S3ObjectRef;
 
 /**
  * Test cases for the {@link S3ClientResource} class.
@@ -70,7 +70,7 @@ public class S3ClientResourceTests {
 
 		// WHEN
 		replayAll();
-		S3ObjectReference ref = new S3ObjectReference("foo");
+		S3ObjectRef ref = new S3ObjectRef("foo");
 		S3ClientResource r = new S3ClientResource(s3Client, ref);
 		int result = r.hashCode();
 
@@ -86,12 +86,12 @@ public class S3ClientResourceTests {
 
 		// WHEN
 		replayAll();
-		S3ObjectReference ref = new S3ObjectReference("foo");
+		S3ObjectRef ref = new S3ObjectRef("foo");
 		S3ClientResource r = new S3ClientResource(s3Client, ref);
 
 		// THEN
 		assertThat("Different resource with same setting UID and object ref are equal", r,
-				equalTo(new S3ClientResource(s3Client, new S3ObjectReference("foo"))));
+				equalTo(new S3ClientResource(s3Client, new S3ObjectRef("foo"))));
 	}
 
 	@Test
@@ -101,12 +101,12 @@ public class S3ClientResourceTests {
 
 		// WHEN
 		replayAll();
-		S3ObjectReference ref = new S3ObjectReference("foo");
+		S3ObjectRef ref = new S3ObjectRef("foo");
 		S3ClientResource r = new S3ClientResource(s3Client, ref);
 
 		// THEN
 		assertThat("Different resource with same setting UID and object ref are equal", r,
-				not(equalTo(new S3ClientResource(s3Client, new S3ObjectReference("FOOBAR")))));
+				not(equalTo(new S3ClientResource(s3Client, new S3ObjectRef("FOOBAR")))));
 	}
 
 	@Test
@@ -118,12 +118,12 @@ public class S3ClientResourceTests {
 
 		// WHEN
 		replayAll(c2);
-		S3ObjectReference ref = new S3ObjectReference("foo");
+		S3ObjectRef ref = new S3ObjectRef("foo");
 		S3ClientResource r = new S3ClientResource(s3Client, ref);
 
 		// THEN
 		assertThat("Different resource with same setting UID and object ref are equal", r,
-				not(equalTo(new S3ClientResource(c2, new S3ObjectReference("foo")))));
+				not(equalTo(new S3ClientResource(c2, new S3ObjectRef("foo")))));
 	}
 
 }

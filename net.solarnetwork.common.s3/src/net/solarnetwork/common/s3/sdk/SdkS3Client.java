@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -34,6 +35,8 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -45,11 +48,15 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import net.solarnetwork.common.s3.S3Client;
+import net.solarnetwork.common.s3.S3ObjectMetadata;
+import net.solarnetwork.common.s3.S3ObjectRef;
 import net.solarnetwork.common.s3.S3ObjectReference;
 import net.solarnetwork.settings.SettingSpecifier;
+import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.settings.support.BaseSettingsSpecifierLocalizedServiceInfoProvider;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 import net.solarnetwork.support.RemoteServiceException;
+import net.solarnetwork.util.ProgressListener;
 
 /**
  * {@link S3Client} using the AWS SDK.
@@ -58,7 +65,7 @@ import net.solarnetwork.support.RemoteServiceException;
  * @version 1.0
  */
 public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
-		implements S3Client {
+		implements S3Client, SettingsChangeObserver {
 
 	/** The default value for the {@code regionName} property. */
 	public static final String DEFAULT_REGION_NAME = Regions.US_WEST_2.getName();
@@ -66,14 +73,16 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	/** The default value for the {@code maximumKeysPerRequest} property. */
 	public static final int DEFAULT_MAXIMUM_KEYS_PER_REQUEST = 500;
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	private String accessToken;
+	private String accessSecret;
 	private String bucketName;
 	private String regionName = DEFAULT_REGION_NAME;
 	private int maximumKeysPerRequest = DEFAULT_MAXIMUM_KEYS_PER_REQUEST;
 	private AWSCredentialsProvider credentialsProvider;
 
 	private AmazonS3 s3Client;
-
-	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Default constructor.
@@ -90,6 +99,17 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	 */
 	public SdkS3Client(String id) {
 		super(id);
+	}
+
+	@Override
+	public synchronized void configurationChanged(Map<String, Object> properties) {
+		if ( credentialsProvider == null ) {
+			credentialsProvider = new AWSStaticCredentialsProvider(
+					new BasicAWSCredentials(accessToken, accessSecret));
+		}
+		if ( s3Client != null ) {
+			s3Client = null;
+		}
 	}
 
 	private synchronized AmazonS3 getClient() {
@@ -122,7 +142,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 				listResult = client.listObjectsV2(req);
 
 				for ( S3ObjectSummary objectSummary : listResult.getObjectSummaries() ) {
-					result.add(new S3ObjectReference(objectSummary.getKey(), objectSummary.getSize(),
+					result.add(new S3ObjectRef(objectSummary.getKey(), objectSummary.getSize(),
 							objectSummary.getLastModified()));
 				}
 				req.setContinuationToken(listResult.getNextContinuationToken());
@@ -171,14 +191,22 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	}
 
 	@Override
-	public S3ObjectReference putObject(String key, InputStream in, ObjectMetadata objectMetadata)
-			throws IOException {
+	public <P> S3ObjectReference putObject(String key, InputStream in, S3ObjectMetadata objectMetadata,
+			ProgressListener<P> progressListener, P progressContext) throws IOException {
 		AmazonS3 client = getClient();
 		try {
-			PutObjectRequest req = new PutObjectRequest(bucketName, key, in, objectMetadata);
+			ObjectMetadata meta = new ObjectMetadata();
+			meta.setLastModified(objectMetadata.getModified());
+			meta.setContentLength(objectMetadata.getSize());
+			PutObjectRequest req = new PutObjectRequest(bucketName, key, in, meta);
+			if ( progressListener != null ) {
+				SdkTransferProgressListenerAdapter<P> adapter = new SdkTransferProgressListenerAdapter<P>(
+						progressListener, progressContext, true);
+				req.setGeneralProgressListener(adapter);
+			}
 			client.putObject(req);
-			return new S3ObjectReference(key, objectMetadata.getContentLength(),
-					objectMetadata.getLastModified());
+			log.debug("Put S3 object {}/{} ({})", bucketName, key, meta.getContentLength());
+			return new S3ObjectRef(key, objectMetadata.getSize(), objectMetadata.getModified());
 		} catch ( AmazonServiceException e ) {
 			log.warn("AWS error: {}; HTTP code {}; AWS code {}; type {}; request ID {}", e.getMessage(),
 					e.getStatusCode(), e.getErrorCode(), e.getErrorType(), e.getRequestId());
@@ -260,11 +288,36 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	/**
 	 * Set the credentials provider to authenticate with.
 	 * 
+	 * <p>
+	 * If this is configured, it takes precedence over any configured
+	 * {@code accessToken}/{@code accessSecret}.
+	 * </p>
+	 * 
 	 * @param credentialsProvider
 	 *        the provider to set
 	 */
 	public void setCredentialsProvider(AWSCredentialsProvider credentialsProvider) {
 		this.credentialsProvider = credentialsProvider;
+	}
+
+	/**
+	 * Set the AWS access token to use.
+	 * 
+	 * @param accessToken
+	 *        the access token to set
+	 */
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
+	/**
+	 * Set the AWS access token secret to use.
+	 * 
+	 * @param accessSecret
+	 *        the access secret to set
+	 */
+	public void setAccessSecret(String accessSecret) {
+		this.accessSecret = accessSecret;
 	}
 
 }

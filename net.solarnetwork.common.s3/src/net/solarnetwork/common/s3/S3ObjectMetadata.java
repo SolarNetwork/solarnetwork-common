@@ -1,5 +1,5 @@
 /* ==================================================================
- * S3ObjectInfo.java - 15/10/2019 10:52:43 am
+ * S3ObjectMetadata.java - 15/10/2019 1:44:31 pm
  * 
  * Copyright 2019 SolarNetwork.net Dev Team
  * 
@@ -25,26 +25,12 @@ package net.solarnetwork.common.s3;
 import java.util.Date;
 
 /**
- * API for information about an S3 object.
+ * Metadata related to an S3 object.
  * 
  * @author matt
  * @version 1.0
  */
-public interface S3ObjectInfo {
-
-	/**
-	 * Get the object key.
-	 * 
-	 * @return the key
-	 */
-	String getKey();
-
-	/**
-	 * Get the object size.
-	 * 
-	 * @return the size, in bytes
-	 */
-	long getSize();
+public interface S3ObjectMetadata {
 
 	/**
 	 * Get the modification date.
@@ -52,5 +38,12 @@ public interface S3ObjectInfo {
 	 * @return the modified date
 	 */
 	Date getModified();
+
+	/**
+	 * Get the object's content size.
+	 * 
+	 * @return the size, in bytes
+	 */
+	long getSize();
 
 }

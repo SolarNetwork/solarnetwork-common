@@ -22,8 +22,12 @@
 
 package net.solarnetwork.common.s3;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -35,6 +39,7 @@ import net.solarnetwork.common.s3.sdk.SdkS3Client;
 import net.solarnetwork.io.ResourceStorageService;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
+import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.settings.support.BaseSettingsSpecifierLocalizedServiceInfoProvider;
 import net.solarnetwork.settings.support.SettingUtils;
 import net.solarnetwork.util.ProgressListener;
@@ -47,7 +52,7 @@ import net.solarnetwork.util.ProgressListener;
  * @version 1.0
  */
 public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
-		implements ResourceStorageService, SettingSpecifierProvider {
+		implements ResourceStorageService, SettingSpecifierProvider, SettingsChangeObserver {
 
 	private S3Client s3Client;
 	private Executor executor;
@@ -78,6 +83,14 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 		super(id);
 		setS3Client(new SdkS3Client());
 		setExecutor(executor);
+	}
+
+	@Override
+	public void configurationChanged(Map<String, Object> properties) {
+		S3Client client = getS3Client();
+		if ( client instanceof SettingsChangeObserver ) {
+			((SettingsChangeObserver) client).configurationChanged(properties);
+		}
 	}
 
 	@Override
@@ -126,7 +139,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	@Override
 	public CompletableFuture<Iterable<Resource>> listResources(String pathPrefix) {
-		final CompletableFuture<Iterable<Resource>> result = new CompletableFuture<Iterable<Resource>>();
+		final CompletableFuture<Iterable<Resource>> result = new CompletableFuture<>();
 		execute(result, new Callable<Iterable<Resource>>() {
 
 			@Override
@@ -143,8 +156,32 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	@Override
 	public CompletableFuture<Boolean> saveResource(String path, Resource resource, boolean replace,
 			ProgressListener<Resource> progressListener) {
-		// TODO Auto-generated method stub
-		return null;
+		final CompletableFuture<Boolean> result = new CompletableFuture<>();
+		execute(result, new Callable<Boolean>() {
+
+			@Override
+			public Boolean call() throws Exception {
+				S3Client c = getS3Client();
+				if ( !replace ) {
+					S3Object o = c.getObject(path);
+					if ( o != null ) {
+						return false;
+					}
+				}
+				long size = resource.contentLength();
+				Date modified = null;
+				try {
+					File file = resource.getFile();
+					modified = new Date(file.lastModified());
+				} catch ( FileNotFoundException e ) {
+					// ignore
+				}
+				S3ObjectMeta meta = new S3ObjectMeta(size, modified);
+				c.putObject(path, resource.getInputStream(), meta, progressListener, resource);
+				return true;
+			}
+		});
+		return result;
 	}
 
 	@Override

@@ -25,8 +25,8 @@ package net.solarnetwork.common.s3;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import net.solarnetwork.settings.SettingSpecifierProvider;
+import net.solarnetwork.util.ProgressListener;
 
 /**
  * API for accessing S3.
@@ -73,18 +73,24 @@ public interface S3Client extends SettingSpecifierProvider {
 	/**
 	 * Put an object onto S3.
 	 * 
+	 * @param <P>
+	 *        the progress context type
 	 * @param key
 	 *        the key of the object to put
 	 * @param in
 	 *        the object contents
 	 * @param objectMetadata
 	 *        the object metadata
+	 * @param progressListener
+	 *        an optional progress listener
+	 * @param progressContext
+	 *        an optional progress context
 	 * @return a reference to the put object
 	 * @throws IOException
 	 *         if an IO error occurs
 	 */
-	S3ObjectReference putObject(String key, InputStream in, ObjectMetadata objectMetadata)
-			throws IOException;
+	<P> S3ObjectReference putObject(String key, InputStream in, S3ObjectMetadata objectMetadata,
+			ProgressListener<P> progressListener, P progressContext) throws IOException;
 
 	/**
 	 * Delete a set of keys from S3.
