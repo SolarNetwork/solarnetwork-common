@@ -212,6 +212,10 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 		AmazonS3 client = getClient();
 		try {
 			ObjectMetadata meta = new ObjectMetadata();
+			Map<String, ?> customMap = objectMetadata.asCustomMap();
+			for ( Map.Entry<String, ?> me : customMap.entrySet() ) {
+				meta.setHeader(me.getKey(), me.getValue());
+			}
 			meta.setLastModified(objectMetadata.getModified());
 			meta.setContentLength(objectMetadata.getSize());
 			meta.setContentType(objectMetadata.getContentType().toString());

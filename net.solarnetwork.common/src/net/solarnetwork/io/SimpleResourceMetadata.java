@@ -88,11 +88,11 @@ public class SimpleResourceMetadata implements ResourceMetadata {
 
 	@Override
 	public void populateMap(Map<String, Object> map) {
-		ResourceMetadata.super.populateMap(map);
 		Map<String, Object> extended = getExtendedMetadata();
 		if ( extended != null ) {
 			map.putAll(extended);
 		}
+		ResourceMetadata.super.populateMap(map);
 	}
 
 	/**

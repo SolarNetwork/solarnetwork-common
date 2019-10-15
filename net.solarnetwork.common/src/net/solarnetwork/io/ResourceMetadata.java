@@ -23,6 +23,7 @@
 package net.solarnetwork.io;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import org.springframework.util.MimeType;
@@ -94,4 +95,42 @@ public interface ResourceMetadata {
 		}
 		map.put(CONTENT_TYPE_KEY, getContentType());
 	}
+
+	/**
+	 * Get the metadata as a map of key-value pairs, excluding any standard
+	 * metadata properties so that only custom metadata values are included.
+	 * 
+	 * @return a map of the custom metadata values
+	 */
+	default Map<String, ?> asCustomMap() {
+		Map<String, Object> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		populateMap(map);
+		for ( Iterator<String> itr = map.keySet().iterator(); itr.hasNext(); ) {
+			String k = itr.next();
+			if ( !isCustomKey(k) ) {
+				itr.remove();
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * Test if a metadata map key is standard or custom.
+	 * 
+	 * @param key
+	 *        the metadata key to test
+	 * @return {@literal true} if {@code key} represents a custom metadata key,
+	 *         {@literal false} if it represents a standard metadata key
+	 */
+	default boolean isCustomKey(String key) {
+		switch (key) {
+			case CONTENT_TYPE_KEY:
+			case MODIFIED_KEY:
+				return false;
+
+			default:
+				return true;
+		}
+	}
+
 }

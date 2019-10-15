@@ -88,8 +88,8 @@ public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMeta
 
 	@Override
 	public void populateMap(Map<String, Object> map) {
-		map.put(CONTENT_TYPE_KEY, size);
 		super.populateMap(map);
+		map.put(SIZE_KEY, size);
 	}
 
 }

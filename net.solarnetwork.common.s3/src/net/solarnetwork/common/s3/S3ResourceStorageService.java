@@ -35,7 +35,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 import org.springframework.core.io.Resource;
+import org.springframework.util.MimeType;
 import net.solarnetwork.common.s3.sdk.SdkS3Client;
+import net.solarnetwork.io.ResourceMetadata;
+import net.solarnetwork.io.ResourceMetadataHolder;
 import net.solarnetwork.io.ResourceStorageService;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
@@ -168,15 +171,37 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 						return false;
 					}
 				}
-				long size = resource.contentLength();
+				long size = -1;
 				Date modified = null;
-				try {
-					File file = resource.getFile();
-					modified = new Date(file.lastModified());
-				} catch ( FileNotFoundException e ) {
-					// ignore
+				MimeType contentType = null;
+				Map<String, ?> extendedMetadata = null;
+
+				ResourceMetadata resourceMeta = null;
+				if ( resource instanceof ResourceMetadata ) {
+					resourceMeta = (ResourceMetadata) resource;
+				} else if ( resource instanceof ResourceMetadataHolder ) {
+					resourceMeta = ((ResourceMetadataHolder) resource).getMetadata();
 				}
-				S3ObjectMeta meta = new S3ObjectMeta(size, modified);
+				if ( resourceMeta != null ) {
+					modified = resourceMeta.getModified();
+					contentType = resourceMeta.getContentType();
+					extendedMetadata = resourceMeta.asMap();
+				}
+
+				// fall back to extracting basic metadata directly from the resource
+				if ( size < 0 ) {
+					size = resource.contentLength();
+				}
+				if ( modified == null ) {
+					try {
+						File file = resource.getFile();
+						modified = new Date(file.lastModified());
+					} catch ( FileNotFoundException e ) {
+						// ignore
+					}
+				}
+
+				S3ObjectMeta meta = new S3ObjectMeta(size, modified, contentType, extendedMetadata);
 				c.putObject(path, resource.getInputStream(), meta, progressListener, resource);
 				return true;
 			}

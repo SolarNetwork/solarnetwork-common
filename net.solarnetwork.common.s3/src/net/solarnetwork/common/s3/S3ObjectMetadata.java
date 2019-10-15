@@ -42,4 +42,19 @@ public interface S3ObjectMetadata extends ResourceMetadata {
 	 */
 	long getSize();
 
+	@Override
+	default boolean isCustomKey(String key) {
+		boolean result = ResourceMetadata.super.isCustomKey(key);
+		if ( !result ) {
+			return false;
+		}
+		switch (key) {
+			case SIZE_KEY:
+				return false;
+
+			default:
+				return true;
+		}
+	}
+
 }

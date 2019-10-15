@@ -39,6 +39,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -253,6 +254,37 @@ public class SdkS3ClientIntegrationTests {
 
 		assertThat("Remote content type", obj.getObjectMetadata().getContentType(),
 				equalTo(meta.getContentType().toString()));
+	}
+
+	@Test
+	public void putObject_withContentDisposition() throws Exception {
+		// GIVEN
+		s3 = getS3();
+		final String uniqueKey = objectKey(UUID.randomUUID().toString());
+		final String data = "Hello, world.";
+		final ByteArrayResource r = new ByteArrayResource(data.getBytes(Charset.forName("UTF-8")));
+		final String contentDisposition = "attachment; filename=\"foo.txt\"";
+		final S3ObjectMeta meta = new S3ObjectMeta(r.contentLength(), new Date(),
+				MimeType.valueOf("text/plain; charset=utf-8"),
+				Collections.singletonMap("Content-Disposition", contentDisposition));
+
+		// WHEN
+		S3ObjectReference result = client.putObject(uniqueKey, r.getInputStream(), meta, null, null);
+
+		// THEN
+		assertThat("Result success", result,
+				equalTo(new S3ObjectRef(uniqueKey, meta.getSize(), meta.getModified())));
+
+		AmazonS3URI uri = new AmazonS3URI(TEST_PROPS.getProperty("path"));
+		S3Object obj = s3.getObject(uri.getBucket(), uniqueKey);
+		assertThat("Remote content",
+				FileCopyUtils.copyToString(new InputStreamReader(obj.getObjectContent(), "UTF-8")),
+				equalTo(data));
+
+		assertThat("Remote content type", obj.getObjectMetadata().getContentType(),
+				equalTo(meta.getContentType().toString()));
+		assertThat("Remote Content-Disposition preserved",
+				obj.getObjectMetadata().getContentDisposition(), equalTo(contentDisposition));
 	}
 
 	private Path createTempFile(String data, int count) throws IOException {
