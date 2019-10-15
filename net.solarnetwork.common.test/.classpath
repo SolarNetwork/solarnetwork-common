@@ -12,5 +12,6 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/solarnetwork-osgi-target/support/slf4j-log4j12-1.7.26.jar"/>
 	<classpathentry kind="output" path="build/eclipse"/>
 </classpath>
