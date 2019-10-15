@@ -31,6 +31,7 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isNull;
 import static org.easymock.EasyMock.same;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
@@ -247,5 +248,39 @@ public class S3ResourceStorageServiceTests {
 		assertThat("InputStream content", copyToString(new InputStreamReader(inCaptor.getValue())),
 				equalTo(data));
 		assertThat("Progress handled", progressValues, contains(0.25, 0.5, 0.75, 1.0));
+	}
+
+	@Test
+	public void deleteResources() throws Exception {
+		// GIVEN
+		Set<String> pathsToDelete = new LinkedHashSet<>(asList("one", "two", "three"));
+
+		expect(s3Client.deleteObjects(pathsToDelete)).andReturn(pathsToDelete);
+
+		// WHEN
+		replayAll();
+		CompletableFuture<Set<String>> result = service.deleteResources(pathsToDelete);
+
+		// THEN
+		assertThat("Result returned", result, notNullValue());
+		Set<String> notDeleted = result.get(5, TimeUnit.SECONDS);
+		assertThat("Result completed", notDeleted, hasSize(0));
+	}
+
+	@Test
+	public void deleteResources_notAllKeysExist() throws Exception {
+		// GIVEN
+		Set<String> pathsToDelete = new LinkedHashSet<>(asList("one", "two", "three", "four"));
+		Set<String> deletedKeys = new LinkedHashSet<>(asList("one", "three"));
+		expect(s3Client.deleteObjects(pathsToDelete)).andReturn(deletedKeys);
+
+		// WHEN
+		replayAll();
+		CompletableFuture<Set<String>> result = service.deleteResources(pathsToDelete);
+
+		// THEN
+		assertThat("Result returned", result, notNullValue());
+		Set<String> notDeleted = result.get(5, TimeUnit.SECONDS);
+		assertThat("Result completed", notDeleted, containsInAnyOrder("two", "four"));
 	}
 }

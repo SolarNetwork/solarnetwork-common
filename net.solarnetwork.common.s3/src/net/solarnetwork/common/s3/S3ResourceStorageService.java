@@ -22,10 +22,15 @@
 
 package net.solarnetwork.common.s3;
 
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.StreamSupport.stream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -185,6 +190,10 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 				if ( resourceMeta != null ) {
 					modified = resourceMeta.getModified();
 					contentType = resourceMeta.getContentType();
+					if ( resourceMeta instanceof S3ObjectMetadata ) {
+						S3ObjectMetadata s3ResourceMeta = (S3ObjectMetadata) resourceMeta;
+						size = s3ResourceMeta.getSize();
+					}
 					extendedMetadata = resourceMeta.asMap();
 				}
 
@@ -209,10 +218,36 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 		return result;
 	}
 
+	private static <T> Set<T> asSet(Iterable<T> iterable) {
+		if ( iterable == null ) {
+			return Collections.emptySet();
+		}
+		if ( iterable instanceof Set<?> ) {
+			return (Set<T>) iterable;
+		}
+		return stream(iterable.spliterator(), false).collect(toSet());
+	}
+
 	@Override
 	public CompletableFuture<Set<String>> deleteResources(Iterable<String> paths) {
-		// TODO Auto-generated method stub
-		return null;
+		final CompletableFuture<Set<String>> result = new CompletableFuture<>();
+		execute(result, new Callable<Set<String>>() {
+
+			@Override
+			public Set<String> call() throws Exception {
+				S3Client c = getS3Client();
+
+				Set<String> deletedPaths = c.deleteObjects(paths);
+				Set<String> notDeleted = new LinkedHashSet<>(asSet(paths));
+				for ( Iterator<String> itr = notDeleted.iterator(); itr.hasNext(); ) {
+					if ( deletedPaths.contains(itr.next()) ) {
+						itr.remove();
+					}
+				}
+				return notDeleted;
+			}
+		});
+		return result;
 	}
 
 	// SettingSpecifierProvider

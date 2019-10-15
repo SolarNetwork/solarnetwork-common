@@ -22,10 +22,13 @@
 
 package net.solarnetwork.common.s3.sdk.test;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -50,6 +53,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -64,6 +68,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.AmazonS3URI;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
 import com.amazonaws.services.s3.model.DeleteObjectsResult;
@@ -487,6 +492,94 @@ public class SdkS3ClientIntegrationTests {
 
 		// THEN
 		assertThat("Results returned", results, hasSize(0));
+	}
+
+	@Test
+	public void deleteObjects_single() throws Exception {
+		// GIVEN
+		s3 = getS3();
+		final String uniqueKey = objectKey(UUID.randomUUID().toString());
+		final String data = "Hello, world.";
+		putStringOject(s3, uniqueKey, data);
+
+		// WHEN
+		Set<String> deletedKeys = client.deleteObjects(Collections.singleton(uniqueKey));
+
+		// THEN
+		assertThat("Object returned", deletedKeys, notNullValue());
+		assertThat("Key deleted", deletedKeys, containsInAnyOrder(uniqueKey));
+
+		AmazonS3URI uri = new AmazonS3URI(TEST_PROPS.getProperty("path"));
+		try {
+			s3.getObject(uri.getBucket(), uniqueKey);
+			Assert.fail("Expected not-found exception.");
+		} catch ( AmazonS3Exception e ) {
+			assertThat("Exception is not-found", e.getStatusCode(), equalTo(404));
+		}
+	}
+
+	@Test
+	public void deleteObjects_multiple() throws Exception {
+		// GIVEN
+		s3 = getS3();
+		final String data = "Hello, world.";
+		Set<String> keys = new LinkedHashSet<>(4);
+		for ( int i = 0; i < 4; i++ ) {
+			final String uniqueKey = objectKey(i + "_" + UUID.randomUUID().toString());
+			putStringOject(s3, uniqueKey, data);
+			keys.add(uniqueKey);
+		}
+
+		// WHEN
+		Set<String> deletedKeys = client.deleteObjects(keys);
+
+		// THEN
+		assertThat("Object returned", deletedKeys, notNullValue());
+		assertThat("Keys deleted", deletedKeys, equalTo(keys));
+
+		AmazonS3URI uri = new AmazonS3URI(TEST_PROPS.getProperty("path"));
+		ListObjectsV2Result res = s3.listObjectsV2(uri.getBucket(), getObjectKeyPrefix());
+		Set<String> remainingKeys = res.getObjectSummaries().stream().map(s -> s.getKey())
+				.collect(Collectors.toSet());
+		for ( String k : keys ) {
+			assertThat("Deleted key not remaining", remainingKeys, not(hasItem(k)));
+		}
+	}
+
+	@Test
+	public void deleteObjects_multiple_mixed() throws Exception {
+		// GIVEN
+		s3 = getS3();
+		final String data = "Hello, world.";
+		Set<String> keysToDelete = new LinkedHashSet<>(4);
+		Set<String> keysToPreserve = new LinkedHashSet<>(4);
+		for ( int i = 0; i < 4; i++ ) {
+			final String uniqueKey = objectKey(i + "_" + UUID.randomUUID().toString());
+			putStringOject(s3, uniqueKey, data);
+			if ( i % 2 == 0 ) {
+				keysToDelete.add(uniqueKey);
+			} else {
+				keysToPreserve.add(uniqueKey);
+			}
+		}
+
+		// WHEN
+		Set<String> deletedKeys = client.deleteObjects(keysToDelete);
+
+		// THEN
+		assertThat("Object returned", deletedKeys, notNullValue());
+		assertThat("Keys deleted", deletedKeys, equalTo(keysToDelete));
+
+		AmazonS3URI uri = new AmazonS3URI(TEST_PROPS.getProperty("path"));
+		ListObjectsV2Result res = s3.listObjectsV2(uri.getBucket(), getObjectKeyPrefix());
+		Set<String> remainingKeys = res.getObjectSummaries().stream().map(s -> s.getKey())
+				.collect(Collectors.toSet());
+		for ( String k : keysToDelete ) {
+			assertThat("Deleted key not remaining", remainingKeys, not(hasItem(k)));
+		}
+		for ( String k : keysToPreserve ) {
+			assertThat("Preserved key remaining", remainingKeys, hasItem(k));
+		}
 	}
 
 }

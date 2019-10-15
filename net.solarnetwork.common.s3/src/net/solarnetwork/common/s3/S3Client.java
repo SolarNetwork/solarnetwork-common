@@ -113,7 +113,8 @@ public interface S3Client extends SettingSpecifierProvider {
 	 * 
 	 * @param keys
 	 *        the keys to delete
+	 * @return the keys that were deleted
 	 */
-	void deleteObjects(Set<String> keys) throws IOException;
+	Set<String> deleteObjects(Iterable<String> keys) throws IOException;
 
 }

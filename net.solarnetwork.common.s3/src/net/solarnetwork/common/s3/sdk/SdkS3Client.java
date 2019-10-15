@@ -22,9 +22,12 @@
 
 package net.solarnetwork.common.s3.sdk;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +45,8 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
+import com.amazonaws.services.s3.model.DeleteObjectsResult;
+import com.amazonaws.services.s3.model.DeleteObjectsResult.DeletedObject;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
@@ -239,12 +244,18 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	}
 
 	@Override
-	public void deleteObjects(Set<String> keys) throws IOException {
+	public Set<String> deleteObjects(Iterable<String> keys) throws IOException {
 		AmazonS3 client = getClient();
 		try {
-			DeleteObjectsRequest req = new DeleteObjectsRequest(bucketName)
-					.withKeys(keys.stream().map(k -> new KeyVersion(k)).collect(Collectors.toList()));
-			client.deleteObjects(req);
+			DeleteObjectsRequest req = new DeleteObjectsRequest(bucketName).withKeys(
+					stream(keys.spliterator(), false).map(k -> new KeyVersion(k)).collect(toList()));
+			DeleteObjectsResult res = client.deleteObjects(req);
+			List<DeletedObject> deleted = res.getDeletedObjects();
+			if ( deleted == null ) {
+				return Collections.emptySet();
+			}
+			return deleted.stream().map(d -> d.getKey())
+					.collect(Collectors.toCollection(LinkedHashSet::new));
 		} catch ( AmazonServiceException e ) {
 			log.warn("AWS error: {}; HTTP code {}; AWS code {}; type {}; request ID {}", e.getMessage(),
 					e.getStatusCode(), e.getErrorCode(), e.getErrorType(), e.getRequestId());
