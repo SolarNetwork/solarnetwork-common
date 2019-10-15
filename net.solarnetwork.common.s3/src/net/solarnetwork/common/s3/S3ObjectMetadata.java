@@ -23,6 +23,7 @@
 package net.solarnetwork.common.s3;
 
 import java.util.Date;
+import org.springframework.util.MimeType;
 
 /**
  * Metadata related to an S3 object.
@@ -31,6 +32,9 @@ import java.util.Date;
  * @version 1.0
  */
 public interface S3ObjectMetadata {
+
+	/** The default content type value. */
+	MimeType DEFAULT_CONTENT_TYPE = MimeType.valueOf("application/octet-stream");
 
 	/**
 	 * Get the modification date.
@@ -45,5 +49,12 @@ public interface S3ObjectMetadata {
 	 * @return the size, in bytes
 	 */
 	long getSize();
+
+	/**
+	 * Get the MIME type of the object content.
+	 * 
+	 * @return the content type, never {@literal null}
+	 */
+	MimeType getContentType();
 
 }

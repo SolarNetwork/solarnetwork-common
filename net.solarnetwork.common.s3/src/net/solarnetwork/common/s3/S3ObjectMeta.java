@@ -23,6 +23,7 @@
 package net.solarnetwork.common.s3;
 
 import java.util.Date;
+import org.springframework.util.MimeType;
 
 /**
  * Immutable implementation of {@link S3ObjectMetadata}.
@@ -34,6 +35,7 @@ public class S3ObjectMeta implements S3ObjectMetadata {
 
 	private final Date modified;
 	private final long size;
+	private final MimeType contentType;
 
 	/**
 	 * Constructor.
@@ -44,9 +46,24 @@ public class S3ObjectMeta implements S3ObjectMetadata {
 	 *        the modified date
 	 */
 	public S3ObjectMeta(long size, Date modified) {
+		this(size, modified, DEFAULT_CONTENT_TYPE);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param size
+	 *        the content size
+	 * @param modified
+	 *        the modified date
+	 * @param contentType
+	 *        the content type
+	 */
+	public S3ObjectMeta(long size, Date modified, MimeType contentType) {
 		super();
 		this.size = size;
 		this.modified = modified;
+		this.contentType = (contentType != null ? contentType : DEFAULT_CONTENT_TYPE);
 	}
 
 	@Override
@@ -57,6 +74,11 @@ public class S3ObjectMeta implements S3ObjectMetadata {
 	@Override
 	public long getSize() {
 		return size;
+	}
+
+	@Override
+	public MimeType getContentType() {
+		return contentType;
 	}
 
 }

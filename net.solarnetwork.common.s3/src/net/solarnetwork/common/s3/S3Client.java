@@ -32,6 +32,7 @@ import net.solarnetwork.util.ProgressListener;
  * API for accessing S3.
  * 
  * @author matt
+ * @version 1.0
  */
 public interface S3Client extends SettingSpecifierProvider {
 
@@ -39,7 +40,6 @@ public interface S3Client extends SettingSpecifierProvider {
 	 * Test if the client is fully configured.
 	 * 
 	 * @return {@literal true} if the client is configured
-	 * @since 1.1
 	 */
 	boolean isConfigured();
 
@@ -55,6 +55,10 @@ public interface S3Client extends SettingSpecifierProvider {
 	/**
 	 * Get the contents of a S3 object as a string.
 	 * 
+	 * <p>
+	 * The S3 object is assumed to use the {@code UTF-8} character set.
+	 * </p>
+	 * 
 	 * @param key
 	 *        the key of the object to get
 	 * @return the string, or {@literal null} if not found
@@ -63,6 +67,13 @@ public interface S3Client extends SettingSpecifierProvider {
 
 	/**
 	 * Get a S3 object.
+	 * 
+	 * <p>
+	 * Note that the returned object's data may not be fetched from S3 until the
+	 * {@code InputStream} returned by {@link S3Object#getInputStream()} is
+	 * read. That means the {@code progressListener} might not have any progress
+	 * callbacks until that time as well.
+	 * </p>
 	 * 
 	 * @param key
 	 *        the key of the object to get

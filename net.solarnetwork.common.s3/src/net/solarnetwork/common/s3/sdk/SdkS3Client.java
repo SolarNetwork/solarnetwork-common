@@ -157,6 +157,10 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 			log.debug("Error communicating with AWS: {}", e.getMessage());
 			throw new IOException("Error communicating with AWS", e);
 		}
+		if ( log.isDebugEnabled() ) {
+			log.debug("Listed {} S3 objects: {}", result.size(),
+					result.stream().map(r -> r.getKey()).collect(Collectors.toList()));
+		}
 		return result;
 	}
 
@@ -164,7 +168,9 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	public String getObjectAsString(String key) throws IOException {
 		AmazonS3 client = getClient();
 		try {
-			return client.getObjectAsString(bucketName, key);
+			String result = client.getObjectAsString(bucketName, key);
+			log.debug("Got S3 string {}/{} ({})", bucketName, key, result.length());
+			return result;
 		} catch ( AmazonServiceException e ) {
 			log.warn("AWS error: {}; HTTP code {}; AWS code {}; type {}; request ID {}", e.getMessage(),
 					e.getStatusCode(), e.getErrorCode(), e.getErrorType(), e.getRequestId());
@@ -208,6 +214,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 			ObjectMetadata meta = new ObjectMetadata();
 			meta.setLastModified(objectMetadata.getModified());
 			meta.setContentLength(objectMetadata.getSize());
+			meta.setContentType(objectMetadata.getContentType().toString());
 			PutObjectRequest req = new PutObjectRequest(bucketName, key, in, meta);
 			if ( progressListener != null ) {
 				SdkTransferProgressListenerAdapter<P> adapter = new SdkTransferProgressListenerAdapter<P>(

@@ -25,6 +25,7 @@ package net.solarnetwork.common.s3.sdk;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import org.springframework.util.MimeType;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import net.solarnetwork.common.s3.S3Object;
 import net.solarnetwork.common.s3.S3ObjectMetadata;
@@ -70,6 +71,13 @@ public class SdkS3Object implements S3Object, S3ObjectMetadata {
 	public long getSize() {
 		ObjectMetadata m = s3Object.getObjectMetadata();
 		return (m != null ? m.getContentLength() : null);
+	}
+
+	@Override
+	public MimeType getContentType() {
+		ObjectMetadata m = s3Object.getObjectMetadata();
+		return (m != null && m.getContentType() != null ? MimeType.valueOf(m.getContentType())
+				: S3ObjectMetadata.DEFAULT_CONTENT_TYPE);
 	}
 
 }

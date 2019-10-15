@@ -25,10 +25,12 @@ package net.solarnetwork.common.s3.sdk.test;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,8 +40,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -52,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.MimeType;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
@@ -61,6 +66,7 @@ import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
 import com.amazonaws.services.s3.model.DeleteObjectsResult;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import net.solarnetwork.common.s3.S3ObjectMeta;
@@ -221,6 +227,33 @@ public class SdkS3ClientIntegrationTests {
 		assertThat("Remote content", objectAsString(s3, uniqueKey), equalTo(data));
 	}
 
+	@Test
+	public void putObject_withContentType() throws Exception {
+		// GIVEN
+		s3 = getS3();
+		final String uniqueKey = objectKey(UUID.randomUUID().toString());
+		final String data = "Hello, world.";
+		final ByteArrayResource r = new ByteArrayResource(data.getBytes(Charset.forName("UTF-8")));
+		final S3ObjectMeta meta = new S3ObjectMeta(r.contentLength(), new Date(),
+				MimeType.valueOf("text/plain; charset=utf-8"));
+
+		// WHEN
+		S3ObjectReference result = client.putObject(uniqueKey, r.getInputStream(), meta, null, null);
+
+		// THEN
+		assertThat("Result success", result,
+				equalTo(new S3ObjectRef(uniqueKey, meta.getSize(), meta.getModified())));
+
+		AmazonS3URI uri = new AmazonS3URI(TEST_PROPS.getProperty("path"));
+		S3Object obj = s3.getObject(uri.getBucket(), uniqueKey);
+		assertThat("Remote content",
+				FileCopyUtils.copyToString(new InputStreamReader(obj.getObjectContent(), "UTF-8")),
+				equalTo(data));
+
+		assertThat("Remote content type", obj.getObjectMetadata().getContentType(),
+				equalTo(meta.getContentType().toString()));
+	}
+
 	private Path createTempFile(String data, int count) throws IOException {
 		final Path tmpFile = Files.createTempFile("s3-client-test-", ".txt");
 		try (PrintWriter out = new PrintWriter(
@@ -287,6 +320,58 @@ public class SdkS3ClientIntegrationTests {
 		assertThat("Metadata mod date", meta.getModified().getTime(), greaterThanOrEqualTo(start));
 		assertThat("Metadata content length", meta.getSize(),
 				equalTo((long) data.getBytes(Charset.forName("UTF-8")).length));
+		assertThat("Metadata content type", meta.getContentType(),
+				equalTo(MimeType.valueOf("text/plain")));
+	}
+
+	@Test
+	public void getObject_withContentType() throws Exception {
+		// GIVEN
+		s3 = getS3();
+		final long start = System.currentTimeMillis();
+		final String uniqueKey = objectKey(UUID.randomUUID().toString());
+		final String data = "Hello, world.";
+		final MimeType contentType = MimeType.valueOf("text/plain; charset=utf-8");
+
+		AmazonS3URI uri = new AmazonS3URI(TEST_PROPS.getProperty("path"));
+		ObjectMetadata objMeta = new ObjectMetadata();
+		objMeta.setContentLength(data.length());
+		objMeta.setContentType(contentType.toString());
+		s3.putObject(uri.getBucket(), uniqueKey,
+				new ByteArrayInputStream(data.getBytes(Charset.forName("UTF-8"))), objMeta);
+
+		// WHEN
+		net.solarnetwork.common.s3.S3Object obj = client.getObject(uniqueKey, null, null);
+
+		// THEN
+		assertThat("Object returned", obj, notNullValue());
+		assertThat("Object content",
+				FileCopyUtils.copyToString(
+						new InputStreamReader(obj.getInputStream(), Charset.forName("UTF-8"))),
+				equalTo(data));
+
+		S3ObjectMetadata meta = obj.getMetadata();
+		assertThat("Metadata returned", meta, notNullValue());
+		assertThat("Metadata modified date returned", meta.getModified(), notNullValue());
+		assertThat("Metadata mod date", meta.getModified().getTime(), greaterThanOrEqualTo(start));
+		assertThat("Metadata content length", meta.getSize(),
+				equalTo((long) data.getBytes(Charset.forName("UTF-8")).length));
+		assertThat("Metadata content type", meta.getContentType(), equalTo(contentType));
+	}
+
+	@Test
+	public void getObjectAsString() throws Exception {
+		// GIVEN
+		s3 = getS3();
+		final String uniqueKey = objectKey(UUID.randomUUID().toString());
+		final String data = "Hello, world.";
+		putStringOject(s3, uniqueKey, data);
+
+		// WHEN
+		String result = client.getObjectAsString(uniqueKey);
+
+		// THEN
+		assertThat("String returned", result, equalTo(data));
 	}
 
 	@Test
@@ -333,6 +418,39 @@ public class SdkS3ClientIntegrationTests {
 
 		log.debug("Download progress values: {}", progressAmounts);
 		assertThat("Progress obtained", progressAmounts.size(), greaterThan(0));
+	}
+
+	@Test
+	public void listObjects() throws Exception {
+		// GIVEN
+		s3 = getS3();
+		final String data = "Hello, world.";
+		Set<String> keys = new LinkedHashSet<>(3);
+		for ( int i = 0; i < 4; i++ ) {
+			final String uniqueKey = objectKey(i + "_" + UUID.randomUUID().toString());
+			putStringOject(s3, uniqueKey, data);
+			keys.add(uniqueKey);
+		}
+
+		// WHEN
+		Set<S3ObjectReference> results = client.listObjects(getObjectKeyPrefix());
+
+		// THEN
+		assertThat("Results returned", results, hasSize(4));
+		assertThat("Result keys", results.stream().map(r -> r.getKey()).collect(Collectors.toSet()),
+				equalTo(keys));
+	}
+
+	@Test
+	public void listObjects_empty() throws Exception {
+		// GIVEN
+		s3 = getS3();
+
+		// WHEN
+		Set<S3ObjectReference> results = client.listObjects(getObjectKeyPrefix());
+
+		// THEN
+		assertThat("Results returned", results, hasSize(0));
 	}
 
 }
