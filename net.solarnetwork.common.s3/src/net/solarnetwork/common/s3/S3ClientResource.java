@@ -62,7 +62,7 @@ public class S3ClientResource extends AbstractResource implements Resource {
 
 	@Override
 	public InputStream getInputStream() throws IOException {
-		S3Object obj = client.getObject(ref.getKey());
+		S3Object obj = client.getObject(ref.getKey(), null, null);
 		return obj.getInputStream();
 	}
 

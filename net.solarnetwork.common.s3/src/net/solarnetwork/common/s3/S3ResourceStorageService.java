@@ -163,7 +163,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 			public Boolean call() throws Exception {
 				S3Client c = getS3Client();
 				if ( !replace ) {
-					S3Object o = c.getObject(path);
+					S3Object o = c.getObject(path, null, null);
 					if ( o != null ) {
 						return false;
 					}

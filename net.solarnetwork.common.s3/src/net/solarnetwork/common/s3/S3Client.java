@@ -66,9 +66,14 @@ public interface S3Client extends SettingSpecifierProvider {
 	 * 
 	 * @param key
 	 *        the key of the object to get
+	 * @param progressListener
+	 *        an optional progress listener
+	 * @param progressContext
+	 *        an optional progress context
 	 * @return the object, or {@literal null} if not found
 	 */
-	S3Object getObject(String key) throws IOException;
+	<P> S3Object getObject(String key, ProgressListener<P> progressListener, P progressContext)
+			throws IOException;
 
 	/**
 	 * Put an object onto S3.

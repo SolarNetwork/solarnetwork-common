@@ -42,6 +42,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -175,10 +176,17 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	}
 
 	@Override
-	public net.solarnetwork.common.s3.S3Object getObject(String key) throws IOException {
+	public <P> net.solarnetwork.common.s3.S3Object getObject(String key,
+			ProgressListener<P> progressListener, P progressContext) throws IOException {
 		AmazonS3 client = getClient();
 		try {
-			com.amazonaws.services.s3.model.S3Object obj = client.getObject(bucketName, key);
+			GetObjectRequest req = new GetObjectRequest(bucketName, key);
+			if ( progressListener != null ) {
+				SdkTransferProgressListenerAdapter<P> adapter = new SdkTransferProgressListenerAdapter<P>(
+						progressListener, progressContext, false);
+				req.setGeneralProgressListener(adapter);
+			}
+			com.amazonaws.services.s3.model.S3Object obj = client.getObject(req);
 			log.debug("Got S3 object {}/{} ({})", bucketName, key,
 					obj.getObjectMetadata().getContentLength());
 			return new SdkS3Object(obj);
