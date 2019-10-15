@@ -97,6 +97,24 @@ public interface ResourceMetadata {
 	}
 
 	/**
+	 * Get the metadata as a map of key-value pairs, excluding any custom
+	 * metadata properties so that only standard metadata values are included.
+	 * 
+	 * @return a map of the standard metadata values
+	 */
+	default Map<String, ?> asStandardMap() {
+		Map<String, Object> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		populateMap(map);
+		for ( Iterator<String> itr = map.keySet().iterator(); itr.hasNext(); ) {
+			String k = itr.next();
+			if ( isCustomKey(k) ) {
+				itr.remove();
+			}
+		}
+		return map;
+	}
+
+	/**
 	 * Get the metadata as a map of key-value pairs, excluding any standard
 	 * metadata properties so that only custom metadata values are included.
 	 * 
