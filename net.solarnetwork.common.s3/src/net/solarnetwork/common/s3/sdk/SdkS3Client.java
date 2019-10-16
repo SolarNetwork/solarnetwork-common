@@ -109,7 +109,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	@Override
 	public synchronized void configurationChanged(Map<String, Object> properties) {
-		if ( credentialsProvider == null ) {
+		if ( credentialsProvider == null && accessToken != null && accessSecret != null ) {
 			credentialsProvider = new AWSStaticCredentialsProvider(
 					new BasicAWSCredentials(accessToken, accessSecret));
 		}

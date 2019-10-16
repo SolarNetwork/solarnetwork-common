@@ -22,6 +22,7 @@
 
 package net.solarnetwork.common.s3;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import java.io.File;
@@ -38,7 +39,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 import org.springframework.core.io.Resource;
 import org.springframework.util.MimeType;
 import net.solarnetwork.common.s3.sdk.SdkS3Client;
@@ -49,6 +50,7 @@ import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
 import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.settings.support.BaseSettingsSpecifierLocalizedServiceInfoProvider;
+import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 import net.solarnetwork.settings.support.SettingUtils;
 import net.solarnetwork.util.ProgressListener;
 
@@ -64,6 +66,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	private S3Client s3Client;
 	private Executor executor;
+	private String objectKeyPrefix;
 
 	/**
 	 * Constructor.
@@ -99,6 +102,18 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 		if ( client instanceof SettingsChangeObserver ) {
 			((SettingsChangeObserver) client).configurationChanged(properties);
 		}
+	}
+
+	private String mapPathPrefix(String prefix, String path) {
+		if ( path != null && prefix != null && !path.startsWith(prefix) ) {
+			return prefix + path;
+		}
+		return path;
+	}
+
+	private Function<String, String> pathPrefixMapper() {
+		final String prefix = getObjectKeyPrefix();
+		return s -> mapPathPrefix(prefix, s);
 	}
 
 	@Override
@@ -147,14 +162,15 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	@Override
 	public CompletableFuture<Iterable<Resource>> listResources(String pathPrefix) {
+		final String prefix = mapPathPrefix(objectKeyPrefix, pathPrefix);
 		final CompletableFuture<Iterable<Resource>> result = new CompletableFuture<>();
 		execute(result, new Callable<Iterable<Resource>>() {
 
 			@Override
 			public Iterable<Resource> call() throws Exception {
 				S3Client c = getS3Client();
-				Set<S3ObjectReference> refs = c.listObjects(pathPrefix);
-				return refs.stream().map(r -> new S3ClientResource(c, r)).collect(Collectors.toList());
+				Set<S3ObjectReference> refs = c.listObjects(prefix);
+				return refs.stream().map(r -> new S3ClientResource(c, r)).collect(toList());
 			}
 
 		});
@@ -164,6 +180,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	@Override
 	public CompletableFuture<Boolean> saveResource(String path, Resource resource, boolean replace,
 			ProgressListener<Resource> progressListener) {
+		final String p = mapPathPrefix(objectKeyPrefix, path);
 		final CompletableFuture<Boolean> result = new CompletableFuture<>();
 		execute(result, new Callable<Boolean>() {
 
@@ -171,7 +188,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 			public Boolean call() throws Exception {
 				S3Client c = getS3Client();
 				if ( !replace ) {
-					S3Object o = c.getObject(path, null, null);
+					S3Object o = c.getObject(p, null, null);
 					if ( o != null ) {
 						return false;
 					}
@@ -211,7 +228,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 				}
 
 				S3ObjectMeta meta = new S3ObjectMeta(size, modified, contentType, extendedMetadata);
-				c.putObject(path, resource.getInputStream(), meta, progressListener, resource);
+				c.putObject(p, resource.getInputStream(), meta, progressListener, resource);
 				return true;
 			}
 		});
@@ -230,6 +247,8 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	@Override
 	public CompletableFuture<Set<String>> deleteResources(Iterable<String> paths) {
+		final Set<String> p = stream(paths.spliterator(), false).map(pathPrefixMapper())
+				.collect(toSet());
 		final CompletableFuture<Set<String>> result = new CompletableFuture<>();
 		execute(result, new Callable<Set<String>>() {
 
@@ -237,8 +256,8 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 			public Set<String> call() throws Exception {
 				S3Client c = getS3Client();
 
-				Set<String> deletedPaths = c.deleteObjects(paths);
-				Set<String> notDeleted = new LinkedHashSet<>(asSet(paths));
+				Set<String> deletedPaths = c.deleteObjects(p);
+				Set<String> notDeleted = new LinkedHashSet<>(asSet(p));
 				for ( Iterator<String> itr = notDeleted.iterator(); itr.hasNext(); ) {
 					if ( deletedPaths.contains(itr.next()) ) {
 						itr.remove();
@@ -268,6 +287,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 				result.addAll(clientSettings);
 			}
 		}
+		result.add(new BasicTextFieldSettingSpecifier("objectKeyPrefix", ""));
 		return result;
 	}
 
@@ -319,6 +339,31 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 			throw new IllegalArgumentException("The executor argument must not be null.");
 		}
 		this.executor = executor;
+	}
+
+	/**
+	 * Get the S3 object key prefix.
+	 * 
+	 * @return the prefix to use, or {@literal null}
+	 */
+	public String getObjectKeyPrefix() {
+		return objectKeyPrefix;
+	}
+
+	/**
+	 * Set a S3 object key prefix to use.
+	 * 
+	 * <p>
+	 * This can essentially be a folder path to prefix all data with. All keys
+	 * passed to all methods that do <b>not</b> already start with this prefix
+	 * will have the prefix added before passing the operation to S3.
+	 * </p>
+	 * 
+	 * @param objectKeyPrefix
+	 *        the object key prefix to set, or {@literal null} for no prefix
+	 */
+	public void setObjectKeyPrefix(String objectKeyPrefix) {
+		this.objectKeyPrefix = objectKeyPrefix;
 	}
 
 }

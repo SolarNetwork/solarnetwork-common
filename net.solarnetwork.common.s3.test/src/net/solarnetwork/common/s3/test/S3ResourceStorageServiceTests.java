@@ -24,6 +24,7 @@ package net.solarnetwork.common.s3.test;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.eq;
@@ -113,7 +114,7 @@ public class S3ResourceStorageServiceTests {
 		// THEN
 		assertThat("Settings available", settings, notNullValue());
 		Map<String, Object> settingData = SettingUtils.keyedSettingDefaults(settings);
-		assertThat("Settings count", settingData.keySet(), hasSize(5));
+		assertThat("Settings count", settingData.keySet(), hasSize(6));
 		assertThat("Settings token value", settingData, hasEntry("s3Client.accessToken", ""));
 		assertThat("Settings secret value", settingData, hasEntry("s3Client.accessSecret", ""));
 		assertThat("Settings region value", settingData,
@@ -121,6 +122,7 @@ public class S3ResourceStorageServiceTests {
 		assertThat("Settings bucket value", settingData, hasEntry("s3Client.bucketName", ""));
 		assertThat("Settings pagination value", settingData, hasEntry("s3Client.maximumKeysPerRequest",
 				String.valueOf(SdkS3Client.DEFAULT_MAXIMUM_KEYS_PER_REQUEST)));
+		assertThat("Settings object path prefix", settingData, hasEntry("objectKeyPrefix", ""));
 	}
 
 	@Test
@@ -172,6 +174,58 @@ public class S3ResourceStorageServiceTests {
 	}
 
 	@Test
+	public void listResources_pathPrefix() throws Exception {
+		// GIVEN
+		final String pathPrefix = "foo/";
+		service.setObjectKeyPrefix(pathPrefix);
+		final String fullPath = "foo/prefix/foo";
+
+		Set<S3ObjectReference> refs = new LinkedHashSet<>(asList(new S3ObjectRef(fullPath)));
+		expect(s3Client.listObjects("foo/prefix/")).andReturn(refs);
+
+		// WHEN
+		replayAll();
+		CompletableFuture<Iterable<Resource>> result = service.listResources("prefix/");
+
+		// THEN
+		assertThat("Result returned", result, notNullValue());
+		Iterable<Resource> resources = result.get(5, TimeUnit.SECONDS);
+		List<Resource> resourceList = stream(resources.spliterator(), false).collect(toList());
+		assertThat("Resource list size", resourceList, hasSize(1));
+		Resource r = resourceList.get(0);
+		assertThat("Resource is S3ClientResource", r, instanceOf(S3ClientResource.class));
+
+		S3ObjectReference ref = ((S3ClientResource) r).getObjectReference();
+		assertThat("Reference points to expected object", ref, equalTo(new S3ObjectRef(fullPath)));
+	}
+
+	@Test
+	public void listResources_pathPrefixSupplied() throws Exception {
+		// GIVEN
+		final String pathPrefix = "foo/";
+		service.setObjectKeyPrefix(pathPrefix);
+		final String fullPath = "foo/prefix/foo";
+
+		Set<S3ObjectReference> refs = new LinkedHashSet<>(asList(new S3ObjectRef(fullPath)));
+		expect(s3Client.listObjects("foo/prefix/")).andReturn(refs);
+
+		// WHEN
+		replayAll();
+		CompletableFuture<Iterable<Resource>> result = service.listResources(pathPrefix + "prefix/");
+
+		// THEN
+		assertThat("Result returned", result, notNullValue());
+		Iterable<Resource> resources = result.get(5, TimeUnit.SECONDS);
+		List<Resource> resourceList = stream(resources.spliterator(), false).collect(toList());
+		assertThat("Resource list size", resourceList, hasSize(1));
+		Resource r = resourceList.get(0);
+		assertThat("Resource is S3ClientResource", r, instanceOf(S3ClientResource.class));
+
+		S3ObjectReference ref = ((S3ClientResource) r).getObjectReference();
+		assertThat("Reference points to expected object", ref, equalTo(new S3ObjectRef(fullPath)));
+	}
+
+	@Test
 	public void saveResource() throws Exception {
 		// GIVEN
 		final String data = "Hello, world.";
@@ -187,6 +241,66 @@ public class S3ResourceStorageServiceTests {
 		// WHEN
 		replayAll();
 		CompletableFuture<Boolean> result = service.saveResource(path, r, true, null);
+
+		// THEN
+		assertThat("Result returned", result, notNullValue());
+		assertThat("Result completed", result.get(5, TimeUnit.SECONDS), equalTo(true));
+
+		assertThat("InputStream provided to client", inCaptor.getValue(), notNullValue());
+		assertThat("InputStream content", copyToString(new InputStreamReader(inCaptor.getValue())),
+				equalTo(data));
+	}
+
+	@Test
+	public void saveResource_pathPrefix() throws Exception {
+		// GIVEN
+		final String pathPrefix = "foo/";
+		service.setObjectKeyPrefix(pathPrefix);
+
+		final String data = "Hello, world.";
+		final ByteArrayResource r = new ByteArrayResource(data.getBytes());
+		final Date date = new Date();
+		final String path = "foo";
+		final String fullPath = pathPrefix + path;
+
+		Capture<InputStream> inCaptor = new Capture<>();
+		Capture<S3ObjectMetadata> metaCaptor = new Capture<>();
+		expect(s3Client.putObject(eq(fullPath), capture(inCaptor), capture(metaCaptor), isNull(),
+				same(r))).andReturn(new S3ObjectRef(fullPath, r.contentLength(), date));
+
+		// WHEN
+		replayAll();
+		CompletableFuture<Boolean> result = service.saveResource(path, r, true, null);
+
+		// THEN
+		assertThat("Result returned", result, notNullValue());
+		assertThat("Result completed", result.get(5, TimeUnit.SECONDS), equalTo(true));
+
+		assertThat("InputStream provided to client", inCaptor.getValue(), notNullValue());
+		assertThat("InputStream content", copyToString(new InputStreamReader(inCaptor.getValue())),
+				equalTo(data));
+	}
+
+	@Test
+	public void saveResource_pathPrefixSupplied() throws Exception {
+		// GIVEN
+		final String pathPrefix = "foo/";
+		service.setObjectKeyPrefix(pathPrefix);
+
+		final String data = "Hello, world.";
+		final ByteArrayResource r = new ByteArrayResource(data.getBytes());
+		final Date date = new Date();
+		final String path = "foo";
+		final String fullPath = pathPrefix + path;
+
+		Capture<InputStream> inCaptor = new Capture<>();
+		Capture<S3ObjectMetadata> metaCaptor = new Capture<>();
+		expect(s3Client.putObject(eq(fullPath), capture(inCaptor), capture(metaCaptor), isNull(),
+				same(r))).andReturn(new S3ObjectRef(fullPath, r.contentLength(), date));
+
+		// WHEN
+		replayAll();
+		CompletableFuture<Boolean> result = service.saveResource(fullPath, r, true, null);
 
 		// THEN
 		assertThat("Result returned", result, notNullValue());
@@ -260,6 +374,70 @@ public class S3ResourceStorageServiceTests {
 		// WHEN
 		replayAll();
 		CompletableFuture<Set<String>> result = service.deleteResources(pathsToDelete);
+
+		// THEN
+		assertThat("Result returned", result, notNullValue());
+		Set<String> notDeleted = result.get(5, TimeUnit.SECONDS);
+		assertThat("Result completed", notDeleted, hasSize(0));
+	}
+
+	@Test
+	public void deleteResources_pathPrefix() throws Exception {
+		// GIVEN
+		final String pathPrefix = "foo/";
+		service.setObjectKeyPrefix(pathPrefix);
+
+		Set<String> pathsToDelete = new LinkedHashSet<>(asList("one", "two", "three"));
+		Set<String> fullPathsToDelete = pathsToDelete.stream().map(s -> pathPrefix + s).collect(toSet());
+
+		expect(s3Client.deleteObjects(fullPathsToDelete)).andReturn(fullPathsToDelete);
+
+		// WHEN
+		replayAll();
+		CompletableFuture<Set<String>> result = service.deleteResources(pathsToDelete);
+
+		// THEN
+		assertThat("Result returned", result, notNullValue());
+		Set<String> notDeleted = result.get(5, TimeUnit.SECONDS);
+		assertThat("Result completed", notDeleted, hasSize(0));
+	}
+
+	@Test
+	public void deleteResources_pathPrefixSupplied() throws Exception {
+		// GIVEN
+		final String pathPrefix = "foo/";
+		service.setObjectKeyPrefix(pathPrefix);
+
+		Set<String> pathsToDelete = new LinkedHashSet<>(asList("one", "two", "three"));
+		Set<String> fullPathsToDelete = pathsToDelete.stream().map(s -> pathPrefix + s).collect(toSet());
+
+		expect(s3Client.deleteObjects(fullPathsToDelete)).andReturn(fullPathsToDelete);
+
+		// WHEN
+		replayAll();
+		CompletableFuture<Set<String>> result = service.deleteResources(fullPathsToDelete);
+
+		// THEN
+		assertThat("Result returned", result, notNullValue());
+		Set<String> notDeleted = result.get(5, TimeUnit.SECONDS);
+		assertThat("Result completed", notDeleted, hasSize(0));
+	}
+
+	@Test
+	public void deleteResources_pathPrefixSuppliedSomewhat() throws Exception {
+		// GIVEN
+		final String pathPrefix = "foo/";
+		service.setObjectKeyPrefix(pathPrefix);
+
+		Set<String> pathsToDelete = new LinkedHashSet<>(asList("one", "two", "three"));
+		Set<String> mixedPathsToDelete = new LinkedHashSet<>(asList("one", "two", pathPrefix + "three"));
+		Set<String> fullPathsToDelete = pathsToDelete.stream().map(s -> pathPrefix + s).collect(toSet());
+
+		expect(s3Client.deleteObjects(fullPathsToDelete)).andReturn(fullPathsToDelete);
+
+		// WHEN
+		replayAll();
+		CompletableFuture<Set<String>> result = service.deleteResources(mixedPathsToDelete);
 
 		// THEN
 		assertThat("Result returned", result, notNullValue());
