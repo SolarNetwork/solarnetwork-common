@@ -118,6 +118,17 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 		}
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("S3Client{region=");
+		builder.append(regionName);
+		builder.append(",bucket=");
+		builder.append(bucketName);
+		builder.append("}");
+		return builder.toString();
+	}
+
 	private synchronized AmazonS3 getClient() {
 		AmazonS3 result = s3Client;
 		if ( result == null ) {
