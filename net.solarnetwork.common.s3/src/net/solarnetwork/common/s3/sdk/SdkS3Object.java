@@ -24,6 +24,7 @@ package net.solarnetwork.common.s3.sdk;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Date;
 import java.util.Map;
 import org.springframework.util.MimeType;
@@ -40,6 +41,7 @@ import net.solarnetwork.common.s3.S3ObjectMetadata;
 public class SdkS3Object implements S3Object, S3ObjectMetadata {
 
 	private final com.amazonaws.services.s3.model.S3Object s3Object;
+	private final URL url;
 
 	/**
 	 * Constructor.
@@ -47,9 +49,10 @@ public class SdkS3Object implements S3Object, S3ObjectMetadata {
 	 * @param s3Object
 	 *        the object
 	 */
-	public SdkS3Object(com.amazonaws.services.s3.model.S3Object s3Object) {
+	public SdkS3Object(com.amazonaws.services.s3.model.S3Object s3Object, URL url) {
 		super();
 		this.s3Object = s3Object;
+		this.url = url;
 	}
 
 	@Override
@@ -72,6 +75,11 @@ public class SdkS3Object implements S3Object, S3ObjectMetadata {
 	public long getSize() {
 		ObjectMetadata m = s3Object.getObjectMetadata();
 		return (m != null ? m.getContentLength() : null);
+	}
+
+	@Override
+	public URL getURL() {
+		return url;
 	}
 
 	@Override

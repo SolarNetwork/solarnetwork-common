@@ -22,6 +22,7 @@
 
 package net.solarnetwork.common.s3;
 
+import java.net.URL;
 import org.springframework.core.io.InputStreamSource;
 import net.solarnetwork.io.ResourceMetadataHolder;
 
@@ -40,5 +41,12 @@ public interface S3Object extends InputStreamSource, ResourceMetadataHolder {
 	 */
 	@Override
 	S3ObjectMetadata getMetadata();
+
+	/**
+	 * Get a URL for this object.
+	 * 
+	 * @return a URL for this object
+	 */
+	URL getURL();
 
 }

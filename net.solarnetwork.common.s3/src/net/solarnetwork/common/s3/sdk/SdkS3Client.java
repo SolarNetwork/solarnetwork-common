@@ -26,6 +26,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -157,10 +158,10 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 			ListObjectsV2Result listResult;
 			do {
 				listResult = client.listObjectsV2(req);
-
 				for ( S3ObjectSummary objectSummary : listResult.getObjectSummaries() ) {
+					URL url = client.getUrl(objectSummary.getBucketName(), objectSummary.getKey());
 					result.add(new S3ObjectRef(objectSummary.getKey(), objectSummary.getSize(),
-							objectSummary.getLastModified()));
+							objectSummary.getLastModified(), url));
 				}
 				req.setContinuationToken(listResult.getNextContinuationToken());
 			} while ( listResult.isTruncated() == true );
@@ -211,7 +212,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 			com.amazonaws.services.s3.model.S3Object obj = client.getObject(req);
 			log.debug("Got S3 object {}/{} ({})", bucketName, key,
 					obj.getObjectMetadata().getContentLength());
-			return new SdkS3Object(obj);
+			return new SdkS3Object(obj, client.getUrl(bucketName, key));
 		} catch ( AmazonServiceException e ) {
 			log.warn("AWS error: {}; HTTP code {}; AWS code {}; type {}; request ID {}", e.getMessage(),
 					e.getStatusCode(), e.getErrorCode(), e.getErrorType(), e.getRequestId());
@@ -245,7 +246,8 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 			}
 			client.putObject(req);
 			log.debug("Put S3 object {}/{} ({})", bucketName, key, meta.getContentLength());
-			return new S3ObjectRef(key, objectMetadata.getSize(), objectMetadata.getModified());
+			return new S3ObjectRef(key, objectMetadata.getSize(), objectMetadata.getModified(),
+					client.getUrl(bucketName, key));
 		} catch ( AmazonServiceException e ) {
 			log.warn("AWS error: {}; HTTP code {}; AWS code {}; type {}; request ID {}", e.getMessage(),
 					e.getStatusCode(), e.getErrorCode(), e.getErrorType(), e.getRequestId());

@@ -43,6 +43,8 @@ import static org.junit.Assert.assertThat;
 import static org.springframework.util.FileCopyUtils.copyToString;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -225,6 +227,14 @@ public class S3ResourceStorageServiceTests {
 		assertThat("Reference points to expected object", ref, equalTo(new S3ObjectRef(fullPath)));
 	}
 
+	private URL s3Url(String key) {
+		try {
+			return new URL("https://some-bucket.example.com/" + key);
+		} catch ( MalformedURLException e ) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Test
 	public void saveResource() throws Exception {
 		// GIVEN
@@ -236,7 +246,7 @@ public class S3ResourceStorageServiceTests {
 		Capture<InputStream> inCaptor = new Capture<>();
 		Capture<S3ObjectMetadata> metaCaptor = new Capture<>();
 		expect(s3Client.putObject(eq(path), capture(inCaptor), capture(metaCaptor), isNull(), same(r)))
-				.andReturn(new S3ObjectRef(path, r.contentLength(), date));
+				.andReturn(new S3ObjectRef(path, r.contentLength(), date, s3Url(path)));
 
 		// WHEN
 		replayAll();
@@ -266,7 +276,7 @@ public class S3ResourceStorageServiceTests {
 		Capture<InputStream> inCaptor = new Capture<>();
 		Capture<S3ObjectMetadata> metaCaptor = new Capture<>();
 		expect(s3Client.putObject(eq(fullPath), capture(inCaptor), capture(metaCaptor), isNull(),
-				same(r))).andReturn(new S3ObjectRef(fullPath, r.contentLength(), date));
+				same(r))).andReturn(new S3ObjectRef(fullPath, r.contentLength(), date, s3Url(fullPath)));
 
 		// WHEN
 		replayAll();
@@ -296,7 +306,7 @@ public class S3ResourceStorageServiceTests {
 		Capture<InputStream> inCaptor = new Capture<>();
 		Capture<S3ObjectMetadata> metaCaptor = new Capture<>();
 		expect(s3Client.putObject(eq(fullPath), capture(inCaptor), capture(metaCaptor), isNull(),
-				same(r))).andReturn(new S3ObjectRef(fullPath, r.contentLength(), date));
+				same(r))).andReturn(new S3ObjectRef(fullPath, r.contentLength(), date, s3Url(fullPath)));
 
 		// WHEN
 		replayAll();
@@ -346,7 +356,7 @@ public class S3ResourceStorageServiceTests {
 							}
 							listener.progressChanged(r, (double) progress / (double) totalSize);
 						}
-						return new S3ObjectRef(path, r.contentLength(), date);
+						return new S3ObjectRef(path, r.contentLength(), date, s3Url(path));
 					}
 				});
 

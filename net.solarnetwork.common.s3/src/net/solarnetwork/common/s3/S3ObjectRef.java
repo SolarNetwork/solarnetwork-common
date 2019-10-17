@@ -22,6 +22,7 @@
 
 package net.solarnetwork.common.s3;
 
+import java.net.URL;
 import java.util.Date;
 
 /**
@@ -35,6 +36,7 @@ public class S3ObjectRef implements S3ObjectReference {
 	private final String key;
 	private final long size;
 	private final Date modified;
+	private final URL url;
 
 	/**
 	 * Constructor.
@@ -43,7 +45,7 @@ public class S3ObjectRef implements S3ObjectReference {
 	 *        the key
 	 */
 	public S3ObjectRef(String key) {
-		this(key, -1, null);
+		this(key, -1, null, null);
 	}
 
 	/**
@@ -55,12 +57,15 @@ public class S3ObjectRef implements S3ObjectReference {
 	 *        the size
 	 * @param modified
 	 *        the modification date
+	 * @param url
+	 *        the URL
 	 */
-	public S3ObjectRef(String key, long size, Date modified) {
+	public S3ObjectRef(String key, long size, Date modified, URL url) {
 		super();
 		this.key = key;
 		this.size = size;
 		this.modified = modified;
+		this.url = url;
 	}
 
 	@Override
@@ -85,6 +90,11 @@ public class S3ObjectRef implements S3ObjectReference {
 	@Override
 	public Date getModified() {
 		return modified;
+	}
+
+	@Override
+	public URL getURL() {
+		return url;
 	}
 
 	@Override

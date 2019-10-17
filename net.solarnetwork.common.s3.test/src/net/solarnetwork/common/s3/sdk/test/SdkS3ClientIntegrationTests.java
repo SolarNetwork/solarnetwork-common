@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -229,8 +231,7 @@ public class SdkS3ClientIntegrationTests {
 		S3ObjectReference result = client.putObject(uniqueKey, r.getInputStream(), meta, null, null);
 
 		// THEN
-		assertThat("Result success", result,
-				equalTo(new S3ObjectRef(uniqueKey, meta.getSize(), meta.getModified())));
+		assertThat("Result success", result, equalTo(new S3ObjectRef(uniqueKey)));
 		assertThat("Remote content", objectAsString(s3, uniqueKey), equalTo(data));
 	}
 
@@ -248,8 +249,7 @@ public class SdkS3ClientIntegrationTests {
 		S3ObjectReference result = client.putObject(uniqueKey, r.getInputStream(), meta, null, null);
 
 		// THEN
-		assertThat("Result success", result,
-				equalTo(new S3ObjectRef(uniqueKey, meta.getSize(), meta.getModified())));
+		assertThat("Result success", result, equalTo(new S3ObjectRef(uniqueKey)));
 
 		AmazonS3URI uri = new AmazonS3URI(TEST_PROPS.getProperty("path"));
 		S3Object obj = s3.getObject(uri.getBucket(), uniqueKey);
@@ -277,8 +277,7 @@ public class SdkS3ClientIntegrationTests {
 		S3ObjectReference result = client.putObject(uniqueKey, r.getInputStream(), meta, null, null);
 
 		// THEN
-		assertThat("Result success", result,
-				equalTo(new S3ObjectRef(uniqueKey, meta.getSize(), meta.getModified())));
+		assertThat("Result success", result, equalTo(new S3ObjectRef(uniqueKey)));
 
 		AmazonS3URI uri = new AmazonS3URI(TEST_PROPS.getProperty("path"));
 		S3Object obj = s3.getObject(uri.getBucket(), uniqueKey);
@@ -327,10 +326,17 @@ public class SdkS3ClientIntegrationTests {
 				listener, tmpFile);
 
 		// THEN
-		assertThat("Result success", result,
-				equalTo(new S3ObjectRef(uniqueKey, meta.getSize(), meta.getModified())));
+		assertThat("Result success", result, equalTo(new S3ObjectRef(uniqueKey)));
 		log.debug("Upload progress values: {}", progressAmounts);
 		assertThat("Progress obtained", progressAmounts.size(), greaterThan(0));
+	}
+
+	private URL s3Url(String key) {
+		try {
+			return new URL(TEST_PROPS.getProperty("url") + "/" + key);
+		} catch ( MalformedURLException e ) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Test
@@ -351,6 +357,7 @@ public class SdkS3ClientIntegrationTests {
 				FileCopyUtils.copyToString(
 						new InputStreamReader(obj.getInputStream(), Charset.forName("UTF-8"))),
 				equalTo(data));
+		assertThat("Object URL", obj.getURL(), equalTo(s3Url(uniqueKey)));
 
 		S3ObjectMetadata meta = obj.getMetadata();
 		assertThat("Metadata returned", meta, notNullValue());
@@ -387,6 +394,7 @@ public class SdkS3ClientIntegrationTests {
 				FileCopyUtils.copyToString(
 						new InputStreamReader(obj.getInputStream(), Charset.forName("UTF-8"))),
 				equalTo(data));
+		assertThat("Object URL", obj.getURL(), equalTo(s3Url(uniqueKey)));
 
 		S3ObjectMetadata meta = obj.getMetadata();
 		assertThat("Metadata returned", meta, notNullValue());
@@ -450,6 +458,7 @@ public class SdkS3ClientIntegrationTests {
 				new BufferedOutputStream(Files.newOutputStream(tmpFile2)));
 		assertThat("Object content", DigestUtils.sha1Hex(Files.newInputStream(tmpFile)),
 				equalTo(DigestUtils.sha1Hex(Files.newInputStream(tmpFile2))));
+		assertThat("Object URL", obj.getURL(), equalTo(s3Url(uniqueKey)));
 
 		S3ObjectMetadata meta = obj.getMetadata();
 		assertThat("Metadata returned", meta, notNullValue());
@@ -480,6 +489,9 @@ public class SdkS3ClientIntegrationTests {
 		assertThat("Results returned", results, hasSize(4));
 		assertThat("Result keys", results.stream().map(r -> r.getKey()).collect(Collectors.toSet()),
 				equalTo(keys));
+		for ( S3ObjectReference ref : results ) {
+			assertThat("Object URL", ref.getURL(), equalTo(s3Url(ref.getKey())));
+		}
 	}
 
 	@Test

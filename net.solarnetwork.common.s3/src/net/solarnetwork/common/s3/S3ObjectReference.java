@@ -22,6 +22,7 @@
 
 package net.solarnetwork.common.s3;
 
+import java.net.URL;
 import java.util.Date;
 
 /**
@@ -52,5 +53,12 @@ public interface S3ObjectReference {
 	 * @return the modified date
 	 */
 	Date getModified();
+
+	/**
+	 * Get a URL for this object reference.
+	 * 
+	 * @return a URL for this object
+	 */
+	URL getURL();
 
 }

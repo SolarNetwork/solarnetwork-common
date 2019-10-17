@@ -24,6 +24,7 @@ package net.solarnetwork.common.s3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Objects;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.Resource;
@@ -78,6 +79,11 @@ public class S3ClientResource extends AbstractResource implements Resource {
 	@Override
 	public String getDescription() {
 		return "S3Resource{" + ref.getKey() + "}";
+	}
+
+	@Override
+	public URL getURL() throws IOException {
+		return ref.getURL();
 	}
 
 	/**
