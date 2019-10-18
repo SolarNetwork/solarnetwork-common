@@ -45,12 +45,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -60,8 +64,12 @@ import org.easymock.IAnswer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.FileCopyUtils;
 import net.solarnetwork.common.s3.S3Client;
 import net.solarnetwork.common.s3.S3ClientResource;
 import net.solarnetwork.common.s3.S3ObjectMetadata;
@@ -69,10 +77,12 @@ import net.solarnetwork.common.s3.S3ObjectRef;
 import net.solarnetwork.common.s3.S3ObjectReference;
 import net.solarnetwork.common.s3.S3ResourceStorageService;
 import net.solarnetwork.common.s3.sdk.SdkS3Client;
+import net.solarnetwork.io.ResourceStorageService;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.support.SettingUtils;
 import net.solarnetwork.test.CallingThreadExecutorService;
 import net.solarnetwork.util.ProgressListener;
+import net.solarnetwork.util.StaticOptionalService;
 
 /**
  * Test cases for the {@link S3ResourceStorageService} class.
@@ -84,23 +94,28 @@ public class S3ResourceStorageServiceTests {
 
 	private S3Client s3Client;
 	private Executor executor;
+	private EventAdmin eventAdmin;
 	private S3ResourceStorageService service;
 
 	@Before
 	public void setup() {
 		s3Client = EasyMock.createMock(S3Client.class);
 		executor = new CallingThreadExecutorService();
+		eventAdmin = EasyMock.createMock(EventAdmin.class);
 		service = new S3ResourceStorageService(executor);
+		service.setUid(UUID.randomUUID().toString());
+		service.setGroupUid(UUID.randomUUID().toString());
 		service.setS3Client(s3Client);
+		service.setEventAdmin(new StaticOptionalService<>(eventAdmin));
 	}
 
 	@After
 	public void teardown() {
-		EasyMock.verify(s3Client);
+		EasyMock.verify(s3Client, eventAdmin);
 	}
 
 	private void replayAll() {
-		EasyMock.replay(s3Client);
+		EasyMock.replay(s3Client, eventAdmin);
 	}
 
 	@Test
@@ -248,6 +263,9 @@ public class S3ResourceStorageServiceTests {
 		expect(s3Client.putObject(eq(path), capture(inCaptor), capture(metaCaptor), isNull(), same(r)))
 				.andReturn(new S3ObjectRef(path, r.contentLength(), date, s3Url(path)));
 
+		Capture<Event> eventCaptor = new Capture<>();
+		eventAdmin.postEvent(capture(eventCaptor));
+
 		// WHEN
 		replayAll();
 		CompletableFuture<Boolean> result = service.saveResource(path, r, true, null);
@@ -259,6 +277,67 @@ public class S3ResourceStorageServiceTests {
 		assertThat("InputStream provided to client", inCaptor.getValue(), notNullValue());
 		assertThat("InputStream content", copyToString(new InputStreamReader(inCaptor.getValue())),
 				equalTo(data));
+
+		assertThat("Event posted", eventCaptor.getValue(), notNullValue());
+		assertThat("Event topic is RESOURCE_SAVED", eventCaptor.getValue().getTopic(),
+				equalTo(ResourceStorageService.EVENT_TOPIC_RESOURCE_SAVED));
+		assertThat("Event properties present except for URL",
+				asList(eventCaptor.getValue().getPropertyNames()),
+				containsInAnyOrder("event.topics", "uid", "groupUid", "paths"));
+		assertThat("Event property UID", eventCaptor.getValue().getProperty("uid"),
+				equalTo(service.getUid()));
+		assertThat("Event property group UID", eventCaptor.getValue().getProperty("groupUid"),
+				equalTo(service.getGroupUid()));
+		assertThat("Event property paths", (Collection<?>) eventCaptor.getValue().getProperty("paths"),
+				contains(path));
+	}
+
+	@Test
+	public void saveResource_file() throws Exception {
+		// GIVEN
+		final String data = "Hello, world.";
+		final Path tmpFile = Files.createTempFile("saveResource-", ".txt");
+		FileCopyUtils.copy(data.getBytes(), tmpFile.toFile());
+		final FileSystemResource r = new FileSystemResource(tmpFile.toFile());
+		final Date date = new Date();
+		final String path = "foo";
+
+		Capture<InputStream> inCaptor = new Capture<>();
+		Capture<S3ObjectMetadata> metaCaptor = new Capture<>();
+		expect(s3Client.putObject(eq(path), capture(inCaptor), capture(metaCaptor), isNull(), same(r)))
+				.andReturn(new S3ObjectRef(path, r.contentLength(), date, s3Url(path)));
+
+		Capture<Event> eventCaptor = new Capture<>();
+		eventAdmin.postEvent(capture(eventCaptor));
+
+		// WHEN
+		replayAll();
+		CompletableFuture<Boolean> result = service.saveResource(path, r, true, null);
+
+		// THEN
+		assertThat("Result returned", result, notNullValue());
+		assertThat("Result completed", result.get(5, TimeUnit.SECONDS), equalTo(true));
+
+		assertThat("InputStream provided to client", inCaptor.getValue(), notNullValue());
+		assertThat("InputStream content", copyToString(new InputStreamReader(inCaptor.getValue())),
+				equalTo(data));
+
+		assertThat("Event posted", eventCaptor.getValue(), notNullValue());
+		assertThat("Event topic is RESOURCE_SAVED", eventCaptor.getValue().getTopic(),
+				equalTo(ResourceStorageService.EVENT_TOPIC_RESOURCE_SAVED));
+		assertThat("Event properties present including URL",
+				asList(eventCaptor.getValue().getPropertyNames()),
+				containsInAnyOrder("event.topics", "uid", "groupUid", "paths", "url"));
+		assertThat("Event property UID", eventCaptor.getValue().getProperty("uid"),
+				equalTo(service.getUid()));
+		assertThat("Event property group UID", eventCaptor.getValue().getProperty("groupUid"),
+				equalTo(service.getGroupUid()));
+		assertThat("Event property paths", (Collection<?>) eventCaptor.getValue().getProperty("paths"),
+				contains(path));
+		assertThat("Event property url", eventCaptor.getValue().getProperty("url"),
+				equalTo(r.getURL().toString()));
+
+		Files.deleteIfExists(tmpFile);
 	}
 
 	@Test
@@ -278,6 +357,9 @@ public class S3ResourceStorageServiceTests {
 		expect(s3Client.putObject(eq(fullPath), capture(inCaptor), capture(metaCaptor), isNull(),
 				same(r))).andReturn(new S3ObjectRef(fullPath, r.contentLength(), date, s3Url(fullPath)));
 
+		Capture<Event> eventCaptor = new Capture<>();
+		eventAdmin.postEvent(capture(eventCaptor));
+
 		// WHEN
 		replayAll();
 		CompletableFuture<Boolean> result = service.saveResource(path, r, true, null);
@@ -289,6 +371,11 @@ public class S3ResourceStorageServiceTests {
 		assertThat("InputStream provided to client", inCaptor.getValue(), notNullValue());
 		assertThat("InputStream content", copyToString(new InputStreamReader(inCaptor.getValue())),
 				equalTo(data));
+
+		assertThat("Event topic is RESOURCE_SAVED", eventCaptor.getValue().getTopic(),
+				equalTo(ResourceStorageService.EVENT_TOPIC_RESOURCE_SAVED));
+		assertThat("Event property paths", (Collection<?>) eventCaptor.getValue().getProperty("paths"),
+				contains(path));
 	}
 
 	@Test
@@ -308,6 +395,9 @@ public class S3ResourceStorageServiceTests {
 		expect(s3Client.putObject(eq(fullPath), capture(inCaptor), capture(metaCaptor), isNull(),
 				same(r))).andReturn(new S3ObjectRef(fullPath, r.contentLength(), date, s3Url(fullPath)));
 
+		Capture<Event> eventCaptor = new Capture<>();
+		eventAdmin.postEvent(capture(eventCaptor));
+
 		// WHEN
 		replayAll();
 		CompletableFuture<Boolean> result = service.saveResource(fullPath, r, true, null);
@@ -319,6 +409,11 @@ public class S3ResourceStorageServiceTests {
 		assertThat("InputStream provided to client", inCaptor.getValue(), notNullValue());
 		assertThat("InputStream content", copyToString(new InputStreamReader(inCaptor.getValue())),
 				equalTo(data));
+
+		assertThat("Event topic is RESOURCE_SAVED", eventCaptor.getValue().getTopic(),
+				equalTo(ResourceStorageService.EVENT_TOPIC_RESOURCE_SAVED));
+		assertThat("Event property paths", (Collection<?>) eventCaptor.getValue().getProperty("paths"),
+				contains(fullPath));
 	}
 
 	@Test
@@ -360,6 +455,9 @@ public class S3ResourceStorageServiceTests {
 					}
 				});
 
+		Capture<Event> eventCaptor = new Capture<>();
+		eventAdmin.postEvent(capture(eventCaptor));
+
 		// WHEN
 		replayAll();
 		CompletableFuture<Boolean> result = service.saveResource(path, r, true, listener);
@@ -372,6 +470,11 @@ public class S3ResourceStorageServiceTests {
 		assertThat("InputStream content", copyToString(new InputStreamReader(inCaptor.getValue())),
 				equalTo(data));
 		assertThat("Progress handled", progressValues, contains(0.25, 0.5, 0.75, 1.0));
+
+		assertThat("Event topic is RESOURCE_SAVED", eventCaptor.getValue().getTopic(),
+				equalTo(ResourceStorageService.EVENT_TOPIC_RESOURCE_SAVED));
+		assertThat("Event property paths", (Collection<?>) eventCaptor.getValue().getProperty("paths"),
+				contains(path));
 	}
 
 	@Test
@@ -381,6 +484,9 @@ public class S3ResourceStorageServiceTests {
 
 		expect(s3Client.deleteObjects(pathsToDelete)).andReturn(pathsToDelete);
 
+		Capture<Event> eventCaptor = new Capture<>();
+		eventAdmin.postEvent(capture(eventCaptor));
+
 		// WHEN
 		replayAll();
 		CompletableFuture<Set<String>> result = service.deleteResources(pathsToDelete);
@@ -389,6 +495,18 @@ public class S3ResourceStorageServiceTests {
 		assertThat("Result returned", result, notNullValue());
 		Set<String> notDeleted = result.get(5, TimeUnit.SECONDS);
 		assertThat("Result completed", notDeleted, hasSize(0));
+
+		assertThat("Event posted", eventCaptor.getValue(), notNullValue());
+		assertThat("Event topic is RESOURCES_DELETED", eventCaptor.getValue().getTopic(),
+				equalTo(ResourceStorageService.EVENT_TOPIC_RESOURCES_DELETED));
+		assertThat("Event properties present", asList(eventCaptor.getValue().getPropertyNames()),
+				containsInAnyOrder("event.topics", "uid", "groupUid", "paths"));
+		assertThat("Event property UID", eventCaptor.getValue().getProperty("uid"),
+				equalTo(service.getUid()));
+		assertThat("Event property group UID", eventCaptor.getValue().getProperty("groupUid"),
+				equalTo(service.getGroupUid()));
+		assertThat("Event property paths", (Collection<?>) eventCaptor.getValue().getProperty("paths"),
+				equalTo(pathsToDelete));
 	}
 
 	@Test
@@ -402,6 +520,9 @@ public class S3ResourceStorageServiceTests {
 
 		expect(s3Client.deleteObjects(fullPathsToDelete)).andReturn(fullPathsToDelete);
 
+		Capture<Event> eventCaptor = new Capture<>();
+		eventAdmin.postEvent(capture(eventCaptor));
+
 		// WHEN
 		replayAll();
 		CompletableFuture<Set<String>> result = service.deleteResources(pathsToDelete);
@@ -410,6 +531,12 @@ public class S3ResourceStorageServiceTests {
 		assertThat("Result returned", result, notNullValue());
 		Set<String> notDeleted = result.get(5, TimeUnit.SECONDS);
 		assertThat("Result completed", notDeleted, hasSize(0));
+
+		assertThat("Event posted", eventCaptor.getValue(), notNullValue());
+		assertThat("Event topic is RESOURCES_DELETED", eventCaptor.getValue().getTopic(),
+				equalTo(ResourceStorageService.EVENT_TOPIC_RESOURCES_DELETED));
+		assertThat("Event property paths", (Collection<?>) eventCaptor.getValue().getProperty("paths"),
+				equalTo(pathsToDelete));
 	}
 
 	@Test
@@ -423,6 +550,9 @@ public class S3ResourceStorageServiceTests {
 
 		expect(s3Client.deleteObjects(fullPathsToDelete)).andReturn(fullPathsToDelete);
 
+		Capture<Event> eventCaptor = new Capture<>();
+		eventAdmin.postEvent(capture(eventCaptor));
+
 		// WHEN
 		replayAll();
 		CompletableFuture<Set<String>> result = service.deleteResources(fullPathsToDelete);
@@ -431,6 +561,12 @@ public class S3ResourceStorageServiceTests {
 		assertThat("Result returned", result, notNullValue());
 		Set<String> notDeleted = result.get(5, TimeUnit.SECONDS);
 		assertThat("Result completed", notDeleted, hasSize(0));
+
+		assertThat("Event posted", eventCaptor.getValue(), notNullValue());
+		assertThat("Event topic is RESOURCES_DELETED", eventCaptor.getValue().getTopic(),
+				equalTo(ResourceStorageService.EVENT_TOPIC_RESOURCES_DELETED));
+		assertThat("Event property paths", (Collection<?>) eventCaptor.getValue().getProperty("paths"),
+				equalTo(fullPathsToDelete));
 	}
 
 	@Test
@@ -445,6 +581,9 @@ public class S3ResourceStorageServiceTests {
 
 		expect(s3Client.deleteObjects(fullPathsToDelete)).andReturn(fullPathsToDelete);
 
+		Capture<Event> eventCaptor = new Capture<>();
+		eventAdmin.postEvent(capture(eventCaptor));
+
 		// WHEN
 		replayAll();
 		CompletableFuture<Set<String>> result = service.deleteResources(mixedPathsToDelete);
@@ -453,6 +592,12 @@ public class S3ResourceStorageServiceTests {
 		assertThat("Result returned", result, notNullValue());
 		Set<String> notDeleted = result.get(5, TimeUnit.SECONDS);
 		assertThat("Result completed", notDeleted, hasSize(0));
+
+		assertThat("Event posted", eventCaptor.getValue(), notNullValue());
+		assertThat("Event topic is RESOURCES_DELETED", eventCaptor.getValue().getTopic(),
+				equalTo(ResourceStorageService.EVENT_TOPIC_RESOURCES_DELETED));
+		assertThat("Event property paths", (Collection<?>) eventCaptor.getValue().getProperty("paths"),
+				equalTo(mixedPathsToDelete));
 	}
 
 	@Test
@@ -462,6 +607,9 @@ public class S3ResourceStorageServiceTests {
 		Set<String> deletedKeys = new LinkedHashSet<>(asList("one", "three"));
 		expect(s3Client.deleteObjects(pathsToDelete)).andReturn(deletedKeys);
 
+		Capture<Event> eventCaptor = new Capture<>();
+		eventAdmin.postEvent(capture(eventCaptor));
+
 		// WHEN
 		replayAll();
 		CompletableFuture<Set<String>> result = service.deleteResources(pathsToDelete);
@@ -470,5 +618,11 @@ public class S3ResourceStorageServiceTests {
 		assertThat("Result returned", result, notNullValue());
 		Set<String> notDeleted = result.get(5, TimeUnit.SECONDS);
 		assertThat("Result completed", notDeleted, containsInAnyOrder("two", "four"));
+
+		assertThat("Event posted", eventCaptor.getValue(), notNullValue());
+		assertThat("Event topic is RESOURCES_DELETED", eventCaptor.getValue().getTopic(),
+				equalTo(ResourceStorageService.EVENT_TOPIC_RESOURCES_DELETED));
+		assertThat("Event property paths", (Collection<?>) eventCaptor.getValue().getProperty("paths"),
+				equalTo(pathsToDelete));
 	}
 }

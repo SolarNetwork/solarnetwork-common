@@ -22,14 +22,17 @@
 
 package net.solarnetwork.common.s3;
 
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,6 +43,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Function;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.springframework.core.io.Resource;
 import org.springframework.util.MimeType;
 import net.solarnetwork.common.s3.sdk.SdkS3Client;
@@ -52,6 +57,7 @@ import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.settings.support.BaseSettingsSpecifierLocalizedServiceInfoProvider;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 import net.solarnetwork.settings.support.SettingUtils;
+import net.solarnetwork.util.OptionalService;
 import net.solarnetwork.util.ProgressListener;
 
 /**
@@ -64,9 +70,12 @@ import net.solarnetwork.util.ProgressListener;
 public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
 		implements ResourceStorageService, SettingSpecifierProvider, SettingsChangeObserver {
 
+	private String uid;
+	private String groupUid;
 	private S3Client s3Client;
 	private Executor executor;
 	private String objectKeyPrefix;
+	private OptionalService<EventAdmin> eventAdmin;
 
 	/**
 	 * Constructor.
@@ -229,6 +238,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 				S3ObjectMeta meta = new S3ObjectMeta(size, modified, contentType, extendedMetadata);
 				c.putObject(p, resource.getInputStream(), meta, progressListener, resource);
+				postResourceSavedEvent(resource, path);
 				return true;
 			}
 		});
@@ -257,6 +267,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 				S3Client c = getS3Client();
 
 				Set<String> deletedPaths = c.deleteObjects(p);
+				postResourcesDeletedEvent(paths);
 				Set<String> notDeleted = new LinkedHashSet<>(asSet(p));
 				for ( Iterator<String> itr = notDeleted.iterator(); itr.hasNext(); ) {
 					if ( deletedPaths.contains(itr.next()) ) {
@@ -267,6 +278,120 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 			}
 		});
 		return result;
+	}
+
+	/**
+	 * Post an {@link Event} for the
+	 * {@link ResourceStorageService#EVENT_TOPIC_RESOURCE_SAVED} topic.
+	 * 
+	 * @param resource
+	 *        the resource to create the event for
+	 * @param path
+	 *        the resource path
+	 */
+	protected final void postResourceSavedEvent(Resource resource, String path) {
+		Event event = createResourceSavedEvent(resource, path);
+		postEvent(event);
+	}
+
+	/**
+	 * Create a new {@link ResourceStorageService#EVENT_TOPIC_RESOURCE_SAVED}
+	 * {@link Event} object out of a resource and path.
+	 * 
+	 * @param resource
+	 *        the resource to create the event for
+	 * @param path
+	 *        the resource path
+	 * @return the new Event instance, or {@literal null} if {@code resource} is
+	 *         {@literal null} or cannot be resolved to a URL
+	 */
+	protected Event createResourceSavedEvent(Resource resource, String path) {
+		if ( resource == null ) {
+			return null;
+		}
+		Map<String, Object> props = new HashMap<>(4);
+		try {
+			props.put(RESOURCE_URL_PROPERTY, resource.getURL().toString());
+		} catch ( IOException e ) {
+			log.warn("Unable to create save event resource URL for {}: {}", resource, e.getMessage());
+		}
+		if ( path != null ) {
+			props.put(RESOURCE_PATHS_PROPERTY, singletonList(path));
+		}
+		String uid = getUid();
+		if ( uid != null && !uid.isEmpty() ) {
+			props.put(UID_PROPERTY, uid);
+		}
+		String groupUid = getGroupUid();
+		if ( groupUid != null ) {
+			props.put(GROUP_UID_PROPERTY, groupUid);
+		}
+		log.debug("Created {} event with props {}", EVENT_TOPIC_RESOURCE_SAVED, props);
+		return new Event(EVENT_TOPIC_RESOURCE_SAVED, props);
+	}
+
+	/**
+	 * Post an {@link Event} for the
+	 * {@link ResourceStorageService#EVENT_TOPIC_RESOURCES_DELETED} topic.
+	 * 
+	 * @param paths
+	 *        the paths that have been deleted
+	 */
+	protected final void postResourcesDeletedEvent(Iterable<String> paths) {
+		Event event = createResourcesDeletedEvent(paths);
+		postEvent(event);
+	}
+
+	/**
+	 * Create a new {@link ResourceStorageService#EVENT_TOPIC_RESOURCES_DELETED}
+	 * {@link Event} object out of a set of paths.
+	 * 
+	 * @param paths
+	 *        the paths that have been deleted
+	 * @return the new Event instance, or {@literal null} if {@code paths} is
+	 *         {@literal null}
+	 */
+	protected Event createResourcesDeletedEvent(Iterable<String> paths) {
+		if ( paths == null ) {
+			return null;
+		}
+		Map<String, Object> props = new HashMap<>(4);
+		if ( paths != null ) {
+			props.put(RESOURCE_PATHS_PROPERTY, paths);
+		}
+		String uid = getUid();
+		if ( uid != null && !uid.isEmpty() ) {
+			props.put(UID_PROPERTY, uid);
+		}
+		String groupUid = getGroupUid();
+		if ( groupUid != null ) {
+			props.put(GROUP_UID_PROPERTY, groupUid);
+		}
+		log.debug("Created {} event with props {}", EVENT_TOPIC_RESOURCES_DELETED, props);
+		return new Event(EVENT_TOPIC_RESOURCES_DELETED, props);
+	}
+
+	/**
+	 * Post an {@link Event}.
+	 * 
+	 * <p>
+	 * This method only works if a {@link EventAdmin} has been configured via
+	 * {@link #setEventAdmin(OptionalService)}. Otherwise the event is silently
+	 * ignored.
+	 * </p>
+	 * 
+	 * @param event
+	 *        the event to post
+	 */
+	protected final void postEvent(Event event) {
+		if ( event == null ) {
+			return;
+		}
+		EventAdmin ea = (eventAdmin == null ? null : eventAdmin.service());
+		if ( ea == null || event == null ) {
+			return;
+		}
+		ea.postEvent(event);
 	}
 
 	// SettingSpecifierProvider
@@ -364,6 +489,103 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 */
 	public void setObjectKeyPrefix(String objectKeyPrefix) {
 		this.objectKeyPrefix = objectKeyPrefix;
+	}
+
+	@Override
+	public String getUid() {
+		return uid;
+	}
+
+	/**
+	 * Set the UID.
+	 * 
+	 * @param uid
+	 *        the UID to set
+	 */
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+
+	@Override
+	public String getGroupUid() {
+		return groupUid;
+	}
+
+	/**
+	 * Set the group UID.
+	 * 
+	 * @param groupUid
+	 *        the group UID to set
+	 */
+	public void setGroupUid(String groupUid) {
+		this.groupUid = groupUid;
+	}
+
+	/**
+	 * Alias for {@link #getUid()}.
+	 * 
+	 * @param uid
+	 *        the UID to set
+	 */
+	public String getUID() {
+		return getUid();
+	}
+
+	/**
+	 * Set the UID.
+	 * 
+	 * <p>
+	 * This is an alias for {@link #setUid(String)}.
+	 * </p>
+	 * 
+	 * @param uid
+	 *        the UID to set
+	 */
+	public void setUID(String uid) {
+		setUid(uid);
+	}
+
+	/**
+	 * Alias for {@link #getGroupUid()}.
+	 * 
+	 * @param groupUid
+	 *        the group UID to set
+	 */
+	public String getGroupUID() {
+		return getGroupUid();
+	}
+
+	/**
+	 * Set the group UID.
+	 * 
+	 * <p>
+	 * This is an alias for {@link #setGroupUid(String)}.
+	 * </p>
+	 * 
+	 * @param groupUid
+	 *        the group UID to set
+	 */
+	public void setGroupUID(String groupUid) {
+		setGroupUid(groupUid);
+	}
+
+	/**
+	 * Get the optional {@link EventAdmin} service.
+	 * 
+	 * @return the eventAdmin the service
+	 */
+	public OptionalService<EventAdmin> getEventAdmin() {
+		return eventAdmin;
+	}
+
+	/**
+	 * Set the optional {@link EventAdmin} service.
+	 * 
+	 * @param eventAdmin
+	 *        the service to set
+	 */
+	public void setEventAdmin(OptionalService<EventAdmin> eventAdmin) {
+		this.eventAdmin = eventAdmin;
 	}
 
 }

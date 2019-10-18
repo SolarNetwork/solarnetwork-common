@@ -25,6 +25,7 @@ package net.solarnetwork.io;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.springframework.core.io.Resource;
+import net.solarnetwork.domain.Identifiable;
 import net.solarnetwork.util.ProgressListener;
 
 /**
@@ -35,7 +36,60 @@ import net.solarnetwork.util.ProgressListener;
  * @version 1.0
  * @since 1.54
  */
-public interface ResourceStorageService {
+public interface ResourceStorageService extends Identifiable {
+
+	/**
+	 * An {@link org.osgi.service.event.Event} topic for when a resource has
+	 * been saved successfully by a {@code ResourceStorageService}.
+	 * 
+	 * <p>
+	 * The standard properties of the event shall be:
+	 * </p>
+	 * 
+	 * <dl>
+	 * <dt>{@link Identifiable#UID_PROPERTY}</dt>
+	 * <dd>The UID of the {@code ResourceStorageService} that saved the
+	 * resource, if available.</dd>
+	 * <dt>{@link Identifiable#GROUP_UID_PROPERTY}</dt>
+	 * <dd>The group UID of the {@code ResourceStorageService} that saved the
+	 * resource, if available.</dd>
+	 * <dt>{@link #RESOURCE_URL_PROPERTY}</dt>
+	 * <dd>The URL of the resource that was saved.</dt>
+	 * <dt>{@link #RESOURCE_PATHS_PROPERTY}</dt>
+	 * <dd>The path of the resource that was saved (as a singleton
+	 * collection).</dt>
+	 * </dl>
+	 */
+	String EVENT_TOPIC_RESOURCE_SAVED = "net/solarnetwork/io/ResourceStorageService/RESOURCE_SAVED";
+
+	/**
+	 * An {@link org.osgi.service.event.Event} topic for when a set of resources
+	 * have been deleted successfully by a {@code ResourceStorageService}.
+	 * 
+	 * <p>
+	 * The standard properties of the event shall be:
+	 * </p>
+	 * 
+	 * <dl>
+	 * <dt>{@link Identifiable#UID_PROPERTY}</dt>
+	 * <dd>The UID of the {@code ResourceStorageService} that deleted the
+	 * resource, if available.</dd>
+	 * <dt>{@link Identifiable#GROUP_UID_PROPERTY}</dt>
+	 * <dd>The group UID of the {@code ResourceStorageService} that deleted the
+	 * resource, if available.</dd>
+	 * <dt>{@link #RESOURCE_PATHS_PROPERTY}</dt>
+	 * <dd>The paths of the resources that were deleted.</dt>
+	 * </dl>
+	 */
+	String EVENT_TOPIC_RESOURCES_DELETED = "net/solarnetwork/io/ResourceStorageService/RESOURCES_DELETED";
+
+	/** Property name for a string URL value. */
+	String RESOURCE_URL_PROPERTY = "url";
+
+	/**
+	 * Property name for an {@link java.lang.Iterable} of string path values.
+	 */
+	String RESOURCE_PATHS_PROPERTY = "paths";
 
 	/**
 	 * Test if the service is configured and ready for use.
