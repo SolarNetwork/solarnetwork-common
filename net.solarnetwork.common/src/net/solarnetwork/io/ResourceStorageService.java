@@ -22,6 +22,7 @@
 
 package net.solarnetwork.io;
 
+import java.net.URL;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.springframework.core.io.Resource;
@@ -113,6 +114,16 @@ public interface ResourceStorageService extends Identifiable {
 	 * @return a future that returns the list of matching resources
 	 */
 	CompletableFuture<Iterable<Resource>> listResources(String pathPrefix);
+
+	/**
+	 * Resolve a path as a URL to a resource in the storage service.
+	 * 
+	 * @param path
+	 *        the path
+	 * @return the resource storage URL, or {@literal null} if a URL cannot be
+	 *         determined or is not supported
+	 */
+	URL resourceStorageUrl(String path);
 
 	/**
 	 * Asynchronously save a resource.
