@@ -224,6 +224,12 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	}
 
 	@Override
+	public URL getObjectURL(String key) {
+		AmazonS3 client = getClient();
+		return client.getUrl(bucketName, key);
+	}
+
+	@Override
 	public <P> S3ObjectReference putObject(String key, InputStream in, S3ObjectMetadata objectMetadata,
 			ProgressListener<P> progressListener, P progressContext) throws IOException {
 		AmazonS3 client = getClient();

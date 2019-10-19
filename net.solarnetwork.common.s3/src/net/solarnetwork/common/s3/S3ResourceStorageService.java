@@ -29,6 +29,7 @@ import static java.util.stream.StreamSupport.stream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -184,6 +185,12 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 		});
 		return result;
+	}
+
+	@Override
+	public URL resourceStorageUrl(String path) {
+		S3Client c = getS3Client();
+		return c.getObjectURL(path);
 	}
 
 	@Override

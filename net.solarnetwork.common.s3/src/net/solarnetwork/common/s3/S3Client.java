@@ -24,6 +24,7 @@ package net.solarnetwork.common.s3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Set;
 import net.solarnetwork.settings.SettingSpecifierProvider;
 import net.solarnetwork.util.ProgressListener;
@@ -64,6 +65,15 @@ public interface S3Client extends SettingSpecifierProvider {
 	 * @return the string, or {@literal null} if not found
 	 */
 	String getObjectAsString(String key) throws IOException;
+
+	/**
+	 * Get a URL for a S3 object.
+	 * 
+	 * @param key
+	 *        the key
+	 * @return the URL
+	 */
+	public URL getObjectURL(String key);
 
 	/**
 	 * Get a S3 object.
