@@ -208,6 +208,10 @@ public class HttpClientSupport {
 	 * HTTP POST data as {@code application/x-www-form-urlencoded} (e.g. a web
 	 * form) to a URL and return the response body as a string.
 	 * 
+	 * <p>
+	 * This method accepts text and JSON responses.
+	 * </p>
+	 * 
 	 * @param url
 	 *        the URL to post to
 	 * @param data
@@ -221,7 +225,8 @@ public class HttpClientSupport {
 	 */
 	protected String postXWWWFormURLEncodedDataForString(String url, Map<String, ?> data)
 			throws IOException {
-		return UrlUtils.postXWWWFormURLEncodedDataForString(url, data, connectionTimeout, sslService());
+		return UrlUtils.postXWWWFormURLEncodedDataForString(url, UrlUtils.ACCEPT_TEXT_AND_JSON, data,
+				connectionTimeout, sslService());
 	}
 
 	private SSLService sslService() {

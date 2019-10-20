@@ -41,6 +41,7 @@ import javax.net.ssl.SSLSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
+import net.solarnetwork.io.ResultStatusException;
 import net.solarnetwork.support.SSLService;
 import net.solarnetwork.support.UnicodeReader;
 
@@ -53,11 +54,29 @@ import net.solarnetwork.support.UnicodeReader;
  */
 public final class UrlUtils {
 
+	/** The {@literal UTF-8} character set name. */
+	public static final String UTF8_CHARSET = "UTF-8";
+
+	/** A HTTP Accept header value for any type. */
+	public static final String ACCEPT_ANYTHING = "*/*";
+
 	/** A HTTP Accept header value for any text type. */
 	public static final String ACCEPT_TEXT = "text/*";
 
 	/** A HTTP Accept header value for a JSON type. */
 	public static final String ACCEPT_JSON = "application/json,text/json";
+
+	/** A HTTP Accept header value for any text and JSON type. */
+	public static final String ACCEPT_TEXT_AND_JSON = "text/*,application/json";
+
+	/** A HTTP Accept header value for an XML type. */
+	public static final String ACCEPT_XML = "application/xml,text/xml";
+
+	/** A HTTP Accept header value for any text and XML type. */
+	public static final String ACCEPT_TEXT_AND_XML = "text/*,application/xml";
+
+	/** A HTTP Accept header value for any text and XML type. */
+	public static final String ACCEPT_TEXT_AND_JSON_AND_XML = "text/*,application/json,application/xml";
 
 	/** The HTTP method GET. */
 	public static final String HTTP_METHOD_GET = "GET";
@@ -94,13 +113,15 @@ public final class UrlUtils {
 
 		if ( conn instanceof HttpURLConnection ) {
 			HttpURLConnection httpConn = (HttpURLConnection) conn;
+			log.trace("HTTP {} {} response code: {}", httpConn.getRequestMethod(), httpConn.getURL(),
+					httpConn.getResponseCode());
 			if ( httpConn.getResponseCode() < 200 || httpConn.getResponseCode() > 299 ) {
-				log.info("Non-200 HTTP response from {}: {}", conn.getURL(), httpConn.getResponseCode());
+				log.info("Non-200 HTTP response from {} {}: {}", conn.getURL(),
+						httpConn.getRequestMethod(), httpConn.getResponseCode());
 			}
 		}
 
-		log.trace("Got content type [{}] encoded as [{}]", type, enc);
-
+		log.trace("RESP content type [{}] encoded as [{}]", type, enc);
 		InputStream is = conn.getInputStream();
 		if ( "gzip".equalsIgnoreCase(enc) ) {
 			is = new GZIPInputStream(is);
@@ -141,7 +162,7 @@ public final class UrlUtils {
 	 *        the HTTP method
 	 * @param timeout
 	 *        if greater than {@literal 0} then set as both the connection
-	 *        timeout and read timeout, in seconds
+	 *        timeout and read timeout, in milliseconds
 	 * @param sslService
 	 *        if provided and the URL represents an HTTPS URL, then
 	 *        {@link SSLService#getSSLSocketFactory()} will be used as the
@@ -153,7 +174,7 @@ public final class UrlUtils {
 	 */
 	public static URLConnection getURLConnection(String url, String httpMethod, int timeout,
 			SSLService sslService) throws IOException {
-		return getURLConnection(url, httpMethod, "text/*", timeout, sslService);
+		return getURLConnection(url, httpMethod, ACCEPT_TEXT, timeout, sslService);
 	}
 
 	/**
@@ -188,7 +209,7 @@ public final class UrlUtils {
 	 *        if provided, an HTTP {@literal Accept} header value to set
 	 * @param timeout
 	 *        if greater than {@literal 0} then set as both the connection
-	 *        timeout and read timeout, in seconds
+	 *        timeout and read timeout, in milliseconds
 	 * @param sslService
 	 *        if provided and the URL represents an HTTPS URL, then
 	 *        {@link SSLService#getSSLSocketFactory()} will be used as the
@@ -246,8 +267,8 @@ public final class UrlUtils {
 			if ( buf.length() > 0 ) {
 				buf.append('&');
 			}
-			buf.append(URLEncoder.encode(key, "UTF-8")).append('=')
-					.append(URLEncoder.encode(value.toString(), "UTF-8"));
+			buf.append(URLEncoder.encode(key, UTF8_CHARSET)).append('=')
+					.append(URLEncoder.encode(value.toString(), UTF8_CHARSET));
 		} catch ( IOException e ) {
 			// should not get here ever
 			throw new RuntimeException(e);
@@ -300,7 +321,7 @@ public final class UrlUtils {
 	 *        the data to encode and send as the body of the HTTP POST
 	 * @param timeout
 	 *        if greater than {@literal 0} then set as both the connection
-	 *        timeout and read timeout, in seconds
+	 *        timeout and read timeout, in milliseconds
 	 * @param sslService
 	 *        if provided and the URL represents an HTTPS URL, then
 	 *        {@link SSLService#getSSLSocketFactory()} will be used as the
@@ -308,23 +329,26 @@ public final class UrlUtils {
 	 * @return the URLConnection after the post data has been sent
 	 * @throws IOException
 	 *         if any IO error occurs
-	 * @throws RuntimeException
-	 *         if the HTTP response code is not within the 200 - 299 range
+	 * @throws ResultStatusException
+	 *         if the URL is the HTTP scheme and the HTTP response code is not
+	 *         within the 200 - 299 range
 	 */
 	public static URLConnection postXWWWFormURLEncodedData(String url, String accept,
 			Map<String, ?> data, int timeout, SSLService sslService) throws IOException {
 		URLConnection conn = getURLConnection(url, HTTP_METHOD_POST, accept, timeout, sslService);
 		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 		String body = urlEncoded(data);
-		log.trace("Encoded HTTP POST data {} for {} as {}", data, url, body);
-		OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
+		log.trace("HTTP POST {} for {} with application/x-www-form-urlencoded data: {}", url, accept,
+				body);
+		OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream(), UTF8_CHARSET);
 		FileCopyUtils.copy(new StringReader(body), out);
 		if ( conn instanceof HttpURLConnection ) {
 			HttpURLConnection http = (HttpURLConnection) conn;
 			int status = http.getResponseCode();
 			if ( status < 200 || status > 299 ) {
-				throw new RuntimeException("HTTP result status not in the 200-299 range: "
-						+ http.getResponseCode() + " " + http.getResponseMessage());
+				throw new ResultStatusException(http.getURL(), http.getResponseCode(),
+						"HTTP result status not in the 200-299 range: " + http.getResponseCode() + " "
+								+ http.getResponseMessage());
 			}
 		}
 		return conn;
@@ -336,11 +360,13 @@ public final class UrlUtils {
 	 * 
 	 * @param url
 	 *        the URL to post to
+	 * @param accept
+	 *        the value to use for the {@literal Accept} HTTP header
 	 * @param data
 	 *        the data to encode and send as the body of the HTTP POST
 	 * @param timeout
 	 *        if greater than {@literal 0} then set as both the connection
-	 *        timeout and read timeout, in seconds
+	 *        timeout and read timeout, in milliseconds
 	 * @param sslService
 	 *        if provided and the URL represents an HTTPS URL, then
 	 *        {@link SSLService#getSSLSocketFactory()} will be used as the
@@ -348,14 +374,87 @@ public final class UrlUtils {
 	 * @return the response body as a String
 	 * @throws IOException
 	 *         if any IO error occurs
-	 * @throws RuntimeException
-	 *         if the HTTP response code is not within the 200 - 299 range
+	 * @throws ResultStatusException
+	 *         if the URL is the HTTP scheme and the HTTP response code is not
+	 *         within the 200 - 299 range
 	 * @see #postXWWWFormURLEncodedData(String, String, Map)
 	 */
-	public static String postXWWWFormURLEncodedDataForString(String url, Map<String, ?> data,
+	public static String postXWWWFormURLEncodedDataForString(String url, String accept,
+			Map<String, ?> data, int timeout, SSLService sslService) throws IOException {
+		URLConnection conn = postXWWWFormURLEncodedData(url, accept, data, timeout, sslService);
+		return FileCopyUtils.copyToString(getUnicodeReaderFromURLConnection(conn));
+	}
+
+	/**
+	 * HTTP GET a URL.
+	 * 
+	 * @param url
+	 *        the URL to post to
+	 * @param accept
+	 *        the value to use for the {@literal Accept} HTTP header
+	 * @param queryParameters
+	 *        the data to encode and send as URL query parameters
+	 * @param timeout
+	 *        if greater than {@literal 0} then set as both the connection
+	 *        timeout and read timeout, in milliseconds
+	 * @param sslService
+	 *        if provided and the URL represents an HTTPS URL, then
+	 *        {@link SSLService#getSSLSocketFactory()} will be used as the
+	 *        connection's {@code SSLSocketFactory}
+	 * @return the URLConnection after the post data has been sent
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws ResultStatusException
+	 *         if the URL is the HTTP scheme and the HTTP response code is not
+	 *         within the 200 - 299 range
+	 */
+	public static URLConnection getURL(String url, String accept, Map<String, ?> queryParameters,
 			int timeout, SSLService sslService) throws IOException {
-		URLConnection conn = postXWWWFormURLEncodedData(url, "text/*, application/json", data, timeout,
-				sslService);
+		String query = urlEncoded(queryParameters);
+		String fullUrl = url;
+		if ( query != null ) {
+			fullUrl += query;
+		}
+		URLConnection conn = getURLConnection(fullUrl, HTTP_METHOD_GET, accept, timeout, sslService);
+		log.trace("HTTP GET {} for {}", fullUrl, accept);
+		if ( conn instanceof HttpURLConnection ) {
+			HttpURLConnection http = (HttpURLConnection) conn;
+			int status = http.getResponseCode();
+			if ( status < 200 || status > 299 ) {
+				throw new ResultStatusException(http.getURL(), http.getResponseCode(),
+						"HTTP result status not in the 200-299 range: " + http.getResponseCode() + " "
+								+ http.getResponseMessage());
+			}
+		}
+		return conn;
+	}
+
+	/**
+	 * HTTP GET a URL and return the response as a string.
+	 * 
+	 * @param url
+	 *        the URL to post to
+	 * @param accept
+	 *        the value to use for the {@literal Accept} HTTP header
+	 * @param queryParameters
+	 *        the data to encode and send as URL query parameters
+	 * @param timeout
+	 *        if greater than {@literal 0} then set as both the connection
+	 *        timeout and read timeout, in milliseconds
+	 * @param sslService
+	 *        if provided and the URL represents an HTTPS URL, then
+	 *        {@link SSLService#getSSLSocketFactory()} will be used as the
+	 *        connection's {@code SSLSocketFactory}
+	 * @return the URLConnection after the post data has been sent
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws ResultStatusException
+	 *         if the URL is the HTTP scheme and the HTTP response code is not
+	 *         within the 200 - 299 range
+	 */
+	public static String getURLForString(String url, String accept, Map<String, ?> queryParameters,
+			int timeout, SSLService sslService) throws IOException {
+		URLConnection conn = getURL(url, accept, queryParameters, timeout, sslService);
 		return FileCopyUtils.copyToString(getUnicodeReaderFromURLConnection(conn));
 	}
 
