@@ -22,27 +22,15 @@
 
 package net.solarnetwork.support;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.util.Collection;
 import java.util.Map;
-import java.util.zip.DeflaterInputStream;
-import java.util.zip.GZIPInputStream;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.FileCopyUtils;
 import net.solarnetwork.util.OptionalService;
+import net.solarnetwork.util.UrlUtils;
 
 /**
  * Basic support for HTTP client actions.
@@ -54,19 +42,19 @@ import net.solarnetwork.util.OptionalService;
 public class HttpClientSupport {
 
 	/** A HTTP Accept header value for any text type. */
-	public static final String ACCEPT_TEXT = "text/*";
+	public static final String ACCEPT_TEXT = UrlUtils.ACCEPT_TEXT;
 
 	/** A HTTP Accept header value for a JSON type. */
-	public static final String ACCEPT_JSON = "application/json,text/json";
+	public static final String ACCEPT_JSON = UrlUtils.ACCEPT_JSON;
 
 	/** The default value for the {@code connectionTimeout} property. */
 	public static final int DEFAULT_CONNECTION_TIMEOUT = 15000;
 
 	/** The HTTP method GET. */
-	public static final String HTTP_METHOD_GET = "GET";
+	public static final String HTTP_METHOD_GET = UrlUtils.HTTP_METHOD_GET;
 
 	/** The HTTP method POST. */
-	public static final String HTTP_METHOD_POST = "POST";
+	public static final String HTTP_METHOD_POST = UrlUtils.HTTP_METHOD_POST;
 
 	private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
 	private OptionalService<SSLService> sslService = null;
@@ -89,25 +77,7 @@ public class HttpClientSupport {
 	 *         if any IO error occurs
 	 */
 	protected InputStream getInputStreamFromURLConnection(URLConnection conn) throws IOException {
-		String enc = conn.getContentEncoding();
-		String type = conn.getContentType();
-
-		if ( conn instanceof HttpURLConnection ) {
-			HttpURLConnection httpConn = (HttpURLConnection) conn;
-			if ( httpConn.getResponseCode() < 200 || httpConn.getResponseCode() > 299 ) {
-				log.info("Non-200 HTTP response from {}: {}", conn.getURL(), httpConn.getResponseCode());
-			}
-		}
-
-		log.trace("Got content type [{}] encoded as [{}]", type, enc);
-
-		InputStream is = conn.getInputStream();
-		if ( "gzip".equalsIgnoreCase(enc) ) {
-			is = new GZIPInputStream(is);
-		} else if ( "deflate".equalsIgnoreCase(enc) ) {
-			is = new DeflaterInputStream(is);
-		}
-		return is;
+		return UrlUtils.getInputStreamFromURLConnection(conn);
 	}
 
 	/**
@@ -125,7 +95,7 @@ public class HttpClientSupport {
 	 *         if an IO error occurs
 	 */
 	protected Reader getUnicodeReaderFromURLConnection(URLConnection conn) throws IOException {
-		return new BufferedReader(new UnicodeReader(getInputStreamFromURLConnection(conn), null));
+		return UrlUtils.getUnicodeReaderFromURLConnection(conn);
 	}
 
 	/**
@@ -183,52 +153,21 @@ public class HttpClientSupport {
 	 */
 	protected URLConnection getURLConnection(String url, String httpMethod, String accept)
 			throws IOException {
-		URL connUrl = new URL(url);
-		URLConnection conn = connUrl.openConnection();
-		if ( conn instanceof HttpURLConnection ) {
-			HttpURLConnection hConn = (HttpURLConnection) conn;
-			hConn.setRequestMethod(httpMethod);
-		}
-		if ( sslService != null && conn instanceof HttpsURLConnection ) {
-			SSLService service = sslService.service();
-			if ( service != null ) {
-				SSLSocketFactory factory = service.getSSLSocketFactory();
-				if ( factory != null ) {
-					HttpsURLConnection hConn = (HttpsURLConnection) conn;
-					hConn.setSSLSocketFactory(factory);
-				}
-			}
-		}
-		conn.setRequestProperty("Accept", accept);
-		conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
-		conn.setDoInput(true);
-		conn.setDoOutput(HTTP_METHOD_POST.equalsIgnoreCase(httpMethod));
-		conn.setConnectTimeout(this.connectionTimeout);
-		conn.setReadTimeout(connectionTimeout);
-		return conn;
+		return UrlUtils.getURLConnection(url, httpMethod, accept, connectionTimeout, sslService());
 	}
 
 	/**
 	 * Append a URL-escaped key/value pair to a string buffer.
 	 * 
 	 * @param buf
+	 *        the buffer
 	 * @param key
+	 *        the key
 	 * @param value
+	 *        the value
 	 */
 	protected void appendXWWWFormURLEncodedValue(StringBuilder buf, String key, Object value) {
-		if ( value == null ) {
-			return;
-		}
-		if ( buf.length() > 0 ) {
-			buf.append('&');
-		}
-		try {
-			buf.append(URLEncoder.encode(key, "UTF-8")).append('=')
-					.append(URLEncoder.encode(value.toString(), "UTF-8"));
-		} catch ( UnsupportedEncodingException e ) {
-			// should not get here ever
-			throw new RuntimeException(e);
-		}
+		UrlUtils.appendURLEncodedValue(buf, key, value);
 	}
 
 	/**
@@ -241,25 +180,7 @@ public class HttpClientSupport {
 	 * @return the encoded data, or an empty string if nothing to encode
 	 */
 	protected String xWWWFormURLEncoded(Map<String, ?> data) {
-		if ( data == null || data.size() < 0 ) {
-			return "";
-		}
-		StringBuilder buf = new StringBuilder();
-		for ( Map.Entry<String, ?> me : data.entrySet() ) {
-			Object val = me.getValue();
-			if ( val instanceof Collection<?> ) {
-				for ( Object colVal : (Collection<?>) val ) {
-					appendXWWWFormURLEncodedValue(buf, me.getKey(), colVal);
-				}
-			} else if ( val.getClass().isArray() ) {
-				for ( Object arrayVal : (Object[]) val ) {
-					appendXWWWFormURLEncodedValue(buf, me.getKey(), arrayVal);
-				}
-			} else {
-				appendXWWWFormURLEncodedValue(buf, me.getKey(), val);
-			}
-		}
-		return buf.toString();
+		return UrlUtils.urlEncoded(data);
 	}
 
 	/**
@@ -280,21 +201,7 @@ public class HttpClientSupport {
 	 */
 	protected URLConnection postXWWWFormURLEncodedData(String url, String accept, Map<String, ?> data)
 			throws IOException {
-		URLConnection conn = getURLConnection(url, HTTP_METHOD_POST, accept);
-		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-		String body = xWWWFormURLEncoded(data);
-		log.trace("Encoded HTTP POST data {} for {} as {}", data, url, body);
-		OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
-		FileCopyUtils.copy(new StringReader(body), out);
-		if ( conn instanceof HttpURLConnection ) {
-			HttpURLConnection http = (HttpURLConnection) conn;
-			int status = http.getResponseCode();
-			if ( status < 200 || status > 299 ) {
-				throw new RuntimeException("HTTP result status not in the 200-299 range: "
-						+ http.getResponseCode() + " " + http.getResponseMessage());
-			}
-		}
-		return conn;
+		return UrlUtils.postXWWWFormURLEncodedData(url, accept, data, connectionTimeout, sslService());
 	}
 
 	/**
@@ -314,8 +221,12 @@ public class HttpClientSupport {
 	 */
 	protected String postXWWWFormURLEncodedDataForString(String url, Map<String, ?> data)
 			throws IOException {
-		URLConnection conn = postXWWWFormURLEncodedData(url, "text/*, application/json", data);
-		return FileCopyUtils.copyToString(getUnicodeReaderFromURLConnection(conn));
+		return UrlUtils.postXWWWFormURLEncodedDataForString(url, data, connectionTimeout, sslService());
+	}
+
+	private SSLService sslService() {
+		OptionalService<SSLService> s = getSslService();
+		return (s != null ? s.service() : null);
 	}
 
 	public void setConnectionTimeout(int connectionTimeout) {
