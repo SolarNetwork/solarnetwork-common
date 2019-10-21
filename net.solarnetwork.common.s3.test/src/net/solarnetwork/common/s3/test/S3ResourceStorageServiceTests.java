@@ -251,6 +251,42 @@ public class S3ResourceStorageServiceTests {
 	}
 
 	@Test
+	public void resourceUrl() throws Exception {
+		// GIVEN
+		final String path = "foo";
+
+		final URL url = new URL("http://localhost/foo");
+		expect(s3Client.getObjectURL(path)).andReturn(url);
+
+		// WHEN
+		replayAll();
+		URL result = service.resourceStorageUrl(path);
+
+		// THEN
+		assertThat("Result URL expected", result, equalTo(url));
+	}
+
+	@Test
+	public void resourceUrl_pathPrefix() throws Exception {
+		// GIVEN
+		final String pathPrefix = "foo/";
+		service.setObjectKeyPrefix(pathPrefix);
+
+		final String path = "foo";
+		final String fullPath = pathPrefix + path;
+
+		final URL url = new URL("http://localhost/foo/foo");
+		expect(s3Client.getObjectURL(fullPath)).andReturn(url);
+
+		// WHEN
+		replayAll();
+		URL result = service.resourceStorageUrl(path);
+
+		// THEN
+		assertThat("Result URL expected", result, equalTo(url));
+	}
+
+	@Test
 	public void saveResource() throws Exception {
 		// GIVEN
 		final String data = "Hello, world.";

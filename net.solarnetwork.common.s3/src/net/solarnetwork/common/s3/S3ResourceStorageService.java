@@ -190,7 +190,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	@Override
 	public URL resourceStorageUrl(String path) {
 		S3Client c = getS3Client();
-		return c.getObjectURL(path);
+		return c.getObjectURL(mapPathPrefix(objectKeyPrefix, path));
 	}
 
 	@Override
