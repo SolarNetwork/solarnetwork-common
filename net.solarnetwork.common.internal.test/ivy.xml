@@ -21,11 +21,14 @@
 		<!-- Testing support -->
 		<dependency org="com.fasterxml.jackson.datatype" name="jackson-datatype-joda" rev="2.4.3" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.11"/>
+		<dependency org="org.osgi" name="osgi.core" rev="7.0.0" />
 		<dependency org="org.tukaani" name="xz" rev="1.8" />
  		
 		<!-- SolarNetwork -->
 		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.pki.bc" rev="latest.release"/>
 		
 		<exclude org="net.solarnetwork.common" module="net.solarnetwork.common"/>
+		<exclude org="org.osgi" module="org.osgi.core"/>
+		
 	</dependencies>
 </ivy-module>

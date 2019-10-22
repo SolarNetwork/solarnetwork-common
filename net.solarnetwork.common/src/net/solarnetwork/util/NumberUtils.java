@@ -30,7 +30,7 @@ import java.math.RoundingMode;
  * Utilities for dealing with numbers.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.42
  */
 public final class NumberUtils {
@@ -309,6 +309,65 @@ public final class NumberUtils {
 		} else {
 			return n.movePointRight(scale);
 		}
+	}
+
+	/**
+	 * Apply a maximum decimal scale to a number value.
+	 * 
+	 * @param value
+	 *        the number to apply the maximum scale to
+	 * @param maxDecimalScale
+	 *        the maximum scale, or {@literal -1} for no maximum
+	 * @return the value, possibly rounded to {@code decimalScale}
+	 * @since 1.3
+	 */
+	public static Number maximumDecimalScale(Number value, int maxDecimalScale) {
+		if ( value == null || maxDecimalScale < 0 ) {
+			return value;
+		}
+		BigDecimal v = bigDecimalForNumber(value);
+		if ( v.scale() > maxDecimalScale ) {
+			v = v.setScale(maxDecimalScale, RoundingMode.HALF_UP);
+		}
+		return v;
+	}
+
+	/**
+	 * Apply a multiplier to a number value.
+	 * 
+	 * @param value
+	 *        the source number
+	 * @param multiple
+	 *        the value to multiply {@code value} by; if {@literal null} then
+	 *        {@code value} is returned unchanged
+	 * @return the value, or {@literal null} if {@code value} is {@literal null}
+	 * @since 1.3
+	 */
+	public static Number multiplied(Number value, BigDecimal multiple) {
+		if ( value == null || multiple == null || BigDecimal.ONE.compareTo(multiple) == 0 ) {
+			return value;
+		}
+		BigDecimal v = bigDecimalForNumber(value);
+		return v.multiply(multiple);
+	}
+
+	/**
+	 * Apply an offset to a number value.
+	 * 
+	 * @param value
+	 *        the number to apply the offset to
+	 * @param offset
+	 *        the value to add to {@code value}; if {@literal null} then
+	 *        {@code value} is returned unchanged
+	 * @return the value, or {@literal null} if {@code value} is {@literal null}
+	 * @since 1.3
+	 */
+	public static Number offset(Number value, BigDecimal offset) {
+		if ( value == null || offset == null || BigDecimal.ZERO.compareTo(offset) == 0 ) {
+			return value;
+		}
+		BigDecimal v = bigDecimalForNumber(value);
+		return v.add(offset);
 	}
 
 }

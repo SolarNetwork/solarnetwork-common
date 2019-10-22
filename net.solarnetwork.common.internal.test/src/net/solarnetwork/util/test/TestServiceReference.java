@@ -23,7 +23,9 @@
 package net.solarnetwork.util.test;
 
 import java.io.Serializable;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
@@ -33,7 +35,7 @@ import org.osgi.framework.ServiceReference;
  * {@link ServiceReference} to help with unit tests.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class TestServiceReference<S> implements ServiceReference<S> {
 
@@ -73,6 +75,11 @@ public class TestServiceReference<S> implements ServiceReference<S> {
 	@Override
 	public String[] getPropertyKeys() {
 		return props.keySet().toArray(new String[props.size()]);
+	}
+
+	@Override
+	public Dictionary<String, Object> getProperties() {
+		return new Hashtable<String, Object>(props);
 	}
 
 	@Override

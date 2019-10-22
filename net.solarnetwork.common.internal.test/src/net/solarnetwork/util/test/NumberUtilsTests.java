@@ -23,6 +23,8 @@
 package net.solarnetwork.util.test;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -35,7 +37,7 @@ import net.solarnetwork.util.NumberUtils;
  * Unit tests for the {@link NumberUtils} class.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class NumberUtilsTests {
 
@@ -214,4 +216,77 @@ public class NumberUtilsTests {
 		BigInteger bi = NumberUtils.fractionalPartToInteger(new BigDecimal("-3.99999999999999"), 9);
 		assertThat("Result", bi, equalTo(new BigInteger(String.valueOf("-999999999"))));
 	}
+
+	@Test
+	public void offset_nullValue() {
+		Number n = NumberUtils.offset(null, BigDecimal.ZERO);
+		assertThat("Result", n, nullValue());
+	}
+
+	@Test
+	public void offset_nullOffset() {
+		Number n = NumberUtils.offset(new BigDecimal("1.23"), null);
+		assertThat("Result unchanged from null offset", n, sameInstance(n));
+	}
+
+	@Test
+	public void offset_zeroOffset() {
+		Number n = NumberUtils.offset(new BigDecimal("1.23"), BigDecimal.ZERO);
+		assertThat("Result unchanged from 0 offset", n, sameInstance(n));
+	}
+
+	@Test
+	public void offset() {
+		Number n = NumberUtils.offset(new BigDecimal("1.23"), new BigDecimal("2.0"));
+		assertThat("Result offset", n, equalTo(new BigDecimal("3.23")));
+	}
+
+	@Test
+	public void multiplied_nullValue() {
+		Number n = NumberUtils.multiplied(null, BigDecimal.ZERO);
+		assertThat("Result", n, nullValue());
+	}
+
+	@Test
+	public void multiplied_nullMultiple() {
+		Number n = NumberUtils.multiplied(new BigDecimal("1.23"), null);
+		assertThat("Result unchanged from null multiple", n, sameInstance(n));
+	}
+
+	@Test
+	public void multiplied_zeroMultiple() {
+		Number n = NumberUtils.multiplied(new BigDecimal("1.23"), BigDecimal.ZERO);
+		assertThat("Result unchanged from 0 multiple", n, sameInstance(n));
+	}
+
+	@Test
+	public void multiplied() {
+		Number n = NumberUtils.multiplied(new BigDecimal("1.23"), new BigDecimal("2"));
+		assertThat("Result multiplied", n, equalTo(new BigDecimal("2.46")));
+	}
+
+	@Test
+	public void maximumDecimalScale_nullValue() {
+		Number n = NumberUtils.maximumDecimalScale(null, 0);
+		assertThat("Result", n, nullValue());
+	}
+
+	@Test
+	public void maximumDecimalScale_negativeScale() {
+		Number n = NumberUtils.maximumDecimalScale(new BigDecimal("1.23"), -1);
+		assertThat("Result unchanged from negative maximumDecimalScale", n, sameInstance(n));
+	}
+
+	@Test
+	public void maximumDecimalScale_zeroScale() {
+		Number n = NumberUtils.maximumDecimalScale(new BigDecimal("1.23"), 0);
+		assertThat("Result rounded to whole number", n, equalTo(new BigDecimal("1")));
+	}
+
+	@Test
+	public void maximumDecimalScale_scaleRoundedUp() {
+		Number n = NumberUtils.maximumDecimalScale(new BigDecimal("1.28"), 1);
+		assertThat("Result rounded up", n, equalTo(new BigDecimal("1.3")));
+	}
+
 }

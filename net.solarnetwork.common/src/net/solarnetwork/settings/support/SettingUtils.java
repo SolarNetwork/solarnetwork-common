@@ -25,10 +25,15 @@ package net.solarnetwork.settings.support;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import net.solarnetwork.settings.GroupSettingSpecifier;
+import net.solarnetwork.settings.KeyedSettingSpecifier;
+import net.solarnetwork.settings.MappableSpecifier;
+import net.solarnetwork.settings.ParentSettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.TextFieldSettingSpecifier;
 
@@ -36,7 +41,7 @@ import net.solarnetwork.settings.TextFieldSettingSpecifier;
  * Helper utilities for settings.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.43
  */
 public final class SettingUtils {
@@ -137,6 +142,75 @@ public final class SettingUtils {
 			}
 		}
 		return (secureProps != null ? secureProps : Collections.<String> emptySet());
+	}
+
+	/**
+	 * Add a prefix to the keys of all {@link MappableSpecifier} settings.
+	 * 
+	 * @param settings
+	 *        the settings to map
+	 * @param prefix
+	 *        the prefix to add to all {@link MappableSpecifier} settings
+	 * @return list of mapped settings, or {@literal null} if {@code settings}
+	 *         is {@literal null}
+	 * @since 1.1
+	 */
+	public static List<SettingSpecifier> mappedWithPrefix(List<SettingSpecifier> settings,
+			String prefix) {
+		if ( settings == null || settings.isEmpty() || prefix == null || prefix.isEmpty() ) {
+			return settings;
+		}
+		List<SettingSpecifier> result = new ArrayList<>(settings.size());
+		for ( SettingSpecifier setting : settings ) {
+			if ( setting instanceof MappableSpecifier ) {
+				result.add(((MappableSpecifier) setting).mappedTo(prefix));
+			} else {
+				result.add(setting);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Extract all {@link KeyedSettingSpecifier} keys and associated default
+	 * values from a list of settings.
+	 * 
+	 * <p>
+	 * Both {@link GroupSettingSpecifier#getGroupSettings()} and
+	 * {@link ParentSettingSpecifier#getChildSettings()} will be included in the
+	 * returned map.
+	 * </p>
+	 * 
+	 * @param settings
+	 *        the settings to extract the keyed defaults from
+	 * @return a map of keyed setting keys to associated default values, never
+	 *         {@literal null}
+	 * @since 1.1
+	 */
+	public static Map<String, Object> keyedSettingDefaults(List<SettingSpecifier> settings) {
+		if ( settings == null || settings.isEmpty() ) {
+			return Collections.emptyMap();
+		}
+		Map<String, Object> result = new LinkedHashMap<>(settings.size());
+		addKeyedSettingDefaults(settings, result);
+		return result;
+	}
+
+	private static void addKeyedSettingDefaults(List<SettingSpecifier> settings,
+			Map<String, Object> result) {
+		if ( settings == null || settings.isEmpty() ) {
+			return;
+		}
+		for ( SettingSpecifier setting : settings ) {
+			if ( setting instanceof KeyedSettingSpecifier<?> ) {
+				KeyedSettingSpecifier<?> keyed = (KeyedSettingSpecifier<?>) setting;
+				result.put(keyed.getKey(), keyed.getDefaultValue());
+			} else if ( setting instanceof GroupSettingSpecifier ) {
+				addKeyedSettingDefaults(((GroupSettingSpecifier) setting).getGroupSettings(), result);
+			} else if ( setting instanceof ParentSettingSpecifier ) {
+				addKeyedSettingDefaults(((ParentSettingSpecifier) setting).getChildSettings(), result);
+			}
+		}
 	}
 
 }

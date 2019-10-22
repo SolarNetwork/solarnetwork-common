@@ -28,9 +28,23 @@ package net.solarnetwork.domain;
  * SolarNode allow any number of them to be deployed.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface Identifiable {
+
+	/**
+	 * A string UID property, for use in events and other data structures.
+	 * 
+	 * @since 1.1
+	 */
+	String UID_PROPERTY = "uid";
+
+	/**
+	 * A string group UID property, for use in events and other data structures.
+	 *
+	 * @since 1.1
+	 */
+	String GROUP_UID_PROPERTY = "groupUid";
 
 	/**
 	 * Get a unique identifier for this service.
