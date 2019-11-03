@@ -37,9 +37,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.scheduling.TaskScheduler;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.solarnetwork.common.mqtt.paho.MqttFilePersistence;
 import net.solarnetwork.support.SSLService;
 import net.solarnetwork.util.OptionalService;
@@ -67,9 +65,7 @@ public abstract class MqttServiceSupport implements MqttCallbackExtended {
 
 	private int keepAliveInterval = MqttConnectOptions.KEEP_ALIVE_INTERVAL_DEFAULT;
 	private int maxInflight = DEFAULT_MAX_IN_FLIGHT;
-	private MessageSource messageSource;
 
-	private final ObjectMapper objectMapper;
 	private final TaskScheduler taskScheduler;
 	private final OptionalService<SSLService> sslServiceOpt;
 	private final AtomicReference<IMqttClient> clientRef;
@@ -84,22 +80,14 @@ public abstract class MqttServiceSupport implements MqttCallbackExtended {
 	/**
 	 * Constructor.
 	 * 
-	 * @param objectMapper
-	 *        the object mapper to use
 	 * @param taskScheduler
 	 *        an optional task scheduler to auto-connect with, or
 	 *        {@literal null} for no auto-connect support
 	 * @param sslService
 	 *        the optional SSL service
-	 * @param reactorService
-	 *        the optional reactor service
-	 * @param instructionExecutionService
-	 *        the instruction execution service
 	 */
-	public MqttServiceSupport(ObjectMapper objectMapper, TaskScheduler taskScheduler,
-			OptionalService<SSLService> sslService) {
+	public MqttServiceSupport(TaskScheduler taskScheduler, OptionalService<SSLService> sslService) {
 		super();
-		this.objectMapper = objectMapper;
 		this.taskScheduler = taskScheduler;
 		this.sslServiceOpt = sslService;
 		this.clientRef = new AtomicReference<IMqttClient>();
@@ -369,15 +357,6 @@ public abstract class MqttServiceSupport implements MqttCallbackExtended {
 	}
 
 	/**
-	 * Get the configured {@link ObjectMapper}.
-	 * 
-	 * @return the mapper
-	 */
-	public ObjectMapper getObjectMapper() {
-		return objectMapper;
-	}
-
-	/**
 	 * Get the configured task scheduler.
 	 * 
 	 * @return the task scheduler
@@ -407,27 +386,6 @@ public abstract class MqttServiceSupport implements MqttCallbackExtended {
 	 */
 	public void setPersistencePath(String persistencePath) {
 		this.persistencePath = persistencePath;
-	}
-
-	/**
-	 * Get the configured {@link MessageSource}.
-	 * 
-	 * @return the message source, or {@literal null}
-	 * @since 1.1
-	 */
-	public MessageSource getMessageSource() {
-		return messageSource;
-	}
-
-	/**
-	 * Set a {@link MessageSource} to use for resolving localized messages.
-	 * 
-	 * @param messageSource
-	 *        the message source to use
-	 * @since 1.1
-	 */
-	public void setMessageSource(MessageSource messageSource) {
-		this.messageSource = messageSource;
 	}
 
 	/**
