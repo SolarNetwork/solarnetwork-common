@@ -182,6 +182,11 @@ public abstract class AsyncMqttServiceSupport
 								connOptions = newConnOptions;
 							}
 							return;
+						} else if ( serverUri == null || serverUri.isEmpty() || clientId == null
+								|| clientId.isEmpty() ) {
+							// not configured yet
+							log.info("{} MQTT configuration incomplete, will not connect.", uid);
+							return;
 						}
 					} catch ( RuntimeException e ) {
 						// ignore
@@ -266,7 +271,7 @@ public abstract class AsyncMqttServiceSupport
 		IMqttAsyncClient client = null;
 		shutdownClient(clientRef.get());
 		try {
-			client = createClient();
+			client = createClient(uid, serverUri, clientId, persistencePath);
 			if ( client != null ) {
 				connOptions.setCleanSession(false);
 				connOptions.setAutomaticReconnect(true);
@@ -299,7 +304,13 @@ public abstract class AsyncMqttServiceSupport
 		return client;
 	}
 
-	private synchronized IMqttAsyncClient createClient() throws MqttException {
+	private synchronized IMqttAsyncClient createClient(String uid, String serverUri, String clientId,
+			String persistencePath) throws MqttException {
+		if ( uid == null || uid.isEmpty() || serverUri == null || serverUri.isEmpty() || clientId == null
+				|| clientId.isEmpty() || persistencePath == null || persistencePath.isEmpty() ) {
+			log.info("Server URI and/or client ID not configured, cannot connect to MQTT server.");
+			return null;
+		}
 		URI uri;
 		try {
 			uri = new URI(serverUri);
@@ -312,7 +323,7 @@ public abstract class AsyncMqttServiceSupport
 		String scheme = uri.getScheme();
 		boolean useSsl = (port == 8883 || "mqtts".equalsIgnoreCase(scheme)
 				|| "ssl".equalsIgnoreCase(scheme));
-		String serverUri = (useSsl ? "ssl" : "tcp") + "://" + uri.getHost()
+		String connUri = (useSsl ? "ssl" : "tcp") + "://" + uri.getHost()
 				+ (port > 0 ? ":" + uri.getPort() : "");
 
 		Path p = Paths.get(persistencePath, DigestUtils.md5DigestAsHex(uid.getBytes()));
@@ -326,7 +337,7 @@ public abstract class AsyncMqttServiceSupport
 		}
 		MqttDefaultFilePersistence persistence = new MqttDefaultFilePersistence(p.toString());
 		MqttAsyncClient c = null;
-		c = new MqttAsyncClient(serverUri, clientId, persistence);
+		c = new MqttAsyncClient(connUri, clientId, persistence);
 		c.setCallback(this);
 		return c;
 	}
