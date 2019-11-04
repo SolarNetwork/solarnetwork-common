@@ -103,8 +103,6 @@ public abstract class AsyncMqttServiceSupport
 	 * 
 	 * @param executorService
 	 *        task service
-	 * @param objectMapper
-	 *        object mapper for messages
 	 * @param sslService
 	 *        SSL service
 	 * @param retryConnect
@@ -122,8 +120,6 @@ public abstract class AsyncMqttServiceSupport
 	 * 
 	 * @param executorService
 	 *        task service
-	 * @param objectMapper
-	 *        object mapper for messages
 	 * @param sslService
 	 *        SSL service
 	 * @param retryConnect
