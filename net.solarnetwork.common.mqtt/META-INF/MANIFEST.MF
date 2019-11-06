@@ -11,6 +11,8 @@ Export-Package:
  net.solarnetwork.common.mqtt.paho;version="1.0.0",
  net.solarnetwork.common.mqtt.support;version="1.0.0"
 Import-Package: 
+ javax.net,
+ javax.net.ssl,
  com.fasterxml.jackson.annotation;version="[2.4,3.0)",
  com.fasterxml.jackson.core;version="[2.4,3.0)",
  com.fasterxml.jackson.core.type;version="[2.4,3.0)",
