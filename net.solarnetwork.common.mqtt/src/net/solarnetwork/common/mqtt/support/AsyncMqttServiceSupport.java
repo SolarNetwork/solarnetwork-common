@@ -512,7 +512,7 @@ public abstract class AsyncMqttServiceSupport
 
 	@Override
 	public String getPingTestName() {
-		return "SolarIn MQTT";
+		return "MQTT Service";
 	}
 
 	@Override
