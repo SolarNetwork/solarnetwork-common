@@ -243,14 +243,16 @@ public abstract class AsyncMqttServiceSupport
 		}
 		try {
 			if ( client.isConnected() ) {
+				log.info("Disconnecting MQTT connection to {} with client {}", client.getServerURI(),
+						client);
 				client.disconnect().waitForCompletion(mqttTimeout);
 			} else {
-				log.debug("Not connected to MQTT @ {}, no need to shut down client.",
-						client.getServerURI());
+				log.debug("Not connected to MQTT @ {}, no need to shut down client {}",
+						client.getServerURI(), client);
 			}
 		} catch ( MqttException e ) {
-			log.warn("Error disconnecting MQTT connection to {}: {}", client.getServerURI(),
-					e.toString());
+			log.warn("Error disconnecting MQTT connection to {} with client {}: {}",
+					client.getServerURI(), client, e.toString());
 			try {
 				client.disconnectForcibly();
 			} catch ( MqttException e2 ) {
@@ -258,9 +260,11 @@ public abstract class AsyncMqttServiceSupport
 			}
 		} finally {
 			try {
+				log.info("Closing MQTT connection to {} with client {}", client.getServerURI(), client);
 				client.close();
 			} catch ( MqttException e ) {
-				log.warn("Error closing MQTT connection to {}: {}", client.getServerURI(), e.toString());
+				log.warn("Error closing MQTT connection to {} with client {}: {}", client.getServerURI(),
+						client, e.toString());
 			} finally {
 				clientRef.compareAndSet(client, null);
 			}
@@ -288,13 +292,13 @@ public abstract class AsyncMqttServiceSupport
 					connOptions.setSocketFactory(sslService.getSSLSocketFactory());
 				}
 
+				log.info("Connecting to MQTT server {} with clent {}", serverUri, client);
+				clientRef.set(client);
 				client.connect(connOptions).waitForCompletion(mqttTimeout);
 
 				if ( !publishOnly ) {
 					subscribeToTopics(client);
 				}
-
-				clientRef.set(client);
 			}
 		} catch ( MqttException e ) {
 			log.error("Error creating MQTT client: {}", e.toString());
@@ -382,9 +386,9 @@ public abstract class AsyncMqttServiceSupport
 
 	@Override
 	public void connectionLost(Throwable cause) {
-		IMqttAsyncClient client = clientRef.get();
-		log.info("Connection lost to MQTT server @ {}: {}",
-				(client != null ? client.getServerURI() : "N/A"), cause.toString());
+		final IMqttAsyncClient client = clientRef.get();
+		log.info("Connection lost to MQTT server @ {} with client {}: {}",
+				(client != null ? client.getServerURI() : "N/A"), client, cause.toString());
 		final Throwable restablishThrowable = exceptionToForceConnectionReestablishment(cause);
 		if ( restablishThrowable != null ) {
 			// shutdown and re-connect
@@ -398,8 +402,9 @@ public abstract class AsyncMqttServiceSupport
 					} catch ( InterruptedException e ) {
 						// just continue
 					}
-					log.info("Re-establishing connection to MQTT server @ {} after error [{}]",
-							(client != null ? client.getServerURI() : "N/A"),
+					log.info(
+							"Re-establishing connection to MQTT server @ {} with client {} after error [{}]",
+							(client != null ? client.getServerURI() : "N/A"), client,
 							restablishThrowable.getMessage());
 					close();
 					try {
@@ -432,7 +437,8 @@ public abstract class AsyncMqttServiceSupport
 
 	@Override
 	public final void connectComplete(boolean reconnect, String serverURI) {
-		log.info("{} to MQTT server @ {}", (reconnect ? "Reconnected" : "Connected"), serverURI);
+		log.info("{} to MQTT server @ {} with client {}", (reconnect ? "Reconnected" : "Connected"),
+				serverURI, clientRef.get());
 		stats.incrementAndGet(MqttStats.BasicCounts.ConnectionSuccess);
 		if ( reconnect ) {
 			// re-subscribe
