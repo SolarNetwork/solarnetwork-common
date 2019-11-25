@@ -22,6 +22,8 @@
 
 package net.solarnetwork.common.mqtt;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import net.solarnetwork.support.SSLService;
 
 /**
@@ -38,14 +40,23 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	/** The {@code reconnectDelaySeconds} property default value. */
 	public static final int DEFAULT_RECONNECT_DELAY_SECONDS = 10;
 
-	private String host;
-	private int port;
+	/** The {@code connectTimeoutSeconds} property default value. */
+	public static final int DEFAULT_CONNECT_TIMEOUT_SECONDS = 10;
+
+	/** The {@code keepAliveSeconds} property default value. */
+	public static final int DEFAULT_KEEP_ALIVE_SECONDS = 60;
+
+	/** The {@code maximumMessageSize} property default value. */
+	public static final int DEFAULT_MAXIMUM_MESSAGE_SIZE = 8192;
+
+	private URI serverUri;
 	private MqttVersion version;
 	private SSLService sslService;
 	private String clientId;
 	private String username;
 	private String password;
 	private boolean cleanSession;
+	private int connectTimeoutSeconds;
 	private boolean reconnect;
 	private int reconnectDelaySeconds;
 	private MqttMessage lastWill;
@@ -58,39 +69,103 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	public BasicMqttConnectionConfig() {
 		super();
 		this.version = MqttVersion.Mqtt311;
-		this.port = DEFAULT_PORT;
+		this.connectTimeoutSeconds = DEFAULT_CONNECT_TIMEOUT_SECONDS;
 		this.reconnect = DEFAULT_RECONNECT;
 		this.reconnectDelaySeconds = DEFAULT_RECONNECT_DELAY_SECONDS;
+		this.keepAliveSeconds = DEFAULT_KEEP_ALIVE_SECONDS;
+		this.maximumMessageSize = DEFAULT_MAXIMUM_MESSAGE_SIZE;
+	}
+
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param other
+	 *        the configuration to copy, or {@literal null}
+	 */
+	public BasicMqttConnectionConfig(MqttConnectionConfig other) {
+		this();
+		if ( other == null ) {
+			return;
+		}
+		setServerUri(other.getServerUri());
+		setVersion(other.getVersion());
+		setSslService(other.getSslService());
+		setClientId(other.getClientId());
+		setUsername(other.getUsername());
+		setPassword(other.getPassword());
+		setCleanSession(other.isCleanSession());
+		setConnectTimeoutSeconds(other.getConnectTimeoutSeconds());
+		setReconnect(other.isReconnect());
+		setReconnectDelaySeconds(other.getReconnectDelaySeconds());
+		setLastWill(other.getLastWill());
+		setMaximumMessageSize(other.getMaximumMessageSize());
+		setKeepAliveSeconds(other.getKeepAliveSeconds());
 	}
 
 	@Override
+	public URI getServerUri() {
+		return serverUri;
+	}
+
+	/**
+	 * Set the MQTT broker URI to connect to.
+	 * 
+	 * @param serverUri
+	 *        the server URI
+	 */
+	public void setServerUri(URI serverUri) {
+		this.serverUri = serverUri;
+	}
+
+	/**
+	 * Set the MQTT broker URI to connect to, as a string.
+	 * 
+	 * @param serverUri
+	 *        the URI value
+	 * @throws IllegalArgumentException
+	 *         if {@code serverUri} is not a valid URI
+	 */
+	public void setServerUriValue(String serverUri) {
+		try {
+			setServerUri(new URI(serverUri));
+		} catch ( URISyntaxException e ) {
+			throw new IllegalArgumentException(
+					"Invalid MQTT server URI [" + serverUri + "]: " + e.getMessage());
+		}
+	}
+
+	@Override
+	public boolean isUseSsl() {
+		URI uri = getServerUri();
+		String scheme = (uri != null ? uri.getScheme() : "mqtt");
+		int port = (uri != null ? uri.getPort() : -1);
+		boolean useSsl = (port == 8883 || "mqtts".equalsIgnoreCase(scheme)
+				|| "ssl".equalsIgnoreCase(scheme));
+		return useSsl;
+	}
+
+	/**
+	 * Get the MQTT broker host name to connect to.
+	 * 
+	 * @return the host name, or {@literal null}
+	 */
 	public String getHost() {
-		return host;
+		URI uri = getServerUri();
+		return (uri != null ? uri.getHost() : null);
 	}
 
 	/**
-	 * Set the host to connect to.
+	 * Get the MQTT broker port to connect to.
 	 * 
-	 * @param host
-	 *        the host to set
+	 * @return the port
 	 */
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	@Override
 	public int getPort() {
+		URI uri = getServerUri();
+		int port = (uri != null ? uri.getPort() : -1);
+		if ( port == -1 ) {
+			port = (isUseSsl() ? DEFAULT_PORT_SSL : DEFAULT_PORT);
+		}
 		return port;
-	}
-
-	/**
-	 * Set the port to connect to.
-	 * 
-	 * @param port
-	 *        the port to set
-	 */
-	public void setPort(int port) {
-		this.port = port;
 	}
 
 	@Override
@@ -253,6 +328,26 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 					"The maximumMessageSize value must be between 1 and 256_000_000.");
 		}
 		this.maximumMessageSize = maximumMessageSize;
+	}
+
+	@Override
+	public int getConnectTimeoutSeconds() {
+		return connectTimeoutSeconds;
+	}
+
+	/**
+	 * Set a connection timeout, in seconds.
+	 * 
+	 * @param connectTimeoutSeconds
+	 *        the timeout to set
+	 * @throws IllegalArgumentException
+	 *         if {@code connectTimeoutSeconds} is not greater than {@literal 0}
+	 */
+	public void setConnectTimeoutSeconds(int connectTimeoutSeconds) {
+		if ( connectTimeoutSeconds < 1 ) {
+			throw new IllegalArgumentException("The connectTimeoutSeconds value must be > 0.");
+		}
+		this.connectTimeoutSeconds = connectTimeoutSeconds;
 	}
 
 	@Override

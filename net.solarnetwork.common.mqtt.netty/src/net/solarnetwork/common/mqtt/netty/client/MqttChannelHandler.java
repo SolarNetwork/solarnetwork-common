@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.thingsboard.mqtt;
+package net.solarnetwork.common.mqtt.netty.client;
 
 import static java.util.stream.Collectors.toList;
 import java.util.LinkedHashSet;

@@ -24,6 +24,7 @@ package net.solarnetwork.common.mqtt;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.concurrent.Future;
 
 /**
  * API for a connection to a MQTT broker.
@@ -44,8 +45,9 @@ public interface MqttConnection extends Closeable {
 	 * 
 	 * @throws IOException
 	 *         if the connection cannot be opened
+	 * @return future wiht results of connection
 	 */
-	void open() throws IOException;
+	Future<?> open() throws IOException;
 
 	/**
 	 * Test if the connection has been established.

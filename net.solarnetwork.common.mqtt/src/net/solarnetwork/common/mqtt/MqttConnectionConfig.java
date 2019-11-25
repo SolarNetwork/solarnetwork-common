@@ -22,6 +22,7 @@
 
 package net.solarnetwork.common.mqtt;
 
+import java.net.URI;
 import java.util.UUID;
 import net.solarnetwork.support.SSLService;
 
@@ -44,18 +45,18 @@ public interface MqttConnectionConfig {
 	int DEFAULT_PORT_SSL = 8883;
 
 	/**
-	 * Get the MQTT hostname to connect to.
+	 * Get the MQTT broker URI to connect to.
 	 * 
-	 * @return the host name
+	 * @return the server URI
 	 */
-	String getHost();
+	URI getServerUri();
 
 	/**
-	 * Get the port to connect to.
+	 * Test if an SSL-encrypted connection should be used.
 	 * 
-	 * @return the port
+	 * @return {@literal true} if the connection should use SSL
 	 */
-	int getPort();
+	boolean isUseSsl();
 
 	/**
 	 * Get the MQTT protocol version.
@@ -119,6 +120,13 @@ public interface MqttConnectionConfig {
 	 * @return the keep alive time, in seconds
 	 */
 	int getKeepAliveSeconds();
+
+	/**
+	 * Get a connection timeout, in seconds.
+	 * 
+	 * @return a connect timeout, in seconds
+	 */
+	int getConnectTimeoutSeconds();
 
 	/**
 	 * Get a "reconnect" flag.

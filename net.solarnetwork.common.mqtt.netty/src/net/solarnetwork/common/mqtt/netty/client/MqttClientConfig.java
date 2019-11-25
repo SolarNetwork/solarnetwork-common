@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.thingsboard.mqtt;
+package net.solarnetwork.common.mqtt.netty.client;
 
 import java.util.Random;
 import io.netty.channel.Channel;

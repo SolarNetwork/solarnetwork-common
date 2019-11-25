@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.thingsboard.mqtt;
+package net.solarnetwork.common.mqtt.netty.client;
 
 import java.util.regex.Pattern;
 

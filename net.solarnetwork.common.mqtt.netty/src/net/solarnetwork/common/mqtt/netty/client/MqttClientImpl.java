@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package org.thingsboard.mqtt;
+package net.solarnetwork.common.mqtt.netty.client;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -187,6 +190,24 @@ final class MqttClientImpl implements MqttClient {
 			}
 			eventLoop.schedule((Runnable) () -> connect(host, port, reconnect),
 					clientConfig.getReconnectDelay(), TimeUnit.SECONDS);
+		}
+	}
+
+	@Override
+	public URI getServerUri() {
+		String host = this.host;
+		if ( host == null || host.isEmpty() ) {
+			return null;
+		}
+		StringBuilder buf = new StringBuilder("mqtt");
+		if ( clientConfig.getSslContext() != null ) {
+			buf.append("s");
+		}
+		buf.append("://").append(host).append(":").append(port);
+		try {
+			return new URI(buf.toString());
+		} catch ( URISyntaxException e ) {
+			throw new IllegalArgumentException("Bad URI syntax from [" + buf + "]", e);
 		}
 	}
 
@@ -457,13 +478,24 @@ final class MqttClientImpl implements MqttClient {
 	}
 
 	@Override
-	public void disconnect() {
+	public java.util.concurrent.Future<?> disconnect() {
 		disconnected = true;
+		CompletableFuture<Void> result = new CompletableFuture<>();
 		if ( this.channel != null ) {
 			MqttMessage message = new MqttMessage(new MqttFixedHeader(MqttMessageType.DISCONNECT, false,
 					MqttQoS.AT_MOST_ONCE, false, 0));
-			this.sendAndFlushPacket(message).addListener(future1 -> channel.close());
+			this.sendAndFlushPacket(message)
+					.addListener(future1 -> channel.close().addListener(closeFuture -> {
+						if ( closeFuture.isSuccess() ) {
+							result.complete(null);
+						} else {
+							result.completeExceptionally(closeFuture.cause());
+						}
+					}));
+		} else {
+			result.complete(null);
 		}
+		return result;
 	}
 
 	@Override
