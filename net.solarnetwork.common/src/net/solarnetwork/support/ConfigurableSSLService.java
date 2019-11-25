@@ -221,12 +221,39 @@ public class ConfigurableSSLService implements SSLService {
 	}
 
 	@Override
+	public TrustManagerFactory getTrustManagerFactory() {
+		KeyStore trustStore = loadTrustStore();
+		try {
+			TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("PKIX");
+			trustManagerFactory.init(trustStore);
+			return trustManagerFactory;
+		} catch ( NoSuchAlgorithmException | KeyStoreException e ) {
+			throw new CertificateException("Error creating TrustManagerFactory: " + e.toString(), e);
+		}
+	}
+
+	@Override
+	public KeyManagerFactory getKeyManagerFactory() {
+		try {
+			File ksFile = new File(keyStorePath);
+			if ( ksFile.isFile() ) {
+				KeyStore keyStore = loadKeyStore();
+				KeyManagerFactory keyManagerFactory = KeyManagerFactory
+						.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+				keyManagerFactory.init(keyStore, getKeyStorePassword().toCharArray());
+				return keyManagerFactory;
+			}
+		} catch ( NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException e ) {
+			throw new CertificateException("Error creating KeyManagerFactory: " + e.toString(), e);
+		}
+		return null;
+	}
+
+	@Override
 	public synchronized SSLSocketFactory getSSLSocketFactory() {
 		if ( socketFactory == null ) {
 			try {
-				KeyStore trustStore = loadTrustStore();
-				TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("PKIX");
-				trustManagerFactory.init(trustStore);
+				TrustManagerFactory trustManagerFactory = getTrustManagerFactory();
 
 				X509TrustManager x509TrustManager = null;
 				for ( TrustManager trustManager : trustManagerFactory.getTrustManagers() ) {
@@ -241,13 +268,8 @@ public class ConfigurableSSLService implements SSLService {
 				}
 
 				KeyManager[] keyManagers = null;
-				File ksFile = new File(keyStorePath);
-				if ( ksFile.isFile() ) {
-					KeyStore keyStore = loadKeyStore();
-					KeyManagerFactory keyManagerFactory = KeyManagerFactory
-							.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-					keyManagerFactory.init(keyStore, getKeyStorePassword().toCharArray());
-
+				KeyManagerFactory keyManagerFactory = getKeyManagerFactory();
+				if ( keyManagerFactory != null ) {
 					for ( KeyManager keyManager : keyManagerFactory.getKeyManagers() ) {
 						if ( keyManager instanceof X509KeyManager ) {
 							keyManagers = new KeyManager[] { keyManager };
@@ -260,10 +282,6 @@ public class ConfigurableSSLService implements SSLService {
 				socketFactory = sslContext.getSocketFactory();
 
 			} catch ( NoSuchAlgorithmException e ) {
-				throw new CertificateException("Error creating SSLContext", e);
-			} catch ( KeyStoreException e ) {
-				throw new CertificateException("Error creating SSLContext", e);
-			} catch ( UnrecoverableKeyException e ) {
 				throw new CertificateException("Error creating SSLContext", e);
 			} catch ( KeyManagementException e ) {
 				throw new CertificateException("Error creating SSLContext", e);
