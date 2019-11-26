@@ -41,13 +41,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
-import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.codec.mqtt.MqttVersion;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.util.concurrent.GenericFutureListener;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectReturnCode;
 import net.solarnetwork.common.mqtt.MqttConnection;
@@ -55,11 +56,12 @@ import net.solarnetwork.common.mqtt.MqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectionObserver;
 import net.solarnetwork.common.mqtt.MqttMessage;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
+import net.solarnetwork.common.mqtt.MqttQos;
+import net.solarnetwork.common.mqtt.MqttStats;
 import net.solarnetwork.common.mqtt.netty.client.MqttClient;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientCallback;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientConfig;
 import net.solarnetwork.common.mqtt.netty.client.MqttConnectResult;
-import net.solarnetwork.common.mqtt.netty.client.MqttHandler;
 import net.solarnetwork.common.mqtt.netty.client.MqttLastWill;
 import net.solarnetwork.domain.Identifiable;
 import net.solarnetwork.domain.PingTest;
@@ -75,7 +77,7 @@ import net.solarnetwork.support.SSLService;
  * @author matt
  * @version 1.0
  */
-public class NettyMqttConnection extends BasicIdentifiable implements MqttConnection, MqttHandler,
+public class NettyMqttConnection extends BasicIdentifiable implements MqttConnection, MqttMessageHandler,
 		MqttClientCallback, SettingsChangeObserver, Identifiable, PingTest {
 
 	/** The {@code ioThreadCount} property default value. */
@@ -86,12 +88,14 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	private final Executor executor;
 	private final TaskScheduler scheduler;
 	private final BasicMqttConnectionConfig connectionConfig;
+	private final MqttStats stats;
 	private int ioThreadCount = DEFAULT_IO_THREAD_COUNT;
+
 	private volatile MqttMessageHandler messageHandler;
 	private volatile MqttConnectionObserver connectionObserver;
+	private volatile MqttClient client;
 
 	private boolean closed;
-	private MqttClient client;
 
 	private CompletableFuture<MqttConnectReturnCode> connectFuture;
 	private CompletableFuture<Void> reconfigureFuture;
@@ -100,14 +104,14 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	 * Constructor.
 	 */
 	public NettyMqttConnection(Executor executor, TaskScheduler scheduler) {
-		this(executor, scheduler, new BasicMqttConnectionConfig());
+		this(executor, scheduler, new BasicMqttConnectionConfig(), null);
 	}
 
 	/**
 	 * Constructor.
 	 */
 	public NettyMqttConnection(Executor executor, TaskScheduler scheduler,
-			MqttConnectionConfig connectionConfig) {
+			MqttConnectionConfig connectionConfig, MqttStats stats) {
 		super();
 		this.executor = executor;
 		this.scheduler = scheduler;
@@ -116,6 +120,7 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 				? (BasicMqttConnectionConfig) connectionConfig
 				: new BasicMqttConnectionConfig(connectionConfig);
 		this.ioThreadCount = DEFAULT_IO_THREAD_COUNT;
+		this.stats = stats;
 	}
 
 	/**
@@ -197,7 +202,7 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 		return f;
 	}
 
-	private class ConnectTask implements Runnable {
+	private final class ConnectTask implements Runnable {
 
 		private final ConnectScheduledTask scheduledTask;
 		private long reconnectDelay = 0;
@@ -255,6 +260,10 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 						}
 					}
 				}
+				MqttStats s = NettyMqttConnection.this.stats;
+				if ( s != null ) {
+					s.incrementAndGet(MqttStats.BasicCounts.ConnectionFail);
+				}
 				if ( connectionConfig.isReconnect() ) {
 					log.info("Failed to connect to MQTT server {} ({}), will try again in {}s",
 							connectionConfig.getServerUri(),
@@ -288,6 +297,10 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 						MqttConnectReturnCode code = result != null ? returnCode(result.getReturnCode())
 								: null;
 						connectFuture.complete(code);
+						MqttStats s = NettyMqttConnection.this.stats;
+						if ( s != null ) {
+							s.incrementAndGet(MqttStats.BasicCounts.ConnectionSuccess);
+						}
 						MqttConnectionObserver observer = NettyMqttConnection.this.connectionObserver;
 						if ( observer != null ) {
 							observer.onMqttServerConnectionEstablisehd(NettyMqttConnection.this, false);
@@ -328,7 +341,7 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	}
 
 	// this task runs in the TaskScheduler, which we don't want to block
-	private class ConnectScheduledTask implements Runnable {
+	private final class ConnectScheduledTask implements Runnable {
 
 		private final ConnectTask task = new ConnectTask(this);
 
@@ -471,6 +484,10 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	public void connectionLost(Throwable cause) {
 		String msg = (cause != null ? cause.toString() : "unknown cause");
 		log.warn("Connection lost to MQTT server {}: {}", connectionConfig.getServerUri(), msg);
+		MqttStats s = this.stats;
+		if ( s != null ) {
+			s.incrementAndGet(MqttStats.BasicCounts.ConnectionLost);
+		}
 		MqttConnectionObserver observer = this.connectionObserver;
 		if ( observer != null ) {
 			observer.onMqttServerConnectionLost(this, connectionConfig.isReconnect(), cause);
@@ -480,6 +497,10 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	@Override
 	public void onSuccessfulReconnect() {
 		log.warn("Reconnected to MQTT server {}", connectionConfig.getServerUri());
+		MqttStats s = this.stats;
+		if ( s != null ) {
+			s.incrementAndGet(MqttStats.BasicCounts.ConnectionSuccess);
+		}
 		MqttConnectionObserver observer = this.connectionObserver;
 		if ( observer != null ) {
 			observer.onMqttServerConnectionEstablisehd(this, true);
@@ -513,26 +534,112 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	}
 
 	@Override
-	public void onMessage(String topic, ByteBuf payload) {
-		// TODO Auto-generated method stub
-
+	public void onMqttMessage(MqttMessage message) {
+		MqttStats s = NettyMqttConnection.this.stats;
+		if ( s != null ) {
+			s.incrementAndGet(MqttStats.BasicCounts.MessagesReceived);
+		}
+		MqttMessageHandler handler = this.messageHandler;
+		if ( handler != null ) {
+			handler.onMqttMessage(message);
+		}
 	}
 
 	@Override
 	public Future<?> publish(MqttMessage message) {
-		// TODO Auto-generated method stub
-		return null;
+		if ( message == null ) {
+			return CompletableFuture.completedFuture(null);
+		}
+		MqttClient c = this.client;
+		if ( c == null ) {
+			CompletableFuture<Void> f = new CompletableFuture<>();
+			f.completeExceptionally(new IOException("Not connected to MQTT server."));
+			return f;
+		}
+		io.netty.util.concurrent.Future<Void> f = c.publish(message.getTopic(),
+				Unpooled.wrappedBuffer(message.getPayload()), NettyMqttUtils.qos(message.getQosLevel()),
+				message.isRetained());
+
+		final MqttStats s = this.stats;
+		if ( s != null ) {
+			f.addListener(new GenericFutureListener<io.netty.util.concurrent.Future<? super Void>>() {
+
+				@Override
+				public void operationComplete(io.netty.util.concurrent.Future<? super Void> future)
+						throws Exception {
+					if ( future.isSuccess() ) {
+						s.incrementAndGet(MqttStats.BasicCounts.MessagesDelivered);
+					} else {
+						s.incrementAndGet(MqttStats.BasicCounts.MessagesDeliveredFail);
+					}
+				}
+			});
+		}
+
+		return f;
+	}
+
+	private final class StatsMessageHandler implements MqttMessageHandler {
+
+		private final MqttMessageHandler delegate;
+
+		private StatsMessageHandler(MqttMessageHandler delegate) {
+			super();
+			this.delegate = delegate;
+		}
+
+		@Override
+		public void onMqttMessage(MqttMessage message) {
+			MqttStats s = NettyMqttConnection.this.stats;
+			if ( s != null ) {
+				s.incrementAndGet(MqttStats.BasicCounts.MessagesReceived);
+			}
+			delegate.onMqttMessage(message);
+		}
+
+		@Override
+		public int hashCode() {
+			return delegate.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return delegate.equals(obj);
+		}
+
+	}
+
+	@Override
+	public Future<?> subscribe(String topic, MqttQos qosLevel, MqttMessageHandler handler) {
+		MqttClient c = this.client;
+		if ( c == null ) {
+			CompletableFuture<Void> f = new CompletableFuture<>();
+			f.completeExceptionally(new IOException("Not connected to MQTT server."));
+			return f;
+		}
+		return c.on(topic, handler != null ? new StatsMessageHandler(handler) : this,
+				NettyMqttUtils.qos(qosLevel));
+	}
+
+	@Override
+	public Future<?> unsubscribe(String topic, MqttMessageHandler handler) {
+		MqttClient c = this.client;
+		if ( c == null ) {
+			CompletableFuture<Void> f = new CompletableFuture<>();
+			f.completeExceptionally(new IOException("Not connected to MQTT server."));
+			return f;
+		}
+		return c.off(topic, handler != null ? handler : this);
 	}
 
 	@Override
 	public void setMessageHandler(MqttMessageHandler handler) {
-		this.messageHandler = messageHandler;
-
+		this.messageHandler = handler;
 	}
 
 	@Override
 	public void setConnectionObserver(MqttConnectionObserver observer) {
-		this.connectionObserver = connectionObserver;
+		this.connectionObserver = observer;
 	}
 
 	/*---------------------
@@ -593,8 +700,13 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	 * 
 	 * @param ioThreadCount
 	 *        the count to set
+	 * @throws IllegalArgumentException
+	 *         if {@code ioThreadCount} is less than {@literal 0}
 	 */
 	public void setIoThreadCount(int ioThreadCount) {
+		if ( ioThreadCount < 0 ) {
+			throw new IllegalArgumentException("The ioThreadCount value must be >= 0");
+		}
 		this.ioThreadCount = ioThreadCount;
 	}
 

@@ -26,13 +26,17 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +44,11 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import io.moquette.interception.messages.InterceptConnectMessage;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
+import net.solarnetwork.common.mqtt.BasicMqttMessage;
+import net.solarnetwork.common.mqtt.MqttMessage;
+import net.solarnetwork.common.mqtt.MqttMessageHandler;
+import net.solarnetwork.common.mqtt.MqttQos;
+import net.solarnetwork.common.mqtt.MqttStats;
 import net.solarnetwork.common.mqtt.netty.NettyMqttConnection;
 import net.solarnetwork.test.mqtt.MqttServerSupport;
 import net.solarnetwork.test.mqtt.TestingInterceptHandler;
@@ -72,7 +81,7 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 		scheduler.initialize();
 		service = new NettyMqttConnection(
 				Executors.newCachedThreadPool(new CustomizableThreadFactory("NettyMqtt-Test-")),
-				scheduler, config);
+				scheduler, config, new MqttStats("TEST", 5));
 		service.setUid("Test Conn");
 	}
 
@@ -288,6 +297,229 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
 		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+	}
+
+	private static final Charset UTF8 = Charset.forName("UTF-8");
+
+	@Test
+	public void publish() throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(false);
+
+		replayAll();
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final String msg = "Hello, world.";
+		service.publish(new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce, msg.getBytes(UTF8)))
+				.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		stopMqttServer(); // to flush messages
+
+		// then
+		TestingInterceptHandler session = getTestingInterceptHandler();
+		assertThat("Connected to broker", session.publishMessages, hasSize(1));
+
+		String result = session.getPublishPayloadStringAtIndex(0);
+		assertThat("Published message payload", result, equalTo(msg));
+	}
+
+	@Test
+	public void subscribeWithChannelHandler() throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(false);
+
+		replayAll();
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final List<MqttMessage> messages = new ArrayList<>(2);
+		service.setMessageHandler(new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(MqttMessage message) {
+				messages.add(message);
+			}
+		});
+
+		Future<?> f = service.subscribe("foo", MqttQos.AtLeastOnce, null);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final String msg = "Hello, world.";
+		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
+				msg.getBytes(UTF8));
+		f = service.publish(tx);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// give a little time for broker to publish to subscriber
+		Thread.sleep(300);
+
+		stopMqttServer(); // to flush messages
+
+		// then
+		assertThat("Message received", messages, hasSize(1));
+		MqttMessage rx = messages.get(0);
+		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
+		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
+		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+	}
+
+	@Test
+	public void subscribeWithSubscriptionHandler() throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(false);
+
+		replayAll();
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final List<MqttMessage> messages = new ArrayList<>(2);
+		Future<?> f = service.subscribe("foo", MqttQos.AtLeastOnce, new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(MqttMessage message) {
+				messages.add(message);
+			}
+		});
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final String msg = "Hello, world.";
+		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
+				msg.getBytes(UTF8));
+		service.publish(tx).get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// give a little time for broker to publish to subscriber
+		Thread.sleep(300);
+
+		stopMqttServer(); // to flush messages
+
+		// then
+		assertThat("Message received", messages, hasSize(1));
+		MqttMessage rx = messages.get(0);
+		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
+		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
+		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+	}
+
+	@Test
+	public void subscribeWithChannelAndSubscriptionHandler() throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(false);
+
+		replayAll();
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final List<MqttMessage> messages = new ArrayList<>(2);
+
+		AtomicBoolean b = new AtomicBoolean(false);
+		service.setMessageHandler(new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(MqttMessage message) {
+				messages.add(message);
+				b.set(true);
+			}
+		});
+
+		service.subscribe("foo", MqttQos.AtLeastOnce, new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(MqttMessage message) {
+				messages.add(message);
+			}
+		}).get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final String msg = "Hello, world.";
+		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
+				msg.getBytes(UTF8));
+		service.publish(tx).get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// give a little time for broker to publish to subscriber
+		Thread.sleep(300);
+
+		stopMqttServer(); // to flush messages
+
+		// then
+		assertThat("Message received", messages, hasSize(1));
+		assertThat("Message received on subscription handler", b.get(), equalTo(false));
+		MqttMessage rx = messages.get(0);
+		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
+		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
+		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+	}
+
+	@Test
+	public void unsubscribeWithChannelHandler() throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(false);
+
+		replayAll();
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final List<MqttMessage> messages = new ArrayList<>(2);
+		service.setMessageHandler(new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(MqttMessage message) {
+				messages.add(message);
+			}
+		});
+
+		Future<?> f = service.subscribe("foo", MqttQos.AtLeastOnce, null);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final String msg = "Hello, world.";
+		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
+				msg.getBytes(UTF8));
+		f = service.publish(tx);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// unsubscribe
+		f = service.unsubscribe("foo", null);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// publish again
+		f = service.publish(tx);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// give a little time for broker to publish to subscriber
+		Thread.sleep(300);
+
+		stopMqttServer(); // to flush messages
+
+		// then
+		assertThat("Message received", messages, hasSize(1));
+		MqttMessage rx = messages.get(0);
+		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
+		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
+		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
 	}
 
 }

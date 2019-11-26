@@ -23,6 +23,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.util.concurrent.Future;
+import net.solarnetwork.common.mqtt.MqttMessageHandler;
 
 public interface MqttClient {
 
@@ -96,8 +97,8 @@ public interface MqttClient {
 
 	/**
 	 * Subscribe on the given topic. When a message is received, MqttClient will
-	 * invoke the {@link MqttHandler#onMessage(String, ByteBuf)} function of the
-	 * given handler
+	 * invoke the {@link MqttMessageHandler#onMessage(String, ByteBuf)} function
+	 * of the given handler
 	 *
 	 * @param topic
 	 *        The topic filter to subscribe to
@@ -106,13 +107,13 @@ public interface MqttClient {
 	 * @return A future which will be completed when the server acknowledges our
 	 *         subscribe request
 	 */
-	Future<Void> on(String topic, MqttHandler handler);
+	Future<Void> on(String topic, MqttMessageHandler handler);
 
 	/**
 	 * Subscribe on the given topic, with the given qos. When a message is
 	 * received, MqttClient will invoke the
-	 * {@link MqttHandler#onMessage(String, ByteBuf)} function of the given
-	 * handler
+	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
+	 * given handler
 	 *
 	 * @param topic
 	 *        The topic filter to subscribe to
@@ -123,11 +124,27 @@ public interface MqttClient {
 	 * @return A future which will be completed when the server acknowledges our
 	 *         subscribe request
 	 */
-	Future<Void> on(String topic, MqttHandler handler, MqttQoS qos);
+	Future<Void> on(String topic, MqttMessageHandler handler, MqttQoS qos);
 
 	/**
 	 * Subscribe on the given topic. When a message is received, MqttClient will
-	 * invoke the {@link MqttHandler#onMessage(String, ByteBuf)} function of the
+	 * invoke the {@link MqttMessageHandler#onMessage(String, ByteBuf)} function
+	 * of the given handler This subscription is only once. If the MqttClient
+	 * has received 1 message, the subscription will be removed
+	 *
+	 * @param topic
+	 *        The topic filter to subscribe to
+	 * @param handler
+	 *        The handler to invoke when we receive a message
+	 * @return A future which will be completed when the server acknowledges our
+	 *         subscribe request
+	 */
+	Future<Void> once(String topic, MqttMessageHandler handler);
+
+	/**
+	 * Subscribe on the given topic, with the given qos. When a message is
+	 * received, MqttClient will invoke the
+	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
 	 * given handler This subscription is only once. If the MqttClient has
 	 * received 1 message, the subscription will be removed
 	 *
@@ -135,28 +152,12 @@ public interface MqttClient {
 	 *        The topic filter to subscribe to
 	 * @param handler
 	 *        The handler to invoke when we receive a message
-	 * @return A future which will be completed when the server acknowledges our
-	 *         subscribe request
-	 */
-	Future<Void> once(String topic, MqttHandler handler);
-
-	/**
-	 * Subscribe on the given topic, with the given qos. When a message is
-	 * received, MqttClient will invoke the
-	 * {@link MqttHandler#onMessage(String, ByteBuf)} function of the given
-	 * handler This subscription is only once. If the MqttClient has received 1
-	 * message, the subscription will be removed
-	 *
-	 * @param topic
-	 *        The topic filter to subscribe to
-	 * @param handler
-	 *        The handler to invoke when we receive a message
 	 * @param qos
 	 *        The qos to request to the server
 	 * @return A future which will be completed when the server acknowledges our
 	 *         subscribe request
 	 */
-	Future<Void> once(String topic, MqttHandler handler, MqttQoS qos);
+	Future<Void> once(String topic, MqttMessageHandler handler, MqttQoS qos);
 
 	/**
 	 * Remove the subscription for the given topic and handler If you want to
@@ -170,11 +171,12 @@ public interface MqttClient {
 	 * @return A future which will be completed when the server acknowledges our
 	 *         unsubscribe request
 	 */
-	Future<Void> off(String topic, MqttHandler handler);
+	Future<Void> off(String topic, MqttMessageHandler handler);
 
 	/**
 	 * Remove all subscriptions for the given topic. If you want to specify
-	 * which handler to unsubscribe, use {@link #off(String, MqttHandler)}
+	 * which handler to unsubscribe, use
+	 * {@link #off(String, MqttMessageHandler)}
 	 *
 	 * @param topic
 	 *        The topic to unsubscribe for
@@ -259,7 +261,7 @@ public interface MqttClient {
 	 *        The handler for incoming messages that do not match any topic
 	 *        subscriptions
 	 */
-	static MqttClient create(MqttClientConfig config, MqttHandler defaultHandler) {
+	static MqttClient create(MqttClientConfig config, MqttMessageHandler defaultHandler) {
 		return new MqttClientImpl(config, defaultHandler);
 	}
 

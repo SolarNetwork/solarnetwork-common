@@ -39,6 +39,7 @@ import io.netty.handler.codec.mqtt.MqttSubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Promise;
+import net.solarnetwork.common.mqtt.netty.NettyMqttMessage;
 
 final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> {
 
@@ -130,8 +131,10 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				}
 				message.payload().markReaderIndex();
 				subscription.setCalled(true);
-				subscription.getHandler().onMessage(message.variableHeader().topicName(),
-						message.payload());
+				subscription.getHandler()
+						.onMqttMessage(new NettyMqttMessage(message.variableHeader().topicName(),
+								message.fixedHeader().isRetain(), message.fixedHeader().qosLevel(),
+								message.payload()));
 				if ( subscription.isOnce() ) {
 					this.client.off(subscription.getTopic(), subscription.getHandler());
 				}
@@ -140,8 +143,10 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 			}
 		}
 		if ( !handlerInvoked && client.getDefaultHandler() != null ) {
-			client.getDefaultHandler().onMessage(message.variableHeader().topicName(),
-					message.payload());
+			client.getDefaultHandler()
+					.onMqttMessage(new NettyMqttMessage(message.variableHeader().topicName(),
+							message.fixedHeader().isRetain(), message.fixedHeader().qosLevel(),
+							message.payload()));
 		}
 		message.payload().release();
 	}

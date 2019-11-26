@@ -82,7 +82,36 @@ public interface MqttConnection extends Closeable {
 	Future<?> publish(MqttMessage message);
 
 	/**
-	 * Configure a message handler, to receive all MQTT messages.
+	 * Subscribe to a topic.
+	 * 
+	 * @param topic
+	 *        the topic to subscribe to
+	 * @param qosLevel
+	 *        the desired quality of service of the subscription
+	 * @param handler
+	 *        the message handler; if {@literal null} then the configured
+	 *        {@link #setMessageHandler(MqttMessageHandler)} will be used
+	 * @return a future that completes when the subscription has been
+	 *         acknowledged by the MQTT server
+	 */
+	Future<?> subscribe(String topic, MqttQos qosLevel, MqttMessageHandler handler);
+
+	/**
+	 * Unsubscribe from a topic.
+	 * 
+	 * @param topic
+	 *        the topic to unsubscribe from
+	 * @param handler
+	 *        the message handler to unsubscribe, or {@literal null} for the
+	 *        configured {@link #setMessageHandler(MqttMessageHandler)}
+	 * @return a future that completes when the unsubscription has been
+	 *         acknowledged by the MQTT server
+	 */
+	Future<?> unsubscribe(String topic, MqttMessageHandler handler);
+
+	/**
+	 * Configure a connection-wide message handler, to receive all MQTT messages
+	 * not associated with a more specific subscription handler.
 	 * 
 	 * @param handler
 	 *        the handler
