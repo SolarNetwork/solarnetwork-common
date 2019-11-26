@@ -49,6 +49,7 @@ import io.netty.handler.codec.mqtt.MqttVersion;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
+import net.solarnetwork.common.mqtt.MqttConnectReturnCode;
 import net.solarnetwork.common.mqtt.MqttConnection;
 import net.solarnetwork.common.mqtt.MqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttMessage;
@@ -88,7 +89,7 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	private boolean closed;
 	private MqttClient client;
 
-	private CompletableFuture<Void> connectFuture;
+	private CompletableFuture<MqttConnectReturnCode> connectFuture;
 	private CompletableFuture<Void> reconfigureFuture;
 
 	/**
@@ -214,6 +215,7 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 				reconnectDelay += (step * 1000L);
 			}
 			Throwable t = null;
+			MqttConnectResult r = null;
 			MqttClientConfig config = null;
 			try {
 				config = createClientConfig(connectionConfig);
@@ -231,11 +233,10 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 					log.info("Connecting to MQTT server {}...", connectionConfig.getServerUri());
 					Future<MqttConnectResult> f = client.connect(connectionConfig.getHost(),
 							connectionConfig.getPort());
-					MqttConnectResult r = f.get(connectionConfig.getConnectTimeoutSeconds(),
-							TimeUnit.SECONDS);
+					r = f.get(connectionConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS);
 					if ( r.isSuccess() ) {
 						log.info("Connected to MQTT server {}", connectionConfig.getServerUri());
-						connectComplete(client, null);
+						connectComplete(client, r, null);
 						return;
 					}
 					t = new RuntimeException("Server refused connection: " + r.getReturnCode());
@@ -266,11 +267,11 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 			if ( connectionConfig.isReconnect() && config != null ) {
 				scheduler.schedule(scheduledTask, new Date(System.currentTimeMillis() + reconnectDelay));
 			} else {
-				connectComplete(null, t);
+				connectComplete(null, r, t);
 			}
 		}
 
-		private void connectComplete(MqttClient client, Throwable t) {
+		private void connectComplete(MqttClient client, MqttConnectResult result, Throwable t) {
 			synchronized ( NettyMqttConnection.this ) {
 				NettyMqttConnection.this.client = client;
 				if ( connectFuture != null ) {
@@ -280,11 +281,42 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 						if ( connectionConfig.isReconnect() ) {
 							client.getClientConfig().setReconnect(true);
 						}
-						connectFuture.complete(null);
+						MqttConnectReturnCode code = result != null ? returnCode(result.getReturnCode())
+								: null;
+						connectFuture.complete(code);
 					}
 				}
 			}
 		}
+	}
+
+	private MqttConnectReturnCode returnCode(io.netty.handler.codec.mqtt.MqttConnectReturnCode other) {
+		if ( other == null ) {
+			return null;
+		}
+		switch (other) {
+			case CONNECTION_ACCEPTED:
+				return MqttConnectReturnCode.Accepted;
+
+			case CONNECTION_REFUSED_BAD_USER_NAME_OR_PASSWORD:
+				return MqttConnectReturnCode.BadCredentials;
+
+			case CONNECTION_REFUSED_IDENTIFIER_REJECTED:
+				return MqttConnectReturnCode.ClientIdRejected;
+
+			case CONNECTION_REFUSED_NOT_AUTHORIZED:
+				return MqttConnectReturnCode.NotAuthorized;
+
+			case CONNECTION_REFUSED_SERVER_UNAVAILABLE:
+				return MqttConnectReturnCode.ServerUnavailable;
+
+			case CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION:
+				return MqttConnectReturnCode.UnacceptableProtocolVersion;
+
+			default:
+				return null;
+		}
+
 	}
 
 	// this task runs in the TaskScheduler, which we don't want to block
@@ -300,14 +332,14 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	}
 
 	@Override
-	public synchronized Future<?> open() throws IOException {
+	public synchronized Future<MqttConnectReturnCode> open() throws IOException {
 		if ( connectFuture != null ) {
 			return connectFuture;
 		}
 		if ( client != null ) {
 			return CompletableFuture.completedFuture(null);
 		}
-		CompletableFuture<Void> f = new CompletableFuture<>();
+		CompletableFuture<MqttConnectReturnCode> f = new CompletableFuture<>();
 		this.connectFuture = f;
 		scheduler.schedule(new ConnectScheduledTask(), new Date(System.currentTimeMillis() + 200L));
 		return f;

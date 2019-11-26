@@ -45,9 +45,9 @@ public interface MqttConnection extends Closeable {
 	 * 
 	 * @throws IOException
 	 *         if the connection cannot be opened
-	 * @return future wiht results of connection
+	 * @return future with results of connection
 	 */
-	Future<?> open() throws IOException;
+	Future<MqttConnectReturnCode> open() throws IOException;
 
 	/**
 	 * Test if the connection has been established.
