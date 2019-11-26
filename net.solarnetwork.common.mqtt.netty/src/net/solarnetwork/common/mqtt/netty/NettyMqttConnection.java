@@ -462,6 +462,7 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 			public void run() {
 				try {
 					c.disconnect().get(connectionConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS);
+					result.complete(null);
 				} catch ( Exception e ) {
 					result.completeExceptionally(e);
 				} finally {
