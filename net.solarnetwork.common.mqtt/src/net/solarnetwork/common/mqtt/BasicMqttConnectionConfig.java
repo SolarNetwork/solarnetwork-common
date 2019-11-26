@@ -49,6 +49,9 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	/** The {@code maximumMessageSize} property default value. */
 	public static final int DEFAULT_MAXIMUM_MESSAGE_SIZE = 8192;
 
+	/** The {@code cleanSession} property default value. */
+	public static final boolean DEFAULT_CLEAN_SESSION = true;
+
 	private URI serverUri;
 	private MqttVersion version;
 	private SSLService sslService;
@@ -74,6 +77,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 		this.reconnectDelaySeconds = DEFAULT_RECONNECT_DELAY_SECONDS;
 		this.keepAliveSeconds = DEFAULT_KEEP_ALIVE_SECONDS;
 		this.maximumMessageSize = DEFAULT_MAXIMUM_MESSAGE_SIZE;
+		this.cleanSession = DEFAULT_CLEAN_SESSION;
 	}
 
 	/**

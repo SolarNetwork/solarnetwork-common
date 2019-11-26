@@ -124,6 +124,34 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(true));
+	}
+
+	@Test
+	public void connectToServerWithoutCleanSession() throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(false);
+		config.setCleanSession(false);
+
+		replayAll();
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		stopMqttServer(); // to flush messages
+
+		// then
+		TestingInterceptHandler session = getTestingInterceptHandler();
+		assertThat("Connected to broker", session.connectMessages, hasSize(1));
+
+		InterceptConnectMessage connMsg = session.connectMessages.get(0);
+		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
+		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
+		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
 		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
 	}
 
@@ -151,7 +179,7 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
-		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(true));
 	}
 
 	@Test
@@ -205,7 +233,7 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
-		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(true));
 	}
 
 	@Test
@@ -248,13 +276,13 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
-		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(true));
 
 		connMsg = session.connectMessages.get(1);
 		assertThat("Connect client ID", connMsg.getClientID(), equalTo("test.client.2"));
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
-		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(true));
 	}
 
 	@Test
@@ -294,13 +322,13 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
-		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(true));
 
 		connMsg = session.connectMessages.get(1);
 		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
-		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(true));
 	}
 
 	@Test
@@ -779,13 +807,13 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
-		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(true));
 
 		connMsg = session.connectMessages.get(1);
 		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
-		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(true));
 
 		// 2nd message lost, as subscription not restored
 		assertThat("Message received", messages, hasSize(1));
@@ -877,13 +905,13 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
-		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(true));
 
 		connMsg = session.connectMessages.get(1);
 		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
 		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
-		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(true));
 
 		// observer invoked
 		assertThat("Connection established callback called", estCounter.get(), equalTo(2));
