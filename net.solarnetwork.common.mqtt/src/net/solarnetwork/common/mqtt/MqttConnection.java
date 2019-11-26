@@ -72,4 +72,29 @@ public interface MqttConnection extends Closeable {
 	 */
 	boolean isClosed();
 
+	/**
+	 * Publish a message.
+	 * 
+	 * @param message
+	 *        the message to publish
+	 * @return a future that completes when the message has been published
+	 */
+	Future<?> publish(MqttMessage message);
+
+	/**
+	 * Configure a message handler, to receive all MQTT messages.
+	 * 
+	 * @param handler
+	 *        the handler
+	 */
+	void setMessageHandler(MqttMessageHandler handler);
+
+	/**
+	 * Configure a connection observer, to monitor the state of the connection.
+	 * 
+	 * @param observer
+	 *        the observer
+	 */
+	void setConnectionObserver(MqttConnectionObserver observer);
+
 }

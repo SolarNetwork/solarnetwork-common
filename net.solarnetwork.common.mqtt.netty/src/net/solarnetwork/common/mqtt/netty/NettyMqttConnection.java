@@ -52,7 +52,9 @@ import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectReturnCode;
 import net.solarnetwork.common.mqtt.MqttConnection;
 import net.solarnetwork.common.mqtt.MqttConnectionConfig;
+import net.solarnetwork.common.mqtt.MqttConnectionObserver;
 import net.solarnetwork.common.mqtt.MqttMessage;
+import net.solarnetwork.common.mqtt.MqttMessageHandler;
 import net.solarnetwork.common.mqtt.netty.client.MqttClient;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientCallback;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientConfig;
@@ -85,6 +87,8 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	private final TaskScheduler scheduler;
 	private final BasicMqttConnectionConfig connectionConfig;
 	private int ioThreadCount = DEFAULT_IO_THREAD_COUNT;
+	private volatile MqttMessageHandler messageHandler;
+	private volatile MqttConnectionObserver connectionObserver;
 
 	private boolean closed;
 	private MqttClient client;
@@ -284,6 +288,10 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 						MqttConnectReturnCode code = result != null ? returnCode(result.getReturnCode())
 								: null;
 						connectFuture.complete(code);
+						MqttConnectionObserver observer = NettyMqttConnection.this.connectionObserver;
+						if ( observer != null ) {
+							observer.onMqttServerConnectionEstablisehd(NettyMqttConnection.this, false);
+						}
 					}
 				}
 			}
@@ -463,11 +471,19 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	public void connectionLost(Throwable cause) {
 		String msg = (cause != null ? cause.toString() : "unknown cause");
 		log.warn("Connection lost to MQTT server {}: {}", connectionConfig.getServerUri(), msg);
+		MqttConnectionObserver observer = this.connectionObserver;
+		if ( observer != null ) {
+			observer.onMqttServerConnectionLost(this, connectionConfig.isReconnect(), cause);
+		}
 	}
 
 	@Override
 	public void onSuccessfulReconnect() {
 		log.warn("Reconnected to MQTT server {}", connectionConfig.getServerUri());
+		MqttConnectionObserver observer = this.connectionObserver;
+		if ( observer != null ) {
+			observer.onMqttServerConnectionEstablisehd(this, true);
+		}
 	}
 
 	@Override
@@ -500,6 +516,23 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 	public void onMessage(String topic, ByteBuf payload) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public Future<?> publish(MqttMessage message) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setMessageHandler(MqttMessageHandler handler) {
+		this.messageHandler = messageHandler;
+
+	}
+
+	@Override
+	public void setConnectionObserver(MqttConnectionObserver observer) {
+		this.connectionObserver = connectionObserver;
 	}
 
 	/*---------------------
