@@ -37,6 +37,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +46,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import io.moquette.interception.messages.InterceptConnectMessage;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
 import net.solarnetwork.common.mqtt.BasicMqttMessage;
+import net.solarnetwork.common.mqtt.MqttConnection;
+import net.solarnetwork.common.mqtt.MqttConnectionObserver;
 import net.solarnetwork.common.mqtt.MqttMessage;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
 import net.solarnetwork.common.mqtt.MqttQos;
@@ -63,6 +66,7 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 
 	private static final String TEST_CLIENT_ID = "solarnet.test";
 	private static final int TIMEOUT_SECS = 10;
+	private static final Charset UTF8 = Charset.forName("UTF-8");
 
 	private BasicMqttConnectionConfig config;
 	private NettyMqttConnection service;
@@ -254,7 +258,7 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 	}
 
 	@Test
-	public void reconnectToServerAfterConnectionDropped() throws Exception {
+	public void reconnectToServerAfterConnectionDroppedWithRetryEnabled() throws Exception {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
@@ -298,8 +302,6 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
 		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
 	}
-
-	private static final Charset UTF8 = Charset.forName("UTF-8");
 
 	@Test
 	public void publish() throws Exception {
@@ -708,6 +710,193 @@ public class NettyMqttConnectionTests extends MqttServerSupport {
 		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg2));
 
 		rx = messages.get(2);
+		assertThat("Message topic", rx.getTopic(), equalTo(tx2.getTopic()));
+		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
+		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg2));
+	}
+
+	@Test
+	public void reconnectToServerAfterConnectionDroppedWithRetryEnabledAfterSubscribe()
+			throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(true);
+
+		final TestingInterceptHandler session = getTestingInterceptHandler();
+
+		replayAll();
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final List<MqttMessage> messages = new ArrayList<>(2);
+		service.setMessageHandler(new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(MqttMessage message) {
+				messages.add(message);
+			}
+		});
+
+		Future<?> f = service.subscribe("foo", MqttQos.AtLeastOnce, null);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final String msg = "Hello, world.";
+		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
+				msg.getBytes(UTF8));
+		service.publish(tx).get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// give a little time for broker to publish to subscriber
+		Thread.sleep(200);
+
+		// stop server
+		stopMqttServer();
+
+		Thread.sleep(200);
+
+		// start server on new port, update configuration
+		setupMqttServer(Collections.singletonList(session), null, null, config.getPort());
+
+		// chill for a while for auto-reconnect
+		Thread.sleep(5000);
+
+		final String msg2 = "Goodbye, world.";
+		final MqttMessage tx2 = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
+				msg2.getBytes(UTF8));
+		f = service.publish(tx2);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// stop server to flush messages
+		stopMqttServer();
+
+		// then
+		assertThat("Connected to broker", session.connectMessages, hasSize(2));
+
+		InterceptConnectMessage connMsg = session.connectMessages.get(0);
+		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
+		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
+		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+
+		connMsg = session.connectMessages.get(1);
+		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
+		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
+		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+
+		// 2nd message lost, as subscription not restored
+		assertThat("Message received", messages, hasSize(1));
+		MqttMessage rx = messages.get(0);
+		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
+		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
+		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+	}
+
+	@Test
+	public void reconnectToServerAfterConnectionDroppedWithRetryEnabledAfterSubscribeWithObserver()
+			throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(true);
+
+		final TestingInterceptHandler session = getTestingInterceptHandler();
+
+		replayAll();
+
+		// when
+		final AtomicInteger lostCounter = new AtomicInteger(0);
+		final AtomicInteger estCounter = new AtomicInteger(0);
+		service.setConnectionObserver(new MqttConnectionObserver() {
+
+			@Override
+			public void onMqttServerConnectionLost(MqttConnection connection, boolean willReconnect,
+					Throwable cause) {
+				lostCounter.incrementAndGet();
+			}
+
+			@Override
+			public void onMqttServerConnectionEstablisehd(MqttConnection connection,
+					boolean reconnected) {
+				estCounter.incrementAndGet();
+				service.subscribe("foo", MqttQos.AtLeastOnce, null);
+			}
+		});
+
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final List<MqttMessage> messages = new ArrayList<>(2);
+		service.setMessageHandler(new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(MqttMessage message) {
+				messages.add(message);
+			}
+		});
+
+		final String msg = "Hello, world.";
+		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
+				msg.getBytes(UTF8));
+		service.publish(tx).get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// give a little time for broker to publish to subscriber
+		Thread.sleep(200);
+
+		// stop server
+		stopMqttServer();
+
+		Thread.sleep(200);
+
+		// start server on new port, update configuration
+		setupMqttServer(Collections.singletonList(session), null, null, config.getPort());
+
+		// chill for a while for auto-reconnect
+		Thread.sleep(5000);
+
+		final String msg2 = "Goodbye, world.";
+		final MqttMessage tx2 = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
+				msg2.getBytes(UTF8));
+		Future<?> f = service.publish(tx2);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		Thread.sleep(200);
+
+		// stop server to flush messages
+		service.setConnectionObserver(null);
+		stopMqttServer();
+
+		// then
+		assertThat("Connected to broker", session.connectMessages, hasSize(2));
+
+		InterceptConnectMessage connMsg = session.connectMessages.get(0);
+		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
+		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
+		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+
+		connMsg = session.connectMessages.get(1);
+		assertThat("Connect client ID", connMsg.getClientID(), equalTo(TEST_CLIENT_ID));
+		assertThat("Connect username", connMsg.getUsername(), equalTo(username));
+		assertThat("Connect password", connMsg.getPassword(), equalTo(password.getBytes()));
+		assertThat("Connect durable session", connMsg.isCleanSession(), equalTo(false));
+
+		// observer invoked
+		assertThat("Connection established callback called", estCounter.get(), equalTo(2));
+		assertThat("Connection lost callback called", lostCounter.get(), equalTo(1));
+
+		// 2nd message NOT lost, as subscription was restored by observer
+		assertThat("Message received", messages, hasSize(2));
+		MqttMessage rx = messages.get(0);
+		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
+		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
+		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+
+		rx = messages.get(1);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx2.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
 		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg2));
