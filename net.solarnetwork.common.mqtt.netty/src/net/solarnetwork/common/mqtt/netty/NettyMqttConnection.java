@@ -370,6 +370,13 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 		if ( connConfig == null ) {
 			return null;
 		}
+
+		if ( connConfig.getServerUri() == null || connConfig.getClientId() == null
+				|| connConfig.getClientId().isEmpty() ) {
+			log.info("Server URI and/or client ID not configured, cannot connect to MQTT server.");
+			return null;
+		}
+
 		final MqttClientConfig config;
 		if ( connConfig.isUseSsl() ) {
 			config = new MqttClientConfig(createSslContext(connConfig.getSslService()));
