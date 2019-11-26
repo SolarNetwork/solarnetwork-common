@@ -597,6 +597,9 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 			delegate.onMqttMessage(message);
 		}
 
+		// hashCode & equals are funny here so that the delegate is used
+		// and when subscribe/unsubscribe are called everything works out
+
 		@Override
 		public int hashCode() {
 			return delegate.hashCode();
@@ -604,6 +607,9 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 
 		@Override
 		public boolean equals(Object obj) {
+			if ( obj instanceof StatsMessageHandler ) {
+				obj = ((StatsMessageHandler) obj).delegate;
+			}
 			return delegate.equals(obj);
 		}
 
@@ -629,7 +635,9 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 			f.completeExceptionally(new IOException("Not connected to MQTT server."));
 			return f;
 		}
-		return c.off(topic, handler != null ? handler : this);
+		// must wrap `handler` with StatsMessageHandler so equals() works with what
+		// was passed to c.on() in the #subscribe() method above
+		return c.off(topic, handler != null ? new StatsMessageHandler(handler) : this);
 	}
 
 	@Override
