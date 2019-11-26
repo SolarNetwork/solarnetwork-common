@@ -58,6 +58,7 @@ import net.solarnetwork.common.mqtt.MqttMessage;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
 import net.solarnetwork.common.mqtt.MqttQos;
 import net.solarnetwork.common.mqtt.MqttStats;
+import net.solarnetwork.common.mqtt.ReconfigurableMqttConnection;
 import net.solarnetwork.common.mqtt.netty.client.MqttClient;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientCallback;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientConfig;
@@ -77,8 +78,9 @@ import net.solarnetwork.support.SSLService;
  * @author matt
  * @version 1.0
  */
-public class NettyMqttConnection extends BasicIdentifiable implements MqttConnection, MqttMessageHandler,
-		MqttClientCallback, SettingsChangeObserver, Identifiable, PingTest {
+public class NettyMqttConnection extends BasicIdentifiable
+		implements MqttConnection, ReconfigurableMqttConnection, MqttMessageHandler, MqttClientCallback,
+		SettingsChangeObserver, Identifiable, PingTest {
 
 	/** The {@code ioThreadCount} property default value. */
 	public static final int DEFAULT_IO_THREAD_COUNT = 2;
@@ -139,12 +141,7 @@ public class NettyMqttConnection extends BasicIdentifiable implements MqttConnec
 		reconfigure();
 	}
 
-	/**
-	 * Reconfigure the connection, closing any active connection in order to
-	 * re-establish a new one based on the current configuration.
-	 * 
-	 * @return a future that completes when the
-	 */
+	@Override
 	public synchronized Future<?> reconfigure() {
 		if ( reconfigureFuture != null ) {
 			return reconfigureFuture;

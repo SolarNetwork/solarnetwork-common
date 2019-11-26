@@ -25,6 +25,8 @@ package net.solarnetwork.common.mqtt;
 import java.net.URI;
 import java.net.URISyntaxException;
 import net.solarnetwork.support.SSLService;
+import net.solarnetwork.util.OptionalService;
+import net.solarnetwork.util.StaticOptionalService;
 
 /**
  * Basic implementation of {@link MqttConnectionConfig}.
@@ -54,7 +56,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	private URI serverUri;
 	private MqttVersion version;
-	private SSLService sslService;
+	private OptionalService<SSLService> optionalSslService;
 	private String clientId;
 	private String username;
 	private String password;
@@ -194,17 +196,42 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	@Override
 	public SSLService getSslService() {
-		return sslService;
+		return (optionalSslService != null ? optionalSslService.service() : null);
 	}
 
 	/**
 	 * Set the SSL service.
 	 * 
+	 * <p>
+	 * Internally this calls
+	 * {@link BasicMqttConnectionConfig#setOptionalSslService(OptionalService)}
+	 * with a static service reference.
+	 * </p>
+	 * 
 	 * @param sslService
 	 *        the sslService to set
 	 */
 	public void setSslService(SSLService sslService) {
-		this.sslService = sslService;
+		setOptionalSslService(new StaticOptionalService<>(sslService));
+	}
+
+	/**
+	 * Get the optional {@link SSLService}.
+	 * 
+	 * @return the optional service
+	 */
+	public OptionalService<SSLService> getOptionalSslService() {
+		return optionalSslService;
+	}
+
+	/**
+	 * Set the optional {@link SSLService}.
+	 * 
+	 * @param optionalSslService
+	 *        the optional service
+	 */
+	public void setOptionalSslService(OptionalService<SSLService> optionalSslService) {
+		this.optionalSslService = optionalSslService;
 	}
 
 	@Override

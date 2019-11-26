@@ -29,7 +29,6 @@ Import-Package:
  io.netty.util.collection;version="[4.1,5.0)",
  io.netty.util.concurrent;version="[4.1,5.0)",
  net.solarnetwork.common.mqtt;version="1.0.0",
- net.solarnetwork.common.mqtt.support;version="1.0.1",
  net.solarnetwork.domain;version="1.18.0",
  net.solarnetwork.settings;version="1.2.0",
  net.solarnetwork.support;version="1.10.0",
