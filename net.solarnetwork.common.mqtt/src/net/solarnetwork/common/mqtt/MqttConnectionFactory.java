@@ -37,6 +37,6 @@ public interface MqttConnectionFactory {
 	 *        the configuration
 	 * @return the connection
 	 */
-	MqttConnection createConnection(MqttConnectionConfig config, MqttStats stats);
+	MqttConnection createConnection(MqttConnectionConfig config);
 
 }

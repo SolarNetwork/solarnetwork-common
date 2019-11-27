@@ -52,7 +52,6 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final MqttConnectionFactory connectionFactory;
-	private final MqttStats mqttStats;
 	private final BasicMqttConnectionConfig mqttConfig;
 
 	private MqttQos publishQos = DEFAULT_PUBLISH_QOS;
@@ -70,8 +69,8 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	public BaseMqttConnectionService(MqttConnectionFactory connectionFactory, MqttStats mqttStats) {
 		super();
 		this.connectionFactory = connectionFactory;
-		this.mqttStats = mqttStats;
 		mqttConfig = new BasicMqttConnectionConfig();
+		mqttConfig.setStats(mqttStats);
 	}
 
 	/**
@@ -94,13 +93,14 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 		if ( connection != null ) {
 			return CompletableFuture.completedFuture(null);
 		}
-		connection = connectionFactory.createConnection(mqttConfig, mqttStats);
+		connection = connectionFactory.createConnection(mqttConfig);
 		if ( connection == null ) {
 			CompletableFuture<Void> f = new CompletableFuture<>();
 			f.completeExceptionally(
 					new RuntimeException("Failed to obtain MQTT connection from factory."));
 			return f;
 		}
+		connectionCreated(connection);
 		try {
 			return connection.open();
 		} catch ( IOException e ) {
@@ -286,7 +286,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	 * @return the statistics
 	 */
 	public MqttStats getMqttStats() {
-		return mqttStats;
+		return mqttConfig.getStats();
 	}
 
 	/**
@@ -296,6 +296,12 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	 */
 	public BasicMqttConnectionConfig getMqttConfig() {
 		return mqttConfig;
+	}
+
+	@Override
+	public void setUid(String uid) {
+		super.setUid(uid);
+		mqttConfig.setUid(uid);
 	}
 
 }

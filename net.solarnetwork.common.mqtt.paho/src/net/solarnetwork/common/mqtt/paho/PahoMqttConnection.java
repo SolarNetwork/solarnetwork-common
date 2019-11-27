@@ -72,17 +72,29 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 	/**
 	 * Constructor.
+	 * 
+	 * @param executor
+	 *        the executor to use
+	 * @param scheduler
+	 *        the scheduler to use
 	 */
 	public PahoMqttConnection(Executor executor, TaskScheduler scheduler) {
-		this(executor, scheduler, new BasicMqttConnectionConfig(), null);
+		this(executor, scheduler, new BasicMqttConnectionConfig());
 	}
 
 	/**
 	 * Constructor.
+	 * 
+	 * @param executor
+	 *        the executor to use
+	 * @param scheduler
+	 *        the scheduler to use
+	 * @param connectionConfig
+	 *        the config to use
 	 */
 	public PahoMqttConnection(Executor executor, TaskScheduler scheduler,
-			MqttConnectionConfig connectionConfig, MqttStats stats) {
-		super(executor, scheduler, connectionConfig, stats);
+			MqttConnectionConfig connectionConfig) {
+		super(executor, scheduler, connectionConfig);
 	}
 
 	private final class ConnectTask implements Runnable {
@@ -144,7 +156,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 						}
 					}
 				}
-				MqttStats s = PahoMqttConnection.this.stats;
+				MqttStats s = connectionConfig.getStats();
 				if ( s != null ) {
 					s.incrementAndGet(MqttStats.BasicCounts.ConnectionFail);
 				}
@@ -209,7 +221,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 						connectFuture.completeExceptionally(t);
 					} else {
 						connectFuture.complete(code);
-						MqttStats s = PahoMqttConnection.this.stats;
+						MqttStats s = connectionConfig.getStats();
 						if ( s != null ) {
 							s.incrementAndGet(MqttStats.BasicCounts.ConnectionSuccess);
 						}
@@ -382,7 +394,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 	public void connectionLost(Throwable cause) {
 		String msg = (cause != null ? cause.toString() : "unknown cause");
 		log.warn("Connection lost to MQTT server {}: {}", connectionConfig.getServerUri(), msg);
-		MqttStats s = this.stats;
+		MqttStats s = connectionConfig.getStats();
 		if ( s != null ) {
 			s.incrementAndGet(MqttStats.BasicCounts.ConnectionLost);
 		}
@@ -394,11 +406,12 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 	@Override
 	public final void deliveryComplete(IMqttDeliveryToken token) {
-		if ( token != null ) {
+		MqttStats s = connectionConfig.getStats();
+		if ( token != null && s != null ) {
 			if ( token.isComplete() ) {
-				stats.incrementAndGet(MqttStats.BasicCounts.MessagesDelivered);
+				s.incrementAndGet(MqttStats.BasicCounts.MessagesDelivered);
 			} else if ( token.getException() != null ) {
-				stats.incrementAndGet(MqttStats.BasicCounts.MessagesDeliveredFail);
+				s.incrementAndGet(MqttStats.BasicCounts.MessagesDeliveredFail);
 			}
 		}
 	}
@@ -412,7 +425,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 	public void onSuccessfulReconnect() {
 		log.warn("Reconnected to MQTT server {}", connectionConfig.getServerUri());
-		MqttStats s = this.stats;
+		MqttStats s = connectionConfig.getStats();
 		if ( s != null ) {
 			s.incrementAndGet(MqttStats.BasicCounts.ConnectionSuccess);
 		}
@@ -442,7 +455,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 	@Override
 	public final void messageArrived(String topic, MqttMessage message) throws Exception {
 		log.trace("SolarIn MQTT message arrived on {}", topic);
-		MqttStats s = this.stats;
+		MqttStats s = connectionConfig.getStats();
 		if ( s != null ) {
 			s.incrementAndGet(MqttStats.BasicCounts.MessagesReceived);
 		}
@@ -463,7 +476,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 			f.completeExceptionally(new IOException("Not connected to MQTT server."));
 			return f;
 		}
-		final MqttStats s = this.stats;
+		final MqttStats s = connectionConfig.getStats();
 		try {
 			c.publish(message.getTopic(), message.getPayload(), message.getQosLevel().getValue(),
 					message.isRetained(), null,
@@ -489,7 +502,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 		@Override
 		public void messageArrived(String topic, MqttMessage message) throws Exception {
-			MqttStats s = PahoMqttConnection.this.stats;
+			MqttStats s = connectionConfig.getStats();
 			if ( s != null ) {
 				s.incrementAndGet(MqttStats.BasicCounts.MessagesReceived);
 			}
@@ -533,16 +546,18 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 		@Override
 		public void onSuccess(IMqttToken asyncActionToken) {
-			if ( stats != null && statSuccess != null ) {
-				stats.incrementAndGet(statSuccess);
+			MqttStats s = connectionConfig.getStats();
+			if ( s != null && statSuccess != null ) {
+				s.incrementAndGet(statSuccess);
 			}
 			f.complete(null);
 		}
 
 		@Override
 		public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-			if ( stats != null && statFailure != null ) {
-				stats.incrementAndGet(statFailure);
+			MqttStats s = connectionConfig.getStats();
+			if ( s != null && statFailure != null ) {
+				s.incrementAndGet(statFailure);
 			}
 			f.completeExceptionally(exception);
 		}

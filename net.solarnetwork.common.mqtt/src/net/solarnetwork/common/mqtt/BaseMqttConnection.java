@@ -61,7 +61,6 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	protected final Executor executor;
 	protected final TaskScheduler scheduler;
 	protected final BasicMqttConnectionConfig connectionConfig;
-	protected final MqttStats stats;
 
 	protected volatile MqttMessageHandler messageHandler;
 	protected volatile MqttConnectionObserver connectionObserver;
@@ -80,7 +79,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	 *        the task scheduler
 	 */
 	public BaseMqttConnection(Executor executor, TaskScheduler scheduler) {
-		this(executor, scheduler, new BasicMqttConnectionConfig(), null);
+		this(executor, scheduler, new BasicMqttConnectionConfig());
 	}
 
 	/**
@@ -93,11 +92,9 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	 * @param connectionConfig
 	 *        initial connection configuration, or {@literal null} to use a
 	 *        default
-	 * @param stats
-	 *        optional statistics collection instance
 	 */
 	public BaseMqttConnection(Executor executor, TaskScheduler scheduler,
-			MqttConnectionConfig connectionConfig, MqttStats stats) {
+			MqttConnectionConfig connectionConfig) {
 		super();
 		this.executor = executor;
 		this.scheduler = scheduler;
@@ -105,7 +102,6 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 		this.connectionConfig = connectionConfig instanceof BasicMqttConnectionConfig
 				? (BasicMqttConnectionConfig) connectionConfig
 				: new BasicMqttConnectionConfig(connectionConfig);
-		this.stats = stats;
 	}
 
 	/**
@@ -296,12 +292,13 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	 *------------------ */
 
 	@Override
+	public String getUid() {
+		return connectionConfig.getUid();
+	}
+
+	@Override
 	public void setUid(String uid) {
-		super.setUid(uid);
-		if ( uid == null ) {
-			throw new IllegalArgumentException("uid value must not be null");
-		}
-		this.stats.setUid(uid);
+		connectionConfig.setUid(uid);
 	}
 
 	/**

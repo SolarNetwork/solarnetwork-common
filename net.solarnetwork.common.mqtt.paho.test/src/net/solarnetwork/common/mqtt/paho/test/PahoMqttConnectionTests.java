@@ -45,10 +45,11 @@ public class PahoMqttConnectionTests extends MqttConnectionIntegrationTests {
 		ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
 		scheduler.setThreadNamePrefix("PahoMqtt-Scheduler-Test-");
 		scheduler.initialize();
+		config.setUid("Paho-Test");
+		config.setStats(new MqttStats(5));
 		PahoMqttConnection conn = new PahoMqttConnection(
 				Executors.newCachedThreadPool(new CustomizableThreadFactory("PahoMqtt-Test-")),
-				scheduler, config, new MqttStats("TEST", 5));
-		conn.setUid("Test Conn");
+				scheduler, config);
 		setService(conn);
 	}
 

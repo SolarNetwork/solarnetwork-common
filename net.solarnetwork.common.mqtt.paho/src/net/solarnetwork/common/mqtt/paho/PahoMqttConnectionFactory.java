@@ -27,7 +27,6 @@ import org.springframework.scheduling.TaskScheduler;
 import net.solarnetwork.common.mqtt.MqttConnection;
 import net.solarnetwork.common.mqtt.MqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectionFactory;
-import net.solarnetwork.common.mqtt.MqttStats;
 
 /**
  * Factory for Paho {@link MqttConnection} intances.
@@ -55,8 +54,8 @@ public class PahoMqttConnectionFactory implements MqttConnectionFactory {
 	}
 
 	@Override
-	public MqttConnection createConnection(MqttConnectionConfig config, MqttStats stats) {
-		PahoMqttConnection conn = new PahoMqttConnection(executor, scheduler, config, stats);
+	public MqttConnection createConnection(MqttConnectionConfig config) {
+		PahoMqttConnection conn = new PahoMqttConnection(executor, scheduler, config);
 		return conn;
 	}
 

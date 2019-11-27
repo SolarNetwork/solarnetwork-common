@@ -24,6 +24,7 @@ package net.solarnetwork.common.mqtt;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 import net.solarnetwork.support.SSLService;
 import net.solarnetwork.util.OptionalService;
 import net.solarnetwork.util.StaticOptionalService;
@@ -54,6 +55,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	/** The {@code cleanSession} property default value. */
 	public static final boolean DEFAULT_CLEAN_SESSION = true;
 
+	private String uid;
 	private URI serverUri;
 	private MqttVersion version;
 	private OptionalService<SSLService> optionalSslService;
@@ -67,12 +69,14 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	private MqttMessage lastWill;
 	private int maximumMessageSize;
 	private int keepAliveSeconds;
+	private MqttStats stats;
 
 	/**
 	 * Default constructor.
 	 */
 	public BasicMqttConnectionConfig() {
 		super();
+		this.uid = UUID.randomUUID().toString();
 		this.version = MqttVersion.Mqtt311;
 		this.connectTimeoutSeconds = DEFAULT_CONNECT_TIMEOUT_SECONDS;
 		this.reconnect = DEFAULT_RECONNECT;
@@ -93,6 +97,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 		if ( other == null ) {
 			return;
 		}
+		setUid(other.getUid());
 		setServerUri(other.getServerUri());
 		setVersion(other.getVersion());
 		setSslService(other.getSslService());
@@ -106,6 +111,30 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 		setLastWill(other.getLastWill());
 		setMaximumMessageSize(other.getMaximumMessageSize());
 		setKeepAliveSeconds(other.getKeepAliveSeconds());
+		setStats(other.getStats());
+	}
+
+	@Override
+	public String getUid() {
+		return uid;
+	}
+
+	/**
+	 * Set the unique ID.
+	 * 
+	 * @param uid
+	 *        the ID
+	 * @throws IllegalArgumentException
+	 *         if {@code uid} is {@literal null} or empty
+	 */
+	public void setUid(String uid) {
+		if ( uid == null || uid.isEmpty() ) {
+			throw new IllegalArgumentException("The uid value must not be empty.");
+		}
+		this.uid = uid;
+		if ( stats != null ) {
+			stats.setUid(uid);
+		}
 	}
 
 	@Override
@@ -400,6 +429,28 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 			throw new IllegalArgumentException("The keepAliveSeconds value must be -1 or > 0.");
 		}
 		this.keepAliveSeconds = keepAliveSeconds;
+	}
+
+	@Override
+	public MqttStats getStats() {
+		return stats;
+	}
+
+	/**
+	 * Set the MQTT statistics object to use.
+	 * 
+	 * <p>
+	 * The UID of {@code stats} will be set to this object's UID.
+	 * </p>
+	 * 
+	 * @param stats
+	 *        the statistics object
+	 */
+	public void setStats(MqttStats stats) {
+		this.stats = stats;
+		if ( stats != null && uid != null ) {
+			stats.setUid(uid);
+		}
 	}
 
 }

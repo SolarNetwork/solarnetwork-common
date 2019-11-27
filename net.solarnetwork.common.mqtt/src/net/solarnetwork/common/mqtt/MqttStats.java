@@ -94,6 +94,50 @@ public class MqttStats {
 	 * 
 	 * @param uid
 	 *        the UID
+	 */
+	public MqttStats() {
+		this("", 0, null);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param logFrequency
+	 *        a frequency at which to log INFO level statistic messages
+	 */
+	public MqttStats(int logFrequency) {
+		this("", logFrequency, null);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param countStats
+	 *        the number of statistics to track (on top of the
+	 *        {@link BasicCounts}
+	 */
+	public MqttStats(MqttStat[] countStats) {
+		this("", 0, countStats);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param logFrequency
+	 *        a frequency at which to log INFO level statistic messages
+	 * @param countStats
+	 *        the number of statistics to track (on top of the
+	 *        {@link BasicCounts}
+	 */
+	public MqttStats(int logFrequency, MqttStat[] countStats) {
+		this("", logFrequency, countStats);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param uid
+	 *        the UID
 	 * @param logFrequency
 	 *        a frequency at which to log INFO level statistic messages
 	 */

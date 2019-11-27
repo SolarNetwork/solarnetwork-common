@@ -45,10 +45,11 @@ public class NettyMqttConnectionTests extends MqttConnectionIntegrationTests {
 		ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
 		scheduler.setThreadNamePrefix("PahoMqtt-Scheduler-Test-");
 		scheduler.initialize();
+		config.setUid("Netty-Test");
+		config.setStats(new MqttStats(5));
 		NettyMqttConnection conn = new NettyMqttConnection(
 				Executors.newCachedThreadPool(new CustomizableThreadFactory("NettyMqtt-Test-")),
-				scheduler, config, new MqttStats("TEST", 5));
-		conn.setUid("Test Conn");
+				scheduler, config);
 		setService(conn);
 	}
 }

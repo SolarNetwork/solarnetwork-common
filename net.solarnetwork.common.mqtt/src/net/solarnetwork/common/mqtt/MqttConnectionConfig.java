@@ -45,6 +45,13 @@ public interface MqttConnectionConfig {
 	int DEFAULT_PORT_SSL = 8883;
 
 	/**
+	 * Get a unique identifier for this configuration.
+	 * 
+	 * @return a unique ID, never {@literal null}
+	 */
+	String getUid();
+
+	/**
 	 * Get the MQTT broker URI to connect to.
 	 * 
 	 * @return the server URI
@@ -141,6 +148,13 @@ public interface MqttConnectionConfig {
 	 * @return the delay, in seconds
 	 */
 	int getReconnectDelaySeconds();
+
+	/**
+	 * Get an object to track statistics with.
+	 * 
+	 * @return the statistics object, or {@literal null}
+	 */
+	MqttStats getStats();
 
 	/**
 	 * Generate a random client ID.

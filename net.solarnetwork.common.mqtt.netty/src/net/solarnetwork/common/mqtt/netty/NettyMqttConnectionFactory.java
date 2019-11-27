@@ -27,7 +27,6 @@ import org.springframework.scheduling.TaskScheduler;
 import net.solarnetwork.common.mqtt.MqttConnection;
 import net.solarnetwork.common.mqtt.MqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectionFactory;
-import net.solarnetwork.common.mqtt.MqttStats;
 
 /**
  * Netty implementation of {@link MqttConnectionFactory}.
@@ -56,8 +55,8 @@ public class NettyMqttConnectionFactory implements MqttConnectionFactory {
 	}
 
 	@Override
-	public MqttConnection createConnection(MqttConnectionConfig config, MqttStats stats) {
-		NettyMqttConnection conn = new NettyMqttConnection(executor, scheduler, config, stats);
+	public MqttConnection createConnection(MqttConnectionConfig config) {
+		NettyMqttConnection conn = new NettyMqttConnection(executor, scheduler, config);
 		conn.setIoThreadCount(ioThreadCount);
 		return conn;
 	}

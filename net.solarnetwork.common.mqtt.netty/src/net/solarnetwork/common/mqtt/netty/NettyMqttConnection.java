@@ -79,17 +79,29 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 	/**
 	 * Constructor.
+	 * 
+	 * @param executor
+	 *        the executor to use
+	 * @param scheduler
+	 *        the scheduler to use
 	 */
 	public NettyMqttConnection(Executor executor, TaskScheduler scheduler) {
-		this(executor, scheduler, new BasicMqttConnectionConfig(), null);
+		this(executor, scheduler, new BasicMqttConnectionConfig());
 	}
 
 	/**
 	 * Constructor.
+	 * 
+	 * @param executor
+	 *        the executor to use
+	 * @param scheduler
+	 *        the scheduler to use
+	 * @param connectionConfig
+	 *        the config to use
 	 */
 	public NettyMqttConnection(Executor executor, TaskScheduler scheduler,
-			MqttConnectionConfig connectionConfig, MqttStats stats) {
-		super(executor, scheduler, connectionConfig, stats);
+			MqttConnectionConfig connectionConfig) {
+		super(executor, scheduler, connectionConfig);
 		this.ioThreadCount = DEFAULT_IO_THREAD_COUNT;
 	}
 
@@ -152,7 +164,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 						}
 					}
 				}
-				MqttStats s = NettyMqttConnection.this.stats;
+				MqttStats s = connectionConfig.getStats();
 				if ( s != null ) {
 					s.incrementAndGet(MqttStats.BasicCounts.ConnectionFail);
 				}
@@ -189,7 +201,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 						MqttConnectReturnCode code = result != null ? returnCode(result.getReturnCode())
 								: null;
 						connectFuture.complete(code);
-						MqttStats s = NettyMqttConnection.this.stats;
+						MqttStats s = connectionConfig.getStats();
 						if ( s != null ) {
 							s.incrementAndGet(MqttStats.BasicCounts.ConnectionSuccess);
 						}
@@ -356,7 +368,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 	public void connectionLost(Throwable cause) {
 		String msg = (cause != null ? cause.toString() : "unknown cause");
 		log.warn("Connection lost to MQTT server {}: {}", connectionConfig.getServerUri(), msg);
-		MqttStats s = this.stats;
+		MqttStats s = connectionConfig.getStats();
 		if ( s != null ) {
 			s.incrementAndGet(MqttStats.BasicCounts.ConnectionLost);
 		}
@@ -369,7 +381,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 	@Override
 	public void onSuccessfulReconnect() {
 		log.warn("Reconnected to MQTT server {}", connectionConfig.getServerUri());
-		MqttStats s = this.stats;
+		MqttStats s = connectionConfig.getStats();
 		if ( s != null ) {
 			s.incrementAndGet(MqttStats.BasicCounts.ConnectionSuccess);
 		}
@@ -396,15 +408,42 @@ public class NettyMqttConnection extends BaseMqttConnection
 		}
 	}
 
+	private class MessageHandlerTask implements Runnable {
+
+		private final MqttMessage message;
+		private final MqttMessageHandler handler;
+
+		private MessageHandlerTask(MqttMessage message, MqttMessageHandler handler) {
+			this.message = message;
+			this.handler = handler;
+		}
+
+		@Override
+		public void run() {
+			try {
+				handler.onMqttMessage(message);
+			} catch ( Exception e ) {
+				Throwable root = e;
+				while ( root.getCause() != null ) {
+					root = root.getCause();
+				}
+				log.error("Unhandled exception in MQTT message handler {} on topic {}: {}", handler,
+						message.getTopic(), root.getMessage(), e);
+			}
+		}
+
+	}
+
 	@Override
 	public void onMqttMessage(MqttMessage message) {
-		MqttStats s = NettyMqttConnection.this.stats;
+		MqttStats s = connectionConfig.getStats();
 		if ( s != null ) {
 			s.incrementAndGet(MqttStats.BasicCounts.MessagesReceived);
 		}
 		MqttMessageHandler handler = this.messageHandler;
 		if ( handler != null ) {
-			handler.onMqttMessage(message);
+			// bump to another thread so MQTT processing not affected by handler execution time
+			executor.execute(new MessageHandlerTask(message, handler));
 		}
 	}
 
@@ -423,7 +462,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 				Unpooled.wrappedBuffer(message.getPayload()), NettyMqttUtils.qos(message.getQosLevel()),
 				message.isRetained());
 
-		final MqttStats s = this.stats;
+		final MqttStats s = connectionConfig.getStats();
 		if ( s != null ) {
 			f.addListener(new GenericFutureListener<io.netty.util.concurrent.Future<? super Void>>() {
 
@@ -453,11 +492,12 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 		@Override
 		public void onMqttMessage(MqttMessage message) {
-			MqttStats s = NettyMqttConnection.this.stats;
+			MqttStats s = connectionConfig.getStats();
 			if ( s != null ) {
 				s.incrementAndGet(MqttStats.BasicCounts.MessagesReceived);
 			}
-			delegate.onMqttMessage(message);
+			// bump to another thread so MQTT processing not affected by handler execution time
+			executor.execute(new MessageHandlerTask(message, delegate));
 		}
 
 		// hashCode & equals are funny here so that the delegate is used
