@@ -17,6 +17,8 @@
 	<osgix:cm-properties id="cfg" persistent-id="net.solarnetwork.common.mqtt.netty">
 		<beans:prop key="ioThreadCount">2</beans:prop>
 	</osgix:cm-properties>
+
+	<ctx:property-placeholder properties-ref="cfg"/>
 	
 	<reference id="executor" interface="java.util.concurrent.Executor"/>
 	<reference id="scheduler" interface="org.springframework.scheduling.TaskScheduler"/>
