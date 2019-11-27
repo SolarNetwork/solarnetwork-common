@@ -22,6 +22,8 @@
 
 package net.solarnetwork.common.mqtt.paho;
 
+import java.util.concurrent.Executor;
+import org.springframework.scheduling.TaskScheduler;
 import net.solarnetwork.common.mqtt.MqttConnection;
 import net.solarnetwork.common.mqtt.MqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectionFactory;
@@ -35,17 +37,27 @@ import net.solarnetwork.common.mqtt.MqttStats;
  */
 public class PahoMqttConnectionFactory implements MqttConnectionFactory {
 
+	private final Executor executor;
+	private final TaskScheduler scheduler;
+
 	/**
 	 * Constructor.
+	 * 
+	 * @param executor
+	 *        the executor to use
+	 * @param scheduler
+	 *        the scheduler to use
 	 */
-	public PahoMqttConnectionFactory() {
-		// TODO Auto-generated constructor stub
+	public PahoMqttConnectionFactory(Executor executor, TaskScheduler scheduler) {
+		super();
+		this.executor = executor;
+		this.scheduler = scheduler;
 	}
 
 	@Override
 	public MqttConnection createConnection(MqttConnectionConfig config, MqttStats stats) {
-		// TODO Auto-generated method stub
-		return null;
+		PahoMqttConnection conn = new PahoMqttConnection(executor, scheduler, config, stats);
+		return conn;
 	}
 
 }
