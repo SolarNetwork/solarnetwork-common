@@ -27,11 +27,8 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -47,10 +44,9 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.util.DigestUtils;
+import net.solarnetwork.common.mqtt.BaseMqttConnection;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectReturnCode;
 import net.solarnetwork.common.mqtt.MqttConnection;
@@ -60,12 +56,6 @@ import net.solarnetwork.common.mqtt.MqttMessageHandler;
 import net.solarnetwork.common.mqtt.MqttQos;
 import net.solarnetwork.common.mqtt.MqttStats;
 import net.solarnetwork.common.mqtt.MqttStats.MqttStat;
-import net.solarnetwork.common.mqtt.ReconfigurableMqttConnection;
-import net.solarnetwork.domain.Identifiable;
-import net.solarnetwork.domain.PingTest;
-import net.solarnetwork.domain.PingTestResult;
-import net.solarnetwork.settings.SettingsChangeObserver;
-import net.solarnetwork.support.BasicIdentifiable;
 
 /**
  * Implementation of {@link MqttConnection} based on the Paho framework.
@@ -73,26 +63,12 @@ import net.solarnetwork.support.BasicIdentifiable;
  * @author matt
  * @version 1.0
  */
-public class PahoMqttConnection extends BasicIdentifiable
-		implements MqttConnection, ReconfigurableMqttConnection, MqttCallbackExtended,
-		IMqttMessageListener, SettingsChangeObserver, Identifiable, PingTest {
+public class PahoMqttConnection extends BaseMqttConnection
+		implements MqttCallbackExtended, IMqttMessageListener {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
-	private final Executor executor;
-	private final TaskScheduler scheduler;
-	private final BasicMqttConnectionConfig connectionConfig;
-	private final MqttStats stats;
-
-	private volatile MqttMessageHandler messageHandler;
-	private volatile MqttConnectionObserver connectionObserver;
 	private volatile IMqttAsyncClient client;
 
 	private String persistencePath = "var/mqtt";
-	private boolean closed;
-
-	private CompletableFuture<MqttConnectReturnCode> connectFuture;
-	private CompletableFuture<Void> reconfigureFuture;
 
 	/**
 	 * Constructor.
@@ -106,106 +82,26 @@ public class PahoMqttConnection extends BasicIdentifiable
 	 */
 	public PahoMqttConnection(Executor executor, TaskScheduler scheduler,
 			MqttConnectionConfig connectionConfig, MqttStats stats) {
-		super();
-		this.executor = executor;
-		this.scheduler = scheduler;
-		this.closed = false;
-		this.connectionConfig = connectionConfig instanceof BasicMqttConnectionConfig
-				? (BasicMqttConnectionConfig) connectionConfig
-				: new BasicMqttConnectionConfig(connectionConfig);
-		this.stats = stats;
-	}
-
-	/**
-	 * Initialize after all properties have been configured.
-	 */
-	public synchronized void init() {
-		try {
-			open();
-		} catch ( IOException e ) {
-			// ignore;
-		}
-	}
-
-	@Override
-	public synchronized void configurationChanged(Map<String, Object> properties) {
-		reconfigure();
-	}
-
-	@Override
-	public synchronized Future<?> reconfigure() {
-		if ( reconfigureFuture != null ) {
-			return reconfigureFuture;
-		}
-		if ( connectFuture != null ) {
-			if ( !connectFuture.isDone() ) {
-				try {
-					log.info(
-							"Cancelling scheduled connection to {} MQTT server from configuration change",
-							getUid());
-					connectFuture.cancel(true);
-				} catch ( Exception e ) {
-					// ignore
-				}
-			}
-			connectFuture = null;
-		}
-		final CompletableFuture<Void> f = new CompletableFuture<>();
-		reconfigureFuture = f;
-		executor.execute(new Runnable() {
-
-			@Override
-			public void run() {
-				Throwable t = null;
-				try {
-					try {
-						closeConnection().get(connectionConfig.getConnectTimeoutSeconds(),
-								TimeUnit.SECONDS);
-					} catch ( Exception e ) {
-						// ignore
-					}
-					try {
-						open().get(connectionConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS);
-					} catch ( Exception e ) {
-						t = e;
-					}
-				} finally {
-					complete(t);
-				}
-			}
-
-			private void complete(Throwable t) {
-				synchronized ( PahoMqttConnection.this ) {
-					reconfigureFuture = null;
-				}
-				if ( t != null ) {
-					f.completeExceptionally(t);
-
-				} else {
-					f.complete(null);
-				}
-			}
-
-		});
-		return f;
+		super(executor, scheduler, connectionConfig, stats);
 	}
 
 	private final class ConnectTask implements Runnable {
 
+		private final CompletableFuture<MqttConnectReturnCode> connectFuture;
 		private final ConnectScheduledTask scheduledTask;
 		private long reconnectDelay = 0;
 
-		private ConnectTask(ConnectScheduledTask scheduledTask) {
+		private ConnectTask(CompletableFuture<MqttConnectReturnCode> connectFuture,
+				ConnectScheduledTask scheduledTask) {
 			super();
+			this.connectFuture = connectFuture;
 			this.scheduledTask = scheduledTask;
 		}
 
 		@Override
 		public void run() {
-			synchronized ( PahoMqttConnection.this ) {
-				if ( closed ) {
-					return;
-				}
+			if ( isClosed() ) {
+				return;
 			}
 			if ( reconnectDelay < connectionConfig.getReconnectDelaySeconds() * 30000L ) {
 				int step = (Math.max(1, connectionConfig.getReconnectDelaySeconds() / 2));
@@ -361,7 +257,12 @@ public class PahoMqttConnection extends BasicIdentifiable
 	// this task runs in the TaskScheduler, which we don't want to block
 	private final class ConnectScheduledTask implements Runnable {
 
-		private final ConnectTask task = new ConnectTask(this);
+		private final ConnectTask task;
+
+		private ConnectScheduledTask(CompletableFuture<MqttConnectReturnCode> future) {
+			super();
+			this.task = new ConnectTask(future, this);
+		}
 
 		@Override
 		public void run() {
@@ -371,17 +272,8 @@ public class PahoMqttConnection extends BasicIdentifiable
 	}
 
 	@Override
-	public synchronized Future<MqttConnectReturnCode> open() throws IOException {
-		if ( connectFuture != null ) {
-			return connectFuture;
-		}
-		if ( client != null ) {
-			return CompletableFuture.completedFuture(null);
-		}
-		CompletableFuture<MqttConnectReturnCode> f = new CompletableFuture<>();
-		this.connectFuture = f;
-		scheduler.schedule(new ConnectScheduledTask(), new Date(System.currentTimeMillis() + 200L));
-		return f;
+	protected Runnable createConnectScheduledTask(CompletableFuture<MqttConnectReturnCode> future) {
+		return new ConnectScheduledTask(future);
 	}
 
 	private MqttConnectOptions createClientConfig(final MqttConnectionConfig connConfig) {
@@ -429,34 +321,6 @@ public class PahoMqttConnection extends BasicIdentifiable
 		return config;
 	}
 
-	@Override
-	public void close() throws IOException {
-		IMqttAsyncClient c;
-		synchronized ( this ) {
-			c = this.client;
-			closed = true;
-		}
-		if ( c != null ) {
-			String serverUri = null;
-			try {
-				serverUri = client.getServerURI();
-			} catch ( RuntimeException e ) {
-				URI uri = connectionConfig.getServerUri();
-				if ( uri != null ) {
-					serverUri = uri.toString();
-				}
-			}
-			try {
-				closeConnection().get(connectionConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS);
-			} catch ( ExecutionException e ) {
-				log.warn("Error closing connection to MQTT server {}", serverUri);
-				throw new IOException("Error closing connection to MQTT server " + serverUri, e);
-			} catch ( TimeoutException | InterruptedException e ) {
-				log.warn("Timeout closing connection to MQTT server {}", serverUri);
-			}
-		}
-	}
-
 	private Future<?> closeClient(final IMqttAsyncClient c) {
 		CompletableFuture<Void> result = new CompletableFuture<>();
 		executor.execute(new Runnable() {
@@ -501,7 +365,8 @@ public class PahoMqttConnection extends BasicIdentifiable
 		return result;
 	}
 
-	private synchronized Future<?> closeConnection() {
+	@Override
+	protected synchronized Future<?> closeConnection() {
 		final IMqttAsyncClient c = this.client;
 		if ( c != null ) {
 			try {
@@ -561,7 +426,7 @@ public class PahoMqttConnection extends BasicIdentifiable
 	public boolean isEstablished() {
 		final IMqttAsyncClient c;
 		synchronized ( this ) {
-			if ( closed ) {
+			if ( isClosed() ) {
 				return false;
 			}
 			c = this.client;
@@ -572,11 +437,6 @@ public class PahoMqttConnection extends BasicIdentifiable
 		synchronized ( c ) {
 			return c.isConnected();
 		}
-	}
-
-	@Override
-	public synchronized boolean isClosed() {
-		return closed;
 	}
 
 	@Override
@@ -724,70 +584,9 @@ public class PahoMqttConnection extends BasicIdentifiable
 		return f;
 	}
 
-	@Override
-	public void setMessageHandler(MqttMessageHandler handler) {
-		this.messageHandler = handler;
-	}
-
-	@Override
-	public void setConnectionObserver(MqttConnectionObserver observer) {
-		this.connectionObserver = observer;
-	}
-
-	/*---------------------
-	 * Ping test support
-	 *------------------ */
-
-	@Override
-	public String getPingTestId() {
-		return getClass().getName() + "-" + getUid();
-	}
-
-	@Override
-	public String getPingTestName() {
-		return "MQTT Service";
-	}
-
-	@Override
-	public long getPingTestMaximumExecutionMilliseconds() {
-		return 10000;
-	}
-
-	@Override
-	public PingTest.Result performPingTest() throws Exception {
-		IMqttAsyncClient client = this.client;
-		boolean healthy = (client != null && client.isConnected());
-		String serverUri = (client != null ? client.getServerURI()
-				: connectionConfig.getServerUri() != null ? connectionConfig.getServerUri().toString()
-						: null);
-		String msg = (healthy ? "Connected to " + serverUri
-				: client != null ? "Not connected" : "No client available");
-		Map<String, Object> props = Collections.singletonMap("serverUri", serverUri);
-		PingTestResult result = new PingTestResult(healthy, msg, props);
-		return result;
-	}
-
 	/*---------------------
 	 * Accessors
 	 *------------------ */
-
-	@Override
-	public void setUid(String uid) {
-		super.setUid(uid);
-		if ( uid == null ) {
-			throw new IllegalArgumentException("uid value must not be null");
-		}
-		this.stats.setUid(uid);
-	}
-
-	/**
-	 * Get the connection configuration.
-	 * 
-	 * @return the configuration, never {@literal null}
-	 */
-	public BasicMqttConnectionConfig getConnectionConfig() {
-		return connectionConfig;
-	}
 
 	/**
 	 * Set the path to store persisted MQTT data.
@@ -801,24 +600,6 @@ public class PahoMqttConnection extends BasicIdentifiable
 	 */
 	public void setPersistencePath(String persistencePath) {
 		this.persistencePath = persistencePath;
-	}
-
-	/**
-	 * Get the executor service.
-	 * 
-	 * @return the executorService the executor service
-	 */
-	public Executor getExecutor() {
-		return executor;
-	}
-
-	/**
-	 * Get the statistics.
-	 * 
-	 * @return the stats the statistics
-	 */
-	public MqttStats getStats() {
-		return stats;
 	}
 
 }

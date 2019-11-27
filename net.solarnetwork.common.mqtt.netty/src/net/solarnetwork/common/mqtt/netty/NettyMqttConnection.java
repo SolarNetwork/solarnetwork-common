@@ -23,13 +23,9 @@
 package net.solarnetwork.common.mqtt.netty;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -37,8 +33,6 @@ import java.util.concurrent.TimeoutException;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import io.netty.buffer.Unpooled;
@@ -49,6 +43,7 @@ import io.netty.handler.codec.mqtt.MqttVersion;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.util.concurrent.GenericFutureListener;
+import net.solarnetwork.common.mqtt.BaseMqttConnection;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectReturnCode;
 import net.solarnetwork.common.mqtt.MqttConnection;
@@ -58,17 +53,11 @@ import net.solarnetwork.common.mqtt.MqttMessage;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
 import net.solarnetwork.common.mqtt.MqttQos;
 import net.solarnetwork.common.mqtt.MqttStats;
-import net.solarnetwork.common.mqtt.ReconfigurableMqttConnection;
 import net.solarnetwork.common.mqtt.netty.client.MqttClient;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientCallback;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientConfig;
 import net.solarnetwork.common.mqtt.netty.client.MqttConnectResult;
 import net.solarnetwork.common.mqtt.netty.client.MqttLastWill;
-import net.solarnetwork.domain.Identifiable;
-import net.solarnetwork.domain.PingTest;
-import net.solarnetwork.domain.PingTestResult;
-import net.solarnetwork.settings.SettingsChangeObserver;
-import net.solarnetwork.support.BasicIdentifiable;
 import net.solarnetwork.support.CertificateException;
 import net.solarnetwork.support.SSLService;
 
@@ -78,29 +67,15 @@ import net.solarnetwork.support.SSLService;
  * @author matt
  * @version 1.0
  */
-public class NettyMqttConnection extends BasicIdentifiable
-		implements MqttConnection, ReconfigurableMqttConnection, MqttMessageHandler, MqttClientCallback,
-		SettingsChangeObserver, Identifiable, PingTest {
+public class NettyMqttConnection extends BaseMqttConnection
+		implements MqttMessageHandler, MqttClientCallback {
 
 	/** The {@code ioThreadCount} property default value. */
 	public static final int DEFAULT_IO_THREAD_COUNT = 2;
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
-	private final Executor executor;
-	private final TaskScheduler scheduler;
-	private final BasicMqttConnectionConfig connectionConfig;
-	private final MqttStats stats;
 	private int ioThreadCount = DEFAULT_IO_THREAD_COUNT;
 
-	private volatile MqttMessageHandler messageHandler;
-	private volatile MqttConnectionObserver connectionObserver;
 	private volatile MqttClient client;
-
-	private boolean closed;
-
-	private CompletableFuture<MqttConnectReturnCode> connectFuture;
-	private CompletableFuture<Void> reconfigureFuture;
 
 	/**
 	 * Constructor.
@@ -114,107 +89,27 @@ public class NettyMqttConnection extends BasicIdentifiable
 	 */
 	public NettyMqttConnection(Executor executor, TaskScheduler scheduler,
 			MqttConnectionConfig connectionConfig, MqttStats stats) {
-		super();
-		this.executor = executor;
-		this.scheduler = scheduler;
-		this.closed = false;
-		this.connectionConfig = connectionConfig instanceof BasicMqttConnectionConfig
-				? (BasicMqttConnectionConfig) connectionConfig
-				: new BasicMqttConnectionConfig(connectionConfig);
+		super(executor, scheduler, connectionConfig, stats);
 		this.ioThreadCount = DEFAULT_IO_THREAD_COUNT;
-		this.stats = stats;
-	}
-
-	/**
-	 * Initialize after all properties have been configured.
-	 */
-	public synchronized void init() {
-		try {
-			open();
-		} catch ( IOException e ) {
-			// ignore;
-		}
-	}
-
-	@Override
-	public synchronized void configurationChanged(Map<String, Object> properties) {
-		reconfigure();
-	}
-
-	@Override
-	public synchronized Future<?> reconfigure() {
-		if ( reconfigureFuture != null ) {
-			return reconfigureFuture;
-		}
-		if ( connectFuture != null ) {
-			if ( !connectFuture.isDone() ) {
-				try {
-					log.info(
-							"Cancelling scheduled connection to {} MQTT server from configuration change",
-							getUid());
-					connectFuture.cancel(true);
-				} catch ( Exception e ) {
-					// ignore
-				}
-			}
-			connectFuture = null;
-		}
-		final CompletableFuture<Void> f = new CompletableFuture<>();
-		reconfigureFuture = f;
-		executor.execute(new Runnable() {
-
-			@Override
-			public void run() {
-				Throwable t = null;
-				try {
-					try {
-						closeConnection().get(connectionConfig.getConnectTimeoutSeconds(),
-								TimeUnit.SECONDS);
-					} catch ( Exception e ) {
-						// ignore
-					}
-					try {
-						open().get(connectionConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS);
-					} catch ( Exception e ) {
-						t = e;
-					}
-				} finally {
-					complete(t);
-				}
-			}
-
-			private void complete(Throwable t) {
-				synchronized ( NettyMqttConnection.this ) {
-					reconfigureFuture = null;
-				}
-				if ( t != null ) {
-					f.completeExceptionally(t);
-
-				} else {
-					f.complete(null);
-				}
-			}
-
-		});
-		return f;
 	}
 
 	private final class ConnectTask implements Runnable {
 
+		private final CompletableFuture<MqttConnectReturnCode> connectFuture;
 		private final ConnectScheduledTask scheduledTask;
 		private long reconnectDelay = 0;
 
-		private ConnectTask(ConnectScheduledTask scheduledTask) {
+		private ConnectTask(CompletableFuture<MqttConnectReturnCode> connectFuture,
+				ConnectScheduledTask scheduledTask) {
 			super();
+			this.connectFuture = connectFuture;
 			this.scheduledTask = scheduledTask;
 		}
 
 		@Override
 		public void run() {
-			synchronized ( NettyMqttConnection.this ) {
-				if ( closed ) {
-					return;
-				}
+			if ( isClosed() ) {
+				return;
 			}
 			if ( reconnectDelay < connectionConfig.getReconnectDelaySeconds() * 30000L ) {
 				int step = (Math.max(1, connectionConfig.getReconnectDelaySeconds() / 2));
@@ -340,7 +235,12 @@ public class NettyMqttConnection extends BasicIdentifiable
 	// this task runs in the TaskScheduler, which we don't want to block
 	private final class ConnectScheduledTask implements Runnable {
 
-		private final ConnectTask task = new ConnectTask(this);
+		private final ConnectTask task;
+
+		private ConnectScheduledTask(CompletableFuture<MqttConnectReturnCode> future) {
+			super();
+			this.task = new ConnectTask(future, this);
+		}
 
 		@Override
 		public void run() {
@@ -350,17 +250,8 @@ public class NettyMqttConnection extends BasicIdentifiable
 	}
 
 	@Override
-	public synchronized Future<MqttConnectReturnCode> open() throws IOException {
-		if ( connectFuture != null ) {
-			return connectFuture;
-		}
-		if ( client != null ) {
-			return CompletableFuture.completedFuture(null);
-		}
-		CompletableFuture<MqttConnectReturnCode> f = new CompletableFuture<>();
-		this.connectFuture = f;
-		scheduler.schedule(new ConnectScheduledTask(), new Date(System.currentTimeMillis() + 200L));
-		return f;
+	protected Runnable createConnectScheduledTask(CompletableFuture<MqttConnectReturnCode> future) {
+		return new ConnectScheduledTask(future);
 	}
 
 	private MqttClientConfig createClientConfig(final MqttConnectionConfig connConfig) {
@@ -426,31 +317,6 @@ public class NettyMqttConnection extends BasicIdentifiable
 		}
 	}
 
-	@Override
-	public void close() throws IOException {
-		MqttClient c;
-		synchronized ( this ) {
-			c = this.client;
-			closed = true;
-		}
-		if ( c != null ) {
-			URI serverUri = null;
-			try {
-				serverUri = client.getServerUri();
-			} catch ( RuntimeException e ) {
-				serverUri = connectionConfig.getServerUri();
-			}
-			try {
-				closeConnection().get(connectionConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS);
-			} catch ( ExecutionException e ) {
-				log.warn("Error closing connection to MQTT server {}", serverUri);
-				throw new IOException("Error closing connection to MQTT server " + serverUri, e);
-			} catch ( TimeoutException | InterruptedException e ) {
-				log.warn("Timeout closing connection to MQTT server {}", serverUri);
-			}
-		}
-	}
-
 	private Future<?> closeClient(final MqttClient c) {
 		CompletableFuture<Void> result = new CompletableFuture<>();
 		executor.execute(new Runnable() {
@@ -473,7 +339,8 @@ public class NettyMqttConnection extends BasicIdentifiable
 		return result;
 	}
 
-	private synchronized Future<?> closeConnection() {
+	@Override
+	protected synchronized Future<?> closeConnection() {
 		final MqttClient c = this.client;
 		if ( c != null ) {
 			try {
@@ -514,28 +381,19 @@ public class NettyMqttConnection extends BasicIdentifiable
 
 	@Override
 	public boolean isEstablished() {
-		final MqttClient client;
+		final MqttClient c;
 		synchronized ( this ) {
-			if ( closed ) {
+			if ( isClosed() ) {
 				return false;
 			}
-			client = client();
+			c = this.client;
 		}
-		if ( client == null ) {
+		if ( c == null ) {
 			return false;
 		}
-		synchronized ( client ) {
-			return client.isConnected();
+		synchronized ( c ) {
+			return c.isConnected();
 		}
-	}
-
-	@Override
-	public synchronized boolean isClosed() {
-		return closed;
-	}
-
-	private MqttClient client() {
-		return client;
 	}
 
 	@Override
@@ -645,58 +503,9 @@ public class NettyMqttConnection extends BasicIdentifiable
 		return c.off(topic, handler != null ? new StatsMessageHandler(handler) : this);
 	}
 
-	@Override
-	public void setMessageHandler(MqttMessageHandler handler) {
-		this.messageHandler = handler;
-	}
-
-	@Override
-	public void setConnectionObserver(MqttConnectionObserver observer) {
-		this.connectionObserver = observer;
-	}
-
-	/*---------------------
-	 * Ping test support
-	 *------------------ */
-
-	@Override
-	public String getPingTestId() {
-		return getClass().getName() + "-" + getUid();
-	}
-
-	@Override
-	public String getPingTestName() {
-		return "MQTT Service";
-	}
-
-	@Override
-	public long getPingTestMaximumExecutionMilliseconds() {
-		return 10000;
-	}
-
-	@Override
-	public PingTest.Result performPingTest() throws Exception {
-		boolean healthy = isEstablished();
-		URI serverUri = connectionConfig.getServerUri();
-		String msg = (healthy ? "Connected to " + serverUri
-				: client != null ? "Not connected" : "No client available");
-		Map<String, Object> props = Collections.singletonMap("serverUri", serverUri);
-		PingTestResult result = new PingTestResult(healthy, msg, props);
-		return result;
-	}
-
 	/*---------------------
 	 * Accessors
 	 *------------------ */
-
-	/**
-	 * Get the connection configuration.
-	 * 
-	 * @return the configuration, never {@literal null}
-	 */
-	public BasicMqttConnectionConfig getConnectionConfig() {
-		return connectionConfig;
-	}
 
 	/**
 	 * Get the IO thread count.
