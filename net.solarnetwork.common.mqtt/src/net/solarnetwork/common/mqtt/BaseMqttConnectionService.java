@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,12 +91,45 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	 * @return a future that completes when the connection has been established
 	 */
 	public synchronized Future<?> startup() {
-		this.connection = connectionFactory.createConnection(mqttConfig, mqttStats);
+		if ( connection != null ) {
+			return CompletableFuture.completedFuture(null);
+		}
+		connection = connectionFactory.createConnection(mqttConfig, mqttStats);
+		if ( connection == null ) {
+			CompletableFuture<Void> f = new CompletableFuture<>();
+			f.completeExceptionally(
+					new RuntimeException("Failed to obtain MQTT connection from factory."));
+			return f;
+		}
 		try {
-			return this.connection.open();
+			return connection.open();
 		} catch ( IOException e ) {
 			throw new RuntimeException("Error opening MQTT connection to " + mqttConfig.getServerUri(),
 					e);
+		}
+	}
+
+	/**
+	 * Callback to configure newly created MQTT connections.
+	 * 
+	 * <p>
+	 * Extending classes can override this to do things like register as a
+	 * message handler or connection observer. This implementation will
+	 * automatically configure this object as the connection observer if it
+	 * implements {@link MqttConnectionObserver}. It will also automatically
+	 * configure this object as the message handler if it implements
+	 * {@Link MqttMessageHandler}.
+	 * </p>
+	 * 
+	 * @param conn
+	 *        the connection
+	 */
+	protected void connectionCreated(MqttConnection conn) {
+		if ( this instanceof MqttConnectionObserver ) {
+			conn.setConnectionObserver((MqttConnectionObserver) this);
+		}
+		if ( this instanceof MqttMessageHandler ) {
+			conn.setMessageHandler((MqttMessageHandler) this);
 		}
 	}
 
