@@ -195,7 +195,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 					if ( t != null ) {
 						connectFuture.completeExceptionally(t);
 					} else {
-						if ( connectionConfig.isReconnect() ) {
+						if ( client != null && connectionConfig.isReconnect() ) {
 							client.getClientConfig().setReconnect(true);
 						}
 						MqttConnectReturnCode code = result != null ? returnCode(result.getReturnCode())
