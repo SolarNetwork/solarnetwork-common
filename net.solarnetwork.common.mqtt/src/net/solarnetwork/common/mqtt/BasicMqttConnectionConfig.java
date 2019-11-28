@@ -153,6 +153,16 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	}
 
 	/**
+	 * Get the MQTT broker URI to connect to, as a string.
+	 * 
+	 * @return the URI value, or {@literal null} if one has not been set
+	 */
+	public String getServerUriValue() {
+		URI uri = getServerUri();
+		return (uri != null ? uri.toString() : null);
+	}
+
+	/**
 	 * Set the MQTT broker URI to connect to, as a string.
 	 * 
 	 * @param serverUri
