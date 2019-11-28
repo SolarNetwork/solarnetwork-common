@@ -53,6 +53,7 @@ import net.solarnetwork.common.mqtt.MqttMessage;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
 import net.solarnetwork.common.mqtt.MqttQos;
 import net.solarnetwork.common.mqtt.MqttStats;
+import net.solarnetwork.common.mqtt.netty.client.ChannelClosedException;
 import net.solarnetwork.common.mqtt.netty.client.MqttClient;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientCallback;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientConfig;
@@ -374,7 +375,8 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 	@Override
 	public void connectionLost(Throwable cause) {
-		String msg = (cause != null ? cause.toString() : "unknown cause");
+		String msg = (cause instanceof ChannelClosedException ? "closed"
+				: cause != null ? cause.toString() : "unknown cause");
 		log.warn("Connection lost to MQTT server {}: {}", connectionConfig.getServerUri(), msg);
 		MqttStats s = connectionConfig.getStats();
 		if ( s != null ) {
