@@ -120,8 +120,11 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 		@Override
 		public void run() {
-			if ( isClosed() ) {
-				return;
+			synchronized ( NettyMqttConnection.this ) {
+				if ( isClosed() || connectFuture != connectFuture() ) {
+					connectFuture.completeExceptionally(new RuntimeException("Connect cancelled."));
+					return;
+				}
 			}
 			if ( reconnectDelay < connectionConfig.getReconnectDelaySeconds() * 30000L ) {
 				int step = (Math.max(1, connectionConfig.getReconnectDelaySeconds() / 2));
