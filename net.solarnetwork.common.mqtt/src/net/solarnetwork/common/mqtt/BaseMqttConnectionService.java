@@ -143,6 +143,8 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 			} catch ( IOException e ) {
 				log.warn("Error closing MQTT connection to {}: {}", mqttConfig.getServerUri(),
 						e.toString());
+			} finally {
+				connection = null;
 			}
 		}
 	}
