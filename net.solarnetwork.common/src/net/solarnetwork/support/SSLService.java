@@ -22,22 +22,51 @@
 
 package net.solarnetwork.support;
 
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 
 /**
  * API for SSL supporting functions.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface SSLService {
 
 	/**
-	 * Get a {@code SSLSocketFactory} configured appropriately for the
-	 * application. This method may return a singleton object.
+	 * Get a SSL socket factory, configured appropriately for the application.
+	 * 
+	 * <p>
+	 * This method <i>may</i> return a singleton object.
+	 * </p>
 	 * 
 	 * @return the factory
 	 */
 	SSLSocketFactory getSSLSocketFactory();
 
+	/**
+	 * Get a trust manager factory, configured appropriately for the
+	 * application.
+	 * 
+	 * <p>
+	 * This method <i>may</i> return a singleton object.
+	 * </p>
+	 * 
+	 * @return the factory
+	 * @since 1.1
+	 */
+	TrustManagerFactory getTrustManagerFactory();
+
+	/**
+	 * Get a key manager factory, configured appropriately for the application.
+	 * 
+	 * <p>
+	 * This method <i>may</i> return a singleton object.
+	 * </p>
+	 * 
+	 * @return the factory
+	 * @since 1.1
+	 */
+	KeyManagerFactory getKeyManagerFactory();
 }
