@@ -23,10 +23,26 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.mqtt.MqttQoS;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.Future;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
 
 public interface MqttClient {
+
+	/**
+	 * Toggle wire-level logging support.
+	 * 
+	 * <p>
+	 * If enabled, then when connections are opened they will include logging
+	 * support under a logger prefix {@literal net.solarnetwork.mqtt.} followed
+	 * by {@literal host:port}.
+	 * </p>
+	 * 
+	 * @param wireLogging
+	 *        {@literal true} to add a {@link LoggingHandler} to the channel
+	 *        pipeline when it is initiailzed
+	 */
+	void setWireLogging(boolean wireLogging);
 
 	/**
 	 * Connect to the specified hostname/ip. By default uses port 1883. If you

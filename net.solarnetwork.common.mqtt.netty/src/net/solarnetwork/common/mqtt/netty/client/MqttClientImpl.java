@@ -56,6 +56,7 @@ import io.netty.handler.codec.mqtt.MqttSubscribePayload;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubscribePayload;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.collection.IntObjectHashMap;
@@ -90,6 +91,7 @@ final class MqttClientImpl implements MqttClient {
 
 	private volatile boolean disconnected = false;
 	private volatile boolean reconnect = false;
+	private boolean wireLogging = false;
 	private String host;
 	private int port;
 	private MqttClientCallback callback;
@@ -677,7 +679,9 @@ final class MqttClientImpl implements MqttClient {
 			if ( sslContext != null ) {
 				ch.pipeline().addLast(sslContext.newHandler(ch.alloc(), host, port));
 			}
-
+			if ( wireLogging ) {
+				ch.pipeline().addLast(new LoggingHandler("net.solarnetwork.mqtt." + host + ":" + port));
+			}
 			ch.pipeline().addLast("mqttDecoder", new MqttDecoder(clientConfig.getMaxBytesInMessage()));
 			ch.pipeline().addLast("mqttEncoder", MqttEncoder.INSTANCE);
 			ch.pipeline().addLast("idleStateHandler",
@@ -692,6 +696,11 @@ final class MqttClientImpl implements MqttClient {
 
 	MqttMessageHandler getDefaultHandler() {
 		return defaultHandler;
+	}
+
+	@Override
+	public void setWireLogging(boolean wireLogging) {
+		this.wireLogging = wireLogging;
 	}
 
 }

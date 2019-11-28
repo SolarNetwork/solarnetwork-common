@@ -39,6 +39,7 @@ public class NettyMqttConnectionFactory implements MqttConnectionFactory {
 	private final Executor executor;
 	private final TaskScheduler scheduler;
 	private int ioThreadCount = NettyMqttConnection.DEFAULT_IO_THREAD_COUNT;
+	private boolean wireLogging = NettyMqttConnection.DEFAULT_WIRE_LOGGING;
 
 	/**
 	 * Constructor.
@@ -58,6 +59,7 @@ public class NettyMqttConnectionFactory implements MqttConnectionFactory {
 	public MqttConnection createConnection(MqttConnectionConfig config) {
 		NettyMqttConnection conn = new NettyMqttConnection(executor, scheduler, config);
 		conn.setIoThreadCount(ioThreadCount);
+		conn.setWireLogging(wireLogging);
 		return conn;
 	}
 
@@ -78,6 +80,26 @@ public class NettyMqttConnectionFactory implements MqttConnectionFactory {
 	 */
 	public void setIoThreadCount(int ioThreadCount) {
 		this.ioThreadCount = ioThreadCount;
+	}
+
+	/**
+	 * Get the wire-level logging flag.
+	 * 
+	 * @return {@literal true} to enable wire-level logging support; defaults to
+	 *         {@link NettyMqttConnection#DEFAULT_WIRE_LOGGING}
+	 */
+	public boolean isWireLogging() {
+		return wireLogging;
+	}
+
+	/**
+	 * Set the wire-level logging flag.
+	 * 
+	 * @param wireLogging
+	 *        {@literal true} to enable wire-level logging support
+	 */
+	public void setWireLogging(boolean wireLogging) {
+		this.wireLogging = wireLogging;
 	}
 
 }

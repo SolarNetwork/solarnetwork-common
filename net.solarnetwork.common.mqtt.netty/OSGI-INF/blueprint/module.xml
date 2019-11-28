@@ -16,6 +16,7 @@
 
 	<osgix:cm-properties id="cfg" persistent-id="net.solarnetwork.common.mqtt.netty">
 		<beans:prop key="ioThreadCount">2</beans:prop>
+		<beans:prop key="wireLogging">false</beans:prop>
 	</osgix:cm-properties>
 
 	<ctx:property-placeholder properties-ref="cfg"/>
@@ -28,6 +29,7 @@
 			<argument ref="executor"/>
 			<argument ref="scheduler"/>
 			<property name="ioThreadCount" value="${ioThreadCount}"/>
+			<property name="wireLogging" value="${wireLogging}"/>
 		</bean>
 	</service>
 		

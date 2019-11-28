@@ -73,7 +73,11 @@ public class NettyMqttConnection extends BaseMqttConnection
 	/** The {@code ioThreadCount} property default value. */
 	public static final int DEFAULT_IO_THREAD_COUNT = 2;
 
+	/** The {@code wireLogging} property default value. */
+	public static final boolean DEFAULT_WIRE_LOGGING = false;
+
 	private int ioThreadCount = DEFAULT_IO_THREAD_COUNT;
+	private boolean wireLogging = DEFAULT_WIRE_LOGGING;
 
 	private volatile MqttClient client;
 
@@ -143,6 +147,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 				MqttClient client = null;
 				try {
 					client = MqttClient.create(config, NettyMqttConnection.this);
+					client.setWireLogging(wireLogging);
 					client.setCallback(NettyMqttConnection.this);
 					client.setEventLoop(new NioEventLoopGroup(ioThreadCount,
 							new CustomizableThreadFactory("MQTT-" + getUid() + "-")));
@@ -573,6 +578,26 @@ public class NettyMqttConnection extends BaseMqttConnection
 			throw new IllegalArgumentException("The ioThreadCount value must be >= 0");
 		}
 		this.ioThreadCount = ioThreadCount;
+	}
+
+	/**
+	 * Get the wire-level logging flag.
+	 * 
+	 * @return {@literal true} to enable wire-level logging support; defaults to
+	 *         {@link NettyMqttConnection#DEFAULT_WIRE_LOGGING}
+	 */
+	public boolean isWireLogging() {
+		return wireLogging;
+	}
+
+	/**
+	 * Set the wire-level logging flag.
+	 * 
+	 * @param wireLogging
+	 *        {@literal true} to enable wire-level logging support
+	 */
+	public void setWireLogging(boolean wireLogging) {
+		this.wireLogging = wireLogging;
 	}
 
 }
