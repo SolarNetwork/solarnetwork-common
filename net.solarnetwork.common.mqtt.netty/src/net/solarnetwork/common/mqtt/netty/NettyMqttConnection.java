@@ -384,8 +384,28 @@ public class NettyMqttConnection extends BaseMqttConnection
 		}
 		MqttConnectionObserver observer = this.connectionObserver;
 		if ( observer != null ) {
-			observer.onMqttServerConnectionLost(this, connectionConfig.isReconnect(), cause);
+			// bump to another thread so MQTT processing not affected by observer execution time
+			executor.execute(new ConnectionLostTask(cause, observer));
 		}
+	}
+
+	private final class ConnectionLostTask implements Runnable {
+
+		private final Throwable cause;
+		private final MqttConnectionObserver observer;
+
+		private ConnectionLostTask(Throwable cause, MqttConnectionObserver observer) {
+			this.cause = cause;
+			;
+			this.observer = observer;
+		}
+
+		@Override
+		public void run() {
+			observer.onMqttServerConnectionLost(NettyMqttConnection.this, connectionConfig.isReconnect(),
+					cause);
+		}
+
 	}
 
 	@Override
@@ -397,8 +417,26 @@ public class NettyMqttConnection extends BaseMqttConnection
 		}
 		MqttConnectionObserver observer = this.connectionObserver;
 		if ( observer != null ) {
-			observer.onMqttServerConnectionEstablisehd(this, true);
+			// bump to another thread so MQTT processing not affected by observer execution time
+			executor.execute(new ConnectionEstablishedTask(true, observer));
 		}
+	}
+
+	private final class ConnectionEstablishedTask implements Runnable {
+
+		private final boolean reconnected;
+		private final MqttConnectionObserver observer;
+
+		private ConnectionEstablishedTask(boolean reconnected, MqttConnectionObserver observer) {
+			this.reconnected = reconnected;
+			this.observer = observer;
+		}
+
+		@Override
+		public void run() {
+			observer.onMqttServerConnectionEstablisehd(NettyMqttConnection.this, reconnected);
+		}
+
 	}
 
 	@Override
@@ -418,7 +456,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 		}
 	}
 
-	private class MessageHandlerTask implements Runnable {
+	private final class MessageHandlerTask implements Runnable {
 
 		private final MqttMessage message;
 		private final MqttMessageHandler handler;
