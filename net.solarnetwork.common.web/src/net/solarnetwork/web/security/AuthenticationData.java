@@ -38,7 +38,7 @@ import org.springframework.security.authentication.BadCredentialsException;
  * in a HTTP authentication header.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.11
  */
 public abstract class AuthenticationData {
@@ -68,13 +68,18 @@ public abstract class AuthenticationData {
 		this.scheme = scheme;
 
 		String dateHeader = WebConstants.HEADER_DATE;
-		long dateValue = request.getDateHeader(dateHeader);
-		if ( dateValue < 0 ) {
-			dateHeader = "Date";
+		long dateValue = 0;
+		try {
 			dateValue = request.getDateHeader(dateHeader);
 			if ( dateValue < 0 ) {
-				throw new BadCredentialsException("Missing or invalid HTTP Date header value");
+				dateHeader = "Date";
+				dateValue = request.getDateHeader(dateHeader);
 			}
+		} catch ( IllegalArgumentException e ) {
+			throw new BadCredentialsException("Invalid HTTP " + dateHeader + " header value");
+		}
+		if ( dateValue < 0 ) {
+			throw new BadCredentialsException("Missing or invalid HTTP Date header value");
 		}
 		this.date = new Date(dateValue);
 		this.dateSkew = Math.abs(System.currentTimeMillis() - date.getTime());
