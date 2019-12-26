@@ -79,7 +79,7 @@ final class MqttClientImpl implements MqttClient {
 	private final IntObjectHashMap<MqttPendingSubscription> pendingSubscriptions = new IntObjectHashMap<>();
 	private final Set<String> pendingSubscribeTopics = new HashSet<>();
 	private final MultiValueMap<MqttMessageHandler, MqttSubscription> handlerToSubscribtion = new LinkedMultiValueMap<>();
-	private final AtomicInteger nextMessageId = new AtomicInteger(1);
+	private final AtomicInteger nextMessageId = new AtomicInteger(0);
 
 	private final MqttClientConfig clientConfig;
 
@@ -559,8 +559,10 @@ final class MqttClientImpl implements MqttClient {
 	}
 
 	private MqttMessageIdVariableHeader getNewMessageId() {
-		this.nextMessageId.compareAndSet(0xffff, 1);
-		return MqttMessageIdVariableHeader.from(this.nextMessageId.getAndIncrement());
+		final int nextId = this.nextMessageId.accumulateAndGet(1, (c, d) -> {
+			return (c < 0xFFFF ? c + 1 : 1);
+		});
+		return MqttMessageIdVariableHeader.from(nextId);
 	}
 
 	private Future<Void> createSubscription(String topic, MqttMessageHandler handler, boolean once,
