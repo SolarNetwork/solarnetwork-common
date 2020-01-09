@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -74,7 +76,8 @@ final class MqttClientImpl implements MqttClient {
 	private final Set<String> serverSubscriptions = new HashSet<>();
 	private final IntObjectHashMap<MqttPendingUnsubscription> pendingServerUnsubscribes = new IntObjectHashMap<>();
 	private final IntObjectHashMap<MqttIncomingQos2Publish> qos2PendingIncomingPublishes = new IntObjectHashMap<>();
-	private final IntObjectHashMap<MqttPendingPublish> pendingPublishes = new IntObjectHashMap<>();
+	private final ConcurrentMap<Integer, MqttPendingPublish> pendingPublishes = new ConcurrentHashMap<>(
+			16, 0.7f, 2);
 	private final MultiValueMap<String, MqttSubscription> subscriptions = new LinkedMultiValueMap<>();
 	private final IntObjectHashMap<MqttPendingSubscription> pendingSubscriptions = new IntObjectHashMap<>();
 	private final Set<String> pendingSubscribeTopics = new HashSet<>();
@@ -653,7 +656,7 @@ final class MqttClientImpl implements MqttClient {
 		return pendingServerUnsubscribes;
 	}
 
-	IntObjectHashMap<MqttPendingPublish> getPendingPublishes() {
+	ConcurrentMap<Integer, MqttPendingPublish> getPendingPublishes() {
 		return pendingPublishes;
 	}
 
