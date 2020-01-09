@@ -24,15 +24,19 @@ package net.solarnetwork.common.mqtt.integration.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -40,6 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import io.moquette.interception.messages.InterceptConnectMessage;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
 import net.solarnetwork.common.mqtt.BasicMqttMessage;
@@ -372,10 +377,81 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		// then
 		TestingInterceptHandler session = getTestingInterceptHandler();
-		assertThat("Connected to broker", session.publishMessages, hasSize(1));
+		assertThat("Published a message", session.publishMessages, hasSize(1));
 
 		String result = session.getPublishPayloadStringAtIndex(0);
 		assertThat("Published message payload", result, equalTo(msg));
+	}
+
+	private void publishConcurrently(final MqttQos qos) throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(false);
+
+		final int numThreads = 4, msgCount = numThreads * 10;
+		ExecutorService executor = Executors.newFixedThreadPool(numThreads,
+				new CustomizableThreadFactory("MQTT-Int-Pub-"));
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final String msg = "Hello, world: %d";
+		final List<Future<?>> publishFutures = new ArrayList<>(msgCount);
+		try {
+			for ( int i = 0; i < msgCount; i++ ) {
+				final int count = i + 1;
+				executor.submit(new Runnable() {
+
+					@Override
+					public void run() {
+						Future<?> f = service.publish(new BasicMqttMessage("foo", false, qos,
+								String.format(msg, count).getBytes(UTF8)));
+						publishFutures.add(f);
+					}
+				});
+			}
+		} finally {
+			executor.shutdown();
+		}
+		executor.awaitTermination(1, TimeUnit.MINUTES);
+
+		final long giveUpAt = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1);
+		while ( !publishFutures.isEmpty() && (System.currentTimeMillis() < giveUpAt) ) {
+			for ( Iterator<Future<?>> itr = publishFutures.iterator(); itr.hasNext(); ) {
+				Future<?> f = itr.next();
+				if ( f.isDone() ) {
+					itr.remove();
+				}
+			}
+			if ( !publishFutures.isEmpty() ) {
+				log.debug("Waiting for {} message publications to complete...", publishFutures.size());
+				Thread.sleep(400L);
+			}
+		}
+
+		stopMqttServer(); // to flush messages
+
+		// then
+		assertThat("All messages completed publishing", publishFutures, hasSize(0));
+
+		TestingInterceptHandler session = getTestingInterceptHandler();
+		assertThat("Published " + msgCount + " messages", session.publishMessages, hasSize(msgCount));
+
+		String result = session.getPublishPayloadStringAtIndex(0);
+		assertThat("Published message payload", result, startsWith("Hello, world: "));
+	}
+
+	@Test
+	public void publishConcurrently_qos1() throws Exception {
+		publishConcurrently(MqttQos.AtLeastOnce);
+	}
+
+	@Test
+	public void publishConcurrently_qos2() throws Exception {
+		publishConcurrently(MqttQos.ExactlyOnce);
 	}
 
 	@Test

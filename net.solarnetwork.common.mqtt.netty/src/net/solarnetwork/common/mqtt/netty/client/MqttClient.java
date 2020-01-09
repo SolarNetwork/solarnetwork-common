@@ -27,6 +27,18 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.Future;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
 
+/**
+ * API for a MQTT client.
+ * 
+ * <p>
+ * Unless otherwise noted, all methods should be implemented in a thread-safe
+ * manner. Callback implementations for asynchronous methods must not make any
+ * assumptions on which thread invokes the callback.
+ * </p>
+ * 
+ * @author matt
+ * @version 1.0
+ */
 public interface MqttClient {
 
 	/**
@@ -40,26 +52,30 @@ public interface MqttClient {
 	 * 
 	 * @param wireLogging
 	 *        {@literal true} to add a {@link LoggingHandler} to the channel
-	 *        pipeline when it is initiailzed
+	 *        pipeline when it is initialized
 	 */
 	void setWireLogging(boolean wireLogging);
 
 	/**
-	 * Connect to the specified hostname/ip. By default uses port 1883. If you
-	 * want to change the port number, see {@link #connect(String, int)}
+	 * Connect to the specified hostname or IP address.
+	 * 
+	 * <p>
+	 * By default uses port 1883. If you want to change the port number, see
+	 * {@link #connect(String, int)}/
+	 * </p>
 	 *
 	 * @param host
-	 *        The ip address or host to connect to
+	 *        The IP address or host to connect to
 	 * @return A future which will be completed when the connection is opened
 	 *         and we received an CONNACK
 	 */
 	Future<MqttConnectResult> connect(String host);
 
 	/**
-	 * Connect to the specified hostname/ip using the specified port
+	 * Connect to the specified hostname or IP address using the specified port.
 	 *
 	 * @param host
-	 *        The ip address or host to connect to
+	 *        The IP address or host to connect to
 	 * @param port
 	 *        The tcp port to connect to
 	 * @return A future which will be completed when the connection is opened
@@ -84,7 +100,7 @@ public interface MqttClient {
 
 	/**
 	 * Attempt reconnect to the host that was attempted with
-	 * {@link #connect(String, int)} method before
+	 * {@link #connect(String, int)} method before.
 	 *
 	 * @return A future which will be completed when the connection is opened
 	 *         and we received an CONNACK
@@ -94,18 +110,22 @@ public interface MqttClient {
 	Future<MqttConnectResult> reconnect();
 
 	/**
-	 * Retrieve the netty {@link EventLoopGroup} we are using
+	 * Retrieve the netty {@link EventLoopGroup} we are using.
 	 * 
 	 * @return The netty {@link EventLoopGroup} we use for the connection
 	 */
 	EventLoopGroup getEventLoop();
 
 	/**
-	 * By default we use the netty {@link NioEventLoopGroup}. If you change the
-	 * EventLoopGroup to another type, make sure to change the {@link Channel}
-	 * class using {@link MqttClientConfig#setChannelClass(Class)} If you want
-	 * to force the MqttClient to use another {@link EventLoopGroup}, call this
-	 * function before calling {@link #connect(String, int)}
+	 * By default we use the Netty {@link NioEventLoopGroup}.
+	 * 
+	 * <p>
+	 * If you change the EventLoopGroup to another type, make sure to change the
+	 * {@link Channel} class using
+	 * {@link MqttClientConfig#setChannelClass(Class)} If you want to force the
+	 * MqttClient to use another {@link EventLoopGroup}, call this function
+	 * before calling {@link #connect(String, int)}.
+	 * </p>
 	 *
 	 * @param eventLoop
 	 *        The new eventloop to use
@@ -113,9 +133,13 @@ public interface MqttClient {
 	void setEventLoop(EventLoopGroup eventLoop);
 
 	/**
-	 * Subscribe on the given topic. When a message is received, MqttClient will
-	 * invoke the {@link MqttMessageHandler#onMessage(String, ByteBuf)} function
-	 * of the given handler
+	 * Subscribe on the given topic.
+	 * 
+	 * <p>
+	 * When a message is received, MqttClient will invoke the
+	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
+	 * given handler.
+	 * </p>
 	 *
 	 * @param topic
 	 *        The topic filter to subscribe to
@@ -127,10 +151,13 @@ public interface MqttClient {
 	Future<Void> on(String topic, MqttMessageHandler handler);
 
 	/**
-	 * Subscribe on the given topic, with the given qos. When a message is
-	 * received, MqttClient will invoke the
+	 * Subscribe on the given topic, with the given QOS.
+	 * 
+	 * <p>
+	 * When a message is received, MqttClient will invoke the
 	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
-	 * given handler
+	 * given handler.
+	 * </p>
 	 *
 	 * @param topic
 	 *        The topic filter to subscribe to
@@ -144,10 +171,14 @@ public interface MqttClient {
 	Future<Void> on(String topic, MqttMessageHandler handler, MqttQoS qos);
 
 	/**
-	 * Subscribe on the given topic. When a message is received, MqttClient will
-	 * invoke the {@link MqttMessageHandler#onMessage(String, ByteBuf)} function
-	 * of the given handler This subscription is only once. If the MqttClient
-	 * has received 1 message, the subscription will be removed
+	 * Subscribe on the given topic.
+	 * 
+	 * <p>
+	 * When a message is received, MqttClient will invoke the
+	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
+	 * given handler. This subscription is only once. If the MqttClient has
+	 * received 1 message, the subscription will be removed.
+	 * </p>
 	 *
 	 * @param topic
 	 *        The topic filter to subscribe to
@@ -159,11 +190,14 @@ public interface MqttClient {
 	Future<Void> once(String topic, MqttMessageHandler handler);
 
 	/**
-	 * Subscribe on the given topic, with the given qos. When a message is
-	 * received, MqttClient will invoke the
+	 * Subscribe on the given topic, with the given QOS.
+	 * 
+	 * <p>
+	 * When a message is received, MqttClient will invoke the
 	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
-	 * given handler This subscription is only once. If the MqttClient has
-	 * received 1 message, the subscription will be removed
+	 * given handler. This subscription is only once. If the MqttClient has
+	 * received 1 message, the subscription will be removed.
+	 * </p>
 	 *
 	 * @param topic
 	 *        The topic filter to subscribe to
@@ -177,9 +211,12 @@ public interface MqttClient {
 	Future<Void> once(String topic, MqttMessageHandler handler, MqttQoS qos);
 
 	/**
-	 * Remove the subscription for the given topic and handler If you want to
-	 * unsubscribe from all handlers known for this topic, use
-	 * {@link #off(String)}
+	 * Remove the subscription for the given topic and handler.
+	 * 
+	 * <p>
+	 * If you want to unsubscribe from all handlers known for this topic, use
+	 * {@link #off(String)}.
+	 * </p>
 	 *
 	 * @param topic
 	 *        The topic to unsubscribe for
@@ -191,9 +228,12 @@ public interface MqttClient {
 	Future<Void> off(String topic, MqttMessageHandler handler);
 
 	/**
-	 * Remove all subscriptions for the given topic. If you want to specify
-	 * which handler to unsubscribe, use
-	 * {@link #off(String, MqttMessageHandler)}
+	 * Remove all subscriptions for the given topic.
+	 * 
+	 * <p>
+	 * If you want to specify which handler to unsubscribe, use
+	 * {@link #off(String, MqttMessageHandler)}.
+	 * </p>
 	 *
 	 * @param topic
 	 *        The topic to unsubscribe for
@@ -203,7 +243,7 @@ public interface MqttClient {
 	Future<Void> off(String topic);
 
 	/**
-	 * Publish a message to the given payload
+	 * Publish a message to the given payload.
 	 * 
 	 * @param topic
 	 *        The topic to publish to
@@ -215,7 +255,7 @@ public interface MqttClient {
 	Future<Void> publish(String topic, ByteBuf payload);
 
 	/**
-	 * Publish a message to the given payload, using the given qos
+	 * Publish a message to the given payload, using the given QOS.
 	 * 
 	 * @param topic
 	 *        The topic to publish to
@@ -229,7 +269,7 @@ public interface MqttClient {
 	Future<Void> publish(String topic, ByteBuf payload, MqttQoS qos);
 
 	/**
-	 * Publish a message to the given payload, using optional retain
+	 * Publish a message to the given payload, using optional retain flag.
 	 * 
 	 * @param topic
 	 *        The topic to publish to
@@ -244,8 +284,8 @@ public interface MqttClient {
 	Future<Void> publish(String topic, ByteBuf payload, boolean retain);
 
 	/**
-	 * Publish a message to the given payload, using the given qos and optional
-	 * retain
+	 * Publish a message to the given payload, using the given QOS and optional
+	 * retain flag.
 	 * 
 	 * @param topic
 	 *        The topic to publish to
@@ -262,15 +302,19 @@ public interface MqttClient {
 	Future<Void> publish(String topic, ByteBuf payload, MqttQoS qos, boolean retain);
 
 	/**
-	 * Retrieve the MqttClient configuration
+	 * Retrieve the MqttClient configuration.
 	 * 
 	 * @return The {@link MqttClientConfig} instance we use
 	 */
 	MqttClientConfig getClientConfig();
 
 	/**
-	 * Construct the MqttClientImpl with additional config. This config can also
-	 * be changed using the {@link #getClientConfig()} function
+	 * Construct the MqttClientImpl with additional config.
+	 * 
+	 * <p>
+	 * This config can also be changed using the {@link #getClientConfig()}
+	 * function.
+	 * </p>
 	 *
 	 * @param config
 	 *        The config object to use while looking for settings
@@ -283,7 +327,7 @@ public interface MqttClient {
 	}
 
 	/**
-	 * Send disconnect and close channel
+	 * Send disconnect and close channel.
 	 *
 	 * @return A future which will be completed when the channel has been
 	 *         closed.
@@ -291,7 +335,7 @@ public interface MqttClient {
 	java.util.concurrent.Future<?> disconnect();
 
 	/**
-	 * Sets the {@see #MqttClientCallback} object for this MqttClient
+	 * Sets the {@see #MqttClientCallback} object for this MqttClient.
 	 * 
 	 * @param callback
 	 *        The callback to be set
