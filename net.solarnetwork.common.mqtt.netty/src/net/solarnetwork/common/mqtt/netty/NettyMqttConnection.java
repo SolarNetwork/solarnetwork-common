@@ -396,7 +396,6 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 		private ConnectionLostTask(Throwable cause, MqttConnectionObserver observer) {
 			this.cause = cause;
-			;
 			this.observer = observer;
 		}
 
