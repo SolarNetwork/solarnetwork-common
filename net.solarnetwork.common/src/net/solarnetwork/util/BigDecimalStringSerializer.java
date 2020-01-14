@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,7 +40,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * Specialized serializer of {@link BigDecimal} to string values.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.37
  */
 public class BigDecimalStringSerializer extends StdSerializer<BigDecimal> {
@@ -92,9 +94,10 @@ public class BigDecimalStringSerializer extends StdSerializer<BigDecimal> {
 	@Override
 	public void serializeWithType(BigDecimal value, JsonGenerator gen, SerializerProvider provider,
 			TypeSerializer typeSer) throws IOException {
-		typeSer.writeTypePrefixForScalar(value, gen);
+		WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+				typeSer.typeId(value, JsonToken.VALUE_STRING));
 		serialize(value, gen, provider);
-		typeSer.writeTypeSuffixForScalar(value, gen);
+		typeSer.writeTypeSuffix(gen, typeIdDef);
 	}
 
 	@Override
