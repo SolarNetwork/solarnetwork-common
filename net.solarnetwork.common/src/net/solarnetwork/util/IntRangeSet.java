@@ -429,6 +429,37 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 	}
 
 	@Override
+	public boolean remove(Object o) {
+		if ( !(o instanceof Integer) ) {
+			return false;
+		}
+		final int v = (Integer) o;
+		for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
+			IntRange r = itr.next();
+			if ( r.contains(v) ) {
+				if ( v == r.getMin() ) {
+					if ( v < r.getMax() ) {
+						// contract range from left
+						itr.set(new IntRange(v + 1, r.getMax()));
+					} else {
+						// remove singleton range
+						itr.remove();
+					}
+				} else if ( v == r.getMax() ) {
+					// contract range from right
+					itr.set(new IntRange(r.getMin(), v - 1));
+				} else {
+					// create hole by splitting range
+					itr.set(new IntRange(r.getMin(), v - 1));
+					ranges.add(itr.nextIndex(), new IntRange(v + 1, r.getMax()));
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public Integer pollFirst() {
 		// TODO Auto-generated method stub
 		return null;

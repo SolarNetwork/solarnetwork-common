@@ -25,6 +25,7 @@ package net.solarnetwork.util.test;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
@@ -1071,4 +1072,90 @@ public class IntRangeSetTests {
 		assertThat("Two ranges ceiling", s.ceiling(4), equalTo(5));
 	}
 
+	@Test
+	public void remove_empty() {
+		IntRangeSet s = new IntRangeSet();
+		boolean result = s.remove(1);
+		assertThat("No change on empty set", result, equalTo(false));
+	}
+
+	@Test
+	public void remove_nonInteger() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		@SuppressWarnings("unlikely-arg-type")
+		boolean result = s.remove("1");
+		assertThat("No change on non-Integer argument", result, equalTo(false));
+	}
+
+	@Test
+	public void remove_singleton_only() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		boolean result = s.remove(1);
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set empty", ranges, hasSize(0));
+	}
+
+	@Test
+	public void remove_singleton_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3));
+		boolean result = s.remove(1);
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(3, 3)));
+	}
+
+	@Test
+	public void remove_singleton_last() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3));
+		boolean result = s.remove(3);
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(1, 1)));
+	}
+
+	@Test
+	public void remove_singleton_middle() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3), new IntRange(5, 5));
+		boolean result = s.remove(3);
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(1, 1), new IntRange(5, 5)));
+	}
+
+	@Test
+	public void remove_oneRange_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		boolean result = s.remove(1);
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(2, 3)));
+	}
+
+	@Test
+	public void remove_oneRange_last() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		boolean result = s.remove(3);
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(1, 2)));
+	}
+
+	@Test
+	public void remove_oneRange_middle() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		boolean result = s.remove(2);
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(1, 1), new IntRange(3, 3)));
+	}
+
+	@Test
+	public void remove_oneRange_middleLarge() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 10));
+		boolean result = s.remove(5);
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(1, 4), new IntRange(6, 10)));
+	}
 }
