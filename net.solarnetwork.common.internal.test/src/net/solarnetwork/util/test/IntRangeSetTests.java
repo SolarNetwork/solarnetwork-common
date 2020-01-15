@@ -808,6 +808,96 @@ public class IntRangeSetTests {
 	}
 
 	@Test
+	public void floor_empty() {
+		IntRangeSet s = new IntRangeSet();
+		assertThat("Empty floor", s.floor(1), nullValue());
+	}
+
+	@Test
+	public void floor_singleton_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton floor", s.floor(1), equalTo(1));
+	}
+
+	@Test
+	public void floor_singleton_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton floor", s.floor(0), nullValue());
+	}
+
+	@Test
+	public void floor_singleton_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton floor", s.floor(2), equalTo(1));
+	}
+
+	@Test
+	public void floor_oneRange_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range floor", s.floor(1), equalTo(1));
+	}
+
+	@Test
+	public void floor_oneRange_last() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range floor", s.floor(3), equalTo(3));
+	}
+
+	@Test
+	public void floor_oneRange_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range floor", s.floor(0), nullValue());
+	}
+
+	@Test
+	public void floor_oneRange_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range floor", s.floor(4), equalTo(3));
+	}
+
+	@Test
+	public void floor_oneRange_within() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range floor", s.floor(2), equalTo(2));
+	}
+
+	@Test
+	public void floor_twoRanges_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges floor", s.floor(1), equalTo(1));
+	}
+
+	@Test
+	public void floor_twoRanges_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges floor", s.floor(0), nullValue());
+	}
+
+	@Test
+	public void floor_twoRanges_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges floor", s.floor(10), equalTo(9));
+	}
+
+	@Test
+	public void floor_twoRanges_within_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges floor", s.floor(2), equalTo(2));
+	}
+
+	@Test
+	public void floor_twoRanges_within_last() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges floor", s.floor(8), equalTo(8));
+	}
+
+	@Test
+	public void floor_twoRanges_between() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges floor", s.floor(4), equalTo(3));
+	}
+
+	@Test
 	public void higher_empty() {
 		IntRangeSet s = new IntRangeSet();
 		assertThat("Empty higher", s.higher(1), nullValue());
@@ -890,4 +980,95 @@ public class IntRangeSetTests {
 		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
 		assertThat("Two ranges higher", s.higher(4), equalTo(5));
 	}
+
+	@Test
+	public void ceiling_empty() {
+		IntRangeSet s = new IntRangeSet();
+		assertThat("Empty ceiling", s.ceiling(1), nullValue());
+	}
+
+	@Test
+	public void ceiling_singleton_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton ceiling", s.ceiling(1), equalTo(1));
+	}
+
+	@Test
+	public void ceiling_singleton_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton ceiling", s.ceiling(0), equalTo(1));
+	}
+
+	@Test
+	public void ceiling_singleton_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton ceiling", s.ceiling(2), nullValue());
+	}
+
+	@Test
+	public void ceiling_oneRange_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range ceiling", s.ceiling(1), equalTo(1));
+	}
+
+	@Test
+	public void ceiling_oneRange_last() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range ceiling", s.ceiling(3), equalTo(3));
+	}
+
+	@Test
+	public void ceiling_oneRange_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range ceiling", s.ceiling(0), equalTo(1));
+	}
+
+	@Test
+	public void ceiling_oneRange_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range ceiling", s.ceiling(4), nullValue());
+	}
+
+	@Test
+	public void ceiling_oneRange_within() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range ceiling", s.ceiling(2), equalTo(2));
+	}
+
+	@Test
+	public void ceiling_twoRanges_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges ceiling", s.ceiling(1), equalTo(1));
+	}
+
+	@Test
+	public void ceiling_twoRanges_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges ceiling", s.ceiling(0), equalTo(1));
+	}
+
+	@Test
+	public void ceiling_twoRanges_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges ceiling", s.ceiling(10), nullValue());
+	}
+
+	@Test
+	public void ceiling_twoRanges_within_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges ceiling", s.ceiling(2), equalTo(2));
+	}
+
+	@Test
+	public void ceiling_twoRanges_within_last() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges ceiling", s.ceiling(8), equalTo(8));
+	}
+
+	@Test
+	public void ceiling_twoRanges_between() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges ceiling", s.ceiling(4), equalTo(5));
+	}
+
 }

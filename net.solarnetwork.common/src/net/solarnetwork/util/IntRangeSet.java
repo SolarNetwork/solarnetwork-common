@@ -356,13 +356,50 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 
 	@Override
 	public Integer floor(Integer e) {
-		// TODO Auto-generated method stub
+		final int v = e;
+		for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
+			IntRange r = itr.next();
+			if ( r.contains(v) ) {
+				// current range contains e, so return e
+				return v;
+			} else if ( r.getMin() > v ) {
+				if ( itr.previousIndex() > 0 ) {
+					// current range starts _after_ e, so return previous range max 
+					return ranges.get(itr.previousIndex() - 1).getMax();
+				} else {
+					// no lower element
+					break;
+				}
+			} else if ( r.getMax() < v && !itr.hasNext() ) {
+				// last element's max is lower than e, return that
+				return r.getMax();
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public Integer ceiling(Integer e) {
-		// TODO Auto-generated method stub
+		final int v = e;
+		final int len = ranges.size();
+		for ( ListIterator<IntRange> itr = ranges.listIterator(len); itr.hasPrevious(); ) {
+			IntRange r = itr.previous();
+			if ( r.contains(v) ) {
+				// current range contains e, so return e
+				return v;
+			} else if ( r.getMax() < v ) {
+				if ( itr.nextIndex() + 1 < len ) {
+					// current range ends _before_ e, so return next range min 
+					return ranges.get(itr.nextIndex() + 1).getMin();
+				} else {
+					// no higher element
+					break;
+				}
+			} else if ( r.getMin() > v && !itr.hasPrevious() ) {
+				// first element's min is higher than e, return that
+				return r.getMin();
+			}
+		}
 		return null;
 	}
 
@@ -374,7 +411,7 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 			IntRange r = itr.previous();
 			if ( r.contains(v) || r.getMax() <= v ) {
 				if ( v < r.getMax() ) {
-					// current range ends _after_ e, so can return e + 1
+					// current range ends _before_ e, so can return e + 1
 					return v + 1;
 				} else if ( itr.nextIndex() + 1 < len ) {
 					// current range ends _on_ or _before_ e, so return next range min 
