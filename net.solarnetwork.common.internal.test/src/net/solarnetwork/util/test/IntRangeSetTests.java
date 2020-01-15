@@ -27,6 +27,7 @@ import static java.util.stream.StreamSupport.stream;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import java.util.Iterator;
 import java.util.List;
@@ -672,6 +673,54 @@ public class IntRangeSetTests {
 		s.clear();
 		assertThat("Ranges removed", stream(s.ranges().spliterator(), false).collect(toList()),
 				hasSize(0));
+	}
+
+	@Test
+	public void first_empty() {
+		IntRangeSet s = new IntRangeSet();
+		assertThat("Empty first", s.first(), nullValue());
+	}
+
+	@Test
+	public void first_singleton() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton first", s.first(), equalTo(1));
+	}
+
+	@Test
+	public void first_oneRange() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range first", s.first(), equalTo(1));
+	}
+
+	@Test
+	public void first_twoRanges() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges first", s.first(), equalTo(1));
+	}
+
+	@Test
+	public void last_empty() {
+		IntRangeSet s = new IntRangeSet();
+		assertThat("Empty last", s.last(), nullValue());
+	}
+
+	@Test
+	public void last_singleton() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton last", s.last(), equalTo(1));
+	}
+
+	@Test
+	public void last_oneRange() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range last", s.last(), equalTo(3));
+	}
+
+	@Test
+	public void last_twoRanges() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges last", s.last(), equalTo(9));
 	}
 
 }
