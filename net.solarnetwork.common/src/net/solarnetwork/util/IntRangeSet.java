@@ -335,20 +335,20 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 		final int v = e;
 		for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
 			IntRange r = itr.next();
-			if ( r.contains(v) ) {
+			if ( r.contains(v) || r.getMin() >= v ) {
 				if ( v > r.getMin() ) {
-					// containing range starts _before_ e, so can return e - 1
+					// current range starts _before_ e, so can return e - 1
 					return v - 1;
-				} else if ( itr.hasPrevious() ) {
-					// containing range starts _on_ e, so return previous range max 
-					return itr.previous().getMax();
+				} else if ( itr.previousIndex() > 0 ) {
+					// current range starts _on_ or _after_ e, so return previous range max 
+					return ranges.get(itr.previousIndex() - 1).getMax();
 				} else {
 					// there is no lower value available
 					break;
 				}
-			} else if ( r.getMin() >= v ) {
-				// e already lower than lowest available value
-				break;
+			} else if ( r.getMax() < v && !itr.hasNext() ) {
+				// last element's max is lower than e, return that
+				return r.getMax();
 			}
 		}
 		return null;
@@ -369,22 +369,23 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 	@Override
 	public Integer higher(Integer e) {
 		final int v = e;
-		for ( ListIterator<IntRange> itr = ranges.listIterator(ranges.size()); itr.hasPrevious(); ) {
+		final int len = ranges.size();
+		for ( ListIterator<IntRange> itr = ranges.listIterator(len); itr.hasPrevious(); ) {
 			IntRange r = itr.previous();
-			if ( r.contains(v) ) {
+			if ( r.contains(v) || r.getMax() <= v ) {
 				if ( v < r.getMax() ) {
-					// containing range ends _after_ e, so can return e + 1
+					// current range ends _after_ e, so can return e + 1
 					return v + 1;
-				} else if ( itr.hasNext() ) {
-					// containing range ends _on_ e, so return next range min 
-					return itr.next().getMin();
+				} else if ( itr.nextIndex() + 1 < len ) {
+					// current range ends _on_ or _before_ e, so return next range min 
+					return ranges.get(itr.nextIndex() + 1).getMin();
 				} else {
 					// there is no higher value available
 					break;
 				}
-			} else if ( r.getMax() <= v ) {
-				// e already higher than highest available value
-				break;
+			} else if ( r.getMin() > v && !itr.hasPrevious() ) {
+				// first element's min is higher than e, return that
+				return r.getMin();
 			}
 		}
 		return null;

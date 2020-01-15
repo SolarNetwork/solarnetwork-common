@@ -723,4 +723,171 @@ public class IntRangeSetTests {
 		assertThat("Two ranges last", s.last(), equalTo(9));
 	}
 
+	@Test
+	public void lower_empty() {
+		IntRangeSet s = new IntRangeSet();
+		assertThat("Empty lower", s.lower(1), nullValue());
+	}
+
+	@Test
+	public void lower_singleton_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton lower", s.lower(1), nullValue());
+	}
+
+	@Test
+	public void lower_singleton_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton lower", s.lower(0), nullValue());
+	}
+
+	@Test
+	public void lower_singleton_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton lower", s.lower(2), equalTo(1));
+	}
+
+	@Test
+	public void lower_oneRange_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range lower", s.lower(1), nullValue());
+	}
+
+	@Test
+	public void lower_oneRange_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range lower", s.lower(0), nullValue());
+	}
+
+	@Test
+	public void lower_oneRange_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range lower", s.lower(4), equalTo(3));
+	}
+
+	@Test
+	public void lower_oneRange_within() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range lower", s.lower(2), equalTo(1));
+	}
+
+	@Test
+	public void lower_twoRanges_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges lower", s.lower(1), nullValue());
+	}
+
+	@Test
+	public void lower_twoRanges_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges lower", s.lower(0), nullValue());
+	}
+
+	@Test
+	public void lower_twoRanges_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges lower", s.lower(10), equalTo(9));
+	}
+
+	@Test
+	public void lower_twoRanges_within_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges lower", s.lower(2), equalTo(1));
+	}
+
+	@Test
+	public void lower_twoRanges_within_last() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges lower", s.lower(8), equalTo(7));
+	}
+
+	@Test
+	public void lower_twoRanges_between() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges lower", s.lower(4), equalTo(3));
+	}
+
+	@Test
+	public void higher_empty() {
+		IntRangeSet s = new IntRangeSet();
+		assertThat("Empty higher", s.higher(1), nullValue());
+	}
+
+	@Test
+	public void higher_singleton_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton higher", s.higher(1), nullValue());
+	}
+
+	@Test
+	public void higher_singleton_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton higher", s.higher(0), equalTo(1));
+	}
+
+	@Test
+	public void higher_singleton_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton higher", s.higher(2), nullValue());
+	}
+
+	@Test
+	public void higher_oneRange_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range higher", s.higher(1), equalTo(2));
+	}
+
+	@Test
+	public void higher_oneRange_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range higher", s.higher(0), equalTo(1));
+	}
+
+	@Test
+	public void higher_oneRange_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range higher", s.higher(4), nullValue());
+	}
+
+	@Test
+	public void higher_oneRange_within() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range higher", s.higher(2), equalTo(3));
+	}
+
+	@Test
+	public void higher_twoRanges_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges higher", s.higher(1), equalTo(2));
+	}
+
+	@Test
+	public void higher_twoRanges_left() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges higher", s.higher(0), equalTo(1));
+	}
+
+	@Test
+	public void higher_twoRanges_right() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges higher", s.higher(10), nullValue());
+	}
+
+	@Test
+	public void higher_twoRanges_within_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges higher", s.higher(2), equalTo(3));
+	}
+
+	@Test
+	public void higher_twoRanges_within_last() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges higher", s.higher(8), equalTo(9));
+	}
+
+	@Test
+	public void higher_twoRanges_between() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges higher", s.higher(4), equalTo(5));
+	}
 }
