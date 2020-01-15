@@ -36,6 +36,13 @@ import java.util.SortedSet;
 /**
  * A {@code Set} implementation based on ordered and disjoint integer ranges.
  * 
+ * <p>
+ * This set is optimized for integer sets where ranges of consecutive integers
+ * are common. Instead of storing individual integer values, it stores an
+ * ordered list of {@link IntRange} objects whose ranges do not overlap. The
+ * {@link #ranges()} method can be used to get the list of ranges.
+ * </p>
+ * 
  * @author matt
  * @version 1.0
  * @since 1.58
@@ -198,20 +205,31 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 	 *         range
 	 */
 	public boolean addRange(final int min, final int max) {
-		final IntRange newRange = new IntRange(min, max);
+		return addRange(new IntRange(min, max));
+	}
+
+	/**
+	 * Add a range of integers, inclusive.
+	 * 
+	 * @param range
+	 *        the range to add
+	 * @return {@literal true} if any changes resulted from adding the given
+	 *         range
+	 */
+	public boolean addRange(IntRange range) {
 		boolean changed = false;
 		if ( ranges.isEmpty() ) {
 			// first range to add
-			ranges.add(newRange);
+			ranges.add(range);
 			changed = true;
 		} else {
 			for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
 				IntRange r = itr.next();
-				if ( r.containsAll(min, max) ) {
+				if ( r.containsAll(range) ) {
 					// already in this set, nothing to do
 					return false;
-				} else if ( r.canMergeWith(newRange) ) {
-					IntRange merged = r.mergeWith(newRange);
+				} else if ( r.canMergeWith(range) ) {
+					IntRange merged = r.mergeWith(range);
 
 					// try to expand right as far as possible
 					while ( itr.hasNext() ) {
@@ -228,21 +246,20 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 					ranges.set(itr.previousIndex(), merged);
 					changed = true;
 					break;
-				} else if ( min < r.getMin() ) {
+				} else if ( range.getMin() < r.getMin() ) {
 					// no overlap, just insert range before curr
-					ranges.add(itr.previousIndex(), newRange);
+					ranges.add(itr.previousIndex(), range);
 					changed = true;
 					break;
 				}
 			}
 			if ( !changed ) {
 				// append to end
-				ranges.add(newRange);
+				ranges.add(range);
 				changed = true;
 			}
 		}
 		return changed;
-
 	}
 
 	@Override
