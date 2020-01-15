@@ -301,6 +301,30 @@ public class IntRangeSetTests {
 	}
 
 	@Test
+	public void size_singleton() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		assertThat("Singleton size", s, hasSize(1));
+	}
+
+	@Test
+	public void size_oneRange() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		assertThat("One range size", s, hasSize(3));
+	}
+
+	@Test
+	public void size_twoRanges() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		assertThat("Two ranges size", s, hasSize(8));
+	}
+
+	@Test
+	public void size_threeRanges() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9), new IntRange(100, 199));
+		assertThat("Two ranges size", s, hasSize(108));
+	}
+
+	@Test
 	public void addRange_initial() {
 		IntRangeSet s = new IntRangeSet();
 		boolean result = s.addRange(1, 2);
