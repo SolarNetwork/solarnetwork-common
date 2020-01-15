@@ -24,10 +24,14 @@ package net.solarnetwork.util.test;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.StreamSupport;
 import org.junit.Test;
 import net.solarnetwork.util.IntRange;
 import net.solarnetwork.util.IntRangeSet;
@@ -599,4 +603,41 @@ public class IntRangeSetTests {
 		assertThat("Ended up with a single range", ranges, hasSize(1));
 		assertThat("First range", ranges.get(0), equalTo(new IntRange(0, 11)));
 	}
+
+	@Test
+	public void construct_withRanges() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 2), new IntRange(4, 5));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Constructed with ranges", ranges, hasSize(2));
+		assertThat("Range 1", ranges.get(0), equalTo(new IntRange(1, 2)));
+		assertThat("Range 2", ranges.get(1), equalTo(new IntRange(4, 5)));
+	}
+
+	@Test
+	public void construct_withRanges_merge() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 2), new IntRange(4, 5), new IntRange(3, 3));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Constructed with ranges merges to single", ranges, hasSize(1));
+		assertThat("Range 1", ranges.get(0), equalTo(new IntRange(1, 5)));
+	}
+
+	@Test
+	public void iterate() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 2), new IntRange(4, 5));
+		Integer[] data = StreamSupport.stream(s.spliterator(), false).toArray(Integer[]::new);
+		assertThat("Iterator size", data.length, equalTo(4));
+		assertThat("Iterator values", data, arrayContaining(1, 2, 4, 5));
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void iterate_beyond() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 2));
+		Iterator<Integer> itr = s.iterator();
+		for ( int i = 0; i < 2; i++ ) {
+			itr.next();
+		}
+		assertThat("No more elements available", itr.hasNext(), equalTo(false));
+		itr.next();
+	}
+
 }

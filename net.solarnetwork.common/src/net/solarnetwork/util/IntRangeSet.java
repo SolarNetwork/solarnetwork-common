@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NavigableSet;
+import java.util.NoSuchElementException;
 import java.util.SortedSet;
 
 /**
@@ -101,6 +102,13 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 		return ranges.toString();
 	}
 
+	/**
+	 * Add an integer to this set.
+	 * 
+	 * {@inheritDoc}
+	 * 
+	 * @see #add(int)
+	 */
 	@Override
 	public boolean add(Integer e) {
 		if ( e == null ) {
@@ -111,6 +119,12 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 
 	/**
 	 * Add a single integer to this set.
+	 * 
+	 * <p>
+	 * This method requires a linear search of all existing discreet ranges to
+	 * maintain ordering and possibly merge the value into an existing range or
+	 * cause two ranges to merge together.
+	 * </p>
 	 * 
 	 * @param v
 	 *        the integer to add
@@ -203,6 +217,7 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 	 *        the last value to add
 	 * @return {@literal true} if any changes resulted from adding the given
 	 *         range
+	 * @see #addRange(IntRange)
 	 */
 	public boolean addRange(final int min, final int max) {
 		return addRange(new IntRange(min, max));
@@ -210,6 +225,12 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 
 	/**
 	 * Add a range of integers, inclusive.
+	 * 
+	 * <p>
+	 * This method requires a linear search of all existing discreet ranges to
+	 * maintain ordering and possibly merge the given range into an existing
+	 * range or cause existing ranges to merge together.
+	 * </p>
 	 * 
 	 * @param range
 	 *        the range to add
@@ -468,8 +489,19 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 
 		@Override
 		public Integer next() {
+			if ( curr == null ) {
+				throw new NoSuchElementException();
+			}
 			int n = next;
 			next++;
+			if ( !curr.contains(next) ) {
+				if ( rangeItr.hasNext() ) {
+					curr = rangeItr.next();
+					next = curr.getMin();
+				} else {
+					curr = null;
+				}
+			}
 			return n;
 		}
 
