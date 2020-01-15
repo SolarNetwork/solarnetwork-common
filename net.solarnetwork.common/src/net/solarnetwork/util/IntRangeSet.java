@@ -301,7 +301,8 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 	 * this set will impact the values in the returned collection.
 	 * </p>
 	 *
-	 * @return the disjoint ranges in this set, ordered from least to greatest
+	 * @return the disjoint ranges in this set, ordered from least to greatest,
+	 *         never {@literal null}
 	 */
 	public Iterable<IntRange> ranges() {
 		return ranges;

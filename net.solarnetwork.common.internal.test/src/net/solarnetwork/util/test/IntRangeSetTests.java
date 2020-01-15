@@ -640,4 +640,14 @@ public class IntRangeSetTests {
 		itr.next();
 	}
 
+	@Test
+	public void clear() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 2), new IntRange(4, 5));
+		assertThat("Ranges present", stream(s.ranges().spliterator(), false).collect(toList()),
+				hasSize(2));
+		s.clear();
+		assertThat("Ranges removed", stream(s.ranges().spliterator(), false).collect(toList()),
+				hasSize(0));
+	}
+
 }
