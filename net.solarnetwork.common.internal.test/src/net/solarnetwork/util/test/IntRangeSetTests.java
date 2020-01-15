@@ -22,6 +22,7 @@
 
 package net.solarnetwork.util.test;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 import static org.hamcrest.Matchers.arrayContaining;
@@ -1158,4 +1159,93 @@ public class IntRangeSetTests {
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Final range set", ranges, contains(new IntRange(1, 4), new IntRange(6, 10)));
 	}
+
+	@Test
+	public void removeAll_empty() {
+		IntRangeSet s = new IntRangeSet();
+		boolean result = s.removeAll(asList(1, 2));
+		assertThat("No change on empty set", result, equalTo(false));
+	}
+
+	@Test
+	public void removeAll_nonInteger() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		@SuppressWarnings("unlikely-arg-type")
+		boolean result = s.removeAll(asList("1", "2"));
+		assertThat("No change on non-Integer argument", result, equalTo(false));
+	}
+
+	@Test
+	public void removeAll_singleton_only() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		boolean result = s.removeAll(asList(1, 2));
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set empty", ranges, hasSize(0));
+	}
+
+	@Test
+	public void removeAll_singleton_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3));
+		boolean result = s.removeAll(asList(1, 2));
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(3, 3)));
+	}
+
+	@Test
+	public void removeAll_singleton_last() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3));
+		boolean result = s.removeAll(asList(3, 4));
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(1, 1)));
+	}
+
+	@Test
+	public void removeAll_singleton_middle() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3), new IntRange(5, 5));
+		boolean result = s.removeAll(asList(2, 3, 4));
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(1, 1), new IntRange(5, 5)));
+	}
+
+	@Test
+	public void removeAll_oneRange_first() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		boolean result = s.removeAll(asList(1, 2));
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(3, 3)));
+	}
+
+	@Test
+	public void removeAll_oneRange_last() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		boolean result = s.removeAll(asList(2, 3));
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(1, 1)));
+	}
+
+	@Test
+	public void removeAll_oneRange_middle() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 5));
+		boolean result = s.removeAll(asList(2, 3));
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(1, 1), new IntRange(4, 5)));
+	}
+
+	@Test
+	public void removeAll_oneRange_middleLarge() {
+		IntRangeSet s = new IntRangeSet(new IntRange(1, 10));
+		boolean result = s.removeAll(asList(2, 4, 5, 8));
+		assertThat("Set mutated", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(new IntRange(1, 1), new IntRange(3, 3),
+				new IntRange(6, 7), new IntRange(9, 10)));
+	}
+
 }

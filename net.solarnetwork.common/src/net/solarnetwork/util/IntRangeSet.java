@@ -460,6 +460,18 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 	}
 
 	@Override
+	public boolean removeAll(Collection<?> c) {
+		if ( c == null ) {
+			return false;
+		}
+		boolean modified = false;
+		for ( Iterator<?> i = c.iterator(); i.hasNext(); ) {
+			modified |= remove(i.next());
+		}
+		return modified;
+	}
+
+	@Override
 	public Integer pollFirst() {
 		// TODO Auto-generated method stub
 		return null;
