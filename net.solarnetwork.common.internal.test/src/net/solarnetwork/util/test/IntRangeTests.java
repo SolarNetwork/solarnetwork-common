@@ -136,6 +136,24 @@ public class IntRangeTests {
 	}
 
 	@Test
+	public void containsAll() {
+		IntRange r = new IntRange(1, 10);
+		assertThat("Contains min singleton", r.containsAll(new IntRange(1, 1)), equalTo(true));
+		assertThat("Contains max singleton", r.containsAll(new IntRange(10, 10)), equalTo(true));
+		assertThat("Contains same", r.containsAll(new IntRange(1, 10)), equalTo(true));
+		assertThat("Contains head", r.containsAll(new IntRange(1, 5)), equalTo(true));
+		assertThat("Contains tail", r.containsAll(new IntRange(5, 10)), equalTo(true));
+		assertThat("Contains middle", r.containsAll(new IntRange(4, 6)), equalTo(true));
+
+		assertThat("Does not contain left", r.containsAll(new IntRange(-1, 0)), equalTo(false));
+		assertThat("Does not contain right", r.containsAll(new IntRange(11, 12)), equalTo(false));
+		assertThat("Does not contain left overlap", r.containsAll(new IntRange(0, 1)), equalTo(false));
+		assertThat("Does not contain right overlap", r.containsAll(new IntRange(10, 11)),
+				equalTo(false));
+		assertThat("Does not contain larger", r.containsAll(new IntRange(0, 11)), equalTo(false));
+	}
+
+	@Test
 	public void adjacent() {
 		IntRange r1 = new IntRange(1, 2);
 		IntRange r2 = new IntRange(3, 4);
@@ -256,4 +274,5 @@ public class IntRangeTests {
 		IntRange r2 = new IntRange(4, 5);
 		r2.mergeWith(r1);
 	}
+
 }

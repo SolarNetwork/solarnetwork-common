@@ -108,12 +108,25 @@ public class IntRange implements Serializable, Comparable<IntRange> {
 	/**
 	 * Test if another range is completely within this range, inclusive.
 	 * 
-	 * @param value
-	 *        the value to test
-	 * @return {@literal true} if {@code min <= value <= max}
+	 * @param min
+	 *        the minimum of the range to test
+	 * @param max
+	 *        the maximum of the range to test
+	 * @return {@literal true} if {@code this.min <= min <= max <= this.max}
 	 */
 	public boolean containsAll(final int min, final int max) {
-		return (min >= this.min && max <= this.max);
+		return (min <= max && min >= this.min && max <= this.max);
+	}
+
+	/**
+	 * Test if another range is completely within this range, inclusive.
+	 * 
+	 * @param o
+	 *        the range to test
+	 * @return {@literal true} if {@code this.min <= o.min <= o.max <= this.max}
+	 */
+	public boolean containsAll(final IntRange o) {
+		return containsAll(o.getMin(), o.getMax());
 	}
 
 	/**
