@@ -48,7 +48,7 @@ import java.util.SortedSet;
  * @version 1.0
  * @since 1.58
  */
-public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<Integer> {
+public final class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<Integer> {
 
 	private final List<IntRange> ranges;
 
