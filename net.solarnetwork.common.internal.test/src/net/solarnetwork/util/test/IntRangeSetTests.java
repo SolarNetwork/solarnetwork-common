@@ -32,6 +32,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -661,6 +662,26 @@ public class IntRangeSetTests {
 	public void iterate_beyond() {
 		IntRangeSet s = new IntRangeSet(rangeOf(1, 2));
 		Iterator<Integer> itr = s.iterator();
+		for ( int i = 0; i < 2; i++ ) {
+			itr.next();
+		}
+		assertThat("No more elements available", itr.hasNext(), equalTo(false));
+		itr.next();
+	}
+
+	@Test
+	public void iterateReverse() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
+		List<Integer> data = new ArrayList<Integer>(4);
+		s.descendingIterator().forEachRemaining(data::add);
+		assertThat("Iterator size", data.size(), equalTo(4));
+		assertThat("Iterator values", data, contains(5, 4, 2, 1));
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void iterateReverse_beyond() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2));
+		Iterator<Integer> itr = s.descendingIterator();
 		for ( int i = 0; i < 2; i++ ) {
 			itr.next();
 		}

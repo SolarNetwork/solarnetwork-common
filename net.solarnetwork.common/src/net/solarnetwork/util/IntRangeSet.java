@@ -512,8 +512,7 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 
 	@Override
 	public Iterator<Integer> descendingIterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return new IntegerReverseIterator();
 	}
 
 	@Override
@@ -601,6 +600,63 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 				if ( rangeItr.hasNext() ) {
 					curr = rangeItr.next();
 					next = curr.getMin();
+				} else {
+					curr = null;
+				}
+			}
+			return n;
+		}
+
+	}
+
+	private class IntegerReverseIterator implements Iterator<Integer> {
+
+		private final ListIterator<IntRange> rangeItr;
+		private IntRange curr;
+		private int next;
+
+		private IntegerReverseIterator() {
+			super();
+			rangeItr = ranges.listIterator(ranges.size());
+			if ( rangeItr.hasPrevious() ) {
+				curr = rangeItr.previous();
+				next = curr.getMax();
+			} else {
+				curr = null;
+			}
+		}
+
+		private IntegerReverseIterator(int min, int max) {
+			super();
+			rangeItr = ranges.listIterator(ranges.size());
+			next = min;
+			while ( rangeItr.hasPrevious() ) {
+				curr = rangeItr.previous();
+				if ( curr.contains(max) ) {
+					break;
+				}
+			}
+			if ( !curr.contains(max) ) {
+				curr = null;
+			}
+		}
+
+		@Override
+		public boolean hasNext() {
+			return (curr != null && (next >= curr.getMin() || rangeItr.hasPrevious()));
+		}
+
+		@Override
+		public Integer next() {
+			if ( curr == null ) {
+				throw new NoSuchElementException();
+			}
+			int n = next;
+			next--;
+			if ( !curr.contains(next) ) {
+				if ( rangeItr.hasPrevious() ) {
+					curr = rangeItr.previous();
+					next = curr.getMax();
 				} else {
 					curr = null;
 				}
