@@ -25,6 +25,7 @@ package net.solarnetwork.util.test;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
+import static net.solarnetwork.util.IntRange.rangeOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -55,7 +56,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton range added", ranges, hasSize(1));
-		assertThat("Added range", ranges.get(0), equalTo(new IntRange(1, 1)));
+		assertThat("Added range", ranges.get(0), equalTo(rangeOf(1)));
 	}
 
 	@Test
@@ -68,8 +69,8 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(2));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(1, 1)));
-		assertThat("Added range 2", ranges.get(1), equalTo(new IntRange(10, 10)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1)));
+		assertThat("Added range 2", ranges.get(1), equalTo(rangeOf(10, 10)));
 	}
 
 	@Test
@@ -82,8 +83,8 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(2));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(1, 1)));
-		assertThat("Added range 2", ranges.get(1), equalTo(new IntRange(10, 10)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1)));
+		assertThat("Added range 2", ranges.get(1), equalTo(rangeOf(10, 10)));
 	}
 
 	@Test
@@ -98,9 +99,9 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(3));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(1, 1)));
-		assertThat("Added range 2", ranges.get(1), equalTo(new IntRange(10, 10)));
-		assertThat("Added range 3", ranges.get(2), equalTo(new IntRange(20, 20)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1)));
+		assertThat("Added range 2", ranges.get(1), equalTo(rangeOf(10, 10)));
+		assertThat("Added range 3", ranges.get(2), equalTo(rangeOf(20, 20)));
 	}
 
 	@Test
@@ -115,9 +116,9 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(3));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(1, 1)));
-		assertThat("Added range 2", ranges.get(1), equalTo(new IntRange(10, 10)));
-		assertThat("Added range 3", ranges.get(2), equalTo(new IntRange(20, 20)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1)));
+		assertThat("Added range 2", ranges.get(1), equalTo(rangeOf(10, 10)));
+		assertThat("Added range 3", ranges.get(2), equalTo(rangeOf(20, 20)));
 	}
 
 	@Test
@@ -139,7 +140,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with a single range", ranges, hasSize(1));
-		assertThat("Final range", ranges.get(0), equalTo(new IntRange(1, 5)));
+		assertThat("Final range", ranges.get(0), equalTo(rangeOf(1, 5)));
 	}
 
 	@Test
@@ -161,8 +162,8 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with two ranges", ranges, hasSize(2));
-		assertThat("First range unchanged", ranges.get(0), equalTo(new IntRange(1, 2)));
-		assertThat("Last range expanded left", ranges.get(1), equalTo(new IntRange(8, 10)));
+		assertThat("First range unchanged", ranges.get(0), equalTo(rangeOf(1, 2)));
+		assertThat("Last range expanded left", ranges.get(1), equalTo(rangeOf(8, 10)));
 	}
 
 	@Test
@@ -184,8 +185,8 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with two ranges", ranges, hasSize(2));
-		assertThat("First range unchanged", ranges.get(0), equalTo(new IntRange(0, 2)));
-		assertThat("Last range expanded left", ranges.get(1), equalTo(new IntRange(9, 10)));
+		assertThat("First range unchanged", ranges.get(0), equalTo(rangeOf(0, 2)));
+		assertThat("Last range expanded left", ranges.get(1), equalTo(rangeOf(9, 10)));
 	}
 
 	@Test
@@ -207,8 +208,8 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with two ranges", ranges, hasSize(2));
-		assertThat("First range unchanged", ranges.get(0), equalTo(new IntRange(1, 3)));
-		assertThat("Last range expanded left", ranges.get(1), equalTo(new IntRange(9, 10)));
+		assertThat("First range unchanged", ranges.get(0), equalTo(rangeOf(1, 3)));
+		assertThat("Last range expanded left", ranges.get(1), equalTo(rangeOf(9, 10)));
 	}
 
 	@Test
@@ -230,8 +231,8 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with two ranges", ranges, hasSize(2));
-		assertThat("First range unchanged", ranges.get(0), equalTo(new IntRange(1, 2)));
-		assertThat("Last range expanded left", ranges.get(1), equalTo(new IntRange(9, 11)));
+		assertThat("First range unchanged", ranges.get(0), equalTo(rangeOf(1, 2)));
+		assertThat("Last range expanded left", ranges.get(1), equalTo(rangeOf(9, 11)));
 	}
 
 	@Test
@@ -253,9 +254,9 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with two ranges", ranges, hasSize(3));
-		assertThat("First range unchanged", ranges.get(0), equalTo(new IntRange(1, 2)));
-		assertThat("First range unchanged", ranges.get(1), equalTo(new IntRange(5, 5)));
-		assertThat("Last range expanded left", ranges.get(2), equalTo(new IntRange(9, 10)));
+		assertThat("First range unchanged", ranges.get(0), equalTo(rangeOf(1, 2)));
+		assertThat("First range unchanged", ranges.get(1), equalTo(rangeOf(5)));
+		assertThat("Last range expanded left", ranges.get(2), equalTo(rangeOf(9, 10)));
 	}
 
 	@Test
@@ -268,7 +269,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(1));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(1, 1)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1)));
 	}
 
 	@Test
@@ -281,7 +282,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(1));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(0, 1)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(0, 1)));
 	}
 
 	@Test
@@ -294,7 +295,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(1));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(1, 2)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1, 2)));
 	}
 
 	@Test
@@ -305,25 +306,25 @@ public class IntRangeSetTests {
 
 	@Test
 	public void size_singleton() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton size", s, hasSize(1));
 	}
 
 	@Test
 	public void size_oneRange() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range size", s, hasSize(3));
 	}
 
 	@Test
 	public void size_twoRanges() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges size", s, hasSize(8));
 	}
 
 	@Test
 	public void size_threeRanges() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9), new IntRange(100, 199));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9), rangeOf(100, 199));
 		assertThat("Two ranges size", s, hasSize(108));
 	}
 
@@ -334,7 +335,7 @@ public class IntRangeSetTests {
 		assertThat("Set changed from 1st mutation", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(1));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(1, 2)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1, 2)));
 	}
 
 	@Test
@@ -348,8 +349,8 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(2));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(1, 2)));
-		assertThat("Added range 2", ranges.get(1), equalTo(new IntRange(9, 10)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1, 2)));
+		assertThat("Added range 2", ranges.get(1), equalTo(rangeOf(9, 10)));
 	}
 
 	@Test
@@ -363,7 +364,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ranges merged", ranges, hasSize(1));
-		assertThat("Expanded right to range", ranges.get(0), equalTo(new IntRange(1, 4)));
+		assertThat("Expanded right to range", ranges.get(0), equalTo(rangeOf(1, 4)));
 	}
 
 	@Test
@@ -377,7 +378,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ranges merged", ranges, hasSize(1));
-		assertThat("Expanded right to range", ranges.get(0), equalTo(new IntRange(1, 4)));
+		assertThat("Expanded right to range", ranges.get(0), equalTo(rangeOf(1, 4)));
 	}
 
 	@Test
@@ -391,7 +392,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ranges merged", ranges, hasSize(1));
-		assertThat("Expanded left to range", ranges.get(0), equalTo(new IntRange(1, 4)));
+		assertThat("Expanded left to range", ranges.get(0), equalTo(rangeOf(1, 4)));
 	}
 
 	@Test
@@ -405,7 +406,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ranges merged", ranges, hasSize(1));
-		assertThat("Expanded left to range", ranges.get(0), equalTo(new IntRange(1, 4)));
+		assertThat("Expanded left to range", ranges.get(0), equalTo(rangeOf(1, 4)));
 	}
 
 	@Test
@@ -419,8 +420,8 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(2));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(1, 2)));
-		assertThat("Added range 2", ranges.get(1), equalTo(new IntRange(9, 10)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1, 2)));
+		assertThat("Added range 2", ranges.get(1), equalTo(rangeOf(9, 10)));
 	}
 
 	@Test
@@ -437,9 +438,9 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(3));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(1, 2)));
-		assertThat("Added range 2", ranges.get(1), equalTo(new IntRange(4, 5)));
-		assertThat("Added range 2", ranges.get(2), equalTo(new IntRange(9, 10)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1, 2)));
+		assertThat("Added range 2", ranges.get(1), equalTo(rangeOf(4, 5)));
+		assertThat("Added range 2", ranges.get(2), equalTo(rangeOf(9, 10)));
 	}
 
 	@Test
@@ -453,7 +454,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Initial range only", ranges, hasSize(1));
-		assertThat("Added range 1", ranges.get(0), equalTo(new IntRange(1, 3)));
+		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1, 3)));
 	}
 
 	@Test
@@ -471,7 +472,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with a single range", ranges, hasSize(1));
-		assertThat("Final range", ranges.get(0), equalTo(new IntRange(1, 6)));
+		assertThat("Final range", ranges.get(0), equalTo(rangeOf(1, 6)));
 	}
 
 	@Test
@@ -489,7 +490,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with a single range", ranges, hasSize(1));
-		assertThat("Final range", ranges.get(0), equalTo(new IntRange(1, 6)));
+		assertThat("Final range", ranges.get(0), equalTo(rangeOf(1, 6)));
 	}
 
 	@Test
@@ -507,7 +508,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with a single range", ranges, hasSize(1));
-		assertThat("Final range", ranges.get(0), equalTo(new IntRange(1, 6)));
+		assertThat("Final range", ranges.get(0), equalTo(rangeOf(1, 6)));
 	}
 
 	@Test
@@ -525,7 +526,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with a single range", ranges, hasSize(1));
-		assertThat("Final range", ranges.get(0), equalTo(new IntRange(1, 6)));
+		assertThat("Final range", ranges.get(0), equalTo(rangeOf(1, 6)));
 	}
 
 	@Test
@@ -545,7 +546,7 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with a single range", ranges, hasSize(1));
-		assertThat("Final range", ranges.get(0), equalTo(new IntRange(1, 10)));
+		assertThat("Final range", ranges.get(0), equalTo(rangeOf(1, 10)));
 	}
 
 	@Test
@@ -565,8 +566,8 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with merged ranges", ranges, hasSize(2));
-		assertThat("First range", ranges.get(0), equalTo(new IntRange(0, 7)));
-		assertThat("Last range", ranges.get(1), equalTo(new IntRange(9, 10)));
+		assertThat("First range", ranges.get(0), equalTo(rangeOf(0, 7)));
+		assertThat("Last range", ranges.get(1), equalTo(rangeOf(9, 10)));
 	}
 
 	@Test
@@ -586,8 +587,8 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with merged ranges", ranges, hasSize(2));
-		assertThat("First range", ranges.get(0), equalTo(new IntRange(1, 2)));
-		assertThat("Last range", ranges.get(1), equalTo(new IntRange(4, 11)));
+		assertThat("First range", ranges.get(0), equalTo(rangeOf(1, 2)));
+		assertThat("Last range", ranges.get(1), equalTo(rangeOf(4, 11)));
 	}
 
 	@Test
@@ -607,8 +608,8 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with merged ranges", ranges, hasSize(2));
-		assertThat("First range", ranges.get(0), equalTo(new IntRange(1, 2)));
-		assertThat("Last range", ranges.get(1), equalTo(new IntRange(4, 11)));
+		assertThat("First range", ranges.get(0), equalTo(rangeOf(1, 2)));
+		assertThat("Last range", ranges.get(1), equalTo(rangeOf(4, 11)));
 	}
 
 	@Test
@@ -628,29 +629,29 @@ public class IntRangeSetTests {
 
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ended up with a single range", ranges, hasSize(1));
-		assertThat("First range", ranges.get(0), equalTo(new IntRange(0, 11)));
+		assertThat("First range", ranges.get(0), equalTo(rangeOf(0, 11)));
 	}
 
 	@Test
 	public void construct_withRanges() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 2), new IntRange(4, 5));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Constructed with ranges", ranges, hasSize(2));
-		assertThat("Range 1", ranges.get(0), equalTo(new IntRange(1, 2)));
-		assertThat("Range 2", ranges.get(1), equalTo(new IntRange(4, 5)));
+		assertThat("Range 1", ranges.get(0), equalTo(rangeOf(1, 2)));
+		assertThat("Range 2", ranges.get(1), equalTo(rangeOf(4, 5)));
 	}
 
 	@Test
 	public void construct_withRanges_merge() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 2), new IntRange(4, 5), new IntRange(3, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5), rangeOf(3));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Constructed with ranges merges to single", ranges, hasSize(1));
-		assertThat("Range 1", ranges.get(0), equalTo(new IntRange(1, 5)));
+		assertThat("Range 1", ranges.get(0), equalTo(rangeOf(1, 5)));
 	}
 
 	@Test
 	public void iterate() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 2), new IntRange(4, 5));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
 		Integer[] data = StreamSupport.stream(s.spliterator(), false).toArray(Integer[]::new);
 		assertThat("Iterator size", data.length, equalTo(4));
 		assertThat("Iterator values", data, arrayContaining(1, 2, 4, 5));
@@ -658,7 +659,7 @@ public class IntRangeSetTests {
 
 	@Test(expected = NoSuchElementException.class)
 	public void iterate_beyond() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 2));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2));
 		Iterator<Integer> itr = s.iterator();
 		for ( int i = 0; i < 2; i++ ) {
 			itr.next();
@@ -669,7 +670,7 @@ public class IntRangeSetTests {
 
 	@Test
 	public void clear() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 2), new IntRange(4, 5));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
 		assertThat("Ranges present", stream(s.ranges().spliterator(), false).collect(toList()),
 				hasSize(2));
 		s.clear();
@@ -685,19 +686,19 @@ public class IntRangeSetTests {
 
 	@Test
 	public void first_singleton() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton first", s.first(), equalTo(1));
 	}
 
 	@Test
 	public void first_oneRange() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range first", s.first(), equalTo(1));
 	}
 
 	@Test
 	public void first_twoRanges() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges first", s.first(), equalTo(1));
 	}
 
@@ -709,19 +710,19 @@ public class IntRangeSetTests {
 
 	@Test
 	public void last_singleton() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton last", s.last(), equalTo(1));
 	}
 
 	@Test
 	public void last_oneRange() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range last", s.last(), equalTo(3));
 	}
 
 	@Test
 	public void last_twoRanges() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges last", s.last(), equalTo(9));
 	}
 
@@ -733,79 +734,79 @@ public class IntRangeSetTests {
 
 	@Test
 	public void lower_singleton_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton lower", s.lower(1), nullValue());
 	}
 
 	@Test
 	public void lower_singleton_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton lower", s.lower(0), nullValue());
 	}
 
 	@Test
 	public void lower_singleton_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton lower", s.lower(2), equalTo(1));
 	}
 
 	@Test
 	public void lower_oneRange_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range lower", s.lower(1), nullValue());
 	}
 
 	@Test
 	public void lower_oneRange_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range lower", s.lower(0), nullValue());
 	}
 
 	@Test
 	public void lower_oneRange_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range lower", s.lower(4), equalTo(3));
 	}
 
 	@Test
 	public void lower_oneRange_within() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range lower", s.lower(2), equalTo(1));
 	}
 
 	@Test
 	public void lower_twoRanges_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges lower", s.lower(1), nullValue());
 	}
 
 	@Test
 	public void lower_twoRanges_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges lower", s.lower(0), nullValue());
 	}
 
 	@Test
 	public void lower_twoRanges_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges lower", s.lower(10), equalTo(9));
 	}
 
 	@Test
 	public void lower_twoRanges_within_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges lower", s.lower(2), equalTo(1));
 	}
 
 	@Test
 	public void lower_twoRanges_within_last() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges lower", s.lower(8), equalTo(7));
 	}
 
 	@Test
 	public void lower_twoRanges_between() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges lower", s.lower(4), equalTo(3));
 	}
 
@@ -817,85 +818,85 @@ public class IntRangeSetTests {
 
 	@Test
 	public void floor_singleton_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton floor", s.floor(1), equalTo(1));
 	}
 
 	@Test
 	public void floor_singleton_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton floor", s.floor(0), nullValue());
 	}
 
 	@Test
 	public void floor_singleton_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton floor", s.floor(2), equalTo(1));
 	}
 
 	@Test
 	public void floor_oneRange_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range floor", s.floor(1), equalTo(1));
 	}
 
 	@Test
 	public void floor_oneRange_last() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range floor", s.floor(3), equalTo(3));
 	}
 
 	@Test
 	public void floor_oneRange_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range floor", s.floor(0), nullValue());
 	}
 
 	@Test
 	public void floor_oneRange_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range floor", s.floor(4), equalTo(3));
 	}
 
 	@Test
 	public void floor_oneRange_within() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range floor", s.floor(2), equalTo(2));
 	}
 
 	@Test
 	public void floor_twoRanges_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges floor", s.floor(1), equalTo(1));
 	}
 
 	@Test
 	public void floor_twoRanges_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges floor", s.floor(0), nullValue());
 	}
 
 	@Test
 	public void floor_twoRanges_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges floor", s.floor(10), equalTo(9));
 	}
 
 	@Test
 	public void floor_twoRanges_within_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges floor", s.floor(2), equalTo(2));
 	}
 
 	@Test
 	public void floor_twoRanges_within_last() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges floor", s.floor(8), equalTo(8));
 	}
 
 	@Test
 	public void floor_twoRanges_between() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges floor", s.floor(4), equalTo(3));
 	}
 
@@ -907,79 +908,79 @@ public class IntRangeSetTests {
 
 	@Test
 	public void higher_singleton_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton higher", s.higher(1), nullValue());
 	}
 
 	@Test
 	public void higher_singleton_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton higher", s.higher(0), equalTo(1));
 	}
 
 	@Test
 	public void higher_singleton_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton higher", s.higher(2), nullValue());
 	}
 
 	@Test
 	public void higher_oneRange_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range higher", s.higher(1), equalTo(2));
 	}
 
 	@Test
 	public void higher_oneRange_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range higher", s.higher(0), equalTo(1));
 	}
 
 	@Test
 	public void higher_oneRange_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range higher", s.higher(4), nullValue());
 	}
 
 	@Test
 	public void higher_oneRange_within() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range higher", s.higher(2), equalTo(3));
 	}
 
 	@Test
 	public void higher_twoRanges_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges higher", s.higher(1), equalTo(2));
 	}
 
 	@Test
 	public void higher_twoRanges_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges higher", s.higher(0), equalTo(1));
 	}
 
 	@Test
 	public void higher_twoRanges_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges higher", s.higher(10), nullValue());
 	}
 
 	@Test
 	public void higher_twoRanges_within_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges higher", s.higher(2), equalTo(3));
 	}
 
 	@Test
 	public void higher_twoRanges_within_last() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges higher", s.higher(8), equalTo(9));
 	}
 
 	@Test
 	public void higher_twoRanges_between() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges higher", s.higher(4), equalTo(5));
 	}
 
@@ -991,85 +992,85 @@ public class IntRangeSetTests {
 
 	@Test
 	public void ceiling_singleton_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton ceiling", s.ceiling(1), equalTo(1));
 	}
 
 	@Test
 	public void ceiling_singleton_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton ceiling", s.ceiling(0), equalTo(1));
 	}
 
 	@Test
 	public void ceiling_singleton_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		assertThat("Singleton ceiling", s.ceiling(2), nullValue());
 	}
 
 	@Test
 	public void ceiling_oneRange_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range ceiling", s.ceiling(1), equalTo(1));
 	}
 
 	@Test
 	public void ceiling_oneRange_last() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range ceiling", s.ceiling(3), equalTo(3));
 	}
 
 	@Test
 	public void ceiling_oneRange_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range ceiling", s.ceiling(0), equalTo(1));
 	}
 
 	@Test
 	public void ceiling_oneRange_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range ceiling", s.ceiling(4), nullValue());
 	}
 
 	@Test
 	public void ceiling_oneRange_within() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		assertThat("One range ceiling", s.ceiling(2), equalTo(2));
 	}
 
 	@Test
 	public void ceiling_twoRanges_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges ceiling", s.ceiling(1), equalTo(1));
 	}
 
 	@Test
 	public void ceiling_twoRanges_left() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges ceiling", s.ceiling(0), equalTo(1));
 	}
 
 	@Test
 	public void ceiling_twoRanges_right() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges ceiling", s.ceiling(10), nullValue());
 	}
 
 	@Test
 	public void ceiling_twoRanges_within_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges ceiling", s.ceiling(2), equalTo(2));
 	}
 
 	@Test
 	public void ceiling_twoRanges_within_last() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges ceiling", s.ceiling(8), equalTo(8));
 	}
 
 	@Test
 	public void ceiling_twoRanges_between() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3), new IntRange(5, 9));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
 		assertThat("Two ranges ceiling", s.ceiling(4), equalTo(5));
 	}
 
@@ -1082,7 +1083,7 @@ public class IntRangeSetTests {
 
 	@Test
 	public void remove_nonInteger() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		@SuppressWarnings("unlikely-arg-type")
 		boolean result = s.remove("1");
 		assertThat("No change on non-Integer argument", result, equalTo(false));
@@ -1090,7 +1091,7 @@ public class IntRangeSetTests {
 
 	@Test
 	public void remove_singleton_only() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		boolean result = s.remove(1);
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
@@ -1099,65 +1100,65 @@ public class IntRangeSetTests {
 
 	@Test
 	public void remove_singleton_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1), rangeOf(3));
 		boolean result = s.remove(1);
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(3, 3)));
+		assertThat("Final range set", ranges, contains(rangeOf(3)));
 	}
 
 	@Test
 	public void remove_singleton_last() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1), rangeOf(3));
 		boolean result = s.remove(3);
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(1, 1)));
+		assertThat("Final range set", ranges, contains(rangeOf(1)));
 	}
 
 	@Test
 	public void remove_singleton_middle() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3), new IntRange(5, 5));
+		IntRangeSet s = new IntRangeSet(rangeOf(1), rangeOf(3), rangeOf(5));
 		boolean result = s.remove(3);
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(1, 1), new IntRange(5, 5)));
+		assertThat("Final range set", ranges, contains(rangeOf(1), rangeOf(5)));
 	}
 
 	@Test
 	public void remove_oneRange_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		boolean result = s.remove(1);
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(2, 3)));
+		assertThat("Final range set", ranges, contains(rangeOf(2, 3)));
 	}
 
 	@Test
 	public void remove_oneRange_last() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		boolean result = s.remove(3);
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(1, 2)));
+		assertThat("Final range set", ranges, contains(rangeOf(1, 2)));
 	}
 
 	@Test
 	public void remove_oneRange_middle() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		boolean result = s.remove(2);
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(1, 1), new IntRange(3, 3)));
+		assertThat("Final range set", ranges, contains(rangeOf(1), rangeOf(3)));
 	}
 
 	@Test
 	public void remove_oneRange_middleLarge() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 10));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 10));
 		boolean result = s.remove(5);
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(1, 4), new IntRange(6, 10)));
+		assertThat("Final range set", ranges, contains(rangeOf(1, 4), rangeOf(6, 10)));
 	}
 
 	@Test
@@ -1169,7 +1170,7 @@ public class IntRangeSetTests {
 
 	@Test
 	public void removeAll_nonInteger() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		@SuppressWarnings("unlikely-arg-type")
 		boolean result = s.removeAll(asList("1", "2"));
 		assertThat("No change on non-Integer argument", result, equalTo(false));
@@ -1177,7 +1178,7 @@ public class IntRangeSetTests {
 
 	@Test
 	public void removeAll_singleton_only() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1));
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
 		boolean result = s.removeAll(asList(1, 2));
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
@@ -1186,66 +1187,150 @@ public class IntRangeSetTests {
 
 	@Test
 	public void removeAll_singleton_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1), rangeOf(3));
 		boolean result = s.removeAll(asList(1, 2));
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(3, 3)));
+		assertThat("Final range set", ranges, contains(rangeOf(3)));
 	}
 
 	@Test
 	public void removeAll_singleton_last() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1), rangeOf(3));
 		boolean result = s.removeAll(asList(3, 4));
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(1, 1)));
+		assertThat("Final range set", ranges, contains(rangeOf(1)));
 	}
 
 	@Test
 	public void removeAll_singleton_middle() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 1), new IntRange(3, 3), new IntRange(5, 5));
+		IntRangeSet s = new IntRangeSet(rangeOf(1), rangeOf(3), rangeOf(5));
 		boolean result = s.removeAll(asList(2, 3, 4));
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(1, 1), new IntRange(5, 5)));
+		assertThat("Final range set", ranges, contains(rangeOf(1), rangeOf(5)));
 	}
 
 	@Test
 	public void removeAll_oneRange_first() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		boolean result = s.removeAll(asList(1, 2));
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(3, 3)));
+		assertThat("Final range set", ranges, contains(rangeOf(3)));
 	}
 
 	@Test
 	public void removeAll_oneRange_last() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 3));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
 		boolean result = s.removeAll(asList(2, 3));
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(1, 1)));
+		assertThat("Final range set", ranges, contains(rangeOf(1)));
 	}
 
 	@Test
 	public void removeAll_oneRange_middle() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 5));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 5));
 		boolean result = s.removeAll(asList(2, 3));
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(1, 1), new IntRange(4, 5)));
+		assertThat("Final range set", ranges, contains(rangeOf(1), rangeOf(4, 5)));
 	}
 
 	@Test
 	public void removeAll_oneRange_middleLarge() {
-		IntRangeSet s = new IntRangeSet(new IntRange(1, 10));
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 10));
 		boolean result = s.removeAll(asList(2, 4, 5, 8));
 		assertThat("Set mutated", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
-		assertThat("Final range set", ranges, contains(new IntRange(1, 1), new IntRange(3, 3),
-				new IntRange(6, 7), new IntRange(9, 10)));
+		assertThat("Final range set", ranges,
+				contains(rangeOf(1), rangeOf(3), rangeOf(6, 7), rangeOf(9, 10)));
+	}
+
+	@Test
+	public void pollFirst_empty() {
+		IntRangeSet s = new IntRangeSet();
+		Integer result = s.pollFirst();
+		assertThat("No result when empty", result, nullValue());
+	}
+
+	@Test
+	public void pollFirst_singleton_onlyRemaining() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
+		Integer result = s.pollFirst();
+		assertThat("Polled value", result, equalTo(1));
+		assertThat("Set size reduced", s, hasSize(0));
+	}
+
+	@Test
+	public void pollFirst_singleton_first() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1), rangeOf(3));
+		Integer result = s.pollFirst();
+		assertThat("Polled value", result, equalTo(1));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(rangeOf(3)));
+	}
+
+	@Test
+	public void pollFirst_oneRange() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2));
+		Integer result = s.pollFirst();
+		assertThat("Polled value", result, equalTo(1));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(rangeOf(2)));
+	}
+
+	@Test
+	public void pollFirst_twoRanges() {
+		IntRangeSet s = new IntRangeSet(rangeOf(2, 3), rangeOf(5, 6));
+		Integer result = s.pollFirst();
+		assertThat("Polled value", result, equalTo(2));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(rangeOf(3), rangeOf(5, 6)));
+	}
+
+	@Test
+	public void pollLast_empty() {
+		IntRangeSet s = new IntRangeSet();
+		Integer result = s.pollLast();
+		assertThat("No result when empty", result, nullValue());
+	}
+
+	@Test
+	public void pollLast_singleton_onlyRemaining() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
+		Integer result = s.pollLast();
+		assertThat("Polled value", result, equalTo(1));
+		assertThat("Set size reduced", s, hasSize(0));
+	}
+
+	@Test
+	public void pollLast_singleton_last() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1), rangeOf(3));
+		Integer result = s.pollLast();
+		assertThat("Polled value", result, equalTo(3));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(rangeOf(1)));
+	}
+
+	@Test
+	public void pollLast_oneRange() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2));
+		Integer result = s.pollLast();
+		assertThat("Polled value", result, equalTo(2));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(rangeOf(1)));
+	}
+
+	@Test
+	public void pollLast_twoRanges() {
+		IntRangeSet s = new IntRangeSet(rangeOf(2, 3), rangeOf(5, 6));
+		Integer result = s.pollLast();
+		assertThat("Polled value", result, equalTo(6));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Final range set", ranges, contains(rangeOf(2, 3), rangeOf(5)));
 	}
 
 }

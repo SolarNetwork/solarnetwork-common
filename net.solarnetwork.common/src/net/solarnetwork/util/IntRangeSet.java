@@ -473,14 +473,35 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 
 	@Override
 	public Integer pollFirst() {
-		// TODO Auto-generated method stub
-		return null;
+		if ( ranges.isEmpty() ) {
+			return null;
+		}
+		IntRange old = ranges.get(0);
+		if ( old.isSingleton() ) {
+			// remove singleton
+			ranges.remove(0);
+		} else {
+			// contract from left
+			ranges.set(0, new IntRange(old.getMin() + 1, old.getMax()));
+		}
+		return old.getMin();
 	}
 
 	@Override
 	public Integer pollLast() {
-		// TODO Auto-generated method stub
-		return null;
+		if ( ranges.isEmpty() ) {
+			return null;
+		}
+		final int lastIndex = ranges.size() - 1;
+		IntRange old = ranges.get(lastIndex);
+		if ( old.isSingleton() ) {
+			// remove singleton
+			ranges.remove(lastIndex);
+		} else {
+			// contract from right
+			ranges.set(lastIndex, new IntRange(old.getMin(), old.getMax() - 1));
+		}
+		return old.getMax();
 	}
 
 	@Override
