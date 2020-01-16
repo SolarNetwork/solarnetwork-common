@@ -198,13 +198,12 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 			int c = sorted[i];
 			int d = c - b;
 			if ( d > 1 ) {
-				if ( addRange(a, b) ) {
-					changed = true;
-				}
-			} else {
-				b = c;
+				changed |= addRange(a, b);
+				a = c;
 			}
+			b = c;
 		}
+		changed |= addRange(a, b);
 		return changed;
 	}
 
@@ -306,6 +305,11 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 	 */
 	public Iterable<IntRange> ranges() {
 		return ranges;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return ranges.isEmpty();
 	}
 
 	@Override
@@ -506,8 +510,7 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 
 	@Override
 	public NavigableSet<Integer> descendingSet() {
-		// TODO Auto-generated method stub
-		return null;
+		return new ReverseSet(this);
 	}
 
 	@Override
@@ -516,40 +519,34 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 	}
 
 	@Override
+	public SortedSet<Integer> subSet(Integer fromElement, Integer toElement) {
+		return subSet(fromElement, true, toElement, false);
+	}
+
+	@Override
 	public NavigableSet<Integer> subSet(Integer fromElement, boolean fromInclusive, Integer toElement,
 			boolean toInclusive) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public NavigableSet<Integer> headSet(Integer toElement, boolean inclusive) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public NavigableSet<Integer> tailSet(Integer fromElement, boolean inclusive) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public SortedSet<Integer> subSet(Integer fromElement, Integer toElement) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public SortedSet<Integer> headSet(Integer toElement) {
-		// TODO Auto-generated method stub
-		return null;
+		return headSet(toElement, false);
 	}
 
 	@Override
 	public SortedSet<Integer> tailSet(Integer fromElement) {
-		// TODO Auto-generated method stub
-		return null;
+		return tailSet(fromElement, true);
 	}
 
 	private class IntegerIterator implements Iterator<Integer> {
@@ -666,4 +663,130 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 
 	}
 
+	private static class ReverseSet extends AbstractSet<Integer> implements NavigableSet<Integer> {
+
+		private final IntRangeSet delegate;
+
+		private ReverseSet(IntRangeSet delegate) {
+			super();
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Comparator<? super Integer> comparator() {
+			return null;
+		}
+
+		@Override
+		public boolean add(Integer e) {
+			return delegate.add(e);
+		}
+
+		@Override
+		public boolean addAll(Collection<? extends Integer> col) {
+			return delegate.addAll(col);
+		}
+
+		@Override
+		public void clear() {
+			delegate.clear();
+		}
+
+		@Override
+		public Integer first() {
+			return delegate.last();
+		}
+
+		@Override
+		public Integer last() {
+			return delegate.first();
+		}
+
+		@Override
+		public Integer lower(Integer e) {
+			return delegate.higher(e);
+		}
+
+		@Override
+		public Integer floor(Integer e) {
+			return delegate.ceiling(e);
+		}
+
+		@Override
+		public Integer ceiling(Integer e) {
+			return delegate.floor(e);
+		}
+
+		@Override
+		public Integer higher(Integer e) {
+			return delegate.lower(e);
+		}
+
+		@Override
+		public Integer pollFirst() {
+			return delegate.pollLast();
+		}
+
+		@Override
+		public Integer pollLast() {
+			return delegate.pollFirst();
+		}
+
+		@Override
+		public NavigableSet<Integer> descendingSet() {
+			return delegate;
+		}
+
+		@Override
+		public Iterator<Integer> descendingIterator() {
+			return delegate.iterator();
+		}
+
+		@Override
+		public SortedSet<Integer> subSet(Integer fromElement, Integer toElement) {
+			return subSet(fromElement, true, toElement, false);
+		}
+
+		@Override
+		public NavigableSet<Integer> subSet(Integer fromElement, boolean fromInclusive,
+				Integer toElement, boolean toInclusive) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public NavigableSet<Integer> headSet(Integer toElement, boolean inclusive) {
+			return delegate.tailSet(toElement, inclusive);
+		}
+
+		@Override
+		public NavigableSet<Integer> tailSet(Integer fromElement, boolean inclusive) {
+			return delegate.headSet(fromElement, inclusive);
+		}
+
+		@Override
+		public SortedSet<Integer> headSet(Integer toElement) {
+			return delegate.tailSet(toElement);
+		}
+
+		@Override
+		public SortedSet<Integer> tailSet(Integer fromElement) {
+			return delegate.headSet(fromElement);
+		}
+
+		@Override
+		public Iterator<Integer> iterator() {
+			return delegate.descendingIterator();
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return delegate.isEmpty();
+		}
+
+		@Override
+		public int size() {
+			return delegate.size();
+		}
+
+	}
 }

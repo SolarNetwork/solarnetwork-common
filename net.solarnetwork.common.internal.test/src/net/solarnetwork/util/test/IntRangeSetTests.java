@@ -35,6 +35,7 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.stream.StreamSupport;
 import org.junit.Test;
@@ -297,6 +298,33 @@ public class IntRangeSetTests {
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Singleton ranges added", ranges, hasSize(1));
 		assertThat("Added range 1", ranges.get(0), equalTo(rangeOf(1, 2)));
+	}
+
+	@Test
+	public void addAll_singleton() {
+		IntRangeSet s = new IntRangeSet();
+		boolean result = s.addAll(asList(1));
+		assertThat("Set changed from mutation", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Ranges", ranges, contains(rangeOf(1)));
+	}
+
+	@Test
+	public void addAll_oneRange() {
+		IntRangeSet s = new IntRangeSet();
+		boolean result = s.addAll(asList(1, 2, 3, 4, 5));
+		assertThat("Set changed from mutation", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Ranges", ranges, contains(rangeOf(1, 5)));
+	}
+
+	@Test
+	public void addAll_twoRanges_randomInputOrder() {
+		IntRangeSet s = new IntRangeSet();
+		boolean result = s.addAll(asList(8, 5, 1, 9, 4, 3, 2, 5, 7));
+		assertThat("Set changed from mutation", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Ranges", ranges, contains(rangeOf(1, 5), rangeOf(7, 9)));
 	}
 
 	@Test
@@ -1354,4 +1382,66 @@ public class IntRangeSetTests {
 		assertThat("Final range set", ranges, contains(rangeOf(2, 3), rangeOf(5)));
 	}
 
+	@Test
+	public void reverseSet_empty() {
+		IntRangeSet s = new IntRangeSet();
+		NavigableSet<Integer> d = s.descendingSet();
+		assertThat("Empty descending set created", d, hasSize(0));
+	}
+
+	@Test
+	public void reverseSet_empty_add() {
+		IntRangeSet s = new IntRangeSet();
+		NavigableSet<Integer> d = s.descendingSet();
+		d.addAll(asList(1, 2, 4, 5));
+		List<Integer> data = new ArrayList<Integer>(4);
+		d.iterator().forEachRemaining(data::add);
+		assertThat("Iterator size", data.size(), equalTo(4));
+		assertThat("Iterator values", data, contains(5, 4, 2, 1));
+	}
+
+	@Test
+	public void reverseSet_singleton() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1));
+		NavigableSet<Integer> d = s.descendingSet();
+		assertThat("Empty descending set created", d, hasSize(1));
+		List<Integer> data = new ArrayList<Integer>(1);
+		d.iterator().forEachRemaining(data::add);
+		assertThat("Iterator size", data.size(), equalTo(1));
+		assertThat("Iterator values", data, contains(1));
+	}
+
+	@Test
+	public void reverseSet_oneRange() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2));
+		NavigableSet<Integer> d = s.descendingSet();
+		assertThat("Empty descending set size", d, hasSize(2));
+		List<Integer> data = new ArrayList<Integer>(2);
+		d.iterator().forEachRemaining(data::add);
+		assertThat("Iterator size", data.size(), equalTo(2));
+		assertThat("Iterator values", data, contains(2, 1));
+		assertThat("First value reversed", d.first(), equalTo(2));
+		assertThat("Last value reversed", d.last(), equalTo(1));
+
+		data = new ArrayList<Integer>(2);
+		s.iterator().forEachRemaining(data::add);
+		assertThat("Mutations go to backing set", data, contains(1, 2));
+	}
+
+	@Test
+	public void reverseSet_twoRanges() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
+		NavigableSet<Integer> d = s.descendingSet();
+		assertThat("Empty descending set size", d, hasSize(4));
+		List<Integer> data = new ArrayList<Integer>(4);
+		d.iterator().forEachRemaining(data::add);
+		assertThat("Iterator size", data.size(), equalTo(4));
+		assertThat("Iterator values", data, contains(5, 4, 2, 1));
+		assertThat("First value reversed", d.first(), equalTo(5));
+		assertThat("Last value reversed", d.last(), equalTo(1));
+
+		data = new ArrayList<Integer>(2);
+		s.iterator().forEachRemaining(data::add);
+		assertThat("Mutations go to backing set", data, contains(1, 2, 4, 5));
+	}
 }
