@@ -58,6 +58,29 @@ public class IntRangeTests {
 	}
 
 	@Test
+	public void createSingleton() {
+		IntRange r = IntRange.rangeOf(1);
+		assertThat("Min set", r.getMin(), equalTo(1));
+		assertThat("Max set", r.getMax(), equalTo(1));
+	}
+
+	@Test
+	public void create() {
+		IntRange r = IntRange.rangeOf(1, 2);
+		assertThat("Min set", r.getMin(), equalTo(1));
+		assertThat("Max set", r.getMax(), equalTo(2));
+	}
+
+	@Test
+	public void isSingleton() {
+		IntRange r = IntRange.rangeOf(1);
+		assertThat("Singleton", r.isSingleton(), equalTo(true));
+
+		r = IntRange.rangeOf(1, 2);
+		assertThat("Singleton", r.isSingleton(), equalTo(false));
+	}
+
+	@Test
 	public void equals() {
 		IntRange r1 = new IntRange(1, 2);
 		IntRange r2 = new IntRange(1, 2);

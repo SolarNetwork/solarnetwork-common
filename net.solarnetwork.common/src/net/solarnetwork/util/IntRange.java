@@ -37,7 +37,7 @@ import java.util.Objects;
  * @version 1.0
  * @since 1.58
  */
-public class IntRange implements Serializable, Comparable<IntRange> {
+public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	private static final long serialVersionUID = 2815680548854317296L;
 
@@ -67,6 +67,30 @@ public class IntRange implements Serializable, Comparable<IntRange> {
 	}
 
 	/**
+	 * Create a singleton range (where the minimum and maximum are the same).
+	 * 
+	 * @param value
+	 *        the singleton value
+	 * @return the new range
+	 */
+	public static IntRange rangeOf(int value) {
+		return new IntRange(value, value);
+	}
+
+	/**
+	 * Create a range.
+	 * 
+	 * @param min
+	 *        the minimum value
+	 * @param max
+	 *        the maximum value
+	 * @return the new range
+	 */
+	public static IntRange rangeOf(int min, int max) {
+		return new IntRange(min, max);
+	}
+
+	/**
 	 * Get the minimum value.
 	 * 
 	 * @return the minimum
@@ -92,6 +116,16 @@ public class IntRange implements Serializable, Comparable<IntRange> {
 	 */
 	public int length() {
 		return (max - min) + 1;
+	}
+
+	/**
+	 * Test if this range represents a singleton value, where the minimum and
+	 * maximum values in the range are equal.
+	 * 
+	 * @return {@literal true} if {@code min == max}
+	 */
+	public boolean isSingleton() {
+		return max == min;
 	}
 
 	/**
