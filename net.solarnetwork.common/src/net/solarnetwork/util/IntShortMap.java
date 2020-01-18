@@ -309,6 +309,46 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 		return putValue(key, value);
 	}
 
+	/**
+	 * Get a view of this map with unsigned integer values.
+	 * 
+	 * @return a new map, backed by this map's data, where the values are
+	 *         returned as unsigned integers
+	 */
+	public Map<Integer, Integer> unsignedMap() {
+		final Set<Entry<Integer, Integer>> entrySet = new UnsignedIntegerEntrySet();
+		return new AbstractMap<Integer, Integer>() {
+
+			@Override
+			public boolean containsKey(Object key) {
+				return IntShortMap.this.containsKey(key);
+			}
+
+			@Override
+			public Integer get(Object key) {
+				Integer result = null;
+				Short v = IntShortMap.this.get(key);
+				if ( v != null ) {
+					result = Short.toUnsignedInt(v);
+				}
+				return result;
+			}
+
+			@Override
+			public Set<Entry<Integer, Integer>> entrySet() {
+				return entrySet;
+			}
+
+			@Override
+			public Integer put(Integer key, Integer value) {
+				Short v = value.shortValue();
+				Short prev = IntShortMap.this.put(key, v);
+				return (prev != null ? Short.toUnsignedInt(prev) : null);
+			}
+
+		};
+	}
+
 	private void expandCapacity() {
 		final int oldLen = keys.length;
 		final int newLen = oldLen + oldLen / 2 + 1;
@@ -318,6 +358,15 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 		System.arraycopy(values, 0, newValues, 0, oldLen);
 		this.keys = newKeys;
 		this.values = newValues;
+	}
+
+	private void removeKeyAtIndex(int idx) {
+		if ( idx < 0 || idx >= size ) {
+			throw new IndexOutOfBoundsException();
+		}
+		size--;
+		System.arraycopy(keys, idx + 1, keys, idx, (size - idx));
+		System.arraycopy(values, idx + 1, values, idx, (size - idx));
 	}
 
 	private final class KeySet extends AbstractSet<Integer> {
@@ -363,15 +412,6 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 
 	}
 
-	private void removeKeyAtIndex(int idx) {
-		if ( idx < 0 || idx >= size ) {
-			throw new IndexOutOfBoundsException();
-		}
-		size--;
-		System.arraycopy(keys, idx + 1, keys, idx, (size - idx));
-		System.arraycopy(values, idx + 1, values, idx, (size - idx));
-	}
-
 	private final class EntrySet extends AbstractSet<Entry<Integer, Short>> {
 
 		@Override
@@ -382,6 +422,41 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 		@Override
 		public int size() {
 			return size;
+		}
+
+		@Override
+		public boolean contains(Object o) {
+			if ( !(o instanceof Entry) ) {
+				return false;
+			}
+			@SuppressWarnings("unchecked")
+			Entry<Integer, Short> e = (Entry<Integer, Short>) o;
+			Short v = IntShortMap.this.get(e.getKey());
+			return Objects.equals(e.getValue(), v);
+		}
+
+		@Override
+		public void clear() {
+			IntShortMap.this.clear();
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return IntShortMap.this.isEmpty();
+		}
+
+		@Override
+		public boolean remove(Object o) {
+			if ( !(o instanceof Entry) ) {
+				return false;
+			}
+			@SuppressWarnings("unchecked")
+			Entry<Integer, Short> e = (Entry<Integer, Short>) o;
+			Short v = IntShortMap.this.get(e.getKey());
+			if ( Objects.equals(e.getValue(), v) ) {
+				return IntShortMap.this.remove(e.getKey()) != null;
+			}
+			return false;
 		}
 
 		private final class EntryIterator implements Iterator<Entry<Integer, Short>> {
@@ -413,4 +488,79 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 
 	}
 
+	private final class UnsignedIntegerEntrySet extends AbstractSet<Entry<Integer, Integer>> {
+
+		@Override
+		public Iterator<Entry<Integer, Integer>> iterator() {
+			return new UnsignedEntryIterator();
+		}
+
+		@Override
+		public int size() {
+			return size;
+		}
+
+		@Override
+		public boolean contains(Object o) {
+			if ( !(o instanceof Entry) ) {
+				return false;
+			}
+			@SuppressWarnings("unchecked")
+			Entry<Integer, Integer> e = (Entry<Integer, Integer>) o;
+			Short v = IntShortMap.this.get(e.getKey());
+			return Objects.equals(e.getValue().shortValue(), v);
+		}
+
+		@Override
+		public void clear() {
+			IntShortMap.this.clear();
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return IntShortMap.this.isEmpty();
+		}
+
+		@Override
+		public boolean remove(Object o) {
+			if ( !(o instanceof Entry) ) {
+				return false;
+			}
+			@SuppressWarnings("unchecked")
+			Entry<Integer, Integer> e = (Entry<Integer, Integer>) o;
+			Short v = IntShortMap.this.get(e.getKey());
+			if ( Objects.equals(e.getValue().shortValue(), v) ) {
+				return IntShortMap.this.remove(e.getKey()) != null;
+			}
+			return false;
+		}
+
+		private final class UnsignedEntryIterator implements Iterator<Entry<Integer, Integer>> {
+
+			private int idx;
+
+			private UnsignedEntryIterator() {
+				super();
+				this.idx = 0;
+			}
+
+			@Override
+			public boolean hasNext() {
+				return idx < size;
+			}
+
+			@Override
+			public Entry<Integer, Integer> next() {
+				final int i = idx++;
+				return new SimpleImmutableEntry<>(keys[i], Short.toUnsignedInt(values[i]));
+			}
+
+			@Override
+			public void remove() {
+				removeKeyAtIndex(--idx);
+			}
+
+		}
+
+	}
 }

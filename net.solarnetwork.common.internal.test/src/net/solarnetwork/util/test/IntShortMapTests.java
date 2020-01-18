@@ -32,10 +32,12 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import org.junit.Test;
@@ -185,7 +187,7 @@ public class IntShortMapTests {
 	@Test
 	public void entrySet_empty() {
 		IntShortMap m = new IntShortMap();
-		Set<Map.Entry<Integer, Short>> s = m.entrySet();
+		Set<Entry<Integer, Short>> s = m.entrySet();
 		assertThat("Empty entry set", s, hasSize(0));
 	}
 
@@ -196,14 +198,47 @@ public class IntShortMapTests {
 		m.putValue(2, 3);
 		m.putValue(3, 4);
 		m.putValue(4, 5);
-		Set<Map.Entry<Integer, Short>> s = m.entrySet();
-		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		Set<Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Entry<Integer, Short>> itr = s.iterator();
 		for ( int i = 1; i < 5; i++ ) {
-			Map.Entry<Integer, Short> e = itr.next();
+			Entry<Integer, Short> e = itr.next();
 			assertThat("Entry key", e.getKey(), equalTo(i));
 			assertThat("Entry value", e.getValue(), equalTo((short) (i + 1)));
 		}
 		assertThat("No more entries", itr.hasNext(), equalTo(false));
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void entrySet_add() {
+		IntShortMap m = new IntShortMap();
+		Set<Entry<Integer, Short>> s = m.entrySet();
+		s.add(new AbstractMap.SimpleImmutableEntry<Integer, Short>(1, (short) 2));
+	}
+
+	@Test
+	public void entrySet_remove() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		Set<Entry<Integer, Short>> s = m.entrySet();
+		boolean result = s.remove(new AbstractMap.SimpleImmutableEntry<Integer, Short>(1, (short) 2));
+		assertThat("Element removed", result, equalTo(true));
+		assertThat("Set size updated", s, hasSize(1));
+		assertThat("Backing map size updated", m.size(), equalTo(1));
+		assertThat("Backing map updated", m, hasEntry(2, (short) 3));
+	}
+
+	@Test
+	public void entrySet_remove_differentValue() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		Set<Entry<Integer, Short>> s = m.entrySet();
+		boolean result = s.remove(new AbstractMap.SimpleImmutableEntry<Integer, Short>(1, (short) 99));
+		assertThat("Element not removed", result, equalTo(false));
+		assertThat("Set size unchanged", s, hasSize(2));
+		assertThat("Backing map size unchanged", m.size(), equalTo(2));
+		assertThat("Backing map unchanged", m, allOf(hasEntry(1, (short) 2), hasEntry(2, (short) 3)));
 	}
 
 	@Test
@@ -212,8 +247,8 @@ public class IntShortMapTests {
 		m.putValue(1, 2);
 		m.putValue(2, 3);
 		m.putValue(3, 4);
-		Set<Map.Entry<Integer, Short>> s = m.entrySet();
-		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		Set<Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Entry<Integer, Short>> itr = s.iterator();
 		for ( int i = 0; i < 3; i++ ) {
 			itr.next();
 			if ( i == 0 ) {
@@ -231,8 +266,8 @@ public class IntShortMapTests {
 		m.putValue(1, 2);
 		m.putValue(2, 3);
 		m.putValue(3, 4);
-		Set<Map.Entry<Integer, Short>> s = m.entrySet();
-		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		Set<Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Entry<Integer, Short>> itr = s.iterator();
 		for ( int i = 0; i < 3; i++ ) {
 			itr.next();
 			if ( i == 1 ) {
@@ -250,8 +285,8 @@ public class IntShortMapTests {
 		m.putValue(1, 2);
 		m.putValue(2, 3);
 		m.putValue(3, 4);
-		Set<Map.Entry<Integer, Short>> s = m.entrySet();
-		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		Set<Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Entry<Integer, Short>> itr = s.iterator();
 		for ( int i = 0; i < 3; i++ ) {
 			itr.next();
 			if ( i == 2 ) {
@@ -270,8 +305,8 @@ public class IntShortMapTests {
 		m.putValue(2, 3);
 		m.putValue(3, 4);
 		m.putValue(4, 5);
-		Set<Map.Entry<Integer, Short>> s = m.entrySet();
-		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		Set<Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Entry<Integer, Short>> itr = s.iterator();
 		for ( int i = 0; i < 4; i++ ) {
 			itr.next();
 			if ( i >= 1 && i <= 2 ) {
@@ -289,8 +324,8 @@ public class IntShortMapTests {
 		m.putValue(1, 2);
 		m.putValue(2, 3);
 		m.putValue(3, 4);
-		Set<Map.Entry<Integer, Short>> s = m.entrySet();
-		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		Set<Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Entry<Integer, Short>> itr = s.iterator();
 		for ( int i = 0; i < 3; i++ ) {
 			itr.next();
 			itr.remove();
@@ -402,4 +437,79 @@ public class IntShortMapTests {
 		assertThat("Clone value unchanged", m2.get(3), equalTo((short) 3));
 		assertThat("Clone value added", m2.get(4), equalTo((short) 100));
 	}
+
+	@Test
+	public void unsignedMap_empty() {
+		IntShortMap sm = new IntShortMap();
+		Map<Integer, Integer> m = sm.unsignedMap();
+		assertThat("Unsigned size", m.size(), equalTo(0));
+	}
+
+	@Test
+	public void unsignedMap() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 0xF123);
+		sm.putValue(2, 0xF234);
+		Map<Integer, Integer> m = sm.unsignedMap();
+		assertThat("Unsigned size", m.size(), equalTo(2));
+		assertThat("Unsigned map values", m, allOf(hasEntry(1, 0xF123), hasEntry(2, 0xF234)));
+	}
+
+	@Test
+	public void unsignedMap_backingMapMutationsVisible() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 0xF123);
+		Map<Integer, Integer> m = sm.unsignedMap();
+		sm.putValue(2, 0xF234);
+		assertThat("Unsigned size", m.size(), equalTo(2));
+		assertThat("Unsigned map values", m, allOf(hasEntry(1, 0xF123), hasEntry(2, 0xF234)));
+	}
+
+	@Test
+	public void unsignedMap_mutationsVisibleInBackingMap() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 0xF123);
+		Map<Integer, Integer> m = sm.unsignedMap();
+		m.put(2, 0xF234);
+		assertThat("Backing map size", sm.size(), equalTo(2));
+		assertThat("Backing map values", sm,
+				allOf(hasEntry(1, (short) 0xF123), hasEntry(2, (short) 0xF234)));
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void unsignedMap_entrySet_add() {
+		IntShortMap sm = new IntShortMap();
+		Map<Integer, Integer> m = sm.unsignedMap();
+		Set<Entry<Integer, Integer>> s = m.entrySet();
+		s.add(new AbstractMap.SimpleImmutableEntry<Integer, Integer>(1, 2));
+	}
+
+	@Test
+	public void unsignedMap_entrySet_remove() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 0xF123);
+		sm.putValue(2, 0xF234);
+		Map<Integer, Integer> m = sm.unsignedMap();
+		Set<Entry<Integer, Integer>> s = m.entrySet();
+		boolean result = s.remove(new AbstractMap.SimpleImmutableEntry<Integer, Integer>(1, 0xF123));
+		assertThat("Element removed", result, equalTo(true));
+		assertThat("Set size updated", s, hasSize(1));
+		assertThat("Backing map size updated", m.size(), equalTo(1));
+		assertThat("Backing map updated", m, hasEntry(2, 0xF234));
+	}
+
+	@Test
+	public void unsignedMap_entrySet_remove_differentValue() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 0xF123);
+		sm.putValue(2, 0xF234);
+		Map<Integer, Integer> m = sm.unsignedMap();
+		Set<Entry<Integer, Integer>> s = m.entrySet();
+		boolean result = s.remove(new AbstractMap.SimpleImmutableEntry<Integer, Integer>(1, 0xFFFF));
+		assertThat("Element not removed", result, equalTo(false));
+		assertThat("Set size unchanged", s, hasSize(2));
+		assertThat("Backing map size unchanged", m.size(), equalTo(2));
+		assertThat("Backing map unchanged", m, allOf(hasEntry(1, 0xF123), hasEntry(2, 0xF234)));
+	}
+
 }
