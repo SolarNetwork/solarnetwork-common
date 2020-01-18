@@ -28,10 +28,15 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import org.junit.Test;
 import net.solarnetwork.util.IntShortMap;
@@ -318,5 +323,83 @@ public class IntShortMapTests {
 		}
 		assertThat("Missing key", m.containsValue((short) 0), equalTo(false));
 		assertThat("Missing key", m.containsValue((short) 9), equalTo(false));
+	}
+
+	@Test
+	public void forEachOrdered_empty() {
+		IntShortMap m = new IntShortMap();
+		m.forEachOrdered((k, v) -> {
+			throw new RuntimeException("Should not be here.");
+		});
+	}
+
+	@Test
+	public void forEachOrdered() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(7, 8);
+		m.putValue(3, 4);
+		List<Integer> keys = new ArrayList<Integer>(3);
+		List<Short> vals = new ArrayList<>(3);
+		m.forEachOrdered((k, v) -> {
+			keys.add(k);
+			vals.add(v);
+		});
+		assertThat("Consumed keys", keys, contains(1, 3, 7));
+		assertThat("Consumed values", vals, contains((short) 2, (short) 4, (short) 8));
+	}
+
+	@Test
+	public void getValue_found() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		assertThat("Found value", m.getValue(1), equalTo((short) 2));
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void getValue_notfound() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.getValue(2);
+	}
+
+	@Test
+	public void clone_empty() {
+		IntShortMap m1 = new IntShortMap(8);
+		IntShortMap m2 = (IntShortMap) m1.clone();
+		assertThat("New instance created", m2, not(sameInstance(m1)));
+		assertThat("New instance capacity same", m2.getCapacity(), equalTo(m1.getCapacity()));
+		assertThat("New instance size same", m2.size(), equalTo(m1.size()));
+	}
+
+	@Test
+	public void clone_contents() {
+		IntShortMap m1 = new IntShortMap(8);
+		m1.putValue(1, 1);
+		m1.putValue(2, 2);
+		m1.putValue(9, 9);
+		IntShortMap m2 = (IntShortMap) m1.clone();
+		assertThat("New instance created", m2, not(sameInstance(m1)));
+		assertThat("New instance capacity compacted", m2.getCapacity(), equalTo(3));
+		assertThat("New instance size same", m2.size(), equalTo(m1.size()));
+		assertThat("Contents same", m2.entrySet(), equalTo(m1.entrySet()));
+	}
+
+	@Test
+	public void clone_mutation() {
+		IntShortMap m1 = new IntShortMap(8);
+		m1.putValue(1, 1);
+		m1.putValue(2, 2);
+		m1.putValue(3, 3);
+		IntShortMap m2 = (IntShortMap) m1.clone();
+		m2.putValue(1, 99);
+		m2.putValue(4, 100);
+		assertThat("New instance created", m2, not(sameInstance(m1)));
+		assertThat("New instance size", m2.size(), equalTo(m1.size() + 1));
+		assertRange(m1, 1, 3);
+		assertThat("Clone value mutated", m2.get(1), equalTo((short) 99));
+		assertThat("Clone value unchanged", m2.get(2), equalTo((short) 2));
+		assertThat("Clone value unchanged", m2.get(3), equalTo((short) 3));
+		assertThat("Clone value added", m2.get(4), equalTo((short) 100));
 	}
 }

@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -50,7 +51,7 @@ import java.util.Set;
  * @version 1.0
  * @since 1.58
  */
-public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Integer, Short> {
+public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Integer, Short>, Cloneable {
 
 	/** The default initial capacity. */
 	public static final int DEFAULT_INITIAL_CAPACITY = 16;
@@ -100,10 +101,11 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 	}
 
 	@Override
-	protected Object clone() {
-		IntShortMap m = new IntShortMap(this.size);
+	public Object clone() {
+		IntShortMap m = new IntShortMap(this.size > 0 ? this.size : this.getCapacity());
 		System.arraycopy(keys, 0, m.keys, 0, size);
 		System.arraycopy(values, 0, m.values, 0, size);
+		m.size = this.size;
 		return m;
 	}
 
@@ -115,6 +117,26 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 	@Override
 	public int size() {
 		return size;
+	}
+
+	/**
+	 * Iterate over all key/value pairs in this map.
+	 * 
+	 * <p>
+	 * This method of iteration can be more efficient than iterating via
+	 * {@link #entrySet()} because no intermediate {@code Set},
+	 * {@code Iterator}, or {@code Entry} objects are created, and not primitive
+	 * boxing occurs.
+	 * </p>
+	 * 
+	 * @param action
+	 *        the consumer to handle the key/value pairs
+	 */
+	public void forEachOrdered(IntShortBiConsumer action) {
+		Objects.requireNonNull(action);
+		for ( int i = 0; i < size; i++ ) {
+			action.accept(keys[i], values[i]);
+		}
 	}
 
 	@Override
@@ -198,12 +220,36 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 		return get(k);
 	}
 
+	/**
+	 * Get the value for a given key.
+	 * 
+	 * @param k
+	 *        the key of the value to get
+	 * @return the associated value, or {@literal null} if {@code k} is not
+	 *         present
+	 */
 	public Short get(final int k) {
 		final int idx = binarySearch(keys, 0, size, k);
 		if ( idx >= 0 ) {
 			return values[idx];
 		}
 		return null;
+	}
+
+	/**
+	 * Get the value for a given key.
+	 * 
+	 * @param k
+	 *        the key of the value to get
+	 * @return the associated value
+	 * @throws NoSuchEl
+	 */
+	public short getValue(final int k) {
+		final int idx = binarySearch(keys, 0, size, k);
+		if ( idx >= 0 ) {
+			return values[idx];
+		}
+		throw new NoSuchElementException();
 	}
 
 	/**
