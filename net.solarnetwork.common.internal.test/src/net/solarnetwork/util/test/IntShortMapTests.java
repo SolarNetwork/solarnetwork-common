@@ -22,10 +22,17 @@
 
 package net.solarnetwork.util.test;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 import net.solarnetwork.util.IntShortMap;
 
@@ -138,5 +145,178 @@ public class IntShortMapTests {
 		assertThat("No previous value", prev, nullValue());
 		assertThat("Size updated", m.size(), equalTo(4));
 		assertRange(m, 1, 4);
+	}
+
+	@Test
+	public void keySet_ordered() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 1);
+		m.putValue(9, 9);
+		m.putValue(5, 5);
+		m.putValue(-8, -8);
+		assertThat("Keys maintain order", m.keySet(), contains(-8, 1, 5, 9));
+	}
+
+	@Test
+	public void clear_empty() {
+		IntShortMap m = new IntShortMap();
+		m.clear();
+		assertThat("Size empty", m.size(), equalTo(0));
+	}
+
+	@Test
+	public void clear() {
+		IntShortMap m = new IntShortMap();
+		for ( int i = 0; i < 8; i++ ) {
+			m.putValue(i, i);
+		}
+		assertThat("Size before clear", m.size(), equalTo(8));
+		assertThat("Keys", m.keySet(), contains(0, 1, 2, 3, 4, 5, 6, 7));
+		m.clear();
+		assertThat("Size after clear", m.size(), equalTo(0));
+		assertThat("Keys", m.keySet(), hasSize(0));
+	}
+
+	@Test
+	public void entrySet_empty() {
+		IntShortMap m = new IntShortMap();
+		Set<Map.Entry<Integer, Short>> s = m.entrySet();
+		assertThat("Empty entry set", s, hasSize(0));
+	}
+
+	@Test
+	public void entrySet() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.putValue(3, 4);
+		m.putValue(4, 5);
+		Set<Map.Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		for ( int i = 1; i < 5; i++ ) {
+			Map.Entry<Integer, Short> e = itr.next();
+			assertThat("Entry key", e.getKey(), equalTo(i));
+			assertThat("Entry value", e.getValue(), equalTo((short) (i + 1)));
+		}
+		assertThat("No more entries", itr.hasNext(), equalTo(false));
+	}
+
+	@Test
+	public void entrySet_iterator_remove_first() {
+		IntShortMap m = new IntShortMap(4);
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.putValue(3, 4);
+		Set<Map.Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		for ( int i = 0; i < 3; i++ ) {
+			itr.next();
+			if ( i == 0 ) {
+				itr.remove();
+			}
+		}
+		assertThat("No more entries", itr.hasNext(), equalTo(false));
+		assertThat("Size decreased", m.size(), equalTo(2));
+		assertThat("Map entry removed", m, allOf(hasEntry(2, (short) 3), hasEntry(3, (short) 4)));
+	}
+
+	@Test
+	public void entrySet_iterator_remove_mid() {
+		IntShortMap m = new IntShortMap(4);
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.putValue(3, 4);
+		Set<Map.Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		for ( int i = 0; i < 3; i++ ) {
+			itr.next();
+			if ( i == 1 ) {
+				itr.remove();
+			}
+		}
+		assertThat("No more entries", itr.hasNext(), equalTo(false));
+		assertThat("Size decreased", m.size(), equalTo(2));
+		assertThat("Map entry removed", m, allOf(hasEntry(1, (short) 2), hasEntry(3, (short) 4)));
+	}
+
+	@Test
+	public void entrySet_iterator_remove_last() {
+		IntShortMap m = new IntShortMap(4);
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.putValue(3, 4);
+		Set<Map.Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		for ( int i = 0; i < 3; i++ ) {
+			itr.next();
+			if ( i == 2 ) {
+				itr.remove();
+			}
+		}
+		assertThat("No more entries", itr.hasNext(), equalTo(false));
+		assertThat("Size decreased", m.size(), equalTo(2));
+		assertThat("Map entry removed", m, allOf(hasEntry(1, (short) 2), hasEntry(2, (short) 3)));
+	}
+
+	@Test
+	public void entrySet_iterator_remove_multi() {
+		IntShortMap m = new IntShortMap(4);
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.putValue(3, 4);
+		m.putValue(4, 5);
+		Set<Map.Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		for ( int i = 0; i < 4; i++ ) {
+			itr.next();
+			if ( i >= 1 && i <= 2 ) {
+				itr.remove();
+			}
+		}
+		assertThat("No more entries", itr.hasNext(), equalTo(false));
+		assertThat("Size decreased", m.size(), equalTo(2));
+		assertThat("Map entry removed", m, allOf(hasEntry(1, (short) 2), hasEntry(4, (short) 5)));
+	}
+
+	@Test
+	public void entrySet_iterator_remove_all() {
+		IntShortMap m = new IntShortMap(4);
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.putValue(3, 4);
+		Set<Map.Entry<Integer, Short>> s = m.entrySet();
+		Iterator<Map.Entry<Integer, Short>> itr = s.iterator();
+		for ( int i = 0; i < 3; i++ ) {
+			itr.next();
+			itr.remove();
+		}
+		assertThat("No more entries", itr.hasNext(), equalTo(false));
+		assertThat("Size decreased", m.size(), equalTo(0));
+	}
+
+	@Test
+	public void containsKey() {
+		IntShortMap m = new IntShortMap(4);
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.putValue(3, 4);
+		for ( int i = 1; i <= 3; i++ ) {
+			assertThat("Contains key " + i, m.containsKey(i), equalTo(true));
+		}
+		assertThat("Missing key", m.containsKey(0), equalTo(false));
+		assertThat("Missing key", m.containsKey(9), equalTo(false));
+	}
+
+	@Test
+	public void containsValue() {
+		IntShortMap m = new IntShortMap(4);
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.putValue(3, 4);
+		for ( int i = 2; i <= 4; i++ ) {
+			assertThat("Contains value " + i, m.containsValue((short) i), equalTo(true));
+		}
+		assertThat("Missing key", m.containsValue((short) 0), equalTo(false));
+		assertThat("Missing key", m.containsValue((short) 9), equalTo(false));
 	}
 }

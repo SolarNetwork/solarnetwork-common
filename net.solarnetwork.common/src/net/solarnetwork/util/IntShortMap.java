@@ -145,7 +145,17 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 
 	@Override
 	public boolean containsKey(Object key) {
-		final int k = (Integer) key;
+		return containsKey(((Integer) key).intValue());
+	}
+
+	/**
+	 * Test if a primitive key value exists in this map.
+	 * 
+	 * @param k
+	 *        the key to test
+	 * @return {@literal true} if the key exists in this map
+	 */
+	public boolean containsKey(final int k) {
 		final int idx = Arrays.binarySearch(keys, 0, size, k);
 		return idx >= 0;
 	}
@@ -299,6 +309,21 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 			}
 			return keys[idx++];
 		}
+
+		@Override
+		public void remove() {
+			removeKeyAtIndex(--idx);
+		}
+
+	}
+
+	private void removeKeyAtIndex(int idx) {
+		if ( idx < 0 || idx >= size ) {
+			throw new IndexOutOfBoundsException();
+		}
+		size--;
+		System.arraycopy(keys, idx + 1, keys, idx, (size - idx));
+		System.arraycopy(values, idx + 1, values, idx, (size - idx));
 	}
 
 	private final class EntrySet extends AbstractSet<Entry<Integer, Short>> {
@@ -319,7 +344,7 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 
 			private EntryIterator() {
 				super();
-				this.idx = -1;
+				this.idx = 0;
 			}
 
 			@Override
@@ -329,8 +354,13 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 
 			@Override
 			public Entry<Integer, Short> next() {
-				final int i = ++idx;
+				final int i = idx++;
 				return new SimpleImmutableEntry<>(keys[i], values[i]);
+			}
+
+			@Override
+			public void remove() {
+				removeKeyAtIndex(--idx);
 			}
 
 		}
