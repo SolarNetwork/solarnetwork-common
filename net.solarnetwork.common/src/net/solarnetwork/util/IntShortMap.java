@@ -136,7 +136,8 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 
 	@Override
 	public Object clone() {
-		IntShortMap m = new IntShortMap(this.size > 0 ? this.size : this.getCapacity());
+		IntShortMap m = new IntShortMap(this.size > 0 ? this.size : this.getCapacity(),
+				this.notFoundValue);
 		System.arraycopy(keys, 0, m.keys, 0, size);
 		System.arraycopy(values, 0, m.values, 0, size);
 		m.size = this.size;
