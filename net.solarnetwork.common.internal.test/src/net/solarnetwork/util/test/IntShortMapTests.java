@@ -392,10 +392,19 @@ public class IntShortMapTests {
 	}
 
 	@Test(expected = NoSuchElementException.class)
-	public void getValue_notfound() {
-		IntShortMap m = new IntShortMap();
+	public void getValue_notFound() {
+		IntShortMap m = new IntShortMap(8, IntShortMap.VALUE_NO_SUCH_ELEMENT);
 		m.putValue(1, 2);
 		m.getValue(2);
+	}
+
+	@Test
+	public void getValue_notFoundWithDefault() {
+		final short defaultValue = (short) -1;
+		IntShortMap m = new IntShortMap(8, defaultValue);
+		m.putValue(1, 2);
+		short v = m.getValue(2);
+		assertThat("Default value returned for nonexistent key", v, equalTo(defaultValue));
 	}
 
 	@Test

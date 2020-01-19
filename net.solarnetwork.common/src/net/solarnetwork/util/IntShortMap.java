@@ -56,20 +56,37 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 	/** The default initial capacity. */
 	public static final int DEFAULT_INITIAL_CAPACITY = 16;
 
+	/**
+	 * The default value that causes {@code NoSuchElementException} to be thrown
+	 * in {@Link #getValue(int)}.
+	 */
+	public static final short VALUE_NO_SUCH_ELEMENT = Short.MIN_VALUE;
+
 	private final int initialCapacity;
+	private final short notFoundValue;
 	private int[] keys;
 	private short[] values;
 	private int size;
 
 	/**
 	 * Default constructor.
+	 * 
+	 * <p>
+	 * Defaults to returning {@literal 0} for nonexistent keys in
+	 * {@link #getValue(int)}.
+	 * </p>
 	 */
 	public IntShortMap() {
-		this(DEFAULT_INITIAL_CAPACITY);
+		this(DEFAULT_INITIAL_CAPACITY, (short) 0);
 	}
 
 	/**
 	 * Constructor.
+	 * 
+	 * <p>
+	 * Defaults to returning {@literal 0} for nonexistent keys in
+	 * {@link #getValue(int)}.
+	 * </p>
 	 * 
 	 * @param initialCapacity
 	 *        the initial capacity
@@ -77,11 +94,28 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 	 *         if {@code initialCapacity} is less than {@literal 1}
 	 */
 	public IntShortMap(int initialCapacity) {
+		this(initialCapacity, (short) 0);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param initialCapacity
+	 *        the initial capacity
+	 * @param notFoundValue
+	 *        the value to return in {@link #getValue(int)} if a key is not
+	 *        found, or {@link #VALUE_NO_SUCH_ELEMENT} to throw a
+	 *        {@link NoSuchElementException}
+	 * @throws IllegalArgumentException
+	 *         if {@code initialCapacity} is less than {@literal 1}
+	 */
+	public IntShortMap(int initialCapacity, short notFoundValue) {
 		super();
 		if ( initialCapacity < 1 ) {
 			throw new IllegalArgumentException("The initial capacity must be 1 or more.");
 		}
 		this.initialCapacity = initialCapacity;
+		this.notFoundValue = notFoundValue;
 		this.keys = new int[initialCapacity];
 		this.values = new short[initialCapacity];
 	}
@@ -249,7 +283,10 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 		if ( idx >= 0 ) {
 			return values[idx];
 		}
-		throw new NoSuchElementException();
+		if ( notFoundValue == VALUE_NO_SUCH_ELEMENT ) {
+			throw new NoSuchElementException();
+		}
+		return notFoundValue;
 	}
 
 	/**
