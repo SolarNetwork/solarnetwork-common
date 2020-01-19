@@ -174,6 +174,34 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 		}
 	}
 
+	/**
+	 * Iterate over a range of key/value pairs in this map.
+	 * 
+	 * <p>
+	 * This method of iteration can be more efficient than iterating via
+	 * {@link #entrySet()} because no intermediate {@code Set},
+	 * {@code Iterator}, or {@code Entry} objects are created, and not primitive
+	 * boxing occurs.
+	 * </p>
+	 * 
+	 * @param min
+	 *        the minimum key value (inclusive)
+	 * @param max
+	 *        the maximum key value (exclusive)
+	 * @param action
+	 *        the consumer to handle the key/value pairs
+	 */
+	public void forEachOrdered(int min, int max, IntShortBiConsumer action) {
+		Objects.requireNonNull(action);
+		int start = binarySearch(keys, 0, size, min);
+		if ( start < 0 ) {
+			start = -(start + 1);
+		}
+		for ( int i = start; i < size && keys[i] < max; i++ ) {
+			action.accept(keys[i], values[i]);
+		}
+	}
+
 	@Override
 	public Set<Integer> keySet() {
 		return new KeySet();

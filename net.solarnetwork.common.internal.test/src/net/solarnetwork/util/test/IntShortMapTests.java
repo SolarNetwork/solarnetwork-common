@@ -385,6 +385,108 @@ public class IntShortMapTests {
 	}
 
 	@Test
+	public void forEachOrdered_range_mid_onExistingKeys() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(7, 8);
+		m.putValue(3, 4);
+		m.putValue(9, 10);
+		List<Integer> keys = new ArrayList<Integer>(2);
+		List<Short> vals = new ArrayList<>(3);
+		m.forEachOrdered(3, 9, (k, v) -> {
+			keys.add(k);
+			vals.add(v);
+		});
+		assertThat("Consumed keys", keys, contains(3, 7));
+		assertThat("Consumed values", vals, contains((short) 4, (short) 8));
+	}
+
+	@Test
+	public void forEachOrdered_range_mid_onNonexistingKeys() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(7, 8);
+		m.putValue(3, 4);
+		m.putValue(10, 11);
+		List<Integer> keys = new ArrayList<Integer>(2);
+		List<Short> vals = new ArrayList<>(3);
+		m.forEachOrdered(2, 9, (k, v) -> {
+			keys.add(k);
+			vals.add(v);
+		});
+		assertThat("Consumed keys", keys, contains(3, 7));
+		assertThat("Consumed values", vals, contains((short) 4, (short) 8));
+	}
+
+	@Test
+	public void forEachOrdered_range_head_onExistingKeys() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(7, 8);
+		m.putValue(3, 4);
+		m.putValue(9, 10);
+		List<Integer> keys = new ArrayList<Integer>(2);
+		List<Short> vals = new ArrayList<>(3);
+		m.forEachOrdered(1, 7, (k, v) -> {
+			keys.add(k);
+			vals.add(v);
+		});
+		assertThat("Consumed keys", keys, contains(1, 3));
+		assertThat("Consumed values", vals, contains((short) 2, (short) 4));
+	}
+
+	@Test
+	public void forEachOrdered_range_head_onNonexistingKeys() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(7, 8);
+		m.putValue(3, 4);
+		m.putValue(10, 11);
+		List<Integer> keys = new ArrayList<Integer>(2);
+		List<Short> vals = new ArrayList<>(3);
+		m.forEachOrdered(0, 7, (k, v) -> {
+			keys.add(k);
+			vals.add(v);
+		});
+		assertThat("Consumed keys", keys, contains(1, 3));
+		assertThat("Consumed values", vals, contains((short) 2, (short) 4));
+	}
+
+	@Test
+	public void forEachOrdered_range_tail_onExistingKeys() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(7, 8);
+		m.putValue(3, 4);
+		m.putValue(9, 10);
+		List<Integer> keys = new ArrayList<Integer>(2);
+		List<Short> vals = new ArrayList<>(3);
+		m.forEachOrdered(7, 10, (k, v) -> {
+			keys.add(k);
+			vals.add(v);
+		});
+		assertThat("Consumed keys", keys, contains(7, 9));
+		assertThat("Consumed values", vals, contains((short) 8, (short) 10));
+	}
+
+	@Test
+	public void forEachOrdered_range_tail_onNonexistingKeys() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(7, 8);
+		m.putValue(3, 4);
+		m.putValue(10, 11);
+		List<Integer> keys = new ArrayList<Integer>(2);
+		List<Short> vals = new ArrayList<>(3);
+		m.forEachOrdered(5, 11, (k, v) -> {
+			keys.add(k);
+			vals.add(v);
+		});
+		assertThat("Consumed keys", keys, contains(7, 10));
+		assertThat("Consumed values", vals, contains((short) 8, (short) 11));
+	}
+
+	@Test
 	public void getValue_found() {
 		IntShortMap m = new IntShortMap();
 		m.putValue(1, 2);
