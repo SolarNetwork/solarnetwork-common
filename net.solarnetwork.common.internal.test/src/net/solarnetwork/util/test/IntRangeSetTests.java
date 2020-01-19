@@ -1444,4 +1444,40 @@ public class IntRangeSetTests {
 		s.iterator().forEachRemaining(data::add);
 		assertThat("Mutations go to backing set", data, contains(1, 2, 4, 5));
 	}
+
+	@Test
+	public void immutableCopy() {
+		IntRangeSet s = new IntRangeSet();
+		s.add(1);
+		IntRangeSet c = s.immutableCopy();
+		s.add(2);
+		assertThat("Original set mutated", s, hasSize(2));
+		assertThat("Immutable copied at point in time", c, hasSize(1));
+		assertThat("Immutable copy contains original", c, contains(1));
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void immutableCopy_add() {
+		IntRangeSet s = new IntRangeSet();
+		s.add(1);
+		IntRangeSet c = s.immutableCopy();
+		c.add(2);
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void immutableCopy_addRange() {
+		IntRangeSet s = new IntRangeSet();
+		s.add(1);
+		IntRangeSet c = s.immutableCopy();
+		c.addRange(2, 3);
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void immutableCopy_remove() {
+		IntRangeSet s = new IntRangeSet();
+		s.add(1);
+		IntRangeSet c = s.immutableCopy();
+		c.remove(1);
+	}
+
 }

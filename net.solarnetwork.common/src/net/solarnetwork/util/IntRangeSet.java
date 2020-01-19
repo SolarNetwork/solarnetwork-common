@@ -48,8 +48,9 @@ import java.util.SortedSet;
  * @version 1.0
  * @since 1.58
  */
-public final class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<Integer> {
+public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<Integer>, Cloneable {
 
+	private final boolean immutable;
 	private final List<IntRange> ranges;
 
 	/**
@@ -69,6 +70,7 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 	public IntRangeSet(int initialCapacity) {
 		super();
 		this.ranges = new ArrayList<>(initialCapacity);
+		this.immutable = false;
 	}
 
 	/**
@@ -97,6 +99,30 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 		}
 	}
 
+	private IntRangeSet(List<IntRange> ranges, boolean immutable) {
+		super();
+		this.ranges = new ArrayList<>(ranges.size());
+		this.ranges.addAll(ranges);
+		this.immutable = immutable;
+	}
+
+	/**
+	 * Get an immutable copy of this set.
+	 * 
+	 * @return an immutable copy of this set
+	 */
+	public IntRangeSet immutableCopy() {
+		if ( immutable ) {
+			return this;
+		}
+		return new IntRangeSet(this.ranges, true);
+	}
+
+	@Override
+	public Object clone() {
+		return new IntRangeSet(ranges, immutable);
+	}
+
 	@Override
 	public String toString() {
 		return ranges.toString();
@@ -111,6 +137,9 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 	 */
 	@Override
 	public boolean add(Integer e) {
+		if ( immutable ) {
+			throw new UnsupportedOperationException("Set it immutable.");
+		}
 		if ( e == null ) {
 			throw new IllegalArgumentException("Integer cannot be null");
 		}
@@ -131,6 +160,9 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 	 * @return {@literal true} if this set changed as a result
 	 */
 	public boolean add(final int v) {
+		if ( immutable ) {
+			throw new UnsupportedOperationException("Set it immutable.");
+		}
 		IntRange p = null;
 		boolean changed = false;
 		if ( ranges.isEmpty() ) {
@@ -182,6 +214,9 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 
 	@Override
 	public boolean addAll(Collection<? extends Integer> col) {
+		if ( immutable ) {
+			throw new UnsupportedOperationException("Set it immutable.");
+		}
 		if ( col == null || col.isEmpty() ) {
 			return false;
 		}
@@ -237,6 +272,9 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 	 *         range
 	 */
 	public boolean addRange(IntRange range) {
+		if ( immutable ) {
+			throw new UnsupportedOperationException("Set it immutable.");
+		}
 		boolean changed = false;
 		if ( ranges.isEmpty() ) {
 			// first range to add
@@ -284,6 +322,9 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 
 	@Override
 	public void clear() {
+		if ( immutable ) {
+			throw new UnsupportedOperationException("Set it immutable.");
+		}
 		ranges.clear();
 	}
 
@@ -434,6 +475,9 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 
 	@Override
 	public boolean remove(Object o) {
+		if ( immutable ) {
+			throw new UnsupportedOperationException("Set it immutable.");
+		}
 		if ( !(o instanceof Integer) ) {
 			return false;
 		}
@@ -465,6 +509,9 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
+		if ( immutable ) {
+			throw new UnsupportedOperationException("Set it immutable.");
+		}
 		if ( c == null ) {
 			return false;
 		}
@@ -477,6 +524,9 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 
 	@Override
 	public Integer pollFirst() {
+		if ( immutable ) {
+			throw new UnsupportedOperationException("Set it immutable.");
+		}
 		if ( ranges.isEmpty() ) {
 			return null;
 		}
@@ -493,6 +543,9 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 
 	@Override
 	public Integer pollLast() {
+		if ( immutable ) {
+			throw new UnsupportedOperationException("Set it immutable.");
+		}
 		if ( ranges.isEmpty() ) {
 			return null;
 		}
@@ -789,4 +842,5 @@ public final class IntRangeSet extends AbstractSet<Integer> implements Navigable
 		}
 
 	}
+
 }
