@@ -27,6 +27,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.junit.Test;
 import net.solarnetwork.util.CollectionUtils;
 import net.solarnetwork.util.IntRange;
@@ -89,6 +91,15 @@ public class CollectionUtilsTests {
 		IntRangeSet set = new IntRangeSet(rangeOf(0, 1), rangeOf(3, 5), rangeOf(20, 28),
 				rangeOf(404, 406), rangeOf(412, 418));
 		List<IntRange> result = CollectionUtils.coveringIntRanges(set, 64);
+		assertThat("Resulting ranges", result, contains(rangeOf(0, 28), rangeOf(404, 418)));
+	}
+
+	@Test
+	public void coveringIntRanges_treeSet_javaDocExample() {
+		IntRangeSet set = new IntRangeSet(rangeOf(0, 1), rangeOf(3, 5), rangeOf(20, 28),
+				rangeOf(404, 406), rangeOf(412, 418));
+		SortedSet<Integer> treeSet = new TreeSet<>(set);
+		List<IntRange> result = CollectionUtils.coveringIntRanges(treeSet, 64);
 		assertThat("Resulting ranges", result, contains(rangeOf(0, 28), rangeOf(404, 418)));
 	}
 

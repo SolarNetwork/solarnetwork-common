@@ -98,22 +98,39 @@ public final class CollectionUtils {
 		if ( set.isEmpty() ) {
 			return Collections.emptyList();
 		}
-		Iterator<Integer> itr = set.iterator();
-		int v = itr.next();
-		int a = v;
-		int b = a;
-		while ( itr.hasNext() ) {
-			v = itr.next();
-			int d = v - a;
-			if ( d >= maxRangeLength ) {
-				result.add(IntRange.rangeOf(a, b));
-				a = v;
-				b = v;
-			} else {
-				b = v;
+		IntRange last;
+		if ( set instanceof IntOrderedIterable ) {
+			final int min = set.first();
+			final int[] meta = new int[] { min, min };
+			((IntOrderedIterable) set).forEachOrdered(v -> {
+				int d = v - meta[0];
+				if ( d >= maxRangeLength ) {
+					result.add(IntRange.rangeOf(meta[0], meta[1]));
+					meta[0] = v;
+					meta[1] = v;
+				} else {
+					meta[1] = v;
+				}
+			});
+			last = IntRange.rangeOf(meta[0], meta[1]);
+		} else {
+			Iterator<Integer> itr = set.iterator();
+			int v = itr.next();
+			int a = v;
+			int b = a;
+			while ( itr.hasNext() ) {
+				v = itr.next();
+				int d = v - a;
+				if ( d >= maxRangeLength ) {
+					result.add(IntRange.rangeOf(a, b));
+					a = v;
+					b = v;
+				} else {
+					b = v;
+				}
 			}
+			last = IntRange.rangeOf(a, b);
 		}
-		IntRange last = IntRange.rangeOf(a, b);
 		if ( result.isEmpty() || !result.get(result.size() - 1).equals(last) ) {
 			result.add(last);
 		}
