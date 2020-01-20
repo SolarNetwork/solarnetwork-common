@@ -137,6 +137,10 @@ public class IntRangeSet extends AbstractSet<Integer>
 		for ( IntRange r : ranges ) {
 			for ( int i = r.getMin(); i <= r.getMax(); i++ ) {
 				action.accept(i);
+				if ( i == Integer.MAX_VALUE ) {
+					// prevent overflow
+					return;
+				}
 			}
 		}
 	}
@@ -156,6 +160,10 @@ public class IntRangeSet extends AbstractSet<Integer>
 			}
 			for ( final int stop = max <= r.getMax() ? max - 1 : r.getMax(); i <= stop; i++ ) {
 				action.accept(i);
+				if ( i == Integer.MAX_VALUE ) {
+					// prevent overflow
+					return;
+				}
 			}
 		}
 	}

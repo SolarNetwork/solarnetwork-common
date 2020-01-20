@@ -173,6 +173,10 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		Objects.requireNonNull(action);
 		for ( int i = 0; i < size; i++ ) {
 			action.accept(keys[i], values[i]);
+			if ( i == Integer.MAX_VALUE ) {
+				// prevent overflow
+				return;
+			}
 		}
 	}
 
@@ -202,6 +206,10 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		}
 		for ( int i = start; i < size && keys[i] < max; i++ ) {
 			action.accept(keys[i], values[i]);
+			if ( i == Integer.MAX_VALUE ) {
+				// prevent overflow
+				return;
+			}
 		}
 	}
 
