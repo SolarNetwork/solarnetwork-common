@@ -51,7 +51,8 @@ import java.util.Set;
  * @version 1.0
  * @since 1.58
  */
-public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Integer, Short>, Cloneable {
+public class IntShortMap extends AbstractMap<Integer, Short>
+		implements Map<Integer, Short>, IntShortOrderedIterable, Cloneable {
 
 	/** The default initial capacity. */
 	public static final int DEFAULT_INITIAL_CAPACITY = 16;
@@ -167,6 +168,7 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 	 * @param action
 	 *        the consumer to handle the key/value pairs
 	 */
+	@Override
 	public void forEachOrdered(IntShortBiConsumer action) {
 		Objects.requireNonNull(action);
 		for ( int i = 0; i < size; i++ ) {
@@ -191,6 +193,7 @@ public class IntShortMap extends AbstractMap<Integer, Short> implements Map<Inte
 	 * @param action
 	 *        the consumer to handle the key/value pairs
 	 */
+	@Override
 	public void forEachOrdered(int min, int max, IntShortBiConsumer action) {
 		Objects.requireNonNull(action);
 		int start = binarySearch(keys, 0, size, min);

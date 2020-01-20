@@ -718,6 +718,54 @@ public class IntRangeSetTests {
 	}
 
 	@Test
+	public void forEachOrdered() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
+		List<Integer> data = new ArrayList<>(4);
+		s.forEachOrdered(data::add);
+		assertThat("Iterator values", data, contains(1, 2, 4, 5));
+	}
+
+	@Test
+	public void forEachOrdered_empty() {
+		IntRangeSet s = new IntRangeSet();
+		List<Integer> data = new ArrayList<>(4);
+		s.forEachOrdered(data::add);
+		assertThat("Iterator values", data, hasSize(0));
+	}
+
+	@Test
+	public void forEachOrdered_range_head_onExistingKeys() {
+		IntRangeSet m = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 7), rangeOf(9, 10));
+		List<Integer> data = new ArrayList<>(4);
+		m.forEachOrdered(1, 7, data::add);
+		assertThat("Consumed values", data, contains(1, 2, 4, 5, 6));
+	}
+
+	@Test
+	public void forEachOrdered_range_head_onNonexistingKeys() {
+		IntRangeSet m = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 7), rangeOf(9, 10));
+		List<Integer> data = new ArrayList<>(4);
+		m.forEachOrdered(-1, 5, data::add);
+		assertThat("Consumed values", data, contains(1, 2, 4));
+	}
+
+	@Test
+	public void forEachOrdered_range_tail_onExistingKeys() {
+		IntRangeSet m = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 7), rangeOf(9, 10));
+		List<Integer> data = new ArrayList<>(4);
+		m.forEachOrdered(7, 11, data::add);
+		assertThat("Consumed values", data, contains(7, 9, 10));
+	}
+
+	@Test
+	public void forEachOrdered_range_tail_onNonexistingKeys() {
+		IntRangeSet m = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 7), rangeOf(9, 10));
+		List<Integer> data = new ArrayList<>(4);
+		m.forEachOrdered(8, 11, data::add);
+		assertThat("Consumed values", data, contains(9, 10));
+	}
+
+	@Test
 	public void clear() {
 		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
 		assertThat("Ranges present", stream(s.ranges().spliterator(), false).collect(toList()),

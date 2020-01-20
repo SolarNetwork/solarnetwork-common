@@ -32,7 +32,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.SortedSet;
+import java.util.function.IntConsumer;
 
 /**
  * A {@code Set} implementation based on ordered and disjoint integer ranges.
@@ -48,7 +50,8 @@ import java.util.SortedSet;
  * @version 1.0
  * @since 1.58
  */
-public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<Integer>, Cloneable {
+public class IntRangeSet extends AbstractSet<Integer>
+		implements NavigableSet<Integer>, IntOrderedIterable, Cloneable {
 
 	private final boolean immutable;
 	private final List<IntRange> ranges;
@@ -126,6 +129,35 @@ public class IntRangeSet extends AbstractSet<Integer> implements NavigableSet<In
 	@Override
 	public String toString() {
 		return ranges.toString();
+	}
+
+	@Override
+	public void forEachOrdered(IntConsumer action) {
+		Objects.requireNonNull(action);
+		for ( IntRange r : ranges ) {
+			for ( int i = r.getMin(); i <= r.getMax(); i++ ) {
+				action.accept(i);
+			}
+		}
+	}
+
+	@Override
+	public void forEachOrdered(int min, int max, IntConsumer action) {
+		Objects.requireNonNull(action);
+		for ( IntRange r : ranges ) {
+			if ( min > r.getMax() ) {
+				continue;
+			} else if ( max <= r.getMin() ) {
+				break;
+			}
+			int i = r.getMin();
+			if ( i < min ) {
+				i = min;
+			}
+			for ( final int stop = max <= r.getMax() ? max - 1 : r.getMax(); i <= stop; i++ ) {
+				action.accept(i);
+			}
+		}
 	}
 
 	/**
