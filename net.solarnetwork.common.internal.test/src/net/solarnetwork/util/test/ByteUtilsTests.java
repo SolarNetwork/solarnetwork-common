@@ -24,6 +24,7 @@ package net.solarnetwork.util.test;
 
 import static net.solarnetwork.domain.ByteOrdering.BigEndian;
 import static net.solarnetwork.domain.ByteOrdering.LittleEndian;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -531,6 +532,23 @@ public class ByteUtilsTests {
 		BigDecimal dec = ByteUtils.parseDecimalCharacterString(data, 0, data.length, LittleEndian,
 				ByteUtils.ASCII);
 		assertThat(dec, equalTo(new BigDecimal("4201")));
+	}
+
+	@Test
+	public void testObjectArray() {
+		byte[] data = new byte[] { 1, 2, 3, 4, 5, 0 };
+		Byte[] result = ByteUtils.objectArray(data);
+		assertThat("Bytes turned to objects", result,
+				arrayContaining((byte) 1, (byte) 2, (byte) 3, (byte) 4, (byte) 5, (byte) 0));
+	}
+
+	@Test
+	public void testByteArray() {
+		Byte[] data = new Byte[] { 1, 2, 3, 4, 5, 0 };
+		byte[] result = ByteUtils.byteArray(data);
+		for ( int i = 0; i < data.length; i++ ) {
+			assertThat("Byte turned to primitive " + i, result[i], equalTo(data[i]));
+		}
 	}
 
 }

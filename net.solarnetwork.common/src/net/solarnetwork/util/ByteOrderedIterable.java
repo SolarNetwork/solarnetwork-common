@@ -1,5 +1,5 @@
 /* ==================================================================
- * IntOrderedIterable.java - 20/01/2020 3:55:44 pm
+ * ByteOrderedIterable.java - 25/01/2020 11:30:00 am
  * 
  * Copyright 2020 SolarNetwork.net Dev Team
  * 
@@ -22,16 +22,14 @@
 
 package net.solarnetwork.util;
 
-import java.util.function.IntConsumer;
-
 /**
- * API for a collection that supports ordered iteration over int values.
+ * API for a collection that supports ordered iteration over byte values.
  * 
  * @author matt
  * @version 1.0
  * @since 1.58
  */
-public interface IntOrderedIterable {
+public interface ByteOrderedIterable {
 
 	/**
 	 * Iterate over all primitive values in this collection.
@@ -45,7 +43,7 @@ public interface IntOrderedIterable {
 	 * @param action
 	 *        the consumer to handle the values
 	 */
-	void forEachOrdered(IntConsumer action);
+	void forEachOrdered(ByteConsumer action);
 
 	/**
 	 * Iterate over a range of values in this collection.
@@ -63,6 +61,6 @@ public interface IntOrderedIterable {
 	 * @param action
 	 *        the consumer to handle the values
 	 */
-	void forEachOrdered(int min, int max, IntConsumer action);
+	void forEachOrdered(int min, int max, ByteConsumer action);
 
 }
