@@ -37,7 +37,7 @@ import net.solarnetwork.domain.ByteOrdering;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.54
  */
 public final class ByteUtils {
@@ -53,6 +53,20 @@ public final class ByteUtils {
 
 	/** The ASCII character set. */
 	public static final Charset ASCII = Charset.forName(ASCII_CHARSET);
+
+	/**
+	 * The ISO-8859-1 (ISO-LATIN-1) character set name.
+	 * 
+	 * @since 1.1
+	 */
+	public static final String LATIN1_CHARSET = "ISO-8859-1";
+
+	/**
+	 * The ISO-8859-1 (ISO-LATIN-1) character set.
+	 * 
+	 * @since 1.1
+	 */
+	public static final Charset LATIN1 = Charset.forName(LATIN1_CHARSET);
 
 	private static final char[] DIGITS_UPPER = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A',
 			'B', 'C', 'D', 'E', 'F' };
@@ -996,6 +1010,68 @@ public final class ByteUtils {
 		byte[] bytes = parseBytes(data, offset, length, byteOrder);
 		String s = new String(bytes, charset);
 		return new BigDecimal(s);
+	}
+
+	/**
+	 * Convert an array of bytes to Byte objects.
+	 * 
+	 * @param array
+	 * @param array
+	 *        the array to convert
+	 * @return the converted array, or {@literal null} if {@code array} is
+	 *         {@literal null}
+	 * @since 1.1
+	 */
+	public static Byte[] objectArray(byte[] array) {
+		if ( array == null ) {
+			return null;
+		}
+		final int count = array.length;
+		final Byte[] result = new Byte[count];
+		for ( int i = 0; i < count; i++ ) {
+			result[i] = array[i];
+		}
+		return result;
+	}
+
+	/**
+	 * Convert an array of bytes to Byte objects.
+	 * 
+	 * <p>
+	 * {@literal 0} will be used for any {@literal null} object values.
+	 * </p>
+	 * 
+	 * @param array
+	 *        the array to convert
+	 * @return the converted array, or {@literal null} if {@code array} is
+	 *         {@literal null}
+	 * @since 1.1
+	 */
+	public static byte[] byteArray(Byte[] array) {
+		return byteArray(array, (byte) 0);
+	}
+
+	/**
+	 * Convert an array of bytes to Byte objects.
+	 * 
+	 * @param array
+	 *        the array to convert
+	 * @param nullValue
+	 *        the byte value to use for {@literal null} Byte values
+	 * @return the converted array, or {@literal null} if {@code array} is
+	 *         {@literal null}
+	 * @since 1.1
+	 */
+	public static byte[] byteArray(Byte[] array, byte nullValue) {
+		if ( array == null ) {
+			return null;
+		}
+		final int count = array.length;
+		final byte[] result = new byte[count];
+		for ( int i = 0; i < count; i++ ) {
+			result[i] = array[i] != null ? array[i].byteValue() : nullValue;
+		}
+		return result;
 	}
 
 }
