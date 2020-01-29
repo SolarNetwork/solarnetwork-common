@@ -118,7 +118,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	 * automatically configure this object as the connection observer if it
 	 * implements {@link MqttConnectionObserver}. It will also automatically
 	 * configure this object as the message handler if it implements
-	 * {@Link MqttMessageHandler}.
+	 * {@link MqttMessageHandler}.
 	 * </p>
 	 * 
 	 * @param conn

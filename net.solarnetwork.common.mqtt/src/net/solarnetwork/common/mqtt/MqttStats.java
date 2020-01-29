@@ -91,9 +91,6 @@ public class MqttStats {
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param uid
-	 *        the UID
 	 */
 	public MqttStats() {
 		this("", 0, null);
@@ -196,8 +193,8 @@ public class MqttStats {
 	/**
 	 * Get a current count value.
 	 * 
-	 * @param count
-	 *        the count to get
+	 * @param stat
+	 *        the statistic to get the count for
 	 * @return the current count value
 	 */
 	public long get(MqttStat stat) {

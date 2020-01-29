@@ -287,7 +287,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		if ( service instanceof ReconfigurableMqttConnection ) {
 			Future<?> f = ((ReconfigurableMqttConnection) service).reconfigure();
-			f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+			f.get(TIMEOUT_SECS * 2, TimeUnit.SECONDS);
 		}
 
 		// stop server to flush messages
