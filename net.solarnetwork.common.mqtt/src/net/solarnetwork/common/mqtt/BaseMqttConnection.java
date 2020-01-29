@@ -50,7 +50,7 @@ import net.solarnetwork.support.BasicIdentifiable;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public abstract class BaseMqttConnection extends BasicIdentifiable
 		implements MqttConnection, ReconfigurableMqttConnection, SettingsChangeObserver, PingTest {
@@ -152,6 +152,16 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 					} catch ( Exception e ) {
 						// ignore
 					}
+					log.info(
+							"Scheduling re-connection to {} MQTT server from configuration change in {}s",
+							getUid(), connectionConfig.getReconnectDelaySeconds());
+					final long reconnectDelay = Math.max(200L,
+							connectionConfig.getReconnectDelaySeconds() * 1000L);
+					try {
+						Thread.sleep(reconnectDelay);
+					} catch ( InterruptedException e2 ) {
+						// ignore
+					}
 					try {
 						open().get(connectionConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS);
 					} catch ( Exception e ) {
@@ -186,9 +196,13 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 		if ( isEstablished() ) {
 			return CompletableFuture.completedFuture(null);
 		}
-		CompletableFuture<MqttConnectReturnCode> f = new CompletableFuture<>();
+		final long connectDelay = Math.max(200L,
+				(connectionConfig.getReconnectDelaySeconds() * 1000L) / 4);
+		final Date connectDate = new Date(System.currentTimeMillis() + connectDelay);
+		final CompletableFuture<MqttConnectReturnCode> f = new CompletableFuture<>();
 		this.connectFuture = f;
-		scheduler.schedule(createConnectScheduledTask(f), new Date(System.currentTimeMillis() + 200L));
+		log.info("Scheduling connection to {} MQTT server in {}ms", getUid(), connectDelay);
+		scheduler.schedule(createConnectScheduledTask(f), connectDate);
 		return f;
 	}
 
