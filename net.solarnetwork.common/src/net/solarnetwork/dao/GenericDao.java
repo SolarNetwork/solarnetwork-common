@@ -23,7 +23,10 @@
 package net.solarnetwork.dao;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.osgi.service.event.Event;
 import net.solarnetwork.domain.SortDescriptor;
 
 /**
@@ -38,6 +41,101 @@ import net.solarnetwork.domain.SortDescriptor;
  * @since 1.59
  */
 public interface GenericDao<T extends Entity<K>, K> {
+
+	/**
+	 * Enumeration of standard entity event types.
+	 */
+	enum EntityEventType {
+		/** An entity has been deleted. */
+		DELETED,
+
+		/** An entity has been stored (inserted or updated). */
+		STORED;
+	}
+
+	/**
+	 * An event property key for an {@link Entity} instance.
+	 */
+	String ENTITY_EVENT_ENTITY_PROPERTY = "entity";
+
+	/**
+	 * An event property key for an {@link Entity#getId()} value.
+	 */
+	String ENTITY_EVENT_ENTITY_ID_PROPERTY = "id";
+
+	/**
+	 * An event topic template for entity events.
+	 * 
+	 * <p>
+	 * The event properties must include
+	 * {@link #ENTITY_EVENT_ENTITY_ID_PROPERTY} and may include
+	 * {@link #ENTITY_EVENT_ENTITY_PROPERTY}.
+	 * </p>
+	 */
+	String ENTITY_EVENT_TOPIC_TEMPLATE = "net/solarnetwork/dao/%s/%s";
+
+	/**
+	 * Generate an event topic out of an entity name and event type.
+	 * 
+	 * <p>
+	 * This method uses the {@link #ENTITY_EVENT_TOPIC_TEMPLATE} template to
+	 * format the topic value, passing the method arguments as format
+	 * parameters.
+	 * </p>
+	 * 
+	 * @param entityName
+	 *        an entity name
+	 * @param eventType
+	 *        an event type
+	 * @return the event topic
+	 */
+	static String entityEventTopic(String entityName, String eventType) {
+		return String.format(ENTITY_EVENT_TOPIC_TEMPLATE, entityName, eventType);
+	}
+
+	/**
+	 * Get an event topic for an event type.
+	 * 
+	 * <p>
+	 * This method uses the {@link #getObjectType()} simple name as the entity
+	 * name, and calls {@link GenericDao#entityEventTopic(String, String)} to
+	 * format the event topic
+	 * </p>
+	 * 
+	 * @param eventType
+	 *        the event type
+	 * @return the event topic
+	 */
+	default String entityEventTopic(EntityEventType eventType) {
+		return entityEventTopic(getObjectType().getSimpleName(), eventType.name());
+	}
+
+	/**
+	 * Create an entity event.
+	 * 
+	 * @param <E>
+	 *        the entity type
+	 * @param <I>
+	 *        the primary key type
+	 * @param id
+	 *        the primary key
+	 * @param entity
+	 *        the optional entity
+	 * @param topic
+	 *        the event topic
+	 * @return the new event instance
+	 */
+	static <E extends Entity<I>, I> Event createEntityEvent(I id, E entity, String topic) {
+		if ( id == null || topic == null ) {
+			return null;
+		}
+		Map<String, Object> props = new HashMap<>(2);
+		props.put(ENTITY_EVENT_ENTITY_ID_PROPERTY, id);
+		if ( entity != null ) {
+			props.put(ENTITY_EVENT_ENTITY_PROPERTY, entity);
+		}
+		return new Event(topic, props);
+	}
 
 	/**
 	 * Get the entity class supported by this DAO.
