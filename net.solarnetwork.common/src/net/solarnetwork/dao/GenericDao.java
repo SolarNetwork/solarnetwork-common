@@ -22,11 +22,15 @@
 
 package net.solarnetwork.dao;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.unmodifiableList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.osgi.service.event.Event;
+import net.solarnetwork.domain.SimpleSortDescriptor;
 import net.solarnetwork.domain.SortDescriptor;
 
 /**
@@ -43,9 +47,66 @@ import net.solarnetwork.domain.SortDescriptor;
 public interface GenericDao<T extends Entity<K>, K> {
 
 	/**
+	 * Enumeration of a set of standard sort keys.
+	 * 
+	 * <p>
+	 * When using as a sort key, the {@link #toString()} value should be used.
+	 * </p>
+	 */
+	enum StandardSortKey {
+
+		/** Sort by the entity creation date. */
+		CREATED,
+
+		/** Sort by the entity primary key. */
+		ID;
+	}
+
+	/**
+	 * Sort descriptor list to sort by creation date in ascending order.
+	 */
+	List<SortDescriptor> SORT_BY_CREATED_ASCENDING = unmodifiableList(
+			singletonList(new SimpleSortDescriptor(StandardSortKey.CREATED.toString())));
+
+	/**
+	 * Sort descriptor list to sort by creation date in descending order.
+	 */
+	List<SortDescriptor> SORT_BY_CREATED_DESCENDING = unmodifiableList(
+			singletonList(new SimpleSortDescriptor(StandardSortKey.CREATED.toString(), true)));
+
+	/**
+	 * Sort descriptor list to sort by ID in ascending order.
+	 */
+	List<SortDescriptor> SORT_BY_ID_ASCENDING = unmodifiableList(
+			singletonList(new SimpleSortDescriptor(StandardSortKey.ID.toString())));
+
+	/**
+	 * Sort descriptor list to sort by ID in descending order.
+	 */
+	List<SortDescriptor> SORT_BY_ID_DESCENDING = unmodifiableList(
+			singletonList(new SimpleSortDescriptor(StandardSortKey.ID.toString(), true)));
+
+	/**
+	 * Sort descriptor list to sort by creation date, then ID, both in ascending
+	 * order.
+	 */
+	List<SortDescriptor> SORT_BY_CREATED_ID_ASCENDING = unmodifiableList(
+			asList(new SimpleSortDescriptor(StandardSortKey.CREATED.toString()),
+					new SimpleSortDescriptor(StandardSortKey.ID.toString())));
+
+	/**
+	 * Sort descriptor list to sort by creation date, then ID, both in
+	 * descending order.
+	 */
+	List<SortDescriptor> SORT_BY_CREATED_ID_DESCENDING = unmodifiableList(
+			asList(new SimpleSortDescriptor(StandardSortKey.CREATED.toString(), true),
+					new SimpleSortDescriptor(StandardSortKey.ID.toString(), true)));
+
+	/**
 	 * Enumeration of standard entity event types.
 	 */
 	enum EntityEventType {
+
 		/** An entity has been deleted. */
 		DELETED,
 
