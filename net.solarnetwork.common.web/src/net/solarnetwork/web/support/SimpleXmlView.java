@@ -29,9 +29,11 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -50,43 +52,22 @@ import net.solarnetwork.util.ClassUtils;
  * {@link #setContentType(String)} (e.g. {@literal text/xml;charset=UTF-8}).
  * </p>
  * 
- * <p>
- * The configurable properties of this class are:
- * </p>
- * 
- * <dl>
- * <dt>rootElementName</dt>
- * <dd>The name of the root XML element to use.</dd>
- * 
- * <dt>singleBeanAsRoot</dt>
- * <dd>TODO</dd>
- * 
- * <dt>useModelTimeZoneForDates</dt>
- * <dd>TODO</dd>
- * 
- * <dt>modelKey</dt>
- * <dd>TODO</dd>
- * 
- * <dt>rootElementAugmentor</dt>
- * <dd>TODO</dd>
- * 
- * <dt>classNamesAllowedForNesting</dt>
- * <dd>TODO</dd>
- * </dl>
- * 
  * @author matt
- * @version 1.1
+ * @version 1.3
  */
 public class SimpleXmlView extends AbstractView {
 
 	/** Default content type. */
 	public static final String DEFAULT_XML_CONTENT_TYPE = "text/xml;charset=UTF-8";
 
+	/** The {@code rootElementName} property default value. */
+	public static final String DEFAULT_ROOT_ELEMENT_NAME = "root";
+
 	private static final ThreadLocal<SimpleDateFormat> SDF = new ThreadLocal<SimpleDateFormat>();
 
 	private static final Pattern AMP = Pattern.compile("&(?!\\w+;)");
 
-	private String rootElementName = "root";
+	private String rootElementName = DEFAULT_ROOT_ELEMENT_NAME;
 	private boolean singleBeanAsRoot = true;
 	private boolean useModelTimeZoneForDates = true;
 	private String modelKey = null;
@@ -103,7 +84,7 @@ public class SimpleXmlView extends AbstractView {
 	@Override
 	protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
-		Map<String, Object> finalModel = setupDateFormat(model);
+		Map<String, Object> finalModel = setupModel(model);
 
 		response.setContentType(getContentType());
 		String charset = getResponseCharacterEncoding();
@@ -119,8 +100,9 @@ public class SimpleXmlView extends AbstractView {
 		out.write(charset);
 		out.write("\"?>\n");
 
-		Object singleBean = finalModel.size() == 1 && this.singleBeanAsRoot ? finalModel.values()
-				.iterator().next() : null;
+		Object singleBean = finalModel.size() == 1 && this.singleBeanAsRoot
+				? finalModel.values().iterator().next()
+				: null;
 
 		if ( singleBean != null ) {
 			outputObject(singleBean, finalModel.keySet().iterator().next().toString(), out,
@@ -146,8 +128,9 @@ public class SimpleXmlView extends AbstractView {
 	 * 
 	 * @param model
 	 *        the model, to look for a TimeZone to format the dates in
+	 * @return the model to use
 	 */
-	private Map<String, Object> setupDateFormat(Map<String, Object> model) {
+	private Map<String, Object> setupModel(Map<String, Object> model) {
 		TimeZone tz = TimeZone.getTimeZone("GMT");
 		Map<String, Object> result = new LinkedHashMap<String, Object>();
 		for ( Map.Entry<String, Object> me : model.entrySet() ) {
@@ -191,9 +174,13 @@ public class SimpleXmlView extends AbstractView {
 			params.put("type", org.springframework.util.ClassUtils.getShortName(o.getClass()));
 			params.put("value", o);
 			writeElement("value", params, out, true, augmentor);
+		} else if ( o != null && o.getClass().isArray() ) {
+			Object[] array = (Object[]) o;
+			List<Object> list = Arrays.asList(array);
+			outputCollection(list, name, out, augmentor);
 		} else {
-			String elementName = (o == null ? name : org.springframework.util.ClassUtils.getShortName(o
-					.getClass()));
+			String elementName = (o == null ? name
+					: org.springframework.util.ClassUtils.getShortName(o.getClass()));
 			writeElement(elementName, o, out, true, augmentor);
 		}
 	}
@@ -213,6 +200,11 @@ public class SimpleXmlView extends AbstractView {
 			if ( value instanceof Collection ) {
 				// special collection case, we don't add nested element
 				for ( Object o : (Collection<?>) value ) {
+					outputObject(o, "value", out, augmentor);
+				}
+			} else if ( value != null && value.getClass().isArray() ) {
+				// special collection case, we don't add nested element
+				for ( Object o : (Object[]) value ) {
 					outputObject(o, "value", out, augmentor);
 				}
 			} else {
@@ -247,8 +239,8 @@ public class SimpleXmlView extends AbstractView {
 				String key = me.getKey().toString();
 				Object val = me.getValue();
 				if ( getPropertySerializerRegistrar() != null ) {
-					val = getPropertySerializerRegistrar().serializeProperty(name, val.getClass(),
-							props, val);
+					val = getPropertySerializerRegistrar().serializeProperty(name, val.getClass(), props,
+							val);
 				}
 				if ( val instanceof Date ) {
 					SimpleDateFormat sdf = SDF.get();
@@ -336,34 +328,101 @@ public class SimpleXmlView extends AbstractView {
 		out.write('>');
 	}
 
+	/**
+	 * Get the root XML element name to use.
+	 * 
+	 * @return the root name; defaults to {@link #DEFAULT_ROOT_ELEMENT_NAME}
+	 */
 	public String getRootElementName() {
 		return rootElementName;
 	}
 
+	/**
+	 * A root XML element name to use for the view output.
+	 * 
+	 * <p>
+	 * See {@link #setSingleBeanAsRoot(boolean)} which can be used to render a
+	 * single view object as the root element name instead of this value.
+	 * </p>
+	 * 
+	 * @param rootElementName
+	 *        the root element name to use
+	 */
 	public void setRootElementName(String rootElementName) {
 		this.rootElementName = rootElementName;
 	}
 
+	/**
+	 * Get the single-bean-as-root setting.
+	 * 
+	 * @return {@literal true} to treat models with a single object as the root
+	 *         element, otherwise {@code #getRootElementName()} should be used;
+	 *         defaults to {@literal true}
+	 */
 	public boolean isSingleBeanAsRoot() {
 		return singleBeanAsRoot;
 	}
 
+	/**
+	 * Toggle the single-bean-as-root setting.
+	 * 
+	 * <p>
+	 * When {@literal true} then if the model is a single object, it will be
+	 * used as the output root element. Otherwise {@link #getRootElementName()}
+	 * will be used as the root element.
+	 * </p>
+	 * 
+	 * @param singleBeanAsRoot
+	 *        the single bean as root setting to use
+	 */
 	public void setSingleBeanAsRoot(boolean singleBeanAsRoot) {
 		this.singleBeanAsRoot = singleBeanAsRoot;
 	}
 
+	/**
+	 * Get the model time zone settings.
+	 * 
+	 * @return {@literal true} to use a {@link TimeZone} from the model for
+	 *         rendered dates, {@literal false} to use {@code UTC}; defaults to
+	 *         {@literal true}
+	 */
 	public boolean isUseModelTimeZoneForDates() {
 		return useModelTimeZoneForDates;
 	}
 
+	/**
+	 * Toggle the use of a model-specific time zone for date values.
+	 * 
+	 * <p>
+	 * When {@literal true}, if a {@link TimeZone} is found as a model value, it
+	 * will be used to render dates to string values. Otherwise {@code UTC} will
+	 * be used.
+	 * </p>
+	 * 
+	 * @param useModelTimeZoneForDates
+	 *        the setting to use
+	 */
 	public void setUseModelTimeZoneForDates(boolean useModelTimeZoneForDates) {
 		this.useModelTimeZoneForDates = useModelTimeZoneForDates;
 	}
 
+	/**
+	 * Get a specific model key to render into XML.
+	 * 
+	 * @return the model key to use for the output XML, or {@literal null} to
+	 *         use the entire model
+	 */
 	public String getModelKey() {
 		return modelKey;
 	}
 
+	/**
+	 * Set the model key to use as the object to render to XML.
+	 * 
+	 * @param modelKey
+	 *        the model key to use, or {@literal null} to render the entire
+	 *        model
+	 */
 	public void setModelKey(String modelKey) {
 		this.modelKey = modelKey;
 	}
