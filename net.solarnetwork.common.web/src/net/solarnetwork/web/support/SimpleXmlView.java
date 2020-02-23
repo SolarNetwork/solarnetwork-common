@@ -53,7 +53,7 @@ import net.solarnetwork.util.ClassUtils;
  * </p>
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class SimpleXmlView extends AbstractView {
 
@@ -200,6 +200,11 @@ public class SimpleXmlView extends AbstractView {
 			if ( value instanceof Collection ) {
 				// special collection case, we don't add nested element
 				for ( Object o : (Collection<?>) value ) {
+					outputObject(o, "value", out, augmentor);
+				}
+			} else if ( value != null && value.getClass().isArray() ) {
+				// special collection case, we don't add nested element
+				for ( Object o : (Object[]) value ) {
 					outputObject(o, "value", out, augmentor);
 				}
 			} else {

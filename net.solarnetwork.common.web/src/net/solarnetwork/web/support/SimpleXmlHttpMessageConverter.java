@@ -25,6 +25,7 @@ package net.solarnetwork.web.support;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -34,8 +35,6 @@ import java.util.TimeZone;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import net.solarnetwork.util.ClassUtils;
-import net.solarnetwork.util.PropertySerializerRegistrar;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -44,12 +43,14 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import net.solarnetwork.util.ClassUtils;
+import net.solarnetwork.util.PropertySerializerRegistrar;
 
 /**
  * {@link HttpMessageConverter} that marshals objects into XML documents.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
@@ -92,21 +93,30 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 	}
 
 	@Override
-	protected void writeInternal(Object t, HttpOutputMessage outputMessage) throws IOException,
-			HttpMessageNotWritableException {
+	protected void writeInternal(Object t, HttpOutputMessage outputMessage)
+			throws IOException, HttpMessageNotWritableException {
 		OutputStream out = outputMessage.getBody();
 		try {
 			XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(out, "UTF-8");
 			writer.writeStartDocument("UTF-8", "1.0");
-			outputObject(t, t.getClass().getSimpleName(), writer);
+			String rootName;
+			if ( t.getClass().isArray() ) {
+				rootName = "array";
+			} else {
+				rootName = t.getClass().getSimpleName();
+			}
+			outputObject(t, rootName, writer);
 			writer.flush();
 		} catch ( XMLStreamException e ) {
 			throw new HttpMessageConversionException("Error creating XMLStreamWriter", e);
 		}
 	}
 
-	private void outputObject(Object o, String name, XMLStreamWriter writer) throws IOException,
-			XMLStreamException {
+	private void outputObject(Object o, String name, XMLStreamWriter writer)
+			throws IOException, XMLStreamException {
+		if ( o != null && o.getClass().isArray() ) {
+			o = Arrays.asList((Object[]) o);
+		}
 		if ( o instanceof Collection ) {
 			Collection<?> col = (Collection<?>) o;
 			outputCollection(col, name, writer);
@@ -121,14 +131,14 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 			params.put("value", o);
 			writeElement("value", params, writer, true);
 		} else {
-			String elementName = (o == null ? name : org.springframework.util.ClassUtils.getShortName(o
-					.getClass()));
+			String elementName = (o == null ? name
+					: org.springframework.util.ClassUtils.getShortName(o.getClass()));
 			writeElement(elementName, o, writer, true);
 		}
 	}
 
-	private void outputMap(Map<?, ?> map, String name, XMLStreamWriter writer) throws IOException,
-			XMLStreamException {
+	private void outputMap(Map<?, ?> map, String name, XMLStreamWriter writer)
+			throws IOException, XMLStreamException {
 		writeElement(name, null, writer, false);
 
 		// for each entry, write an <entry> element
@@ -138,6 +148,9 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 			writer.writeAttribute("key", entryName);
 
 			Object value = me.getValue();
+			if ( value != null && value.getClass().isArray() ) {
+				value = Arrays.asList((Object[]) value);
+			}
 			if ( value instanceof Collection ) {
 				// special collection case, we don't add nested element
 				for ( Object o : (Collection<?>) value ) {
@@ -171,8 +184,11 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 				String key = me.getKey().toString();
 				Object val = me.getValue();
 				if ( propertySerializerRegistrar != null ) {
-					val = propertySerializerRegistrar
-							.serializeProperty(name, val.getClass(), props, val);
+					val = propertySerializerRegistrar.serializeProperty(name, val.getClass(), props,
+							val);
+				}
+				if ( val != null && val.getClass().isArray() ) {
+					val = Arrays.asList((Object[]) val);
 				}
 				if ( val instanceof Date ) {
 					SimpleDateFormat sdf = SDF.get();
