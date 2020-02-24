@@ -23,6 +23,7 @@
 package net.solarnetwork.ocpp.domain;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -31,11 +32,7 @@ import net.solarnetwork.domain.Differentiable;
 import net.solarnetwork.util.StringUtils;
 
 /**
- * FIXME
- * 
- * <p>
- * TODO
- * </p>
+ * An OCPP charge point system user.
  * 
  * @author matt
  * @version 1.0
@@ -216,6 +213,26 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 	 */
 	public void setAllowedChargePointsValue(String list) {
 		setAllowedChargePoints(StringUtils.commaDelimitedStringToSet(list));
+	}
+
+	/**
+	 * Get the allowed charge points as an array.
+	 * 
+	 * @return the allowed charge points array, or {@literal null}
+	 */
+	public String[] getAllowedChargePointsArray() {
+		Set<String> allowed = getAllowedChargePoints();
+		return (allowed != null ? allowed.toArray(new String[allowed.size()]) : null);
+	}
+
+	/**
+	 * Set the allowed charge points as an array.
+	 * 
+	 * @param array
+	 *        the array to set
+	 */
+	public void setAllowedChargePointsArray(String[] array) {
+		setAllowedChargePoints(array != null ? new LinkedHashSet<>(Arrays.asList(array)) : null);
 	}
 
 }
