@@ -53,7 +53,7 @@ public interface ChargePointConnectorDao
 	 *        the status info
 	 * @return the saved primary key
 	 */
-	ChargePointConnectorKey saveStatusInfo(String chargePointId, StatusNotification info);
+	ChargePointConnectorKey saveStatusInfo(long chargePointId, StatusNotification info);
 
 	/**
 	 * Update just the status of one or more connectors for a specific Charge
@@ -68,7 +68,7 @@ public interface ChargePointConnectorDao
 	 *        the desired status
 	 * @return the number of connectors updated
 	 */
-	int updateChargePointStatus(String chargePointId, int connectorId, ChargePointStatus status);
+	int updateChargePointStatus(long chargePointId, int connectorId, ChargePointStatus status);
 
 	/**
 	 * Find all available connectors for a given Charge Point ID.
@@ -77,6 +77,6 @@ public interface ChargePointConnectorDao
 	 *        the ID of the Charge Point to find connectors for
 	 * @return the connectors, ordered by connector ID in ascending order
 	 */
-	Collection<ChargePointConnector> findByIdChargePointId(String chargePointId);
+	Collection<ChargePointConnector> findByChargePointId(long chargePointId);
 
 }

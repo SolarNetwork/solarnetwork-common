@@ -62,11 +62,11 @@ public interface ChargePointManager extends Identifiable {
 	 *         registered, is not disabled, and has a status of
 	 *         {@link RegistrationStatus#Accepted}
 	 */
-	boolean isChargePointRegistrationAccepted(String chargePointId);
+	boolean isChargePointRegistrationAccepted(long chargePointId);
 
 	/**
 	 * Get a complete set of Charge Point identifiers that are available, or
-	 * otherwise know to this manager.
+	 * otherwise known to this manager.
 	 * 
 	 * @return the set of available charge point identifiers, never
 	 *         {@literal null}
@@ -76,12 +76,12 @@ public interface ChargePointManager extends Identifiable {
 	/**
 	 * Test if a Charge Point is available, or otherwise known to this manager.
 	 * 
-	 * @param chargePointId
-	 *        the Charge Point ID to query
+	 * @param identifier
+	 *        the Charge Point identifier to query
 	 * @return {@literal true} if this manager is aware of the given
 	 *         {@code clientId} and should be able to send messages to it
 	 */
-	boolean isChargePointAvailable(String chargePointId);
+	boolean isChargePointAvailable(String identifier);
 
 	/**
 	 * Set the connector enabled state for a given connector ID.
@@ -97,7 +97,7 @@ public interface ChargePointManager extends Identifiable {
 	 *        {@literal false} to disable the connector
 	 * @return {@literal true} if the state was set
 	 */
-	CompletableFuture<Boolean> adjustConnectorEnabledState(String chargePointId, int connectorId,
+	CompletableFuture<Boolean> adjustConnectorEnabledState(long chargePointId, int connectorId,
 			boolean enabled);
 
 }

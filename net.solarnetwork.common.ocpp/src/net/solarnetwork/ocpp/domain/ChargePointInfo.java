@@ -62,6 +62,23 @@ public class ChargePointInfo {
 	}
 
 	/**
+	 * Constructor.
+	 * 
+	 * @param id
+	 *        the ID to use
+	 * @param chargePointVendor
+	 *        the vendor
+	 * @param chargePointModel
+	 *        the model
+	 */
+	public ChargePointInfo(String id, String chargePointVendor, String chargePointModel) {
+		super();
+		setId(id);
+		setChargePointVendor(chargePointVendor);
+		setChargePointModel(chargePointModel);
+	}
+
+	/**
 	 * Copy constructor.
 	 * 
 	 * @param other
@@ -69,6 +86,16 @@ public class ChargePointInfo {
 	 */
 	public ChargePointInfo(ChargePointInfo other) {
 		super();
+		copyFrom(other);
+	}
+
+	/**
+	 * Copy the properties of another info onto this instance.
+	 * 
+	 * @param info
+	 *        the properties to copy
+	 */
+	public void copyFrom(ChargePointInfo other) {
 		if ( other == null ) {
 			return;
 		}

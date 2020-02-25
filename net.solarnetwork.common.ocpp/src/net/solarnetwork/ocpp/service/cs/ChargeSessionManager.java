@@ -60,8 +60,8 @@ public interface ChargeSessionManager extends Identifiable {
 	 * An <em>active</em> charging session is one that has not ended yet.
 	 * </p>
 	 * 
-	 * @param chargePointId
-	 *        the charge point ID
+	 * @param identifier
+	 *        the charge point identifier
 	 * @param transactionId
 	 *        the transaction ID
 	 * @return the charge session
@@ -69,7 +69,7 @@ public interface ChargeSessionManager extends Identifiable {
 	 *         if any no active charge session is available for the given
 	 *         criteria
 	 */
-	ChargeSession getActiveChargingSession(String chargePointId, int transactionId)
+	ChargeSession getActiveChargingSession(String identifier, int transactionId)
 			throws AuthorizationException;
 
 	/**
@@ -80,12 +80,12 @@ public interface ChargeSessionManager extends Identifiable {
 	 * An <em>active</em> charging session is one that has not ended yet.
 	 * </p>
 	 * 
-	 * @param chargePointId
-	 *        the charge point ID to get sessions for, or {@literal null} for
-	 *        all sessions for all charge points
+	 * @param identifier
+	 *        the charge point identifier to get sessions for, or
+	 *        {@literal null} for all sessions for all charge points
 	 * @return the active sessions, never {@literal null}
 	 */
-	Collection<ChargeSession> getActiveChargingSessions(String chargePointId);
+	Collection<ChargeSession> getActiveChargingSessions(String identifier);
 
 	/**
 	 * Get all available charge session readings.

@@ -36,7 +36,7 @@ import net.solarnetwork.dao.BasicUuidEntity;
 public class ChargeSession extends BasicUuidEntity {
 
 	private final String authId;
-	private final String chargePointId;
+	private final long chargePointId;
 	private final int connectorId;
 	private final int transactionId;
 	private Instant ended;
@@ -60,7 +60,7 @@ public class ChargeSession extends BasicUuidEntity {
 	 * @param transactionId
 	 *        the transactionID
 	 */
-	public ChargeSession(UUID id, Instant created, String authId, String chargePointId, int connectorId,
+	public ChargeSession(UUID id, Instant created, String authId, long chargePointId, int connectorId,
 			int transactionId) {
 		super(id, created);
 		this.authId = authId;
@@ -83,7 +83,7 @@ public class ChargeSession extends BasicUuidEntity {
 	 * 
 	 * @return the Charge Point ID
 	 */
-	public String getChargePointId() {
+	public long getChargePointId() {
 		return chargePointId;
 	}
 

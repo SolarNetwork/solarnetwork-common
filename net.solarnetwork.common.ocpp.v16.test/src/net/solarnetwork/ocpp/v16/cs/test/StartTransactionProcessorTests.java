@@ -43,6 +43,8 @@ import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
 import net.solarnetwork.ocpp.domain.AuthorizationStatus;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePoint;
+import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionStartInfo;
 import net.solarnetwork.ocpp.service.AuthorizationException;
@@ -83,12 +85,14 @@ public class StartTransactionProcessorTests {
 	public void start_ok() throws InterruptedException {
 		// given
 		CountDownLatch l = new CountDownLatch(1);
-		String chargePointId = UUID.randomUUID().toString();
+		String identifier = UUID.randomUUID().toString();
+		ChargePoint cp = new ChargePoint(UUID.randomUUID().getMostSignificantBits(), Instant.now(),
+				new ChargePointInfo(identifier));
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 
 		Capture<ChargeSessionStartInfo> infoCaptor = new Capture<>();
-		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, chargePointId,
-				1, 2);
+		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
+				2);
 		expect(chargeSessionManager.startChargingSession(capture(infoCaptor))).andReturn(session);
 
 		// when
@@ -99,7 +103,7 @@ public class StartTransactionProcessorTests {
 		req.setTimestamp(XmlDateUtils.newXmlCalendar());
 		req.setMeterStart(12345);
 		ActionMessage<StartTransactionRequest> message = new BasicActionMessage<StartTransactionRequest>(
-				chargePointId, CentralSystemAction.StartTransaction, req);
+				identifier, CentralSystemAction.StartTransaction, req);
 		processor.processActionMessage(message, (msg, res, err) -> {
 			assertThat("Message passed", msg, sameInstance(message));
 			assertThat("Result available", res, notNullValue());
@@ -122,7 +126,7 @@ public class StartTransactionProcessorTests {
 		ChargeSessionStartInfo info = infoCaptor.getValue();
 		assertThat("Session auth ID is ID tag", info.getAuthorizationId(), equalTo(idTag));
 		assertThat("Session Charge Point ID copied from req", info.getChargePointId(),
-				equalTo(chargePointId));
+				equalTo(identifier));
 		assertThat("Connector ID copied from req", info.getConnectorId(), equalTo(req.getConnectorId()));
 		assertThat("Meter start copied from req", info.getMeterStart(),
 				equalTo((long) req.getMeterStart()));

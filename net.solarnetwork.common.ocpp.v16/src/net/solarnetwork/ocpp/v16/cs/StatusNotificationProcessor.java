@@ -26,7 +26,9 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
 import net.solarnetwork.ocpp.dao.ChargePointConnectorDao;
+import net.solarnetwork.ocpp.dao.ChargePointDao;
 import net.solarnetwork.ocpp.domain.ActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePoint;
 import net.solarnetwork.ocpp.domain.ChargePointErrorCode;
 import net.solarnetwork.ocpp.domain.ChargePointStatus;
 import net.solarnetwork.ocpp.domain.StatusNotification;
@@ -53,18 +55,26 @@ public class StatusNotificationProcessor
 	public static final Set<Action> SUPPORTED_ACTIONS = Collections
 			.singleton(CentralSystemAction.StatusNotification);
 
+	private final ChargePointDao chargePointDao;
 	private final ChargePointConnectorDao chargePointConnectorDao;
 
 	/**
 	 * Constructor.
 	 * 
+	 * @param chargePointDao
+	 *        the charge point DAO
 	 * @param chargePointConnectorDao
 	 *        the DAO to persist status notifications to
 	 * @throws IllegalArgumentException
 	 *         if {@code chargePointConnectorDao} is {@literal null}
 	 */
-	public StatusNotificationProcessor(ChargePointConnectorDao chargePointConnectorDao) {
+	public StatusNotificationProcessor(ChargePointDao chargePointDao,
+			ChargePointConnectorDao chargePointConnectorDao) {
 		super(StatusNotificationRequest.class, StatusNotificationResponse.class, SUPPORTED_ACTIONS);
+		if ( chargePointDao == null ) {
+			throw new IllegalArgumentException("The chargePointDao parameter must not be null.");
+		}
+		this.chargePointDao = chargePointDao;
 		if ( chargePointConnectorDao == null ) {
 			throw new IllegalArgumentException(
 					"The chargePointConnectorDao parameter must not be null.");
@@ -75,11 +85,19 @@ public class StatusNotificationProcessor
 	@Override
 	public void processActionMessage(ActionMessage<StatusNotificationRequest> message,
 			ActionMessageResultHandler<StatusNotificationRequest, StatusNotificationResponse> resultHandler) {
-		final String chargePointId = message.getClientId();
+		final String identifier = message.getClientId();
 		final StatusNotificationRequest req = message.getMessage();
-		if ( req == null || chargePointId == null ) {
+		if ( req == null || identifier == null ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormationViolation,
 					"Missing StatusNotificationRequest message.");
+			resultHandler.handleActionMessageResult(message, null, err);
+			return;
+		}
+
+		final ChargePoint chargePoint = chargePointDao.getForIdentifier(identifier);
+		if ( chargePoint == null ) {
+			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.SecurityError,
+					"Charge Point identifier not known.");
 			resultHandler.handleActionMessageResult(message, null, err);
 			return;
 		}
@@ -96,10 +114,10 @@ public class StatusNotificationProcessor
 				.build();
 		// @formatter:on
 
-		log.info("Received Charge Point {} status: {}", chargePointId, info);
+		log.info("Received Charge Point {} status: {}", identifier, info);
 
 		try {
-			chargePointConnectorDao.saveStatusInfo(chargePointId, info);
+			chargePointConnectorDao.saveStatusInfo(chargePoint.getId(), info);
 			resultHandler.handleActionMessageResult(message, new StatusNotificationResponse(), null);
 		} catch ( Throwable t ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.InternalError,

@@ -44,6 +44,8 @@ import org.junit.Before;
 import org.junit.Test;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePoint;
+import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
 import net.solarnetwork.ocpp.v16.cs.MeterValuesProcessor;
@@ -87,13 +89,15 @@ public class MeterValuesProcessorTests {
 	public void process_ok() throws InterruptedException {
 		// given
 		CountDownLatch l = new CountDownLatch(1);
-		String chargePointId = UUID.randomUUID().toString();
+		String identifier = UUID.randomUUID().toString();
+		ChargePoint cp = new ChargePoint(UUID.randomUUID().getMostSignificantBits(), Instant.now(),
+				new ChargePointInfo(identifier));
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 		int transactionId = 1;
 
-		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, chargePointId,
-				1, transactionId);
-		expect(chargeSessionManager.getActiveChargingSession(chargePointId, transactionId))
+		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
+				transactionId);
+		expect(chargeSessionManager.getActiveChargingSession(identifier, transactionId))
 				.andReturn(session);
 
 		Capture<Iterable<net.solarnetwork.ocpp.domain.SampledValue>> readingsCaptor = new Capture<>();
@@ -124,7 +128,7 @@ public class MeterValuesProcessorTests {
 		req.getMeterValue().add(mv);
 
 		ActionMessage<MeterValuesRequest> message = new BasicActionMessage<MeterValuesRequest>(
-				chargePointId, CentralSystemAction.MeterValues, req);
+				identifier, CentralSystemAction.MeterValues, req);
 		processor.processActionMessage(message, (msg, res, err) -> {
 			assertThat("Message passed", msg, sameInstance(message));
 			assertThat("Result available", res, notNullValue());

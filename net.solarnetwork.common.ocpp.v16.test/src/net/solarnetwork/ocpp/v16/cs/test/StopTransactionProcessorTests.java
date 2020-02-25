@@ -46,6 +46,8 @@ import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
 import net.solarnetwork.ocpp.domain.AuthorizationStatus;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePoint;
+import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndInfo;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndReason;
@@ -94,14 +96,16 @@ public class StopTransactionProcessorTests {
 	public void start_ok() throws InterruptedException {
 		// given
 		CountDownLatch l = new CountDownLatch(1);
-		String chargePointId = UUID.randomUUID().toString();
+		String identifier = UUID.randomUUID().toString();
+		ChargePoint cp = new ChargePoint(UUID.randomUUID().getMostSignificantBits(), Instant.now(),
+				new ChargePointInfo(identifier));
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 		int transactionId = 1;
 
 		Capture<ChargeSessionEndInfo> infoCaptor = new Capture<>();
-		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, chargePointId,
-				1, 2);
-		expect(chargeSessionManager.getActiveChargingSession(chargePointId, transactionId))
+		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
+				2);
+		expect(chargeSessionManager.getActiveChargingSession(identifier, transactionId))
 				.andReturn(session);
 
 		AuthorizationInfo authInfo = new AuthorizationInfo(idTag, AuthorizationStatus.Accepted, null,
@@ -136,7 +140,7 @@ public class StopTransactionProcessorTests {
 		req.getTransactionData().add(mv);
 
 		ActionMessage<StopTransactionRequest> message = new BasicActionMessage<StopTransactionRequest>(
-				chargePointId, CentralSystemAction.StopTransaction, req);
+				identifier, CentralSystemAction.StopTransaction, req);
 		processor.processActionMessage(message, (msg, res, err) -> {
 			assertThat("Message passed", msg, sameInstance(message));
 			assertThat("Result available", res, notNullValue());
@@ -157,7 +161,7 @@ public class StopTransactionProcessorTests {
 		ChargeSessionEndInfo info = infoCaptor.getValue();
 		assertThat("Session auth ID is ID tag", info.getAuthorizationId(), equalTo(idTag));
 		assertThat("Session Charge Point ID copied from req", info.getChargePointId(),
-				equalTo(chargePointId));
+				equalTo(identifier));
 		assertThat("Connector ID copied from req", info.getTransactionId(),
 				equalTo(req.getTransactionId()));
 		assertThat("Meter start copied from req", info.getMeterEnd(),

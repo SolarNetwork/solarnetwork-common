@@ -24,7 +24,7 @@ package net.solarnetwork.ocpp.domain;
 
 import java.time.Instant;
 import java.util.Objects;
-import net.solarnetwork.dao.BasicStringEntity;
+import net.solarnetwork.dao.BasicLongEntity;
 import net.solarnetwork.domain.Differentiable;
 
 /**
@@ -37,9 +37,9 @@ import net.solarnetwork.domain.Differentiable;
  * @author matt
  * @version 1.0
  */
-public class ChargePoint extends BasicStringEntity implements Differentiable<ChargePoint> {
+public class ChargePoint extends BasicLongEntity implements Differentiable<ChargePoint> {
 
-	private ChargePointInfo info;
+	private final ChargePointInfo info;
 	private RegistrationStatus registrationStatus;
 	private boolean enabled;
 	private int connectorCount;
@@ -49,6 +49,7 @@ public class ChargePoint extends BasicStringEntity implements Differentiable<Cha
 	 */
 	public ChargePoint() {
 		super();
+		this.info = new ChargePointInfo();
 	}
 
 	/**
@@ -57,7 +58,7 @@ public class ChargePoint extends BasicStringEntity implements Differentiable<Cha
 	 * @param id
 	 *        the primary key
 	 */
-	public ChargePoint(String id) {
+	public ChargePoint(Long id) {
 		this(id, Instant.now());
 	}
 
@@ -69,8 +70,40 @@ public class ChargePoint extends BasicStringEntity implements Differentiable<Cha
 	 * @param created
 	 *        the created date
 	 */
-	public ChargePoint(String id, Instant created) {
+	public ChargePoint(Long id, Instant created) {
+		this(id, created, new ChargePointInfo());
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param id
+	 *        the primary key
+	 * @param created
+	 *        the created date
+	 * @param info
+	 *        the info
+	 * @throws IllegalArgumentException
+	 *         if {@code info} is {@literal null}
+	 */
+	public ChargePoint(Long id, Instant created, ChargePointInfo info) {
 		super(id, created);
+		if ( info == null ) {
+			throw new IllegalArgumentException("The info parameter must not be null.");
+		}
+		this.info = info;
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param identifier
+	 *        the charge point ID
+	 * @param created
+	 *        the created date
+	 */
+	public ChargePoint(String identifier, Instant created) {
+		this(null, created, new ChargePointInfo(identifier));
 	}
 
 	/**
@@ -80,8 +113,7 @@ public class ChargePoint extends BasicStringEntity implements Differentiable<Cha
 	 *        the other charge point to copy
 	 */
 	public ChargePoint(ChargePoint other) {
-		this(other.getId(), other.getCreated());
-		this.info = new ChargePointInfo(other.info);
+		this(other.getId(), other.getCreated(), new ChargePointInfo(other.getInfo()));
 		this.registrationStatus = other.registrationStatus;
 		this.enabled = other.enabled;
 		this.connectorCount = other.connectorCount;
@@ -106,7 +138,7 @@ public class ChargePoint extends BasicStringEntity implements Differentiable<Cha
 			return false;
 		}
 		// @formatter:off
-		return (info != null && info.isSameAs(other.info))
+		return (info.isSameAs(other.info))
 				&& Objects.equals(registrationStatus, other.registrationStatus)
 				&& enabled == other.enabled
 				&& connectorCount == other.connectorCount;
@@ -131,12 +163,9 @@ public class ChargePoint extends BasicStringEntity implements Differentiable<Cha
 		builder.append(enabled);
 		builder.append(", connectorCount=");
 		builder.append(connectorCount);
+		builder.append(", info=");
+		builder.append(info);
 		builder.append(", ");
-		if ( info != null ) {
-			builder.append("info=");
-			builder.append(info);
-			builder.append(", ");
-		}
 		if ( getId() != null ) {
 			builder.append("getId()=");
 			builder.append(getId());
@@ -146,22 +175,22 @@ public class ChargePoint extends BasicStringEntity implements Differentiable<Cha
 	}
 
 	/**
-	 * Get the Charge Point information.
+	 * Copy the properties of a {@link ChargePointInfo}.
 	 * 
-	 * @return the info
+	 * @param info
+	 *        the properties to copy
 	 */
-	public ChargePointInfo getInfo() {
-		return info;
+	public void copyInfoFrom(ChargePointInfo info) {
+		info.copyFrom(info);
 	}
 
 	/**
-	 * Set the Charge Point information.
+	 * Get the Charge Point information.
 	 * 
-	 * @param info
-	 *        the info to set
+	 * @return the info; never {@literal null}
 	 */
-	public void setInfo(ChargePointInfo info) {
-		this.info = info;
+	public ChargePointInfo getInfo() {
+		return info;
 	}
 
 	/**

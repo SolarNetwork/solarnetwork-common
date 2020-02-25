@@ -31,6 +31,15 @@ import net.solarnetwork.ocpp.domain.ChargePoint;
  * @author matt
  * @version 1.0
  */
-public interface ChargePointDao extends GenericDao<ChargePoint, String> {
+public interface ChargePointDao extends GenericDao<ChargePoint, Long> {
+
+	/**
+	 * Get a charge point by its unique identifier.
+	 * 
+	 * @param identifier
+	 *        the charge point identifier to look for
+	 * @return the matching charge point, or {@literal null} if not found
+	 */
+	ChargePoint getForIdentifier(String identifier);
 
 }

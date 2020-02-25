@@ -55,7 +55,7 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 * @return the first available incomplete charge session, or {@literal null}
 	 *         if not found
 	 */
-	ChargeSession getIncompleteChargeSessionForTransaction(String chargePointId, int transactionId);
+	ChargeSession getIncompleteChargeSessionForTransaction(long chargePointId, int transactionId);
 
 	/**
 	 * Get an <em>incomplete</em> charge session for a given connector ID. An
@@ -68,7 +68,7 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 * @return the first available incomplete charge session, or {@literal null}
 	 *         if not found
 	 */
-	ChargeSession getIncompleteChargeSessionForConnector(String chargePointId, int connectorId);
+	ChargeSession getIncompleteChargeSessionForConnector(long chargePointId, int connectorId);
 
 	/**
 	 * Get all <em>incomplete</em> charge session for a given charge point ID.
@@ -79,7 +79,7 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 * @return all available incomplete charge session for the given charge
 	 *         point, never {@literal null}
 	 */
-	Collection<ChargeSession> getIncompleteChargeSessionForChargePoint(String chargePointId);
+	Collection<ChargeSession> getIncompleteChargeSessionForChargePoint(long chargePointId);
 
 	/**
 	 * Get all <em>incomplete</em> charge sessions. An <em>incomplete</em>

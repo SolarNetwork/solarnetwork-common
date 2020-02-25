@@ -36,7 +36,7 @@ public class ChargePointConnectorKey
 
 	private static final long serialVersionUID = 6544054010677060649L;
 
-	private final String chargePointId;
+	private final long chargePointId;
 	private final int connectorId;
 
 	/**
@@ -50,7 +50,7 @@ public class ChargePointConnectorKey
 	 * @throws IllegalArgumentException
 	 *         if {@code chargePointId} is {@literal null}
 	 */
-	public static ChargePointConnectorKey keyFor(String chargePointId, int connectorId) {
+	public static ChargePointConnectorKey keyFor(long chargePointId, int connectorId) {
 		return new ChargePointConnectorKey(chargePointId, connectorId);
 	}
 
@@ -64,20 +64,17 @@ public class ChargePointConnectorKey
 	 * @throws IllegalArgumentException
 	 *         if {@code chargePointId} is {@literal null}
 	 */
-	public ChargePointConnectorKey(String chargePointId, int connectorId) {
+	public ChargePointConnectorKey(long chargePointId, int connectorId) {
 		super();
-		if ( chargePointId == null ) {
-			throw new IllegalArgumentException("The chargePointId parameter must not be null.");
-		}
 		this.chargePointId = chargePointId;
 		this.connectorId = connectorId;
 	}
 
 	@Override
 	public int compareTo(ChargePointConnectorKey o) {
-		int result = chargePointId.compareTo(o.chargePointId);
+		int result = Long.compare(chargePointId, o.chargePointId);
 		if ( result == 0 ) {
-			result = (connectorId < o.connectorId ? -1 : connectorId > o.connectorId ? 1 : 0);
+			result = Integer.compare(connectorId, o.connectorId);
 		}
 		return result;
 	}
@@ -124,7 +121,7 @@ public class ChargePointConnectorKey
 	 * 
 	 * @return the chargePointId the Charge Point ID, never {@literal null}
 	 */
-	public String getChargePointId() {
+	public long getChargePointId() {
 		return chargePointId;
 	}
 
