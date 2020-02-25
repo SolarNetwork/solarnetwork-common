@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * Enumeration of charging profile schedule kinds.
  * 
  * @author matt
  * @version 1.0
  */
-public enum ChargingProfileKind {
+public enum ChargingProfileKind implements CodedValue {
 
 	/** Unknown kind. */
 	Unknown(0),
@@ -59,7 +61,8 @@ public enum ChargingProfileKind {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 

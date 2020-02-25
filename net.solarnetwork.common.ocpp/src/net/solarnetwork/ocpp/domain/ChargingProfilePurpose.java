@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * An enumeration of purpose types for a charging profile.
  * 
  * @author matt
  * @version 1.0
  */
-public enum ChargingProfilePurpose {
+public enum ChargingProfilePurpose implements CodedValue {
 
 	/** An unknown purpose. */
 	Unknown(0),
@@ -58,7 +60,8 @@ public enum ChargingProfilePurpose {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 

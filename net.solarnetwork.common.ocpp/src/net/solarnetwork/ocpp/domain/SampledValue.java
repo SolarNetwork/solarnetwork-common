@@ -79,15 +79,15 @@ public class SampledValue implements Comparable<SampledValue> {
 		if ( result != 0 ) {
 			return result;
 		}
-		result = Integer.compare(context.codeValue(), o.context.codeValue());
+		result = Integer.compare(context.getCode(), o.context.getCode());
 		if ( result != 0 ) {
 			return result;
 		}
-		result = Integer.compare(location.codeValue(), o.location.codeValue());
+		result = Integer.compare(location.getCode(), o.location.getCode());
 		if ( result != 0 ) {
 			return result;
 		}
-		return Integer.compare(measurand.codeValue(), o.measurand.codeValue());
+		return Integer.compare(measurand.getCode(), o.measurand.getCode());
 	}
 
 	@Override

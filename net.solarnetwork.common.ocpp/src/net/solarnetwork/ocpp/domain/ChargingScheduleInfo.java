@@ -277,7 +277,7 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	 * @return the rate code
 	 */
 	public int getRateUnitCode() {
-		return getRateUnit().codeValue();
+		return getRateUnit().getCode();
 	}
 
 	/**

@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * An AC phase.
  * 
  * @author matt
  * @version 1.0
  */
-public enum Phase {
+public enum Phase implements CodedValue {
 
 	Unknown(0),
 	L1(1),
@@ -53,7 +55,8 @@ public enum Phase {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 

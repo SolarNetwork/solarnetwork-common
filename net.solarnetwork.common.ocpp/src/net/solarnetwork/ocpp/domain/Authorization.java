@@ -137,7 +137,7 @@ public class Authorization extends BasicLongEntity implements Differentiable<Aut
 		builder.append("Authorization{id=");
 		builder.append(getId());
 		builder.append(", ");
-		if ( expiryDate != null ) {
+		if ( token != null ) {
 			builder.append("token=");
 			builder.append(token);
 			builder.append(", ");

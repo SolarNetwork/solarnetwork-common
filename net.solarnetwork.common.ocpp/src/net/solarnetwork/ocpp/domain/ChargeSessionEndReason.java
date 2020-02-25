@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * Enumeration of charging session end reasons.
  * 
  * @author matt
  * @version 1.0
  */
-public enum ChargeSessionEndReason {
+public enum ChargeSessionEndReason implements CodedValue {
 
 	Unknown(0),
 
@@ -55,7 +57,8 @@ public enum ChargeSessionEndReason {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 

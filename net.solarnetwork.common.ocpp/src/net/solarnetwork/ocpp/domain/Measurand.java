@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * A type of sampled value.
  * 
  * @author matt
  * @version 1.0
  */
-public enum Measurand {
+public enum Measurand implements CodedValue {
 
 	Unknown(0),
 	CurrentExport(1),
@@ -65,7 +67,8 @@ public enum Measurand {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 

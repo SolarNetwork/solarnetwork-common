@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * Enumeration of charging profile status values.
  * 
  * @author matt
  * @version 1.0
  */
-public enum ChargingProfileStatus {
+public enum ChargingProfileStatus implements CodedValue {
 
 	Unknown(0),
 
@@ -49,7 +51,8 @@ public enum ChargingProfileStatus {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 

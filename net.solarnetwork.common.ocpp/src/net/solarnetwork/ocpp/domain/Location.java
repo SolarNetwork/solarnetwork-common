@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * Enumeration of OCPP location values.
  * 
  * @author matt
  * @version 1.0
  */
-public enum Location {
+public enum Location implements CodedValue {
 
 	Body(1),
 
@@ -51,7 +53,8 @@ public enum Location {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 

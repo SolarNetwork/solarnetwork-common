@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * Enumeration of units of measure.
  * 
  * @author matt
  * @version 1.0
  */
-public enum UnitOfMeasure {
+public enum UnitOfMeasure implements CodedValue {
 
 	Unknown(0),
 
@@ -81,7 +83,8 @@ public enum UnitOfMeasure {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 

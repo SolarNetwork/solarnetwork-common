@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * The context for a sampled value.
  * 
  * @author matt
  * @version 1.0
  */
-public enum ReadingContext {
+public enum ReadingContext implements CodedValue {
 
 	Unknown(0),
 
@@ -59,7 +61,8 @@ public enum ReadingContext {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 

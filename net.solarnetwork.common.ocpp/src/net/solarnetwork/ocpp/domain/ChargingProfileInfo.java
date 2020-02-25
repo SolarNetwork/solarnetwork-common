@@ -199,7 +199,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	 * @return the purpose code
 	 */
 	public int getPurposeCode() {
-		return getPurpose().codeValue();
+		return getPurpose().getCode();
 	}
 
 	/**
@@ -242,7 +242,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	 * @return the kind code
 	 */
 	public int getKindCode() {
-		return getKind().codeValue();
+		return getKind().getCode();
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 		if ( r == null ) {
 			r = ChargingScheduleRecurrency.Unknown;
 		}
-		return r.codeValue();
+		return r.getCode();
 	}
 
 	/**

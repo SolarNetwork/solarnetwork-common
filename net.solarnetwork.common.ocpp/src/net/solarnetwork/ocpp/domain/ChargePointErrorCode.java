@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * Enumeration of charge point error codes.
  * 
  * @author matt
  * @version 1.0
  */
-public enum ChargePointErrorCode {
+public enum ChargePointErrorCode implements CodedValue {
 
 	Unknown(0),
 
@@ -62,7 +64,8 @@ public enum ChargePointErrorCode {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 

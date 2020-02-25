@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * Status of an authorization.
  * 
  * @author matt
  * @version 1.0
  */
-public enum AuthorizationStatus {
+public enum AuthorizationStatus implements CodedValue {
 
 	None(0),
 
@@ -53,7 +55,8 @@ public enum AuthorizationStatus {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 
@@ -62,8 +65,8 @@ public enum AuthorizationStatus {
 	 * 
 	 * @param code
 	 *        the code
-	 * @return the status, never {@literal null} and set to {@link #None} if
-	 *         not any other valid code
+	 * @return the status, never {@literal null} and set to {@link #None} if not
+	 *         any other valid code
 	 */
 	public static AuthorizationStatus forCode(int code) {
 		switch (code) {

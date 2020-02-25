@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * Status of a registration.
  * 
  * @author matt
  * @version 1.0
  */
-public enum RegistrationStatus {
+public enum RegistrationStatus implements CodedValue {
 
 	Unknown(0),
 
@@ -49,7 +51,8 @@ public enum RegistrationStatus {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 

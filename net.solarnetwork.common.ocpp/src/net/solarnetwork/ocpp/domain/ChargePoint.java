@@ -30,10 +30,6 @@ import net.solarnetwork.domain.Differentiable;
 /**
  * A Charge Point entity.
  * 
- * <p>
- * The primary key used is the charge point identity.
- * </p>
- * 
  * @author matt
  * @version 1.0
  */
@@ -91,19 +87,25 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 		if ( info == null ) {
 			throw new IllegalArgumentException("The info parameter must not be null.");
 		}
+		setRegistrationStatus(RegistrationStatus.Pending);
 		this.info = info;
 	}
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param identifier
-	 *        the charge point ID
 	 * @param created
 	 *        the created date
+	 * @param identifier
+	 *        the charge point ID
+	 * @param chargePointVendor
+	 *        the vendor
+	 * @param chargePointModel
+	 *        the model
 	 */
-	public ChargePoint(String identifier, Instant created) {
-		this(null, created, new ChargePointInfo(identifier));
+	public ChargePoint(Instant created, String identifier, String chargePointVendor,
+			String chargePointModel) {
+		this(null, created, new ChargePointInfo(identifier, chargePointVendor, chargePointModel));
 	}
 
 	/**
@@ -154,6 +156,11 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("ChargePoint{");
+		if ( getId() != null ) {
+			builder.append("id=");
+			builder.append(getId());
+			builder.append(", ");
+		}
 		if ( registrationStatus != null ) {
 			builder.append("registrationStatus=");
 			builder.append(registrationStatus);
@@ -165,11 +172,6 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 		builder.append(connectorCount);
 		builder.append(", info=");
 		builder.append(info);
-		builder.append(", ");
-		if ( getId() != null ) {
-			builder.append("getId()=");
-			builder.append(getId());
-		}
 		builder.append("}");
 		return builder.toString();
 	}

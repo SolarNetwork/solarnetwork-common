@@ -22,13 +22,15 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import net.solarnetwork.domain.CodedValue;
+
 /**
  * An enumeration of recurrency types.
  * 
  * @author matt
  * @version 1.0
  */
-public enum ChargingScheduleRecurrency {
+public enum ChargingScheduleRecurrency implements CodedValue {
 
 	/** Unknown kind. */
 	Unknown(0),
@@ -56,7 +58,8 @@ public enum ChargingScheduleRecurrency {
 	 * 
 	 * @return the code value
 	 */
-	public int codeValue() {
+	@Override
+	public int getCode() {
 		return code & 0xFF;
 	}
 
