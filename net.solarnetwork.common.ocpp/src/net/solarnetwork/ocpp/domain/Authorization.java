@@ -24,7 +24,7 @@ package net.solarnetwork.ocpp.domain;
 
 import java.time.Instant;
 import java.util.Objects;
-import net.solarnetwork.dao.BasicStringEntity;
+import net.solarnetwork.dao.BasicLongEntity;
 import net.solarnetwork.domain.Differentiable;
 
 /**
@@ -37,8 +37,9 @@ import net.solarnetwork.domain.Differentiable;
  * @author matt
  * @version 1.0
  */
-public class Authorization extends BasicStringEntity implements Differentiable<Authorization> {
+public class Authorization extends BasicLongEntity implements Differentiable<Authorization> {
 
+	private String token;
 	private boolean enabled;
 	private Instant expiryDate;
 	private String parentId;
@@ -56,7 +57,7 @@ public class Authorization extends BasicStringEntity implements Differentiable<A
 	 * @param id
 	 *        the primary key
 	 */
-	public Authorization(String id) {
+	public Authorization(Long id) {
 		this(id, Instant.now());
 	}
 
@@ -68,8 +69,21 @@ public class Authorization extends BasicStringEntity implements Differentiable<A
 	 * @param created
 	 *        the created date
 	 */
-	public Authorization(String id, Instant created) {
+	public Authorization(Long id, Instant created) {
 		super(id, created);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param created
+	 *        the created date
+	 * @param token
+	 *        the token
+	 */
+	public Authorization(Instant created, String token) {
+		super(null, created);
+		setToken(token);
 	}
 
 	/**
@@ -80,6 +94,7 @@ public class Authorization extends BasicStringEntity implements Differentiable<A
 	 */
 	public Authorization(Authorization other) {
 		this(other.getId(), other.getCreated());
+		this.token = other.token;
 		this.enabled = other.enabled;
 		this.expiryDate = other.expiryDate;
 		this.parentId = other.parentId;
@@ -105,6 +120,7 @@ public class Authorization extends BasicStringEntity implements Differentiable<A
 		}
 		// @formatter:off
 		return enabled == other.enabled
+				&& Objects.equals(token, other.token)
 				&& Objects.equals(expiryDate, other.expiryDate)
 				&& Objects.equals(parentId, other.parentId);
 		// @formatter:on
@@ -120,9 +136,12 @@ public class Authorization extends BasicStringEntity implements Differentiable<A
 		StringBuilder builder = new StringBuilder();
 		builder.append("Authorization{id=");
 		builder.append(getId());
-		builder.append(", enabled=");
-		builder.append(enabled);
 		builder.append(", ");
+		if ( expiryDate != null ) {
+			builder.append("token=");
+			builder.append(token);
+			builder.append(", ");
+		}
 		if ( expiryDate != null ) {
 			builder.append("expiryDate=");
 			builder.append(expiryDate);
@@ -145,6 +164,25 @@ public class Authorization extends BasicStringEntity implements Differentiable<A
 	 */
 	public boolean isExpired() {
 		return (expiryDate != null && expiryDate.isBefore(Instant.now()));
+	}
+
+	/**
+	 * Get the authorization token value.
+	 * 
+	 * @return the token
+	 */
+	public String getToken() {
+		return token;
+	}
+
+	/**
+	 * Set the authorization token value.
+	 * 
+	 * @param token
+	 *        the token to set
+	 */
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 	/**

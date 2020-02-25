@@ -31,6 +31,15 @@ import net.solarnetwork.ocpp.domain.Authorization;
  * @author matt
  * @version 1.0
  */
-public interface AuthorizationDao extends GenericDao<Authorization, String> {
+public interface AuthorizationDao extends GenericDao<Authorization, Long> {
+
+	/**
+	 * Get an authorization by its unique token.
+	 * 
+	 * @param token
+	 *        the token to look for
+	 * @return the matching authorization, or {@literal null} if not found
+	 */
+	Authorization getForToken(String token);
 
 }
