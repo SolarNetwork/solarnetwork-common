@@ -41,14 +41,39 @@ public class StatusNotification {
 	private final String vendorId;
 	private final String vendorErrorCode;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param connectorId
+	 *        the connector ID
+	 * @param status
+	 *        the status
+	 * @param errorCode
+	 *        the error code
+	 * @param info
+	 *        the info
+	 * @param timestamp
+	 *        the timestamp
+	 * @param vendorId
+	 *        the vendor ID
+	 * @param vendorErrorCode
+	 *        the vendor error code
+	 */
+	public StatusNotification(int connectorId, ChargePointStatus status, ChargePointErrorCode errorCode,
+			String info, Instant timestamp, String vendorId, String vendorErrorCode) {
+		super();
+		this.connectorId = connectorId;
+		this.status = status;
+		this.errorCode = errorCode;
+		this.info = info;
+		this.timestamp = timestamp;
+		this.vendorId = vendorId;
+		this.vendorErrorCode = vendorErrorCode;
+	}
+
 	private StatusNotification(Builder builder) {
-		this.connectorId = builder.connectorId;
-		this.status = builder.status;
-		this.errorCode = builder.errorCode;
-		this.info = builder.info;
-		this.timestamp = builder.timestamp;
-		this.vendorId = builder.vendorId;
-		this.vendorErrorCode = builder.vendorErrorCode;
+		this(builder.connectorId, builder.status, builder.errorCode, builder.info, builder.timestamp,
+				builder.vendorId, builder.vendorErrorCode);
 	}
 
 	@Override
@@ -65,11 +90,7 @@ public class StatusNotification {
 			return false;
 		}
 		StatusNotification other = (StatusNotification) obj;
-		return connectorId == other.connectorId && errorCode == other.errorCode
-				&& Objects.equals(info, other.info) && status == other.status
-				&& Objects.equals(timestamp, other.timestamp)
-				&& Objects.equals(vendorErrorCode, other.vendorErrorCode)
-				&& Objects.equals(vendorId, other.vendorId);
+		return connectorId == other.connectorId && isSameAs(other);
 	}
 
 	@Override
