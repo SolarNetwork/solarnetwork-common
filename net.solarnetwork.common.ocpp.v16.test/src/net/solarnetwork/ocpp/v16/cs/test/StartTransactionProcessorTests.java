@@ -44,6 +44,7 @@ import net.solarnetwork.ocpp.domain.AuthorizationInfo;
 import net.solarnetwork.ocpp.domain.AuthorizationStatus;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePoint;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionStartInfo;
@@ -81,13 +82,17 @@ public class StartTransactionProcessorTests {
 		EasyMock.replay(chargeSessionManager);
 	}
 
+	private ChargePointIdentity createClientId() {
+		return new ChargePointIdentity(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+	}
+
 	@Test
 	public void start_ok() throws InterruptedException {
 		// given
 		CountDownLatch l = new CountDownLatch(1);
-		String identifier = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 		ChargePoint cp = new ChargePoint(UUID.randomUUID().getMostSignificantBits(), Instant.now(),
-				new ChargePointInfo(identifier));
+				new ChargePointInfo(clientId.getIdentifier()));
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 
 		Capture<ChargeSessionStartInfo> infoCaptor = new Capture<>();
@@ -103,7 +108,7 @@ public class StartTransactionProcessorTests {
 		req.setTimestamp(XmlDateUtils.newXmlCalendar());
 		req.setMeterStart(12345);
 		ActionMessage<StartTransactionRequest> message = new BasicActionMessage<StartTransactionRequest>(
-				identifier, CentralSystemAction.StartTransaction, req);
+				clientId, CentralSystemAction.StartTransaction, req);
 		processor.processActionMessage(message, (msg, res, err) -> {
 			assertThat("Message passed", msg, sameInstance(message));
 			assertThat("Result available", res, notNullValue());
@@ -126,7 +131,7 @@ public class StartTransactionProcessorTests {
 		ChargeSessionStartInfo info = infoCaptor.getValue();
 		assertThat("Session auth ID is ID tag", info.getAuthorizationId(), equalTo(idTag));
 		assertThat("Session Charge Point ID copied from req", info.getChargePointId(),
-				equalTo(identifier));
+				equalTo(clientId));
 		assertThat("Connector ID copied from req", info.getConnectorId(), equalTo(req.getConnectorId()));
 		assertThat("Meter start copied from req", info.getMeterStart(),
 				equalTo((long) req.getMeterStart()));
@@ -140,7 +145,7 @@ public class StartTransactionProcessorTests {
 	public void start_notAuthorized() throws InterruptedException {
 		// given
 		CountDownLatch l = new CountDownLatch(1);
-		String chargePointId = UUID.randomUUID().toString();
+		ChargePointIdentity chargePointId = createClientId();
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 
 		expect(chargeSessionManager.startChargingSession(anyObject()))

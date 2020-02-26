@@ -39,6 +39,7 @@ import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
 import net.solarnetwork.ocpp.domain.AuthorizationStatus;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.service.AuthorizationService;
 import net.solarnetwork.ocpp.v16.cs.AuthorizeProcessor;
 import ocpp.v16.CentralSystemAction;
@@ -71,11 +72,15 @@ public class AuthorizeProcessorTests {
 		EasyMock.replay(authService);
 	}
 
+	private ChargePointIdentity createClientId() {
+		return new ChargePointIdentity(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+	}
+
 	@Test
 	public void auth_ok() throws InterruptedException {
 		// given
 		CountDownLatch l = new CountDownLatch(1);
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 		AuthorizationInfo auth = AuthorizationInfo.builder().withId(idTag)
 				.withStatus(AuthorizationStatus.Accepted).build();

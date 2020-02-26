@@ -44,6 +44,7 @@ import java.util.stream.StreamSupport;
 import org.junit.Before;
 import org.junit.Test;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.PendingActionMessage;
 import net.solarnetwork.ocpp.service.SimpleActionMessageQueue;
 import ocpp.domain.Action;
@@ -56,7 +57,7 @@ import ocpp.domain.Action;
  */
 public class SimpleActionMessageQueueTests {
 
-	private Map<String, Deque<PendingActionMessage>> map;
+	private Map<ChargePointIdentity, Deque<PendingActionMessage>> map;
 	private SimpleActionMessageQueue amq;
 
 	private enum Work implements Action {
@@ -75,10 +76,18 @@ public class SimpleActionMessageQueueTests {
 		amq = new SimpleActionMessageQueue(map);
 	}
 
+	private ChargePointIdentity createClientId() {
+		return createClientId(UUID.randomUUID().toString());
+	}
+
+	private ChargePointIdentity createClientId(String identifier) {
+		return new ChargePointIdentity(identifier, UUID.randomUUID().toString());
+	}
+
 	@Test
 	public void addPending() {
 		// given
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 		PendingActionMessage msg = new PendingActionMessage(
 				new BasicActionMessage<Object>(clientId, Work.LazeAbout, Boolean.TRUE));
 
@@ -93,7 +102,7 @@ public class SimpleActionMessageQueueTests {
 	@Test
 	public void addPending_multi() {
 		// given
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 
 		// when
 		PendingActionMessage msg = new PendingActionMessage(
@@ -112,8 +121,8 @@ public class SimpleActionMessageQueueTests {
 	@Test
 	public void addPending_multiClients() {
 		// given
-		String clientId1 = UUID.randomUUID().toString();
-		String clientId2 = UUID.randomUUID().toString();
+		ChargePointIdentity clientId1 = createClientId();
+		ChargePointIdentity clientId2 = createClientId();
 
 		// when
 		PendingActionMessage msg = new PendingActionMessage(
@@ -132,29 +141,30 @@ public class SimpleActionMessageQueueTests {
 
 	@Test
 	public void getQueue_none() {
-		Deque<PendingActionMessage> q = amq.pendingMessageQueue("foo");
+		Deque<PendingActionMessage> q = amq.pendingMessageQueue(createClientId());
 		assertThat("Queue created", q, allOf(notNullValue(), hasSize(0)));
 	}
 
 	@Test
 	public void getQueue_clientNotFound() {
 		// given
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId1 = createClientId();
 		PendingActionMessage msg = new PendingActionMessage(
-				new BasicActionMessage<Object>(clientId, Work.LazeAbout, Boolean.TRUE));
+				new BasicActionMessage<Object>(clientId1, Work.LazeAbout, Boolean.TRUE));
 		amq.addPendingMessage(msg);
 
 		// when
-		Deque<PendingActionMessage> q = amq.pendingMessageQueue("foo");
+		ChargePointIdentity clientId2 = createClientId();
+		Deque<PendingActionMessage> q = amq.pendingMessageQueue(clientId2);
 		assertThat("Queue created", q, allOf(notNullValue(), hasSize(0)));
-		assertThat("Two queues exist", map.keySet(), containsInAnyOrder(clientId, "foo"));
-		assertThat("Other queue still has item", map.get(clientId), hasSize(1));
+		assertThat("Two queues exist", map.keySet(), containsInAnyOrder(clientId1, clientId2));
+		assertThat("Other queue still has item", map.get(clientId1), hasSize(1));
 	}
 
 	@Test
 	public void getQueue() {
 		// given
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 		PendingActionMessage msg = new PendingActionMessage(
 				new BasicActionMessage<Object>(clientId, Work.LazeAbout, Boolean.TRUE));
 		amq.addPendingMessage(msg);
@@ -167,7 +177,7 @@ public class SimpleActionMessageQueueTests {
 	@Test
 	public void addPendingAndThen() {
 		// given
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 		PendingActionMessage msg = new PendingActionMessage(
 				new BasicActionMessage<Object>(clientId, Work.LazeAbout, Boolean.TRUE));
 
@@ -187,7 +197,7 @@ public class SimpleActionMessageQueueTests {
 	@Test
 	public void pollMessage() {
 		// given
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 		PendingActionMessage msg = new PendingActionMessage(
 				new BasicActionMessage<Object>(clientId, Work.LazeAbout, Boolean.TRUE));
 		amq.addPendingMessage(msg);
@@ -203,13 +213,14 @@ public class SimpleActionMessageQueueTests {
 	@Test
 	public void pollMessage_noClient() {
 		// given
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 		PendingActionMessage msg = new PendingActionMessage(
 				new BasicActionMessage<Object>(clientId, Work.LazeAbout, Boolean.TRUE));
 		amq.addPendingMessage(msg);
 
 		// when
-		PendingActionMessage result = amq.pollPendingMessage("foo", msg.getMessage().getMessageId());
+		PendingActionMessage result = amq.pollPendingMessage(createClientId(),
+				msg.getMessage().getMessageId());
 
 		// then
 		assertThat("Message not polled", result, nullValue());
@@ -219,7 +230,7 @@ public class SimpleActionMessageQueueTests {
 	@Test
 	public void pollMessage_noMessageId() {
 		// given
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 		PendingActionMessage msg = new PendingActionMessage(
 				new BasicActionMessage<Object>(clientId, Work.LazeAbout, Boolean.TRUE));
 		amq.addPendingMessage(msg);
@@ -235,7 +246,7 @@ public class SimpleActionMessageQueueTests {
 	@Test
 	public void poll() {
 		// given
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 		PendingActionMessage msg = new PendingActionMessage(
 				new BasicActionMessage<Object>(clientId, Work.LazeAbout, Boolean.TRUE));
 		amq.addPendingMessage(msg);
@@ -251,13 +262,13 @@ public class SimpleActionMessageQueueTests {
 	@Test
 	public void poll_noClient() {
 		// given
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 		PendingActionMessage msg = new PendingActionMessage(
 				new BasicActionMessage<Object>(clientId, Work.LazeAbout, Boolean.TRUE));
 		amq.addPendingMessage(msg);
 
 		// when
-		PendingActionMessage result = amq.pollPendingMessage("foo");
+		PendingActionMessage result = amq.pollPendingMessage(createClientId());
 
 		// then
 		assertThat("Message not polled", result, nullValue());
@@ -267,7 +278,7 @@ public class SimpleActionMessageQueueTests {
 	@Test
 	public void poll_noMessageId() {
 		// given
-		String clientId = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 
 		// create empty queue
 		amq.pendingMessageQueue(clientId);
@@ -283,8 +294,8 @@ public class SimpleActionMessageQueueTests {
 	@Test
 	public void allQueues_multiClient() {
 		// given
-		String clientId1 = "A";
-		String clientId2 = "B";
+		ChargePointIdentity clientId1 = createClientId("A");
+		ChargePointIdentity clientId2 = createClientId("B");
 
 		PendingActionMessage msg = new PendingActionMessage(
 				new BasicActionMessage<Object>(clientId1, Work.LazeAbout, Boolean.TRUE));
@@ -295,22 +306,22 @@ public class SimpleActionMessageQueueTests {
 		amq.addPendingMessage(msg2);
 
 		// when
-		Iterable<Entry<String, Deque<PendingActionMessage>>> set = amq.allQueues();
+		Iterable<Entry<ChargePointIdentity, Deque<PendingActionMessage>>> set = amq.allQueues();
 
 		// then
 		assertThat("Entry iterable available", set, notNullValue());
 
-		List<Entry<String, Deque<PendingActionMessage>>> list = StreamSupport
+		List<Entry<ChargePointIdentity, Deque<PendingActionMessage>>> list = StreamSupport
 				.stream(set.spliterator(), false).sorted((l, r) -> l.getKey().compareTo(r.getKey()))
 				.collect(Collectors.toList());
 
 		assertThat("Message added to queue 1", list, hasSize(2));
 
-		Entry<String, Deque<PendingActionMessage>> e1 = list.get(0);
+		Entry<ChargePointIdentity, Deque<PendingActionMessage>> e1 = list.get(0);
 		assertThat("Client 1 entry", e1.getKey(), equalTo(clientId1));
 		assertThat("Client 1 queue", e1.getValue(), contains(msg));
 
-		Entry<String, Deque<PendingActionMessage>> e2 = list.get(1);
+		Entry<ChargePointIdentity, Deque<PendingActionMessage>> e2 = list.get(1);
 		assertThat("Client 2 entry", e2.getKey(), equalTo(clientId2));
 		assertThat("Client 2 queue", e2.getValue(), contains(msg2));
 	}

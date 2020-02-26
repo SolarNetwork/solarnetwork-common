@@ -44,7 +44,7 @@ public interface ActionMessage<T> {
 	 * 
 	 * @return the client ID
 	 */
-	String getClientId();
+	ChargePointIdentity getClientId();
 
 	/**
 	 * Get the ID of this message.

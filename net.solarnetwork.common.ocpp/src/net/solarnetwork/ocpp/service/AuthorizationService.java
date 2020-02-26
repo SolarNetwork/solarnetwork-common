@@ -24,6 +24,7 @@ package net.solarnetwork.ocpp.service;
 
 import net.solarnetwork.domain.Identifiable;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 
 /**
  * API for authorizing an ID tag.
@@ -44,11 +45,11 @@ public interface AuthorizationService extends Identifiable {
 	 * Request authorization of a specific charge point ID tag value.
 	 * 
 	 * @param clientId
-	 *        the ID of the client making the request, such as a Charge Point ID
+	 *        the ID of the client making the request
 	 * @param identifier
 	 *        the identifier to authorize, e.g. RFID value
 	 * @return the authorization result, never {@literal null}
 	 */
-	AuthorizationInfo authorize(String clientId, String identifier);
+	AuthorizationInfo authorize(ChargePointIdentity clientId, String identifier);
 
 }

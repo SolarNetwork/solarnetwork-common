@@ -45,6 +45,7 @@ import org.junit.Test;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePoint;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
@@ -85,19 +86,23 @@ public class MeterValuesProcessorTests {
 		EasyMock.replay(chargeSessionManager);
 	}
 
+	private ChargePointIdentity createClientId() {
+		return new ChargePointIdentity(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+	}
+
 	@Test
 	public void process_ok() throws InterruptedException {
 		// given
 		CountDownLatch l = new CountDownLatch(1);
-		String identifier = UUID.randomUUID().toString();
+		ChargePointIdentity clientId = createClientId();
 		ChargePoint cp = new ChargePoint(UUID.randomUUID().getMostSignificantBits(), Instant.now(),
-				new ChargePointInfo(identifier));
+				new ChargePointInfo(clientId.getIdentifier()));
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 		int transactionId = 1;
 
 		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
 				transactionId);
-		expect(chargeSessionManager.getActiveChargingSession(identifier, transactionId))
+		expect(chargeSessionManager.getActiveChargingSession(clientId, transactionId))
 				.andReturn(session);
 
 		Capture<Iterable<net.solarnetwork.ocpp.domain.SampledValue>> readingsCaptor = new Capture<>();
@@ -127,8 +132,8 @@ public class MeterValuesProcessorTests {
 		mv.getSampledValue().add(sv);
 		req.getMeterValue().add(mv);
 
-		ActionMessage<MeterValuesRequest> message = new BasicActionMessage<MeterValuesRequest>(
-				identifier, CentralSystemAction.MeterValues, req);
+		ActionMessage<MeterValuesRequest> message = new BasicActionMessage<MeterValuesRequest>(clientId,
+				CentralSystemAction.MeterValues, req);
 		processor.processActionMessage(message, (msg, res, err) -> {
 			assertThat("Message passed", msg, sameInstance(message));
 			assertThat("Result available", res, notNullValue());

@@ -26,6 +26,7 @@ import java.util.Deque;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 import net.solarnetwork.ocpp.domain.ActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.PendingActionMessage;
 
 /**
@@ -52,7 +53,7 @@ public interface ActionMessageQueue {
 	 *        the client ID
 	 * @return the queue, never {@literal null}
 	 */
-	Deque<PendingActionMessage> pendingMessageQueue(String clientId);
+	Deque<PendingActionMessage> pendingMessageQueue(ChargePointIdentity clientId);
 
 	/**
 	 * Add a message to the pending message queue.
@@ -92,7 +93,7 @@ public interface ActionMessageQueue {
 	 *        the ID of the client
 	 * @return the found message, or {@literal null} if no messages available
 	 */
-	PendingActionMessage pollPendingMessage(final String clientId);
+	PendingActionMessage pollPendingMessage(final ChargePointIdentity clientId);
 
 	/**
 	 * Find and remove a message from the pending message queue, based on its
@@ -110,12 +111,12 @@ public interface ActionMessageQueue {
 	 *        the ID to find
 	 * @return the found message, or {@literal null} if not found
 	 */
-	PendingActionMessage pollPendingMessage(final String clientId, final String messageId);
+	PendingActionMessage pollPendingMessage(final ChargePointIdentity clientId, final String messageId);
 
 	/**
 	 * Get an iterable for all available queues.
 	 * 
 	 * @return the iterable, never {@literal null}
 	 */
-	Iterable<Entry<String, Deque<PendingActionMessage>>> allQueues();
+	Iterable<Entry<ChargePointIdentity, Deque<PendingActionMessage>>> allQueues();
 }

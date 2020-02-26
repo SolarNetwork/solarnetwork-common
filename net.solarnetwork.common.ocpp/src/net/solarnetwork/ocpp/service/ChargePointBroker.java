@@ -24,6 +24,7 @@ package net.solarnetwork.ocpp.service;
 
 import java.util.Set;
 import net.solarnetwork.ocpp.domain.ActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import ocpp.domain.Action;
 
 /**
@@ -41,7 +42,7 @@ public interface ChargePointBroker {
 	 * @return the set of available charge point identifiers, never
 	 *         {@literal null}
 	 */
-	Set<String> availableChargePointsIds();
+	Set<ChargePointIdentity> availableChargePointsIds();
 
 	/**
 	 * Test if a Charge Point is available, or otherwise known to this broker.
@@ -52,7 +53,7 @@ public interface ChargePointBroker {
 	 *         {@code clientId} and should be able to send messages to it via
 	 *         {@link #sendMessageToChargePoint(ActionMessage, ActionMessageResultHandler)}
 	 */
-	boolean isChargePointAvailable(String chargePointId);
+	boolean isChargePointAvailable(ChargePointIdentity chargePointId);
 
 	/**
 	 * Test if an {@link ActionMessage} is supported by this broker.

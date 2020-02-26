@@ -30,6 +30,7 @@ import net.solarnetwork.ocpp.dao.ChargePointDao;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePoint;
 import net.solarnetwork.ocpp.domain.ChargePointErrorCode;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargePointStatus;
 import net.solarnetwork.ocpp.domain.StatusNotification;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
@@ -85,7 +86,7 @@ public class StatusNotificationProcessor
 	@Override
 	public void processActionMessage(ActionMessage<StatusNotificationRequest> message,
 			ActionMessageResultHandler<StatusNotificationRequest, StatusNotificationResponse> resultHandler) {
-		final String identifier = message.getClientId();
+		final ChargePointIdentity identifier = message.getClientId();
 		final StatusNotificationRequest req = message.getMessage();
 		if ( req == null || identifier == null ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormationViolation,

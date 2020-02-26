@@ -40,6 +40,7 @@ import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import net.solarnetwork.ocpp.dao.SystemUserDao;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.SystemUser;
 import net.solarnetwork.support.PasswordEncoder;
 
@@ -47,11 +48,9 @@ import net.solarnetwork.support.PasswordEncoder;
  * Intercept the OCPP Charge Point web socket handshake.
  * 
  * <p>
- * This interceptor will extract the Charge Point client ID from the request URI
- * and save that to the session attribute {@link #CLIENT_ID_ATTR}. The HTTP
- * BASIC authorization username will be saved to the session attribute
- * {@link #USERNAME_ATTR}. If the client ID is not available then a
- * {@link HttpStatus#NOT_FOUND} error will be sent.
+ * This interceptor will extract the Charge Point client ID from the request and
+ * save that to the session attribute {@link #CLIENT_ID_ATTR}. If the client ID
+ * is not available then a {@link HttpStatus#NOT_FOUND} error will be sent.
  * </p>
  * 
  * @author matt
@@ -65,17 +64,17 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	/** The default {@code clientIdUriPattern} property value. */
 	public static final String DEFAULT_CLIENT_ID_URI_PATTERN = "/ocpp/v16/cs/json/(.*)";
 
-	/** The attribute key for the client ID. */
+	/**
+	 * The attribute key for the client ID, as a {@link ChargePointIdentity}.
+	 */
 	public static final String CLIENT_ID_ATTR = "clientId";
-
-	/** The attribute key for the username. */
-	public static final String USERNAME_ATTR = "username";
 
 	private static final Logger log = LoggerFactory.getLogger(OcppWebSocketHandshakeInterceptor.class);
 
 	private final SystemUserDao systemUserDao;
 	private final PasswordEncoder passwordEncoder;
 	private Pattern clientIdUriPattern;
+	private String fixedIdentityUsername;
 
 	/**
 	 * Constructor.
@@ -105,8 +104,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			return false;
 		}
 
-		final String chargePointId = m.group(1);
-		attributes.putIfAbsent(CLIENT_ID_ATTR, chargePointId);
+		final String identifier = m.group(1);
 
 		// enforce sub-protocol, as required by OCPP spec
 		WebSocketHandler handler = WebSocketHandlerDecorator.unwrap(wsHandler);
@@ -139,7 +137,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			String httpAuth = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 			if ( httpAuth == null ) {
 				log.warn("OCPP handshake request rejected for {}, Authorization header not provided.",
-						chargePointId);
+						identifier);
 				response.setStatusCode(HttpStatus.FORBIDDEN);
 				return false;
 			}
@@ -147,7 +145,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			if ( httpAuthComponents == null ) {
 				log.warn(
 						"OCPP handshake request rejected for {}, invalid Basic Authorization header provided: [{}]",
-						chargePointId, httpAuth);
+						identifier, httpAuth);
 				response.setStatusCode(HttpStatus.FORBIDDEN);
 				return false;
 			}
@@ -157,16 +155,16 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 			SystemUser user = systemUserDao.getForUsername(username);
 			if ( user == null ) {
-				log.warn("OCPP handshake request rejected for {}, system user {} not found.",
-						chargePointId, username);
+				log.warn("OCPP handshake request rejected for {}, system user {} not found.", identifier,
+						username);
 				response.setStatusCode(HttpStatus.FORBIDDEN);
 				return false;
 			}
 			if ( user.getAllowedChargePoints() != null && !user.getAllowedChargePoints().isEmpty()
-					&& !user.getAllowedChargePoints().contains(chargePointId) ) {
+					&& !user.getAllowedChargePoints().contains(identifier) ) {
 				log.warn(
 						"OCPP handshake request rejected for {}, system user {} does not allow this charge point.",
-						chargePointId, username);
+						identifier, username);
 				response.setStatusCode(HttpStatus.FORBIDDEN);
 				return false;
 			}
@@ -175,12 +173,13 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 						|| user.getPassword().equals(password)) ) {
 					log.warn(
 							"OCPP handshake request rejected for {}, system user {} password does not match.",
-							chargePointId, username);
+							identifier, username);
 					response.setStatusCode(HttpStatus.FORBIDDEN);
 					return false;
 				}
 			}
-			attributes.putIfAbsent(USERNAME_ATTR, username);
+			attributes.putIfAbsent(CLIENT_ID_ATTR, new ChargePointIdentity(identifier,
+					fixedIdentityUsername != null ? fixedIdentityUsername : username));
 		}
 
 		return true;
@@ -235,6 +234,36 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			throw new IllegalArgumentException("The client ID URI pattern must be provided.");
 		}
 		this.clientIdUriPattern = clientIdUriPattern;
+	}
+
+	/**
+	 * Get the fixed {@link ChargePointIdentity} username to use.
+	 * 
+	 * @return the username to use; defaults to {@code null}
+	 */
+	public String getFixedIdentityUsername() {
+		return fixedIdentityUsername;
+	}
+
+	/**
+	 * Set the fixed {@link ChargePointIdentity} username to use.
+	 * 
+	 * <p>
+	 * When this property is configured, then the
+	 * {@link ChargePointIdentity#getUsername()} value will always be saved as
+	 * this value when populating the {@link #CLIENT_ID_ATTR} session identity.
+	 * If <b>not</b> configured then the HTTP BASIC authorization username will
+	 * be used. This can be useful in contexts where the
+	 * {@link ChargePointIdentity#getIdentifier()} is sufficient to uniquely
+	 * identify a charge point, such as in SolarNode; the
+	 * {@link ChargePointIdentity#ANY_USERNAME} can be used for that scenario.
+	 * </p>
+	 * 
+	 * @param fixedIdentityUsername
+	 *        the fixed identity username to set
+	 */
+	public void setFixedIdentityUsername(String fixedIdentityUsername) {
+		this.fixedIdentityUsername = fixedIdentityUsername;
 	}
 
 }

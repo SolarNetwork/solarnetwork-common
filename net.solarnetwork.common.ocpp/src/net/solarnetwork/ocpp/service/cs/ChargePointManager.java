@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import net.solarnetwork.domain.Identifiable;
 import net.solarnetwork.ocpp.domain.ChargePoint;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.RegistrationStatus;
 
@@ -47,11 +48,13 @@ public interface ChargePointManager extends Identifiable {
 	 * administration tool to create a new Charge Point entity.
 	 * </p>
 	 * 
+	 * @param clientId
+	 *        the client ID making the request
 	 * @param info
 	 *        the details to register
 	 * @return the resulting charge point, never {@literal null}
 	 */
-	ChargePoint registerChargePoint(ChargePointInfo info);
+	ChargePoint registerChargePoint(ChargePointIdentity clientId, ChargePointInfo info);
 
 	/**
 	 * Test if a Charge Point's registration has been accepted.
@@ -71,7 +74,7 @@ public interface ChargePointManager extends Identifiable {
 	 * @return the set of available charge point identifiers, never
 	 *         {@literal null}
 	 */
-	Set<String> availableChargePointsIds();
+	Set<ChargePointIdentity> availableChargePointsIds();
 
 	/**
 	 * Test if a Charge Point is available, or otherwise known to this manager.
@@ -81,7 +84,7 @@ public interface ChargePointManager extends Identifiable {
 	 * @return {@literal true} if this manager is aware of the given
 	 *         {@code clientId} and should be able to send messages to it
 	 */
-	boolean isChargePointAvailable(String identifier);
+	boolean isChargePointAvailable(ChargePointIdentity identifier);
 
 	/**
 	 * Set the connector enabled state for a given connector ID.

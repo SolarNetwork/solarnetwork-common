@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndInfo;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndReason;
@@ -83,7 +84,7 @@ public class StopTransactionProcessor
 	@Override
 	public void processActionMessage(ActionMessage<StopTransactionRequest> message,
 			ActionMessageResultHandler<StopTransactionRequest, StopTransactionResponse> resultHandler) {
-		final String chargePointId = message.getClientId();
+		final ChargePointIdentity chargePointId = message.getClientId();
 		final StopTransactionRequest req = message.getMessage();
 		if ( req == null || chargePointId == null ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormationViolation,

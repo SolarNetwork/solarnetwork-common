@@ -29,21 +29,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.PendingActionMessage;
 
 /**
- * FIXME
- * 
- * <p>
- * TODO
- * </p>
+ * Simple in-memory implementation of {@link ActionMessageQueue}.
  * 
  * @author matt
  * @version 1.0
  */
 public class SimpleActionMessageQueue implements ActionMessageQueue {
 
-	private final Map<String, Deque<PendingActionMessage>> pendingMessages;
+	private final Map<ChargePointIdentity, Deque<PendingActionMessage>> pendingMessages;
 
 	/**
 	 * Constructor.
@@ -58,19 +55,20 @@ public class SimpleActionMessageQueue implements ActionMessageQueue {
 	 * @param pendingMessages
 	 *        the pending message queue map
 	 */
-	public SimpleActionMessageQueue(Map<String, Deque<PendingActionMessage>> pendingMessages) {
+	public SimpleActionMessageQueue(
+			Map<ChargePointIdentity, Deque<PendingActionMessage>> pendingMessages) {
 		super();
 		this.pendingMessages = pendingMessages;
 	}
 
 	@Override
-	public Deque<PendingActionMessage> pendingMessageQueue(String clientId) {
+	public Deque<PendingActionMessage> pendingMessageQueue(ChargePointIdentity clientId) {
 		return pendingMessages.computeIfAbsent(clientId, k -> new ArrayDeque<>(8));
 	}
 
 	@Override
 	public void addPendingMessage(PendingActionMessage msg, Consumer<Deque<PendingActionMessage>> fn) {
-		String clientId = msg.getMessage().getClientId();
+		ChargePointIdentity clientId = msg.getMessage().getClientId();
 		Deque<PendingActionMessage> q = pendingMessageQueue(clientId);
 		synchronized ( q ) {
 			// enqueue the call
@@ -82,7 +80,7 @@ public class SimpleActionMessageQueue implements ActionMessageQueue {
 	}
 
 	@Override
-	public PendingActionMessage pollPendingMessage(String clientId) {
+	public PendingActionMessage pollPendingMessage(ChargePointIdentity clientId) {
 		PendingActionMessage msg = null;
 		Deque<PendingActionMessage> q = pendingMessages.get(clientId);
 		if ( q != null ) {
@@ -94,7 +92,8 @@ public class SimpleActionMessageQueue implements ActionMessageQueue {
 	}
 
 	@Override
-	public PendingActionMessage pollPendingMessage(final String clientId, final String messageId) {
+	public PendingActionMessage pollPendingMessage(final ChargePointIdentity clientId,
+			final String messageId) {
 		PendingActionMessage msg = null;
 		Deque<PendingActionMessage> q = pendingMessages.get(clientId);
 		if ( q != null ) {
@@ -113,7 +112,7 @@ public class SimpleActionMessageQueue implements ActionMessageQueue {
 	}
 
 	@Override
-	public Iterable<Entry<String, Deque<PendingActionMessage>>> allQueues() {
+	public Iterable<Entry<ChargePointIdentity, Deque<PendingActionMessage>>> allQueues() {
 		return pendingMessages.entrySet();
 	}
 

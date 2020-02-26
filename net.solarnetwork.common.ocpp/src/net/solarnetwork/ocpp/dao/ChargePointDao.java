@@ -24,6 +24,7 @@ package net.solarnetwork.ocpp.dao;
 
 import net.solarnetwork.dao.GenericDao;
 import net.solarnetwork.ocpp.domain.ChargePoint;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 
 /**
  * Data Access Object API for {@link ChargePoint} entities.
@@ -36,10 +37,10 @@ public interface ChargePointDao extends GenericDao<ChargePoint, Long> {
 	/**
 	 * Get a charge point by its unique identifier.
 	 * 
-	 * @param identifier
+	 * @param chargePointId
 	 *        the charge point identifier to look for
 	 * @return the matching charge point, or {@literal null} if not found
 	 */
-	ChargePoint getForIdentifier(String identifier);
+	ChargePoint getForIdentifier(ChargePointIdentity chargePointId);
 
 }

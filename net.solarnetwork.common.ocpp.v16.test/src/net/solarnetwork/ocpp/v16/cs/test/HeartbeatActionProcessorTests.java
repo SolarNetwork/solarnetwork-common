@@ -30,10 +30,12 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.v16.cs.HeartbeatProcessor;
 import ocpp.v16.CentralSystemAction;
 import ocpp.v16.cs.HeartbeatRequest;
@@ -46,6 +48,10 @@ import ocpp.v16.cs.HeartbeatRequest;
  */
 public class HeartbeatActionProcessorTests {
 
+	private ChargePointIdentity createClientId(String identifier) {
+		return new ChargePointIdentity(identifier, UUID.randomUUID().toString());
+	}
+
 	@Test
 	public void ok() throws InterruptedException {
 		// given
@@ -54,7 +60,7 @@ public class HeartbeatActionProcessorTests {
 
 		// when
 		HeartbeatRequest req = new HeartbeatRequest();
-		BasicActionMessage<HeartbeatRequest> act = new BasicActionMessage<>("foo",
+		BasicActionMessage<HeartbeatRequest> act = new BasicActionMessage<>(createClientId("foo"),
 				CentralSystemAction.Heartbeat, req);
 		p.processActionMessage(act, (msg, res, err) -> {
 			assertThat("Message preserved", msg, sameInstance(act));
@@ -80,7 +86,7 @@ public class HeartbeatActionProcessorTests {
 
 		// when
 		HeartbeatRequest req = new HeartbeatRequest();
-		BasicActionMessage<HeartbeatRequest> act = new BasicActionMessage<>("foo",
+		BasicActionMessage<HeartbeatRequest> act = new BasicActionMessage<>(createClientId("foo"),
 				CentralSystemAction.Heartbeat, req);
 		p.processActionMessage(act, (msg, res, err) -> {
 			assertThat("Message preserved", msg, sameInstance(act));

@@ -85,7 +85,7 @@ public class BootNotificationProcessor
 			return;
 		}
 
-		ChargePointInfo info = new ChargePointInfo(message.getClientId());
+		ChargePointInfo info = new ChargePointInfo(message.getClientId().getIdentifier());
 		info.setChargePointVendor(req.getChargePointVendor());
 		info.setChargePointModel(req.getChargePointModel());
 		info.setChargePointSerialNumber(req.getChargePointSerialNumber());
@@ -97,7 +97,7 @@ public class BootNotificationProcessor
 		info.setMeterSerialNumber(req.getMeterSerialNumber());
 
 		try {
-			ChargePoint cp = chargePointManager.registerChargePoint(info);
+			ChargePoint cp = chargePointManager.registerChargePoint(message.getClientId(), info);
 
 			BootNotificationResponse res = new BootNotificationResponse();
 			res.setCurrentTime(XmlDateUtils.newXmlCalendar());

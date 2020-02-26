@@ -33,7 +33,7 @@ import ocpp.domain.Action;
  */
 public class BasicActionMessage<T> implements ActionMessage<T> {
 
-	private final String clientId;
+	private final ChargePointIdentity clientId;
 	private final String messageId;
 	private final Action action;
 	private final T message;
@@ -47,12 +47,14 @@ public class BasicActionMessage<T> implements ActionMessage<T> {
 	 * 
 	 * @param clientId
 	 *        the client ID
+	 * @param username
+	 *        the system user username
 	 * @param action
 	 *        the action
 	 * @param message
 	 *        the message
 	 */
-	public BasicActionMessage(String clientId, Action action, T message) {
+	public BasicActionMessage(ChargePointIdentity clientId, Action action, T message) {
 		this(clientId, UUID.randomUUID().toString(), action, message);
 	}
 
@@ -68,7 +70,7 @@ public class BasicActionMessage<T> implements ActionMessage<T> {
 	 * @param message
 	 *        the message
 	 */
-	public BasicActionMessage(String clientId, String messageId, Action action, T message) {
+	public BasicActionMessage(ChargePointIdentity clientId, String messageId, Action action, T message) {
 		super();
 		this.clientId = clientId;
 		this.messageId = messageId;
@@ -77,7 +79,7 @@ public class BasicActionMessage<T> implements ActionMessage<T> {
 	}
 
 	@Override
-	public String getClientId() {
+	public ChargePointIdentity getClientId() {
 		return clientId;
 	}
 

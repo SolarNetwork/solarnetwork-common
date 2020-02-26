@@ -24,6 +24,7 @@ package net.solarnetwork.ocpp.service;
 
 import java.util.Set;
 import java.util.TreeSet;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.util.OptionalServiceCollection;
 
 /**
@@ -46,8 +47,8 @@ public class ChargePointBrokerTracker implements ChargePointRouter {
 	}
 
 	@Override
-	public Set<String> availableChargePointsIds() {
-		Set<String> ids = new TreeSet<>();
+	public Set<ChargePointIdentity> availableChargePointsIds() {
+		Set<ChargePointIdentity> ids = new TreeSet<>();
 		for ( ChargePointBroker b : brokers.services() ) {
 			ids.addAll(b.availableChargePointsIds());
 		}
@@ -55,7 +56,7 @@ public class ChargePointBrokerTracker implements ChargePointRouter {
 	}
 
 	@Override
-	public ChargePointBroker brokerForChargePoint(String clientId) {
+	public ChargePointBroker brokerForChargePoint(ChargePointIdentity clientId) {
 		for ( ChargePointBroker b : brokers.services() ) {
 			if ( b.isChargePointAvailable(clientId) ) {
 				return b;

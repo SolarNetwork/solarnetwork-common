@@ -33,7 +33,7 @@ import java.util.Collections;
  */
 public class ChargeSessionEndInfo {
 
-	private final String chargePointId;
+	private final ChargePointIdentity chargePointId;
 	private final String authorizationId;
 	private final int transactionId;
 	private final Instant timestampEnd;
@@ -56,7 +56,7 @@ public class ChargeSessionEndInfo {
 	 * 
 	 * @return the Charge Point ID
 	 */
-	public String getChargePointId() {
+	public ChargePointIdentity getChargePointId() {
 		return chargePointId;
 	}
 
@@ -137,7 +137,7 @@ public class ChargeSessionEndInfo {
 	 */
 	public static final class Builder {
 
-		private String chargePointId;
+		private ChargePointIdentity chargePointId;
 		private String authorizationId;
 		private int transactionId;
 		private Instant timestampEnd;
@@ -158,7 +158,7 @@ public class ChargeSessionEndInfo {
 			this.transactionData = chargeSessionEndInfo.transactionData;
 		}
 
-		public Builder withChargePointId(String chargePointId) {
+		public Builder withChargePointId(ChargePointIdentity chargePointId) {
 			this.chargePointId = chargePointId;
 			return this;
 		}

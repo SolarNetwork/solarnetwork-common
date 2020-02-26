@@ -32,7 +32,7 @@ import java.time.Instant;
  */
 public class ChargeSessionStartInfo {
 
-	private final String chargePointId;
+	private final ChargePointIdentity chargePointId;
 	private final String authorizationId;
 	private final int connectorId;
 	private final Instant timestampStart;
@@ -86,7 +86,7 @@ public class ChargeSessionStartInfo {
 	 * 
 	 * @return the Charge Point ID
 	 */
-	public String getChargePointId() {
+	public ChargePointIdentity getChargePointId() {
 		return chargePointId;
 	}
 
@@ -158,7 +158,7 @@ public class ChargeSessionStartInfo {
 	 */
 	public static final class Builder {
 
-		private String chargePointId;
+		private ChargePointIdentity chargePointId;
 		private String authorizationId;
 		private int connectorId;
 		private Instant timestampStart;
@@ -177,7 +177,7 @@ public class ChargeSessionStartInfo {
 			this.reservationId = chargeSessionInfo.reservationId;
 		}
 
-		public Builder withChargePointId(String chargePointId) {
+		public Builder withChargePointId(ChargePointIdentity chargePointId) {
 			this.chargePointId = chargePointId;
 			return this;
 		}

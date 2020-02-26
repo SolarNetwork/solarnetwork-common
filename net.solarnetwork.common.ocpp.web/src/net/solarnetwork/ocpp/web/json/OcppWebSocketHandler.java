@@ -57,6 +57,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.PendingActionMessage;
 import net.solarnetwork.ocpp.service.ActionMessageProcessor;
 import net.solarnetwork.ocpp.service.ActionMessageQueue;
@@ -119,7 +120,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 
 	private final AsyncTaskExecutor executor;
 	private final ConcurrentMap<Action, Set<ActionMessageProcessor<Object, Object>>> processors;
-	private final ConcurrentMap<String, WebSocketSession> clientSessions;
+	private final ConcurrentMap<ChargePointIdentity, WebSocketSession> clientSessions;
 	private final ActionMessageQueue pendingMessages;
 	private final ObjectMapper mapper;
 	private TaskScheduler taskScheduler;
@@ -272,9 +273,10 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 		public void run() {
 			log.debug("Looking for expired pending message to clean...");
 			final long expiration = System.currentTimeMillis() - pendingMessageTimeout;
-			for ( Entry<String, Deque<PendingActionMessage>> me : pendingMessages.allQueues() ) {
+			for ( Entry<ChargePointIdentity, Deque<PendingActionMessage>> me : pendingMessages
+					.allQueues() ) {
 				boolean processNext = false;
-				String clientId = me.getKey();
+				ChargePointIdentity clientId = me.getKey();
 				Deque<PendingActionMessage> q = me.getValue();
 				PendingActionMessage msg = q.peek();
 				if ( msg != null && msg.getDate() < expiration ) {
@@ -307,7 +309,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		// save client session association
-		String clientId = clientId(session);
+		ChargePointIdentity clientId = clientId(session);
 		if ( clientId != null ) {
 			clientSessions.put(clientId, session);
 		}
@@ -316,20 +318,20 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 		// remove client session association
-		String clientId = clientId(session);
+		ChargePointIdentity clientId = clientId(session);
 		if ( clientId != null ) {
 			clientSessions.remove(clientId, session);
 		}
 	}
 
-	private String clientId(WebSocketSession session) {
+	private ChargePointIdentity clientId(WebSocketSession session) {
 		Object id = session.getAttributes().get(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR);
-		return (id != null ? id.toString() : null);
+		return (id instanceof ChargePointIdentity ? (ChargePointIdentity) id : null);
 	}
 
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-		final String clientId = clientId(session);
+		final ChargePointIdentity clientId = clientId(session);
 		log.trace("OCPP {} <<< {}", clientId, message.getPayload());
 		JsonNode tree;
 		try {
@@ -397,7 +399,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	 * @see #handleCallMessageResult(CallMessage, CallResultMessage,
 	 *      CallErrorMessage)
 	 */
-	private boolean handleCallMessage(final WebSocketSession session, final String clientId,
+	private boolean handleCallMessage(final WebSocketSession session, final ChargePointIdentity clientId,
 			final String messageId, final TextMessage message, final JsonNode tree) {
 		final JsonNode actionNode = tree.path(2);
 		final CentralSystemAction action;
@@ -435,12 +437,12 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	}
 
 	@Override
-	public Set<String> availableChargePointsIds() {
+	public Set<ChargePointIdentity> availableChargePointsIds() {
 		return clientSessions.keySet();
 	}
 
 	@Override
-	public boolean isChargePointAvailable(String clientId) {
+	public boolean isChargePointAvailable(ChargePointIdentity clientId) {
 		return clientSessions.containsKey(clientId);
 	}
 
@@ -469,7 +471,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	@Override
 	public <T, R> boolean sendMessageToChargePoint(ActionMessage<T> message,
 			ActionMessageResultHandler<T, R> resultHandler) {
-		final String clientId = message.getClientId();
+		final ChargePointIdentity clientId = message.getClientId();
 		if ( clientId == null || !clientSessions.containsKey(clientId) ) {
 			log.debug("Client ID [{}] not available; ignoring message {}", clientId, message);
 			return false;
@@ -522,7 +524,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	 *        the ID of the client to process the next pending message
 	 * @see #processNextPendingMessage(Deque)
 	 */
-	private void processNextPendingMessage(String clientId) {
+	private void processNextPendingMessage(ChargePointIdentity clientId) {
 		processNextPendingMessage(pendingMessages.pendingMessageQueue(clientId));
 	}
 
@@ -575,8 +577,9 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	 *        the JSON
 	 */
 	@SuppressWarnings("unchecked")
-	private void handleCallErrorMessage(final WebSocketSession session, final String clientId,
-			final String messageId, final TextMessage message, final JsonNode tree) {
+	private void handleCallErrorMessage(final WebSocketSession session,
+			final ChargePointIdentity clientId, final String messageId, final TextMessage message,
+			final JsonNode tree) {
 		try {
 			PendingActionMessage msg = pendingMessages.pollPendingMessage(clientId, messageId);
 			if ( msg == null ) {
@@ -629,8 +632,9 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	 * @param tree
 	 *        the JSON
 	 */
-	private void handleCallResultMessage(final WebSocketSession session, final String clientId,
-			final String messageId, final TextMessage message, final JsonNode tree) {
+	private void handleCallResultMessage(final WebSocketSession session,
+			final ChargePointIdentity clientId, final String messageId, final TextMessage message,
+			final JsonNode tree) {
 		try {
 			PendingActionMessage msg = pendingMessages.pollPendingMessage(clientId, messageId);
 			if ( msg == null ) {
@@ -656,7 +660,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 		}
 	}
 
-	private boolean sendCall(final WebSocketSession session, final String clientId,
+	private boolean sendCall(final WebSocketSession session, final ChargePointIdentity clientId,
 			final String messageId, final ocpp.domain.Action action, final Object payload) {
 		Object[] msg = new Object[] { MessageType.Call.getNumber(), messageId, action.getName(),
 				payload };
@@ -672,7 +676,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 		return false;
 	}
 
-	private boolean sendCallResult(final WebSocketSession session, final String clientId,
+	private boolean sendCallResult(final WebSocketSession session, final ChargePointIdentity clientId,
 			final String messageId, final Object payload) {
 		Object[] msg = new Object[] { MessageType.CallResult.getNumber(), messageId, payload };
 		try {
@@ -687,7 +691,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 		return false;
 	}
 
-	private boolean sendCallError(final WebSocketSession session, final String clientId,
+	private boolean sendCallError(final WebSocketSession session, final ChargePointIdentity clientId,
 			final String messageId, final ErrorCode errorCode, final String errorDescription,
 			final Map<String, ?> details) {
 		Object[] msg = new Object[] { MessageType.CallError.getNumber(), messageId, errorCode.getName(),
@@ -721,7 +725,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 		try {
 			final ActionMessage<Object> message = msg.getMessage();
 			final Action action = message.getAction();
-			final String clientId = message.getClientId();
+			final ChargePointIdentity clientId = message.getClientId();
 			final String messageId = message.getMessageId();
 			final WebSocketSession session = clientSessions.get(clientId);
 			if ( session == null ) {
@@ -792,7 +796,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	}
 
 	private void removePendingMessage(PendingActionMessage msg) {
-		String clientId = msg.getMessage().getClientId();
+		ChargePointIdentity clientId = msg.getMessage().getClientId();
 		Deque<PendingActionMessage> q = pendingMessages.pendingMessageQueue(clientId);
 		synchronized ( q ) {
 			q.removeFirstOccurrence(msg);

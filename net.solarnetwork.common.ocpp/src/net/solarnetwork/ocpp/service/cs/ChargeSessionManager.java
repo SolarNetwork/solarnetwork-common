@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.UUID;
 import net.solarnetwork.domain.Identifiable;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndInfo;
 import net.solarnetwork.ocpp.domain.ChargeSessionStartInfo;
@@ -60,8 +61,8 @@ public interface ChargeSessionManager extends Identifiable {
 	 * An <em>active</em> charging session is one that has not ended yet.
 	 * </p>
 	 * 
-	 * @param identifier
-	 *        the charge point identifier
+	 * @param chargePointId
+	 *        the charge point ID
 	 * @param transactionId
 	 *        the transaction ID
 	 * @return the charge session
@@ -69,7 +70,7 @@ public interface ChargeSessionManager extends Identifiable {
 	 *         if any no active charge session is available for the given
 	 *         criteria
 	 */
-	ChargeSession getActiveChargingSession(String identifier, int transactionId)
+	ChargeSession getActiveChargingSession(ChargePointIdentity chargePointId, int transactionId)
 			throws AuthorizationException;
 
 	/**
@@ -80,12 +81,12 @@ public interface ChargeSessionManager extends Identifiable {
 	 * An <em>active</em> charging session is one that has not ended yet.
 	 * </p>
 	 * 
-	 * @param identifier
+	 * @param chargePointId
 	 *        the charge point identifier to get sessions for, or
 	 *        {@literal null} for all sessions for all charge points
 	 * @return the active sessions, never {@literal null}
 	 */
-	Collection<ChargeSession> getActiveChargingSessions(String identifier);
+	Collection<ChargeSession> getActiveChargingSessions(ChargePointIdentity chargePointId);
 
 	/**
 	 * Get all available charge session readings.

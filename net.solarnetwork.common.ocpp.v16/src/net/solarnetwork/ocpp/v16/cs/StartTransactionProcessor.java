@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
 import net.solarnetwork.ocpp.domain.ActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionStartInfo;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
@@ -76,7 +77,7 @@ public class StartTransactionProcessor
 	@Override
 	public void processActionMessage(ActionMessage<StartTransactionRequest> message,
 			ActionMessageResultHandler<StartTransactionRequest, StartTransactionResponse> resultHandler) {
-		final String chargePointId = message.getClientId();
+		final ChargePointIdentity chargePointId = message.getClientId();
 		final StartTransactionRequest req = message.getMessage();
 		if ( req == null || chargePointId == null ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormationViolation,
