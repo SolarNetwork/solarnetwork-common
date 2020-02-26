@@ -48,8 +48,10 @@ import net.solarnetwork.support.PasswordEncoder;
  * 
  * <p>
  * This interceptor will extract the Charge Point client ID from the request URI
- * and save that to the session attribute {@link #CLIENT_ID_ATTR}. If the client
- * ID is not available then a {@link HttpStatus#NOT_FOUND} error will be sent.
+ * and save that to the session attribute {@link #CLIENT_ID_ATTR}. The HTTP
+ * BASIC authorization username will be saved to the session attribute
+ * {@link #USERNAME_ATTR}. If the client ID is not available then a
+ * {@link HttpStatus#NOT_FOUND} error will be sent.
  * </p>
  * 
  * @author matt
@@ -65,6 +67,9 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 	/** The attribute key for the client ID. */
 	public static final String CLIENT_ID_ATTR = "clientId";
+
+	/** The attribute key for the username. */
+	public static final String USERNAME_ATTR = "username";
 
 	private static final Logger log = LoggerFactory.getLogger(OcppWebSocketHandshakeInterceptor.class);
 
@@ -175,6 +180,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 					return false;
 				}
 			}
+			attributes.putIfAbsent(USERNAME_ATTR, username);
 		}
 
 		return true;
