@@ -47,6 +47,22 @@ public class ChargeSession extends BasicUuidEntity {
 	/**
 	 * Constructor.
 	 * 
+	 * @param authId
+	 *        the authorization ID
+	 * @param chargePointId
+	 *        the Charge Point ID
+	 * @param connectorId
+	 *        the Charge Point connector ID
+	 * @param transactionId
+	 *        the transactionID
+	 */
+	public ChargeSession(String authId, long chargePointId, int connectorId, int transactionId) {
+		this(null, null, authId, chargePointId, connectorId, transactionId);
+	}
+
+	/**
+	 * Constructor.
+	 * 
 	 * @param id
 	 *        the primary key
 	 * @param created
@@ -67,6 +83,26 @@ public class ChargeSession extends BasicUuidEntity {
 		this.chargePointId = chargePointId;
 		this.connectorId = connectorId;
 		this.transactionId = transactionId;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ChargeSession{id=");
+		builder.append(getId());
+		builder.append(", chargePointId=");
+		builder.append(chargePointId);
+		builder.append(", connectorId=");
+		builder.append(connectorId);
+		builder.append(", transactionId=");
+		builder.append(transactionId);
+		builder.append(", ");
+		if ( ended != null ) {
+			builder.append("ended=");
+			builder.append(ended);
+		}
+		builder.append("}");
+		return builder.toString();
 	}
 
 	/**

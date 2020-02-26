@@ -43,15 +43,42 @@ public class SampledValue implements Comparable<SampledValue> {
 	private final Location location;
 	private final UnitOfMeasure unit;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param sessionId
+	 *        the session ID
+	 * @param timestamp
+	 *        the timestamp
+	 * @param value
+	 *        the value
+	 * @param context
+	 *        the context
+	 * @param measurand
+	 *        the measurand
+	 * @param phase
+	 *        the phase
+	 * @param location
+	 *        the location
+	 * @param unit
+	 *        the unit
+	 */
+	public SampledValue(UUID sessionId, Instant timestamp, String value, ReadingContext context,
+			Measurand measurand, Phase phase, Location location, UnitOfMeasure unit) {
+		super();
+		this.sessionId = sessionId;
+		this.timestamp = timestamp;
+		this.value = value;
+		this.context = context;
+		this.measurand = measurand;
+		this.phase = phase;
+		this.location = location;
+		this.unit = unit;
+	}
+
 	private SampledValue(Builder builder) {
-		this.sessionId = builder.sessionId;
-		this.timestamp = builder.timestamp;
-		this.value = builder.value;
-		this.context = builder.context;
-		this.measurand = builder.measurand;
-		this.phase = builder.phase;
-		this.location = builder.location;
-		this.unit = builder.unit;
+		this(builder.sessionId, builder.timestamp, builder.value, builder.context, builder.measurand,
+				builder.phase, builder.location, builder.unit);
 	}
 
 	@Override
