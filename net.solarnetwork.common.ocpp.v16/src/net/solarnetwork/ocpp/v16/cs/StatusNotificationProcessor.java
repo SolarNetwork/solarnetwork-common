@@ -86,16 +86,16 @@ public class StatusNotificationProcessor
 	@Override
 	public void processActionMessage(ActionMessage<StatusNotificationRequest> message,
 			ActionMessageResultHandler<StatusNotificationRequest, StatusNotificationResponse> resultHandler) {
-		final ChargePointIdentity identifier = message.getClientId();
+		final ChargePointIdentity identity = message.getClientId();
 		final StatusNotificationRequest req = message.getMessage();
-		if ( req == null || identifier == null ) {
+		if ( req == null || identity == null ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormationViolation,
 					"Missing StatusNotificationRequest message.");
 			resultHandler.handleActionMessageResult(message, null, err);
 			return;
 		}
 
-		final ChargePoint chargePoint = chargePointDao.getForIdentifier(identifier);
+		final ChargePoint chargePoint = chargePointDao.getForIdentity(identity);
 		if ( chargePoint == null ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.SecurityError,
 					"Charge Point identifier not known.");
@@ -115,7 +115,7 @@ public class StatusNotificationProcessor
 				.build();
 		// @formatter:on
 
-		log.info("Received Charge Point {} status: {}", identifier, info);
+		log.info("Received Charge Point {} status: {}", identity, info);
 
 		try {
 			chargePointConnectorDao.saveStatusInfo(chargePoint.getId(), info);
