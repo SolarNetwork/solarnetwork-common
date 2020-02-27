@@ -48,13 +48,13 @@ public interface ChargePointManager extends Identifiable {
 	 * administration tool to create a new Charge Point entity.
 	 * </p>
 	 * 
-	 * @param clientId
+	 * @param identity
 	 *        the client ID making the request
 	 * @param info
 	 *        the details to register
 	 * @return the resulting charge point, never {@literal null}
 	 */
-	ChargePoint registerChargePoint(ChargePointIdentity clientId, ChargePointInfo info);
+	ChargePoint registerChargePoint(ChargePointIdentity identity, ChargePointInfo info);
 
 	/**
 	 * Test if a Charge Point's registration has been accepted.
@@ -79,17 +79,17 @@ public interface ChargePointManager extends Identifiable {
 	/**
 	 * Test if a Charge Point is available, or otherwise known to this manager.
 	 * 
-	 * @param identifier
-	 *        the Charge Point identifier to query
+	 * @param identity
+	 *        the Charge Point identity to query
 	 * @return {@literal true} if this manager is aware of the given
 	 *         {@code clientId} and should be able to send messages to it
 	 */
-	boolean isChargePointAvailable(ChargePointIdentity identifier);
+	boolean isChargePointAvailable(ChargePointIdentity identity);
 
 	/**
 	 * Set the connector enabled state for a given connector ID.
 	 * 
-	 * @param chargePointId
+	 * @param identity
 	 *        the ID of the Charge Point with the connector to adjust
 	 * @param connectorId
 	 *        the ID of the connector to adjust; connector IDs start at
@@ -100,7 +100,7 @@ public interface ChargePointManager extends Identifiable {
 	 *        {@literal false} to disable the connector
 	 * @return {@literal true} if the state was set
 	 */
-	CompletableFuture<Boolean> adjustConnectorEnabledState(long chargePointId, int connectorId,
+	CompletableFuture<Boolean> adjustConnectorEnabledState(ChargePointIdentity identity, int connectorId,
 			boolean enabled);
 
 }

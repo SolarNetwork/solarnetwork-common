@@ -56,10 +56,12 @@ public class ChargePointBrokerTracker implements ChargePointRouter {
 	}
 
 	@Override
-	public ChargePointBroker brokerForChargePoint(ChargePointIdentity clientId) {
-		for ( ChargePointBroker b : brokers.services() ) {
-			if ( b.isChargePointAvailable(clientId) ) {
-				return b;
+	public ChargePointBroker brokerForChargePoint(ChargePointIdentity identity) {
+		if ( identity != null ) {
+			for ( ChargePointBroker b : brokers.services() ) {
+				if ( b.isChargePointAvailable(identity) ) {
+					return b;
+				}
 			}
 		}
 		return null;
