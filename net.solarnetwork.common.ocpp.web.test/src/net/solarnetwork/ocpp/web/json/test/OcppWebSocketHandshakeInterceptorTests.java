@@ -46,6 +46,7 @@ import org.springframework.web.socket.SubProtocolCapable;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import net.solarnetwork.ocpp.dao.SystemUserDao;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.SystemUser;
 import net.solarnetwork.ocpp.web.json.OcppWebSocketHandshakeInterceptor;
 import net.solarnetwork.support.PasswordEncoder;
@@ -146,7 +147,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		assertThat("Result success", result, equalTo(true));
 		assertThat("Client ID attribute populated", attributes,
-				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR, "foobar"));
+				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR,
+						new ChargePointIdentity("foobar", "foo")));
 	}
 
 	@Test
@@ -171,8 +173,6 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from missing sub-protocol", result, equalTo(false));
-		assertThat("Client ID attribute populated", attributes,
-				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR, "foobar"));
 	}
 
 	@Test
@@ -198,8 +198,6 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from missing sub-protocol", result, equalTo(false));
-		assertThat("Client ID attribute populated", attributes,
-				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR, "foobar"));
 	}
 
 	@Test
