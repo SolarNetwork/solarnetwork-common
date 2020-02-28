@@ -92,7 +92,7 @@ public class ChargePointInfo {
 	/**
 	 * Copy the properties of another info onto this instance.
 	 * 
-	 * @param info
+	 * @param other
 	 *        the properties to copy
 	 */
 	public void copyFrom(ChargePointInfo other) {

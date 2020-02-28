@@ -47,8 +47,6 @@ public class BasicActionMessage<T> implements ActionMessage<T> {
 	 * 
 	 * @param clientId
 	 *        the client ID
-	 * @param username
-	 *        the system user username
 	 * @param action
 	 *        the action
 	 * @param message
