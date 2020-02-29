@@ -79,7 +79,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * </dl>
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 		implements FactoryBean<ObjectMapper> {
@@ -122,6 +122,12 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 		setupFeatures(mapper, featuresToEnable, true);
 		setupFeatures(mapper, featuresToDisable, false);
 		mapper.registerModule(module);
+
+		List<Module> otherModules = getModules();
+		if ( otherModules != null ) {
+			getObjectMapper().registerModules(otherModules);
+		}
+
 		return mapper;
 	}
 
