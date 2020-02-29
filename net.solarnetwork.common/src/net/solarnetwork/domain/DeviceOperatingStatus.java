@@ -161,6 +161,10 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	 * Creates builder to build {@link DeviceOperatingStatus} using an enum for
 	 * device state values.
 	 * 
+	 * @param <C>
+	 *        the enum type
+	 * @param clazz
+	 *        the enum type class
 	 * @return created builder
 	 */
 	public static <C extends Enum<C> & Bitmaskable> EnumBuilder<C> enumBuilder(Class<C> clazz) {

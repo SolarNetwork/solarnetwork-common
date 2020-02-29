@@ -83,6 +83,8 @@ public class Result<T> {
 	 * {@code return result(myData)} instead of
 	 * {@code new Result&lt;Object&gt;(myData)}.
 	 * 
+	 * @param <V>
+	 *        the result type
 	 * @param data
 	 *        the data
 	 * @return the response

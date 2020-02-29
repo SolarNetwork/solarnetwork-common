@@ -43,7 +43,7 @@ public final class CollectionUtils {
 	 * 
 	 * <p>
 	 * The resulting ranges are guaranteed to be equal to, <b>or a super set
-	 * of<b>, the given source set. Thus the resulting ranges could include
+	 * of</b>, the given source set. Thus the resulting ranges could include
 	 * <b>more</b> values than the source set. The resulting ranges will not
 	 * intersect any other but could be adjacent. They will also be ordered in
 	 * ascending order.
@@ -65,7 +65,7 @@ public final class CollectionUtils {
 	 * <li>20-28</li>
 	 * <li>404-406</li>
 	 * <li>412-418</li>
-	 * <ul>
+	 * </ul>
 	 * 
 	 * <p>
 	 * then calling this method like {@code minimizeIntRanges(s, 32)} would
@@ -75,7 +75,7 @@ public final class CollectionUtils {
 	 * <ul>
 	 * <li>0-28</li>
 	 * <li>404-418</li>
-	 * <ul>
+	 * </ul>
 	 * 
 	 * @param set
 	 *        the set of integers to reduce

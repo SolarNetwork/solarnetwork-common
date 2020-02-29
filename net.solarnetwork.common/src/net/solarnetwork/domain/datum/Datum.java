@@ -50,7 +50,7 @@ public interface Datum {
 	 * datum represents.
 	 * 
 	 * <p>
-	 * The <em>core<em> data type is the most specific interface defined on a
+	 * The <em>core</em> data type is the most specific interface defined on a
 	 * datum class, which will be the first value in the
 	 * {@link #DATUM_TYPES_PROPERTY} property.
 	 * </p>
@@ -106,14 +106,6 @@ public interface Datum {
 	 * @since 1.4
 	 */
 	String SOURCE_ID = "sourceId";
-
-	/**
-	 * A sample data key for a {@link Datum#getUploaded()} value, as a
-	 * {@code long} epoch value.
-	 * 
-	 * @since 1.4
-	 */
-	String TIMESTAMP_UPLOAD = "uploaded";
 
 	/**
 	 * Get the date this object was created, which is often equal to either the

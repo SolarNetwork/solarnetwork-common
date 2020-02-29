@@ -59,7 +59,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * The default value that causes {@code NoSuchElementException} to be thrown
-	 * in {@Link #getValue(int)}.
+	 * in {@link #getValue(int)}.
 	 */
 	public static final short VALUE_NO_SUCH_ELEMENT = Short.MIN_VALUE;
 
@@ -316,7 +316,8 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 * @param k
 	 *        the key of the value to get
 	 * @return the associated value
-	 * @throws NoSuchEl
+	 * @throws NoSuchElementException
+	 *         if {@code k} is not present
 	 */
 	public short getValue(final int k) {
 		final int idx = binarySearch(keys, 0, size, k);

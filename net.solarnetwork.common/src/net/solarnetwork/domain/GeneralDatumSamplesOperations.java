@@ -130,6 +130,8 @@ public interface GeneralDatumSamplesOperations {
 	 * will return {@literal null}.
 	 * </p>
 	 * 
+	 * @param <V>
+	 *        the expected value type
 	 * @param type
 	 *        the type of sample data to get
 	 * @param key

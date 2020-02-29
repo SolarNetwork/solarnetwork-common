@@ -258,8 +258,8 @@ public class DynamicServiceTracker<T>
 	/**
 	 * Get the OSGi service filter to filter services on.
 	 * 
-	 * @return the service filter expression, or {@link null} to not restrict by
-	 *         any service filter
+	 * @return the service filter expression, or {@literal null} to not restrict
+	 *         by any service filter
 	 */
 	public String getServiceFilter() {
 		return serviceFilter;

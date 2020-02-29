@@ -240,6 +240,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 	 * 
 	 * @param b
 	 *        the byte to add
+	 * @return {@literal true} if the byte was added
 	 */
 	public boolean add(byte b) {
 		ensureCapacity(size + 1);

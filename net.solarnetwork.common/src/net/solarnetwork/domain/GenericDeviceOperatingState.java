@@ -40,6 +40,9 @@ public class GenericDeviceOperatingState implements Bitmaskable {
 
 	/**
 	 * Constructor.
+	 * 
+	 * @param code
+	 *        the code
 	 */
 	public GenericDeviceOperatingState(int code) {
 		super();

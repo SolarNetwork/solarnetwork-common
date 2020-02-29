@@ -68,6 +68,8 @@ public class SimpleResourceMetadata implements ResourceMetadata {
 	 *        the modified date
 	 * @param contentType
 	 *        the content type
+	 * @param extendedMetadata
+	 *        optional extended metadata
 	 */
 	public SimpleResourceMetadata(Date modified, MimeType contentType, Map<String, ?> extendedMetadata) {
 		super();

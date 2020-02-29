@@ -131,7 +131,7 @@ public class HttpClientSupport {
 	 * <p>
 	 * This method also sets up the request property
 	 * {@code Accept-Encoding: gzip,deflate} so the response can be compressed.
-	 * The {@link #getInputSourceFromURLConnection(URLConnection)} automatically
+	 * The {@link #getInputStreamFromURLConnection(URLConnection)} automatically
 	 * handles compressed responses.
 	 * </p>
 	 * 

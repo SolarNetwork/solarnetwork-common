@@ -47,6 +47,8 @@ public interface CodedValue {
 	/**
 	 * Convert a code value into an enum value.
 	 * 
+	 * @param <T>
+	 *        the value type
 	 * @param code
 	 *        the code to get an enum value for
 	 * @param clazz
@@ -63,6 +65,8 @@ public interface CodedValue {
 	/**
 	 * Convert a code value into an enum value.
 	 * 
+	 * @param <T>
+	 *        the value type
 	 * @param code
 	 *        the code to get an enum value for
 	 * @param values

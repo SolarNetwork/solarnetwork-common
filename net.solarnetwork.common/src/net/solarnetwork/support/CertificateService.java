@@ -71,7 +71,7 @@ public interface CertificateService {
 	 * Generate a certificate chain formatted as a Base64-encoded PKCS#7 string
 	 * (PEM).
 	 * 
-	 * @param certs
+	 * @param chain
 	 *        the certificates to generate a PKCS#7 for
 	 * @return the certificate, as a Base64-encoded PKCS#7 request
 	 * @throws CertificateException

@@ -57,8 +57,13 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 *        the identity key
 	 * @param termsOfService
 	 *        the TOS
-	 * @param serviceURLs
-	 *        the service URLs
+	 * @param host
+	 *        the service host
+	 * @param port
+	 *        the service port
+	 * @param forceTLS
+	 *        {@literal true} if TLS should be used on a port other than
+	 *        {@literal 443}
 	 */
 	public BasicNetworkIdentity(String identityKey, String termsOfService, String host, Integer port,
 			Boolean forceTLS) {

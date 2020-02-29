@@ -151,7 +151,7 @@ public final class StringUtils {
 	 * @param set
 	 *        the set
 	 * @return the comma-delimited string
-	 * @see #delimitedStringFromCollection(Set, String)
+	 * @see #delimitedStringFromCollection(Collection, String)
 	 */
 	public static String commaDelimitedStringFromCollection(final Collection<?> set) {
 		return delimitedStringFromCollection(set, ",");
@@ -250,8 +250,8 @@ public final class StringUtils {
 	 * 
 	 * @param list
 	 *        the comma-delimited string
-	 * @return the Set, or <em>null</em> if {@code list} is <em>null</em> or an
-	 *         empty string
+	 * @return the Set, or {@literal null} if {@code list} is {@literal null} or
+	 *         an empty string
 	 * @see #delimitedStringToSet(String, String)
 	 */
 	public static Set<String> commaDelimitedStringToSet(final String list) {
@@ -273,8 +273,8 @@ public final class StringUtils {
 	 *        the delimited text
 	 * @param delim
 	 *        the delimiter to split the list with
-	 * @return the Set, or <em>null</em> if {@code list} is <em>null</em> or an
-	 *         empty string
+	 * @return the Set, or {@literal null} if {@code list} is {@literal null} or
+	 *         an empty string
 	 */
 	public static Set<String> delimitedStringToSet(final String list, final String delim) {
 		if ( list == null || list.length() < 1 ) {
@@ -301,6 +301,8 @@ public final class StringUtils {
 	 * 
 	 * @param mapping
 	 *        the delimited text
+	 * @return the map, or {@literal null} if {@code mapping} is {@literal null}
+	 *         or empty
 	 * @see #delimitedStringToMap(String, String, String)
 	 */
 	public static Map<String, String> commaDelimitedStringToMap(final String mapping) {
@@ -331,6 +333,8 @@ public final class StringUtils {
 	 *        the key+value record delimiter
 	 * @param fieldDelim
 	 *        the key+value delimiter
+	 * @return the map, or {@literal null} if {@code mapping} is {@literal null}
+	 *         or empty
 	 */
 	public static Map<String, String> delimitedStringToMap(final String mapping,
 			final String recordDelim, final String fieldDelim) {
@@ -352,16 +356,17 @@ public final class StringUtils {
 
 	/**
 	 * Create an array of regular expressions from strings. If
-	 * {@code expressions} is <em>null</em> or empty, the result will be
-	 * <em>null</em>. Pass {@bold 0} for {@code flags} if no special flags are
-	 * desired.
+	 * {@code expressions} is {@literal null} or empty, the result will be
+	 * {@literal null}. Pass {@literal 0} for {@code flags} if no special flags
+	 * are desired.
 	 * 
 	 * @param expressions
 	 *        the array of expressions to compile into {@link Pattern} objects
 	 * @param flags
-	 *        the Pattern flags to use, or {@bold 0} for no flags
+	 *        the Pattern flags to use, or {@literal 0} for no flags
 	 * @return the compiled regular expressions, in the same order as
-	 *         {@code expressions}, or <em>null</em> if no expressions supplied
+	 *         {@code expressions}, or {@literal null} if no expressions
+	 *         supplied
 	 * @throws PatternSyntaxException
 	 *         If an expression's syntax is invalid
 	 */
@@ -379,14 +384,14 @@ public final class StringUtils {
 
 	/**
 	 * Create an array of expression strings from Pattern objects. If
-	 * {@code patterns} is <em>null</em> or empty, the result will be
-	 * <em>null</em>.
+	 * {@code patterns} is {@literal null} or empty, the result will be
+	 * {@literal null}.
 	 * 
 	 * @param patterns
 	 *        the array of Pattern objects to convert to strings (may be
-	 *        <em>null</em>)
+	 *        {@literal null})
 	 * @return the string expressions, in the same order as {@code patterns}, or
-	 *         <em>null</em> if no patterns supplied
+	 *         {@literal null} if no patterns supplied
 	 */
 	public static String[] expressions(final Pattern[] patterns) {
 		String[] results = null;
@@ -403,13 +408,13 @@ public final class StringUtils {
 	 * Test if a string matches any one of a list of patterns. The
 	 * {@code patterns} list will be tested one at a time, in array order. The
 	 * first result that matches will be returned. If no match is found,
-	 * <em>null</em> is returned.
+	 * {@literal null} is returned.
 	 * 
 	 * @param patterns
-	 *        the patterns to test (may be <em>null</em>)
+	 *        the patterns to test (may be {@literal null})
 	 * @param text
-	 *        the string to test (may be <em>null</em>)
-	 * @return a {@link Matcher} that matches {@code text} or <em>null</em> if
+	 *        the string to test (may be {@literal null})
+	 * @return a {@link Matcher} that matches {@code text} or {@literal null} if
 	 *         no match was found
 	 */
 	public static Matcher matches(final Pattern[] patterns, String text) {
@@ -609,6 +614,10 @@ public final class StringUtils {
 	 * passed to {@link #sha256Base64Value(String)}.
 	 * </p>
 	 * 
+	 * @param <K>
+	 *        the key type
+	 * @param <V>
+	 *        the value type
 	 * @param map
 	 *        the map of values to mask
 	 * @param maskKeys
