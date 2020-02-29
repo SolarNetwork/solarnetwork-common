@@ -136,13 +136,6 @@ public interface Datum {
 	String getSourceId();
 
 	/**
-	 * Get the date this object was uploaded to SolarNet.
-	 * 
-	 * @return the upload date
-	 */
-	Date getUploaded();
-
-	/**
 	 * Get a map of all available data sampled or collected on this datum.
 	 * 
 	 * @return a map with all available sample data
