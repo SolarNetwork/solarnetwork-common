@@ -116,15 +116,11 @@ public class ChargePointConnector extends BasicEntity<ChargePointConnectorKey> {
 	 * 
 	 * @param info
 	 *        the info to set
-	 * @throws IllegalArgumentException
-	 *         if {@link StatusNotification#getConnectorId()} does not match the
-	 *         {@link ChargePointConnectorKey#getConnectorId()} in
-	 *         {@link #getId()}
 	 */
 	public void setInfo(StatusNotification info) {
-		if ( info != null && info.getConnectorId() != getId().getConnectorId() ) {
-			throw new IllegalArgumentException(
-					"The info->connectorId must not differ from this object's id->connectorId.");
+		ChargePointConnectorKey id = getId();
+		if ( info != null && id != null && info.getConnectorId() != id.getConnectorId() ) {
+			info = info.toBuilder().withConnectorId(id.getConnectorId()).build();
 		}
 		this.info = info;
 	}

@@ -25,6 +25,7 @@ package net.solarnetwork.ocpp.domain;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * A sampled value, e.g. a meter reading.
@@ -32,6 +33,7 @@ import java.util.UUID;
  * @author matt
  * @version 1.0
  */
+@JsonDeserialize(builder = SampledValue.Builder.class)
 public class SampledValue implements Comparable<SampledValue> {
 
 	private final UUID sessionId;

@@ -32,25 +32,64 @@ import net.solarnetwork.domain.CodedValue;
  */
 public enum ChargePointErrorCode implements CodedValue {
 
+	/** Unknown error code. */
 	Unknown(0),
 
+	/** Failure to lock or unlock the connector. */
 	ConnectorLockFailure(1),
+
+	/** Temperature inside Charge Point is too high. */
 	HighTemperature(2),
+
+	/** EV communication error, see {@link #EVCommunicationError}. */
 	Mode3Error(3),
+
+	/** No error to report. */
 	NoError(4),
+
+	/** Failure to read electrical/energy/power meter. */
 	PowerMeterFailure(5),
+
+	/** Failure to control power switch. */
 	PowerSwitchFailure(6),
+
+	/** Failure with idTag reader. */
 	ReaderFailure(7),
+
+	/** Unable to perform a reset. */
 	ResetFailure(8),
+
+	/** Ground fault circuit interrupter has been activated. */
 	GroundFailure(9),
+
+	/** Over current protection device has tripped. */
 	OverCurrentFailure(10),
+
+	/** Voltage has dropped below an acceptable level. */
 	UnderVoltage(11),
+
+	/** Wireless communication device reports a weak signal. */
 	WeakSignal(12),
+
+	/** Other type of error. More information in {@code vendorErrorCode}. */
 	OtherError(13),
 
+	/**
+	 * Communication failure with the vehicle, might be Mode 3 or other
+	 * communication protocol problem.
+	 */
 	EVCommunicationError(14),
+
+	/** Error in internal hard- or software component. */
 	InternalError(15),
+
+	/**
+	 * The authorization information received from the Central System is in
+	 * conflict with the LocalAuthorizationList.
+	 */
 	LocalListConflict(16),
+
+	/** Voltage has risen above an acceptable level. */
 	OverVoltage(17);
 
 	private final byte code;

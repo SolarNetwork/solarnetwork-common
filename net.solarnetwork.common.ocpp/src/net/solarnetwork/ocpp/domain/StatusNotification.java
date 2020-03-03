@@ -24,6 +24,8 @@ package net.solarnetwork.ocpp.domain;
 
 import java.time.Instant;
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * An OCPP status notification.
@@ -31,6 +33,9 @@ import java.util.Objects;
  * @author matt
  * @version 1.0
  */
+@JsonDeserialize(builder = StatusNotification.Builder.class)
+@JsonPropertyOrder({ "connectorId", "timestamp", "status", "errorCode", "info", "vendorId",
+		"vendorErrorCode" })
 public class StatusNotification {
 
 	private final int connectorId;

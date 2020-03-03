@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import net.solarnetwork.dao.BasicLongEntity;
 import net.solarnetwork.domain.Differentiable;
 import net.solarnetwork.util.StringUtils;
@@ -192,6 +193,7 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 	 * @param allowedChargePoints
 	 *        the allowedChargePoints to set
 	 */
+	@JsonDeserialize(as = LinkedHashSet.class)
 	public void setAllowedChargePoints(Set<String> allowedChargePoints) {
 		this.allowedChargePoints = allowedChargePoints;
 	}

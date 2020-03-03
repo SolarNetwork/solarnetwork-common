@@ -23,6 +23,7 @@
 package net.solarnetwork.ocpp.domain;
 
 import java.time.Instant;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Charge Point authorization information.
@@ -30,6 +31,7 @@ import java.time.Instant;
  * @author matt
  * @version 1.0
  */
+@JsonDeserialize(builder = AuthorizationInfo.Builder.class)
 public class AuthorizationInfo {
 
 	private final String id;

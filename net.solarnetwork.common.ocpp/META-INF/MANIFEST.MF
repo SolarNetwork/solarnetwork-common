@@ -13,6 +13,8 @@ Export-Package:
  net.solarnetwork.ocpp.service;version="1.0.0",
  net.solarnetwork.ocpp.service.cs;version="1.0.0"
 Import-Package: 
+ com.fasterxml.jackson.annotation;version="[2.10,3.0)",
+ com.fasterxml.jackson.databind.annotation;version="2.10.1",
  net.solarnetwork.dao;version="[1.0,2.0)",
  net.solarnetwork.domain;version="[1.18,2.0)",
  net.solarnetwork.util;version="[1.40,2.0)",
