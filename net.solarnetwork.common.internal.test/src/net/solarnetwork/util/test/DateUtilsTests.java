@@ -23,7 +23,10 @@
 package net.solarnetwork.util.test;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -76,11 +79,27 @@ public class DateUtilsTests {
 		assertThat(ts, equalTo(LocalDate.of(2020, 2, 1)));
 	}
 
+	final static double JAVA_VERS = Double.parseDouble(System.getProperty("java.specification.version"));
+
 	@Test
-	public void parseIsoDateOptTimeAlt_utc_full() {
+	public void parseIsoDateOptTimeAlt_utc_full_java11() {
+		assumeThat("Behavior in Java 11", JAVA_VERS, greaterThanOrEqualTo(11.0));
+		// Behaviour changes from Java 8 -> 11 from bug JDK-8066982
+		// https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8066982
 		ZonedDateTime ts = DateUtils.ISO_DATE_OPT_TIME_ALT_UTC.parse("2020-02-01 20:12:34+12:00",
 				ZonedDateTime::from);
-		// hmm, expected parsed zone to be +12, but wasn't?! maybe because of optional zone
+		assertThat(ts, equalTo(ZonedDateTime.of(2020, 2, 1, 20, 12, 34, 0, ZoneOffset.ofHours(12))
+				.withZoneSameInstant(ZoneOffset.UTC)));
+
+	}
+
+	@Test
+	public void parseIsoDateOptTimeAlt_utc_full_java8() {
+		assumeThat("Behavior in Java 11", JAVA_VERS, lessThan(11.0));
+		// Behaviour changes from Java 8 -> 11 from bug JDK-8066982
+		// https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8066982
+		ZonedDateTime ts = DateUtils.ISO_DATE_OPT_TIME_ALT_UTC.parse("2020-02-01 20:12:34+12:00",
+				ZonedDateTime::from);
 		assertThat(ts, equalTo(ZonedDateTime.of(2020, 2, 1, 20, 12, 34, 0, ZoneOffset.UTC)));
 	}
 
