@@ -24,14 +24,14 @@
 
 package net.solarnetwork.domain.datum;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 
 /**
  * Basic persistable domain object API.
  * 
  * @author matt
- * @version 1.4
+ * @version 1.0
  */
 public interface Datum {
 
@@ -40,8 +40,6 @@ public interface Datum {
 	 * reverse of the same key without this suffix. For example a
 	 * <code>wattHoursReverse</code> key might represent energy exported, rather
 	 * than imported, through a power meter.
-	 * 
-	 * @since 1.2
 	 */
 	String REVERSE_ACCUMULATING_SUFFIX_KEY = "Reverse";
 
@@ -55,7 +53,6 @@ public interface Datum {
 	 * {@link #DATUM_TYPES_PROPERTY} property.
 	 * </p>
 	 * 
-	 * @since 1.3
 	 * @see #DATUM_TYPES_PROPERTY
 	 */
 	String DATUM_TYPE_PROPERTY = "_DatumType";
@@ -71,50 +68,40 @@ public interface Datum {
 	 * {@literal javax.} are not included. The array is ordered in reverse class
 	 * hierarchy order.
 	 * </p>
-	 * 
-	 * @since 1.3
 	 */
 	String DATUM_TYPES_PROPERTY = "_DatumTypes";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} sample key for
 	 * a {@link net.solarnetwork.domain.DeviceOperatingState#getCode()} value.
-	 * 
-	 * @since 1.4
 	 */
 	String OP_STATE = "opState";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} sample key for
 	 * a bitmask of hardware-specific operating state values.
-	 * 
-	 * @since 1.4
 	 */
 	String OP_STATES = "opStates";
 
 	/**
-	 * A sample data key for a {@link Datum#getCreated()} value, as a
-	 * {@code long} epoch value.
-	 * 
-	 * @since 1.4
+	 * A sample data key for a {@link Datum#getTimestamp()} value, as a
+	 * {@code long} millisecond epoch value for ISO 8601 formatted string.
 	 */
 	String TIMESTAMP = "created";
 
 	/**
 	 * A sample data key for a {@link Datum#getSourceId()} value.
-	 * 
-	 * @since 1.4
 	 */
 	String SOURCE_ID = "sourceId";
 
 	/**
-	 * Get the date this object was created, which is often equal to either the
-	 * date it was persisted or the date the associated data in this object was
-	 * captured.
+	 * Get the date this datum is associated with, which is often equal to
+	 * either the date it was persisted or the date the associated data in this
+	 * object was captured.
 	 * 
-	 * @return the created date
+	 * @return the timestamp
 	 */
-	Date getCreated();
+	Instant getTimestamp();
 
 	/**
 	 * Get a unique source ID for this datum.
@@ -131,7 +118,6 @@ public interface Datum {
 	 * Get a map of all available data sampled or collected on this datum.
 	 * 
 	 * @return a map with all available sample data
-	 * @since 1.3
 	 */
 	Map<String, ?> getSampleData();
 
@@ -148,7 +134,6 @@ public interface Datum {
 	 * </p>
 	 * 
 	 * @return a Map view of this datum
-	 * @since 1.3
 	 */
 	Map<String, ?> asSimpleMap();
 

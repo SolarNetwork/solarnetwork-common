@@ -23,15 +23,18 @@
 package net.solarnetwork.domain.datum;
 
 /**
- * Standardized API for energy related datum to implement. By "energy" we simply
- * mean this datum represents information tracked during the production or
- * consumption of energy. For example current sensors can provide approximate
- * instantaneous watt readings, watt-hour meters can provide accumulated Wh
- * readings, and usually solar inverters can provide instantaneous generated
- * power and accumulated energy production readings.
+ * Standardized API for energy related datum to implement.
+ * 
+ * <p>
+ * By "energy" we simply mean this datum represents information tracked during
+ * the production or consumption of energy. For example current sensors can
+ * provide approximate instantaneous watt readings, watt-hour meters can provide
+ * accumulated Wh readings, and usually solar inverters can provide
+ * instantaneous generated power and accumulated energy production readings.
+ * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
  */
 public interface EnergyDatum extends Datum {
 

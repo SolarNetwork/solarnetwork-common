@@ -24,17 +24,20 @@ package net.solarnetwork.domain.datum;
 
 /**
  * Standardized API for alternating current related energy datum to implement.
+ * 
+ * <p>
  * This API represents a single phase, either a direct phase measurement or an
  * average or total measurement.
+ * </p>
  * 
  * @author matt
- * @version 1.3
+ * @version 1.0
  */
 public interface ACEnergyDatum extends EnergyDatum {
 
 	/**
 	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} status sample
-	 * key for {@link #getPhase()} values.
+	 * key for {@link #getAcPhase()} values.
 	 */
 	public static final String PHASE_KEY = "phase";
 
@@ -95,16 +98,12 @@ public interface ACEnergyDatum extends EnergyDatum {
 	/**
 	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getLineVoltage()} values.
-	 * 
-	 * @since 1.2
 	 */
 	public static final String LINE_VOLTAGE_KEY = "lineVoltage";
 
 	/**
 	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getNeutralCurrent()} values.
-	 * 
-	 * @since 1.3
 	 */
 	public static final String NEUTRAL_CURRENT_KEY = "neutralCurrent";
 
@@ -113,7 +112,7 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * 
 	 * @return the phase, should never be {@literal null}
 	 */
-	ACPhase getPhase();
+	ACPhase getAcPhase();
 
 	/**
 	 * Get the instantaneous real power, in watts (W). This should return the
@@ -170,7 +169,6 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * @param phase
 	 *        the phase
 	 * @return the volts, or {@literal null} if not known
-	 * @since 1.2
 	 */
 	Float getVoltage(ACPhase phase);
 
@@ -192,7 +190,6 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * @param phase
 	 *        the phase
 	 * @return the phase
-	 * @since 1.2
 	 */
 	Float getCurrent(ACPhase phase);
 
@@ -200,7 +197,6 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * Get the instantaneous neutral current, in amps.
 	 * 
 	 * @return the amps, or {@literal null} if not known
-	 * @since 1.3
 	 */
 	Float getNeutralCurrent();
 
@@ -220,10 +216,10 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * Get the instantaneous phase-to-phase line voltage.
 	 * 
 	 * <p>
-	 * For the {@link #getPhase()}, this value represents the difference between
-	 * this phase and the <i>next</i> phase, in {@literal a}, {@literal b},
-	 * {@literal c} order, with {@code PhaseC} wrapping around back to
-	 * {@code PhaseA}. Thus the possible values represent:
+	 * For the {@link #getAcPhase()}, this value represents the difference
+	 * between this phase and the <i>next</i> phase, in {@literal a},
+	 * {@literal b}, {@literal c} order, with {@code PhaseC} wrapping around
+	 * back to {@code PhaseA}. Thus the possible values represent:
 	 * </p>
 	 * 
 	 * <dl>
@@ -241,7 +237,6 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * </p>
 	 * 
 	 * @return the line voltage
-	 * @since 1.2
 	 * @see #getLineVoltage(ACPhase)
 	 */
 	Float getLineVoltage();
@@ -252,7 +247,6 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * @param phase
 	 *        the phase (first)
 	 * @return the line voltage
-	 * @since 1.2
 	 */
 	Float getLineVoltage(ACPhase phase);
 

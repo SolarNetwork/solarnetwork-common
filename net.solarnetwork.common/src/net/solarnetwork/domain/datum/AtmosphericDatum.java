@@ -28,7 +28,7 @@ import java.math.BigDecimal;
  * Standardized API for atmospheric related datum to implement.
  * 
  * @author matt
- * @version 1.4
+ * @version 1.0
  */
 public interface AtmosphericDatum extends Datum {
 
@@ -72,48 +72,36 @@ public interface AtmosphericDatum extends Datum {
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for a bitmask of {@link net.solarnetwork.domain.SkyCondition#getCode()}
 	 * values.
-	 * 
-	 * @since 1.4
 	 */
 	String SKY_CONDITION_CODES_KEY = "skies";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for {@link AtmosphericDatum#getWindSpeed()} values.
-	 * 
-	 * @since 1.2
 	 */
 	String WIND_SPEED_KEY = "wspeed";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for {@link AtmosphericDatum#getWindDirection()} values.
-	 * 
-	 * @since 1.2
 	 */
 	String WIND_DIRECTION_KEY = "wdir";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for {@link AtmosphericDatum#getRain()} values.
-	 * 
-	 * @since 1.2
 	 */
 	String RAIN_KEY = "rain";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for {@link AtmosphericDatum#getSnow()} values.
-	 * 
-	 * @since 1.2
 	 */
 	String SNOW_KEY = "snow";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for {@link AtmosphericDatum#getIrradiance()} values.
-	 * 
-	 * @since 1.3
 	 */
 	String IRRADIANCE_KEY = "irradiance";
 
@@ -126,8 +114,6 @@ public interface AtmosphericDatum extends Datum {
 	/**
 	 * A tag for a forecast atmosphere sample, as opposed to an actual
 	 * measurement.
-	 * 
-	 * @since 1.2
 	 */
 	String TAG_FORECAST = "forecast";
 
@@ -179,7 +165,6 @@ public interface AtmosphericDatum extends Datum {
 	 * Get the wind speed, in meters / second.
 	 * 
 	 * @return wind speed
-	 * @since 1.2
 	 */
 	BigDecimal getWindSpeed();
 
@@ -187,7 +172,6 @@ public interface AtmosphericDatum extends Datum {
 	 * Get the wind direction, in degrees.
 	 * 
 	 * @return wind direction
-	 * @since 1.2
 	 */
 	Integer getWindDirection();
 
@@ -195,7 +179,6 @@ public interface AtmosphericDatum extends Datum {
 	 * Get the rain accumulation, in millimeters.
 	 * 
 	 * @return rain accumulation
-	 * @since 1.2
 	 */
 	Integer getRain();
 
@@ -203,7 +186,6 @@ public interface AtmosphericDatum extends Datum {
 	 * Get the snow accumulation, in millimeters.
 	 * 
 	 * @return snow accumulation
-	 * @since 1.2
 	 */
 	Integer getSnow();
 
@@ -211,7 +193,6 @@ public interface AtmosphericDatum extends Datum {
 	 * Get the solar irradiance level, in watts / square meter.
 	 * 
 	 * @return irradiance level
-	 * @since 1.3
 	 */
 	BigDecimal getIrradiance();
 

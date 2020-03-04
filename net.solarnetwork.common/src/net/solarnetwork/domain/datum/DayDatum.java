@@ -23,57 +23,49 @@
 package net.solarnetwork.domain.datum;
 
 import java.math.BigDecimal;
-import org.joda.time.LocalTime;
+import java.time.LocalTime;
 
 /**
  * Solar day related datum.
  * 
  * @author matt
- * @version 1.3
+ * @version 1.0
  */
 public interface DayDatum extends Datum {
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} instantaneous
-	 * sample key for {@link DayDatum#getSunrise()} values.
+	 * sample key for {@link DayDatum#getSunriseTime()} values.
 	 */
 	static final String SUNRISE_KEY = "sunrise";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} instantaneous
-	 * sample key for {@link DayDatum#getSunset()} values.
+	 * sample key for {@link DayDatum#getSunsetTime()} values.
 	 */
 	static final String SUNSET_KEY = "sunset";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} instantaneous
-	 * sample key for {@link DayDatum#getSunrise()} values.
-	 * 
-	 * @since 1.1
+	 * sample key for {@link DayDatum#getMoonriseTime()} values.
 	 */
 	static final String MOONRISE_KEY = "moonrise";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} instantaneous
-	 * sample key for {@link DayDatum#getSunset()} values.
-	 * 
-	 * @since 1.1
+	 * sample key for {@link DayDatum#getMoonsetTime()} values.
 	 */
 	static final String MOONSET_KEY = "moonset";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} instantaneous
 	 * sample key for {@link DayDatum#getTemperatureMaximum()} values.
-	 * 
-	 * @since 1.1
 	 */
 	static final String TEMPERATURE_MAXIMUM_KEY = "tempMax";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} instantaneous
 	 * sample key for {@link DayDatum#getTemperatureMinimum()} values.
-	 * 
-	 * @since 1.1
 	 */
 	static final String TEMPERATURE_MINIMUM_KEY = "tempMin";
 
@@ -87,55 +79,41 @@ public interface DayDatum extends Datum {
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for a bitmask of {@link net.solarnetwork.domain.SkyCondition#getCode()}
 	 * values.
-	 * 
-	 * @since 1.3
 	 */
 	String SKY_CONDITION_CODES_KEY = "skies";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for {@link DayDatum#getBriefOverview()} values.
-	 * 
-	 * @since 1.2
 	 */
 	static final String BRIEF_OVERVIEW_KEY = "brief";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for {@link AtmosphericDatum#getWindSpeed()} values.
-	 * 
-	 * @since 1.2
 	 */
 	static final String WIND_SPEED_KEY = "wspeed";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for {@link AtmosphericDatum#getWindDirection()} values.
-	 * 
-	 * @since 1.2
 	 */
 	static final String WIND_DIRECTION_KEY = "wdir";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for {@link AtmosphericDatum#getRain()} values.
-	 * 
-	 * @since 1.2
 	 */
 	static final String RAIN_KEY = "rain";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
 	 * for {@link AtmosphericDatum#getSnow()} values.
-	 * 
-	 * @since 1.2
 	 */
 	static final String SNOW_KEY = "snow";
 
 	/**
 	 * A tag for a forecast day sample, as opposed to an actual measurement.
-	 * 
-	 * @since 1.2
 	 */
 	static final String TAG_FORECAST = "forecast";
 
@@ -144,36 +122,33 @@ public interface DayDatum extends Datum {
 	 * 
 	 * @return the sunrise
 	 */
-	LocalTime getSunrise();
+	LocalTime getSunriseTime();
 
 	/**
 	 * Get the sunset time.
 	 * 
 	 * @return the sunset
 	 */
-	LocalTime getSunset();
+	LocalTime getSunsetTime();
 
 	/**
 	 * Get the sunrise time.
 	 * 
 	 * @return the moonrise
-	 * @since 1.1
 	 */
-	LocalTime getMoonrise();
+	LocalTime getMoonriseTime();
 
 	/**
 	 * Get the moonset time.
 	 * 
 	 * @return the moonset
-	 * @since 1.1
 	 */
-	LocalTime getMoonset();
+	LocalTime getMoonsetTime();
 
 	/**
 	 * Get the minimum temperature for the day.
 	 * 
 	 * @return The minimum temperature.
-	 * @since 1.1
 	 */
 	BigDecimal getTemperatureMinimum();
 
@@ -181,7 +156,6 @@ public interface DayDatum extends Datum {
 	 * Get the maximum temperature for the day.
 	 * 
 	 * @return The maximum temperature.
-	 * @since 1.1
 	 */
 	BigDecimal getTemperatureMaximum();
 
@@ -190,7 +164,6 @@ public interface DayDatum extends Datum {
 	 * etc.
 	 * 
 	 * @return general sky conditions
-	 * @since 1.1
 	 */
 	String getSkyConditions();
 
@@ -199,7 +172,6 @@ public interface DayDatum extends Datum {
 	 * and some clouds. High 18C. Winds N at 10 to 15 km/h."
 	 * 
 	 * @return general overall conditions description
-	 * @since 1.2
 	 */
 	String getBriefOverview();
 
@@ -207,7 +179,6 @@ public interface DayDatum extends Datum {
 	 * Get the wind speed, in meters / second.
 	 * 
 	 * @return wind speed
-	 * @since 1.2
 	 */
 	BigDecimal getWindSpeed();
 
@@ -215,7 +186,6 @@ public interface DayDatum extends Datum {
 	 * Get the wind direction, in degrees.
 	 * 
 	 * @return wind direction
-	 * @since 1.2
 	 */
 	Integer getWindDirection();
 
@@ -223,7 +193,6 @@ public interface DayDatum extends Datum {
 	 * Get the rain accumulation, in millimeters.
 	 * 
 	 * @return rain accumulation
-	 * @since 1.2
 	 */
 	Integer getRain();
 
@@ -231,7 +200,6 @@ public interface DayDatum extends Datum {
 	 * Get the snow accumulation, in millimeters.
 	 * 
 	 * @return snow accumulation
-	 * @since 1.2
 	 */
 	Integer getSnow();
 
