@@ -56,7 +56,7 @@ public interface Bitmaskable {
 	 *        the set of {@code Bitmaskable} objects ({@literal null} allowed)
 	 * @return a bitmask value of all {@link Bitmaskable#bitmaskBitOffset()}
 	 *         values of the given {@code maskables}
-	 * @see #setForBitmask(int)
+	 * @see #setForBitmask(int, Class)
 	 */
 	static int bitmaskValue(Set<? extends Bitmaskable> maskables) {
 		int mask = 0;
@@ -71,6 +71,8 @@ public interface Bitmaskable {
 	/**
 	 * Convert a bitmask value into a set of {@code Bitmaskable} objects.
 	 * 
+	 * @param <T>
+	 *        the value type
 	 * @param mask
 	 *        a bitmask value of a set of {@code Bitmaskable} objects
 	 * @param clazz
@@ -87,6 +89,8 @@ public interface Bitmaskable {
 	/**
 	 * Convert a bitmask value into a set of {@code Bitmaskable} objects.
 	 * 
+	 * @param <T>
+	 *        the value type
 	 * @param mask
 	 *        a bitmask value of a set of {@code Bitmaskable} objects
 	 * @param values

@@ -44,15 +44,18 @@ public interface PasswordEncoder {
 	 * <code>{SSHA}</code> prefix.
 	 * </p>
 	 * 
-	 * @param rawPassword
+	 * @param password
 	 *        the password
-	 * @return boolean
+	 * @return {@literal true} if the password appears to be in an encrypted
+	 *         form supported by this encoder
 	 */
 	boolean isPasswordEncrypted(CharSequence password);
 
 	/**
 	 * Encode a raw password.
 	 * 
+	 * @param rawPassword
+	 *        the password
 	 * @return the encrypted password string
 	 */
 	String encode(CharSequence rawPassword);

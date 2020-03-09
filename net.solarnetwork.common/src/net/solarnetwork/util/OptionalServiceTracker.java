@@ -34,19 +34,19 @@ import org.osgi.framework.ServiceReference;
  * 
  * <pre>
  * &lt;osgi:reference id="fooService"
- * 		interface="net.solarnetwork.node.FooService" cardinality="0..1">
- * 		&lt;osgi:listener bind-method="onBind" unbind-method="onUnbind" ref="optionalFooService">
- * &lt;/osgi:list>
+ * 		interface="net.solarnetwork.node.FooService" cardinality="0..1"&gt;
+ * 		&lt;osgi:listener bind-method="onBind" unbind-method="onUnbind" ref="optionalFooService"&gt;
+ * &lt;/osgi:list&gt;
  * 
  * &lt;bean id="optionalFooService" 
- * 		class="net.solarnetwork.node.util.OptionalServiceTracker">
- * 		&lt;property name="service" ref="fooService"/>
- * &lt;/bean>
+ * 		class="net.solarnetwork.node.util.OptionalServiceTracker"&gt;
+ * 		&lt;property name="service" ref="fooService"/&gt;
+ * &lt;/bean&gt;
  * 
  * &lt;bean id="fooServiceConsumer" 
- * 		class="net.solarnetwork.node.FooServiceConsumer">
- * 		&lt;property name="service" ref="optionalFooService"/>
- * &lt;/bean>
+ * 		class="net.solarnetwork.node.FooServiceConsumer"&gt;
+ * 		&lt;property name="service" ref="optionalFooService"/&gt;
+ * &lt;/bean&gt;
  * </pre>
  * 
  * <p>

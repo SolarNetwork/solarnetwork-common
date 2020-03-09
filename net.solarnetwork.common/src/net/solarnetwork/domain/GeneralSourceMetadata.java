@@ -24,12 +24,12 @@ package net.solarnetwork.domain;
 
 import java.util.Map;
 import java.util.Set;
-import net.solarnetwork.util.SerializeIgnore;
 import org.joda.time.DateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import net.solarnetwork.util.SerializeIgnore;
 
 /**
  * Metadata about a source.
@@ -122,8 +122,8 @@ public class GeneralSourceMetadata {
 	/**
 	 * Shortcut for {@link GeneralDatumMetadata#setTags(Set)}.
 	 * 
-	 * @param map
-	 *        the map to set
+	 * @param set
+	 *        the set to use
 	 */
 	public void setT(Set<String> set) {
 		if ( meta == null ) {

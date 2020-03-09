@@ -271,7 +271,7 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 	/**
 	 * Get the OSGi service filter to use.
 	 * 
-	 * @return The service filter, or <em>null</em> if none.
+	 * @return The service filter, or {@literal null} if none.
 	 * @see #setServiceFilter(String)
 	 */
 	public String getServiceFilter() {
@@ -279,8 +279,8 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 	}
 
 	/**
-	 * Set an OSGi service filter to restrict services to, or <em>null</em> for
-	 * no filter.
+	 * Set an OSGi service filter to restrict services to, or {@literal null}
+	 * for no filter.
 	 * 
 	 * @param serviceFilter
 	 *        The service filter to use.
@@ -297,9 +297,9 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 	/**
 	 * Set a map of bean property names and associated values to match against
 	 * all found OSGi services. The first service to match will be returned in
-	 * {@link #service()}. This can be <em>null</em>, in which case the first
-	 * service found matching {@code serviceClassName} and {@code serviceFilter}
-	 * will be returned.
+	 * {@link #getObject()}. This can be {@literal null}, in which case the
+	 * first service found matching {@code serviceClassName} and
+	 * {@code serviceFilter} will be returned.
 	 * 
 	 * @param propertyFilters
 	 *        The property filter map to set.
@@ -320,11 +320,12 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 
 	/**
 	 * Set the flag to ignore empty property filter values or not. If
-	 * <em>true</em>, then ignore property filter values that are <em>null</em>
-	 * or, if strings, have no length, for purposes of filtering services. If
-	 * <em>false</em> then the property filters must match even if empty, that
-	 * is a <em>null</em> filter value will only match services whose
-	 * corresponding property is also <em>null</em>. Defaults to <em>true</em>.
+	 * {@literal true}, then ignore property filter values that are
+	 * {@literal null} or, if strings, have no length, for purposes of filtering
+	 * services. If {@literal false} then the property filters must match even
+	 * if empty, that is a {@literal null} filter value will only match services
+	 * whose corresponding property is also {@literal null}. Defaults to
+	 * {@literal true}.
 	 * 
 	 * @param ignoreEmptyPropertyFilterValues
 	 *        The flag to set.

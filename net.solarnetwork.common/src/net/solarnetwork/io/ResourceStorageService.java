@@ -55,10 +55,10 @@ public interface ResourceStorageService extends Identifiable {
 	 * <dd>The group UID of the {@code ResourceStorageService} that saved the
 	 * resource, if available.</dd>
 	 * <dt>{@link #RESOURCE_URL_PROPERTY}</dt>
-	 * <dd>The URL of the resource that was saved.</dt>
+	 * <dd>The URL of the resource that was saved.</dd>
 	 * <dt>{@link #RESOURCE_PATHS_PROPERTY}</dt>
 	 * <dd>The path of the resource that was saved (as a singleton
-	 * collection).</dt>
+	 * collection).</dd>
 	 * </dl>
 	 */
 	String EVENT_TOPIC_RESOURCE_SAVED = "net/solarnetwork/io/ResourceStorageService/RESOURCE_SAVED";
@@ -79,7 +79,7 @@ public interface ResourceStorageService extends Identifiable {
 	 * <dd>The group UID of the {@code ResourceStorageService} that deleted the
 	 * resource, if available.</dd>
 	 * <dt>{@link #RESOURCE_PATHS_PROPERTY}</dt>
-	 * <dd>The paths of the resources that were deleted.</dt>
+	 * <dd>The paths of the resources that were deleted.</dd>
 	 * </dl>
 	 */
 	String EVENT_TOPIC_RESOURCES_DELETED = "net/solarnetwork/io/ResourceStorageService/RESOURCES_DELETED";
@@ -147,8 +147,8 @@ public interface ResourceStorageService extends Identifiable {
 	/**
 	 * Asynchronously delete a set of resources.
 	 * 
-	 * @param path
-	 *        the unique path of the resource to delete
+	 * @param paths
+	 *        the unique paths of the resources to delete
 	 * @return a future that returns the set of {@code path} values that were
 	 *         <b>not</b> deleted, or an empty set if resources for all
 	 *         {@code paths} were deleted

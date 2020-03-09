@@ -46,7 +46,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A {@link DataSource} proxy that catches connection errors in order to handle
- * the exceptions from {@link SQLExceptionHandlers} registered with the system.
+ * the exceptions from {@link SQLExceptionHandler} instances registered with the
+ * system.
  * 
  * @author matt
  * @version 1.0

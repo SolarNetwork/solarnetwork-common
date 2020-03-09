@@ -154,6 +154,8 @@ public interface ExpressionService extends Identifiable {
 	 * can be more convenient.
 	 * </p>
 	 * 
+	 * @param <T>
+	 *        the result type
 	 * @param expression
 	 *        the expression to evaluate
 	 * @param variables
@@ -162,8 +164,8 @@ public interface ExpressionService extends Identifiable {
 	 *        optional "root" object to set for the evaluation
 	 * @param context
 	 *        a context, such as one returned from
-	 *        {@link #createEvaluationContext(Object)}, or {@literal null} to
-	 *        create a new context
+	 *        {@link #createEvaluationContext(EvaluationConfiguration, Object)},
+	 *        or {@literal null} to create a new context
 	 * @param resultClass
 	 *        the expected result object type
 	 * @return the expression result
@@ -176,6 +178,8 @@ public interface ExpressionService extends Identifiable {
 	/**
 	 * Evaluate an expression.
 	 * 
+	 * @param <T>
+	 *        the result type
 	 * @param expression
 	 *        the expression to evaluate
 	 * @param variables
@@ -184,8 +188,8 @@ public interface ExpressionService extends Identifiable {
 	 *        optional "root" object to set for the evaluation
 	 * @param context
 	 *        a context, such as one returned from
-	 *        {@link #createEvaluationContext(Object)}, or {@literal null} to
-	 *        create a new context
+	 *        {@link #createEvaluationContext(EvaluationConfiguration, Object)},
+	 *        or {@literal null} to create a new context
 	 * @param resultClass
 	 *        the expected result object type
 	 * @return the expression result

@@ -155,6 +155,9 @@ public class SearchFilter {
 	/**
 	 * Construct with a filter. Uses {@link CompareOperator#EQUAL} and
 	 * {@link LogicOperator#AND}.
+	 * 
+	 * @param filter
+	 *        the filter value
 	 */
 	public SearchFilter(Map<String, ?> filter) {
 		this(filter, CompareOperator.EQUAL, LogicOperator.AND);
@@ -163,6 +166,8 @@ public class SearchFilter {
 	/**
 	 * Construct with values.
 	 * 
+	 * @param filter
+	 *        the filter value
 	 * @param compareOp
 	 *        the comparison operator
 	 * @param logicOp
@@ -207,7 +212,7 @@ public class SearchFilter {
 	 * value in the {@code filter} is itself a {@code SearchFilter}, the
 	 * associated key is ignored and the {@code SearchFilter} is itself appended
 	 * to the buffer. If the {@code filter} has only one key-value pair, the
-	 * {@code logicOp} is ignored and {@bold not} appended to the buffer. If the
+	 * {@code logicOp} is ignored and <b>not</b> appended to the buffer. If the
 	 * {@code filter} has more than one key-value pair and the {@code logicOp}
 	 * is {@link LogicOperator#NOT}, the filter will automatically be written as
 	 * {@code NOT(AND((x)(y)))}.

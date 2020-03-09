@@ -23,12 +23,11 @@
 package net.solarnetwork.util;
 
 import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.Module;
 
 /**
- * {@KeyDeserializer} does not implement an interface, nor provide a default
- * "type" the deserializer supports. This API provides a way to configure them
- * on a {@link Module}.
+ * {@link KeyDeserializer} does not implement an interface, nor provide a
+ * default "type" the deserializer supports. This API provides a way to
+ * configure them on a {@link com.fasterxml.jackson.databind.Module}.
  * 
  * @author matt
  * @version 1.0

@@ -35,6 +35,7 @@ import java.lang.annotation.Target;
  * This is designed to be used during view rendering, for example, where
  * specific properties should not be rendered into the view output format (e.g.
  * JSON, XML, etc).
+ * </p>
  * 
  * @author matt
  * @version 1.0
@@ -45,6 +46,8 @@ public @interface SerializeIgnore {
 
 	/**
 	 * Optional argument that defines if this annotation is active.
+	 * 
+	 * @return {@literal true} to ignore this property when serializing
 	 */
 	boolean value() default true;
 

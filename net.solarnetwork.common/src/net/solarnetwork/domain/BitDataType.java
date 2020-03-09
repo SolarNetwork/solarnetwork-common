@@ -145,7 +145,6 @@ public enum BitDataType {
 	/**
 	 * Test if this type has a bit length that is not an even multiple of
 	 * {@literal 8}.
-	 * </p>
 	 * 
 	 * @return {@literal true} if {@link #getBitLength()} is not evenly
 	 *         divisible by {@literal 8}

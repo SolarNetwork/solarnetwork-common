@@ -114,6 +114,7 @@ public class GeneralDatumSamplePropertyConfig<V> {
 	 * </p>
 	 * 
 	 * @param propertyType
+	 *        the property type
 	 */
 	public void setPropertyType(GeneralDatumSamplesType propertyType) {
 		this.propertyType = propertyType;

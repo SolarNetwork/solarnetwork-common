@@ -37,11 +37,10 @@ import org.springframework.context.NoSuchMessageException;
  * <p>
  * The inspiration for this class was to support messages for objects that might
  * be nested in other objects used in
- * {@link net.solarnetwork.node.settings.SettingSpecifierProvider}
- * implementations. When one provider proxies another, or uses nested bean
- * paths, this class can be used to dynamically re-map message codes. For
- * example a code <code>delegate.url</code> could be re-mapped to
- * <code>url</code>.
+ * {@link net.solarnetwork.settings.SettingSpecifierProvider} implementations.
+ * When one provider proxies another, or uses nested bean paths, this class can
+ * be used to dynamically re-map message codes. For example a code
+ * <code>delegate.url</code> could be re-mapped to <code>url</code>.
  * </p>
  * 
  * @author matt

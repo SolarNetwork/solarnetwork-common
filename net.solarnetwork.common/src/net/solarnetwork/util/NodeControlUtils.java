@@ -201,7 +201,7 @@ public final class NodeControlUtils {
 	 * <ol>
 	 * <li>if {@code value} is a {@link BigDecimal} then use directly</li>
 	 * <li>if {@code value} is a {@link BigDecimal}, {@link Integer}, or
-	 * {@link Long) then convert to a {@link BigDecimal} and shift the decimal
+	 * {@link Long} then convert to a {@link BigDecimal} and shift the decimal
 	 * point left by 2</li>
 	 * <li>if {@code value} is a {@link Number} then create a {@link BigDecimal}
 	 * from the string value of the number</li>

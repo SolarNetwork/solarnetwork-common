@@ -41,7 +41,7 @@ public interface TitleSettingSpecifier extends KeyedSettingSpecifier<String> {
 	 * the setting value itself is cryptic.
 	 * </p>
 	 * 
-	 * @return
+	 * @return the setting value titles
 	 */
 	Map<String, String> getValueTitles();
 

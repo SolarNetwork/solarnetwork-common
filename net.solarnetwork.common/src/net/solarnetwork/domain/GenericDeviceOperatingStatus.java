@@ -47,7 +47,9 @@ public class GenericDeviceOperatingStatus extends DeviceOperatingStatus<GenericD
 	 * Constructor.
 	 * 
 	 * @param state
+	 *        the state
 	 * @param deviceStates
+	 *        the state set
 	 */
 	public GenericDeviceOperatingStatus(DeviceOperatingState state,
 			Set<GenericDeviceOperatingState> deviceStates) {
