@@ -195,8 +195,9 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 						dataSourceProps.put(key.substring(DATA_SOURCE_PROPERTY_PREFIX.length()),
 								properties.get(key));
 					} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
-						serviceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
-								properties.get(key));
+						String propKey = key.substring(SERVICE_PROPERTY_PREFIX.length());
+						Object propVal = servicePropertyValue(propKey, properties.get(key));
+						serviceProps.put(propKey, propVal);
 					} else if ( ignoredPropertyPrefixes != null
 							&& ignoredPropertyPrefixes.stream().anyMatch(s -> key.startsWith(s)) ) {
 						// ignore this prop
@@ -243,6 +244,30 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				return v;
 			}
 		});
+	}
+
+	/**
+	 * Map well-known service keys to appropriate instance values, such as
+	 * {@code Integer}.
+	 * 
+	 * @param propKey
+	 *        the service property key; must not be {@literal null}
+	 * @param object
+	 *        the property value
+	 * @return the property value to use
+	 */
+	private Object servicePropertyValue(String propKey, Object object) {
+		if ( Constants.SERVICE_RANKING.equals(propKey) ) {
+			if ( object instanceof Integer ) {
+				return object;
+			}
+			try {
+				return Integer.valueOf(object.toString());
+			} catch ( NumberFormatException e ) {
+				// ignore and continue
+			}
+		}
+		return object;
 	}
 
 	private void doDelete(String pid) {
