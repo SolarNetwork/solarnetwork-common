@@ -413,6 +413,31 @@ public class AuthenticationDataV2Tests {
 	}
 
 	@Test
+	public void simplePath_explicitHostWithForwardedProto() throws ServletException, IOException {
+		// given a request with Host: other.example.com
+		//                      X-Forwarded-Proto: https
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
+		request.addHeader(HTTP_HEADER_HOST, "other.example.com");
+		request.addHeader("X-Forwarded-Proto", "https");
+		final Date now = new Date();
+		request.addHeader("Date", httpDate(now));
+
+		// but signature calculated with host.example.com
+		String destHost = TEST_HOST;
+		// @formatter:off
+		String authHeader = new AuthorizationV2Builder(TEST_AUTH_TOKEN)
+				.host(destHost)
+				.path(request.getRequestURI())
+				.date(now)
+				.build(TEST_PASSWORD);
+		// @formatter:on
+		request.addHeader(HTTP_HEADER_AUTH, authHeader);
+
+		// verify using host.example.com as explicit host
+		verifyRequest(request, TEST_PASSWORD, destHost);
+	}
+
+	@Test
 	public void simplePathNonStandardPort() throws ServletException, IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
 		request.addHeader("Host", "localhost:8080");
