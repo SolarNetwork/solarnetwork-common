@@ -71,6 +71,8 @@ public class Response<T> extends net.solarnetwork.domain.Result<T> {
 	 * {@code return response(myData)} instead of
 	 * {@code new Response&lt;Object&gt;(myData)}.
 	 * 
+	 * @param <V>
+	 *        the response data type
 	 * @param data
 	 *        the data
 	 * @return the response

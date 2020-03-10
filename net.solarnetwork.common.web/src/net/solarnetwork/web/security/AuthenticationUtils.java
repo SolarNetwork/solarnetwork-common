@@ -104,6 +104,7 @@ public final class AuthenticationUtils {
 	 * @param data
 	 *        the data to sign
 	 * @param macAlgorithm
+	 *        the MAC algorithm to use
 	 * @return The base64 encoded digest.
 	 * @throws SecurityException
 	 *         if any error occurs
@@ -125,6 +126,7 @@ public final class AuthenticationUtils {
 	 * @param data
 	 *        the data to sign
 	 * @param macAlgorithm
+	 *        the MAC algorithm to use
 	 * @return The base64 encoded digest.
 	 * @throws SecurityException
 	 *         if any error occurs
@@ -146,6 +148,7 @@ public final class AuthenticationUtils {
 	 * @param data
 	 *        the data to sign
 	 * @param macAlgorithm
+	 *        the MAC algorithm to use
 	 * @return The base64 encoded digest.
 	 * @throws SecurityException
 	 *         if any error occurs

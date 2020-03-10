@@ -273,6 +273,7 @@ public abstract class AuthenticationData {
 	 * @param secretKey
 	 *        the secret key
 	 * @param macAlgorithm
+	 *        the MAC algorithm to use
 	 * @return The base64 encoded digest.
 	 * @throws SecurityException
 	 *         if any error occurs
@@ -284,10 +285,17 @@ public abstract class AuthenticationData {
 	/**
 	 * Compute a Base64 MAC digest from signature data.
 	 * 
-	 * @param secretKey the secret key @param data the data to sign @param
-	 * macAlgorithm @return The base64 encoded digest. @throws SecurityException
-	 * if any error occurs @deprecated see {@link
-	 * AuthenticationUtils#computeMACDigest(byte[], String, String)
+	 * @param secretKey
+	 *        the secret key
+	 * @param data
+	 *        the data to sign
+	 * @param macAlgorithm
+	 *        the MAC algorithm to use
+	 * @return The base64 encoded digest.
+	 * @throws SecurityException
+	 *         if any error occurs
+	 * @deprecated see
+	 *             {@link AuthenticationUtils#computeMACDigest(byte[], String, String)}
 	 */
 	@Deprecated
 	public static final byte[] computeMACDigest(final byte[] secretKey, final String data,
@@ -299,10 +307,16 @@ public abstract class AuthenticationData {
 	 * Compute a Base64 MAC digest from signature data.
 	 * 
 	 * @param secretKey
-	 *        the secret key @param data the data to sign @param
-	 *        macAlgorithm @return The base64 encoded digest. @throws
-	 *        SecurityException if any error occurs @deprecated see
-	 *        {@link AuthenticationUtils#computeMACDigest(String, String, String)
+	 *        the secret key
+	 * @param data
+	 *        the data to sign
+	 * @param macAlgorithm
+	 *        the MAC algorithm to use
+	 * @return The base64 encoded digest.
+	 * @throws SecurityException
+	 *         if any error occurs
+	 * @deprecated see
+	 *             {@link AuthenticationUtils#computeMACDigest(String, String, String)}
 	 */
 	@Deprecated
 	public static final byte[] computeMACDigest(final String secretKey, final String data,
@@ -318,6 +332,7 @@ public abstract class AuthenticationData {
 	 * @param data
 	 *        the data to sign
 	 * @param macAlgorithm
+	 *        the MAC algorithm to use
 	 * @return The base64 encoded digest.
 	 * @throws SecurityException
 	 *         if any error occurs

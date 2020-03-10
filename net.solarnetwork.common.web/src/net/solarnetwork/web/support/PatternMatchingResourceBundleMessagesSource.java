@@ -23,7 +23,6 @@
 package net.solarnetwork.web.support;
 
 import java.io.IOException;
-import java.security.cert.Extension;
 import java.util.Properties;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -31,8 +30,8 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
 /**
- * {@link Extension of {@link ReloadableResourceBundleMessagesSource} that
- * supports a pattern resolver for matching any number of resources.
+ * Extension of {@link ReloadableResourceBundleMessagesSource} that supports a
+ * pattern resolver for matching any number of resources.
  * 
  * @author matt
  * @version 1.0
