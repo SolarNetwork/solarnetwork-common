@@ -31,6 +31,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -59,6 +60,8 @@ import com.zaxxer.hikari.HikariConfigMXBean;
 import com.zaxxer.hikari.HikariDataSource;
 import net.solarnetwork.dao.jdbc.DataSourcePingTest;
 import net.solarnetwork.domain.PingTest;
+import net.solarnetwork.support.SearchFilter;
+import net.solarnetwork.support.SearchFilter.LogicOperator;
 import net.solarnetwork.util.ClassUtils;
 
 /**
@@ -362,6 +365,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				return;
 			}
 
+			log.info("Creating DataSource to [{}] with service props {}", jdbcUrl, serviceProps);
 			HikariConfig poolConfig = new HikariConfig(poolProps);
 			if ( dataSource != null ) {
 				poolConfig.setDataSource(dataSource);
@@ -375,7 +379,8 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 			ServiceRegistration<PingTest> pingReg = null;
 			if ( pingTestQuery != null ) {
-				DataSourcePingTest pingTest = new DataSourcePingTest(ds, pingTestQuery);
+				String pingTestId = pingTestId();
+				DataSourcePingTest pingTest = new DataSourcePingTest(ds, pingTestQuery, pingTestId);
 				log.info("Registering PingTest for pooled JDBC DataSource {} with props {}", jdbcUrl,
 						serviceProps);
 				pingReg = bundleContext.registerService(PingTest.class, pingTest, null);
@@ -389,6 +394,19 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				bundleContext.removeServiceListener(this);
 				dataSourceFactoryListening = false;
 			}
+		}
+
+		private String pingTestId() {
+			String id = pid;
+			if ( serviceProps != null ) {
+				Map<String, Object> m = new LinkedHashMap<>(serviceProps.size());
+				for ( Enumeration<String> keys = serviceProps.keys(); keys.hasMoreElements(); ) {
+					String key = keys.nextElement();
+					m.put(key, serviceProps.get(key));
+				}
+				id = new SearchFilter(m, LogicOperator.AND).asLDAPSearchFilterString();
+			}
+			return String.format("%s-%s", DataSourcePingTest.class.getName(), id);
 		}
 
 		private void createDataSourceOrListenForFactory() {
