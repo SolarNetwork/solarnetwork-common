@@ -29,10 +29,27 @@ import org.springframework.security.authentication.BadCredentialsException;
  * Factory for creating {@code AuthenticationData} instances.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.11
  */
 public final class AuthenticationDataFactory {
+
+	/**
+	 * The system property name of an "explicit" HTTP {@literal Host} header
+	 * value to use for authentication signature calculation.
+	 * 
+	 * <p>
+	 * This can be useful when the application performing the authentication
+	 * validation sits behind a proxy or load balancer and the requested
+	 * {@literal Host} value is different than the value used to generate the
+	 * authenciation signature.
+	 * </p>
+	 * 
+	 * @since 1.1
+	 */
+	public static final String EXPLICIT_HOST_PROP = "sn.web.auth.explicitHost";
+
+	private static final String EXPLICIT_HOST = System.getProperty(EXPLICIT_HOST_PROP, null);
 
 	/**
 	 * Obtain a {@link AuthenticationData} instance from a HTTP request.
@@ -74,7 +91,7 @@ public final class AuthenticationDataFactory {
 				break;
 
 			case V2:
-				data = new AuthenticationDataV2(request, headerData);
+				data = new AuthenticationDataV2(request, headerData, EXPLICIT_HOST);
 				break;
 
 			default:

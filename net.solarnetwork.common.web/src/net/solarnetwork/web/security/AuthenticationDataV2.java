@@ -47,10 +47,12 @@ import net.solarnetwork.util.StringUtils;
  * the signature calculation in {@link #computeSignatureDigest(String)}.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.11
  */
 public class AuthenticationDataV2 extends AuthenticationData {
+
+	private static final String HOST_HEADER = "host";
 
 	private static final Logger log = LoggerFactory.getLogger(AuthenticationDataV2.class);
 
@@ -60,15 +62,47 @@ public class AuthenticationDataV2 extends AuthenticationData {
 	public static final String TOKEN_COMPONENT_KEY_SIGNED_HEADERS = "SignedHeaders";
 	public static final String TOKEN_COMPONENT_KEY_SIGNATURE = "Signature";
 
+	private final String explicitHost;
 	private final String authTokenId;
 	private final String signatureDigest;
 	private final String signatureData;
 	private final Set<String> signedHeaderNames;
 	private final String[] sortedSignedHeaderNames;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param request
+	 *        the HTTP request
+	 * @param headerValue
+	 *        the {@literal Authorization} HTTP header value
+	 * @throws IOException
+	 *         if any IO error occurs
+	 */
 	public AuthenticationDataV2(SecurityHttpServletRequestWrapper request, String headerValue)
 			throws IOException {
+		this(request, headerValue, null);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param request
+	 *        the HTTP request
+	 * @param headerValue
+	 *        the {@literal Authorization} HTTP header value
+	 * @param explicitHost
+	 *        a fixed value to use instead of the {@literal Host} HTTP header
+	 *        value, or {@literal null} to use the header value; this can be
+	 *        useful when sitting behind a proxy
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 1.3
+	 */
+	public AuthenticationDataV2(SecurityHttpServletRequestWrapper request, String headerValue,
+			String explicitHost) throws IOException {
 		super(AuthenticationScheme.V2, request, headerValue);
+		this.explicitHost = explicitHost;
 
 		// the header must be in the form Credential=TOKEN-ID,SignedHeaders=x;y;z,Signature=HMAC-SHA1-SIGNATURE
 
@@ -259,10 +293,16 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		for ( String headerName : sortedSignedHeaderNames ) {
 			buf.append(headerName).append(':');
 			String value = nullSafeHeaderValue(request, headerName).trim();
+			boolean isHost = HOST_HEADER.equals(headerName);
+			if ( isHost && explicitHost != null ) {
+				log.trace("Replacing host header [{}] with explicit value {}", value, explicitHost);
+				value = explicitHost;
+			}
 			buf.append(value);
-			log.trace("Signed req header: {}", value);
-			if ( "host".equals(headerName) ) {
+			log.trace("Signed req header: {}: {}", headerName, value);
+			if ( isHost && explicitHost == null ) {
 				if ( value.length() < 1 ) {
+					// no Host value provided
 					value = request.getServerName();
 					if ( value != null ) {
 						buf.append(value);
@@ -315,7 +355,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 	private void validateSignedHeaderNames(SecurityHttpServletRequestWrapper request) {
 		// MUST include host
-		if ( !signedHeaderNames.contains("host") ) {
+		if ( !signedHeaderNames.contains(HOST_HEADER) ) {
 			throw new BadCredentialsException(
 					"The 'Host' HTTP header must be included in SignedHeaders");
 		}
