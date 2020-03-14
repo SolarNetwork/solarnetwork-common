@@ -272,6 +272,10 @@ public final class NumberUtils {
 	 * 
 	 * @param decimal
 	 *        the decimal to get the scaled fractional part from
+	 * @param scale
+	 *        the power of 10 to scale by; a negative value shifts the decimal
+	 *        point left this many places; a positive value shifts the decimal
+	 *        point right this many places
 	 * @return the fractional part as an integer, or zero if {@code decimal} is
 	 *         {@literal null}
 	 * @since 1.2
@@ -292,7 +296,7 @@ public final class NumberUtils {
 	 *        the number to scale
 	 * @param scale
 	 *        the power of 10 to scale by; a negative value shifts the decimal
-	 *        point left this many places; a positive value shifts the decimcal
+	 *        point left this many places; a positive value shifts the decimal
 	 *        point right this many places
 	 * @return the scaled value
 	 * @since 1.2

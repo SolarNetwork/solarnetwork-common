@@ -196,7 +196,7 @@ public final class UrlUtils {
 	 * <p>
 	 * This method also sets up the request property
 	 * {@code Accept-Encoding: gzip,deflate} so the response can be compressed.
-	 * The {@link #getInputSourceFromURLConnection(URLConnection)} automatically
+	 * The {@link #getInputStreamFromURLConnection(URLConnection)} automatically
 	 * handles compressed responses.
 	 * </p>
 	 * 
@@ -251,6 +251,8 @@ public final class UrlUtils {
 	/**
 	 * Append a URL-escaped key/value pair to a character buffer.
 	 * 
+	 * @param <T>
+	 *        the buffer type
 	 * @param buf
 	 *        the buffer to append to
 	 * @param key
@@ -377,7 +379,7 @@ public final class UrlUtils {
 	 * @throws ResultStatusException
 	 *         if the URL is the HTTP scheme and the HTTP response code is not
 	 *         within the 200 - 299 range
-	 * @see #postXWWWFormURLEncodedData(String, String, Map)
+	 * @see #postXWWWFormURLEncodedData(String, String, Map, int, SSLService)
 	 */
 	public static String postXWWWFormURLEncodedDataForString(String url, String accept,
 			Map<String, ?> data, int timeout, SSLService sslService) throws IOException {

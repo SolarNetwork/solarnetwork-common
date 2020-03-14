@@ -79,7 +79,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * </dl>
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 		implements FactoryBean<ObjectMapper> {
@@ -122,6 +122,12 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 		setupFeatures(mapper, featuresToEnable, true);
 		setupFeatures(mapper, featuresToDisable, false);
 		mapper.registerModule(module);
+
+		List<Module> otherModules = getModules();
+		if ( otherModules != null ) {
+			getObjectMapper().registerModules(otherModules);
+		}
+
 		return mapper;
 	}
 
@@ -192,6 +198,13 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 		this.serializationInclusion = serializationInclusion;
 	}
 
+	/**
+	 * Get a list of {@link SerializationFeature} or
+	 * {@link DeserializationFeature} flags to enable.
+	 * 
+	 * @return list of features to enable
+	 * @since 1.2
+	 */
 	public List<Object> getFeaturesToEnable() {
 		return featuresToEnable;
 	}
@@ -201,12 +214,20 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 	 * {@link DeserializationFeature} flags to enable.
 	 * 
 	 * @param featuresToEnable
+	 *        the list of features to enable
 	 * @since 1.2
 	 */
 	public void setFeaturesToEnable(List<Object> featuresToEnable) {
 		this.featuresToEnable = featuresToEnable;
 	}
 
+	/**
+	 * Get a list of {@link SerializationFeature} or
+	 * {@link DeserializationFeature} flags to disable.
+	 * 
+	 * @return the list of features to disable
+	 * @since 1.2
+	 */
 	public List<Object> getFeaturesToDisable() {
 		return featuresToDisable;
 	}
@@ -216,6 +237,7 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 	 * {@link DeserializationFeature} flags to disable.
 	 * 
 	 * @param featuresToDisable
+	 *        the list of features to disable
 	 * @since 1.2
 	 */
 	public void setFeaturesToDisable(List<Object> featuresToDisable) {

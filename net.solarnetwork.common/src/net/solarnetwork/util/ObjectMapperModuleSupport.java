@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -35,7 +36,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * Helper class for {@link ObjectMapper} configuration.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 
@@ -45,6 +46,7 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 	private List<JsonDeserializer<?>> deserializers;
 	private List<TypedKeyDeserializer> keyDeserializers;
 	private List<JsonSerializer<?>> keySerializers;
+	private List<Module> modules;
 
 	/**
 	 * Helper method for registering {@link JsonDeserializer} instances of
@@ -208,6 +210,27 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 	 */
 	public void setKeySerializers(List<JsonSerializer<?>> keySerializers) {
 		this.keySerializers = keySerializers;
+	}
+
+	/**
+	 * Get the list of modules.
+	 * 
+	 * @return the modules
+	 * @since 1.1
+	 */
+	public List<Module> getModules() {
+		return modules;
+	}
+
+	/**
+	 * Set a list of modules to register.
+	 * 
+	 * @param modules
+	 *        the modules to set
+	 * @since 1.1
+	 */
+	public void setModules(List<Module> modules) {
+		this.modules = modules;
 	}
 
 }

@@ -142,6 +142,8 @@ public final class JsonUtils {
 	 * exceptions while deserializing the object are caught and ignored.
 	 * </p>
 	 * 
+	 * @param <T>
+	 *        the desired object type
 	 * @param json
 	 *        the JSON string to convert
 	 * @param clazz

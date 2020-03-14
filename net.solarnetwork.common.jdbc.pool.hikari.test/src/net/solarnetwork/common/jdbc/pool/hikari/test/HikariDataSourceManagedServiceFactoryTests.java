@@ -167,6 +167,72 @@ public class HikariDataSourceManagedServiceFactoryTests {
 	}
 
 	@Test
+	public void configurationUpdated_regisgerServiceWithRanking() throws Exception {
+		// given
+		final String uuid = UUID.randomUUID().toString();
+		final String pid = net.solarnetwork.common.jdbc.pool.hikari.Activator.SERVICE_PID + "-" + uuid;
+		final String dsFactoryFilter = "(osgi.jdbc.driver.class=org.apache.derby.jdbc.EmbeddedDriver)";
+		final String jdbcUrlAttributes = "create=true";
+		final String jdbcUrl = "jdbc:derby:memory:" + uuid + ";" + jdbcUrlAttributes;
+
+		Map<String, Object> props = new LinkedHashMap<>(8);
+		props.put(HikariDataSourceManagedServiceFactory.DATA_SOURCE_FACTORY_FILTER_PROPERTY,
+				dsFactoryFilter);
+		props.put("dataSource.url", jdbcUrl);
+		props.put("dataSource.user", "user");
+		props.put("dataSource.password", "password");
+		props.put("serviceProperty.db", "test");
+		props.put("serviceProperty.foo", "bar");
+		props.put("serviceProperty.service.ranking", "-10");
+
+		Capture<Properties> dataSourcePropCaptor = new Capture<>();
+		Capture<DataSource> dataSourceCaptor = new Capture<>();
+		Capture<Dictionary<String, ?>> servicePropCaptor = new Capture<>();
+
+		expect(bundleContext.getServiceReferences(DataSourceFactory.class, dsFactoryFilter))
+				.andReturn(Collections.singleton(dataSourceFactoryRef));
+
+		expect(bundleContext.getService(dataSourceFactoryRef)).andReturn(dataSourceFactory);
+
+		EmbeddedDataSource ds = new EmbeddedDataSource();
+		ds.setDatabaseName("memory:" + uuid);
+		ds.setConnectionAttributes(jdbcUrlAttributes);
+		expect(dataSourceFactory.createDataSource(capture(dataSourcePropCaptor))).andReturn(ds);
+
+		expect(bundleContext.registerService(eq(DataSource.class), capture(dataSourceCaptor),
+				capture(servicePropCaptor))).andReturn(dataSourceReg);
+
+		// when
+		replayAll();
+		factory.updated(pid, new Hashtable<String, Object>(props));
+
+		// then
+		Properties dataSourceProps = dataSourcePropCaptor.getValue();
+		assertThat("DataSource URL", dataSourceProps, hasEntry("url", jdbcUrl));
+		assertThat("DataSource user", dataSourceProps, hasEntry("user", "user"));
+		assertThat("DataSource password", dataSourceProps, hasEntry("password", "password"));
+
+		DataSource dataSource = dataSourceCaptor.getValue();
+		assertThat("Registered DataSource is Hikari pool", dataSource,
+				instanceOf(HikariDataSource.class));
+		assertThat("Hikari DataSource is from DataSourceFactory",
+				((HikariDataSource) dataSource).getDataSource(), sameInstance(ds));
+
+		Dictionary<String, ?> serviceProps = servicePropCaptor.getValue();
+		assertThat("Service propery value db", serviceProps.get("db"), equalTo("test"));
+		assertThat("Service propery value foo", serviceProps.get("foo"), equalTo("bar"));
+		assertThat("Service propery value service.rank", serviceProps.get("service.ranking"),
+				equalTo(-10));
+
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		java.sql.Date result = jdbcTemplate.queryForObject("VALUES CURRENT_DATE", java.sql.Date.class);
+		assertThat("Date returned from JDBC", result, notNullValue());
+
+		// save PID for other tests
+		factoryPid = pid;
+	}
+
+	@Test
 	public void configurationUpdated_regisgerServiceWithPingTest() throws Exception {
 		// given
 		final String uuid = UUID.randomUUID().toString();

@@ -64,6 +64,8 @@ public final class ArrayUtils {
 	 * returned directly.
 	 * </p>
 	 * 
+	 * @param <T>
+	 *        the array item type
 	 * @param array
 	 *        the source array, or {@literal null}
 	 * @param count

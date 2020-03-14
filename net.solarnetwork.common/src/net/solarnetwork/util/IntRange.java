@@ -214,7 +214,7 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 	 * @param o
 	 *        the range to merge with this range
 	 * @return the new merged range
-	 * @throws IllegalArgumentExceptino
+	 * @throws IllegalArgumentException
 	 *         if the this range cannot be merged with the given range
 	 */
 	public IntRange mergeWith(IntRange o) {

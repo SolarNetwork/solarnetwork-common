@@ -279,9 +279,15 @@ public class AuthenticationDataV2Tests {
 
 	private AuthenticationDataV2 verifyRequest(HttpServletRequest request, String secretKey)
 			throws IOException {
+		return verifyRequest(request, secretKey, null);
+	}
+
+	private AuthenticationDataV2 verifyRequest(HttpServletRequest request, String secretKey,
+			String explicitHost) throws IOException {
 		AuthenticationDataV2 authData = new AuthenticationDataV2(
 				new SecurityHttpServletRequestWrapper(request, 1024), request.getHeader(HTTP_HEADER_AUTH)
-						.substring(AuthenticationScheme.V2.getSchemeName().length() + 1));
+						.substring(AuthenticationScheme.V2.getSchemeName().length() + 1),
+				explicitHost);
 		Assert.assertTrue("The date skew is OK", authData.isDateValid(TEST_MAX_DATE_SKEW));
 		String computedDigest = authData.computeSignatureDigest(secretKey);
 		Assert.assertEquals(computedDigest, authData.getSignatureDigest());
@@ -290,6 +296,11 @@ public class AuthenticationDataV2Tests {
 
 	private AuthenticationDataV2 verifyRequest(HttpServletRequest request, String secretKey,
 			Date signDate, String expectedDigest) throws IOException {
+		return verifyRequest(request, secretKey, signDate, expectedDigest, null);
+	}
+
+	private AuthenticationDataV2 verifyRequest(HttpServletRequest request, String secretKey,
+			Date signDate, String expectedDigest, String explicitHost) throws IOException {
 		AuthenticationDataV2 authData = new AuthenticationDataV2(
 				new SecurityHttpServletRequestWrapper(request, 1024), request.getHeader(HTTP_HEADER_AUTH)
 						.substring(AuthenticationScheme.V2.getSchemeName().length() + 1));
@@ -354,6 +365,76 @@ public class AuthenticationDataV2Tests {
 		String builderAuthHeader = builder.date(now).host(TEST_HOST).path(request.getRequestURI())
 				.build(TEST_PASSWORD);
 		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
+	}
+
+	@Test
+	public void simplePath_explicitHost() throws ServletException, IOException {
+		// given a request with Host: other.example.com
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
+		request.addHeader(HTTP_HEADER_HOST, "other.example.com");
+		final Date now = new Date();
+		request.addHeader("Date", httpDate(now));
+
+		// but signature calculated with host.example.com
+		// @formatter:off
+		String authHeader = new AuthorizationV2Builder(TEST_AUTH_TOKEN)
+				.host(TEST_HOST)
+				.path(request.getRequestURI())
+				.date(now)
+				.build(TEST_PASSWORD);
+		// @formatter:on
+		request.addHeader(HTTP_HEADER_AUTH, authHeader);
+
+		// verify using host.example.com as explicit host
+		verifyRequest(request, TEST_PASSWORD, TEST_HOST);
+	}
+
+	@Test
+	public void simplePath_explicitHostWithPort() throws ServletException, IOException {
+		// given a request with Host: other.example.com
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
+		request.addHeader(HTTP_HEADER_HOST, "other.example.com:443");
+		final Date now = new Date();
+		request.addHeader("Date", httpDate(now));
+
+		// but signature calculated with host.example.com
+		String destHost = TEST_HOST + ":443";
+		// @formatter:off
+		String authHeader = new AuthorizationV2Builder(TEST_AUTH_TOKEN)
+				.host(destHost)
+				.path(request.getRequestURI())
+				.date(now)
+				.build(TEST_PASSWORD);
+		// @formatter:on
+		request.addHeader(HTTP_HEADER_AUTH, authHeader);
+
+		// verify using host.example.com as explicit host
+		verifyRequest(request, TEST_PASSWORD, destHost);
+	}
+
+	@Test
+	public void simplePath_explicitHostWithForwardedProto() throws ServletException, IOException {
+		// given a request with Host: other.example.com
+		//                      X-Forwarded-Proto: https
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
+		request.addHeader(HTTP_HEADER_HOST, "other.example.com");
+		request.addHeader("X-Forwarded-Proto", "https");
+		final Date now = new Date();
+		request.addHeader("Date", httpDate(now));
+
+		// but signature calculated with host.example.com
+		String destHost = TEST_HOST;
+		// @formatter:off
+		String authHeader = new AuthorizationV2Builder(TEST_AUTH_TOKEN)
+				.host(destHost)
+				.path(request.getRequestURI())
+				.date(now)
+				.build(TEST_PASSWORD);
+		// @formatter:on
+		request.addHeader(HTTP_HEADER_AUTH, authHeader);
+
+		// verify using host.example.com as explicit host
+		verifyRequest(request, TEST_PASSWORD, destHost);
 	}
 
 	@Test

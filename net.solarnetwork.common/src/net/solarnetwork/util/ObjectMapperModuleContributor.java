@@ -22,6 +22,7 @@
 
 package net.solarnetwork.util;
 
+import java.util.List;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
@@ -34,7 +35,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * This is useful for adding serializers/deserializers to a pre-existing mapper.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ObjectMapperModuleContributor extends ObjectMapperModuleSupport {
 
@@ -65,6 +66,11 @@ public class ObjectMapperModuleContributor extends ObjectMapperModuleSupport {
 			}
 		}
 		getObjectMapper().registerModule(module);
+
+		List<Module> otherModules = getModules();
+		if ( otherModules != null ) {
+			getObjectMapper().registerModules(otherModules);
+		}
 	}
 
 	/**

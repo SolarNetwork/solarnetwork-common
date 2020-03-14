@@ -215,7 +215,7 @@ public final class ByteUtils {
 	 * @param s
 	 *        the string to decode
 	 * @return the bytes, never {@literal null}
-	 * @see #decodeHexStringPadStart(String)
+	 * @see #decodeHexPadStart(char[])
 	 */
 	public static byte[] decodeHexString(String s) {
 		if ( s == null ) {
@@ -1003,7 +1003,7 @@ public final class ByteUtils {
 	 *        the byte order of {@code data}
 	 * @param charset
 	 *        the character set to interpret the bytes as
-	 * @return
+	 * @return the number
 	 */
 	public static BigDecimal parseDecimalCharacterString(final byte[] data, final int offset,
 			final int length, final ByteOrdering byteOrder, final Charset charset) {
@@ -1015,7 +1015,6 @@ public final class ByteUtils {
 	/**
 	 * Convert an array of bytes to Byte objects.
 	 * 
-	 * @param array
 	 * @param array
 	 *        the array to convert
 	 * @return the converted array, or {@literal null} if {@code array} is

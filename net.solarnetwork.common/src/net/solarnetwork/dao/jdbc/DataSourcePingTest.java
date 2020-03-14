@@ -41,23 +41,55 @@ import net.solarnetwork.domain.PingTestResult;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.01
  * @since 1.52
  */
 public class DataSourcePingTest implements PingTest {
 
 	private final DataSource dataSource;
 	private final String query;
+	private final String id;
 
+	/**
+	 * Constructor.
+	 * 
+	 * <p>
+	 * The test ID will be set to the name of this class.
+	 * </p>
+	 * 
+	 * @param dataSource
+	 *        the data source
+	 * @param query
+	 *        the query to execute
+	 */
 	public DataSourcePingTest(DataSource dataSource, String query) {
 		super();
 		this.dataSource = dataSource;
 		this.query = query;
+		this.id = getClass().getName();
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param dataSource
+	 *        the data source
+	 * @param query
+	 *        the query to execute
+	 * @param id
+	 *        the test ID
+	 * @since 1.1
+	 */
+	public DataSourcePingTest(DataSource dataSource, String query, String id) {
+		super();
+		this.dataSource = dataSource;
+		this.query = query;
+		this.id = id;
 	}
 
 	@Override
 	public String getPingTestId() {
-		return getClass().getName();
+		return id;
 	}
 
 	@Override

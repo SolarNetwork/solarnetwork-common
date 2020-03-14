@@ -207,7 +207,7 @@ public class NumberDatumSamplePropertyConfig<V> extends GeneralDatumSampleProper
 	/**
 	 * Set the unit slope multiplier.
 	 * 
-	 * @param slope
+	 * @param unitSlope
 	 *        the unit slope multiplier to set; if {@literal null}
 	 *        {@link #DEFAULT_SLOPE} will be used instead
 	 */
@@ -236,7 +236,7 @@ public class NumberDatumSamplePropertyConfig<V> extends GeneralDatumSampleProper
 	/**
 	 * Set the unit y-intercept offset.
 	 * 
-	 * @param intercept
+	 * @param unitIntercept
 	 *        the unit intercept offset to set; if {@literal null}
 	 *        {@link #DEFAULT_INTERCEPT} will be used instead
 	 */

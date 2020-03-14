@@ -77,6 +77,10 @@ public final class SettingUtils {
 	/**
 	 * Get a dynamic list {@link GroupSettingSpecifier}.
 	 * 
+	 * @param <T>
+	 *        the group item type
+	 * @param key
+	 *        the group setting key
 	 * @param collection
 	 *        The collection to turn into settings.
 	 * @param mapper

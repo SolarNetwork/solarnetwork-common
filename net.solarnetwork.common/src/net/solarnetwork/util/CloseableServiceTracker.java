@@ -34,11 +34,11 @@ import org.slf4j.LoggerFactory;
  * </p>
  * 
  * <pre>
- * &lt;reference-list interface="net.solarnetwork.util.CloseableService" availability="optional">
- * 		&lt;reference-listener unbind-method="onReleased">
- * 			&lt;bean class="net.solarnetwork.util.CloseableServiceTracker"/>
- * 		&lt;/reference-listener>
- * &lt;/reference-list>
+ * &lt;reference-list interface="net.solarnetwork.util.CloseableService" availability="optional"&gt;
+ * 		&lt;reference-listener unbind-method="onReleased"&gt;
+ * 			&lt;bean class="net.solarnetwork.util.CloseableServiceTracker"/&gt;
+ * 		&lt;/reference-listener&gt;
+ * &lt;/reference-list&gt;
  * </pre>
  * 
  * @author matt
@@ -52,7 +52,7 @@ public class CloseableServiceTracker {
 	/**
 	 * Call when an {@link CloseableService} is no longer available.
 	 * 
-	 * @param ref
+	 * @param service
 	 *        the service reference
 	 */
 	public void onReleased(CloseableService service) {

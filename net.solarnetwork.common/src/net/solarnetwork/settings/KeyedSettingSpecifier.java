@@ -54,7 +54,7 @@ public interface KeyedSettingSpecifier<T> extends SettingSpecifier, MappableSpec
 	 * persisted and the {@link #getDefaultValue()} is treated as its "current"
 	 * value. This can be used for
 	 * 
-	 * @return
+	 * @return {@literal true} if the setting is transient
 	 */
 	boolean isTransient();
 

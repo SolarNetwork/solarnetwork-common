@@ -64,12 +64,12 @@ import org.w3c.dom.Node;
  * <dt>docBuilderFactory</dt>
  * <dd>A JAXP {@link DocumentBuilderFactory} to use. If not configured, the
  * {@link DocumentBuilderFactory#newInstance()} method will be used to create a
- * default one.</p>
+ * default one.</dd>
  * 
  * <dt>transformerFactory</dt>
  * <dd>A JAXP {@link TransformerFactory} for handling XSLT transformations with.
  * If not configured, the {@link TransformerFactory#newInstance()} method will
- * be used to create a default one.</p>
+ * be used to create a default one.</dd>
  * 
  * <dt>xpathFactory</dt>
  * <dd>A JAXP {@link XPathFactory} for handling XPath operations with. If not
@@ -156,7 +156,7 @@ public class XmlSupport {
 	 * <p>
 	 * The returned XML will be a document with a single element with all
 	 * JavaBean properties turned into attributes. For example:
-	 * <p>
+	 * </p>
 	 * 
 	 * <pre>
 	 * &lt;powerDatum
@@ -195,7 +195,7 @@ public class XmlSupport {
 	 * The returned XML will be a single element with all JavaBean properties
 	 * turned into attributes and the element named after the bean object's
 	 * class name. For example:
-	 * <p>
+	 * </p>
 	 * 
 	 * <pre>
 	 * &lt;PowerDatum
@@ -211,6 +211,8 @@ public class XmlSupport {
 	 * 
 	 * @param bean
 	 *        the object to turn into XML
+	 * @param dom
+	 *        the document
 	 * @return the element, as an XML DOM Document
 	 */
 	public Element getElement(BeanWrapper bean, Document dom) {
@@ -225,7 +227,7 @@ public class XmlSupport {
 	 * <p>
 	 * The returned XML will be a single element with all JavaBean properties
 	 * turned into attributes. For example:
-	 * <p>
+	 * </p>
 	 * 
 	 * <pre>
 	 * &lt;powerDatum
@@ -243,6 +245,8 @@ public class XmlSupport {
 	 *        the object to turn into XML
 	 * @param elementName
 	 *        the name of the XML element
+	 * @param dom
+	 *        the document
 	 * @return the element, as an XML DOM Element
 	 */
 	public Element getElement(BeanWrapper bean, String elementName, Document dom) {
@@ -284,7 +288,7 @@ public class XmlSupport {
 	 * <p>
 	 * The returned XML will be a single element with all JavaBean properties
 	 * turned into attributed. For example:
-	 * <p>
+	 * </p>
 	 * 
 	 * <pre>
 	 * &lt;powerDatum
@@ -353,8 +357,8 @@ public class XmlSupport {
 	/**
 	 * Populate JavaBean properties via XPath extraction.
 	 * 
-	 * @param obj
-	 *        the object to set properties on, or a BeanWrapper
+	 * @param bean
+	 *        the object to set properties on
 	 * @param xml
 	 *        the XML
 	 * @param xpathMap

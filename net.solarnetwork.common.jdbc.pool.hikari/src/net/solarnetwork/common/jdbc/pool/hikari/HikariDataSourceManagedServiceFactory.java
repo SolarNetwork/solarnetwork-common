@@ -31,6 +31,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -59,6 +60,8 @@ import com.zaxxer.hikari.HikariConfigMXBean;
 import com.zaxxer.hikari.HikariDataSource;
 import net.solarnetwork.dao.jdbc.DataSourcePingTest;
 import net.solarnetwork.domain.PingTest;
+import net.solarnetwork.support.SearchFilter;
+import net.solarnetwork.support.SearchFilter.LogicOperator;
 import net.solarnetwork.util.ClassUtils;
 
 /**
@@ -195,8 +198,9 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 						dataSourceProps.put(key.substring(DATA_SOURCE_PROPERTY_PREFIX.length()),
 								properties.get(key));
 					} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
-						serviceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
-								properties.get(key));
+						String propKey = key.substring(SERVICE_PROPERTY_PREFIX.length());
+						Object propVal = servicePropertyValue(propKey, properties.get(key));
+						serviceProps.put(propKey, propVal);
 					} else if ( ignoredPropertyPrefixes != null
 							&& ignoredPropertyPrefixes.stream().anyMatch(s -> key.startsWith(s)) ) {
 						// ignore this prop
@@ -243,6 +247,30 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				return v;
 			}
 		});
+	}
+
+	/**
+	 * Map well-known service keys to appropriate instance values, such as
+	 * {@code Integer}.
+	 * 
+	 * @param propKey
+	 *        the service property key; must not be {@literal null}
+	 * @param object
+	 *        the property value
+	 * @return the property value to use
+	 */
+	private Object servicePropertyValue(String propKey, Object object) {
+		if ( Constants.SERVICE_RANKING.equals(propKey) ) {
+			if ( object instanceof Integer ) {
+				return object;
+			}
+			try {
+				return Integer.valueOf(object.toString());
+			} catch ( NumberFormatException e ) {
+				// ignore and continue
+			}
+		}
+		return object;
 	}
 
 	private void doDelete(String pid) {
@@ -337,6 +365,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				return;
 			}
 
+			log.info("Creating DataSource to [{}] with service props {}", jdbcUrl, serviceProps);
 			HikariConfig poolConfig = new HikariConfig(poolProps);
 			if ( dataSource != null ) {
 				poolConfig.setDataSource(dataSource);
@@ -350,7 +379,8 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 			ServiceRegistration<PingTest> pingReg = null;
 			if ( pingTestQuery != null ) {
-				DataSourcePingTest pingTest = new DataSourcePingTest(ds, pingTestQuery);
+				String pingTestId = pingTestId();
+				DataSourcePingTest pingTest = new DataSourcePingTest(ds, pingTestQuery, pingTestId);
 				log.info("Registering PingTest for pooled JDBC DataSource {} with props {}", jdbcUrl,
 						serviceProps);
 				pingReg = bundleContext.registerService(PingTest.class, pingTest, null);
@@ -364,6 +394,19 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				bundleContext.removeServiceListener(this);
 				dataSourceFactoryListening = false;
 			}
+		}
+
+		private String pingTestId() {
+			String id = pid;
+			if ( serviceProps != null ) {
+				Map<String, Object> m = new LinkedHashMap<>(serviceProps.size());
+				for ( Enumeration<String> keys = serviceProps.keys(); keys.hasMoreElements(); ) {
+					String key = keys.nextElement();
+					m.put(key, serviceProps.get(key));
+				}
+				id = new SearchFilter(m, LogicOperator.AND).asLDAPSearchFilterString();
+			}
+			return String.format("%s-%s", DataSourcePingTest.class.getName(), id);
 		}
 
 		private void createDataSourceOrListenForFactory() {

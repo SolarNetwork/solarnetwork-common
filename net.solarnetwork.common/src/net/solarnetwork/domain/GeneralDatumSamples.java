@@ -510,7 +510,7 @@ public class GeneralDatumSamples extends GeneralDatumSupport
 	}
 
 	/**
-	 * Get a String value from the {@link #getSample()} map, or {@literal null}
+	 * Get a String value from the {@link #getStatus()} map, or {@literal null}
 	 * if not available.
 	 * 
 	 * @param key
