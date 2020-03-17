@@ -50,6 +50,8 @@ public interface S3Client extends SettingSpecifierProvider {
 	 * @param prefix
 	 *        the prefix to match
 	 * @return the matching objects, never {@literal null}
+	 * @throws IOException
+	 *         if an IO error occurs
 	 */
 	Set<S3ObjectReference> listObjects(String prefix) throws IOException;
 
@@ -63,6 +65,8 @@ public interface S3Client extends SettingSpecifierProvider {
 	 * @param key
 	 *        the key of the object to get
 	 * @return the string, or {@literal null} if not found
+	 * @throws IOException
+	 *         if an IO error occurs
 	 */
 	String getObjectAsString(String key) throws IOException;
 
@@ -85,6 +89,8 @@ public interface S3Client extends SettingSpecifierProvider {
 	 * callbacks until that time as well.
 	 * </p>
 	 * 
+	 * @param <P>
+	 *        the progress context type
 	 * @param key
 	 *        the key of the object to get
 	 * @param progressListener
@@ -92,6 +98,8 @@ public interface S3Client extends SettingSpecifierProvider {
 	 * @param progressContext
 	 *        an optional progress context
 	 * @return the object, or {@literal null} if not found
+	 * @throws IOException
+	 *         if an IO error occurs
 	 */
 	<P> S3Object getObject(String key, ProgressListener<P> progressListener, P progressContext)
 			throws IOException;
@@ -124,6 +132,8 @@ public interface S3Client extends SettingSpecifierProvider {
 	 * @param keys
 	 *        the keys to delete
 	 * @return the keys that were deleted
+	 * @throws IOException
+	 *         if an IO error occurs
 	 */
 	Set<String> deleteObjects(Iterable<String> keys) throws IOException;
 

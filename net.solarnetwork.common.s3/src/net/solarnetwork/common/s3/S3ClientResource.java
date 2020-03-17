@@ -46,6 +46,8 @@ public class S3ClientResource extends AbstractResource implements Resource {
 	 * 
 	 * @param client
 	 *        the client to use
+	 * @param ref
+	 *        the object reference
 	 * @throws IllegalArgumentException
 	 *         if either {@code client} or {@code ref} are {@literal null}
 	 */

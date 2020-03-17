@@ -66,7 +66,7 @@ import net.solarnetwork.util.ProgressListener;
  * {@link S3Client} API.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
 		implements ResourceStorageService, SettingSpecifierProvider, SettingsChangeObserver {
@@ -104,6 +104,13 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 		super(id);
 		setS3Client(new SdkS3Client());
 		setExecutor(executor);
+	}
+
+	/**
+	 * Call after properties are configured.
+	 */
+	public void startup() {
+		configurationChanged(null);
 	}
 
 	@Override
@@ -531,8 +538,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	/**
 	 * Alias for {@link #getUid()}.
 	 * 
-	 * @param uid
-	 *        the UID to set
+	 * @return the UID
 	 */
 	public String getUID() {
 		return getUid();
@@ -555,8 +561,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	/**
 	 * Alias for {@link #getGroupUid()}.
 	 * 
-	 * @param groupUid
-	 *        the group UID to set
+	 * @return the group UID
 	 */
 	public String getGroupUID() {
 		return getGroupUid();
