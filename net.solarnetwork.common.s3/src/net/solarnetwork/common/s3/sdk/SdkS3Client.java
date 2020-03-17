@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSCredentialsProviderChain;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
@@ -69,7 +70,7 @@ import net.solarnetwork.util.ProgressListener;
  * {@link S3Client} using the AWS SDK.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
 		implements S3Client, SettingsChangeObserver {
@@ -88,6 +89,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	private String regionName = DEFAULT_REGION_NAME;
 	private int maximumKeysPerRequest = DEFAULT_MAXIMUM_KEYS_PER_REQUEST;
 	private AWSCredentialsProvider credentialsProvider;
+	private AWSCredentialsProvider tokenCredentialsProvider;
 
 	private AmazonS3 s3Client;
 
@@ -110,8 +112,8 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	@Override
 	public synchronized void configurationChanged(Map<String, Object> properties) {
-		if ( credentialsProvider == null && accessToken != null && accessSecret != null ) {
-			credentialsProvider = new AWSStaticCredentialsProvider(
+		if ( accessToken != null && accessSecret != null ) {
+			tokenCredentialsProvider = new AWSStaticCredentialsProvider(
 					new BasicAWSCredentials(accessToken, accessSecret));
 		}
 		if ( s3Client != null ) {
@@ -133,8 +135,20 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	private synchronized AmazonS3 getClient() {
 		AmazonS3 result = s3Client;
 		if ( result == null ) {
-			result = AmazonS3ClientBuilder.standard().withCredentials(credentialsProvider)
-					.withRegion(regionName).build();
+			AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard().withRegion(regionName);
+			AWSCredentialsProvider provider = null;
+			if ( credentialsProvider != null && tokenCredentialsProvider != null ) {
+				provider = new AWSCredentialsProviderChain(tokenCredentialsProvider,
+						credentialsProvider);
+			} else if ( tokenCredentialsProvider != null ) {
+				provider = tokenCredentialsProvider;
+			} else if ( credentialsProvider != null ) {
+				provider = credentialsProvider;
+			}
+			if ( provider != null ) {
+				builder.withCredentials(provider);
+			}
+			result = builder.build();
 			s3Client = result;
 		}
 		return result;
@@ -143,7 +157,8 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	@Override
 	public boolean isConfigured() {
 		return (bucketName != null && bucketName.length() > 0 && regionName != null
-				&& regionName.length() > 0 && credentialsProvider != null);
+				&& regionName.length() > 0
+				&& (credentialsProvider != null || tokenCredentialsProvider != null));
 	}
 
 	@Override
