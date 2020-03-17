@@ -48,6 +48,8 @@ public class SdkS3Object implements S3Object, S3ObjectMetadata {
 	 * 
 	 * @param s3Object
 	 *        the object
+	 * @param url
+	 *        the URL
 	 */
 	public SdkS3Object(com.amazonaws.services.s3.model.S3Object s3Object, URL url) {
 		super();

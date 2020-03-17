@@ -538,8 +538,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	/**
 	 * Alias for {@link #getUid()}.
 	 * 
-	 * @param uid
-	 *        the UID to set
+	 * @return the UID
 	 */
 	public String getUID() {
 		return getUid();
@@ -562,8 +561,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	/**
 	 * Alias for {@link #getGroupUid()}.
 	 * 
-	 * @param groupUid
-	 *        the group UID to set
+	 * @return the group UID
 	 */
 	public String getGroupUID() {
 		return getGroupUid();
