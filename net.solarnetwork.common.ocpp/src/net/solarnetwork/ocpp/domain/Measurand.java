@@ -32,28 +32,117 @@ import net.solarnetwork.domain.CodedValue;
  */
 public enum Measurand implements CodedValue {
 
+	/** An unknown measurand. */
 	Unknown(0),
+
+	/** Instantaneous current flow from EV. */
 	CurrentExport(1),
+
+	/** Instantaneous current flow to EV. */
 	CurrentImport(2),
+
+	/** Maximum current offered to EV. */
 	CurrentOffered(17),
+
+	/**
+	 * Numerical value read from the "active electrical energy" (Wh or kWh)
+	 * register of the most authoritative electrical meter measuring energy
+	 * exported to the grid.
+	 */
 	EnergyActiveExportInterval(3),
+
+	/**
+	 * Numerical value read from the "active electrical energy" (Wh or kWh)
+	 * register of the (most authoritative) electrical meter measuring energy
+	 * imported (from the grid supply).
+	 */
 	EnergyActiveExportRegister(4),
+
+	/**
+	 * Numerical value read from the "reactive electrical energy" (VARh or
+	 * kVARh) register of the (most authoritative) electrical meter measuring
+	 * energy exported (to the grid).
+	 */
 	EnergyActiveImportInterval(5),
+
+	/**
+	 * Numerical value read from the "reactive electrical energy" (VARh or
+	 * kVARh) register of the (most authoritative) electrical meter measuring
+	 * energy imported (from the grid supply).
+	 */
 	EnergyActiveImportRegister(6),
+
+	/**
+	 * Absolute amount of "active electrical energy" (Wh or kWh) exported (to
+	 * the grid) during an associated time "interval", specified by a
+	 * Metervalues ReadingContext, and applicable interval duration
+	 * configuration values (in seconds) for "ClockAlignedDataInterval" and
+	 * "MeterValueSampleInterval".
+	 */
 	EnergyReactiveExportInterval(7),
+
+	/**
+	 * Absolute amount of "active electrical energy" (Wh or kWh) imported (from
+	 * the grid supply) during an associated time "interval", specified by a
+	 * Metervalues ReadingContext, and applicable interval duration
+	 * configuration values (in seconds) for "ClockAlignedDataInterval" and
+	 * "MeterValueSampleInterval".
+	 */
 	EnergyReactiveExportRegister(8),
+
+	/**
+	 * Absolute amount of "active electrical energy" (Wh or kWh) imported (from
+	 * the grid supply) during an associated time "interval", specified by a
+	 * Metervalues ReadingContext, and applicable interval duration
+	 * configuration values (in seconds) for "ClockAlignedDataInterval" and
+	 * "MeterValueSampleInterval".
+	 */
 	EnergyReactiveImportInterval(9),
+
+	/**
+	 * Absolute amount of "reactive electrical energy" (VARh or kVARh) imported
+	 * (from the grid supply) during an associated time "interval", specified by
+	 * a Metervalues ReadingContext, and applicable interval duration
+	 * configuration values (in seconds) for "ClockAlignedDataInterval" and
+	 * "MeterValueSampleInterval".
+	 */
 	EnergyReactiveImportRegister(10),
+
+	/**
+	 * Instantaneous reading of powerline frequency. NOTE: OCPP 1.6 does not
+	 * have a UnitOfMeasure for frequency, the UnitOfMeasure for any
+	 * SampledValue with measurand: Frequency is Hertz.
+	 */
 	Frequency(18),
+
+	/** Instantaneous active power exported by EV (W or kW). */
 	PowerActiveExport(11),
+
+	/** Instantaneous active power imported by EV (W or kW). */
 	PowerActiveImport(12),
+
+	/** Instantaneous power factor of total energy flow. */
 	PowerFactor(19),
+
+	/** Maximum power offered to EV. */
 	PowerOffered(20),
+
+	/** Instantaneous reactive power exported by EV (var or kvar). */
 	PowerReactiveExport(13),
+
+	/** Instantaneous reactive power imported by EV (var or kvar). */
 	PowerReactiveImport(14),
+
+	/** Fan speed in RPM. */
 	RPM(21),
+
+	/** State of charge of charging vehicle in percentage. */
 	SoC(22),
+
+	/** Temperature reading inside Charge Point. */
 	Temperature(15),
+
+	/** Instantaneous AC RMS supply voltage. */
 	Voltage(16);
 
 	private final byte code;
