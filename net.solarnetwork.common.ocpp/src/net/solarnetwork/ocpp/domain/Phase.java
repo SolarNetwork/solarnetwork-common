@@ -32,16 +32,37 @@ import net.solarnetwork.domain.CodedValue;
  */
 public enum Phase implements CodedValue {
 
+	/** Unknown. */
 	Unknown(0),
+
+	/** Measured on L1. */
 	L1(1),
+
+	/** Measured on L2. */
 	L2(2),
+
+	/** Measured on L3. */
 	L3(3),
+
+	/** Measured on Neutral. */
 	N(4),
+
+	/** Measured on L1 with respect to Neutral conductor. */
 	L1N(5),
+
+	/** Measured on L2 with respect to Neutral conductor. */
 	L2N(6),
+
+	/** Measured on L3 with respect to Neutral conductor. */
 	L3N(7),
+
+	/** Measured between L1 and L2. */
 	L1L2(8),
+
+	/** Measured between L2 and L3. */
 	L2L3(9),
+
+	/** Measured between L3 and L1. */
 	L3L1(01);
 
 	private final byte code;
