@@ -178,8 +178,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 					return false;
 				}
 			}
-			attributes.putIfAbsent(CLIENT_ID_ATTR, new ChargePointIdentity(identifier,
-					fixedIdentityUsername != null ? fixedIdentityUsername : username));
+			attributes.putIfAbsent(CLIENT_ID_ATTR, user.chargePointIdentity(identifier));
 		}
 
 		return true;
@@ -250,13 +249,13 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 * 
 	 * <p>
 	 * When this property is configured, then the
-	 * {@link ChargePointIdentity#getUsername()} value will always be saved as
-	 * this value when populating the {@link #CLIENT_ID_ATTR} session identity.
-	 * If <b>not</b> configured then the HTTP BASIC authorization username will
-	 * be used. This can be useful in contexts where the
+	 * {@link ChargePointIdentity#getUserIdentifier()} value will always be
+	 * saved as this value when populating the {@link #CLIENT_ID_ATTR} session
+	 * identity. If <b>not</b> configured then the HTTP BASIC authorization
+	 * username will be used. This can be useful in contexts where the
 	 * {@link ChargePointIdentity#getIdentifier()} is sufficient to uniquely
 	 * identify a charge point, such as in SolarNode; the
-	 * {@link ChargePointIdentity#ANY_USERNAME} can be used for that scenario.
+	 * {@link ChargePointIdentity#ANY_USER} can be used for that scenario.
 	 * </p>
 	 * 
 	 * @param fixedIdentityUsername
