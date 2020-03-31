@@ -31,7 +31,7 @@ import net.solarnetwork.domain.Differentiable;
  * A Charge Point entity.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ChargePoint extends BasicLongEntity implements Differentiable<ChargePoint> {
 
@@ -119,6 +119,20 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 		this.registrationStatus = other.registrationStatus;
 		this.enabled = other.enabled;
 		this.connectorCount = other.connectorCount;
+	}
+
+	/**
+	 * Create a charge point identity based on this entity.
+	 * 
+	 * <p>
+	 * This implementation uses {@link ChargePointIdentity#ANY_USER} for the
+	 * resolved username.
+	 * </p>
+	 * 
+	 * @return the new identity, never {@literal null}
+	 */
+	public ChargePointIdentity chargePointIdentity() {
+		return new ChargePointIdentity(getInfo().getId(), ChargePointIdentity.ANY_USER);
 	}
 
 	/**

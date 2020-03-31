@@ -36,7 +36,7 @@ import net.solarnetwork.util.StringUtils;
  * An OCPP charge point system user.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SystemUser extends BasicLongEntity implements Differentiable<SystemUser> {
 
@@ -93,6 +93,22 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 		if ( allowed != null ) {
 			setAllowedChargePoints(new LinkedHashSet<>(allowed));
 		}
+	}
+
+	/**
+	 * Create a charge point identity based on this system user.
+	 * 
+	 * <p>
+	 * This implementation uses {@link ChargePointIdentity#ANY_USER} for the
+	 * resolved username.
+	 * </p>
+	 * 
+	 * @param identity
+	 *        the charge point identity
+	 * @return the new identity, never {@literal null}
+	 */
+	public ChargePointIdentity chargePointIdentity(String identity) {
+		return new ChargePointIdentity(identity, ChargePointIdentity.ANY_USER);
 	}
 
 	/**
