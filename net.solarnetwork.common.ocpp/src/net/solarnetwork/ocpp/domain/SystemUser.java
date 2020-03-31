@@ -103,12 +103,12 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 	 * resolved username.
 	 * </p>
 	 * 
-	 * @param identity
-	 *        the charge point identity
+	 * @param identifier
+	 *        the charge point identifier
 	 * @return the new identity, never {@literal null}
 	 */
-	public ChargePointIdentity chargePointIdentity(String identity) {
-		return new ChargePointIdentity(identity, ChargePointIdentity.ANY_USER);
+	public ChargePointIdentity chargePointIdentity(String identifier) {
+		return new ChargePointIdentity(identifier, ChargePointIdentity.ANY_USER);
 	}
 
 	/**
