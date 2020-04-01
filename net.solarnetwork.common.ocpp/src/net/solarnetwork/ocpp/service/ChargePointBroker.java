@@ -47,13 +47,13 @@ public interface ChargePointBroker {
 	/**
 	 * Test if a Charge Point is available, or otherwise known to this broker.
 	 * 
-	 * @param chargePointId
+	 * @param identity
 	 *        the Charge Point ID to query
 	 * @return {@literal true} if this broker is aware of the given
 	 *         {@code clientId} and should be able to send messages to it via
 	 *         {@link #sendMessageToChargePoint(ActionMessage, ActionMessageResultHandler)}
 	 */
-	boolean isChargePointAvailable(ChargePointIdentity chargePointId);
+	boolean isChargePointAvailable(ChargePointIdentity identity);
 
 	/**
 	 * Test if an {@link ActionMessage} is supported by this broker.

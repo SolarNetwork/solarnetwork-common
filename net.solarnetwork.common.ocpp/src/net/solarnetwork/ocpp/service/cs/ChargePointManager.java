@@ -22,8 +22,6 @@
 
 package net.solarnetwork.ocpp.service.cs;
 
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import net.solarnetwork.domain.Identifiable;
 import net.solarnetwork.ocpp.domain.ChargePoint;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
@@ -35,7 +33,7 @@ import net.solarnetwork.ocpp.domain.RegistrationStatus;
  * System to manage a set of Charge Point clients.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface ChargePointManager extends Identifiable {
 
@@ -66,41 +64,5 @@ public interface ChargePointManager extends Identifiable {
 	 *         {@link RegistrationStatus#Accepted}
 	 */
 	boolean isChargePointRegistrationAccepted(long chargePointId);
-
-	/**
-	 * Get a complete set of Charge Point identifiers that are available, or
-	 * otherwise known to this manager.
-	 * 
-	 * @return the set of available charge point identifiers, never
-	 *         {@literal null}
-	 */
-	Set<ChargePointIdentity> availableChargePointsIds();
-
-	/**
-	 * Test if a Charge Point is available, or otherwise known to this manager.
-	 * 
-	 * @param identity
-	 *        the Charge Point identity to query
-	 * @return {@literal true} if this manager is aware of the given
-	 *         {@code clientId} and should be able to send messages to it
-	 */
-	boolean isChargePointAvailable(ChargePointIdentity identity);
-
-	/**
-	 * Set the connector enabled state for a given connector ID.
-	 * 
-	 * @param identity
-	 *        the ID of the Charge Point with the connector to adjust
-	 * @param connectorId
-	 *        the ID of the connector to adjust; connector IDs start at
-	 *        {@literal 1} and increment by one for each additional connector on
-	 *        a Charge Point
-	 * @param enabled
-	 *        {@literal true} to make the connector available for use,
-	 *        {@literal false} to disable the connector
-	 * @return {@literal true} if the state was set
-	 */
-	CompletableFuture<Boolean> adjustConnectorEnabledState(ChargePointIdentity identity, int connectorId,
-			boolean enabled);
 
 }
