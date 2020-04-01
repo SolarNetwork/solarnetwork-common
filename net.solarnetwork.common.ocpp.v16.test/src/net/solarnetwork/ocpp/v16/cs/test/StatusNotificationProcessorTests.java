@@ -25,13 +25,11 @@ package net.solarnetwork.ocpp.v16.cs.test;
 import static java.util.UUID.randomUUID;
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
-import java.time.Instant;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.easymock.Capture;
@@ -39,15 +37,11 @@ import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import net.solarnetwork.ocpp.dao.ChargePointConnectorDao;
-import net.solarnetwork.ocpp.dao.ChargePointDao;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
-import net.solarnetwork.ocpp.domain.ChargePoint;
-import net.solarnetwork.ocpp.domain.ChargePointConnectorKey;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
-import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.StatusNotification;
+import net.solarnetwork.ocpp.service.cs.ChargePointManager;
 import net.solarnetwork.ocpp.v16.cs.StatusNotificationProcessor;
 import ocpp.v16.CentralSystemAction;
 import ocpp.v16.cs.ChargePointStatus;
@@ -62,24 +56,22 @@ import ocpp.xml.support.XmlDateUtils;
  */
 public class StatusNotificationProcessorTests {
 
-	private ChargePointDao chargePointDao;
-	private ChargePointConnectorDao chargePointConnectorDao;
+	private ChargePointManager chargePointManager;
 	private StatusNotificationProcessor processor;
 
 	@Before
 	public void setup() {
-		chargePointDao = EasyMock.createMock(ChargePointDao.class);
-		chargePointConnectorDao = EasyMock.createMock(ChargePointConnectorDao.class);
-		processor = new StatusNotificationProcessor(chargePointDao, chargePointConnectorDao);
+		chargePointManager = EasyMock.createMock(ChargePointManager.class);
+		processor = new StatusNotificationProcessor(chargePointManager);
 	}
 
 	@After
 	public void teardown() {
-		EasyMock.verify(chargePointDao, chargePointConnectorDao);
+		EasyMock.verify(chargePointManager);
 	}
 
 	private void replayAll() {
-		EasyMock.replay(chargePointDao, chargePointConnectorDao);
+		EasyMock.replay(chargePointManager);
 	}
 
 	private ChargePointIdentity createClientId() {
@@ -92,13 +84,8 @@ public class StatusNotificationProcessorTests {
 		CountDownLatch l = new CountDownLatch(1);
 		ChargePointIdentity identity = createClientId();
 
-		ChargePoint cp = new ChargePoint(randomUUID().getMostSignificantBits(), Instant.now(),
-				new ChargePointInfo(identity.getIdentifier(), "SolarNetwork", "SolarNode"));
-		expect(chargePointDao.getForIdentity(identity)).andReturn(cp);
-
 		Capture<StatusNotification> notifCaptor = new Capture<>();
-		expect(chargePointConnectorDao.saveStatusInfo(eq(cp.getId().longValue()), capture(notifCaptor)))
-				.andReturn(new ChargePointConnectorKey(cp.getId(), 1));
+		chargePointManager.updateChargePointStatus(eq(identity), capture(notifCaptor));
 
 		// WHEN
 		replayAll();
@@ -124,40 +111,6 @@ public class StatusNotificationProcessorTests {
 				equalTo(req.getConnectorId()));
 		assertThat("Status matches request", notif.getStatus(),
 				equalTo(net.solarnetwork.ocpp.domain.ChargePointStatus.Charging));
-	}
-
-	@Test
-	public void saveStatus_chargePoint() throws Exception {
-		// GIVEN
-		CountDownLatch l = new CountDownLatch(1);
-		ChargePointIdentity identity = createClientId();
-
-		ChargePoint cp = new ChargePoint(randomUUID().getMostSignificantBits(), Instant.now(),
-				new ChargePointInfo(identity.getIdentifier(), "SolarNetwork", "SolarNode"));
-		expect(chargePointDao.getForIdentity(identity)).andReturn(cp);
-
-		expect(chargePointConnectorDao.updateChargePointStatus(eq(cp.getId().longValue()), eq(0),
-				eq(net.solarnetwork.ocpp.domain.ChargePointStatus.Unavailable))).andReturn(1);
-
-		// WHEN
-		replayAll();
-
-		StatusNotificationRequest req = new StatusNotificationRequest();
-		req.setConnectorId(0);
-		req.setStatus(ChargePointStatus.UNAVAILABLE);
-		req.setTimestamp(XmlDateUtils.newXmlCalendar());
-		ActionMessage<StatusNotificationRequest> message = new BasicActionMessage<StatusNotificationRequest>(
-				identity, CentralSystemAction.StatusNotification, req);
-		processor.processActionMessage(message, (msg, res, err) -> {
-			assertThat("Message passed", msg, sameInstance(message));
-			assertThat("Result available", res, notNullValue());
-			assertThat("No error", err, nullValue());
-			l.countDown();
-			return true;
-		});
-
-		// then
-		assertThat("Result handler invoked", l.await(1, TimeUnit.SECONDS), equalTo(true));
 	}
 
 }

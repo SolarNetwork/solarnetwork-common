@@ -27,6 +27,7 @@ import net.solarnetwork.ocpp.domain.ChargePoint;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.RegistrationStatus;
+import net.solarnetwork.ocpp.domain.StatusNotification;
 
 /**
  * This API represents the set of functionality required by an OCPP Central
@@ -64,5 +65,15 @@ public interface ChargePointManager extends Identifiable {
 	 *         {@link RegistrationStatus#Accepted}
 	 */
 	boolean isChargePointRegistrationAccepted(long chargePointId);
+
+	/**
+	 * Update the status of a Charge Point or specific connector.
+	 * 
+	 * @param identity
+	 *        the charge point to update
+	 * @param info
+	 *        the status update info
+	 */
+	void updateChargePointStatus(ChargePointIdentity identity, StatusNotification info);
 
 }
