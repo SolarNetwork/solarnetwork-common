@@ -79,7 +79,7 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 * @return all available incomplete charge session for the given charge
 	 *         point, never {@literal null}
 	 */
-	Collection<ChargeSession> getIncompleteChargeSessionForChargePoint(long chargePointId);
+	Collection<ChargeSession> getIncompleteChargeSessionsForChargePoint(long chargePointId);
 
 	/**
 	 * Get all <em>incomplete</em> charge sessions. An <em>incomplete</em>
