@@ -118,7 +118,12 @@ public class StatusNotificationProcessor
 		log.info("Received Charge Point {} status: {}", identity, info);
 
 		try {
-			chargePointConnectorDao.saveStatusInfo(chargePoint.getId(), info);
+			if ( req.getConnectorId() == 0 ) {
+				chargePointConnectorDao.updateChargePointStatus(chargePoint.getId(),
+						req.getConnectorId(), info.getStatus());
+			} else {
+				chargePointConnectorDao.saveStatusInfo(chargePoint.getId(), info);
+			}
 			resultHandler.handleActionMessageResult(message, new StatusNotificationResponse(), null);
 		} catch ( Throwable t ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.InternalError,
@@ -139,7 +144,7 @@ public class StatusNotificationProcessor
 	}
 
 	private ChargePointErrorCode errorCode(StatusNotificationRequest req) {
-		if ( req != null && req.getStatus() != null ) {
+		if ( req != null && req.getStatus() != null && req.getErrorCode() != null ) {
 			try {
 				return ChargePointErrorCode.valueOf(req.getErrorCode().value());
 			} catch ( IllegalArgumentException e ) {
