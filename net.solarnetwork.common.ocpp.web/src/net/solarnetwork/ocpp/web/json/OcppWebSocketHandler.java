@@ -68,7 +68,9 @@ import net.solarnetwork.settings.SettingsChangeObserver;
 import ocpp.domain.Action;
 import ocpp.domain.ErrorCode;
 import ocpp.domain.ErrorCodeException;
+import ocpp.domain.ErrorCodeResolver;
 import ocpp.domain.ErrorHolder;
+import ocpp.domain.RpcError;
 import ocpp.domain.SchemaValidationException;
 import ocpp.json.ActionPayloadDecoder;
 import ocpp.json.CallErrorMessage;
@@ -76,9 +78,6 @@ import ocpp.json.CallMessage;
 import ocpp.json.CallResultMessage;
 import ocpp.json.MessageType;
 import ocpp.json.WebSocketSubProtocol;
-import ocpp.v16.ActionErrorCode;
-import ocpp.v16.CentralSystemAction;
-import ocpp.v16.ChargePointAction;
 import ocpp.v16.cp.json.ChargePointActionPayloadDecoder;
 import ocpp.v16.cs.json.CentralServiceActionPayloadDecoder;
 
@@ -107,10 +106,15 @@ import ocpp.v16.cs.json.CentralServiceActionPayloadDecoder;
  * passed to the {@link ActionMessageResultHandler} originally provided.
  * </p>
  * 
+ * @param <C>
+ *        the charge point action enumeration to use
+ * @param <S>
+ *        the central system action enumeration to use
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
-public class OcppWebSocketHandler extends AbstractWebSocketHandler
+public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
+		extends AbstractWebSocketHandler
 		implements WebSocketHandler, SubProtocolCapable, SettingsChangeObserver, ChargePointBroker {
 
 	/** The default {@code pendingMessageTimeout} property. */
@@ -118,6 +122,9 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	private final Class<C> chargePointActionClass;
+	private final Class<S> centralSystemActionClass;
+	private final ErrorCodeResolver errorCodeResolver;
 	private final AsyncTaskExecutor executor;
 	private final ConcurrentMap<Action, Set<ActionMessageProcessor<Object, Object>>> processors;
 	private final ConcurrentMap<ChargePointIdentity, WebSocketSession> clientSessions;
@@ -149,11 +156,21 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	 * in-memory queue will be used for pending messages.
 	 * </p>
 	 * 
+	 * @param chargePointActionClass
+	 *        the charge point action class
+	 * @param centralSystemActionClass
+	 *        the central system action class
+	 * @param errorCodeResolver
+	 *        the error code resolver
 	 * @param executor
 	 *        an executor for tasks
 	 */
-	public OcppWebSocketHandler(AsyncTaskExecutor executor) {
+	public OcppWebSocketHandler(Class<C> chargePointActionClass, Class<S> centralSystemActionClass,
+			ErrorCodeResolver errorCodeResolver, AsyncTaskExecutor executor) {
 		super();
+		this.chargePointActionClass = chargePointActionClass;
+		this.centralSystemActionClass = centralSystemActionClass;
+		this.errorCodeResolver = errorCodeResolver;
 		this.executor = executor;
 		this.processors = new ConcurrentHashMap<>(16, 0.9f, 1);
 		this.clientSessions = new ConcurrentHashMap<>(8, 0.7f, 2);
@@ -166,6 +183,12 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	/**
 	 * Constructor.
 	 * 
+	 * @param chargePointActionClass
+	 *        the charge point action class
+	 * @param centralSystemActionClass
+	 *        the central system action class
+	 * @param errorCodeResolver
+	 *        the error code resolver
 	 * @param executor
 	 *        an executor for tasks
 	 * @param mapper
@@ -180,13 +203,25 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	 * @throws IllegalArgumentException
 	 *         if any parameter is {@literal null}
 	 */
-	public OcppWebSocketHandler(AsyncTaskExecutor executor, ObjectMapper mapper,
+	public OcppWebSocketHandler(Class<C> chargePointActionClass, Class<S> centralSystemActionClass,
+			ErrorCodeResolver errorCodeResolver, AsyncTaskExecutor executor, ObjectMapper mapper,
 			ActionMessageQueue pendingMessageQueue,
 			ActionPayloadDecoder centralServiceActionPayloadDecoder,
 			ActionPayloadDecoder chargePointActionPayloadDecoder) {
 		super();
-		this.processors = new ConcurrentHashMap<>(16, 0.9f, 1);
-		this.clientSessions = new ConcurrentHashMap<>(8, 0.7f, 2);
+		if ( chargePointActionClass == null ) {
+			throw new IllegalArgumentException("The chargePointActionClass parameter must not be null.");
+		}
+		this.chargePointActionClass = chargePointActionClass;
+		if ( centralSystemActionClass == null ) {
+			throw new IllegalArgumentException(
+					"The centralSystemActionClass parameter must not be null.");
+		}
+		this.centralSystemActionClass = centralSystemActionClass;
+		if ( errorCodeResolver == null ) {
+			throw new IllegalArgumentException("The errorCodeResolver parameter must not be null.");
+		}
+		this.errorCodeResolver = errorCodeResolver;
 		if ( executor == null ) {
 			throw new IllegalArgumentException("The executor parameter must not be null.");
 		}
@@ -199,6 +234,8 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 			throw new IllegalArgumentException("The pendingMessageQueue parameter must not be null.");
 		}
 		this.pendingMessages = pendingMessageQueue;
+		this.processors = new ConcurrentHashMap<>(16, 0.9f, 1);
+		this.clientSessions = new ConcurrentHashMap<>(8, 0.7f, 2);
 		setCentralServiceActionPayloadDecoder(centralServiceActionPayloadDecoder);
 		setChargePointActionPayloadDecoder(chargePointActionPayloadDecoder);
 	}
@@ -329,6 +366,10 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 		return (id instanceof ChargePointIdentity ? (ChargePointIdentity) id : null);
 	}
 
+	private ErrorCode errorCode(RpcError error) {
+		return errorCodeResolver.errorCodeForRpcError(error);
+	}
+
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 		final ChargePointIdentity clientId = clientId(session);
@@ -337,7 +378,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 		try {
 			tree = mapper.readTree(message.getPayload());
 		} catch ( JsonProcessingException e ) {
-			sendCallError(session, clientId, null, ActionErrorCode.ProtocolError,
+			sendCallError(session, clientId, null, errorCode(RpcError.PayloadProtocolError),
 					"Message malformed JSON.", null);
 			return;
 		}
@@ -346,7 +387,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 			JsonNode messageIdNode = tree.path(1);
 			final String messageId = messageIdNode.isTextual() ? messageIdNode.textValue() : "NULL";
 			if ( !msgTypeNode.isInt() ) {
-				sendCallError(session, clientId, messageId, ActionErrorCode.FormationViolation,
+				sendCallError(session, clientId, messageId, errorCode(RpcError.MessageSyntaxError),
 						"Message type not provided.", null);
 				return;
 			}
@@ -373,6 +414,24 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 					break;
 			}
 		}
+	}
+
+	private Action chargePointAction(String name) {
+		for ( C action : chargePointActionClass.getEnumConstants() ) {
+			if ( name.equals(action.getName()) ) {
+				return action;
+			}
+		}
+		return null;
+	}
+
+	private Action centralSystemAction(String name) {
+		for ( S action : centralSystemActionClass.getEnumConstants() ) {
+			if ( name.equals(action.getName()) ) {
+				return action;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -402,11 +461,16 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 	private boolean handleCallMessage(final WebSocketSession session, final ChargePointIdentity clientId,
 			final String messageId, final TextMessage message, final JsonNode tree) {
 		final JsonNode actionNode = tree.path(2);
-		final CentralSystemAction action;
+		final Action action;
 		try {
-			action = actionNode.isTextual() ? CentralSystemAction.valueOf(actionNode.textValue()) : null;
+			action = actionNode.isTextual() ? centralSystemAction(actionNode.textValue()) : null;
 			if ( action == null ) {
-				return sendCallError(session, clientId, messageId, ActionErrorCode.FormationViolation,
+				if ( actionNode.isTextual() && !actionNode.textValue().isEmpty() ) {
+					return sendCallError(session, clientId, messageId,
+							errorCode(RpcError.ActionNotImplemented), "Unknown action.", null);
+				}
+				return sendCallError(session, clientId, messageId,
+						errorCode(RpcError.PayloadSyntaxError),
 						actionNode.isMissingNode() ? "Missing action." : "Malformed action.", null);
 			}
 			Object payload;
@@ -415,10 +479,11 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 						tree.path(3));
 			} catch ( SchemaValidationException e ) {
 				return sendCallError(session, clientId, messageId,
-						ActionErrorCode.TypeConstraintViolation,
+						errorCode(RpcError.PayloadTypeConstraintViolation),
 						"Schema validation error: " + e.getMessage(), null);
 			} catch ( IOException e ) {
-				return sendCallError(session, clientId, messageId, ActionErrorCode.FormationViolation,
+				return sendCallError(session, clientId, messageId,
+						errorCode(RpcError.PayloadSyntaxError),
 						"Error parsing payload: " + e.getMessage(), null);
 			}
 
@@ -427,11 +492,8 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 							new BasicActionMessage<Object>(clientId, messageId, action, payload)),
 					this::processNextPendingMessage);
 			return true;
-		} catch ( IllegalArgumentException e ) {
-			return sendCallError(session, clientId, messageId, ActionErrorCode.NotImplemented,
-					"Unknown action.", null);
 		} catch ( RuntimeException e ) {
-			return sendCallError(session, clientId, messageId, ActionErrorCode.InternalError,
+			return sendCallError(session, clientId, messageId, errorCode(RpcError.InternalError),
 					"Internal error: " + e.toString(), null);
 		}
 	}
@@ -453,16 +515,11 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 			return false;
 		}
 		final String action = message.getAction().getName();
-		try {
-			ChargePointAction.valueOf(action);
+		if ( chargePointAction(action) != null ) {
 			return true;
-		} catch ( IllegalArgumentException e ) {
-			try {
-				CentralSystemAction.valueOf(action);
-				return true;
-			} catch ( IllegalArgumentException e2 ) {
-				// ignore
-			}
+		}
+		if ( centralSystemAction(action) != null ) {
+			return true;
 		}
 		return false;
 	}
@@ -505,7 +562,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 			// if there was an error, then we can immediately remove this message from
 			// the pending queue and try the next message, as there won't be any response
 			removePendingMessage(msg);
-			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.SecurityError,
+			ErrorCodeException err = new ErrorCodeException(errorCode(RpcError.SecurityError),
 					"Client ID missing.");
 			try {
 				resultHandler.handleActionMessageResult(message, null, err);
@@ -588,9 +645,9 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 						clientId, messageId, message.getPayload());
 				return;
 			}
-			ActionErrorCode errorCode;
+			ErrorCode errorCode;
 			try {
-				errorCode = ActionErrorCode.valueOf(tree.path(2).asText());
+				errorCode = errorCodeResolver.errorCodeForName(tree.path(2).asText());
 			} catch ( IllegalArgumentException e ) {
 				log.warn("OCPP {} <<< Error code {} not valid; ignoring CallError message: {}", clientId,
 						tree.path(2).asText(), message.getPayload());
@@ -650,7 +707,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 				payload = chargePointActionPayloadDecoder
 						.decodeActionPayload(msg.getMessage().getAction(), true, tree.path(2));
 			} catch ( IOException e ) {
-				err = new ErrorCodeException(ActionErrorCode.FormationViolation, null,
+				err = new ErrorCodeException(errorCode(RpcError.PayloadSyntaxError), null,
 						"Error parsing payload: " + e.getMessage(), e);
 			}
 
@@ -736,7 +793,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 			}
 			final Set<ActionMessageProcessor<Object, Object>> procs = processors.get(action);
 			if ( procs == null ) {
-				sendCallError(session, clientId, messageId, ActionErrorCode.NotImplemented,
+				sendCallError(session, clientId, messageId, errorCode(RpcError.ActionNotImplemented),
 						"Action not supported.", null);
 				handled.set(true);
 				return;
@@ -759,7 +816,7 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 							errorDetails = ((ErrorHolder) error).getErrorDetails();
 						}
 						if ( errorCode == null ) {
-							errorCode = ActionErrorCode.InternalError;
+							errorCode = errorCode(RpcError.InternalError);
 						}
 						sendCallError(session, clientId, messageId, errorCode, errorDescription,
 								errorDetails);
@@ -778,13 +835,13 @@ public class OcppWebSocketHandler extends AbstractWebSocketHandler
 					}
 				} catch ( Throwable t ) {
 					if ( handled.compareAndSet(false, true) ) {
-						sendCallError(session, clientId, messageId, ActionErrorCode.InternalError,
+						sendCallError(session, clientId, messageId, errorCode(RpcError.InternalError),
 								"Error handling action.", null);
 					}
 				}
 			}
 			if ( !processed ) {
-				sendCallError(session, clientId, messageId, ActionErrorCode.NotImplemented,
+				sendCallError(session, clientId, messageId, errorCode(RpcError.InternalError),
 						"Action not supported.", null);
 				handled.set(true);
 			}
