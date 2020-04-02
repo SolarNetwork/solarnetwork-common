@@ -23,6 +23,8 @@
 package net.solarnetwork.ocpp.domain;
 
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A unique identity for a charge point in SolarNetwork.
@@ -59,7 +61,9 @@ public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 	 * @throws IllegalArgumentException
 	 *         if any parameter is {@literal null}
 	 */
-	public ChargePointIdentity(String identifier, Object userIdentifier) {
+	@JsonCreator
+	public ChargePointIdentity(@JsonProperty("identifier") String identifier,
+			@JsonProperty("userIdentifier") Object userIdentifier) {
 		super();
 		if ( identifier == null ) {
 			throw new IllegalArgumentException("The identifier parameter must not be null.");
