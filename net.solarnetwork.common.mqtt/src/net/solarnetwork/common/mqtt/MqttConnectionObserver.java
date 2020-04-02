@@ -26,7 +26,7 @@ package net.solarnetwork.common.mqtt;
  * API for observing connection status changes.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface MqttConnectionObserver {
 
@@ -53,6 +53,6 @@ public interface MqttConnectionObserver {
 	 *        {@literal false} if this was the initial connection to the MQTT
 	 *        server
 	 */
-	void onMqttServerConnectionEstablisehd(MqttConnection connection, boolean reconnected);
+	void onMqttServerConnectionEstablished(MqttConnection connection, boolean reconnected);
 
 }

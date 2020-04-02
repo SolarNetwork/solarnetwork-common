@@ -216,7 +216,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 						}
 						MqttConnectionObserver observer = NettyMqttConnection.this.connectionObserver;
 						if ( observer != null ) {
-							observer.onMqttServerConnectionEstablisehd(NettyMqttConnection.this, false);
+							observer.onMqttServerConnectionEstablished(NettyMqttConnection.this, false);
 						}
 					}
 				}
@@ -433,7 +433,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 		@Override
 		public void run() {
-			observer.onMqttServerConnectionEstablisehd(NettyMqttConnection.this, reconnected);
+			observer.onMqttServerConnectionEstablished(NettyMqttConnection.this, reconnected);
 		}
 
 	}

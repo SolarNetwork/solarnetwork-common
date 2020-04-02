@@ -230,7 +230,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 						}
 						MqttConnectionObserver observer = PahoMqttConnection.this.connectionObserver;
 						if ( observer != null ) {
-							observer.onMqttServerConnectionEstablisehd(PahoMqttConnection.this, false);
+							observer.onMqttServerConnectionEstablished(PahoMqttConnection.this, false);
 						}
 					}
 				}
@@ -434,7 +434,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 		}
 		MqttConnectionObserver observer = this.connectionObserver;
 		if ( observer != null ) {
-			observer.onMqttServerConnectionEstablisehd(this, true);
+			observer.onMqttServerConnectionEstablished(this, true);
 		}
 	}
 

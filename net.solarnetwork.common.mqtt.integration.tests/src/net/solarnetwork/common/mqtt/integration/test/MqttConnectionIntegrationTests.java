@@ -103,7 +103,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		}
 
 		@Override
-		public void onMqttServerConnectionEstablisehd(MqttConnection connection, boolean reconnected) {
+		public void onMqttServerConnectionEstablished(MqttConnection connection, boolean reconnected) {
 			if ( estCounter != null ) {
 				estCounter.incrementAndGet();
 			}
@@ -932,7 +932,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 			}
 
 			@Override
-			public void onMqttServerConnectionEstablisehd(MqttConnection connection,
+			public void onMqttServerConnectionEstablished(MqttConnection connection,
 					boolean reconnected) {
 				estCounter.incrementAndGet();
 				connectLatch.countDown();
