@@ -60,10 +60,8 @@ public class StatusNotificationProcessor
 	/**
 	 * Constructor.
 	 * 
-	 * @param chargePointDao
-	 *        the charge point DAO
-	 * @param chargePointConnectorDao
-	 *        the DAO to persist status notifications to
+	 * @param chargePointManager
+	 *        the charge point manager
 	 * @throws IllegalArgumentException
 	 *         if {@code chargePointConnectorDao} is {@literal null}
 	 */
