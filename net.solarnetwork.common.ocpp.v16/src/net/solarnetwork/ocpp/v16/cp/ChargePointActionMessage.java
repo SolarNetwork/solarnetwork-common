@@ -103,4 +103,19 @@ public class ChargePointActionMessage implements ActionMessage<JsonNode> {
 		return message;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ChargePointActionMessage{action=");
+		builder.append(action);
+		builder.append(", messageId=");
+		builder.append(messageId);
+		builder.append(", clientId=");
+		builder.append(clientId);
+		builder.append(", message=");
+		builder.append(message);
+		builder.append("}");
+		return builder.toString();
+	}
+
 }
