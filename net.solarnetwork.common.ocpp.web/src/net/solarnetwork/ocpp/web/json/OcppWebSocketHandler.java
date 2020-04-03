@@ -120,12 +120,15 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	/** The default {@code pendingMessageTimeout} property. */
 	public static final long DEFAULT_PENDING_MESSAGE_TIMEOUT = TimeUnit.SECONDS.toMillis(120);
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	/** A class logger. */
+	protected final Logger log = LoggerFactory.getLogger(getClass());
+
+	/** An executor. */
+	protected final AsyncTaskExecutor executor;
 
 	private final Class<C> chargePointActionClass;
 	private final Class<S> centralSystemActionClass;
 	private final ErrorCodeResolver errorCodeResolver;
-	private final AsyncTaskExecutor executor;
 	private final ConcurrentMap<Action, Set<ActionMessageProcessor<Object, Object>>> processors;
 	private final ConcurrentMap<ChargePointIdentity, WebSocketSession> clientSessions;
 	private final ActionMessageQueue pendingMessages;
@@ -361,12 +364,27 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		}
 	}
 
-	private ChargePointIdentity clientId(WebSocketSession session) {
+	/**
+	 * Get the charge point identity for a given session.
+	 * 
+	 * @param session
+	 *        the session
+	 * @return the identity, or {@literal null} if not available
+	 */
+	protected ChargePointIdentity clientId(WebSocketSession session) {
 		Object id = session.getAttributes().get(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR);
 		return (id instanceof ChargePointIdentity ? (ChargePointIdentity) id : null);
 	}
 
-	private ErrorCode errorCode(RpcError error) {
+	/**
+	 * Resolve an error code from a {@link RpcError} using the configured
+	 * {@link ErrorCodeResolver}.
+	 * 
+	 * @param error
+	 *        the error to resolve
+	 * @return the code, or {@literal null} it not resolvable
+	 */
+	protected ErrorCode errorCode(RpcError error) {
 		return errorCodeResolver.errorCodeForRpcError(error);
 	}
 
@@ -416,7 +434,14 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		}
 	}
 
-	private Action chargePointAction(String name) {
+	/**
+	 * Get a charge point action for an action name.
+	 * 
+	 * @param name
+	 *        the action name
+	 * @return the action, or {@literal null} if not supported
+	 */
+	protected Action chargePointAction(String name) {
 		for ( C action : chargePointActionClass.getEnumConstants() ) {
 			if ( name.equals(action.getName()) ) {
 				return action;
@@ -425,7 +450,14 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		return null;
 	}
 
-	private Action centralSystemAction(String name) {
+	/**
+	 * Get a central system action for an action name.
+	 * 
+	 * @param name
+	 *        the action name
+	 * @return the action, or {@literal null} if not supported
+	 */
+	protected Action centralSystemAction(String name) {
 		for ( S action : centralSystemActionClass.getEnumConstants() ) {
 			if ( name.equals(action.getName()) ) {
 				return action;
@@ -957,6 +989,15 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		for ( Set<ActionMessageProcessor<Object, Object>> procs : processors.values() ) {
 			procs.remove(processor);
 		}
+	}
+
+	/**
+	 * Get the object mapper.
+	 * 
+	 * @return the object mapper, never {@literal null}
+	 */
+	protected ObjectMapper getObjectMapper() {
+		return mapper;
 	}
 
 	/**
