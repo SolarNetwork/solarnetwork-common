@@ -110,6 +110,26 @@ public class NettyMqttConnection extends BaseMqttConnection
 		this.ioThreadCount = DEFAULT_IO_THREAD_COUNT;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder("NettyMqttConnection{");
+		BasicMqttConnectionConfig config = getConnectionConfig();
+		if ( config != null ) {
+			buf.append("uid=");
+			buf.append(config.getUid());
+			buf.append(", clientId=");
+			buf.append(config.getClientId());
+			if ( config.getUsername() != null ) {
+				buf.append(", username=");
+				buf.append(config.getUsername());
+			}
+			buf.append(", uri=");
+			buf.append(config.getServerUri());
+		}
+		buf.append('}');
+		return buf.toString();
+	}
+
 	private final class ConnectTask implements Runnable {
 
 		private final CompletableFuture<MqttConnectReturnCode> connectFuture;
