@@ -26,11 +26,12 @@ import java.util.Vector;
 import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttPersistable;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 import org.eclipse.paho.client.mqttv3.persist.PersistanceFileFilter;
 import org.eclipse.paho.client.mqttv3.persist.PersistanceFileNameFilter;
 
 /**
- * Replacement for {@Link MqttDefaultFilePersistence} to work around
+ * Replacement for {@link MqttDefaultFilePersistence} to work around
  * https://github.com/eclipse/paho.mqtt.java/issues/634.
  * 
  * @author matt
