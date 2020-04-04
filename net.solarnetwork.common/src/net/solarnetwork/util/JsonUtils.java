@@ -48,7 +48,7 @@ import net.solarnetwork.domain.GeneralDatumMetadata;
  * Utilities for JSON data.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.36
  */
 public final class JsonUtils {
@@ -126,7 +126,7 @@ public final class JsonUtils {
 			try {
 				return OBJECT_MAPPER.writeValueAsString(o);
 			} catch ( Exception e ) {
-				LOG.error("Exception marshalling {} to JSON", o, e);
+				LOG.warn("Exception marshalling {} to JSON", o, e);
 			}
 		}
 		return result;
@@ -157,7 +157,7 @@ public final class JsonUtils {
 			try {
 				result = OBJECT_MAPPER.readValue(json, clazz);
 			} catch ( Exception e ) {
-				LOG.error("Exception deserialzing json {}", json, e);
+				LOG.warn("Exception deserialzing json {}", json, e);
 			}
 		}
 		return result;
@@ -185,7 +185,7 @@ public final class JsonUtils {
 		try {
 			return OBJECT_MAPPER.readValue(json, STRING_MAP_TYPE);
 		} catch ( Exception e ) {
-			LOG.error("Exception deserialzing JSON {} to Map<String, Object>", json, e);
+			LOG.warn("Exception deserialzing JSON {} to Map<String, Object>", json, e);
 		}
 		return null;
 	}
@@ -212,7 +212,7 @@ public final class JsonUtils {
 		try {
 			return OBJECT_MAPPER.readValue(OBJECT_MAPPER.treeAsTokens(node), STRING_MAP_TYPE);
 		} catch ( Exception e ) {
-			LOG.error("Exception deserialzing JSON node {} to Map<String, Object>", node, e);
+			LOG.warn("Exception deserialzing JSON node {} to Map<String, Object>", node, e);
 		}
 		return null;
 	}
