@@ -32,14 +32,19 @@ import net.solarnetwork.domain.CodedValue;
  */
 public enum Location implements CodedValue {
 
+	/** Measurement inside body of Charge Point (e.g. Temperature). */
 	Body(1),
 
+	/** Measurement taken from cable between EV and Charge Point. */
 	Cable(2),
 
+	/** Measurement taken by EV. */
 	EV(3),
 
+	/** Measurement at network (“grid”) inlet connection. */
 	Inlet(4),
 
+	/** Measurement at a Connector. Default value. */
 	Outlet(0);
 
 	private final byte code;

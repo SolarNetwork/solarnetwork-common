@@ -23,17 +23,19 @@
 package net.solarnetwork.ocpp.domain;
 
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A unique identity for a charge point in SolarNetwork.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 
 	/**
-	 * A username constant for the concept of "any user".
+	 * A user identifier constant for the concept of "any user".
 	 * 
 	 * <p>
 	 * This username can be used in contexts where charge points can be uniquely
@@ -41,36 +43,41 @@ public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 	 * SolarNode.
 	 * </p>
 	 */
-	public static final String ANY_USERNAME = "";
+	public static final String ANY_USER = "";
 
 	private final String identifier;
-	private final String username;
+	private final Object userIdentifier;
 
 	/**
 	 * Constructor.
 	 * 
 	 * @param identifier
 	 *        the charge point identifier
-	 * @param username
-	 *        the username
+	 * @param userIdentifier
+	 *        a unique identifier for the charge point account owner; this
+	 *        object should implement {@link Comparable} and have proper
+	 *        {@link Object#hashCode()} and {@link Object#equals(Object)}
+	 *        support
 	 * @throws IllegalArgumentException
 	 *         if any parameter is {@literal null}
 	 */
-	public ChargePointIdentity(String identifier, String username) {
+	@JsonCreator
+	public ChargePointIdentity(@JsonProperty("identifier") String identifier,
+			@JsonProperty("userIdentifier") Object userIdentifier) {
 		super();
 		if ( identifier == null ) {
 			throw new IllegalArgumentException("The identifier parameter must not be null.");
 		}
 		this.identifier = identifier;
-		if ( username == null ) {
-			throw new IllegalArgumentException("The username parameter must not be null.");
+		if ( userIdentifier == null ) {
+			throw new IllegalArgumentException("The userIdentifier parameter must not be null.");
 		}
-		this.username = username;
+		this.userIdentifier = userIdentifier;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(identifier, username);
+		return Objects.hash(identifier, userIdentifier);
 	}
 
 	@Override
@@ -82,14 +89,22 @@ public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 			return false;
 		}
 		ChargePointIdentity other = (ChargePointIdentity) obj;
-		return Objects.equals(identifier, other.identifier) && Objects.equals(username, other.username);
+		return Objects.equals(identifier, other.identifier)
+				&& Objects.equals(userIdentifier, other.userIdentifier);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public int compareTo(ChargePointIdentity o) {
 		int result = identifier.compareTo(o.identifier);
 		if ( result == 0 ) {
-			result = username.compareTo(o.username);
+			if ( userIdentifier instanceof Comparable<?> ) {
+				result = ((Comparable<Object>) userIdentifier).compareTo(o.userIdentifier);
+			} else {
+				String u1 = userIdentifier.toString();
+				String u2 = o.userIdentifier.toString();
+				result = u1.compareTo(u2);
+			}
 		}
 		return result;
 	}
@@ -99,8 +114,8 @@ public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 		StringBuilder builder = new StringBuilder();
 		builder.append("ChargePointIdentity{identifier=");
 		builder.append(identifier);
-		builder.append(", username=");
-		builder.append(username);
+		builder.append(", userIdentifier=");
+		builder.append(userIdentifier);
 		builder.append("}");
 		return builder.toString();
 	}
@@ -115,12 +130,12 @@ public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 	}
 
 	/**
-	 * Get the system user username.
+	 * Get the user identifier.
 	 * 
-	 * @return the username; never {@literal null}
+	 * @return the user identifier; never {@literal null}
 	 */
-	public String getUsername() {
-		return username;
+	public Object getUserIdentifier() {
+		return userIdentifier;
 	}
 
 }

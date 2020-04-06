@@ -44,13 +44,24 @@ public interface ChargePointRouter {
 	Set<ChargePointIdentity> availableChargePointsIds();
 
 	/**
+	 * Test if a Charge Point is available, or otherwise known to any available
+	 * broker.
+	 * 
+	 * @param identity
+	 *        the Charge Point identity to query
+	 * @return {@literal true} if this manager is aware of the given
+	 *         {@code clientId} and should be able to send messages to it
+	 */
+	boolean isChargePointAvailable(ChargePointIdentity identity);
+
+	/**
 	 * Get a {@link ChargePointBroker} for a specific Charge Point ID, if
 	 * available.
 	 * 
-	 * @param clientId
+	 * @param identity
 	 *        the ID of the Charge Point
 	 * @return the broker, or {@literal null} if not available
 	 */
-	ChargePointBroker brokerForChargePoint(ChargePointIdentity clientId);
+	ChargePointBroker brokerForChargePoint(ChargePointIdentity identity);
 
 }

@@ -25,16 +25,15 @@ package net.solarnetwork.ocpp.v16.cs;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
-import net.solarnetwork.ocpp.dao.ChargePointConnectorDao;
-import net.solarnetwork.ocpp.dao.ChargePointDao;
 import net.solarnetwork.ocpp.domain.ActionMessage;
-import net.solarnetwork.ocpp.domain.ChargePoint;
 import net.solarnetwork.ocpp.domain.ChargePointErrorCode;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargePointStatus;
 import net.solarnetwork.ocpp.domain.StatusNotification;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.BaseActionMessageProcessor;
+import net.solarnetwork.ocpp.service.cs.ChargePointManager;
+import net.solarnetwork.security.SecurityException;
 import ocpp.domain.Action;
 import ocpp.domain.ErrorCodeException;
 import ocpp.v16.ActionErrorCode;
@@ -47,7 +46,7 @@ import ocpp.xml.support.XmlDateUtils;
  * Process {@link StatusNotificationRequest} action messages.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class StatusNotificationProcessor
 		extends BaseActionMessageProcessor<StatusNotificationRequest, StatusNotificationResponse> {
@@ -56,31 +55,22 @@ public class StatusNotificationProcessor
 	public static final Set<Action> SUPPORTED_ACTIONS = Collections
 			.singleton(CentralSystemAction.StatusNotification);
 
-	private final ChargePointDao chargePointDao;
-	private final ChargePointConnectorDao chargePointConnectorDao;
+	private final ChargePointManager chargePointManager;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param chargePointDao
-	 *        the charge point DAO
-	 * @param chargePointConnectorDao
-	 *        the DAO to persist status notifications to
+	 * @param chargePointManager
+	 *        the charge point manager
 	 * @throws IllegalArgumentException
 	 *         if {@code chargePointConnectorDao} is {@literal null}
 	 */
-	public StatusNotificationProcessor(ChargePointDao chargePointDao,
-			ChargePointConnectorDao chargePointConnectorDao) {
+	public StatusNotificationProcessor(ChargePointManager chargePointManager) {
 		super(StatusNotificationRequest.class, StatusNotificationResponse.class, SUPPORTED_ACTIONS);
-		if ( chargePointDao == null ) {
-			throw new IllegalArgumentException("The chargePointDao parameter must not be null.");
+		if ( chargePointManager == null ) {
+			throw new IllegalArgumentException("The chargePointManager parameter must not be null.");
 		}
-		this.chargePointDao = chargePointDao;
-		if ( chargePointConnectorDao == null ) {
-			throw new IllegalArgumentException(
-					"The chargePointConnectorDao parameter must not be null.");
-		}
-		this.chargePointConnectorDao = chargePointConnectorDao;
+		this.chargePointManager = chargePointManager;
 	}
 
 	@Override
@@ -91,14 +81,6 @@ public class StatusNotificationProcessor
 		if ( req == null || identity == null ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormationViolation,
 					"Missing StatusNotificationRequest message.");
-			resultHandler.handleActionMessageResult(message, null, err);
-			return;
-		}
-
-		final ChargePoint chargePoint = chargePointDao.getForIdentity(identity);
-		if ( chargePoint == null ) {
-			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.SecurityError,
-					"Charge Point identifier not known.");
 			resultHandler.handleActionMessageResult(message, null, err);
 			return;
 		}
@@ -115,11 +97,13 @@ public class StatusNotificationProcessor
 				.build();
 		// @formatter:on
 
-		log.info("Received Charge Point {} status: {}", identity, info);
-
 		try {
-			chargePointConnectorDao.saveStatusInfo(chargePoint.getId(), info);
+			chargePointManager.updateChargePointStatus(identity, info);
 			resultHandler.handleActionMessageResult(message, new StatusNotificationResponse(), null);
+		} catch ( SecurityException e ) {
+			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.SecurityError,
+					e.getMessage());
+			resultHandler.handleActionMessageResult(message, null, err);
 		} catch ( Throwable t ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.InternalError,
 					"Internal error: " + t.getMessage());
@@ -139,7 +123,7 @@ public class StatusNotificationProcessor
 	}
 
 	private ChargePointErrorCode errorCode(StatusNotificationRequest req) {
-		if ( req != null && req.getStatus() != null ) {
+		if ( req != null && req.getStatus() != null && req.getErrorCode() != null ) {
 			try {
 				return ChargePointErrorCode.valueOf(req.getErrorCode().value());
 			} catch ( IllegalArgumentException e ) {

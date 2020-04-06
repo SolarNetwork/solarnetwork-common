@@ -151,6 +151,7 @@ public final class MqttClientConfig {
 	 * Sets the reconnect delay in seconds. Defaults to 1 second.
 	 * 
 	 * @param reconnectDelay
+	 *        the reconnection delay, in seconds
 	 * @throws IllegalArgumentException
 	 *         if reconnectDelay is smaller than 1.
 	 */
@@ -172,6 +173,7 @@ public final class MqttClientConfig {
 	 * spec.
 	 *
 	 * @param maxBytesInMessage
+	 *        the maximum number of bytes to allow
 	 * @throws IllegalArgumentException
 	 *         if maxBytesInMessage is smaller than 1 or greater than
 	 *         256_000_000.

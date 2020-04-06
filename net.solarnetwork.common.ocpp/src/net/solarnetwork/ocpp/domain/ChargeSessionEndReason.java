@@ -34,16 +34,54 @@ public enum ChargeSessionEndReason implements CodedValue {
 
 	Unknown(0),
 
+	/** Emergency stop button was used. */
 	EmergencyStop(1),
+
+	/**
+	 * The disconnecting of a cable, or vehicle moved away from inductive charge
+	 * unit.
+	 */
 	EVDisconnected(2),
+
+	/** A hard reset command was received. */
 	HardReset(3),
+
+	/**
+	 * Stopped locally on request of the user at the Charge Point. This is a
+	 * regular termination of a transaction. Examples: presenting an RFID tag,
+	 * pressing a button to stop.
+	 */
 	Local(4),
+
+	/** Any other reason. */
 	Other(5),
+
+	/** Complete loss of power. */
 	PowerLoss(6),
+
+	/**
+	 * A locally initiated reset/reboot occurred (for instance watchdog kicked
+	 * in).
+	 */
 	Reboot(7),
+
+	/**
+	 * Stopped remotely on request of the user. This is a regular termination of
+	 * a transaction. Examples: termination using a smartphone app, exceeding a
+	 * (non local) prepaid credit.
+	 */
 	Remote(8),
+
+	/** A soft reset command was received. */
 	SoftReset(9),
+
+	/** An unlock connector command was received. */
 	UnlockCommand(10),
+
+	/**
+	 * The transaction was stopped because of the authorization status in a
+	 * start transaction.
+	 */
 	DeAuthorized(11);
 
 	private final byte code;

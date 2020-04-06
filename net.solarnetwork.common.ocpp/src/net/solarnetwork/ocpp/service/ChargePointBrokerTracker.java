@@ -32,7 +32,7 @@ import net.solarnetwork.util.OptionalServiceCollection;
  * {@link OptionalServiceCollection} of brokers.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ChargePointBrokerTracker implements ChargePointRouter {
 
@@ -53,6 +53,18 @@ public class ChargePointBrokerTracker implements ChargePointRouter {
 			ids.addAll(b.availableChargePointsIds());
 		}
 		return ids;
+	}
+
+	@Override
+	public boolean isChargePointAvailable(ChargePointIdentity identity) {
+		if ( identity != null ) {
+			for ( ChargePointBroker b : brokers.services() ) {
+				if ( b.isChargePointAvailable(identity) ) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override

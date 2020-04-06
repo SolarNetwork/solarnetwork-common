@@ -137,8 +137,8 @@ public interface MqttClient {
 	 * 
 	 * <p>
 	 * When a message is received, MqttClient will invoke the
-	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
-	 * given handler.
+	 * {@link MqttMessageHandler#onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage)}
+	 * function of the given handler.
 	 * </p>
 	 *
 	 * @param topic
@@ -155,8 +155,8 @@ public interface MqttClient {
 	 * 
 	 * <p>
 	 * When a message is received, MqttClient will invoke the
-	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
-	 * given handler.
+	 * {@link MqttMessageHandler#onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage)}
+	 * function of the given handler.
 	 * </p>
 	 *
 	 * @param topic
@@ -175,9 +175,9 @@ public interface MqttClient {
 	 * 
 	 * <p>
 	 * When a message is received, MqttClient will invoke the
-	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
-	 * given handler. This subscription is only once. If the MqttClient has
-	 * received 1 message, the subscription will be removed.
+	 * {@link MqttMessageHandler#onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage)}
+	 * function of the given handler. This subscription is only once. If the
+	 * MqttClient has received 1 message, the subscription will be removed.
 	 * </p>
 	 *
 	 * @param topic
@@ -194,9 +194,9 @@ public interface MqttClient {
 	 * 
 	 * <p>
 	 * When a message is received, MqttClient will invoke the
-	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
-	 * given handler. This subscription is only once. If the MqttClient has
-	 * received 1 message, the subscription will be removed.
+	 * {@link MqttMessageHandler#onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage)}
+	 * function of the given handler. This subscription is only once. If the
+	 * MqttClient has received 1 message, the subscription will be removed.
 	 * </p>
 	 *
 	 * @param topic
@@ -321,6 +321,7 @@ public interface MqttClient {
 	 * @param defaultHandler
 	 *        The handler for incoming messages that do not match any topic
 	 *        subscriptions
+	 * @return the client, never {@literal null}
 	 */
 	static MqttClient create(MqttClientConfig config, MqttMessageHandler defaultHandler) {
 		return new MqttClientImpl(config, defaultHandler);
@@ -335,7 +336,7 @@ public interface MqttClient {
 	java.util.concurrent.Future<?> disconnect();
 
 	/**
-	 * Sets the {@see #MqttClientCallback} object for this MqttClient.
+	 * Sets the {@link MqttClientCallback} object for this MqttClient.
 	 * 
 	 * @param callback
 	 *        The callback to be set

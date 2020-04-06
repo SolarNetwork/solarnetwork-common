@@ -66,7 +66,7 @@ import net.solarnetwork.support.SSLService;
  * Netty based implementation of {@link MqttConnection}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class NettyMqttConnection extends BaseMqttConnection
 		implements MqttMessageHandler, MqttClientCallback {
@@ -108,6 +108,26 @@ public class NettyMqttConnection extends BaseMqttConnection
 			MqttConnectionConfig connectionConfig) {
 		super(executor, scheduler, connectionConfig);
 		this.ioThreadCount = DEFAULT_IO_THREAD_COUNT;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder("NettyMqttConnection{");
+		BasicMqttConnectionConfig config = getConnectionConfig();
+		if ( config != null ) {
+			buf.append("uid=");
+			buf.append(config.getUid());
+			buf.append(", clientId=");
+			buf.append(config.getClientId());
+			if ( config.getUsername() != null ) {
+				buf.append(", username=");
+				buf.append(config.getUsername());
+			}
+			buf.append(", uri=");
+			buf.append(config.getServerUri());
+		}
+		buf.append('}');
+		return buf.toString();
 	}
 
 	private final class ConnectTask implements Runnable {
@@ -216,7 +236,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 						}
 						MqttConnectionObserver observer = NettyMqttConnection.this.connectionObserver;
 						if ( observer != null ) {
-							observer.onMqttServerConnectionEstablisehd(NettyMqttConnection.this, false);
+							executor.execute(new ConnectionEstablishedTask(false, observer));
 						}
 					}
 				}
@@ -401,8 +421,17 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 		@Override
 		public void run() {
-			observer.onMqttServerConnectionLost(NettyMqttConnection.this, connectionConfig.isReconnect(),
-					cause);
+			try {
+				observer.onMqttServerConnectionLost(NettyMqttConnection.this,
+						connectionConfig.isReconnect(), cause);
+			} catch ( Throwable t ) {
+				Throwable root = t;
+				while ( root.getCause() != null ) {
+					root = root.getCause();
+				}
+				log.error("Unhandled {} exception on connection loss observer {}",
+						root.getClass().getSimpleName(), observer, t);
+			}
 		}
 
 	}
@@ -433,7 +462,16 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 		@Override
 		public void run() {
-			observer.onMqttServerConnectionEstablisehd(NettyMqttConnection.this, reconnected);
+			try {
+				observer.onMqttServerConnectionEstablished(NettyMqttConnection.this, reconnected);
+			} catch ( Throwable t ) {
+				Throwable root = t;
+				while ( root.getCause() != null ) {
+					root = root.getCause();
+				}
+				log.error("Unhandled {} exception on connection establishment observer {}",
+						root.getClass().getSimpleName(), observer, t);
+			}
 		}
 
 	}
