@@ -30,7 +30,7 @@ import java.math.RoundingMode;
  * Utilities for dealing with numbers.
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.42
  */
 public final class NumberUtils {
@@ -305,7 +305,7 @@ public final class NumberUtils {
 		if ( num == null ) {
 			return null;
 		}
-		BigDecimal n = (num instanceof BigDecimal ? (BigDecimal) num : new BigDecimal(num.toString()));
+		BigDecimal n = bigDecimalForNumber(num);
 		if ( scale == 0 ) {
 			return n;
 		} else if ( scale < 0 ) {
