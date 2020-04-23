@@ -148,7 +148,7 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		assertThat("Result success", result, equalTo(true));
 		assertThat("Client ID attribute populated", attributes,
 				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR,
-						new ChargePointIdentity("foobar", "foo")));
+						new ChargePointIdentity("foobar", ChargePointIdentity.ANY_USER)));
 	}
 
 	@Test

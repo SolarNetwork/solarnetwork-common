@@ -29,6 +29,7 @@ import static org.junit.Assert.assertThat;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.BitSet;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import net.solarnetwork.util.NumberUtils;
@@ -37,7 +38,7 @@ import net.solarnetwork.util.NumberUtils;
  * Unit tests for the {@link NumberUtils} class.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class NumberUtilsTests {
 
@@ -289,4 +290,39 @@ public class NumberUtilsTests {
 		assertThat("Result rounded up", n, equalTo(new BigDecimal("1.3")));
 	}
 
+	@Test
+	public void bitSetToInteger_empty() {
+		BigInteger n = NumberUtils.bigIntegerForBitSet(new BitSet());
+		assertThat("Empty BitSet converted", n, equalTo(BigInteger.ZERO));
+	}
+
+	@Test
+	public void bitSetToInteger_null() {
+		BigInteger n = NumberUtils.bigIntegerForBitSet(null);
+		assertThat("Null BitSet converted", n, equalTo(BigInteger.ZERO));
+	}
+
+	@Test
+	public void bitSetToInteger() {
+		BitSet bs = new BitSet();
+		bs.set(0);
+		bs.set(17);
+		BigInteger n = NumberUtils.bigIntegerForBitSet(bs);
+		assertThat("BitSet converted", n, equalTo(new BigInteger("131073")));
+	}
+
+	@Test
+	public void integerToBitSet_null() {
+		BitSet bs = NumberUtils.bitSetForBigInteger(null);
+		assertThat("Null integer converted", bs, equalTo(new BitSet()));
+	}
+
+	@Test
+	public void integerToBitSet() {
+		BitSet bs = NumberUtils.bitSetForBigInteger(new BigInteger("131073"));
+		BitSet expected = new BitSet();
+		expected.set(0);
+		expected.set(17);
+		assertThat("Integer converted", bs, equalTo(expected));
+	}
 }

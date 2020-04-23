@@ -25,12 +25,13 @@ package net.solarnetwork.util;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.BitSet;
 
 /**
  * Utilities for dealing with numbers.
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.42
  */
 public final class NumberUtils {
@@ -305,7 +306,7 @@ public final class NumberUtils {
 		if ( num == null ) {
 			return null;
 		}
-		BigDecimal n = (num instanceof BigDecimal ? (BigDecimal) num : new BigDecimal(num.toString()));
+		BigDecimal n = bigDecimalForNumber(num);
 		if ( scale == 0 ) {
 			return n;
 		} else if ( scale < 0 ) {
@@ -372,6 +373,52 @@ public final class NumberUtils {
 		}
 		BigDecimal v = bigDecimalForNumber(value);
 		return v.add(offset);
+	}
+
+	/**
+	 * Get an integer for a {@link BitSet}.
+	 * 
+	 * @param bs
+	 *        the bit set to convert to an integer representation
+	 * @return the integer, never {@literal null}
+	 * @since 1.4
+	 */
+	public static BigInteger bigIntegerForBitSet(BitSet bs) {
+		BigInteger v = BigInteger.ZERO;
+		if ( bs != null ) {
+			for ( int i = bs.nextSetBit(0); i >= 0; i = bs.nextSetBit(i + 1) ) {
+				if ( i == Integer.MAX_VALUE ) {
+					break;
+				}
+				v = v.setBit(i);
+			}
+		}
+		return v;
+	}
+
+	/**
+	 * Get a {@link BitSet} for an integer.
+	 * 
+	 * @param value
+	 *        the integer to convert to a {@link BitSet}
+	 * @return a {@link BitSet} with all set bits of {@code value} set; never
+	 *         {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code value} is negative
+	 */
+	public static BitSet bitSetForBigInteger(BigInteger value) {
+		BitSet bs = new BitSet();
+		if ( value != null ) {
+			if ( value.signum() < 0 ) {
+				throw new IllegalArgumentException("Only non-negative values are allowed.");
+			}
+			for ( int len = value.bitLength(), i = 0; i < len; i++ ) {
+				if ( value.testBit(i) ) {
+					bs.set(i);
+				}
+			}
+		}
+		return bs;
 	}
 
 }
