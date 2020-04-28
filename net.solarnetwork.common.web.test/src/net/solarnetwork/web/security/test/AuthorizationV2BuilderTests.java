@@ -22,6 +22,8 @@
 
 package net.solarnetwork.web.security.test;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -31,6 +33,7 @@ import java.util.TimeZone;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
@@ -123,7 +126,7 @@ public class AuthorizationV2BuilderTests {
 
 		AuthorizationV2Builder builder = new AuthorizationV2Builder(TEST_TOKEN_ID);
 
-	// @formatter:off
+		// @formatter:off
 		builder.date(reqDate).host("localhost").method(HttpMethod.POST).path("/api/post")
 				.header("Digest", "sha-256=" + reqBodySha256Base64)
 				.header("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -140,6 +143,49 @@ public class AuthorizationV2BuilderTests {
 		Assert.assertEquals(
 				"SNWS2 Credential=test-token-id,SignedHeaders=content-type;date;digest;host,Signature=ad609dd757c1f7f08a519919ab5e109ec61477cf612c6a0d29cac66d54c3987e",
 				result);
+	}
+
+	@Test
+	public void postJsonWithSnDate() throws DecoderException {
+		final String json = "{\"hello\":\"world\"}";
+		final Date reqDate = getTestDate();
+		final byte[] reqBodySha256 = DigestUtils.sha256(json);
+		final String reqBodySha256Hex = Hex.encodeHexString(reqBodySha256, true);
+		final String reqBodySha256Base64 = Base64.encodeBase64String(reqBodySha256);
+
+		AuthorizationV2Builder builder = new AuthorizationV2Builder(TEST_TOKEN_ID);
+
+		// @formatter:off
+		builder.method(HttpMethod.POST)
+				.host("localhost")
+				.path("/api/post")
+				.date(reqDate)
+				.header(WebConstants.HEADER_DATE, AuthorizationV2Builder.httpDate(reqDate))
+				.header("Digest", "sha-256=" + reqBodySha256Base64)
+				.header("Content-Type", "application/json; charset=UTF-8")
+				.contentSHA256(reqBodySha256)
+				.saveSigningKey(TEST_TOKEN_SECRET);
+		// @formatter:on
+
+		final String canonicalRequestData = builder.buildCanonicalRequestData();
+		// @formatter:off
+		assertThat("Canonical req data", canonicalRequestData, equalTo(
+				"POST\n"
+				+ "/api/post\n"
+				+ "\n"
+				+ "content-type:application/json; charset=UTF-8\n"
+				+ "digest:sha-256=" + reqBodySha256Base64 +"\n"
+				+ "host:localhost\n"
+				+ "x-sn-date:Tue, 25 Apr 2017 14:30:00 GMT\n" 
+				+ "content-type;digest;host;x-sn-date\n" 
+				+ reqBodySha256Hex));
+		assertThat("Signing key", builder.signingKeyHex(), 
+				equalTo("bf7885e8bd107a79f5c6e13001a4fa15fbd43221ad39ca47fde96191d302dbf4"));
+		// @formatter:on
+
+		final String result = builder.build();
+		assertThat("Signature", result, equalTo(
+				"SNWS2 Credential=test-token-id,SignedHeaders=content-type;digest;host;x-sn-date,Signature=17b50462a9db77e569bd74676c550c447be07f605f191a39ca481efaa15e9879"));
 	}
 
 }
