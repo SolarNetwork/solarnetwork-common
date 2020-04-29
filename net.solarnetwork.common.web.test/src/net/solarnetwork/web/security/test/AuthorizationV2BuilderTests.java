@@ -22,6 +22,7 @@
 
 package net.solarnetwork.web.security.test;
 
+import static net.solarnetwork.web.security.AuthorizationV2Builder.httpDate;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import java.util.Calendar;
@@ -148,20 +149,19 @@ public class AuthorizationV2BuilderTests {
 
 	@Test
 	public void postJsonWithSnDate() throws DecoderException {
-		final String json = "{\"hello\":\"world\"}";
-		final Date reqDate = getTestDate();
-		final String xSnDate = AuthorizationV2Builder.httpDate(reqDate);
-		final byte[] reqBodySha256 = DigestUtils.sha256(json);
-		final String reqBodySha256Hex = Hex.encodeHexString(reqBodySha256, true);
-		final String reqBodySha256Base64 = Base64.encodeBase64String(reqBodySha256);
-		final String digestHeaderValue = "sha-256=" + reqBodySha256Base64;
+		// @formatter:off
+		final String json = "{\"hello\":\"world\"}";             // POST body content
+		final Date reqDate = getTestDate();                      // usually this should just be current date (e.g. `new Date()`)
+		final String xSnDate = httpDate(reqDate);                // using X-SN-Date header requires formatting the date ourselves
+		final byte[] reqBodySha256 = DigestUtils.sha256(json);   // calculate SHA-256 of POST body
+		final String digestHeaderValue = "sha-256="              // the Digest header value we'll sign
+				+ Base64.encodeBase64String(reqBodySha256); 
 
 		// create outside builder so can easily reference header values later
 		HttpHeaders headers = new HttpHeaders();
 
 		AuthorizationV2Builder builder = new AuthorizationV2Builder(TEST_TOKEN_ID).headers(headers);
 
-		// @formatter:off
 		builder.method(HttpMethod.POST)                          // set API endpoint method
 				.host("localhost")                               // not typically needed, defaults to data.solarnetwork.net:443
 				.path("/api/post")                               // set API endpoint path
@@ -170,32 +170,17 @@ public class AuthorizationV2BuilderTests {
 				.digest(digestHeaderValue)                       // sign Digest header
 				.header(WebConstants.HEADER_DATE, xSnDate)       // use X-SN-Date header instead of Date
 				.contentSHA256(reqBodySha256)                    // inform builder of POST body digest
-				.saveSigningKey(TEST_TOKEN_SECRET);
+				.saveSigningKey(TEST_TOKEN_SECRET);              // could call `build(TEST_TOKEN_SECRET)` in real app
 		// @formatter:on
 
-		final String canonicalRequestData = builder.buildCanonicalRequestData();
-		// @formatter:off
-		assertThat("Canonical req data", canonicalRequestData, equalTo(
-				"POST\n"
-				+ "/api/post\n"
-				+ "\n"
-				+ "content-type:application/json; charset=UTF-8\n"
-				+ "digest:sha-256=" + reqBodySha256Base64 +"\n"
-				+ "host:localhost\n"
-				+ "x-sn-date:Tue, 25 Apr 2017 14:30:00 GMT\n" 
-				+ "content-type;digest;host;x-sn-date\n" 
-				+ reqBodySha256Hex));
-		assertThat("Signing key", builder.signingKeyHex(), 
-				equalTo("bf7885e8bd107a79f5c6e13001a4fa15fbd43221ad39ca47fde96191d302dbf4"));
-		// @formatter:on
-
-		// verify signed headers
+		// verify signed header values
 		assertThat("Content-Type header", headers.getFirst(HttpHeaders.CONTENT_TYPE),
 				equalTo("application/json; charset=UTF-8"));
 		assertThat("Digest header", headers.getFirst("Digest"), equalTo(digestHeaderValue));
 		assertThat("Host header", headers.getFirst("Host"), equalTo("localhost"));
 		assertThat("X-SN-Date header", headers.getFirst(WebConstants.HEADER_DATE), equalTo(xSnDate));
 
+		// verify final Authorization header value
 		final String result = builder.build();
 		assertThat("Signature", result, equalTo(
 				"SNWS2 Credential=test-token-id,SignedHeaders=content-type;digest;host;x-sn-date,Signature=17b50462a9db77e569bd74676c550c447be07f605f191a39ca481efaa15e9879"));
