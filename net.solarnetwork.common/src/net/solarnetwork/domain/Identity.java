@@ -29,7 +29,7 @@ package net.solarnetwork.domain;
  * 
  * @param <PK>
  *        the primary data type that uniquely identifies the object
- * @version 1.0
+ * @version 1.1
  * @author matt
  * @since 1.43
  */
@@ -41,5 +41,27 @@ public interface Identity<PK> extends Comparable<PK> {
 	 * @return the primary identifier
 	 */
 	PK getId();
+
+	/**
+	 * Test if this object has a valid identifier.
+	 * 
+	 * <p>
+	 * This method must only return {@literal true} if the object returned from
+	 * {@link #getId()} is a valid identifier for objects of this type.
+	 * </p>
+	 * 
+	 * <p>
+	 * This implementation simply tests if {@link #getId()} is not
+	 * {@literal null}. Extending classes, such as those with composite keys
+	 * where nested properties must be defined for the key to be valid, can
+	 * override this implementation as needed.
+	 * </p>
+	 * 
+	 * @return {@literal true} if this object has a valid identifier
+	 * @since 1.1
+	 */
+	default boolean hasId() {
+		return getId() != null;
+	}
 
 }
