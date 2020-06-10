@@ -34,10 +34,10 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * Basic implementation of {@link IdentifiableConfiguration}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.42
  */
-@JsonPropertyOrder({ "name", "serviceIdentifier", "compressionType", "serviceProperties" })
+@JsonPropertyOrder({ "name", "serviceIdentifier", "serviceProperties" })
 public class BasicIdentifiableConfiguration implements IdentifiableConfiguration, Serializable {
 
 	private static final long serialVersionUID = 8272531095755880837L;
