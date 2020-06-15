@@ -51,8 +51,8 @@ import org.springframework.util.StringUtils;
  * and nested names.
  * </p>
  * 
- * @author matt.magoffin
- * @version 1.0
+ * @author matt
+ * @version 1.1
  */
 public final class StringMerger {
 
@@ -106,10 +106,8 @@ public final class StringMerger {
 		if ( LOG.isDebugEnabled() ) {
 			LOG.debug("Merging " + resource.getFilename() + " with " + data);
 		}
-		InputStream in = null;
-		try {
-			in = resource.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+		try (InputStream in = resource.getInputStream();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(in));) {
 			StringBuilder buf = new StringBuilder();
 			String oneLine = null;
 			while ( (oneLine = reader.readLine()) != null ) {
@@ -117,14 +115,6 @@ public final class StringMerger {
 				buf.append("\n");
 			}
 			return buf.toString();
-		} finally {
-			if ( in != null ) {
-				try {
-					in.close();
-				} catch ( IOException e ) {
-					// ignore this
-				}
-			}
 		}
 	}
 
@@ -143,9 +133,7 @@ public final class StringMerger {
 		if ( LOG.isDebugEnabled() ) {
 			LOG.debug("Merging " + filePath + " with " + data);
 		}
-		BufferedReader in = null;
-		try {
-			in = new BufferedReader(new FileReader(filePath));
+		try (BufferedReader in = new BufferedReader(new FileReader(filePath))) {
 			StringBuilder buf = new StringBuilder();
 			String oneLine = null;
 			while ( (oneLine = in.readLine()) != null ) {
@@ -153,10 +141,6 @@ public final class StringMerger {
 				buf.append("\n");
 			}
 			return buf.toString();
-		} finally {
-			if ( in != null ) {
-				in.close();
-			}
 		}
 	}
 
