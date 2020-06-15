@@ -22,13 +22,16 @@
 
 package net.solarnetwork.util;
 
+import static java.util.Arrays.asList;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,14 +44,30 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.domain.GeneralDatumMetadata;
 
 /**
  * Utilities for JSON data.
  * 
+ * <p>
+ * The {@link ObjectMapper} used internally by this class supports:
+ * </p>
+ * 
+ * <ul>
+ * <li>Joda and java.time date/time values, serialized as strings using the RFC
+ * 3339 profile of ISO-8601 with a space separator between date/time sections
+ * instead of a {@literal T} character.</li>
+ * <li>{@literal null} values are not serialized.</li>
+ * <li>Floating point numbers are deserialized as {@link java.math.BigDecimal}
+ * instances.</li>
+ * </ul>
+ * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.36
  */
 public final class JsonUtils {
@@ -63,10 +82,11 @@ public final class JsonUtils {
 	private static final ObjectMapper createObjectMapper() {
 		ObjectMapperFactoryBean factory = new ObjectMapperFactoryBean();
 		factory.setSerializationInclusion(Include.NON_NULL);
-		factory.setFeaturesToDisable(
-				Arrays.asList((Object) DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
-		factory.setFeaturesToEnable(
-				Arrays.asList((Object) DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
+		factory.setFeaturesToDisable(asList((Object) DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+				(Object) SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS,
+				(Object) SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
+		factory.setFeaturesToEnable(asList((Object) DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
+
 		List<com.fasterxml.jackson.databind.JsonSerializer<?>> serializers = new ArrayList<>();
 		serializers.add(new net.solarnetwork.util.JodaDateTimeSerializer());
 		serializers.add(new net.solarnetwork.util.JodaLocalDateSerializer());
@@ -81,12 +101,38 @@ public final class JsonUtils {
 		deserializers.add(new net.solarnetwork.util.JodaLocalTimeDeserializer());
 		factory.setDeserializers(deserializers);
 
+		registerOptionalModule(factory, "com.fasterxml.jackson.datatype.jsr310.JavaTimeModule");
+
 		try {
-			return factory.getObject();
+			ObjectMapper mapper = factory.getObject();
+			mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS'Z'"));
+			return mapper;
 		} catch ( RuntimeException e ) {
 			throw e;
 		} catch ( Exception e ) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	private static void registerOptionalModule(ObjectMapperFactoryBean factory, String className) {
+		try {
+			Class<? extends SimpleModule> clazz = JsonUtils.class.getClassLoader().loadClass(className)
+					.asSubclass(SimpleModule.class);
+			SimpleModule m = clazz.newInstance();
+
+			// replace default timestamp serializer with one that supports spaces
+			m.addSerializer(Instant.class, new JsonDateUtils.InstantSerializer());
+			m.addSerializer(ZonedDateTime.class, new JsonDateUtils.ZonedDateTimeSerializer());
+			m.addSerializer(LocalDateTime.class, new JsonDateUtils.LocalDateTimeSerializer());
+
+			List<Module> modules = factory.getModules();
+			if ( modules == null ) {
+				modules = new ArrayList<>(2);
+			}
+			modules.add(m);
+			factory.setModules(modules);
+		} catch ( ClassNotFoundException | InstantiationException | IllegalAccessException e ) {
+			LOG.info("Optional JSON module {} not available ({})", className, e.toString());
 		}
 	}
 
