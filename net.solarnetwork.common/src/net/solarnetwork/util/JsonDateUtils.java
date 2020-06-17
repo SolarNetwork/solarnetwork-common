@@ -48,6 +48,7 @@ public final class JsonDateUtils implements Serializable {
 
 		private static final long serialVersionUID = 2056512911882404402L;
 
+		/** A global instance. */
 		public static final InstantSerializer INSTANCE = new InstantSerializer();
 
 		/**
@@ -69,6 +70,9 @@ public final class JsonDateUtils implements Serializable {
 
 		private static final long serialVersionUID = 6913055308929776378L;
 
+		/** A global instance. */
+		public static final ZonedDateTimeSerializer INSTANCE = new ZonedDateTimeSerializer();
+
 		/**
 		 * Constructor.
 		 */
@@ -86,6 +90,9 @@ public final class JsonDateUtils implements Serializable {
 			extends com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer {
 
 		private static final long serialVersionUID = 8528306055696764724L;
+
+		/** A global instance. */
+		public static final LocalDateTimeSerializer INSTANCE = new LocalDateTimeSerializer();
 
 		/**
 		 * Constructor.

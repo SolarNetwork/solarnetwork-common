@@ -37,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -101,7 +102,7 @@ public final class JsonUtils {
 		deserializers.add(new net.solarnetwork.util.JodaLocalTimeDeserializer());
 		factory.setDeserializers(deserializers);
 
-		registerOptionalModule(factory, "com.fasterxml.jackson.datatype.jsr310.JavaTimeModule");
+		registerOptionalModule(factory, javaTimeModule());
 
 		try {
 			ObjectMapper mapper = factory.getObject();
@@ -114,26 +115,45 @@ public final class JsonUtils {
 		}
 	}
 
-	private static void registerOptionalModule(ObjectMapperFactoryBean factory, String className) {
+	private static SimpleModule createOptionalModule(String className,
+			Consumer<SimpleModule> configuror) {
 		try {
 			Class<? extends SimpleModule> clazz = JsonUtils.class.getClassLoader().loadClass(className)
 					.asSubclass(SimpleModule.class);
 			SimpleModule m = clazz.newInstance();
+			if ( configuror != null ) {
+				configuror.accept(m);
+			}
+			return m;
+		} catch ( ClassNotFoundException | InstantiationException | IllegalAccessException e ) {
+			LOG.info("Optional JSON module {} not available ({})", className, e.toString());
+			return null;
+		}
+	}
 
-			// replace default timestamp serializer with one that supports spaces
-			m.addSerializer(Instant.class, new JsonDateUtils.InstantSerializer());
-			m.addSerializer(ZonedDateTime.class, new JsonDateUtils.ZonedDateTimeSerializer());
-			m.addSerializer(LocalDateTime.class, new JsonDateUtils.LocalDateTimeSerializer());
-
+	private static void registerOptionalModule(ObjectMapperFactoryBean factory, SimpleModule m) {
+		if ( m != null ) {
 			List<Module> modules = factory.getModules();
 			if ( modules == null ) {
 				modules = new ArrayList<>(2);
 			}
 			modules.add(m);
 			factory.setModules(modules);
-		} catch ( ClassNotFoundException | InstantiationException | IllegalAccessException e ) {
-			LOG.info("Optional JSON module {} not available ({})", className, e.toString());
 		}
+	}
+
+	/**
+	 * Create a module for handling {@code java.time} objects.
+	 * 
+	 * @return the module, or {@literal null} if support is not available
+	 */
+	public static SimpleModule javaTimeModule() {
+		return createOptionalModule("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", m -> {
+			// replace default timestamp serializer with one that supports spaces
+			m.addSerializer(Instant.class, JsonDateUtils.InstantSerializer.INSTANCE);
+			m.addSerializer(ZonedDateTime.class, JsonDateUtils.ZonedDateTimeSerializer.INSTANCE);
+			m.addSerializer(LocalDateTime.class, JsonDateUtils.LocalDateTimeSerializer.INSTANCE);
+		});
 	}
 
 	private static final class StringMapTypeReference
