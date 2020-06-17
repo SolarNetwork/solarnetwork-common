@@ -22,14 +22,25 @@
 
 package net.solarnetwork.domain;
 
+import static net.solarnetwork.settings.SettingSpecifierProvider.settingsForService;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
+import net.solarnetwork.settings.SettingSpecifier;
+import net.solarnetwork.settings.SettingSpecifierProvider;
+import net.solarnetwork.settings.support.SettingUtils;
+import net.solarnetwork.util.ClassUtils;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * API for a user-supplied set of configuration to use with some
  * {@link Identifiable} service.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.42
  */
 public interface IdentifiableConfiguration {
@@ -70,4 +81,74 @@ public interface IdentifiableConfiguration {
 	 */
 	Map<String, ?> getServiceProperties();
 
+	/**
+	 * Mask sensitive information in a set of configurations.
+	 * 
+	 * @param <T>
+	 *        the configuration type
+	 * @param configurations
+	 *        the configurations
+	 * @param serviceSettings
+	 *        a service settings cache
+	 * @param settingProviderFunction
+	 *        a function to apply to settings to perform the masking
+	 * @return the masked configurations
+	 * @since 1.1
+	 */
+	static <T extends IdentifiableConfiguration> List<T> maskConfigurations(List<T> configurations,
+			ConcurrentMap<String, List<SettingSpecifier>> serviceSettings,
+			Function<Void, Iterable<? extends SettingSpecifierProvider>> settingProviderFunction) {
+		if ( configurations == null || configurations.isEmpty() ) {
+			return Collections.emptyList();
+		}
+		List<T> result = new ArrayList<>(configurations.size());
+		for ( T config : configurations ) {
+			T maskedConfig = maskConfiguration(config, serviceSettings, settingProviderFunction);
+			if ( maskedConfig != null ) {
+				result.add(maskedConfig);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Mask sensitive information in a set of configurations.
+	 * 
+	 * @param <T>
+	 *        the configuration type
+	 * @param config
+	 *        the configuration
+	 * @param serviceSettings
+	 *        a service settings cache
+	 * @param settingProviderFunction
+	 *        a function to apply to settings to perform the masking
+	 * @return the masked configuration
+	 * @since 1.1
+	 */
+	@SuppressWarnings("unchecked")
+	static <T extends IdentifiableConfiguration> T maskConfiguration(T config,
+			ConcurrentMap<String, List<SettingSpecifier>> serviceSettings,
+			Function<Void, Iterable<? extends SettingSpecifierProvider>> settingProviderFunction) {
+		String id = config.getServiceIdentifier();
+		if ( id == null ) {
+			return null;
+		}
+		List<SettingSpecifier> settings = serviceSettings.get(id);
+		if ( settings == null ) {
+			settings = settingsForService(id, settingProviderFunction.apply(null));
+			if ( settings != null ) {
+				serviceSettings.put(id, settings);
+			}
+		}
+		if ( settings != null ) {
+			Map<String, ?> serviceProps = config.getServiceProperties();
+			Map<String, Object> maskedServiceProps = StringUtils.sha256MaskedMap(
+					(Map<String, Object>) serviceProps, SettingUtils.secureKeys(settings));
+			if ( maskedServiceProps != null ) {
+				ClassUtils.setBeanProperties(config,
+						Collections.singletonMap("serviceProps", maskedServiceProps), true);
+			}
+		}
+		return config;
+	}
 }

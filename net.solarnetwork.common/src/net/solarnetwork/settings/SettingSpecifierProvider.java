@@ -30,7 +30,7 @@ import org.springframework.context.MessageSource;
  * application-managed settings.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface SettingSpecifierProvider {
 
@@ -71,5 +71,28 @@ public interface SettingSpecifierProvider {
 	 * @return list of {@link SettingSpecifier}
 	 */
 	List<SettingSpecifier> getSettingSpecifiers();
+
+	/**
+	 * Get the settings for a specific service.
+	 * 
+	 * @param id
+	 *        the ID of the service to get the settings for
+	 * @param providers
+	 *        the available services
+	 * @return the settings, or {@literal null} if not available
+	 * @since 1.1
+	 */
+	static List<SettingSpecifier> settingsForService(String id,
+			Iterable<? extends SettingSpecifierProvider> providers) {
+		if ( providers == null ) {
+			return null;
+		}
+		for ( SettingSpecifierProvider provider : providers ) {
+			if ( id.equals(provider.getSettingUID()) ) {
+				return provider.getSettingSpecifiers();
+			}
+		}
+		return null;
+	}
 
 }
