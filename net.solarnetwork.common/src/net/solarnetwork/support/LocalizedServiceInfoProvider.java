@@ -22,6 +22,8 @@
 
 package net.solarnetwork.support;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import net.solarnetwork.domain.LocalizedServiceInfo;
 
@@ -29,7 +31,7 @@ import net.solarnetwork.domain.LocalizedServiceInfo;
  * API for a service that can provide locailzed information about itself.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.43
  */
 public interface LocalizedServiceInfoProvider {
@@ -42,5 +44,26 @@ public interface LocalizedServiceInfoProvider {
 	 * @return the localized info, never {@literal null}
 	 */
 	LocalizedServiceInfo getLocalizedServiceInfo(Locale locale);
+
+	/**
+	 * Get localized service info for a collection of service info providers.
+	 * 
+	 * @param services
+	 *        the service info providers to get the info for
+	 * @param locale
+	 *        the desired locale
+	 * @return list of localized service info, never {@literal null}
+	 * @since 1.1
+	 */
+	static List<LocalizedServiceInfo> localizedServiceSettings(
+			Iterable<? extends LocalizedServiceInfoProvider> services, Locale locale) {
+		List<LocalizedServiceInfo> result = new ArrayList<>(10);
+		if ( services != null ) {
+			for ( LocalizedServiceInfoProvider s : services ) {
+				result.add(s.getLocalizedServiceInfo(locale));
+			}
+		}
+		return result;
+	}
 
 }

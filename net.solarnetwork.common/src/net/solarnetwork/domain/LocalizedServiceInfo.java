@@ -22,7 +22,9 @@
 
 package net.solarnetwork.domain;
 
+import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * API for information about a service that has been localized.
@@ -34,10 +36,47 @@ import java.util.Map;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.43
  */
 public interface LocalizedServiceInfo extends Identity<String> {
+
+	/**
+	 * Comparator for a case-insensitive order based on localized names.
+	 * 
+	 * @since 1.1
+	 */
+	static class LocalizedNameComparator implements Comparator<LocalizedServiceInfo> {
+
+		@Override
+		public int compare(LocalizedServiceInfo o1, LocalizedServiceInfo o2) {
+			if ( o1 == o2 ) {
+				return 0;
+			}
+			if ( o1 == null ) {
+				return 1;
+			}
+			if ( o2 == null ) {
+				return -1;
+			}
+			String n1 = o1.getLocalizedName();
+			String n2 = o2.getLocalizedName();
+			int result = Objects.compare(n1, n2, String.CASE_INSENSITIVE_ORDER);
+			if ( result == 0 ) {
+				result = o1.compareTo(o2.getId());
+			}
+			return 0;
+		}
+
+	}
+
+	/**
+	 * A comparator for ordering by localized names in a case-insensitive
+	 * manner.
+	 * 
+	 * @since 1.1
+	 */
+	Comparator<LocalizedServiceInfo> SORT_BY_NAME = new LocalizedNameComparator();
 
 	/**
 	 * Get the locale used for this information.

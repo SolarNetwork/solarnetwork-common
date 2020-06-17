@@ -37,7 +37,7 @@ import java.time.temporal.TemporalQueries;
  * Date and time utilities.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.59
  */
 public final class DateUtils {
@@ -93,6 +93,42 @@ public final class DateUtils {
 	 */
 	public static final DateTimeFormatter ISO_DATE_OPT_TIME_ALT_LOCAL = ISO_DATE_OPT_TIME_ALT
 			.withZone(ZoneId.systemDefault());
+
+	/**
+	 * Date and time formatter using the ISO 8601 style but with a space
+	 * character for the date/time separator instead of {@literal T}.
+	 * 
+	 * <p>
+	 * This supports patterns like:
+	 * </p>
+	 * <ul>
+	 * <li>{@literal 2020-02-01 20:12:34+12:00}</li>
+	 * <li>{@literal 2020-02-01 20:12:34}</li>
+	 * <li>{@literal 2020-02-01 20:12}</li>
+	 * </ul>
+	 * 
+	 * @since 1.1
+	 */
+	public static final DateTimeFormatter ISO_DATE_TIME_ALT;
+	static {
+		// @formatter:off
+		ISO_DATE_TIME_ALT = new DateTimeFormatterBuilder()
+                .parseCaseInsensitive()
+                .append(DateTimeFormatter.ISO_LOCAL_DATE)
+				.appendLiteral(' ')
+				.append(DateTimeFormatter.ISO_TIME)
+				.toFormatter();
+		// @formatter:on
+	}
+
+	/**
+	 * Date and time formatter based on {@link #ISO_DATE_TIME_ALT} with a UTC
+	 * time zone offset applied.
+	 * 
+	 * @since 1.1
+	 */
+	public static final DateTimeFormatter ISO_DATE_TIME_ALT_UTC = ISO_DATE_TIME_ALT
+			.withZone(ZoneOffset.UTC);
 
 	/**
 	 * Parse an ISO-8601 alternate timestamp using a given formatter.
