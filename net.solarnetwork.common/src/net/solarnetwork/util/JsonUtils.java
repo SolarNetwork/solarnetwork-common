@@ -24,6 +24,7 @@ package net.solarnetwork.util;
 
 import static java.util.Arrays.asList;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -45,6 +46,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -149,11 +151,27 @@ public final class JsonUtils {
 	 */
 	public static SimpleModule javaTimeModule() {
 		return createOptionalModule("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", m -> {
-			// replace default timestamp serializer with one that supports spaces
-			m.addSerializer(Instant.class, JsonDateUtils.InstantSerializer.INSTANCE);
-			m.addSerializer(ZonedDateTime.class, JsonDateUtils.ZonedDateTimeSerializer.INSTANCE);
-			m.addSerializer(LocalDateTime.class, JsonDateUtils.LocalDateTimeSerializer.INSTANCE);
+			// replace default timestamp JsonSerializer with one that supports spaces
+			m.addSerializer(Instant.class, loadOptionalSerializerInstance(
+					"net.solarnetwork.util.JsonDateUtils$InstantSerializer"));
+			m.addSerializer(ZonedDateTime.class, loadOptionalSerializerInstance(
+					"net.solarnetwork.util.JsonDateUtils$ZonedDateTimeSerializer"));
+			m.addSerializer(LocalDateTime.class, loadOptionalSerializerInstance(
+					"net.solarnetwork.util.JsonDateUtils$LocalDateTimeSerializer"));
 		});
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static final <T> JsonSerializer<T> loadOptionalSerializerInstance(String className) {
+		try {
+			Class<? extends JsonSerializer> clazz = JsonUtils.class.getClassLoader().loadClass(className)
+					.asSubclass(JsonSerializer.class);
+			Field f = clazz.getDeclaredField("INSTANCE");
+			return (JsonSerializer<T>) f.get(null);
+		} catch ( ClassNotFoundException | IllegalAccessException | NoSuchFieldException e ) {
+			LOG.info("Optional JSON serializer {} not available ({})", className, e.toString());
+			return null;
+		}
 	}
 
 	private static final class StringMapTypeReference
