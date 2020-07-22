@@ -23,6 +23,7 @@
 package net.solarnetwork.domain;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Simple pagination characteristics.
@@ -34,17 +35,40 @@ import java.util.List;
  * @author matt
  * @version 1.0
  */
-public class SimplePagination {
+public class SimplePagination implements Cloneable {
 
 	private List<SortDescriptor> sorts;
 	private Integer offset;
 	private Integer max;
 
 	/**
+	 * Test if the arguments match the values in this instance.
 	 * 
+	 * @param sorts
+	 *        the sorts
+	 * @param offset
+	 *        the offset
+	 * @param max
+	 *        the max
+	 * @return {@literal true} if all the arguments match the associated
+	 *         properties in this instance
 	 */
-	public SimplePagination() {
-		// TODO Auto-generated constructor stub
+	public boolean matches(List<SortDescriptor> sorts, Integer offset, Integer max) {
+		// @formatter:off
+		return Objects.equals(this.sorts, sorts)
+				&& Objects.equals(this.offset, offset)
+				&& Objects.equals(this.max, max);
+		// @formatter:on
+	}
+
+	@Override
+	public SimplePagination clone() {
+		try {
+			return (SimplePagination) super.clone();
+		} catch ( CloneNotSupportedException e ) {
+			// cannot happen
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
