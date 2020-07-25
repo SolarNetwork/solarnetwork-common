@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: StringTemplate 4 templating support
+Bundle-SymbolicName: net.solarnetwork.common.tmpl.st4
+Bundle-Version: 1.0.0
+Automatic-Module-Name: net.solarnetwork.common.tmpl.st4
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: 
+ net.solarnetwork.common.tmpl.st4;version="1.0.0"
+Import-Package: 
+ net.solarnetwork.domain;version="[1.23,2.0)",
+ net.solarnetwork.support;version="[1.13,2.0)",
+ org.slf4j;version="[1.7,2.0)",
+ org.springframework.util;version="[4.3,5.0)",
+ org.stringtemplate.v4;version="[4.3,5.0)"

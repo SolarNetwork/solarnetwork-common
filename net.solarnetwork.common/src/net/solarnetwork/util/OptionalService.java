@@ -34,7 +34,7 @@ package net.solarnetwork.util;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface OptionalService<T> {
 
@@ -44,5 +44,47 @@ public interface OptionalService<T> {
 	 * @return the service, or <em>null</em>
 	 */
 	T service();
+
+	/**
+	 * Resolve an optional service.
+	 * 
+	 * <p>
+	 * This method is a convenient way to deal with a possibly null
+	 * {@code OptionalService}.
+	 * </p>
+	 * 
+	 * @param <T>
+	 *        the service type
+	 * @param optional
+	 *        the optional service, or {@literal null}
+	 * @return the resolved service, or {@literal null}
+	 * @since 1.1
+	 */
+	static <T> T service(OptionalService<T> optional) {
+		return service(optional, null);
+	}
+
+	/**
+	 * Resolve an optional service with a fallback.
+	 * 
+	 * <p>
+	 * This method is a convenient way to deal with a possibly null
+	 * {@code OptionalService}.
+	 * </p>
+	 * 
+	 * @param <T>
+	 *        the service type
+	 * @param optional
+	 *        the optional service, or {@literal null}
+	 * @param fallback
+	 *        the result to return if {@code optional} is {@literal null} or its
+	 *        resolved service is {@literal null}
+	 * @return the resolved service, or {@code fallback}
+	 * @since 1.1
+	 */
+	static <T> T service(OptionalService<T> optional, T fallback) {
+		T service = (optional != null ? optional.service() : null);
+		return (service != null ? service : fallback);
+	}
 
 }
