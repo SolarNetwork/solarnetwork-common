@@ -94,11 +94,6 @@ public class MessageSourceGroup extends STGroup {
 		throw new UnsupportedOperationException(msg);
 	}
 
-	/**
-	 * Load a template from directory or group file. Group file is given
-	 * precedence over directory with same groupName. {@code groupName} is
-	 * always fully-qualified.
-	 */
 	@Override
 	protected CompiledST load(String name) {
 		log.debug("MessageSourceGroup.load({})", name);
