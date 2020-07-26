@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.springframework.util.MimeType;
+import org.springframework.util.MimeTypeUtils;
 import org.stringtemplate.v4.AutoIndentWriter;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
@@ -52,10 +53,10 @@ public class ST4TemplateRenderer extends BasicIdentity<String> implements Templa
 	public static final Charset UTF8 = Charset.forName("UTF-8");
 
 	/** List of just the HTML MIME type. */
-	public static final List<MimeType> HTML = unmodifiableList(asList(MimeType.valueOf("text/html")));
+	public static final List<MimeType> HTML = unmodifiableList(asList(MimeTypeUtils.TEXT_HTML));
 
 	/** List of just the text MIME type. */
-	public static final List<MimeType> TEXT = unmodifiableList(asList(MimeType.valueOf("text/plain")));
+	public static final List<MimeType> TEXT = unmodifiableList(asList(MimeTypeUtils.TEXT_PLAIN));
 
 	private final STGroup group;
 	private final String templateName;
