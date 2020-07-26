@@ -10,6 +10,10 @@ Export-Package:
 Import-Package: 
  net.solarnetwork.domain;version="[1.23,2.0)",
  net.solarnetwork.support;version="[1.13,2.0)",
+ org.antlr.runtime;version="[3.5,4.0)",
  org.slf4j;version="[1.7,2.0)",
+ org.springframework.context;version="[4.3,5.0)",
  org.springframework.util;version="[4.3,5.0)",
- org.stringtemplate.v4;version="[4.3,5.0)"
+ org.stringtemplate.v4;version="[4.3,5.0)",
+ org.stringtemplate.v4.compiler;version="[4.3,5.0)",
+ org.stringtemplate.v4.misc;version="[4.3,5.0)"
