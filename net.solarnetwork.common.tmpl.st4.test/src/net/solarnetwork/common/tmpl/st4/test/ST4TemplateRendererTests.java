@@ -48,7 +48,7 @@ public class ST4TemplateRendererTests {
 		final Properties messages = new Properties();
 		messages.put("title", "Yo!");
 
-		STGroupDir group = new STGroupDir("net/solarnetwork/common/tmpl/st4/test/", '$', '$');
+		STGroupDir group = new STGroupDir("net/solarnetwork/common/tmpl/st4/test", '$', '$');
 		ST4TemplateRenderer t = ST4TemplateRenderer.html("foo", group, "hello");
 
 		// WHEN
