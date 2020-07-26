@@ -70,8 +70,8 @@ public class ST4TemplateRenderer extends BasicIdentity<String> implements Templa
 	 *        the identifier
 	 * @param group
 	 *        the template group to use
-	 * @param mimeTypes
-	 *        the supported MIME types
+	 * @param templateName
+	 *        the entry point template name to execute
 	 * @return the new instance
 	 */
 	public static ST4TemplateRenderer html(String id, STGroup group, String templateName) {
@@ -85,6 +85,8 @@ public class ST4TemplateRenderer extends BasicIdentity<String> implements Templa
 	 *        the identifier
 	 * @param group
 	 *        the template group to use
+	 * @param templateName
+	 *        the entry point template name to execute
 	 * @param mimeTypes
 	 *        the supported MIME types
 	 * @param charset
