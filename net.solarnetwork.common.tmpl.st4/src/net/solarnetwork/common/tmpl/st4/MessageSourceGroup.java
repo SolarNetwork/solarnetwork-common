@@ -36,6 +36,26 @@ import org.stringtemplate.v4.misc.Misc;
 /**
  * {@link STGroup} that loads templates from a {@link MessageSource}.
  * 
+ * <p>
+ * <b>Note</b> that because templates are resolved using the
+ * {@link java.text.MessageFormat} style parameter expansion, curly braces in
+ * message values must be escaped in single quotes. This can appear in embedded
+ * anonymous ST templates, which use brace delimiters. A normal ST anonymous
+ * template invocation like this:
+ * </p>
+ * 
+ * <pre>
+ * <code>test(name) ::= "$name:{x | [$x$]}; separator=\", \">$</code>
+ * </pre>
+ * 
+ * <p>
+ * would need to be escaped like this:
+ * </p>
+ * 
+ * <pre>
+ * <code>test(name) ::= "$name:'{'x | [$x$]'}'; separator=\", \">$</code>
+ * </pre>
+ * 
  * @author matt
  * @version 1.0
  */
