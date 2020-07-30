@@ -45,7 +45,7 @@ import org.stringtemplate.v4.misc.Misc;
  * </p>
  * 
  * <pre>
- * <code>test(name) ::= "$name:{x | [$x$]}; separator=\", \">$</code>
+ * <code>test(name) ::= "$name:{x | [$x$]}; separator=\", \"$</code>
  * </pre>
  * 
  * <p>
@@ -53,7 +53,7 @@ import org.stringtemplate.v4.misc.Misc;
  * </p>
  * 
  * <pre>
- * <code>test(name) ::= "$name:'{'x | [$x$]'}'; separator=\", \">$</code>
+ * <code>test(name) ::= "$name:'{'x | [$x$]'}'; separator=\", \"$</code>
  * </pre>
  * 
  * @author matt
