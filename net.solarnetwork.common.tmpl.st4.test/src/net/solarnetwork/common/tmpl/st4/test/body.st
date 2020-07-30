@@ -1,0 +1,1 @@
+body(messages) ::= "Hello, world."
