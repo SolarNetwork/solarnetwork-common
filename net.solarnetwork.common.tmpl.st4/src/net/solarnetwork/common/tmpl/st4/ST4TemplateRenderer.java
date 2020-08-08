@@ -22,8 +22,7 @@
 
 package net.solarnetwork.common.tmpl.st4;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.singletonList;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -45,7 +44,7 @@ import net.solarnetwork.support.TemplateRenderer;
  * StringTemplate 4 implementation of {@link TemplateRenderer}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ST4TemplateRenderer extends BasicIdentity<String> implements TemplateRenderer {
 
@@ -53,10 +52,10 @@ public class ST4TemplateRenderer extends BasicIdentity<String> implements Templa
 	public static final Charset UTF8 = Charset.forName("UTF-8");
 
 	/** List of just the HTML MIME type. */
-	public static final List<MimeType> HTML = unmodifiableList(asList(MimeTypeUtils.TEXT_HTML));
+	public static final List<MimeType> HTML = singletonList(MimeTypeUtils.TEXT_HTML);
 
 	/** List of just the text MIME type. */
-	public static final List<MimeType> TEXT = unmodifiableList(asList(MimeTypeUtils.TEXT_PLAIN));
+	public static final List<MimeType> TEXT = singletonList(MimeTypeUtils.TEXT_PLAIN);
 
 	private final STGroup group;
 	private final String templateName;
