@@ -31,7 +31,7 @@ import java.util.BitSet;
  * Utilities for dealing with numbers.
  * 
  * @author matt
- * @version 1.4
+ * @version 1.5
  * @since 1.42
  */
 public final class NumberUtils {
@@ -127,10 +127,13 @@ public final class NumberUtils {
 	 * 
 	 * @param value
 	 *        the signed whole number to convert
-	 * @return the unsigned value
+	 * @return the unsigned value, or {@literal null} if {@code value} is
+	 *         {@literal null}
 	 */
 	public static Number unsignedNumber(Number value) {
-		if ( value instanceof Byte ) {
+		if ( value == null ) {
+			return null;
+		} else if ( value instanceof Byte ) {
 			return Byte.toUnsignedInt(value.byteValue());
 		} else if ( value instanceof Short ) {
 			return Short.toUnsignedInt(value.shortValue());
@@ -151,11 +154,14 @@ public final class NumberUtils {
 	 * 
 	 * @param value
 	 *        the number to get a {@code BigDecimal} version of
-	 * @return the {@code BigDecimal} version of {@code value}
+	 * @return the {@code BigDecimal} version of {@code value}, or
+	 *         {@literal null} if {@code value} is {@literal null}
 	 */
 	public static BigDecimal bigDecimalForNumber(Number value) {
 		BigDecimal v = null;
-		if ( value instanceof BigDecimal ) {
+		if ( value == null ) {
+			return null;
+		} else if ( value instanceof BigDecimal ) {
 			v = (BigDecimal) value;
 		} else if ( value instanceof Long ) {
 			v = new BigDecimal(value.longValue());
