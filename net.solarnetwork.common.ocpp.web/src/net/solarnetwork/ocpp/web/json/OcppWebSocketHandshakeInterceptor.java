@@ -186,7 +186,12 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 	private String[] decodeBasicAuthorizationHeader(String header) {
 		Charset utf8 = Charset.forName("UTF-8");
-		byte[] base64Token = header.substring(6).getBytes(utf8);
+		// help to work with buggy clients that present scheme as "Basic:"
+		int space = header.indexOf(' ');
+		if ( space < 0 || space + 1 >= header.length() ) {
+			return null;
+		}
+		byte[] base64Token = header.substring(space + 1).getBytes(utf8);
 		byte[] decoded;
 		try {
 			decoded = java.util.Base64.getDecoder().decode(base64Token);
