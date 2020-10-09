@@ -78,29 +78,29 @@ public class AuthorizationInfo {
 
 	@Override
 	public String toString() {
-		StringBuilder builder2 = new StringBuilder();
-		builder2.append("AuthorizationInfo{");
+		StringBuilder builder = new StringBuilder();
+		builder.append("AuthorizationInfo{");
 		if ( id != null ) {
-			builder2.append("id=");
-			builder2.append(id);
-			builder2.append(", ");
+			builder.append("id=");
+			builder.append(id);
+			builder.append(", ");
 		}
 		if ( status != null ) {
-			builder2.append("status=");
-			builder2.append(status);
-			builder2.append(", ");
+			builder.append("status=");
+			builder.append(status);
+			builder.append(", ");
 		}
 		if ( expiryDate != null ) {
-			builder2.append("expiryDate=");
-			builder2.append(expiryDate);
-			builder2.append(", ");
+			builder.append("expiryDate=");
+			builder.append(expiryDate);
+			builder.append(", ");
 		}
 		if ( parentId != null ) {
-			builder2.append("parentId=");
-			builder2.append(parentId);
+			builder.append("parentId=");
+			builder.append(parentId);
 		}
-		builder2.append("}");
-		return builder2.toString();
+		builder.append("}");
+		return builder.toString();
 	}
 
 	public String getId() {
