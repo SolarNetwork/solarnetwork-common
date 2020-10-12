@@ -51,6 +51,44 @@ public class ChargeSessionEndInfo {
 		this.transactionData = builder.transactionData;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ChargeSessionEndInfo{");
+		if ( chargePointId != null ) {
+			builder.append("chargePointId=");
+			builder.append(chargePointId);
+			builder.append(", ");
+		}
+		if ( authorizationId != null ) {
+			builder.append("authorizationId=");
+			builder.append(authorizationId);
+			builder.append(", ");
+		}
+		builder.append("transactionId=");
+		builder.append(transactionId);
+		builder.append(", ");
+		if ( timestampEnd != null ) {
+			builder.append("timestampEnd=");
+			builder.append(timestampEnd);
+			builder.append(", ");
+		}
+		builder.append("meterEnd=");
+		builder.append(meterEnd);
+		builder.append(", ");
+		if ( reason != null ) {
+			builder.append("reason=");
+			builder.append(reason);
+			builder.append(", ");
+		}
+		if ( transactionData != null ) {
+			builder.append("transactionData=");
+			builder.append(transactionData);
+		}
+		builder.append("}");
+		return builder.toString();
+	}
+
 	/**
 	 * The Charge Point ID.
 	 * 

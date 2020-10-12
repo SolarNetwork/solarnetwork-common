@@ -28,9 +28,25 @@ import java.math.BigDecimal;
  * Standardized API for atmospheric related datum to implement.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface AtmosphericDatum extends Datum {
+
+	/**
+	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * sample key for {@link AtmosphericDatum#getCO2()} values.
+	 * 
+	 * @since 1.1
+	 */
+	String CO2_KEY = "co2";
+
+	/**
+	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * sample key for {@link AtmosphericDatum#getLux()} values.
+	 * 
+	 * @since 1.1
+	 */
+	String LUX_KEY = "lux";
 
 	/**
 	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
@@ -116,6 +132,22 @@ public interface AtmosphericDatum extends Datum {
 	 * measurement.
 	 */
 	String TAG_FORECAST = "forecast";
+
+	/**
+	 * Get the instantaneous CO2 level, in parts-per-million.
+	 * 
+	 * @return the CO2, in parts-per-million
+	 * @since 1.1
+	 */
+	BigDecimal getCO2();
+
+	/**
+	 * Get the instantaneous luminosity level, in lux.
+	 * 
+	 * @return the luminosity, in lux
+	 * @since 1.1
+	 */
+	BigDecimal getLux();
 
 	/**
 	 * Get the instantaneous temperature, in degrees Celsius.

@@ -34,6 +34,7 @@ import net.solarnetwork.ocpp.domain.SampledValue;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.BaseActionMessageProcessor;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
+import net.solarnetwork.util.JsonUtils;
 import ocpp.domain.Action;
 import ocpp.domain.ErrorCodeException;
 import ocpp.v16.ActionErrorCode;
@@ -86,7 +87,9 @@ public class MeterValuesProcessor
 			return;
 		}
 
-		log.info("Received MeterValues request: {}", req);
+		if ( log.isInfoEnabled() ) {
+			log.info("Received MeterValues req: {}", JsonUtils.getJSONString(req, "{}"));
+		}
 
 		try {
 			ChargeSession session = chargeSessionManager.getActiveChargingSession(chargePointId,
@@ -103,6 +106,7 @@ public class MeterValuesProcessor
 				}
 			}
 			if ( !newReadings.isEmpty() ) {
+				log.info("Saving charge readings for session {}: {}", session, newReadings);
 				chargeSessionManager.addChargingSessionReadings(newReadings);
 			}
 

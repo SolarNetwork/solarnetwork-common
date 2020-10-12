@@ -152,6 +152,38 @@ public class OcppWebSocketHandshakeInterceptorTests {
 	}
 
 	@Test
+	public void ok_badBasicScheme() throws Exception {
+		// given
+		URI uri = URI.create("http://example.com/ocpp/v16/cs/json/foobar");
+		expect(req.getURI()).andReturn(uri);
+		expect(handler.getSubProtocols())
+				.andReturn(Collections.singletonList(WebSocketSubProtocol.OCPP_V16.getValue()));
+
+		HttpHeaders h = new HttpHeaders();
+		h.add(WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL, WebSocketSubProtocol.OCPP_V16.getValue());
+		h.add(HttpHeaders.AUTHORIZATION, "Basic: "
+				+ Base64.getEncoder().encodeToString("foo:bar".getBytes(Charset.forName("UTF-8"))));
+		expect(req.getHeaders()).andReturn(h).anyTimes();
+
+		SystemUser user = testUser();
+		expect(systemUserDao.getForUsername("foo")).andReturn(user);
+		expect(passwordEncoder.matches("bar", "bar")).andReturn(true);
+
+		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
+				passwordEncoder);
+
+		// when
+		replayAll();
+		Map<String, Object> attributes = new LinkedHashMap<>(4);
+		boolean result = hi.beforeHandshake(req, res, handler, attributes);
+
+		assertThat("Result success", result, equalTo(true));
+		assertThat("Client ID attribute populated", attributes,
+				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR,
+						new ChargePointIdentity("foobar", ChargePointIdentity.ANY_USER)));
+	}
+
+	@Test
 	public void noSubProtocol() throws Exception {
 		// given
 		URI uri = URI.create("http://example.com/ocpp/v16/cs/json/foobar");

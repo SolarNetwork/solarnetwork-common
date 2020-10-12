@@ -50,35 +50,35 @@ public class ChargeSessionStartInfo {
 
 	@Override
 	public String toString() {
-		StringBuilder builder2 = new StringBuilder();
-		builder2.append("ChargeSessionStartInfo{");
+		StringBuilder builder = new StringBuilder();
+		builder.append("ChargeSessionStartInfo{");
 		if ( chargePointId != null ) {
-			builder2.append("chargePointId=");
-			builder2.append(chargePointId);
-			builder2.append(", ");
+			builder.append("chargePointId=");
+			builder.append(chargePointId);
+			builder.append(", ");
 		}
 		if ( authorizationId != null ) {
-			builder2.append("authorizationId=");
-			builder2.append(authorizationId);
-			builder2.append(", ");
+			builder.append("authorizationId=");
+			builder.append(authorizationId);
+			builder.append(", ");
 		}
-		builder2.append("connectorId=");
-		builder2.append(connectorId);
-		builder2.append(", ");
+		builder.append("connectorId=");
+		builder.append(connectorId);
+		builder.append(", ");
 		if ( timestampStart != null ) {
-			builder2.append("timestampStart=");
-			builder2.append(timestampStart);
-			builder2.append(", ");
+			builder.append("timestampStart=");
+			builder.append(timestampStart);
+			builder.append(", ");
 		}
-		builder2.append("meterStart=");
-		builder2.append(meterStart);
-		builder2.append(", ");
+		builder.append("meterStart=");
+		builder.append(meterStart);
+		builder.append(", ");
 		if ( reservationId != null ) {
-			builder2.append("reservationId=");
-			builder2.append(reservationId);
+			builder.append("reservationId=");
+			builder.append(reservationId);
 		}
-		builder2.append("}");
-		return builder2.toString();
+		builder.append("}");
+		return builder.toString();
 	}
 
 	/**
