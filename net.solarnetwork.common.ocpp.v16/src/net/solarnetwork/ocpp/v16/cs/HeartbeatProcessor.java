@@ -42,7 +42,7 @@ import ocpp.xml.support.XmlDateUtils;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class HeartbeatProcessor extends BaseActionMessageProcessor<HeartbeatRequest, HeartbeatResponse> {
 
@@ -54,7 +54,7 @@ public class HeartbeatProcessor extends BaseActionMessageProcessor<HeartbeatRequ
 	 * Constructor.
 	 */
 	public HeartbeatProcessor() {
-		super(HeartbeatRequest.class, HeartbeatResponse.class, SUPPORTED_ACTIONS);
+		super(HeartbeatRequest.class, HeartbeatResponse.class, SUPPORTED_ACTIONS, true);
 	}
 
 	@Override
