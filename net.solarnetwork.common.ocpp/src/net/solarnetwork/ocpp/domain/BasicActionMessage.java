@@ -29,7 +29,7 @@ import ocpp.domain.Action;
  * Basic implementation of {@link ActionMessage}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicActionMessage<T> implements ActionMessage<T> {
 
@@ -74,6 +74,33 @@ public class BasicActionMessage<T> implements ActionMessage<T> {
 		this.messageId = messageId;
 		this.action = action;
 		this.message = message;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("BasicActionMessage{");
+		if ( clientId != null ) {
+			builder.append("clientId=");
+			builder.append(clientId);
+			builder.append(", ");
+		}
+		if ( messageId != null ) {
+			builder.append("messageId=");
+			builder.append(messageId);
+			builder.append(", ");
+		}
+		if ( action != null ) {
+			builder.append("action=");
+			builder.append(action);
+			builder.append(", ");
+		}
+		if ( message != null ) {
+			builder.append("message=");
+			builder.append(message);
+		}
+		builder.append("}");
+		return builder.toString();
 	}
 
 	@Override

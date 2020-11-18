@@ -30,7 +30,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * A unique identity for a charge point in SolarNetwork.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 
@@ -57,7 +57,8 @@ public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 	 *        a unique identifier for the charge point account owner; this
 	 *        object should implement {@link Comparable} and have proper
 	 *        {@link Object#hashCode()} and {@link Object#equals(Object)}
-	 *        support
+	 *        support; all {@code java.lang.Integer} instances will be converted
+	 *        to {@code java.lang.Long} values
 	 * @throws IllegalArgumentException
 	 *         if any parameter is {@literal null}
 	 */
@@ -72,7 +73,10 @@ public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 		if ( userIdentifier == null ) {
 			throw new IllegalArgumentException("The userIdentifier parameter must not be null.");
 		}
-		this.userIdentifier = userIdentifier;
+		// because JSON might parse numbers as Integers but in SN all users are Longs, we normalize
+		// Integer to Long here so that equals() and such work as expected
+		this.userIdentifier = (userIdentifier instanceof Integer ? ((Integer) userIdentifier).longValue()
+				: userIdentifier);
 	}
 
 	@Override
