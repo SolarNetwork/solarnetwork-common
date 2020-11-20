@@ -23,6 +23,7 @@
 package net.solarnetwork.util;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -61,6 +62,20 @@ public final class JodaDateUtils {
 		return ZonedDateTime.of(joda.getYear(), joda.getMonthOfYear(), joda.getDayOfMonth(),
 				joda.getHourOfDay(), joda.getMinuteOfHour(), joda.getSecondOfMinute(),
 				joda.getMillisOfSecond() * NANO_PER_MILLI, zone);
+	}
+
+	/**
+	 * Convert a Joda {@code DateTime} into a Java {@code Instant}.
+	 * 
+	 * @param joda
+	 *        the {@code org.joda.time} date
+	 * @return the equivalent {@code java.time} date, or {@literal null} if
+	 *         {@code joda} is {@literal null}
+	 * @see #fromJoda(org.joda.time.DateTime)
+	 */
+	public static Instant fromJodaToInstant(org.joda.time.DateTime joda) {
+		ZonedDateTime zdt = fromJoda(joda);
+		return (zdt != null ? zdt.toInstant() : null);
 	}
 
 	/**
