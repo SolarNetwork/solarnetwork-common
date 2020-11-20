@@ -55,4 +55,14 @@ public interface PaginationCriteria {
 	 */
 	Integer getMax();
 
+	/**
+	 * Test if any sort descriptors are available.
+	 * 
+	 * @return {@literal true} if at least one sort descriptor is available
+	 */
+	default boolean hasSorts() {
+		List<SortDescriptor> sorts = getSorts();
+		return (sorts != null && !sorts.isEmpty());
+	}
+
 }
