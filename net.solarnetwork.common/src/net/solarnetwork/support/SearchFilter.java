@@ -532,6 +532,21 @@ public class SearchFilter {
 		return (stack.size() > 0 ? stack.peek() : topNode);
 	}
 
+	/**
+	 * Parse an array of search filter tokens, as created via splitting a string
+	 * with the {@link #TOKEN_PAT} regular expression.
+	 * 
+	 * <p>
+	 * For example the simple filter <code>(foo=bar)</code> could be expressed
+	 * as the tokens <code>["(", "foo=bar", ")"]</code> while the complex filter
+	 * <code>(&(foo=bar)(bim>1))</code> could be expressed as the tokens
+	 * <code>["(&", "(", "foo=bar", ")", "(", "bim>1", ")", ")"]</code>.
+	 * </p>
+	 *
+	 * <p>
+	 * Note that empty string tokens are ignored.
+	 * </p>
+	 */
 	private static List<String> parseTokens(String s) {
 		List<String> tokens = new ArrayList<>();
 		Matcher m = TOKEN_PAT.matcher(s);
