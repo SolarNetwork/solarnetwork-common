@@ -33,7 +33,7 @@ import net.solarnetwork.domain.Identity;
  * Basic implementation of {@link FilterResults}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.59
  */
 public class BasicFilterResults<M extends Identity<K>, K> implements FilterResults<M, K> {
@@ -78,6 +78,33 @@ public class BasicFilterResults<M extends Identity<K>, K> implements FilterResul
 	 */
 	public BasicFilterResults(Iterable<M> results) {
 		this(results, null, 0, iterableCount(results));
+	}
+
+	/**
+	 * Create a {@link FilterResults} instance.
+	 * 
+	 * @param <M>
+	 *        the result type
+	 * @param <K>
+	 *        the result key type
+	 * @param data
+	 *        the result data
+	 * @param criteria
+	 *        the criteria used to produce the results
+	 * @param totalResults
+	 *        the total result count, if available
+	 * @param the
+	 *        returned results count
+	 * @return the results instance
+	 * @since 1.1
+	 */
+	public static <M extends Identity<K>, K> FilterResults<M, K> filterResults(Iterable<M> data,
+			PaginationCriteria criteria, Long totalResults, int returnedResults) {
+		int offset = 0;
+		if ( criteria != null && criteria.getMax() != null ) {
+			offset = criteria.getOffset() != null ? criteria.getOffset() : 0;
+		}
+		return new BasicFilterResults<>(data, totalResults, offset, returnedResults);
 	}
 
 	private static int iterableCount(Iterable<?> iterable) {
