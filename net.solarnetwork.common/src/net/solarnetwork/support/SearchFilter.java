@@ -231,6 +231,25 @@ public class SearchFilter {
 
 	}
 
+	/**
+	 * API for visiting all filters as a tree.
+	 */
+	public static interface VisitorCallback {
+
+		/**
+		 * Visit a node.
+		 * 
+		 * @param node
+		 *        the filter being visited
+		 * @param parentNode
+		 *        the node's parent filter, or {@literal null} for the top-level
+		 *        node
+		 * @return {@literal false} to stop walking
+		 */
+		boolean visit(SearchFilter node, SearchFilter parentNode);
+
+	}
+
 	protected final Map<String, ?> filter;
 	private final CompareOperator compareOp;
 	private final LogicOperator logicOp;
@@ -442,6 +461,35 @@ public class SearchFilter {
 	@SuppressWarnings("unchecked")
 	private void addChild(SearchFilter n) {
 		((Map<String, Object>) filter).put(UUID.randomUUID().toString(), n);
+	}
+
+	/**
+	 * Walk the filter as a tree.
+	 * 
+	 * @param callback
+	 *        the callback
+	 */
+	public void walk(VisitorCallback callback) {
+		walkNode(this, null, callback);
+	}
+
+	private static boolean walkNode(SearchFilter node, SearchFilter parent, VisitorCallback callback) {
+		if ( node == null ) {
+			return false;
+		}
+		if ( !callback.visit(node, parent) ) {
+			return false;
+		}
+		if ( node.filter != null ) {
+			for ( Map.Entry<String, ?> me : node.filter.entrySet() ) {
+				if ( me.getValue() instanceof SearchFilter ) {
+					if ( !walkNode((SearchFilter) me.getValue(), node, callback) ) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
 	}
 
 	private static final Pattern TOKEN_PAT = Pattern.compile("\\s*(\\([&|!]|\\(|\\))\\s*");

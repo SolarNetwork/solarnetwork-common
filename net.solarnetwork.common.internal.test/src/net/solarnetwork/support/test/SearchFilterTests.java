@@ -22,12 +22,16 @@
 
 package net.solarnetwork.support.test;
 
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -39,6 +43,7 @@ import org.junit.Test;
 import net.solarnetwork.support.SearchFilter;
 import net.solarnetwork.support.SearchFilter.CompareOperator;
 import net.solarnetwork.support.SearchFilter.LogicOperator;
+import net.solarnetwork.support.SearchFilter.VisitorCallback;
 
 /**
  * Test cases for the {@link SearchFilter} class.
@@ -300,6 +305,78 @@ public class SearchFilterTests {
 				.collect(Collectors.toList());
 		assertComparisonSearchFilter("1", nested.get(0), "foo", CompareOperator.EQUAL, "bar");
 		assertComparisonSearchFilter("2", nested.get(1), "wiz", CompareOperator.EQUAL, "pop");
+	}
+
+	private static class CollectingVisitor implements VisitorCallback {
+
+		private final List<SearchFilter[]> captured = new ArrayList<>();
+
+		@Override
+		public boolean visit(SearchFilter node, SearchFilter parentNode) {
+			captured.add(new SearchFilter[] { node, parentNode });
+			return true;
+		}
+
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void walk_simple() {
+		// GIVEN
+		SearchFilter f = SearchFilter.forLDAPSearchFilterString("(foo=bar)");
+
+		// WHEN
+		CollectingVisitor visitor = new CollectingVisitor();
+		f.walk(visitor);
+
+		// THEN
+		assertThat("Callback count", visitor.captured, hasSize(1));
+		assertThat("Callback values", visitor.captured.get(0),
+				arrayContaining(sameInstance(f), nullValue()));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void walk_complex() {
+		// GIVEN
+		SearchFilter f = SearchFilter.forLDAPSearchFilterString(
+				"'(& (/m/foo=bar) (| (/pm/bam/pop~=whiz) (/pm/boo/boo>0) (! (/pm/bam/ding<=9))))");
+
+		// WHEN
+		CollectingVisitor visitor = new CollectingVisitor();
+		f.walk(visitor);
+
+		// THEN
+		assertThat("Callback count", visitor.captured, hasSize(7));
+		assertThat("Callback 0 is root", visitor.captured.get(0),
+				arrayContaining(sameInstance(f), nullValue()));
+
+		assertThat("Callback 1 node", visitor.captured.get(1)[0].toString(), equalTo("(/m/foo=bar)"));
+		assertThat("Callback 1 parent is root", visitor.captured.get(1)[1], sameInstance(f));
+
+		assertThat("Callback 2 node", visitor.captured.get(2)[0].getLogicOperator(),
+				equalTo(LogicOperator.OR));
+		assertThat("Callback 2 parent is root", visitor.captured.get(2)[1], sameInstance(f));
+
+		assertThat("Callback 3 node", visitor.captured.get(3)[0].toString(),
+				equalTo("(/pm/bam/pop~=whiz)"));
+		assertThat("Callback 3 parent is OR", visitor.captured.get(3)[1],
+				sameInstance(visitor.captured.get(2)[0]));
+
+		assertThat("Callback 4 node", visitor.captured.get(4)[0].toString(), equalTo("(/pm/boo/boo>0)"));
+		assertThat("Callback 4 parent is OR", visitor.captured.get(4)[1],
+				sameInstance(visitor.captured.get(2)[0]));
+
+		assertThat("Callback 5 node", visitor.captured.get(5)[0].getLogicOperator(),
+				equalTo(LogicOperator.NOT));
+		assertThat("Callback 5 parent is OR", visitor.captured.get(5)[1],
+				sameInstance(visitor.captured.get(2)[0]));
+
+		assertThat("Callback 6 node", visitor.captured.get(6)[0].toString(),
+				equalTo("(/pm/bam/ding<=9)"));
+		assertThat("Callback 6 parent is NOT", visitor.captured.get(6)[1],
+				sameInstance(visitor.captured.get(5)[0]));
+
 	}
 
 }
