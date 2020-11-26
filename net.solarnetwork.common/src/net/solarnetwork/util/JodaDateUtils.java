@@ -30,6 +30,7 @@ import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import org.joda.time.DateTimeZone;
 
 /**
  * Utility methods for Joda dates.
@@ -79,7 +80,57 @@ public final class JodaDateUtils {
 	}
 
 	/**
-	 * Convert a Joda {@code LocalDate} into a Java {@code LocalDate}.
+	 * Convert a {@link ZonedDateTime} to a Joda {@code DateTime}.
+	 * 
+	 * @param date
+	 *        the {@code java.time} date
+	 * @return the equivalent {@code org.joda.time} date, or {@literal null} if
+	 *         {@code date} is {@literal null}
+	 */
+	public static org.joda.time.DateTime toJoda(ZonedDateTime date) {
+		if ( date == null ) {
+			return null;
+		}
+		return toJoda(date.toInstant(), date != null ? date.getZone() : (ZoneId) null);
+	}
+
+	/**
+	 * Convert an {@link Instant} to a Joda {@code DateTime}.
+	 * 
+	 * @param date
+	 *        the {@code java.time} date
+	 * @param zone
+	 *        the zone
+	 * @return the equivalent {@code org.joda.time} date, or {@literal null} if
+	 *         {@code date} is {@literal null}
+	 */
+	public static org.joda.time.DateTime toJoda(Instant date, ZoneId zone) {
+		if ( date == null ) {
+			return null;
+		}
+		return toJoda(date, zone != null ? zone.getId() : null);
+	}
+
+	/**
+	 * Convert an {@link Instant} to a Joda {@code DateTime}.
+	 * 
+	 * @param date
+	 *        the {@code java.time} date
+	 * @return the equivalent {@code org.joda.time} date, or {@literal null} if
+	 *         {@code date} is {@literal null}
+	 */
+	public static org.joda.time.DateTime toJoda(Instant date, String timeZoneId) {
+		if ( date == null ) {
+			return null;
+		}
+		org.joda.time.DateTimeZone jzone = (timeZoneId != null
+				? org.joda.time.DateTimeZone.forID(timeZoneId)
+				: DateTimeZone.getDefault());
+		return new org.joda.time.DateTime(date.toEpochMilli(), jzone);
+	}
+
+	/**
+	 * Convert a Joda {@code LocalDate} into a Java {@link LocalDate}.
 	 * 
 	 * @param joda
 	 *        the {@code org.joda.time} date
@@ -94,7 +145,22 @@ public final class JodaDateUtils {
 	}
 
 	/**
-	 * Convert a Joda {@code LocalTime} into a Java {@code LocalTime}.
+	 * Convert an {@link LocalDate} to a Joda {@code LocalDate}.
+	 * 
+	 * @param date
+	 *        the {@code java.time} date
+	 * @return the equivalent {@code org.joda.time} date, or {@literal null} if
+	 *         {@code date} is {@literal null}
+	 */
+	public static org.joda.time.LocalDate toJoda(LocalDate date) {
+		if ( date == null ) {
+			return null;
+		}
+		return new org.joda.time.LocalDate(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+	}
+
+	/**
+	 * Convert a Joda {@code LocalTime} into a Java {@link LocalTime}.
 	 * 
 	 * @param joda
 	 *        the {@code org.joda.time} date
@@ -107,6 +173,22 @@ public final class JodaDateUtils {
 		}
 		return LocalTime.of(joda.getHourOfDay(), joda.getMinuteOfHour(), joda.getSecondOfMinute(),
 				joda.getMillisOfSecond() * NANO_PER_MILLI);
+	}
+
+	/**
+	 * Convert an {@link LocalTime} to a Joda {@code LocalTime}.
+	 * 
+	 * @param date
+	 *        the {@code java.time} date
+	 * @return the equivalent {@code org.joda.time} date, or {@literal null} if
+	 *         {@code date} is {@literal null}
+	 */
+	public static org.joda.time.LocalTime toJoda(LocalTime date) {
+		if ( date == null ) {
+			return null;
+		}
+		return new org.joda.time.LocalTime(date.getHour(), date.getMinute(), date.getSecond(),
+				date.getNano() / NANO_PER_MILLI);
 	}
 
 	/**
@@ -127,6 +209,23 @@ public final class JodaDateUtils {
 	}
 
 	/**
+	 * Convert an {@link LocalDateTime} to a Joda {@code DateTime}.
+	 * 
+	 * @param date
+	 *        the {@code java.time} date
+	 * @return the equivalent {@code org.joda.time} date, or {@literal null} if
+	 *         {@code date} is {@literal null}
+	 */
+	public static org.joda.time.LocalDateTime toJoda(LocalDateTime date) {
+		if ( date == null ) {
+			return null;
+		}
+		return new org.joda.time.LocalDateTime(date.getYear(), date.getMonthValue(),
+				date.getDayOfMonth(), date.getHour(), date.getMinute(), date.getSecond(),
+				date.getNano() / NANO_PER_MILLI);
+	}
+
+	/**
 	 * Convert a Joda {@code Period} into a Java {@code Period}.
 	 * 
 	 * @param joda
@@ -142,6 +241,22 @@ public final class JodaDateUtils {
 	}
 
 	/**
+	 * Convert an {@link Period} to a Joda {@code Period}.
+	 * 
+	 * @param date
+	 *        the {@code java.time} date
+	 * @return the equivalent {@code org.joda.time} date, or {@literal null} if
+	 *         {@code date} is {@literal null}
+	 */
+	public static org.joda.time.Period toJoda(Period date) {
+		if ( date == null ) {
+			return null;
+		}
+		return new org.joda.time.Period(date.getYears(), date.getMonths(), 0, date.getDays(), 0, 0, 0,
+				0);
+	}
+
+	/**
 	 * Convert a Joda {@code Duration} into a Java {@code Duration}.
 	 * 
 	 * @param joda
@@ -154,6 +269,21 @@ public final class JodaDateUtils {
 			return null;
 		}
 		return Duration.ofMillis(joda.getMillis());
+	}
+
+	/**
+	 * Convert an {@link Duration} to a Joda {@code Duration}.
+	 * 
+	 * @param date
+	 *        the {@code java.time} date
+	 * @return the equivalent {@code org.joda.time} date, or {@literal null} if
+	 *         {@code date} is {@literal null}
+	 */
+	public static org.joda.time.Duration toJoda(Duration date) {
+		if ( date == null ) {
+			return null;
+		}
+		return new org.joda.time.Duration(date.toMillis());
 	}
 
 }

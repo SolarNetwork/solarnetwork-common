@@ -56,6 +56,28 @@ public class JodaDateUtilsTests {
 	}
 
 	@Test
+	public void toDateTime_zoned() {
+		// GIVEN
+		ZonedDateTime date = ZonedDateTime.of(2020, 1, 1, 12, 34, 56, 789000000, ZoneId.of(TEST_TZ));
+
+		// THEN
+		assertThat("Converted to Joda", JodaDateUtils.toJoda(date),
+				equalTo(new org.joda.time.DateTime(2020, 1, 1, 12, 34, 56, 789,
+						org.joda.time.DateTimeZone.forID(TEST_TZ))));
+	}
+
+	@Test
+	public void toDateTime_instant() {
+		// GIVEN
+		ZonedDateTime date = ZonedDateTime.of(2020, 1, 1, 12, 34, 56, 789000000, ZoneId.of(TEST_TZ));
+
+		// THEN
+		assertThat("Converted to Joda", JodaDateUtils.toJoda(date.toInstant(), TEST_TZ),
+				equalTo(new org.joda.time.DateTime(2020, 1, 1, 12, 34, 56, 789,
+						org.joda.time.DateTimeZone.forID(TEST_TZ))));
+	}
+
+	@Test
 	public void convertLocalDate() {
 		// GIVEN
 		org.joda.time.LocalDate joda = new org.joda.time.LocalDate(2020, 1, 1);
@@ -63,6 +85,16 @@ public class JodaDateUtilsTests {
 		// THEN
 		assertThat("Joda date converted", JodaDateUtils.fromJoda(joda),
 				equalTo(LocalDate.of(2020, 1, 1)));
+	}
+
+	@Test
+	public void toLocalDate() {
+		// GIVEN
+		LocalDate date = LocalDate.of(2020, 1, 1);
+
+		// THEN
+		assertThat("Date converted", JodaDateUtils.toJoda(date),
+				equalTo(new org.joda.time.LocalDate(2020, 1, 1)));
 	}
 
 	@Test
@@ -76,6 +108,16 @@ public class JodaDateUtilsTests {
 	}
 
 	@Test
+	public void toLocalTime() {
+		// GIVEN
+		LocalTime date = LocalTime.of(12, 34, 56, 789000000);
+
+		// THEN
+		assertThat("Date converted", JodaDateUtils.toJoda(date),
+				equalTo(new org.joda.time.LocalTime(12, 34, 56, 789)));
+	}
+
+	@Test
 	public void convertLocalDateTime() {
 		// GIVEN
 		org.joda.time.LocalDateTime joda = new org.joda.time.LocalDateTime(2020, 1, 1, 12, 34, 56, 789);
@@ -83,6 +125,16 @@ public class JodaDateUtilsTests {
 		// THEN
 		assertThat("Joda date converted", JodaDateUtils.fromJoda(joda),
 				equalTo(LocalDateTime.of(2020, 1, 1, 12, 34, 56, 789000000)));
+	}
+
+	@Test
+	public void toLocalDateTime() {
+		// GIVEN
+		LocalDateTime date = LocalDateTime.of(2020, 1, 1, 12, 34, 56, 789000000);
+
+		// THEN
+		assertThat("Date converted", JodaDateUtils.toJoda(date),
+				equalTo(new org.joda.time.LocalDateTime(2020, 1, 1, 12, 34, 56, 789)));
 	}
 
 	@Test
@@ -95,6 +147,16 @@ public class JodaDateUtilsTests {
 	}
 
 	@Test
+	public void toPeriod() {
+		// GIVEN
+		Period date = Period.of(1, 2, 3);
+
+		// THEN
+		assertThat("Date converted", JodaDateUtils.toJoda(date),
+				equalTo(org.joda.time.Period.years(1).withMonths(2).withDays(3)));
+	}
+
+	@Test
 	public void convertDuration() {
 		// GIVEN
 		org.joda.time.Duration joda = org.joda.time.Duration.standardHours(1);
@@ -102,4 +164,15 @@ public class JodaDateUtilsTests {
 		// THEN
 		assertThat("Joda date converted", JodaDateUtils.fromJoda(joda), equalTo(Duration.ofHours(1)));
 	}
+
+	@Test
+	public void toDuration() {
+		// GIVEN
+		Duration date = Duration.ofHours(1);
+
+		// THEN
+		assertThat("Date converted", JodaDateUtils.toJoda(date),
+				equalTo(org.joda.time.Duration.standardHours(1)));
+	}
+
 }
