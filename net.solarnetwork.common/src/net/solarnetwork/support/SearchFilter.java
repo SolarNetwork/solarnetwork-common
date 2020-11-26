@@ -22,20 +22,30 @@
 
 package net.solarnetwork.support;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Generic search filter supporting LDAP-style search queries.
  * 
  * <p>
  * This filter supports a group of key-value pairs joined by a common logical
- * operator. The key-value pairs are provided by a {@code Map}.
+ * operator. The key-value pairs are provided by a {@code Map}. Nested
+ * {@code SearchFilter} instances can be used as values so that complex logic
+ * can be implemented.
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SearchFilter {
 
@@ -66,6 +76,30 @@ public class SearchFilter {
 					return "!";
 				default:
 					throw new AssertionError(this);
+			}
+		}
+
+		/**
+		 * Get an enum value from a key value.
+		 * 
+		 * @param key
+		 *        the key of the enum to get
+		 * @return the enum, or {@literal null} if not supported
+		 * @since 1.1
+		 */
+		public static LogicOperator forKey(char key) {
+			switch (key) {
+				case '&':
+					return AND;
+
+				case '|':
+					return OR;
+
+				case '!':
+					return NOT;
+
+				default:
+					return null;
 			}
 		}
 
@@ -146,9 +180,58 @@ public class SearchFilter {
 			}
 		}
 
+		/**
+		 * Get an enum value from a key value.
+		 * 
+		 * @param key
+		 *        the key of the enum to get
+		 * @return the enum, or {@literal null} if not supported
+		 * @since 1.1
+		 */
+		public static CompareOperator forKey(String key) {
+			switch (key) {
+				case "=":
+					return EQUAL;
+
+				case "<>":
+					return NOT_EQUAL;
+
+				case "<":
+					return LESS_THAN;
+
+				case "<=":
+					return LESS_THAN_EQUAL;
+
+				case ">":
+					return GREATER_THAN;
+
+				case ">=":
+					return GREATER_THAN_EQUAL;
+
+				case "**":
+					return SUBSTRING;
+
+				case "*":
+					return SUBSTRING_AT_START;
+
+				case "?":
+					return PRESENT;
+
+				case "~":
+				case "~=":
+					return APPROX;
+
+				case "&&":
+					return OVERLAP;
+
+				default:
+					return null;
+			}
+		}
+
 	}
 
-	private final Map<String, ?> filter;
+	protected final Map<String, ?> filter;
 	private final CompareOperator compareOp;
 	private final LogicOperator logicOp;
 
@@ -329,12 +412,157 @@ public class SearchFilter {
 		return asLDAPSearchFilterString();
 	}
 
+	/**
+	 * Get the comparison operator.
+	 * 
+	 * @return the comparison
+	 */
 	public CompareOperator getCompareOperator() {
 		return compareOp;
 	}
 
+	/**
+	 * Get the logic operator.
+	 * 
+	 * @return the logic
+	 */
 	public LogicOperator getLogicOperator() {
 		return logicOp;
+	}
+
+	/**
+	 * Get the filter values.
+	 * 
+	 * @return the filter
+	 */
+	public Map<String, ?> getFilter() {
+		return filter;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void addChild(SearchFilter n) {
+		((Map<String, Object>) filter).put(UUID.randomUUID().toString(), n);
+	}
+
+	private static final Pattern TOKEN_PAT = Pattern.compile("\\s*(\\([&|!]|\\(|\\))\\s*");
+
+	private static final Pattern COMP_PAT = Pattern.compile("(.+?)(=|<>|~=?|<=?|>=?|\\?|\\&\\&)(.+)");
+
+	/*-
+	private static final boolean isLogicOp(String text) {
+		return (text != null && text.length() > 0 && LogicOperator.forKey(text.charAt(0)) != null);
+	}
+	*/
+
+	private static SearchFilter logicNode(char c) {
+		return new SearchFilter(new LinkedHashMap<>(), LogicOperator.forKey(c));
+	}
+
+	private static SearchFilter compNode(String token) {
+		Matcher m = COMP_PAT.matcher(token);
+		if ( m.matches() ) {
+			CompareOperator op = CompareOperator.forKey(m.group(2));
+			String val = m.group(3);
+			if ( op == CompareOperator.EQUAL ) {
+				final int len = val.length();
+				final char lastChar = val.charAt(len - 1);
+				if ( len > 2 && val.charAt(0) == '*' && lastChar == '*' ) {
+					op = CompareOperator.SUBSTRING;
+					val = val.substring(1, len - 1);
+				} else if ( len > 1 && lastChar == '*' ) {
+					op = CompareOperator.SUBSTRING_AT_START;
+					val = val.substring(0, len - 1);
+				} else if ( len == 1 && lastChar == '*' ) {
+					op = CompareOperator.PRESENT;
+					val = null;
+				}
+			}
+			return new SearchFilter(m.group(1), val, op);
+		}
+		return null;
+	}
+
+	private static SearchFilter parseTokens(List<String> tokens, int start, int end) {
+		char c;
+		SearchFilter topNode = null;
+		SearchFilter node = null;
+		String tok = null;
+		Deque<SearchFilter> stack = new LinkedList<>();
+		for ( int i = start; i < end; i += 1 ) {
+			tok = tokens.get(i);
+			if ( tok.length() < 1 ) {
+				continue;
+			}
+			c = tok.charAt(0);
+			if ( c == '(' ) {
+				// starting new item
+				if ( tok.length() > 1 ) {
+					// starting new logical group
+					c = tok.charAt(1);
+					node = logicNode(c);
+					if ( topNode != null ) {
+						topNode.addChild(node);
+					}
+					stack.push(node);
+					topNode = node;
+				} else {
+					// starting a key/value pair
+					if ( i + 1 < end ) {
+						node = compNode(tokens.get(i + 1));
+					}
+					if ( topNode != null ) {
+						topNode.addChild(node);
+					} else {
+						// our top node is not a group node, so only one node is possible and we can return now
+						return node;
+					}
+					i += 2; // skip the comparison token + our assumed closing paren
+				}
+			} else if ( c == ')' ) {
+				if ( stack.size() > 1 ) {
+					stack.pop();
+					topNode = stack.peek();
+				} else {
+					return topNode;
+				}
+			}
+		}
+
+		// don't expect to get here, unless badly formed filter
+		return (stack.size() > 0 ? stack.peek() : topNode);
+	}
+
+	private static List<String> parseTokens(String s) {
+		List<String> tokens = new ArrayList<>();
+		Matcher m = TOKEN_PAT.matcher(s);
+		int last = 0;
+		while ( m.find() ) {
+			if ( m.start() > last ) {
+				tokens.add(s.substring(last, m.start()));
+			}
+			tokens.add(m.group(1));
+			last = m.end();
+		}
+		return tokens;
+	}
+
+	/**
+	 * Parse a LDAP search filter into a {@link SearchFilter} instance.
+	 * 
+	 * @param s
+	 *        the string to parse
+	 * @return the filter, or {@literal null} if {@code s} is not in a valid
+	 *         format
+	 */
+	public static SearchFilter forLDAPSearchFilterString(String s) {
+		if ( s == null ) {
+			return null;
+		}
+		List<String> tokens = parseTokens(s);
+		if ( tokens.isEmpty() ) {
+			return null;
+		}
+		return parseTokens(tokens, 0, tokens.size());
 	}
 
 }
