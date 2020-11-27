@@ -1,0 +1,24 @@
+{
+	"pm": {
+		"esi-resource": {
+			"": {
+				"characteristics": {
+					"loadPowerMax": 1000,
+					"responseTime": {
+						"maxMillis": 70000,
+						"minMillis": 5000
+					}
+				}
+			},
+			"rsrc1": {
+				"characteristics": {
+					"loadPowerMax": 1000,
+					"responseTime": {
+						"maxMillis": 60000,
+						"minMillis": 5000
+					}
+				}
+			}
+		}
+	}
+}

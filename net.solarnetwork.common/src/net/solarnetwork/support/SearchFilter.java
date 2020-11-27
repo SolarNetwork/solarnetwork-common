@@ -464,6 +464,21 @@ public class SearchFilter {
 	}
 
 	/**
+	 * Test if this filter has any nested filters.
+	 * 
+	 * @return {@literal true} if any nested filters exist within this filter
+	 * @since 1.1
+	 */
+	public boolean hasNestedFilter() {
+		for ( Object o : filter.values() ) {
+			if ( o instanceof SearchFilter ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Walk the filter as a tree.
 	 * 
 	 * @param callback

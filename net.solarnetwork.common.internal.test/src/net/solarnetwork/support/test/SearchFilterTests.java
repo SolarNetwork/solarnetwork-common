@@ -310,11 +310,21 @@ public class SearchFilterTests {
 	private static class CollectingVisitor implements VisitorCallback {
 
 		private final List<SearchFilter[]> captured = new ArrayList<>();
+		private final int limit;
+
+		private CollectingVisitor() {
+			this(-1);
+		}
+
+		private CollectingVisitor(int limit) {
+			super();
+			this.limit = limit;
+		}
 
 		@Override
 		public boolean visit(SearchFilter node, SearchFilter parentNode) {
 			captured.add(new SearchFilter[] { node, parentNode });
-			return true;
+			return (limit < 1 || captured.size() < limit);
 		}
 
 	}
@@ -376,7 +386,61 @@ public class SearchFilterTests {
 				equalTo("(/pm/bam/ding<=9)"));
 		assertThat("Callback 6 parent is NOT", visitor.captured.get(6)[1],
 				sameInstance(visitor.captured.get(5)[0]));
-
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void walk_abort() {
+		// GIVEN
+		SearchFilter f = SearchFilter.forLDAPSearchFilterString("(&(foo=bar)(bim=bam))");
+
+		// WHEN
+		CollectingVisitor visitor = new CollectingVisitor(2);
+		f.walk(visitor);
+
+		// THEN
+		assertThat("Callback count", visitor.captured, hasSize(2));
+		assertThat("Callback 0 is root", visitor.captured.get(0),
+				arrayContaining(sameInstance(f), nullValue()));
+
+		assertThat("Callback 1 node", visitor.captured.get(1)[0].toString(), equalTo("(foo=bar)"));
+		assertThat("Callback 1 parent is root", visitor.captured.get(1)[1], sameInstance(f));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void walk_nestedMiddle() {
+		// GIVEN
+		SearchFilter f = SearchFilter.forLDAPSearchFilterString(
+				"(& (/m/foo=bar) (| (/pm/bam/pop~=whiz) (/pm/boo/boo>0) ) (/pm/bam/ding<=9))");
+
+		// WHEN
+		CollectingVisitor visitor = new CollectingVisitor();
+		f.walk(visitor);
+
+		// THEN
+		assertThat("Callback count", visitor.captured, hasSize(6));
+		assertThat("Callback 0 is root", visitor.captured.get(0),
+				arrayContaining(sameInstance(f), nullValue()));
+
+		assertThat("Callback 1 node", visitor.captured.get(1)[0].toString(), equalTo("(/m/foo=bar)"));
+		assertThat("Callback 1 parent is root", visitor.captured.get(1)[1], sameInstance(f));
+
+		assertThat("Callback 2 node", visitor.captured.get(2)[0].getLogicOperator(),
+				equalTo(LogicOperator.OR));
+		assertThat("Callback 2 parent is root", visitor.captured.get(2)[1], sameInstance(f));
+
+		assertThat("Callback 3 node", visitor.captured.get(3)[0].toString(),
+				equalTo("(/pm/bam/pop~=whiz)"));
+		assertThat("Callback 3 parent is OR", visitor.captured.get(3)[1],
+				sameInstance(visitor.captured.get(2)[0]));
+
+		assertThat("Callback 4 node", visitor.captured.get(4)[0].toString(), equalTo("(/pm/boo/boo>0)"));
+		assertThat("Callback 4 parent is OR", visitor.captured.get(4)[1],
+				sameInstance(visitor.captured.get(2)[0]));
+
+		assertThat("Callback 5 node", visitor.captured.get(5)[0].toString(),
+				equalTo("(/pm/bam/ding<=9)"));
+		assertThat("Callback 5 parent is root", visitor.captured.get(5)[1], sameInstance(f));
+	}
 }
