@@ -24,6 +24,7 @@ package net.solarnetwork.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Implementation of {@link SortDescriptor}.
@@ -71,6 +72,35 @@ public class SimpleSortDescriptor implements SortDescriptor {
 		super();
 		this.sortKey = sortKey;
 		this.descending = descending;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SimpleSortDescriptor{");
+		builder.append(sortKey);
+		if ( descending ) {
+			builder.append(" DESC");
+		}
+		builder.append("}");
+		return builder.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(descending, sortKey);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( !(obj instanceof SimpleSortDescriptor) ) {
+			return false;
+		}
+		SimpleSortDescriptor other = (SimpleSortDescriptor) obj;
+		return descending == other.descending && Objects.equals(sortKey, other.sortKey);
 	}
 
 	@Override
