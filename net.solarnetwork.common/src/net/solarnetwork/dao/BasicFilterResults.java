@@ -124,6 +124,23 @@ public class BasicFilterResults<M extends Identity<K>, K> implements FilterResul
 	}
 
 	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("BasicFilterResults{");
+		if ( totalResults != null ) {
+			builder.append("totalCount=");
+			builder.append(totalResults);
+			builder.append(", ");
+		}
+		builder.append("offset=");
+		builder.append(startingOffset);
+		builder.append(", count=");
+		builder.append(returnedResultCount);
+		builder.append("}");
+		return builder.toString();
+	}
+
+	@Override
 	public Iterable<M> getResults() {
 		return results;
 	}
