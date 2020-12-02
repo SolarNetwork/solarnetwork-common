@@ -1,5 +1,5 @@
 /* ==================================================================
- * DateRangeCriteria.java - 23/10/2020 2:03:39 pm
+ * BasicBulkExportResult.java - 3/12/2020 10:26:12 am
  * 
  * Copyright 2020 SolarNetwork.net Dev Team
  * 
@@ -22,57 +22,33 @@
 
 package net.solarnetwork.dao;
 
-import java.time.Instant;
+import net.solarnetwork.dao.BulkExportingDao.ExportResult;
 
 /**
- * Search criteria for a date range.
+ * Basic implementation of {@link ExportResult}.
  * 
  * @author matt
  * @version 1.0
  * @since 1.67
  */
-public interface DateRangeCriteria {
+public class BasicBulkExportResult implements BulkExportingDao.ExportResult {
+
+	private final long numProcessed;
 
 	/**
-	 * Get the starting (minimum) date.
+	 * Constructor.
 	 * 
-	 * <p>
-	 * The in/exclusive nature of this value depends on the context in which the
-	 * criteria is applied.
-	 * </p>
-	 * 
-	 * @return the start date
+	 * @param numProcessed
+	 *        the number of processed items
 	 */
-	Instant getStartDate();
-
-	/**
-	 * Get the ending (maximum) date.
-	 * 
-	 * <p>
-	 * The in/exclusive nature of this value depends on the context in which the
-	 * criteria is applied.
-	 * </p>
-	 * 
-	 * @return the end date
-	 */
-	Instant getEndDate();
-
-	/**
-	 * Test if the filter as a date range specified.
-	 * 
-	 * @return {@literal true} if both a start and end date are non-null
-	 */
-	default boolean hasDateRange() {
-		return (getStartDate() != null && getEndDate() != null);
+	public BasicBulkExportResult(long numProcessed) {
+		super();
+		this.numProcessed = numProcessed;
 	}
 
-	/**
-	 * Test if the filter as a start date specified.
-	 * 
-	 * @return {@literal true} if the start date is non-null
-	 */
-	default boolean hasStartDate() {
-		return getStartDate() != null;
+	@Override
+	public long getNumProcessed() {
+		return numProcessed;
 	}
 
 }

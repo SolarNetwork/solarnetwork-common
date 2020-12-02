@@ -33,7 +33,7 @@ import net.solarnetwork.dao.BulkLoadingDao.LoadingTransactionMode;
  * @version 1.0
  * @since 1.67
  */
-public class SimpleBulkLoadingOptions implements LoadingOptions {
+public class BasicBulkLoadingOptions implements LoadingOptions {
 
 	private final String name;
 	private final Integer batchSize;
@@ -52,7 +52,7 @@ public class SimpleBulkLoadingOptions implements LoadingOptions {
 	 * @param parameters
 	 *        the parameters
 	 */
-	public SimpleBulkLoadingOptions(String name, Integer batchSize,
+	public BasicBulkLoadingOptions(String name, Integer batchSize,
 			LoadingTransactionMode transactionMode, Map<String, ?> parameters) {
 		super();
 		this.name = name;
