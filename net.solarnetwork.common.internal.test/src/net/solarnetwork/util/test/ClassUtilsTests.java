@@ -22,11 +22,14 @@
 
 package net.solarnetwork.util.test;
 
+import static org.junit.Assert.assertThat;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import net.solarnetwork.domain.BasicLocation;
@@ -80,6 +83,28 @@ public class ClassUtilsTests {
 	public void getAllInterfacesExcludingJavaPackagesNoInterface() {
 		Set<Class<?>> interfaces = ClassUtils.getAllNonJavaInterfacesForClassAsSet(Request.class);
 		Assert.assertEquals(Collections.emptySet(), interfaces);
+	}
+
+	@Test
+	public void getResourceAsString() {
+		// WHEN
+		String s = ClassUtils.getResourceAsString("test-file.txt", getClass());
+
+		// THEN
+		assertThat("File loaded", s, Matchers.equalTo("Hello, world.\nGoodbye."));
+	}
+
+	/** Regex for a line starting with a {@literal #} comment character. */
+	public static final Pattern HASH_COMMENT = Pattern.compile("^\\s*#");
+
+	@Test
+	public void getResourceAsString_skipComments() {
+		// WHEN
+		String s = ClassUtils.getResourceAsString("test-file-with-comments.txt", getClass(),
+				HASH_COMMENT);
+
+		// THEN
+		assertThat("File loaded", s, Matchers.equalTo("Hello, world.\nGoodbye."));
 	}
 
 }
