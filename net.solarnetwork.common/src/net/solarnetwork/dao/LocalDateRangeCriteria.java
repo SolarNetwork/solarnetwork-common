@@ -65,7 +65,7 @@ public interface LocalDateRangeCriteria {
 	LocalDateTime getLocalEndDate();
 
 	/**
-	 * Test if the filter as a local date range specified.
+	 * Test if the filter has a local date range specified.
 	 * 
 	 * @return {@literal true} if both a local start and end date are non-null
 	 */
@@ -74,12 +74,30 @@ public interface LocalDateRangeCriteria {
 	}
 
 	/**
-	 * Test if the filter as a local start date specified.
+	 * Test if the filter has a local start or end date specified.
+	 * 
+	 * @return {@literal true} if either a local start or end date are non-null
+	 */
+	default boolean hasLocalDate() {
+		return (getLocalStartDate() != null || getLocalEndDate() != null);
+	}
+
+	/**
+	 * Test if the filter has a local start date specified.
 	 * 
 	 * @return {@literal true} if the local start date is non-null
 	 */
 	default boolean hasLocalStartDate() {
 		return getLocalStartDate() != null;
+	}
+
+	/**
+	 * Test if the filter has a local start end specified.
+	 * 
+	 * @return {@literal true} if the local end date is non-null
+	 */
+	default boolean hasLocalEndDate() {
+		return getLocalEndDate() != null;
 	}
 
 }

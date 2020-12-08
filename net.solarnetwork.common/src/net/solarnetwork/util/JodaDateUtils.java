@@ -123,8 +123,10 @@ public final class JodaDateUtils {
 		if ( date == null ) {
 			return null;
 		}
+		// ZoneOffset.UTC returns an ID of "Z" which Joda does not recognize
 		org.joda.time.DateTimeZone jzone = (timeZoneId != null
-				? org.joda.time.DateTimeZone.forID(timeZoneId)
+				? "Z".equals(timeZoneId) ? DateTimeZone.UTC
+						: org.joda.time.DateTimeZone.forID(timeZoneId)
 				: DateTimeZone.getDefault());
 		return new org.joda.time.DateTime(date.toEpochMilli(), jzone);
 	}
