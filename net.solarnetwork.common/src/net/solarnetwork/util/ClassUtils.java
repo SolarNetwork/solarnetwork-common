@@ -373,7 +373,7 @@ public final class ClassUtils {
 	 * @param skip
 	 *        an optional pattern that will be used to match against lines;
 	 *        matches will be left out of the string used to match
-	 * @return the matcher
+	 * @return the text
 	 * @throws RuntimeException
 	 *         if the resource cannot be loaded
 	 * @since 1.3
