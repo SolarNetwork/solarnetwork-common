@@ -190,7 +190,7 @@ public final class NumberUtils {
 	public static BigDecimal[] decimalArray(String... nums) {
 		BigDecimal[] vals = new BigDecimal[nums.length];
 		for ( int i = 0; i < nums.length; i++ ) {
-			vals[i] = new BigDecimal(nums[i]);
+			vals[i] = (nums[i] != null ? new BigDecimal(nums[i]) : null);
 		}
 		return vals;
 	}
