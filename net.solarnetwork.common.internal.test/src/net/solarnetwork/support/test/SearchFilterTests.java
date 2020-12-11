@@ -353,6 +353,28 @@ public class SearchFilterTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
+	public void walk_logicJoin() {
+		// GIVEN
+		SearchFilter f = SearchFilter.forLDAPSearchFilterString("(& (foo=bar) (bim=bam))");
+
+		// WHEN
+		CollectingVisitor visitor = new CollectingVisitor();
+		f.walk(visitor);
+
+		// THEN
+		assertThat("Callback count", visitor.captured, hasSize(3));
+		assertThat("Callback values", visitor.captured.get(0),
+				arrayContaining(sameInstance(f), nullValue()));
+
+		assertThat("Callback 1 node", visitor.captured.get(1)[0].toString(), equalTo("(foo=bar)"));
+		assertThat("Callback 1 parent is root", visitor.captured.get(1)[1], sameInstance(f));
+
+		assertThat("Callback 2 node", visitor.captured.get(2)[0].toString(), equalTo("(bim=bam)"));
+		assertThat("Callback 2 parent is root", visitor.captured.get(2)[1], sameInstance(f));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
 	public void walk_complex() {
 		// GIVEN
 		SearchFilter f = SearchFilter.forLDAPSearchFilterString(
