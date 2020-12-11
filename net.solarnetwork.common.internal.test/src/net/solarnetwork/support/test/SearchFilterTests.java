@@ -89,6 +89,12 @@ public class SearchFilterTests {
 	}
 
 	@Test
+	public void parse_invalidSyntax() {
+		SearchFilter f = SearchFilter.forLDAPSearchFilterString("[blah=barf]");
+		assertThat("Filter not parsed", f, nullValue());
+	}
+
+	@Test
 	public void defaultSingleFilter() {
 		Map<String, String> m = Collections.singletonMap("foo", "bar");
 		SearchFilter f = new SearchFilter(m);
