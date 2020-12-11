@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * Metadata about a source associated with a location.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 @JsonPropertyOrder({ "created", "updated", "locationId", "sourceId", "location" })
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -52,7 +52,7 @@ public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 		return location;
 	}
 
-	@JsonDeserialize(as = BasicLocation.class)
+	@JsonDeserialize(as = SimpleLocation.class)
 	public void setLocation(Location location) {
 		this.location = location;
 	}

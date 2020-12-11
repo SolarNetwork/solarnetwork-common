@@ -32,20 +32,21 @@ import java.util.regex.Pattern;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
-import net.solarnetwork.domain.BasicLocation;
 import net.solarnetwork.domain.Location;
 import net.solarnetwork.domain.Request;
+import net.solarnetwork.domain.SimpleLocation;
 import net.solarnetwork.util.ClassUtils;
 
 /**
  * Test cases for the {@link ClassUtils} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ClassUtilsTests {
 
-	private static final class SerializableBasicLocation extends BasicLocation implements Serializable {
+	private static final class SerializableSimpleLocation extends SimpleLocation
+			implements Serializable {
 
 		private static final long serialVersionUID = -2811665308323747576L;
 
@@ -55,7 +56,7 @@ public class ClassUtilsTests {
 
 	}
 
-	private static final class BasicSerializableLocation extends BasicLocation
+	private static final class SimpleSerializableLocation extends SimpleLocation
 			implements SerializableLocation {
 
 		private static final long serialVersionUID = -2811665308323747576L;
@@ -65,14 +66,14 @@ public class ClassUtilsTests {
 	@Test
 	public void getAllInterfacesExcludingJavaPackagesBasic() {
 		Set<Class<?>> interfaces = ClassUtils
-				.getAllNonJavaInterfacesForClassAsSet(SerializableBasicLocation.class);
+				.getAllNonJavaInterfacesForClassAsSet(SerializableSimpleLocation.class);
 		Assert.assertEquals(Collections.singleton(Location.class), interfaces);
 	}
 
 	@Test
 	public void getAllInterfacesExcludingJavaPackagesSuperInterface() {
 		Set<Class<?>> interfaces = ClassUtils
-				.getAllNonJavaInterfacesForClassAsSet(BasicSerializableLocation.class);
+				.getAllNonJavaInterfacesForClassAsSet(SimpleSerializableLocation.class);
 		Assert.assertEquals(
 				new LinkedHashSet<Class<?>>(
 						Arrays.<Class<?>> asList(SerializableLocation.class, Location.class)),
