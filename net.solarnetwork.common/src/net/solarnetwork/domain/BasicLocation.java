@@ -23,6 +23,7 @@
 package net.solarnetwork.domain;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.TimeZone;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -30,10 +31,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * Basic implementation of {@link Location}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BasicLocation implements Location {
+public class BasicLocation implements Location, Cloneable {
 
 	private String name;
 	private String country;
@@ -76,6 +77,91 @@ public class BasicLocation implements Location {
 	}
 
 	/**
+	 * Create a new location instance.
+	 * 
+	 * @param name
+	 *        the name
+	 * @param country
+	 *        the country
+	 * @param region
+	 *        the region
+	 * @param stateOrProvince
+	 *        the state or province
+	 * @param locality
+	 *        the locality (city)
+	 * @param postalCode
+	 *        the postal code
+	 * @param street
+	 *        the street
+	 * @param timeZoneId
+	 *        the time zone ID
+	 */
+	public static BasicLocation locationOf(String name, String country, String region,
+			String stateOrProvince, String locality, String postalCode, String street,
+			String timeZoneId) {
+		BasicLocation l = new BasicLocation();
+		l.setName(name);
+		l.setCountry(country);
+		l.setRegion(region);
+		l.setStateOrProvince(stateOrProvince);
+		l.setLocality(locality);
+		l.setPostalCode(postalCode);
+		l.setStreet(street);
+		l.setTimeZoneId(timeZoneId);
+		return l;
+	}
+
+	/**
+	 * Create a new location instance.
+	 * 
+	 * @param country
+	 *        the country
+	 * @param region
+	 *        the region
+	 * @param timeZoneId
+	 *        the time zone ID
+	 */
+	public static BasicLocation locationOf(String country, String region, String timeZoneId) {
+		BasicLocation l = new BasicLocation();
+		l.setCountry(country);
+		l.setRegion(region);
+		l.setTimeZoneId(timeZoneId);
+		return l;
+	}
+
+	@Override
+	public BasicLocation clone() {
+		try {
+			return (BasicLocation) super.clone();
+		} catch ( CloneNotSupportedException e ) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(country, elevation, latitude, locality, longitude, name, postalCode, region,
+				stateOrProvince, street, timeZoneId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( !(obj instanceof BasicLocation) ) {
+			return false;
+		}
+		BasicLocation other = (BasicLocation) obj;
+		return Objects.equals(country, other.country) && Objects.equals(elevation, other.elevation)
+				&& Objects.equals(latitude, other.latitude) && Objects.equals(locality, other.locality)
+				&& Objects.equals(longitude, other.longitude) && Objects.equals(name, other.name)
+				&& Objects.equals(postalCode, other.postalCode) && Objects.equals(region, other.region)
+				&& Objects.equals(stateOrProvince, other.stateOrProvince)
+				&& Objects.equals(street, other.street) && Objects.equals(timeZoneId, other.timeZoneId);
+	}
+
+	/**
 	 * Change values that are non-null but empty to null.
 	 * 
 	 * <p>
@@ -84,37 +170,37 @@ public class BasicLocation implements Location {
 	 * </p>
 	 */
 	public void removeEmptyValues() {
-		if ( hasText(country) ) {
+		if ( country != null && !hasText(country) ) {
 			country = null;
 		}
-		if ( !hasText(locality) ) {
+		if ( locality != null && !hasText(locality) ) {
 			locality = null;
 		}
-		if ( !hasText(name) ) {
+		if ( name != null && !hasText(name) ) {
 			name = null;
 		}
-		if ( !hasText(postalCode) ) {
+		if ( postalCode != null && !hasText(postalCode) ) {
 			postalCode = null;
 		}
-		if ( !hasText(region) ) {
+		if ( region != null && !hasText(region) ) {
 			region = null;
 		}
-		if ( !hasText(stateOrProvince) ) {
+		if ( stateOrProvince != null && !hasText(stateOrProvince) ) {
 			stateOrProvince = null;
 		}
-		if ( !hasText(street) ) {
+		if ( street != null && !hasText(street) ) {
 			street = null;
 		}
-		if ( !hasText(timeZoneId) ) {
+		if ( timeZoneId != null && !hasText(timeZoneId) ) {
 			timeZoneId = null;
 		}
 	}
 
 	private static boolean hasText(String s) {
-		if ( s == null || s.length() < 1 ) {
+		if ( s == null || s.isEmpty() ) {
 			return false;
 		}
-		int strLen = s.length();
+		final int strLen = s.length();
 		for ( int i = 0; i < strLen; i++ ) {
 			if ( !Character.isWhitespace(s.charAt(i)) ) {
 				return true;
@@ -186,6 +272,26 @@ public class BasicLocation implements Location {
 		norm.setLongitude(loc.getLongitude());
 		norm.setElevation(loc.getElevation());
 		return norm;
+	}
+
+	/**
+	 * Get a {@code BasicLocation} for a {@code Location}.
+	 * 
+	 * <p>
+	 * <b>Note</b> if {@code location} is already a {@code BasicLocation} then
+	 * it will be returned via a cast. Otherwise a new instance will be created.
+	 * </p>
+	 * 
+	 * @param location
+	 *        the location to get as a {@code BasicLocation}
+	 * @return the {@code BasicLocation} instance, or {@literal null} if
+	 *         {@code location} is {@literal null}
+	 * @since 1.1
+	 */
+	public static BasicLocation locationValue(Location location) {
+		return (location == null ? null
+				: location instanceof BasicLocation ? (BasicLocation) location
+						: new BasicLocation(location));
 	}
 
 	@Override
