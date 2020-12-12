@@ -57,9 +57,9 @@ import net.solarnetwork.util.NumberUtils;
  * 
  * <p>
  * then the filters <code>(/foo/bar=1)</code> and <code>(/foo/bim=bam)</code>
- * and <code>(/pow=2)</code> and <code>(&(/foo/bar=1)(/pow<5))</code> would
- * match while <code>(/foo/bar>1)</code> and <code>(/foo/bim=no)</code> and
- * <code>(|(/foo/bar>1)(/pow>2))</code> would not.
+ * and <code>(/pow=2)</code> and <code>(&amp;(/foo/bar=1)(/pow&lt;5))</code>
+ * would match while <code>(/foo/bar&gt;1)</code> and <code>(/foo/bim=no)</code>
+ * and <code>(|(/foo/bar&gt;1)(/pow&gt;2))</code> would not.
  * </p>
  * 
  * <p>
@@ -92,7 +92,7 @@ public class MapPathMatcher {
 	 *        the map
 	 * @param filterText
 	 *        the filter in text form
-	 * @returns {@literal true} if the filter matches
+	 * @return {@literal true} if the filter matches
 	 * @see SearchFilter#forLDAPSearchFilterString(String)
 	 */
 	public static boolean matches(Map<String, ?> map, String filterText) {
@@ -107,7 +107,7 @@ public class MapPathMatcher {
 	 * @param filter
 	 *        the filter to test for matches
 	 *
-	 * @returns {@literal true} if the filter matches
+	 * @return {@literal true} if the filter matches
 	 */
 	public static boolean matches(Map<String, ?> map, SearchFilter filter) {
 		return new MapPathMatcher(map).matches(filter);
@@ -119,7 +119,7 @@ public class MapPathMatcher {
 	 * @param filterText
 	 *        the filter in text form
 	 *
-	 * @returns {@literal true} if the filter matches
+	 * @return {@literal true} if the filter matches
 	 * @see SearchFilter#forLDAPSearchFilterString(String)
 	 */
 	public boolean matches(String filterText) {
@@ -135,7 +135,7 @@ public class MapPathMatcher {
 	 * @param filter
 	 *        the filter to test for matches
 	 *
-	 * @returns {@literal true} if the filter matches
+	 * @return {@literal true} if the filter matches
 	 */
 	public boolean matches(SearchFilter filter) {
 		if ( root == null ) {

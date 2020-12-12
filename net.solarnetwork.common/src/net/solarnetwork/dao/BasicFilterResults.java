@@ -93,8 +93,8 @@ public class BasicFilterResults<M extends Identity<K>, K> implements FilterResul
 	 *        the criteria used to produce the results
 	 * @param totalResults
 	 *        the total result count, if available
-	 * @param the
-	 *        returned results count
+	 * @param returnedResults
+	 *        the returned results count
 	 * @return the results instance
 	 * @since 1.1
 	 */

@@ -185,7 +185,7 @@ public interface BulkLoadingDao<T> {
 		long getCommittedCount();
 
 		/**
-		 * Get the entity that was last passed to the {@link #load(Entity)}
+		 * Get the entity that was last passed to the {@link #load(Object)}
 		 * method.
 		 * 
 		 * @return the last loaded entity
@@ -211,9 +211,9 @@ public interface BulkLoadingDao<T> {
 		 * </p>
 		 * <dl>
 		 * <dt>{@code TransactionCheckpoints} or {@code SingleTransaction}</dt>
-		 * <dd>All entities loaded via {@link #load(Entity)} are committed.</dd>
+		 * <dd>All entities loaded via {@link #load(Object)} are committed.</dd>
 		 * <dt>{@code BatchTransactions}</dt>
-		 * <dd>The entities loaded via {@link #load(Entity)} since the last
+		 * <dd>The entities loaded via {@link #load(Object)} since the last
 		 * automatic batch commit are committed.</dd>
 		 * </dl>
 		 */
@@ -231,10 +231,10 @@ public interface BulkLoadingDao<T> {
 		 * <dt>{@code SingleTransaction}</dt>
 		 * <dd>All entities loaded are discarded.</dd>
 		 * <dt>{@code TransactionCheckpoints}</dt>
-		 * <dd>All entities loaded via {@link #load(Entity)} since the last call
+		 * <dd>All entities loaded via {@link #load(Object)} since the last call
 		 * to {@link #createCheckpoint()} are discarded.</dd>
 		 * <dt>{@code BatchTransactions}</dt>
-		 * <dd>The entities loaded via {@link #load(Entity)} since the last
+		 * <dd>The entities loaded via {@link #load(Object)} since the last
 		 * automatic batch commit are discarded.</dd>
 		 * </dl>
 		 */

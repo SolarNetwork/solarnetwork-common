@@ -22,7 +22,6 @@
 
 package net.solarnetwork.support;
 
-import static net.solarnetwork.util.StringUtils.expandTemplateString;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -31,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import net.solarnetwork.util.ByteUtils;
 import net.solarnetwork.util.ClassUtils;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * A simple text resource cache.
@@ -180,7 +180,7 @@ public class TextResourceCache {
 		return cache.computeIfAbsent(key, k -> {
 			String s = ClassUtils.getResourceAsString(resourceName, clazz, skip);
 			if ( templateVariables != null ) {
-				s = expandTemplateString(s, templateVariables);
+				s = StringUtils.expandTemplateString(s, templateVariables);
 			}
 			return s;
 		});

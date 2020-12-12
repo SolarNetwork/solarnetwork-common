@@ -91,6 +91,10 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 	 *        the data source
 	 * @param sql
 	 *        the SQL statement (or JDBC SQL call) to execute
+	 * @param options
+	 *        the options
+	 * @param exceptionHandler
+	 *        an exception handler
 	 */
 	public JdbcBulkLoadingContextSupport(PlatformTransactionManager txManager, DataSource dataSource,
 			String sql, BulkLoadingDao.LoadingOptions options,

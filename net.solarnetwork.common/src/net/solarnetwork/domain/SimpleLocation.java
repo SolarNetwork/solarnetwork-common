@@ -97,6 +97,7 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 	 *        the street
 	 * @param timeZoneId
 	 *        the time zone ID
+	 * @return the new location instance
 	 */
 	public static SimpleLocation locationOf(String name, String country, String region,
 			String stateOrProvince, String locality, String postalCode, String street,
@@ -122,6 +123,7 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 	 *        the region
 	 * @param timeZoneId
 	 *        the time zone ID
+	 * @return the new location instance
 	 */
 	public static SimpleLocation locationOf(String country, String region, String timeZoneId) {
 		SimpleLocation l = new SimpleLocation();

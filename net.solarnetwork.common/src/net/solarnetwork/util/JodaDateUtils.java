@@ -116,6 +116,8 @@ public final class JodaDateUtils {
 	 * 
 	 * @param date
 	 *        the {@code java.time} date
+	 * @param timeZoneId
+	 *        the time zone ID
 	 * @return the equivalent {@code org.joda.time} date, or {@literal null} if
 	 *         {@code date} is {@literal null}
 	 */

@@ -124,6 +124,7 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 	 *        the street
 	 * @param timeZoneId
 	 *        the time zone ID
+	 * @return the new location instance
 	 */
 	public static BasicLocation locationOf(String name, String country, String region,
 			String stateOrProvince, String locality, String postalCode, String street,
@@ -141,6 +142,7 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 	 *        the region
 	 * @param timeZoneId
 	 *        the time zone ID
+	 * @return the new location instance
 	 */
 	public static BasicLocation locationOf(String country, String region, String timeZoneId) {
 		return new BasicLocation(null, country, region, null, null, null, null, null, null, null,
