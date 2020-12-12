@@ -17,6 +17,6 @@
 		<dependency org="org.springframework" name="spring-test" rev="4.2.6.RELEASE"/>		
 		
 		<!-- Testing support -->
-		<dependency org="net.solarnetwork.common.test" name="net.solarnetwork.common.test" rev="[1.5,2.0)"/>
+		<dependency org="net.solarnetwork.common.test" name="net.solarnetwork.common.test" rev="1.5"/>
     </dependencies>
 </ivy-module>
