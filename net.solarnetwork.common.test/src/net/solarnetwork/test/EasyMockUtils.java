@@ -35,9 +35,11 @@ public class EasyMockUtils {
 	/**
 	 * Verify an argument matches an {@link Assertion}.
 	 * 
+	 * @param <E>
+	 *        the argument type
 	 * @param assertion
 	 *        the assertion to use
-	 * @return
+	 * @return {@literal null}
 	 */
 	public static <E> E assertWith(Assertion<E> assertion) {
 		EasyMock.reportMatcher(new EasyMockArgumentAssertionMatcher<E>(assertion));
