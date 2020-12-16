@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * A sampled value, e.g. a meter reading.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 @JsonDeserialize(builder = SampledValue.Builder.class)
 public class SampledValue implements Comparable<SampledValue> {
@@ -108,15 +108,47 @@ public class SampledValue implements Comparable<SampledValue> {
 		if ( result != 0 ) {
 			return result;
 		}
-		result = Integer.compare(context.getCode(), o.context.getCode());
-		if ( result != 0 ) {
-			return result;
+		if ( context != o.context ) {
+			if ( context == null ) {
+				return -1;
+			} else if ( o.context == null ) {
+				return 1;
+			}
+			result = Integer.compare(context.getCode(), o.context.getCode());
+			if ( result != 0 ) {
+				return result;
+			}
 		}
-		result = Integer.compare(location.getCode(), o.location.getCode());
-		if ( result != 0 ) {
-			return result;
+		if ( location != o.location ) {
+			if ( location == null ) {
+				return -1;
+			} else if ( o.location == null ) {
+				return 1;
+			}
+			result = Integer.compare(location.getCode(), o.location.getCode());
+			if ( result != 0 ) {
+				return result;
+			}
 		}
-		return Integer.compare(measurand.getCode(), o.measurand.getCode());
+		if ( measurand != o.measurand ) {
+			if ( measurand == null ) {
+				return -1;
+			} else if ( o.measurand == null ) {
+				return 1;
+			}
+			result = Integer.compare(measurand.getCode(), o.measurand.getCode());
+			if ( result != 0 ) {
+				return result;
+			}
+		}
+		if ( phase == o.phase ) {
+			return 0;
+		} else if ( phase == null ) {
+			return -1;
+		} else if ( o.phase == null ) {
+			return 1;
+		}
+		return Integer.compare(phase.getCode(), o.phase.getCode());
 	}
 
 	@Override

@@ -28,7 +28,7 @@ import net.solarnetwork.domain.CodedValue;
  * An AC phase.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public enum Phase implements CodedValue {
 
@@ -63,7 +63,7 @@ public enum Phase implements CodedValue {
 	L2L3(9),
 
 	/** Measured between L3 and L1. */
-	L3L1(01);
+	L3L1(10);
 
 	private final byte code;
 
