@@ -1,7 +1,7 @@
 /* ==================================================================
- * Assertion.java - 25/01/2018 8:03:31 AM
+ * RecentCriteria.java - 23/10/2020 9:24:58 pm
  * 
- * Copyright 2018 SolarNetwork.net Dev Team
+ * Copyright 2020 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,31 +20,23 @@
  * ==================================================================
  */
 
-package net.solarnetwork.test;
+package net.solarnetwork.dao;
 
 /**
- * API for a testing assertion.
+ * Search criteria for recent data results.
  * 
- * <p>
- * This API has been designed to work with frameworks like EasyMock.
- * </p>
- * 
- * @param <E>
- *        the argument type
  * @author matt
  * @version 1.0
+ * @since 1.67
  */
-public interface Assertion<E> {
+public interface RecentCriteria {
 
 	/**
-	 * Verify an object, throwing an exception if the argument fails
-	 * verification.
+	 * Flag to indicate that only the most recently available data should be
+	 * returned.
 	 * 
-	 * @param argument
-	 *        the argument to check
-	 * @throws Throwable
-	 *         if an exception occurs or validation fails
+	 * @return the most recent only
 	 */
-	void check(E argument) throws Throwable;
+	boolean isMostRecent();
 
 }

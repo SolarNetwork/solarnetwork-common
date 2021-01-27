@@ -1,7 +1,7 @@
 /* ==================================================================
- * Assertion.java - 25/01/2018 8:03:31 AM
+ * BasicBulkExportResult.java - 3/12/2020 10:26:12 am
  * 
- * Copyright 2018 SolarNetwork.net Dev Team
+ * Copyright 2020 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,31 +20,35 @@
  * ==================================================================
  */
 
-package net.solarnetwork.test;
+package net.solarnetwork.dao;
+
+import net.solarnetwork.dao.BulkExportingDao.ExportResult;
 
 /**
- * API for a testing assertion.
+ * Basic implementation of {@link ExportResult}.
  * 
- * <p>
- * This API has been designed to work with frameworks like EasyMock.
- * </p>
- * 
- * @param <E>
- *        the argument type
  * @author matt
  * @version 1.0
+ * @since 1.67
  */
-public interface Assertion<E> {
+public class BasicBulkExportResult implements BulkExportingDao.ExportResult {
+
+	private final long numProcessed;
 
 	/**
-	 * Verify an object, throwing an exception if the argument fails
-	 * verification.
+	 * Constructor.
 	 * 
-	 * @param argument
-	 *        the argument to check
-	 * @throws Throwable
-	 *         if an exception occurs or validation fails
+	 * @param numProcessed
+	 *        the number of processed items
 	 */
-	void check(E argument) throws Throwable;
+	public BasicBulkExportResult(long numProcessed) {
+		super();
+		this.numProcessed = numProcessed;
+	}
+
+	@Override
+	public long getNumProcessed() {
+		return numProcessed;
+	}
 
 }

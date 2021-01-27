@@ -109,4 +109,25 @@ public interface Location {
 	 */
 	String getTimeZoneId();
 
+	/**
+	 * Test if any location properties have non-empty values.
+	 * 
+	 * @return {@literal true} if some property is not empty
+	 */
+	default boolean hasLocationCriteria() {
+		// @formatter:off
+		return ((getName() != null && !getName().isEmpty())
+				|| (getCountry() != null && !getCountry().isEmpty())
+				|| (getRegion() != null && !getRegion().isEmpty())
+				|| (getStateOrProvince() != null && !getStateOrProvince().isEmpty())
+				|| (getPostalCode() != null && !getPostalCode().isEmpty())
+				|| (getLocality() != null && !getLocality().isEmpty())
+				|| (getStreet() != null && !getStreet().isEmpty())
+				|| (getTimeZoneId() != null && !getTimeZoneId().isEmpty())
+				|| getLatitude() != null
+				|| getLongitude() != null
+				|| getElevation() != null);
+		// @formatter:on
+	}
+
 }

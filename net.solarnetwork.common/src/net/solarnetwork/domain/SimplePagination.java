@@ -33,7 +33,7 @@ import java.util.Objects;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SimplePagination implements Cloneable {
 
@@ -69,6 +69,24 @@ public class SimplePagination implements Cloneable {
 			// cannot happen
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(max, offset, sorts);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( !(obj instanceof SimplePagination) ) {
+			return false;
+		}
+		SimplePagination other = (SimplePagination) obj;
+		return Objects.equals(max, other.max) && Objects.equals(offset, other.offset)
+				&& Objects.equals(sorts, other.sorts);
 	}
 
 	/**

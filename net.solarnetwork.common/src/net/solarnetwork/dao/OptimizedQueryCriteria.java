@@ -1,7 +1,7 @@
 /* ==================================================================
- * Assertion.java - 25/01/2018 8:03:31 AM
+ * OptimizedQueryCriteria.java - 23/10/2020 9:23:06 pm
  * 
- * Copyright 2018 SolarNetwork.net Dev Team
+ * Copyright 2020 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,31 +20,29 @@
  * ==================================================================
  */
 
-package net.solarnetwork.test;
+package net.solarnetwork.dao;
 
 /**
- * API for a testing assertion.
+ * Search criteria for query optimizations to apply.
  * 
- * <p>
- * This API has been designed to work with frameworks like EasyMock.
- * </p>
- * 
- * @param <E>
- *        the argument type
  * @author matt
  * @version 1.0
+ * @since 1.67
  */
-public interface Assertion<E> {
+public interface OptimizedQueryCriteria {
 
 	/**
-	 * Verify an object, throwing an exception if the argument fails
-	 * verification.
+	 * Hint that a total result count is not necessary.
 	 * 
-	 * @param argument
-	 *        the argument to check
-	 * @throws Throwable
-	 *         if an exception occurs or validation fails
+	 * <p>
+	 * Setting this to {@literal true} can improve the performance of most
+	 * queries, when the overall total count of results is not needed. When set,
+	 * features like {@link FilterResults#getTotalResults()} will not be
+	 * available in the results.
+	 * </p>
+	 * 
+	 * @return {@literal true} to optimize query to omit a total result count
 	 */
-	void check(E argument) throws Throwable;
+	boolean isWithoutTotalResultsCount();
 
 }

@@ -115,7 +115,8 @@ public class MqttServerSupport {
 
 	/**
 	 * Get the default testing handler, if no specific handlers have been passed
-	 * to {@link #setupMqttServer(List, IAuthenticator, IAuthorizator)}.
+	 * to
+	 * {@link #setupMqttServer(List, IAuthenticator, IAuthorizatorPolicy, int)}.
 	 * 
 	 * @return the testing handler
 	 */

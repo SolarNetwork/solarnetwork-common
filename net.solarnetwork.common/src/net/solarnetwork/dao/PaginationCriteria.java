@@ -1,7 +1,7 @@
 /* ==================================================================
- * Assertion.java - 25/01/2018 8:03:31 AM
+ * PaginationCriteria.java - 27/10/2020 3:09:26 pm
  * 
- * Copyright 2018 SolarNetwork.net Dev Team
+ * Copyright 2020 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,31 +20,49 @@
  * ==================================================================
  */
 
-package net.solarnetwork.test;
+package net.solarnetwork.dao;
+
+import java.util.List;
+import net.solarnetwork.domain.SortDescriptor;
 
 /**
- * API for a testing assertion.
+ * API for page-based search criteria.
  * 
- * <p>
- * This API has been designed to work with frameworks like EasyMock.
- * </p>
- * 
- * @param <E>
- *        the argument type
  * @author matt
  * @version 1.0
+ * @since 1.67
  */
-public interface Assertion<E> {
+public interface PaginationCriteria {
 
 	/**
-	 * Verify an object, throwing an exception if the argument fails
-	 * verification.
+	 * Get the sort orderings.
 	 * 
-	 * @param argument
-	 *        the argument to check
-	 * @throws Throwable
-	 *         if an exception occurs or validation fails
+	 * @return the sorts
 	 */
-	void check(E argument) throws Throwable;
+	List<SortDescriptor> getSorts();
+
+	/**
+	 * Get the desired starting offset.
+	 * 
+	 * @return the offset, or {@literal null}
+	 */
+	Integer getOffset();
+
+	/**
+	 * Get the maximum desired results.
+	 * 
+	 * @return the max, or {@literal null} for all results
+	 */
+	Integer getMax();
+
+	/**
+	 * Test if any sort descriptors are available.
+	 * 
+	 * @return {@literal true} if at least one sort descriptor is available
+	 */
+	default boolean hasSorts() {
+		List<SortDescriptor> sorts = getSorts();
+		return (sorts != null && !sorts.isEmpty());
+	}
 
 }
