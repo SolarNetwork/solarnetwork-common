@@ -37,7 +37,7 @@ import net.solarnetwork.domain.ByteOrdering;
  * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.54
  */
 public final class ByteUtils {
@@ -425,24 +425,43 @@ public final class ByteUtils {
 	 */
 	public static void encodeInt64(final Number n, byte[] dest, int offset, ByteOrdering byteOrder) {
 		long s = (n != null ? n.longValue() : 0L);
+		encodeInt64(s, dest, offset, byteOrder);
+	}
+
+	/**
+	 * Encode a 64-bit signed integer value into a raw byte value.
+	 * 
+	 * @param l
+	 *        the number to encode
+	 * @param dest
+	 *        the destination to encode the number to
+	 * @param offset
+	 *        the offset within {@code dest} to encode the number to
+	 * @param byteOrder
+	 *        the byte order to encode into {@code dest}
+	 * @throws ArrayIndexOutOfBoundsException
+	 *         if {@code dest} is not long enough to hold the number's byte
+	 *         value
+	 */
+	public static void encodeInt64(final long l, byte[] dest, int offset, ByteOrdering byteOrder) {
 		if ( byteOrder == ByteOrdering.BigEndian ) {
-			dest[offset] = (byte) ((s >> 56) & 0xFFL);
-			dest[offset + 1] = (byte) ((s >> 48) & 0xFFL);
-			dest[offset + 2] = (byte) ((s >> 40) & 0xFFL);
-			dest[offset + 3] = (byte) ((s >> 32) & 0xFFL);
-			dest[offset + 4] = (byte) ((s >> 24) & 0xFFL);
-			dest[offset + 5] = (byte) ((s >> 16) & 0xFFL);
-			dest[offset + 6] = (byte) ((s >> 8) & 0xFFL);
-			dest[offset + 7] = (byte) (s & 0xFFL);
+			dest[offset] = (byte) ((l >> 56) & 0xFFL);
+			dest[offset + 1] = (byte) ((l >> 48) & 0xFFL);
+			dest[offset + 2] = (byte) ((l >> 40) & 0xFFL);
+			dest[offset + 3] = (byte) ((l >> 32) & 0xFFL);
+			dest[offset + 4] = (byte) ((l >> 24) & 0xFFL);
+			dest[offset + 5] = (byte) ((l >> 16) & 0xFFL);
+			dest[offset + 6] = (byte) ((l >> 8) & 0xFFL);
+			dest[offset + 7] = (byte) (l & 0xFFL);
 		} else {
-			dest[offset + 7] = (byte) ((s >> 56) & 0xFFL);
-			dest[offset + 6] = (byte) ((s >> 48) & 0xFFL);
-			dest[offset + 5] = (byte) ((s >> 40) & 0xFFL);
-			dest[offset + 4] = (byte) ((s >> 32) & 0xFFL);
-			dest[offset + 3] = (byte) ((s >> 24) & 0xFFL);
-			dest[offset + 2] = (byte) ((s >> 16) & 0xFFL);
-			dest[offset + 1] = (byte) ((s >> 8) & 0xFFL);
-			dest[offset] = (byte) (s & 0xFFL);
+			dest[offset + 7] = (byte) ((l >> 56) & 0xFFL);
+			dest[offset + 6] = (byte) ((l >> 48) & 0xFFL);
+			dest[offset + 5] = (byte) ((l >> 40) & 0xFFL);
+			dest[offset + 4] = (byte) ((l >> 32) & 0xFFL);
+			dest[offset + 3] = (byte) ((l >> 24) & 0xFFL);
+			dest[offset + 2] = (byte) ((l >> 16) & 0xFFL);
+			dest[offset + 1] = (byte) ((l >> 8) & 0xFFL);
+			dest[offset] = (byte) (l & 0xFFL);
 		}
 	}
 
@@ -464,24 +483,44 @@ public final class ByteUtils {
 	public static void encodeUnsignedInt64(final Number n, byte[] dest, int offset,
 			ByteOrdering byteOrder) {
 		long s = (n != null ? n.longValue() : 0L);
+		encodeUnsignedInt64(s, dest, offset, byteOrder);
+	}
+
+	/**
+	 * Encode a 64-bit unsigned integer value into a raw byte value.
+	 * 
+	 * @param l
+	 *        the number to encode
+	 * @param dest
+	 *        the destination to encode the number to
+	 * @param offset
+	 *        the offset within {@code dest} to encode the number to
+	 * @param byteOrder
+	 *        the byte order to encode into {@code dest}
+	 * @throws ArrayIndexOutOfBoundsException
+	 *         if {@code dest} is not long enough to hold the number's byte
+	 *         value
+	 */
+	public static void encodeUnsignedInt64(final long l, byte[] dest, int offset,
+			ByteOrdering byteOrder) {
 		if ( byteOrder == ByteOrdering.BigEndian ) {
-			dest[offset] = (byte) ((s >>> 56) & 0xFF);
-			dest[offset + 1] = (byte) ((s >>> 48) & 0xFFL);
-			dest[offset + 2] = (byte) ((s >>> 40) & 0xFFL);
-			dest[offset + 3] = (byte) ((s >>> 32) & 0xFFL);
-			dest[offset + 4] = (byte) ((s >>> 24) & 0xFFL);
-			dest[offset + 5] = (byte) ((s >>> 16) & 0xFFL);
-			dest[offset + 6] = (byte) ((s >>> 8) & 0xFFL);
-			dest[offset + 7] = (byte) (s & 0xFF);
+			dest[offset] = (byte) ((l >>> 56) & 0xFF);
+			dest[offset + 1] = (byte) ((l >>> 48) & 0xFFL);
+			dest[offset + 2] = (byte) ((l >>> 40) & 0xFFL);
+			dest[offset + 3] = (byte) ((l >>> 32) & 0xFFL);
+			dest[offset + 4] = (byte) ((l >>> 24) & 0xFFL);
+			dest[offset + 5] = (byte) ((l >>> 16) & 0xFFL);
+			dest[offset + 6] = (byte) ((l >>> 8) & 0xFFL);
+			dest[offset + 7] = (byte) (l & 0xFF);
 		} else {
-			dest[offset + 7] = (byte) ((s >>> 56) & 0xFFL);
-			dest[offset + 6] = (byte) ((s >>> 48) & 0xFFL);
-			dest[offset + 5] = (byte) ((s >>> 40) & 0xFFL);
-			dest[offset + 4] = (byte) ((s >>> 32) & 0xFFL);
-			dest[offset + 3] = (byte) ((s >>> 24) & 0xFFL);
-			dest[offset + 2] = (byte) ((s >>> 16) & 0xFFL);
-			dest[offset + 1] = (byte) ((s >>> 8) & 0xFFL);
-			dest[offset] = (byte) (s & 0xFFL);
+			dest[offset + 7] = (byte) ((l >>> 56) & 0xFFL);
+			dest[offset + 6] = (byte) ((l >>> 48) & 0xFFL);
+			dest[offset + 5] = (byte) ((l >>> 40) & 0xFFL);
+			dest[offset + 4] = (byte) ((l >>> 32) & 0xFFL);
+			dest[offset + 3] = (byte) ((l >>> 24) & 0xFFL);
+			dest[offset + 2] = (byte) ((l >>> 16) & 0xFFL);
+			dest[offset + 1] = (byte) ((l >>> 8) & 0xFFL);
+			dest[offset] = (byte) (l & 0xFFL);
 		}
 	}
 

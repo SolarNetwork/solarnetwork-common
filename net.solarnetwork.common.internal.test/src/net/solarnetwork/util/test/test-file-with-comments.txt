@@ -1,0 +1,4 @@
+# comment!
+Hello, world.
+		# Also, a comment!
+Goodbye.

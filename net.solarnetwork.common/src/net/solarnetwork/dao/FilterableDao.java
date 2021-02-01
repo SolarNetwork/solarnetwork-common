@@ -36,7 +36,7 @@ import net.solarnetwork.domain.SortDescriptor;
  * @param <F>
  *        the filter type
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.59
  */
 public interface FilterableDao<M extends Identity<K>, K, F> {
@@ -55,5 +55,24 @@ public interface FilterableDao<M extends Identity<K>, K, F> {
 	 * @return the results, never <em>null</em>
 	 */
 	FilterResults<M, K> findFiltered(F filter, List<SortDescriptor> sorts, Integer offset, Integer max);
+
+	/**
+	 * Short cut to query for all available results with a given filter.
+	 * 
+	 * <p>
+	 * This short cut method calls
+	 * {@link #findFiltered(Object, List, Integer, Integer)} with
+	 * {@literal null} sorting and pagination arguments, so all results are
+	 * returned in their default order.
+	 * </p>
+	 * 
+	 * @param filter
+	 *        the query filter
+	 * @return the results
+	 * @since 1.1
+	 */
+	default FilterResults<M, K> findFiltered(F filter) {
+		return findFiltered(filter, null, null, null);
+	}
 
 }

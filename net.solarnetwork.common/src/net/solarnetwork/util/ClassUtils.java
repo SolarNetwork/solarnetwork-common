@@ -23,10 +23,12 @@
 package net.solarnetwork.util;
 
 import java.beans.PropertyDescriptor;
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,8 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.regex.Pattern;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -48,7 +49,7 @@ import org.springframework.util.StringUtils;
  * Utility methods for dealing with classes at runtime.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public final class ClassUtils {
 
@@ -67,7 +68,6 @@ public final class ClassUtils {
 
 	private static final Set<String> DEFAULT_BEAN_PROP_NAME_IGNORE = new HashSet<String>(
 			Arrays.asList(new String[] { "class" }));
-	private static final Logger LOG = LoggerFactory.getLogger(ClassUtils.class);
 
 	/* Do not instantiate me. */
 	private ClassUtils() {
@@ -360,32 +360,51 @@ public final class ClassUtils {
 	 * @return the String
 	 */
 	public static String getResourceAsString(String resourceName, Class<?> clazz) {
-		InputStream in = clazz.getResourceAsStream(resourceName);
-		if ( in == null ) {
-			throw new RuntimeException("Resource [" + resourceName + "] not found");
-		}
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
-			byte[] buffer = new byte[4096];
-			int bytesRead = -1;
-			while ( (bytesRead = in.read(buffer)) != -1 ) {
-				out.write(buffer, 0, bytesRead);
+		return getResourceAsString(resourceName, clazz, null);
+	}
+
+	/**
+	 * Load a textual classpath resource into a String.
+	 * 
+	 * @param resourceName
+	 *        the resource to load
+	 * @param clazz
+	 *        the Class to load the resource from
+	 * @param skip
+	 *        an optional pattern that will be used to match against lines;
+	 *        matches will be left out of the string used to match
+	 * @return the text
+	 * @throws RuntimeException
+	 *         if the resource cannot be loaded
+	 * @since 1.3
+	 */
+	public static String getResourceAsString(String resourceName, Class<?> clazz, Pattern skip) {
+		try (InputStream in = clazz.getResourceAsStream(resourceName)) {
+			if ( in == null ) {
+				throw new RuntimeException(
+						"Resource " + resourceName + " not found from class " + clazz.getName() + ".");
 			}
-			out.flush();
-			return out.toString();
+			StringBuilder buf = new StringBuilder(512);
+			try (BufferedReader r = new BufferedReader(
+					new InputStreamReader(in, Charset.forName("UTF-8")))) {
+				while ( true ) {
+					String line = r.readLine();
+					if ( line == null ) {
+						break;
+					}
+					if ( skip != null && skip.matcher(line).find() ) {
+						continue;
+					}
+					buf.append(line).append("\n");
+				}
+			}
+			if ( buf.length() > 0 ) {
+				// remove trailing newline
+				buf.deleteCharAt(buf.length() - 1);
+			}
+			return buf.toString();
 		} catch ( IOException e ) {
-			throw new RuntimeException("Error reading resource [" + resourceName + ']', e);
-		} finally {
-			try {
-				in.close();
-			} catch ( IOException ex ) {
-				LOG.warn("Could not close InputStream", ex);
-			}
-			try {
-				out.close();
-			} catch ( IOException ex ) {
-				LOG.warn("Could not close OutputStream", ex);
-			}
+			throw new RuntimeException("Error reading resource [" + resourceName + "]", e);
 		}
 	}
 

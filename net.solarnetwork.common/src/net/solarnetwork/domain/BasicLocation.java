@@ -22,37 +22,33 @@
 
 package net.solarnetwork.domain;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.TimeZone;
+import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * Basic implementation of {@link Location}.
+ * Basic, immutable implementation of {@link Location}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BasicLocation implements Location {
+public class BasicLocation implements Location, Cloneable, Serializable {
 
-	private String name;
-	private String country;
-	private String region;
-	private String stateOrProvince;
-	private String locality;
-	private String postalCode;
-	private String street;
-	private BigDecimal latitude;
-	private BigDecimal longitude;
-	private BigDecimal elevation;
-	private String timeZoneId;
+	private static final long serialVersionUID = -7249883372922528538L;
 
-	/**
-	 * Default constructor.
-	 */
-	public BasicLocation() {
-		super();
-	}
+	private final String name;
+	private final String country;
+	private final String region;
+	private final String stateOrProvince;
+	private final String locality;
+	private final String postalCode;
+	private final String street;
+	private final BigDecimal latitude;
+	private final BigDecimal longitude;
+	private final BigDecimal elevation;
+	private final String timeZoneId;
 
 	/**
 	 * Copy constructor for {@link Location} objects.
@@ -61,70 +57,137 @@ public class BasicLocation implements Location {
 	 *        the location to copy
 	 */
 	public BasicLocation(Location loc) {
-		super();
-		setName(loc.getName());
-		setCountry(loc.getCountry());
-		setRegion(loc.getRegion());
-		setStateOrProvince(loc.getStateOrProvince());
-		setLocality(loc.getLocality());
-		setPostalCode(loc.getPostalCode());
-		setStreet(loc.getStreet());
-		setLatitude(loc.getLatitude());
-		setLongitude(loc.getLongitude());
-		setElevation(loc.getElevation());
-		setTimeZoneId(loc.getTimeZoneId());
+		this(loc.getName(), loc.getCountry(), loc.getRegion(), loc.getStateOrProvince(),
+				loc.getLocality(), loc.getPostalCode(), loc.getStreet(), loc.getLatitude(),
+				loc.getLongitude(), loc.getElevation(), loc.getTimeZoneId());
 	}
 
 	/**
-	 * Change values that are non-null but empty to null.
+	 * Constructor.
 	 * 
-	 * <p>
-	 * This method is helpful for web form submission, to remove filter values
-	 * that are empty and would otherwise try to match on empty string values.
-	 * </p>
+	 * @param name
+	 *        the name
+	 * @param country
+	 *        the country
+	 * @param region
+	 *        the region
+	 * @param stateOrProvince
+	 *        the state or province
+	 * @param locality
+	 *        the locality (city)
+	 * @param postalCode
+	 *        the postal code
+	 * @param street
+	 *        the street
+	 * @param latitude
+	 *        the latitude
+	 * @param longitude
+	 *        the longitude
+	 * @param elevation
+	 *        the elevation
+	 * @param timeZoneId
+	 *        the time zone ID
 	 */
-	public void removeEmptyValues() {
-		if ( hasText(country) ) {
-			country = null;
-		}
-		if ( !hasText(locality) ) {
-			locality = null;
-		}
-		if ( !hasText(name) ) {
-			name = null;
-		}
-		if ( !hasText(postalCode) ) {
-			postalCode = null;
-		}
-		if ( !hasText(region) ) {
-			region = null;
-		}
-		if ( !hasText(stateOrProvince) ) {
-			stateOrProvince = null;
-		}
-		if ( !hasText(street) ) {
-			street = null;
-		}
-		if ( !hasText(timeZoneId) ) {
-			timeZoneId = null;
+	public BasicLocation(String name, String country, String region, String stateOrProvince,
+			String locality, String postalCode, String street, BigDecimal latitude, BigDecimal longitude,
+			BigDecimal elevation, String timeZoneId) {
+		super();
+		this.name = name;
+		this.country = country;
+		this.region = region;
+		this.stateOrProvince = stateOrProvince;
+		this.locality = locality;
+		this.postalCode = postalCode;
+		this.street = street;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.elevation = elevation;
+		this.timeZoneId = timeZoneId;
+	}
+
+	/**
+	 * Create a new location instance.
+	 * 
+	 * @param name
+	 *        the name
+	 * @param country
+	 *        the country
+	 * @param region
+	 *        the region
+	 * @param stateOrProvince
+	 *        the state or province
+	 * @param locality
+	 *        the locality (city)
+	 * @param postalCode
+	 *        the postal code
+	 * @param street
+	 *        the street
+	 * @param timeZoneId
+	 *        the time zone ID
+	 * @return the new location instance
+	 */
+	public static BasicLocation locationOf(String name, String country, String region,
+			String stateOrProvince, String locality, String postalCode, String street,
+			String timeZoneId) {
+		return new BasicLocation(name, country, region, stateOrProvince, locality, postalCode, street,
+				null, null, null, timeZoneId);
+	}
+
+	/**
+	 * Create a new location instance.
+	 * 
+	 * @param country
+	 *        the country
+	 * @param region
+	 *        the region
+	 * @param timeZoneId
+	 *        the time zone ID
+	 * @return the new location instance
+	 */
+	public static BasicLocation locationOf(String country, String region, String timeZoneId) {
+		return new BasicLocation(null, country, region, null, null, null, null, null, null, null,
+				timeZoneId);
+	}
+
+	@Override
+	public BasicLocation clone() {
+		try {
+			return (BasicLocation) super.clone();
+		} catch ( CloneNotSupportedException e ) {
+			throw new RuntimeException(e);
 		}
 	}
 
-	private static boolean hasText(String s) {
-		if ( s == null || s.length() < 1 ) {
+	@Override
+	public int hashCode() {
+		return Objects.hash(country, elevation, latitude, locality, longitude, name, postalCode, region,
+				stateOrProvince, street, timeZoneId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( !(obj instanceof Location) ) {
 			return false;
 		}
-		int strLen = s.length();
-		for ( int i = 0; i < strLen; i++ ) {
-			if ( !Character.isWhitespace(s.charAt(i)) ) {
-				return true;
-			}
-		}
-		return false;
+		Location other = (Location) obj;
+		return Objects.equals(country, other.getCountry())
+				&& Objects.equals(elevation, other.getElevation())
+				&& Objects.equals(latitude, other.getLatitude())
+				&& Objects.equals(locality, other.getLocality())
+				&& Objects.equals(longitude, other.getLongitude())
+				&& Objects.equals(name, other.getName())
+				&& Objects.equals(postalCode, other.getPostalCode())
+				&& Objects.equals(region, other.getRegion())
+				&& Objects.equals(stateOrProvince, other.getStateOrProvince())
+				&& Objects.equals(street, other.getStreet())
+				&& Objects.equals(timeZoneId, other.getTimeZoneId());
 	}
 
 	/**
-	 * Return a new SolarLocation with normalized values from another Location.
+	 * Return a new BasicLocation with normalized values from another Location.
 	 * 
 	 * @param loc
 	 *        the location to normalize
@@ -132,60 +195,95 @@ public class BasicLocation implements Location {
 	 */
 	public static BasicLocation normalizedLocation(Location loc) {
 		assert loc != null;
-		BasicLocation norm = new BasicLocation();
-		if ( loc.getName() != null ) {
-			String name = loc.getName().trim();
-			if ( name.length() > 0 ) {
-				norm.setName(name);
+
+		String name = loc.getName();
+		if ( name != null ) {
+			name = name.trim();
+			if ( name.isEmpty() ) {
+				name = null;
 			}
 		}
-		if ( loc.getCountry() != null && loc.getCountry().length() >= 2 ) {
-			String country = loc.getCountry();
-			if ( country.length() > 2 ) {
-				country = country.substring(0, 2);
-			}
-			norm.setCountry(country.toUpperCase());
-		}
-		if ( loc.getTimeZoneId() != null ) {
-			TimeZone tz = TimeZone.getTimeZone(loc.getTimeZoneId());
-			if ( tz != null ) {
-				norm.setTimeZoneId(tz.getID());
+
+		String country = loc.getCountry();
+		if ( country != null ) {
+			country = country.trim();
+			if ( country.length() >= 2 ) {
+				country = country.substring(0, 2).toUpperCase();
+			} else {
+				country = null;
 			}
 		}
-		if ( loc.getRegion() != null ) {
-			String region = loc.getRegion().trim();
-			if ( region.length() > 0 ) {
-				norm.setRegion(region);
+
+		String region = loc.getRegion();
+		if ( region != null ) {
+			region = region.trim();
+			if ( region.isEmpty() ) {
+				region = null;
 			}
 		}
-		if ( loc.getStateOrProvince() != null ) {
-			String state = loc.getStateOrProvince().trim();
-			if ( state.length() > 0 ) {
-				norm.setStateOrProvince(state);
+
+		String stateOrProvince = loc.getStateOrProvince();
+		if ( stateOrProvince != null ) {
+			stateOrProvince = stateOrProvince.trim();
+			if ( stateOrProvince.isEmpty() ) {
+				stateOrProvince = null;
 			}
 		}
-		if ( loc.getLocality() != null ) {
-			String locality = loc.getLocality().trim();
-			if ( locality.length() > 0 ) {
-				norm.setLocality(locality);
+
+		String locality = loc.getLocality();
+		if ( locality != null ) {
+			locality = locality.trim();
+			if ( locality.isEmpty() ) {
+				locality = null;
 			}
 		}
-		if ( loc.getPostalCode() != null ) {
-			String postalCode = loc.getPostalCode().trim().toUpperCase();
-			if ( postalCode.length() > 0 ) {
-				norm.setPostalCode(postalCode);
+
+		String postalCode = loc.getPostalCode();
+		if ( postalCode != null ) {
+			postalCode = postalCode.trim();
+			if ( postalCode.isEmpty() ) {
+				postalCode = null;
 			}
 		}
-		if ( loc.getStreet() != null ) {
-			String street = loc.getStreet().trim();
-			if ( street.length() > 0 ) {
-				norm.setStreet(street);
+
+		String street = loc.getStreet();
+		if ( street != null ) {
+			street = street.trim();
+			if ( street.isEmpty() ) {
+				street = null;
 			}
 		}
-		norm.setLatitude(loc.getLatitude());
-		norm.setLongitude(loc.getLongitude());
-		norm.setElevation(loc.getElevation());
-		return norm;
+
+		String timeZoneId = loc.getTimeZoneId();
+		if ( timeZoneId != null ) {
+			timeZoneId = timeZoneId.trim();
+			if ( timeZoneId.isEmpty() ) {
+				timeZoneId = null;
+			}
+		}
+
+		return new BasicLocation(name, country, region, stateOrProvince, locality, postalCode, street,
+				loc.getLatitude(), loc.getLongitude(), loc.getElevation(), timeZoneId);
+	}
+
+	/**
+	 * Get a {@code BasicLocation} for a {@code Location}.
+	 * 
+	 * <p>
+	 * <b>Note</b> if {@code location} is already a {@code BasicLocation} then
+	 * it will be returned via a cast. Otherwise a new instance will be created.
+	 * </p>
+	 * 
+	 * @param location
+	 *        the location to get as a {@code BasicLocation}
+	 * @return the {@code BasicLocation} instance, or {@literal null} if
+	 *         {@code location} is {@literal null}
+	 * @since 1.1
+	 */
+	public static BasicLocation locationValue(Location location) {
+		return (location == null ? null
+				: location instanceof BasicLocation ? (BasicLocation) location
+						: new BasicLocation(location));
 	}
 
 	@Override
@@ -220,17 +318,9 @@ public class BasicLocation implements Location {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	@Override
 	public String getCountry() {
 		return country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
 	}
 
 	@Override
@@ -238,17 +328,9 @@ public class BasicLocation implements Location {
 		return region;
 	}
 
-	public void setRegion(String region) {
-		this.region = region;
-	}
-
 	@Override
 	public String getStateOrProvince() {
 		return stateOrProvince;
-	}
-
-	public void setStateOrProvince(String stateOrProvince) {
-		this.stateOrProvince = stateOrProvince;
 	}
 
 	@Override
@@ -256,17 +338,9 @@ public class BasicLocation implements Location {
 		return locality;
 	}
 
-	public void setLocality(String locality) {
-		this.locality = locality;
-	}
-
 	@Override
 	public String getPostalCode() {
 		return postalCode;
-	}
-
-	public void setPostalCode(String postalCode) {
-		this.postalCode = postalCode;
 	}
 
 	@Override
@@ -274,17 +348,9 @@ public class BasicLocation implements Location {
 		return street;
 	}
 
-	public void setStreet(String street) {
-		this.street = street;
-	}
-
 	@Override
 	public BigDecimal getLatitude() {
 		return latitude;
-	}
-
-	public void setLatitude(BigDecimal latitude) {
-		this.latitude = latitude;
 	}
 
 	@Override
@@ -292,26 +358,14 @@ public class BasicLocation implements Location {
 		return longitude;
 	}
 
-	public void setLongitude(BigDecimal longitude) {
-		this.longitude = longitude;
-	}
-
 	@Override
 	public BigDecimal getElevation() {
 		return elevation;
 	}
 
-	public void setElevation(BigDecimal elevation) {
-		this.elevation = elevation;
-	}
-
 	@Override
 	public String getTimeZoneId() {
 		return timeZoneId;
-	}
-
-	public void setTimeZoneId(String timeZoneId) {
-		this.timeZoneId = timeZoneId;
 	}
 
 }

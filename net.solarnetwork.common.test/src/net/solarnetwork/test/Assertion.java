@@ -29,6 +29,8 @@ package net.solarnetwork.test;
  * This API has been designed to work with frameworks like EasyMock.
  * </p>
  * 
+ * @param <E>
+ *        the argument type
  * @author matt
  * @version 1.0
  */
@@ -40,8 +42,6 @@ public interface Assertion<E> {
 	 * 
 	 * @param argument
 	 *        the argument to check
-	 * @param <E>
-	 *        the argument type
 	 * @throws Throwable
 	 *         if an exception occurs or validation fails
 	 */

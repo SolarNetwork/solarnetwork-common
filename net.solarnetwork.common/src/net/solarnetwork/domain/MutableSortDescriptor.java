@@ -22,13 +22,15 @@
 
 package net.solarnetwork.domain;
 
+import java.util.Objects;
+
 /**
  * Mutable implementation of {@link SortDescriptor}.
  * 
  * The {@code descending} property defaults to <em>false</em>.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class MutableSortDescriptor implements SortDescriptor {
 
@@ -68,6 +70,23 @@ public class MutableSortDescriptor implements SortDescriptor {
 		super();
 		this.sortKey = sortKey;
 		this.descending = descending;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(descending, sortKey);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( !(obj instanceof MutableSortDescriptor) ) {
+			return false;
+		}
+		MutableSortDescriptor other = (MutableSortDescriptor) obj;
+		return descending == other.descending && Objects.equals(sortKey, other.sortKey);
 	}
 
 	@Override

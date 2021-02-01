@@ -22,16 +22,39 @@
 
 package net.solarnetwork.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * Implementation of {@link SortDescriptor}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SimpleSortDescriptor implements SortDescriptor {
 
 	private final String sortKey;
 	private final boolean descending;
+
+	/**
+	 * Create a list of ascending sort descriptors.
+	 * 
+	 * @param keys
+	 *        the sort keys
+	 * @return the descriptors, or {@literal null} if {@code keys} has no
+	 *         elements
+	 */
+	public static List<SortDescriptor> sorts(String... keys) {
+		if ( keys == null || keys.length < 1 ) {
+			return null;
+		}
+		List<SortDescriptor> result = new ArrayList<>(keys.length);
+		for ( String k : keys ) {
+			result.add(new SimpleSortDescriptor(k));
+		}
+		return result;
+	}
 
 	/**
 	 * Construct with a sort key.
@@ -49,6 +72,35 @@ public class SimpleSortDescriptor implements SortDescriptor {
 		super();
 		this.sortKey = sortKey;
 		this.descending = descending;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SimpleSortDescriptor{");
+		builder.append(sortKey);
+		if ( descending ) {
+			builder.append(" DESC");
+		}
+		builder.append("}");
+		return builder.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(descending, sortKey);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( !(obj instanceof SimpleSortDescriptor) ) {
+			return false;
+		}
+		SimpleSortDescriptor other = (SimpleSortDescriptor) obj;
+		return descending == other.descending && Objects.equals(sortKey, other.sortKey);
 	}
 
 	@Override

@@ -36,19 +36,25 @@ import ocpp.domain.Action;
  * @param <R>
  *        the result type
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageProcessor<T, R> {
 
 	private final Class<T> messageType;
 	private final Class<R> resultType;
 	private final Set<Action> supportedActions;
+	private final boolean emptyMessageAllowed;
 
 	/** A class-level logger. */
 	protected Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Constructor.
+	 * 
+	 * <p>
+	 * The {@code emptyMessagesAllowed} property will be set to
+	 * {@literal false}.
+	 * </p>
 	 * 
 	 * @param messageType
 	 *        the message type
@@ -61,6 +67,26 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 */
 	public BaseActionMessageProcessor(Class<T> messageType, Class<R> resultType,
 			Set<Action> supportedActions) {
+		this(messageType, resultType, supportedActions, false);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param messageType
+	 *        the message type
+	 * @param resultType
+	 *        the result type
+	 * @param supportedActions
+	 *        the supported actions
+	 * @param emptyMessageAllowed
+	 *        {@literal true} if a {@literal null} message is allowed
+	 * @throws IllegalArgumentException
+	 *         if {@code supportedActions} is {@literal null}
+	 * @since 1.1
+	 */
+	public BaseActionMessageProcessor(Class<T> messageType, Class<R> resultType,
+			Set<Action> supportedActions, boolean emptyMessageAllowed) {
 		super();
 		this.messageType = messageType;
 		this.resultType = resultType;
@@ -68,6 +94,7 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 			throw new IllegalArgumentException("The supportedActions parameter must not be null.");
 		}
 		this.supportedActions = supportedActions;
+		this.emptyMessageAllowed = emptyMessageAllowed;
 	}
 
 	@Override
@@ -83,7 +110,8 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 * </p>
 	 * 
 	 * <ol>
-	 * <li>The {@code messageType} is {@literal null} and the
+	 * <li>The {@code messageType} is {@literal null} or
+	 * {@code emptyMessageAllowed} is {@literal true} and the
 	 * {@code message.getMessage()} is also {@literal null}.</li>
 	 * <li>The {@code messageType} is not {@literal null} and is assignable from
 	 * {@code message.getMessage().getClass()}.</li>
@@ -95,7 +123,7 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	public boolean isMessageSupported(ActionMessage<?> message) {
 		return (message != null && message.getAction() != null
 				&& supportedActions.contains(message.getAction())
-				&& ((messageType == null && message.getMessage() == null)
+				&& (((messageType == null || emptyMessageAllowed) && message.getMessage() == null)
 						|| (messageType != null && message.getMessage() != null
 								&& messageType.isAssignableFrom(message.getMessage().getClass()))));
 	}

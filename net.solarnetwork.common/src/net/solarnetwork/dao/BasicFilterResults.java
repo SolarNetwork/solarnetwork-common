@@ -33,7 +33,7 @@ import net.solarnetwork.domain.Identity;
  * Basic implementation of {@link FilterResults}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.59
  */
 public class BasicFilterResults<M extends Identity<K>, K> implements FilterResults<M, K> {
@@ -80,6 +80,33 @@ public class BasicFilterResults<M extends Identity<K>, K> implements FilterResul
 		this(results, null, 0, iterableCount(results));
 	}
 
+	/**
+	 * Create a {@link FilterResults} instance.
+	 * 
+	 * @param <M>
+	 *        the result type
+	 * @param <K>
+	 *        the result key type
+	 * @param data
+	 *        the result data
+	 * @param criteria
+	 *        the criteria used to produce the results
+	 * @param totalResults
+	 *        the total result count, if available
+	 * @param returnedResults
+	 *        the returned results count
+	 * @return the results instance
+	 * @since 1.1
+	 */
+	public static <M extends Identity<K>, K> FilterResults<M, K> filterResults(Iterable<M> data,
+			PaginationCriteria criteria, Long totalResults, int returnedResults) {
+		int offset = 0;
+		if ( criteria != null && criteria.getMax() != null ) {
+			offset = criteria.getOffset() != null ? criteria.getOffset() : 0;
+		}
+		return new BasicFilterResults<>(data, totalResults, offset, returnedResults);
+	}
+
 	private static int iterableCount(Iterable<?> iterable) {
 		if ( iterable instanceof Collection<?> ) {
 			return ((Collection<?>) iterable).size();
@@ -94,6 +121,23 @@ public class BasicFilterResults<M extends Identity<K>, K> implements FilterResul
 			return emptyResult.iterator();
 		}
 		return results.iterator();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("BasicFilterResults{");
+		if ( totalResults != null ) {
+			builder.append("totalCount=");
+			builder.append(totalResults);
+			builder.append(", ");
+		}
+		builder.append("offset=");
+		builder.append(startingOffset);
+		builder.append(", count=");
+		builder.append(returnedResultCount);
+		builder.append("}");
+		return builder.toString();
 	}
 
 	@Override

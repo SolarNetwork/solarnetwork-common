@@ -31,7 +31,7 @@ import java.util.BitSet;
  * Utilities for dealing with numbers.
  * 
  * @author matt
- * @version 1.5
+ * @version 1.6
  * @since 1.42
  */
 public final class NumberUtils {
@@ -174,6 +174,25 @@ public final class NumberUtils {
 			v = new BigDecimal(value.toString());
 		}
 		return v;
+	}
+
+	/**
+	 * Get an array of {@link BigDecimal} instances from string values.
+	 * 
+	 * @param nums
+	 *        the string numbers
+	 * @return the array
+	 * @throws NumberFormatException
+	 *         if any number is not a valid representation of a
+	 *         {@code BigDecimal}
+	 * @since 1.6
+	 */
+	public static BigDecimal[] decimalArray(String... nums) {
+		BigDecimal[] vals = new BigDecimal[nums.length];
+		for ( int i = 0; i < nums.length; i++ ) {
+			vals[i] = (nums[i] != null ? new BigDecimal(nums[i]) : null);
+		}
+		return vals;
 	}
 
 	/**
