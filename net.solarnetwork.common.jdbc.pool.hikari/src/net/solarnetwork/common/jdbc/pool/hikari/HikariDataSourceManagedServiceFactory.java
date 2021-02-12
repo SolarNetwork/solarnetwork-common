@@ -216,34 +216,36 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				mds.register();
 				return mds;
 			} else {
-				// apply updates
-				HikariConfigMXBean bean = v.poolDataSource.getHikariConfigMXBean();
-				Map<String, Object> p = new HashMap<>(8);
-				Hashtable<String, Object> serviceProps = new Hashtable<>();
-				Enumeration<String> keys = properties.keys();
-				while ( keys.hasMoreElements() ) {
-					String key = keys.nextElement();
-					if ( key.equals(DATA_SOURCE_FACTORY_FILTER_PROPERTY) ) {
-						// TODO: handle change?
-					} else if ( key.equals(DATA_SOURCE_PING_TEST_QUERY_PROPERTY) ) {
-						// TODO: handle change?
-					} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
-						serviceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
-								properties.get(key));
-					} else if ( key.startsWith(DATA_SOURCE_PROPERTY_PREFIX) ) {
-						// TODO: handle change?
-					} else if ( ignoredPropertyPrefixes != null
-							&& ignoredPropertyPrefixes.stream().anyMatch(s -> key.startsWith(s)) ) {
-						// ignore this prop
-						log.debug("Ignoring DataSource property {}", key);
-					} else {
-						p.put(key, properties.get(key));
+				synchronized ( v ) {
+					// apply updates
+					HikariConfigMXBean bean = v.poolDataSource.getHikariConfigMXBean();
+					Map<String, Object> p = new HashMap<>(8);
+					Hashtable<String, Object> serviceProps = new Hashtable<>();
+					Enumeration<String> keys = properties.keys();
+					while ( keys.hasMoreElements() ) {
+						String key = keys.nextElement();
+						if ( key.equals(DATA_SOURCE_FACTORY_FILTER_PROPERTY) ) {
+							// TODO: handle change?
+						} else if ( key.equals(DATA_SOURCE_PING_TEST_QUERY_PROPERTY) ) {
+							// TODO: handle change?
+						} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
+							serviceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
+									properties.get(key));
+						} else if ( key.startsWith(DATA_SOURCE_PROPERTY_PREFIX) ) {
+							// TODO: handle change?
+						} else if ( ignoredPropertyPrefixes != null
+								&& ignoredPropertyPrefixes.stream().anyMatch(s -> key.startsWith(s)) ) {
+							// ignore this prop
+							log.debug("Ignoring DataSource property {}", key);
+						} else {
+							p.put(key, properties.get(key));
+						}
 					}
+					if ( !serviceProps.isEmpty() ) {
+						v.poolDataSourceReg.setProperties(serviceProps);
+					}
+					ClassUtils.setBeanProperties(bean, p, true);
 				}
-				if ( !serviceProps.isEmpty() ) {
-					v.poolDataSourceReg.setProperties(serviceProps);
-				}
-				ClassUtils.setBeanProperties(bean, p, true);
 				return v;
 			}
 		});
