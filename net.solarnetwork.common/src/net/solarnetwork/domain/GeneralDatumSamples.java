@@ -35,7 +35,7 @@ import net.solarnetwork.util.SerializeIgnore;
  * type.
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class GeneralDatumSamples extends GeneralDatumSupport
 		implements MutableGeneralDatumSamplesOperations, Serializable {
@@ -69,6 +69,24 @@ public class GeneralDatumSamples extends GeneralDatumSupport
 		this.instantaneous = instantaneous;
 		this.accumulating = accumulating;
 		this.status = status;
+	}
+
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param other
+	 *        the samples to copy
+	 * @since 1.4
+	 */
+	public GeneralDatumSamples(GeneralDatumSamples other) {
+		super();
+		if ( other != null ) {
+			this.instantaneous = (other.instantaneous != null ? new LinkedHashMap<>(other.instantaneous)
+					: null);
+			this.accumulating = (other.accumulating != null ? new LinkedHashMap<>(other.accumulating)
+					: null);
+			this.status = (other.status != null ? new LinkedHashMap<>(other.status) : null);
+		}
 	}
 
 	/**
