@@ -325,4 +325,17 @@ public class NumberUtilsTests {
 		expected.set(17);
 		assertThat("Integer converted", bs, equalTo(expected));
 	}
+
+	@Test
+	public void scaled_negative() {
+		BigDecimal s = NumberUtils.scaled(1, -4);
+		assertThat("Scaled negative", s, equalTo(new BigDecimal("0.0001")));
+	}
+
+	@Test
+	public void scaled_positive() {
+		BigDecimal s = NumberUtils.scaled(1, 4);
+		assertThat("Scaled positive", s, equalTo(new BigDecimal("10000")));
+	}
+
 }
