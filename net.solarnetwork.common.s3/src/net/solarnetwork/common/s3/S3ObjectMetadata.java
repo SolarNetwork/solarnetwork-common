@@ -28,12 +28,15 @@ import net.solarnetwork.io.ResourceMetadata;
  * Metadata related to an S3 object.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface S3ObjectMetadata extends ResourceMetadata {
 
 	/** The metadata map key for the {@link #getSize()} value. */
 	String SIZE_KEY = "Content-Length";
+
+	/** The metadata map key for the {@link #getStorageClass()} value. */
+	String STORAGE_CLASS_KEY = "x-amz-storage-class";
 
 	/**
 	 * Get the object's content size.
@@ -41,6 +44,13 @@ public interface S3ObjectMetadata extends ResourceMetadata {
 	 * @return the size, in bytes
 	 */
 	long getSize();
+
+	/**
+	 * Get the object storage class key to use.
+	 * 
+	 * @return the storage class
+	 */
+	String getStorageClass();
 
 	@Override
 	default boolean isCustomKey(String key) {
@@ -50,6 +60,7 @@ public interface S3ObjectMetadata extends ResourceMetadata {
 		}
 		switch (key) {
 			case SIZE_KEY:
+			case STORAGE_CLASS_KEY:
 				return false;
 
 			default:
