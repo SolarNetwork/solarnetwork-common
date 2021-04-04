@@ -70,7 +70,7 @@ import net.solarnetwork.util.ProgressListener;
  * {@link S3Client} using the AWS SDK.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
 		implements S3Client, SettingsChangeObserver {
@@ -266,14 +266,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 				req.setGeneralProgressListener(adapter);
 			}
 			if ( objectMetadata.getStorageClass() != null ) {
-				try {
-					req.setStorageClass(objectMetadata.getStorageClass());
-				} catch ( IllegalArgumentException e ) {
-					log.warn("AWS error: the given storage class is not supported: {}",
-							objectMetadata.getStorageClass());
-					throw new RemoteServiceException("The storage class ["
-							+ objectMetadata.getStorageClass() + "] is not supported.", e);
-				}
+				req.setStorageClass(objectMetadata.getStorageClass());
 			}
 			client.putObject(req);
 			log.debug("Put S3 object {}/{} ({})", bucketName, key, meta.getContentLength());
