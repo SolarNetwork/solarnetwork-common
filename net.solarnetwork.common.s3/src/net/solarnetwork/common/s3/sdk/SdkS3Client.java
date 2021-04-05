@@ -70,7 +70,7 @@ import net.solarnetwork.util.ProgressListener;
  * {@link S3Client} using the AWS SDK.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.3
  */
 public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
 		implements S3Client, SettingsChangeObserver {
@@ -264,6 +264,9 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 				SdkTransferProgressListenerAdapter<P> adapter = new SdkTransferProgressListenerAdapter<P>(
 						progressListener, progressContext, true);
 				req.setGeneralProgressListener(adapter);
+			}
+			if ( objectMetadata.getStorageClass() != null ) {
+				req.setStorageClass(objectMetadata.getStorageClass());
 			}
 			client.putObject(req);
 			log.debug("Put S3 object {}/{} ({})", bucketName, key, meta.getContentLength());

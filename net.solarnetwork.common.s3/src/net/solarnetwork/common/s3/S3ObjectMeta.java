@@ -25,17 +25,19 @@ package net.solarnetwork.common.s3;
 import java.util.Date;
 import java.util.Map;
 import org.springframework.util.MimeType;
+import com.amazonaws.services.s3.model.StorageClass;
 import net.solarnetwork.io.SimpleResourceMetadata;
 
 /**
  * Immutable implementation of {@link S3ObjectMetadata}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMetadata {
 
 	private final long size;
+	private final String storageClass;
 
 	/**
 	 * Constructor.
@@ -79,6 +81,28 @@ public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMeta
 			Map<String, ?> extendedMetadata) {
 		super(modified, contentType, extendedMetadata);
 		this.size = size;
+		this.storageClass = StorageClass.Standard.toString();
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param size
+	 *        the content size
+	 * @param modified
+	 *        the modified date
+	 * @param storageClass
+	 *        the storage class
+	 * @param contentType
+	 *        the content type
+	 * @param extendedMetadata
+	 *        extended metadata
+	 */
+	public S3ObjectMeta(long size, Date modified, String storageClass, MimeType contentType,
+			Map<String, ?> extendedMetadata) {
+		super(modified, contentType, extendedMetadata);
+		this.size = size;
+		this.storageClass = storageClass;
 	}
 
 	@Override
@@ -87,9 +111,15 @@ public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMeta
 	}
 
 	@Override
+	public String getStorageClass() {
+		return storageClass;
+	}
+
+	@Override
 	public void populateMap(Map<String, Object> map) {
 		super.populateMap(map);
 		map.put(SIZE_KEY, size);
+		map.put(STORAGE_CLASS_KEY, storageClass);
 	}
 
 }

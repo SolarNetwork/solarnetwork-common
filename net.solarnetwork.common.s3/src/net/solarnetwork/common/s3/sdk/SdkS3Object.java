@@ -36,7 +36,7 @@ import net.solarnetwork.common.s3.S3ObjectMetadata;
  * AWS SDK implementation of {@link S3Object}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SdkS3Object implements S3Object, S3ObjectMetadata {
 
@@ -77,6 +77,12 @@ public class SdkS3Object implements S3Object, S3ObjectMetadata {
 	public long getSize() {
 		ObjectMetadata m = s3Object.getObjectMetadata();
 		return (m != null ? m.getContentLength() : null);
+	}
+
+	@Override
+	public String getStorageClass() {
+		ObjectMetadata m = s3Object.getObjectMetadata();
+		return (m != null ? m.getStorageClass() : null);
 	}
 
 	@Override
