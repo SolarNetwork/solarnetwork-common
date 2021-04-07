@@ -30,16 +30,46 @@ package net.solarnetwork.domain;
  */
 public interface NodeControlInfo {
 
+	/**
+	 * Get the control ID.
+	 * 
+	 * @return the control ID
+	 */
 	String getControlId();
 
+	/**
+	 * Get an optional control property name.
+	 * 
+	 * @return the control property name, or {@literal null}
+	 */
 	String getPropertyName();
 
+	/**
+	 * Get the control property type.
+	 * 
+	 * @return the property type
+	 */
 	NodeControlPropertyType getType();
 
+	/**
+	 * Get the control value.
+	 * 
+	 * @return the value
+	 */
 	String getValue();
 
+	/**
+	 * Get a read-only flag.
+	 * 
+	 * @return the read-only flag
+	 */
 	Boolean getReadonly();
 
+	/**
+	 * Get an optional unit of measure for the control value.
+	 * 
+	 * @return the unit of measure, or {@literal null}
+	 */
 	String getUnit();
 
 }
