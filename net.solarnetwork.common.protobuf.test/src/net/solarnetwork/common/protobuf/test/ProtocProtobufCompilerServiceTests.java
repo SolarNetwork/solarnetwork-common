@@ -22,8 +22,11 @@
 
 package net.solarnetwork.common.protobuf.test;
 
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -37,6 +40,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.Descriptors.FieldDescriptor;
+import com.google.protobuf.Message;
 import net.solarnetwork.common.protobuf.protoc.ProtocProtobufCompilerService;
 import net.solarnetwork.test.SystemPropertyMatchTestRule;
 
@@ -90,7 +96,7 @@ public class ProtocProtobufCompilerServiceTests {
 	}
 
 	@Test
-	public void compile() throws IOException {
+	public void compile() throws Exception {
 		// GIVEN
 		List<Resource> protos = Arrays.asList(new ClassPathResource("dinosaur.proto", getClass()),
 				new ClassPathResource("period.proto", getClass()));
@@ -98,7 +104,22 @@ public class ProtocProtobufCompilerServiceTests {
 		ClassLoader cl = service.compileProtobufResources(protos, null);
 
 		// THEN
-		// TODO
+		//MessageOrBuilder builder = Dinosaur.newBuilder();
+		//Descriptor msgDesc = Dinosaur.getDescriptor();
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		Class<? extends Message> dinoClass = (Class) cl.loadClass("sn.dinosaurs.Dinosaur");
+		Method m = dinoClass.getMethod("newBuilder");
+		Message.Builder b = (Message.Builder) m.invoke(null);
+		log.debug("Got builder: {}", b);
+		Descriptor desc = b.getDescriptorForType();
+		List<FieldDescriptor> fields = desc.getFields();
+		for ( FieldDescriptor f : fields ) {
+			if ( "name".equals(f.getName()) ) {
+				b.setField(f, "Fooasaur");
+			}
+		}
+		byte[] data = b.build().toByteArray();
+		assertThat("Data created", data, notNullValue());
 	}
 
 }

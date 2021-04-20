@@ -193,17 +193,23 @@ public class ProtocProtobufCompilerService extends BasicIdentifiable
 
 		}) {
 
-			JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, compileOptions,
-					null, sources);
+			JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics,
+					compileOptions, null, sources);
 			Boolean result = task.call();
-			for ( Diagnostic<? extends JavaFileObject> d : diagnostics.getDiagnostics() )
-				log.debug("{}: {}", d.getKind(), d.getMessage(null));
+			if ( !diagnostics.getDiagnostics().isEmpty() ) {
+				log.info("Warnings/errors were generated compiling protoc generated source files:");
+				for ( Diagnostic<? extends JavaFileObject> d : diagnostics.getDiagnostics() ) {
+					log.info("{} {}: {}", d.getKind(), d.getSource().getName(), d.getMessage(null));
+				}
+			}
 			if ( !result ) {
-				throw new IOException("Error compiling protobuf Java sources.");
+				throw new IOException("Error compiling protobuf Java sources: "
+						+ sources.stream().map(e -> e.getName()).collect(Collectors.toList()));
 			}
 			Map<String, byte[]> byteCodeMap = new HashMap<>();
-			for ( ByteArrayJavaClass cl : classFileObjects )
-				byteCodeMap.put(cl.getName().substring(1), cl.getBytes());
+			for ( ByteArrayJavaClass cl : classFileObjects ) {
+				byteCodeMap.put(cl.getName().substring(1).replace('/', '.'), cl.getBytes());
+			}
 			return new MapClassLoader(byteCodeMap);
 		}
 	}
