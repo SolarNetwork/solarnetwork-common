@@ -1,5 +1,5 @@
 /* ==================================================================
- * ProtocProtobufCompilerServiceTests.java - 20/04/2021 1:24:31 PM
+ * ProtobufMessagePopulatorTests.java - 25/04/2021 10:01:01 AM
  * 
  * Copyright 2021 SolarNetwork.net Dev Team
  * 
@@ -26,33 +26,29 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import javax.lang.model.SourceVersion;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import com.google.protobuf.Descriptors.Descriptor;
-import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Message;
+import net.solarnetwork.common.protobuf.ProtobufMessagePopulator;
 import net.solarnetwork.common.protobuf.protoc.ProtocProtobufCompilerService;
 import net.solarnetwork.test.SystemPropertyMatchTestRule;
 
 /**
- * Test cases for the {@link ProtocProtobufCompilerService} class.
+ * Test cases for the {@link ProtobufMessagePopulator} class.
  * 
  * @author matt
  * @version 1.0
  */
-public class ProtocProtobufCompilerServiceTests {
+public class ProtobufMessagePopulatorTests {
 
 	/** Only run when the {@code protoc-int} system property is defined. */
 	@ClassRule
@@ -60,8 +56,6 @@ public class ProtocProtobufCompilerServiceTests {
 			"protoc-int");
 
 	private static Properties TEST_PROPS;
-
-	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private ProtocProtobufCompilerService service;
 
@@ -90,62 +84,25 @@ public class ProtocProtobufCompilerServiceTests {
 	}
 
 	@Test
-	public void printVersions() {
-		Set<SourceVersion> supportedJavaTargets = service.getJavaCompiler().getSourceVersions();
-		log.info("Supported compiler versions: {}", supportedJavaTargets);
-	}
-
-	@Test
-	public void compile() throws Exception {
-		// GIVEN
-		List<Resource> protos = Arrays.asList(new ClassPathResource("dinosaur.proto", getClass()),
-				new ClassPathResource("period.proto", getClass()));
-		// WHEN
-		ClassLoader cl = service.compileProtobufResources(protos, null);
-
-		// THEN
-		//MessageOrBuilder builder = Dinosaur.newBuilder();
-		//Descriptor msgDesc = Dinosaur.getDescriptor();
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		Class<? extends Message> dinoClass = (Class) cl.loadClass("sn.dinosaurs.Dinosaur");
-		Method m = dinoClass.getMethod("newBuilder");
-		Message.Builder b = (Message.Builder) m.invoke(null);
-		log.debug("Got builder: {}", b);
-		Descriptor desc = b.getDescriptorForType();
-		List<FieldDescriptor> fields = desc.getFields();
-		for ( FieldDescriptor f : fields ) {
-			if ( "name".equals(f.getName()) ) {
-				b.setField(f, "Fooasaur");
-			}
-		}
-		byte[] data = b.build().toByteArray();
-		assertThat("Data created", data, notNullValue());
-	}
-
-	@Test
-	public void compile_nested() throws Exception {
+	public void populateMessage() throws Exception {
 		// GIVEN
 		List<Resource> protos = Arrays.asList(new ClassPathResource("my-datum.proto", getClass()));
-
-		// WHEN
 		ClassLoader cl = service.compileProtobufResources(protos, null);
 
+		// WHEN
+		Map<String, Object> data = new LinkedHashMap<>(4);
+		data.put("voltage", 1.234);
+		data.put("current", 2.345);
+		//data.put("status", "ERROR");
+		data.put("location.lat", 1.2345);
+		data.put("location.lon", 2.3456);
+
+		ProtobufMessagePopulator p = new ProtobufMessagePopulator(cl, "sn.PowerDatum");
+		p.setMessageProperties(data, false);
+
 		// THEN
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		Class<? extends Message> msgClass = (Class) cl.loadClass("sn.PowerDatum");
-		Method m = msgClass.getMethod("newBuilder");
-		Message.Builder b = (Message.Builder) m.invoke(null);
-		log.debug("Got builder: {}", b);
-		Descriptor desc = b.getDescriptorForType();
-		List<FieldDescriptor> fields = desc.getFields();
-		for ( FieldDescriptor f : fields ) {
-			String fieldName = f.getName();
-			if ( "voltage".equals(fieldName) ) {
-				b.setField(f, 1.234);
-			}
-		}
-		byte[] data = b.build().toByteArray();
-		assertThat("Data created", data, notNullValue());
+		Message m = p.build();
+		assertThat("Data created", m, notNullValue());
 	}
 
 }
