@@ -39,7 +39,7 @@ public interface ProtobufCompilerService {
 	 * 
 	 * @param protobufResources
 	 *        the protobuf resources to compile
-	 * @param parameter
+	 * @param parameters
 	 *        compiler parameters
 	 * @return a class loader that can load the compiled protobuf classes
 	 * @throws IOException

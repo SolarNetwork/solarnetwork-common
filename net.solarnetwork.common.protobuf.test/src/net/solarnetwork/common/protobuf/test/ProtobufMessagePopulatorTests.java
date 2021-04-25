@@ -22,10 +22,12 @@
 
 package net.solarnetwork.common.protobuf.test;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,6 +40,7 @@ import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import com.google.protobuf.Message;
+import com.google.protobuf.TextFormat;
 import net.solarnetwork.common.protobuf.ProtobufMessagePopulator;
 import net.solarnetwork.common.protobuf.protoc.ProtocProtobufCompilerService;
 import net.solarnetwork.test.SystemPropertyMatchTestRule;
@@ -93,7 +96,7 @@ public class ProtobufMessagePopulatorTests {
 		Map<String, Object> data = new LinkedHashMap<>(4);
 		data.put("voltage", 1.234);
 		data.put("current", 2.345);
-		//data.put("status", "ERROR");
+		data.put("status", "ERROR");
 		data.put("location.lat", 1.2345);
 		data.put("location.lon", 2.3456);
 
@@ -103,6 +106,116 @@ public class ProtobufMessagePopulatorTests {
 		// THEN
 		Message m = p.build();
 		assertThat("Data created", m, notNullValue());
+		// @formatter:off
+		assertThat("JSON message", TextFormat.printToString(m), equalTo(
+				  "voltage: 1.234\n"
+				+ "current: 2.345\n"
+				+ "status: ERROR\n"
+				+ "location {\n"
+				+ "  lat: 1.2345\n"
+				+ "  lon: 2.3456\n"
+				+ "}\n"
+				));
+		// @formatter:on
+	}
+
+	@Test
+	public void populateMessage_convertBigDecimal() throws Exception {
+		// GIVEN
+		List<Resource> protos = Arrays.asList(new ClassPathResource("my-datum.proto", getClass()));
+		ClassLoader cl = service.compileProtobufResources(protos, null);
+
+		// WHEN
+		Map<String, Object> data = new LinkedHashMap<>(4);
+		data.put("voltage", new BigDecimal("1.234"));
+
+		ProtobufMessagePopulator p = new ProtobufMessagePopulator(cl, "sn.PowerDatum");
+		p.setMessageProperties(data, false);
+
+		// THEN
+		Message m = p.build();
+		assertThat("Data created", m, notNullValue());
+		// @formatter:off
+		assertThat("JSON message", TextFormat.printToString(m), equalTo(
+				  "voltage: 1.234\n"
+				));
+		// @formatter:on
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void populateMessage_convertError() throws Exception {
+		// GIVEN
+		List<Resource> protos = Arrays.asList(new ClassPathResource("my-datum.proto", getClass()));
+		ClassLoader cl = service.compileProtobufResources(protos, null);
+
+		// WHEN
+		Map<String, Object> data = new LinkedHashMap<>(4);
+		data.put("voltage", "not a number");
+
+		ProtobufMessagePopulator p = new ProtobufMessagePopulator(cl, "sn.PowerDatum");
+		p.setMessageProperties(data, false);
+	}
+
+	@Test
+	public void populateMessage_convertError_ignore() throws Exception {
+		// GIVEN
+		List<Resource> protos = Arrays.asList(new ClassPathResource("my-datum.proto", getClass()));
+		ClassLoader cl = service.compileProtobufResources(protos, null);
+
+		// WHEN
+		Map<String, Object> data = new LinkedHashMap<>(4);
+		data.put("voltage", "not a number");
+		data.put("current", 2.345);
+
+		ProtobufMessagePopulator p = new ProtobufMessagePopulator(cl, "sn.PowerDatum");
+		p.setMessageProperties(data, true);
+
+		// THEN
+		Message m = p.build();
+		assertThat("Data created", m, notNullValue());
+		// @formatter:off
+		assertThat("JSON message", TextFormat.printToString(m), equalTo(
+				  "current: 2.345\n"
+				));
+		// @formatter:on
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void populateMessage_notAPropertyError() throws Exception {
+		// GIVEN
+		List<Resource> protos = Arrays.asList(new ClassPathResource("my-datum.proto", getClass()));
+		ClassLoader cl = service.compileProtobufResources(protos, null);
+
+		// WHEN
+		Map<String, Object> data = new LinkedHashMap<>(4);
+		data.put("notAProperty", 1.234);
+
+		ProtobufMessagePopulator p = new ProtobufMessagePopulator(cl, "sn.PowerDatum");
+		p.setMessageProperties(data, false);
+	}
+
+	@Test
+	public void populateMessage_notAPropertyError_ignore() throws Exception {
+		// GIVEN
+		List<Resource> protos = Arrays.asList(new ClassPathResource("my-datum.proto", getClass()));
+		ClassLoader cl = service.compileProtobufResources(protos, null);
+
+		// WHEN
+		Map<String, Object> data = new LinkedHashMap<>(4);
+		data.put("notAProperty", 1.234);
+		data.put("current", 2.345);
+
+		ProtobufMessagePopulator p = new ProtobufMessagePopulator(cl, "sn.PowerDatum");
+		p.setMessageProperties(data, true);
+
+		// THEN
+		Message m = p.build();
+		assertThat("Data created", m, notNullValue());
+		// @formatter:off
+		assertThat("JSON message", TextFormat.printToString(m), equalTo(
+				  "current: 2.345\n"
+				));
+		// @formatter:on
 	}
 
 }

@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -192,19 +193,32 @@ public class ProtocProtobufCompilerService extends BasicIdentifiable
 			}
 
 		}) {
-
-			JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics,
+			StringWriter out = new StringWriter();
+			JavaCompiler.CompilationTask task = compiler.getTask(out, fileManager, diagnostics,
 					compileOptions, null, sources);
 			Boolean result = task.call();
-			if ( !diagnostics.getDiagnostics().isEmpty() ) {
-				log.info("Warnings/errors were generated compiling protoc generated source files:");
-				for ( Diagnostic<? extends JavaFileObject> d : diagnostics.getDiagnostics() ) {
-					log.info("{} {}: {}", d.getKind(), d.getSource().getName(), d.getMessage(null));
+			StringBuilder buf = new StringBuilder();
+			if ( !result ) {
+				buf.append("Error compiling Protobuf Java sources: ");
+				buf.append(sources.stream().map(e -> e.getName()).collect(Collectors.toList()));
+				buf.append("\n\n");
+				String outMessage = out.toString();
+				if ( !outMessage.isEmpty() ) {
+					if ( !result ) {
+						buf.append(outMessage).append("\n");
+					}
 				}
+				if ( !diagnostics.getDiagnostics().isEmpty() ) {
+					String fmt = "%7s: %s @ %d: %s\n";
+					for ( Diagnostic<? extends JavaFileObject> d : diagnostics.getDiagnostics() ) {
+						buf.append(String.format(fmt, d.getKind(), d.getSource().getName(),
+								d.getLineNumber(), d.getMessage(null)));
+					}
+				}
+				log.error(buf.toString());
 			}
 			if ( !result ) {
-				throw new IOException("Error compiling protobuf Java sources: "
-						+ sources.stream().map(e -> e.getName()).collect(Collectors.toList()));
+				throw new IOException(buf.toString());
 			}
 			Map<String, byte[]> byteCodeMap = new HashMap<>();
 			for ( ByteArrayJavaClass cl : classFileObjects ) {

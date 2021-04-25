@@ -22,6 +22,7 @@
 
 package net.solarnetwork.common.protobuf.test;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
@@ -43,6 +44,7 @@ import org.springframework.core.io.Resource;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Message;
+import com.google.protobuf.TextFormat;
 import net.solarnetwork.common.protobuf.protoc.ProtocProtobufCompilerService;
 import net.solarnetwork.test.SystemPropertyMatchTestRule;
 
@@ -104,13 +106,10 @@ public class ProtocProtobufCompilerServiceTests {
 		ClassLoader cl = service.compileProtobufResources(protos, null);
 
 		// THEN
-		//MessageOrBuilder builder = Dinosaur.newBuilder();
-		//Descriptor msgDesc = Dinosaur.getDescriptor();
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		Class<? extends Message> dinoClass = (Class) cl.loadClass("sn.dinosaurs.Dinosaur");
 		Method m = dinoClass.getMethod("newBuilder");
 		Message.Builder b = (Message.Builder) m.invoke(null);
-		log.debug("Got builder: {}", b);
 		Descriptor desc = b.getDescriptorForType();
 		List<FieldDescriptor> fields = desc.getFields();
 		for ( FieldDescriptor f : fields ) {
@@ -118,8 +117,13 @@ public class ProtocProtobufCompilerServiceTests {
 				b.setField(f, "Fooasaur");
 			}
 		}
-		byte[] data = b.build().toByteArray();
-		assertThat("Data created", data, notNullValue());
+		Message msg = b.build();
+		assertThat("Data created", msg, notNullValue());
+		// @formatter:off
+		assertThat("JSON message", TextFormat.printToString(msg), equalTo(
+				  "name: \"Fooasaur\"\n"
+				));
+		// @formatter:on
 	}
 
 	@Test
@@ -135,7 +139,6 @@ public class ProtocProtobufCompilerServiceTests {
 		Class<? extends Message> msgClass = (Class) cl.loadClass("sn.PowerDatum");
 		Method m = msgClass.getMethod("newBuilder");
 		Message.Builder b = (Message.Builder) m.invoke(null);
-		log.debug("Got builder: {}", b);
 		Descriptor desc = b.getDescriptorForType();
 		List<FieldDescriptor> fields = desc.getFields();
 		for ( FieldDescriptor f : fields ) {
@@ -144,8 +147,13 @@ public class ProtocProtobufCompilerServiceTests {
 				b.setField(f, 1.234);
 			}
 		}
-		byte[] data = b.build().toByteArray();
-		assertThat("Data created", data, notNullValue());
+		Message msg = b.build();
+		assertThat("Data created", msg, notNullValue());
+		// @formatter:off
+		assertThat("JSON message", TextFormat.printToString(msg), equalTo(
+				  "voltage: 1.234\n"
+				));
+		// @formatter:on
 	}
 
 }
