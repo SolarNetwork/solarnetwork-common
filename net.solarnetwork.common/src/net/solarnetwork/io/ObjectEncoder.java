@@ -1,5 +1,5 @@
 /* ==================================================================
- * ProtobufCompilerService.java - 20/04/2021 1:11:21 PM
+ * ObjectEncoder.java - 26/04/2021 11:53:30 AM
  * 
  * Copyright 2021 SolarNetwork.net Dev Team
  * 
@@ -20,33 +20,32 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.protobuf;
+package net.solarnetwork.io;
 
 import java.io.IOException;
 import java.util.Map;
-import org.springframework.core.io.Resource;
 import net.solarnetwork.domain.Identifiable;
 
 /**
- * API for a service that can compile Protobuf definitions into Java classes.
+ * API for a service that can encode objects into alternate representations.
  * 
  * @author matt
  * @version 1.0
+ * @since 1.69
  */
-public interface ProtobufCompilerService extends Identifiable {
+public interface ObjectEncoder extends Identifiable {
 
 	/**
-	 * Compile a set of protobuf resources into Java classes.
+	 * Encode an object into a byte array.
 	 * 
-	 * @param protobufResources
-	 *        the protobuf resources to compile
+	 * @param obj
+	 *        the object to encode
 	 * @param parameters
-	 *        compiler parameters
-	 * @return a class loader that can load the compiled protobuf classes
+	 *        optional parameters to pass to the encoder
+	 * @return the bytes, never {@literal null}
 	 * @throws IOException
-	 *         if any IO error occurs
+	 *         if an encoding problem occurs
 	 */
-	ClassLoader compileProtobufResources(Iterable<Resource> protobufResources, Map<String, ?> parameters)
-			throws IOException;
+	byte[] encodeAsBytes(Object obj, Map<String, ?> parameters) throws IOException;
 
 }

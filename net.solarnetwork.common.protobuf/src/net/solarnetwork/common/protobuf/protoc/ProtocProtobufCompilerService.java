@@ -49,8 +49,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.util.FileCopyUtils;
 import net.solarnetwork.common.protobuf.ProtobufCompilerService;
-import net.solarnetwork.settings.SettingSpecifier;
-import net.solarnetwork.settings.SettingSpecifierProvider;
 import net.solarnetwork.support.BasicIdentifiable;
 
 /**
@@ -60,8 +58,7 @@ import net.solarnetwork.support.BasicIdentifiable;
  * @author matt
  * @version 1.0
  */
-public class ProtocProtobufCompilerService extends BasicIdentifiable
-		implements ProtobufCompilerService, SettingSpecifierProvider {
+public class ProtocProtobufCompilerService extends BasicIdentifiable implements ProtobufCompilerService {
 
 	/** The default {@code protocPath} property value. */
 	public static final String DEFAULT_PROTOC_PATH = "/usr/bin/protoc";
@@ -88,22 +85,6 @@ public class ProtocProtobufCompilerService extends BasicIdentifiable
 	 */
 	public JavaCompiler getJavaCompiler() {
 		return compiler;
-	}
-
-	@Override
-	public String getSettingUID() {
-		return "net.solarnetwork.common.protobuf.protoc";
-	}
-
-	@Override
-	public String getDisplayName() {
-		return "Protobuf Compiler (protoc)";
-	}
-
-	@Override
-	public List<SettingSpecifier> getSettingSpecifiers() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@SuppressWarnings("unchecked")
