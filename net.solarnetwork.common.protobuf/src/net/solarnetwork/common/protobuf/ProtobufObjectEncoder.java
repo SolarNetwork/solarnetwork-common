@@ -24,7 +24,11 @@ package net.solarnetwork.common.protobuf;
 
 import java.io.IOException;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.google.protobuf.Message;
 import net.solarnetwork.io.ObjectEncoder;
+import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.support.BasicIdentifiable;
 import net.solarnetwork.util.FilterableService;
 import net.solarnetwork.util.OptionalService;
@@ -37,15 +41,99 @@ import net.solarnetwork.util.OptionalService;
  * @author matt
  * @version 1.0
  */
-public class ProtobufObjectEncoder extends BasicIdentifiable implements ObjectEncoder {
+public abstract class ProtobufObjectEncoder extends BasicIdentifiable
+		implements ObjectEncoder, SettingsChangeObserver {
+
+	/** A class-level logger. */
+	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	private OptionalService<ProtobufCompilerService> compilerService;
+	private String messageClassName;
+
+	private ClassLoader protoClassLoader;
+
+	@Override
+	public void configurationChanged(Map<String, Object> properties) {
+		if ( properties == null ) {
+			return;
+		}
+		// reset any cached class loader in case the proto files changed
+		synchronized ( this ) {
+			protoClassLoader = null;
+		}
+	}
 
 	@Override
 	public byte[] encodeAsBytes(Object obj, Map<String, ?> parameters) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		Map<String, ?> data = convertToMap(obj, parameters);
+		if ( data == null ) {
+			log.info("Data not available for conversion to Protobuf message {}", messageClassName);
+			return null;
+		}
+		ClassLoader cl = protoClassLoader();
+		if ( cl == null ) {
+			log.info("ClassLoader not available for conversion to Protobuf message {}",
+					messageClassName);
+			return null;
+		}
+		ProtobufMessagePopulator populator = new ProtobufMessagePopulator(cl, messageClassName);
+		try {
+			populator.setMessageProperties(data, false);
+			Message msg = populator.build();
+			return msg.toByteArray();
+		} catch ( IllegalArgumentException e ) {
+			log.warn("Error populating Protobuf message {}: {}", messageClassName, e.toString());
+			return null;
+		}
 	}
+
+	private synchronized ClassLoader protoClassLoader() throws IOException {
+		if ( protoClassLoader != null ) {
+			return protoClassLoader;
+		}
+		ProtobufCompilerService compiler = OptionalService.service(compilerService);
+		if ( compiler == null ) {
+			return null;
+		}
+		ClassLoader cl = compileProtobufResources(compiler);
+		this.protoClassLoader = cl;
+		return cl;
+	}
+
+	/**
+	 * Convert the provided object into a map suitable for passing to a
+	 * {@link ProtobufMessagePopulator}.
+	 * 
+	 * <p>
+	 * This method is called from {@link #encodeAsBytes(Object, Map)}.
+	 * </p>
+	 * 
+	 * @param obj
+	 *        the object to convert to a map
+	 * @param parameters
+	 *        the parameters
+	 * @return the map of data, or {@literal null} if populating a message is
+	 *         not possible
+	 */
+	protected abstract Map<String, ?> convertToMap(Object obj, Map<String, ?> parameters);
+
+	/**
+	 * Compile protobuf resources.
+	 * 
+	 * <p>
+	 * This method is called from {@link #encodeAsBytes(Object, Map)}.
+	 * </p>
+	 * 
+	 * @param compiler
+	 *        the compiler to use
+	 * @param parameters
+	 *        the parameters
+	 * @return the resulting class loader
+	 * @throws IOException
+	 *         if any compile error occurs
+	 */
+	protected abstract ClassLoader compileProtobufResources(ProtobufCompilerService compiler)
+			throws IOException;
 
 	/**
 	 * Get the compiler service UID filter.
@@ -93,6 +181,25 @@ public class ProtobufObjectEncoder extends BasicIdentifiable implements ObjectEn
 	 */
 	public void setCompilerService(OptionalService<ProtobufCompilerService> compilerService) {
 		this.compilerService = compilerService;
+	}
+
+	/**
+	 * Get the Protobuf message class name to map objects to.
+	 * 
+	 * @return the message class name
+	 */
+	public String getMessageClassName() {
+		return messageClassName;
+	}
+
+	/**
+	 * Set the Protobuf message class name to map objects to.
+	 * 
+	 * @param messageClassName
+	 *        the class name to set
+	 */
+	public void setMessageClassName(String messageClassName) {
+		this.messageClassName = messageClassName;
 	}
 
 }
