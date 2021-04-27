@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Java Compiler Service (JDT)
 Bundle-SymbolicName: net.solarnetwork.common.jdt
+Bundle-Description: Java complier using Eclipse JDT.
 Bundle-Version: 1.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.jdt

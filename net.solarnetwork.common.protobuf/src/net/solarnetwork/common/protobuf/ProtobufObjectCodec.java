@@ -1,5 +1,5 @@
 /* ==================================================================
- * ProtobufObjectEncoder.java - 26/04/2021 12:02:44 PM
+ * ProtobufObjectCodec.java - 26/04/2021 12:02:44 PM
  * 
  * Copyright 2021 SolarNetwork.net Dev Team
  * 
@@ -22,11 +22,16 @@
 
 package net.solarnetwork.common.protobuf;
 
+import static java.lang.String.format;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.protobuf.Message;
+import net.solarnetwork.io.ObjectCodec;
+import net.solarnetwork.io.ObjectDecoder;
 import net.solarnetwork.io.ObjectEncoder;
 import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.support.BasicIdentifiable;
@@ -34,15 +39,20 @@ import net.solarnetwork.util.FilterableService;
 import net.solarnetwork.util.OptionalService;
 
 /**
- * A {@link ObjectEncoder} service that uses a configurable
- * {@link ProtobufCompilerService} to dynamically encode objects into Protobuf
- * message byte arrays.
+ * A {@link ObjectEncoder} and {@link ObjectDecoder} service that uses a
+ * configurable {@link ProtobufCompilerService} to dynamically encode and decode
+ * objects into Protobuf message byte arrays.
+ * 
+ * <p>
+ * Each instance of this class is designed to encode/decode a single Protobuf
+ * message, configured via {@link #setMessageClassName(String)}.
+ * </p>
  * 
  * @author matt
  * @version 1.0
  */
-public abstract class ProtobufObjectEncoder extends BasicIdentifiable
-		implements ObjectEncoder, SettingsChangeObserver {
+public abstract class ProtobufObjectCodec extends BasicIdentifiable
+		implements ObjectCodec, SettingsChangeObserver {
 
 	/** A class-level logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -51,6 +61,24 @@ public abstract class ProtobufObjectEncoder extends BasicIdentifiable
 	private String messageClassName;
 
 	private ClassLoader protoClassLoader;
+
+	/**
+	 * Constructor.
+	 */
+	public ProtobufObjectCodec() {
+		super();
+	}
+
+	/**
+	 * Internal constructor.
+	 * 
+	 * @param protoClassLoader
+	 *        the class loader to use
+	 */
+	protected ProtobufObjectCodec(ClassLoader protoClassLoader) {
+		super();
+		this.protoClassLoader = protoClassLoader;
+	}
 
 	@Override
 	public void configurationChanged(Map<String, Object> properties) {
@@ -65,25 +93,60 @@ public abstract class ProtobufObjectEncoder extends BasicIdentifiable
 
 	@Override
 	public byte[] encodeAsBytes(Object obj, Map<String, ?> parameters) throws IOException {
-		Map<String, ?> data = convertToMap(obj, parameters);
+		final String className = getMessageClassName();
+		if ( className == null || className.isEmpty() ) {
+			throw new IOException("No Protobuf message class name configured to encode object into.");
+		}
+		final Map<String, ?> data = convertToMap(obj, parameters);
 		if ( data == null ) {
-			log.info("Data not available for conversion to Protobuf message {}", messageClassName);
-			return null;
+			throw new IOException(
+					format("Data not available for conversion to Protobuf message %s", className));
 		}
 		ClassLoader cl = protoClassLoader();
 		if ( cl == null ) {
-			log.info("ClassLoader not available for conversion to Protobuf message {}",
-					messageClassName);
-			return null;
+			throw new IOException(format(
+					"ClassLoader not available for conversion to Protobuf message %s", className));
 		}
-		ProtobufMessagePopulator populator = new ProtobufMessagePopulator(cl, messageClassName);
+		ProtobufMessagePopulator populator = new ProtobufMessagePopulator(cl, className);
 		try {
 			populator.setMessageProperties(data, false);
 			Message msg = populator.build();
+			log.trace("Encoded {} as message:\n{}", obj, msg);
 			return msg.toByteArray();
 		} catch ( IllegalArgumentException e ) {
-			log.warn("Error populating Protobuf message {}: {}", messageClassName, e.toString());
+			throw new IOException(
+					format("Error populating Protobuf message %s: %s", className, e.getMessage(), e));
+		}
+	}
+
+	@Override
+	public Object decodeFromBytes(byte[] data, Map<String, ?> parameters) throws IOException {
+		final String className = getMessageClassName();
+		if ( className == null || className.isEmpty() ) {
 			return null;
+		}
+		ClassLoader cl = protoClassLoader();
+		try {
+			@SuppressWarnings("unchecked")
+			Class<? extends Message> clazz = (Class<? extends Message>) cl.loadClass(className);
+			Method parseFromMethod = clazz.getMethod("parseFrom", byte[].class);
+			Object result = parseFromMethod.invoke(null, data);
+			if ( result == null ) {
+				throw new IOException(format("No object decoded for message class %s.", className));
+			}
+			return result;
+		} catch ( ClassNotFoundException e ) {
+			throw new IOException(format("Message class %s not found.", className), e);
+		} catch ( NoSuchMethodException | SecurityException e ) {
+			throw new IOException(
+					format("Error getting parseFrom(byte[]) method on message class %s: %s", className,
+							e.getMessage()),
+					e);
+		} catch ( IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
+			throw new IOException(
+					format("Error invoking parseFrom(byte[]) method on message class %s: %s", className,
+							e.getMessage()),
+					e);
 		}
 	}
 

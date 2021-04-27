@@ -25,15 +25,9 @@ package net.solarnetwork.common.protobuf.test;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -41,10 +35,7 @@ import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
-import net.solarnetwork.common.jdt.JdtJavaCompiler;
 import net.solarnetwork.common.protobuf.protoc.ProtocProtobufCompilerService;
-import net.solarnetwork.test.SystemPropertyMatchTestRule;
-import net.solarnetwork.util.JavaCompiler;
 
 /**
  * Test cases for the {@link ProtocProtobufCompilerService} class.
@@ -52,42 +43,7 @@ import net.solarnetwork.util.JavaCompiler;
  * @author matt
  * @version 1.0
  */
-public class ProtocProtobufCompilerServiceTests {
-
-	/** Only run when the {@code protoc-int} system property is defined. */
-	@ClassRule
-	public static SystemPropertyMatchTestRule PROFILE_RULE = new SystemPropertyMatchTestRule(
-			"protoc-int");
-
-	private static Properties TEST_PROPS;
-
-	private JavaCompiler compiler;
-	private ProtocProtobufCompilerService service;
-
-	@BeforeClass
-	public static void setupClass() {
-		Properties p = new Properties();
-		try {
-			InputStream in = ProtocProtobufCompilerServiceTests.class.getClassLoader()
-					.getResourceAsStream("protobuf.properties");
-			if ( in != null ) {
-				p.load(in);
-				in.close();
-			}
-		} catch ( IOException e ) {
-			throw new RuntimeException(e);
-		}
-		TEST_PROPS = p;
-	}
-
-	@Before
-	public void setup() {
-		compiler = new JdtJavaCompiler();
-		service = new ProtocProtobufCompilerService(compiler);
-		if ( TEST_PROPS.containsKey("protoc.path") ) {
-			service.setProtocPath(TEST_PROPS.getProperty("protoc.path"));
-		}
-	}
+public class ProtocProtobufCompilerServiceTests extends BaseProtocProtobufCompilerServiceTestSupport {
 
 	@Test
 	public void compile() throws Exception {
@@ -95,7 +51,7 @@ public class ProtocProtobufCompilerServiceTests {
 		List<Resource> protos = Arrays.asList(new ClassPathResource("dinosaur.proto", getClass()),
 				new ClassPathResource("period.proto", getClass()));
 		// WHEN
-		ClassLoader cl = service.compileProtobufResources(protos, null);
+		ClassLoader cl = protocService.compileProtobufResources(protos, null);
 
 		// THEN
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -112,7 +68,7 @@ public class ProtocProtobufCompilerServiceTests {
 		Message msg = b.build();
 		assertThat("Data created", msg, notNullValue());
 		// @formatter:off
-		assertThat("JSON message", TextFormat.printToString(msg), equalTo(
+		assertThat("TXT message", TextFormat.printToString(msg), equalTo(
 				  "name: \"Fooasaur\"\n"
 				));
 		// @formatter:on
@@ -124,7 +80,7 @@ public class ProtocProtobufCompilerServiceTests {
 		List<Resource> protos = Arrays.asList(new ClassPathResource("my-datum.proto", getClass()));
 
 		// WHEN
-		ClassLoader cl = service.compileProtobufResources(protos, null);
+		ClassLoader cl = protocService.compileProtobufResources(protos, null);
 
 		// THEN
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -142,7 +98,7 @@ public class ProtocProtobufCompilerServiceTests {
 		Message msg = b.build();
 		assertThat("Data created", msg, notNullValue());
 		// @formatter:off
-		assertThat("JSON message", TextFormat.printToString(msg), equalTo(
+		assertThat("TXT message", TextFormat.printToString(msg), equalTo(
 				  "voltage: 1.234\n"
 				));
 		// @formatter:on

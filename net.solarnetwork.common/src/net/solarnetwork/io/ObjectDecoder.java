@@ -27,26 +27,26 @@ import java.util.Map;
 import net.solarnetwork.domain.Identifiable;
 
 /**
- * API for a service that can encode objects into alternate representations.
+ * API for a service that can decode objects from alternate representations.
  * 
  * @author matt
  * @version 1.0
  * @since 1.69
- * @see ObjectDecoder
+ * @see ObjectEncoder
  */
-public interface ObjectEncoder extends Identifiable {
+public interface ObjectDecoder extends Identifiable {
 
 	/**
 	 * Encode an object into a byte array.
 	 * 
-	 * @param obj
-	 *        the object to encode
+	 * @param data
+	 *        the data to decode
 	 * @param parameters
-	 *        optional parameters to pass to the encoder
-	 * @return the bytes, never {@literal null}
+	 *        optional parameters to pass to the decoder
+	 * @return the decoded object, never {@literal null}
 	 * @throws IOException
-	 *         if an encoding problem occurs
+	 *         if a decoding problem occurs
 	 */
-	byte[] encodeAsBytes(Object obj, Map<String, ?> parameters) throws IOException;
+	Object decodeFromBytes(byte[] data, Map<String, ?> parameters) throws IOException;
 
 }

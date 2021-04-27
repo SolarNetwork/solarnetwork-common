@@ -113,6 +113,10 @@ public class ProtocProtobufCompilerService extends BasicIdentifiable implements 
 			protoPaths.add(outPath);
 		}
 
+		if ( protoPaths.isEmpty() ) {
+			throw new IOException("No .proto resources provided.");
+		}
+
 		final List<String> cmd = new ArrayList<>(2 + protoPaths.size());
 		cmd.add(protocPath);
 		cmd.add("--proto_path=" + protoDir.toAbsolutePath().toString());
