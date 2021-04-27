@@ -41,9 +41,11 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
+import net.solarnetwork.common.jdt.JdtJavaCompiler;
 import net.solarnetwork.common.protobuf.ProtobufMessagePopulator;
 import net.solarnetwork.common.protobuf.protoc.ProtocProtobufCompilerService;
 import net.solarnetwork.test.SystemPropertyMatchTestRule;
+import net.solarnetwork.util.JavaCompiler;
 
 /**
  * Test cases for the {@link ProtobufMessagePopulator} class.
@@ -60,6 +62,7 @@ public class ProtobufMessagePopulatorTests {
 
 	private static Properties TEST_PROPS;
 
+	private JavaCompiler compiler;
 	private ProtocProtobufCompilerService service;
 
 	@BeforeClass
@@ -80,7 +83,8 @@ public class ProtobufMessagePopulatorTests {
 
 	@Before
 	public void setup() {
-		service = new ProtocProtobufCompilerService();
+		compiler = new JdtJavaCompiler();
+		service = new ProtocProtobufCompilerService(compiler);
 		if ( TEST_PROPS.containsKey("protoc.path") ) {
 			service.setProtocPath(TEST_PROPS.getProperty("protoc.path"));
 		}

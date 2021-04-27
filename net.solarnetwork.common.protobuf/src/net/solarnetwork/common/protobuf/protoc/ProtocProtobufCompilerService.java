@@ -27,29 +27,22 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
-import javax.tools.FileObject;
-import javax.tools.ForwardingJavaFileManager;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.FileCopyUtils;
 import net.solarnetwork.common.protobuf.ProtobufCompilerService;
 import net.solarnetwork.support.BasicIdentifiable;
+import net.solarnetwork.util.JavaCompiler;
 
 /**
  * Implementation of {@link ProtobufCompilerService} that uses the
@@ -68,14 +61,15 @@ public class ProtocProtobufCompilerService extends BasicIdentifiable implements 
 	private final JavaCompiler compiler;
 	private String protocPath = DEFAULT_PROTOC_PATH;
 
-	public ProtocProtobufCompilerService() {
+	/**
+	 * Constructor.
+	 * 
+	 * @param compiler
+	 *        the compiler
+	 */
+	public ProtocProtobufCompilerService(JavaCompiler compiler) {
 		super();
-		this.compiler = compiler();
-	}
-
-	@SuppressWarnings("restriction")
-	private static JavaCompiler compiler() {
-		return new org.eclipse.jdt.internal.compiler.tool.EclipseCompiler();
+		this.compiler = compiler;
 	}
 
 	/**
@@ -87,20 +81,15 @@ public class ProtocProtobufCompilerService extends BasicIdentifiable implements 
 		return compiler;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public ClassLoader compileProtobufResources(Iterable<Resource> protobufResources,
 			Map<String, ?> parameters) throws IOException {
 		final Path tmpDir = Files.createTempDirectory("protoc-");
 		final Path protoDir = Files.createDirectory(tmpDir.resolve("proto"));
 		final Path javaDir = Files.createDirectory(tmpDir.resolve("gen"));
-		List<String> options = null;
-		if ( parameters != null && parameters.containsKey("compilerOptions") ) {
-			options = (List<String>) parameters.get("compilerOptions");
-		}
 		try {
 			executeProtoc(protobufResources, protoDir, javaDir);
-			return compileJava(javaDir, options);
+			return compileJava(javaDir, parameters);
 		} finally {
 			try (Stream<Path> walk = Files.walk(tmpDir)) {
 				walk.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
@@ -151,62 +140,14 @@ public class ProtocProtobufCompilerService extends BasicIdentifiable implements 
 		}
 	}
 
-	private ClassLoader compileJava(Path javaDir, List<String> compileOptions) throws IOException {
-		final List<JavaFileObject> sources;
+	private ClassLoader compileJava(Path javaDir, Map<String, ?> parameters) throws IOException {
+		final List<Resource> sources;
 		try (Stream<Path> walk = Files.walk(javaDir)) {
 			sources = walk.filter(p -> p.getFileName().toString().endsWith(".java"))
-					.map(p -> new PathJavaSource(p)).collect(Collectors.toList());
+					.map(p -> new FileSystemResource(p.toFile())).collect(Collectors.toList());
 		}
 
-		final List<ByteArrayJavaClass> classFileObjects = new ArrayList<>();
-
-		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-
-		try (JavaFileManager fileManager = new ForwardingJavaFileManager<JavaFileManager>(
-				compiler.getStandardFileManager(diagnostics, null, null)) {
-
-			@Override
-			public JavaFileObject getJavaFileForOutput(Location location, final String className,
-					JavaFileObject.Kind kind, FileObject sibling) throws IOException {
-				ByteArrayJavaClass fileObject = new ByteArrayJavaClass(className);
-				classFileObjects.add(fileObject);
-				return fileObject;
-			}
-
-		}) {
-			StringWriter out = new StringWriter();
-			JavaCompiler.CompilationTask task = compiler.getTask(out, fileManager, diagnostics,
-					compileOptions, null, sources);
-			Boolean result = task.call();
-			StringBuilder buf = new StringBuilder();
-			if ( !result ) {
-				buf.append("Error compiling Protobuf Java sources: ");
-				buf.append(sources.stream().map(e -> e.getName()).collect(Collectors.toList()));
-				buf.append("\n\n");
-				String outMessage = out.toString();
-				if ( !outMessage.isEmpty() ) {
-					if ( !result ) {
-						buf.append(outMessage).append("\n");
-					}
-				}
-				if ( !diagnostics.getDiagnostics().isEmpty() ) {
-					String fmt = "%7s: %s @ %d: %s\n";
-					for ( Diagnostic<? extends JavaFileObject> d : diagnostics.getDiagnostics() ) {
-						buf.append(String.format(fmt, d.getKind(), d.getSource().getName(),
-								d.getLineNumber(), d.getMessage(null)));
-					}
-				}
-				log.error(buf.toString());
-			}
-			if ( !result ) {
-				throw new IOException(buf.toString());
-			}
-			Map<String, byte[]> byteCodeMap = new HashMap<>();
-			for ( ByteArrayJavaClass cl : classFileObjects ) {
-				byteCodeMap.put(cl.getName().substring(1).replace('/', '.'), cl.getBytes());
-			}
-			return new MapClassLoader(byteCodeMap);
-		}
+		return compiler.compileResources(sources, javaDir, parameters);
 	}
 
 	/**

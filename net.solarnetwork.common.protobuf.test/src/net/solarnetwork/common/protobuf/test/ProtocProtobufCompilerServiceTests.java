@@ -31,22 +31,20 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-import javax.lang.model.SourceVersion;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
+import net.solarnetwork.common.jdt.JdtJavaCompiler;
 import net.solarnetwork.common.protobuf.protoc.ProtocProtobufCompilerService;
 import net.solarnetwork.test.SystemPropertyMatchTestRule;
+import net.solarnetwork.util.JavaCompiler;
 
 /**
  * Test cases for the {@link ProtocProtobufCompilerService} class.
@@ -63,8 +61,7 @@ public class ProtocProtobufCompilerServiceTests {
 
 	private static Properties TEST_PROPS;
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
-
+	private JavaCompiler compiler;
 	private ProtocProtobufCompilerService service;
 
 	@BeforeClass
@@ -85,16 +82,11 @@ public class ProtocProtobufCompilerServiceTests {
 
 	@Before
 	public void setup() {
-		service = new ProtocProtobufCompilerService();
+		compiler = new JdtJavaCompiler();
+		service = new ProtocProtobufCompilerService(compiler);
 		if ( TEST_PROPS.containsKey("protoc.path") ) {
 			service.setProtocPath(TEST_PROPS.getProperty("protoc.path"));
 		}
-	}
-
-	@Test
-	public void printVersions() {
-		Set<SourceVersion> supportedJavaTargets = service.getJavaCompiler().getSourceVersions();
-		log.info("Supported compiler versions: {}", supportedJavaTargets);
 	}
 
 	@Test

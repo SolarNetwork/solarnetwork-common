@@ -52,6 +52,8 @@ public class JdtJavaCompiler implements JavaCompiler {
 
 	private static final Logger log = LoggerFactory.getLogger(JdtJavaCompiler.class);
 
+	private String javaVersion = CompilerOptions.VERSION_1_8;
+
 	@Override
 	public ClassLoader compileResources(Iterable<Resource> javaResources, Path root,
 			Map<String, ?> parameters) throws IOException {
@@ -71,6 +73,8 @@ public class JdtJavaCompiler implements JavaCompiler {
 
 		final Map<String, String> settings = new HashMap<>(8);
 		settings.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+		settings.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		settings.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 		final CompilerOptions options = new CompilerOptions(settings);
 
 		Compiler compiler = new Compiler(env, policy, options, requestor, problemFactory);
@@ -103,6 +107,29 @@ public class JdtJavaCompiler implements JavaCompiler {
 			return cl;
 		}
 		return getClass().getClassLoader();
+	}
+
+	/**
+	 * Get the desired compiler Java source/target version.
+	 * 
+	 * @return the javaVersion; defaults to {@link CompilerOptions#VERSION_1_8}
+	 */
+	public String getJavaVersion() {
+		return javaVersion;
+	}
+
+	/**
+	 * Set the desired compiler Java source/target version.
+	 * 
+	 * @param javaVersion
+	 *        the javaVersion to set; if {@literal null} will be set to
+	 *        {@link CompilerOptions#VERSION_1_8}
+	 */
+	public void setJavaVersion(String javaVersion) {
+		if ( javaVersion == null ) {
+			javaVersion = CompilerOptions.VERSION_1_8;
+		}
+		this.javaVersion = javaVersion;
 	}
 
 }
