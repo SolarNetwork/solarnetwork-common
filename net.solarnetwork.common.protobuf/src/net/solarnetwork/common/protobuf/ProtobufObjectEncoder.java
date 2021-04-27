@@ -126,8 +126,6 @@ public abstract class ProtobufObjectEncoder extends BasicIdentifiable
 	 * 
 	 * @param compiler
 	 *        the compiler to use
-	 * @param parameters
-	 *        the parameters
 	 * @return the resulting class loader
 	 * @throws IOException
 	 *         if any compile error occurs

@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -146,8 +147,13 @@ public class ProtocProtobufCompilerService extends BasicIdentifiable implements 
 			sources = walk.filter(p -> p.getFileName().toString().endsWith(".java"))
 					.map(p -> new FileSystemResource(p.toFile())).collect(Collectors.toList());
 		}
-
-		return compiler.compileResources(sources, javaDir, parameters);
+		Map<String, Object> compilerOptions = new HashMap<>();
+		if ( parameters != null ) {
+			compilerOptions.putAll(parameters);
+		}
+		compilerOptions.put(JavaCompiler.CLASSLOADER_PARAM,
+				ProtobufCompilerService.class.getClassLoader());
+		return compiler.compileResources(sources, javaDir, compilerOptions);
 	}
 
 	/**

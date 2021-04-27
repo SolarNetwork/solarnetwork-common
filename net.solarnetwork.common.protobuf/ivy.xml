@@ -15,7 +15,6 @@
 	<dependencies defaultconfmapping="runtime->default(runtime);compile->default(runtime)">
 		<dependency org="com.google.protobuf" name="protobuf-java" rev="3.7.1"/>
 		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common" rev="[1.69,)"/>
-		<dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.jdt.core.compiler.batch" rev="3.12.3.v20170228-1205"/>
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.21"/>
 		<dependency org="org.springframework" name="spring-context" rev="4.3.23.RELEASE"/>
 	</dependencies>
