@@ -3,13 +3,13 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Protobuf Support
 Bundle-SymbolicName: net.solarnetwork.common.protobuf
 Bundle-Description: Support for the Protobuf serialization protocol.
-Bundle-Version: 0.1.0
+Bundle-Version: 1.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.protobuf
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: 
- net.solarnetwork.common.protobuf;version="0.1.0",
- net.solarnetwork.common.protobuf.protoc;version="0.1.0"
+ net.solarnetwork.common.protobuf;version="1.0.0",
+ net.solarnetwork.common.protobuf.protoc;version="1.0.0"
 Import-Package: 
  com.google.protobuf;version="[3.7,4.0)",
  javax.tools,
