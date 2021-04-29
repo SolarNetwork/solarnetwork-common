@@ -1,7 +1,7 @@
 /* ==================================================================
- * NodeControlInfo.java - Sep 28, 2011 4:08:29 PM
+ * ObjectEncoder.java - 26/04/2021 11:53:30 AM
  * 
- * Copyright 2007-2011 SolarNetwork.net Dev Team
+ * Copyright 2021 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,56 +20,16 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain;
+package net.solarnetwork.io;
 
 /**
- * API for a user-manageable node component.
+ * API for a service that can both encode/decode objects to/from alternate
+ * representations.
  * 
  * @author matt
  * @version 1.0
+ * @since 1.69
  */
-public interface NodeControlInfo {
-
-	/**
-	 * Get the control ID.
-	 * 
-	 * @return the control ID
-	 */
-	String getControlId();
-
-	/**
-	 * Get an optional control property name.
-	 * 
-	 * @return the control property name, or {@literal null}
-	 */
-	String getPropertyName();
-
-	/**
-	 * Get the control property type.
-	 * 
-	 * @return the property type
-	 */
-	NodeControlPropertyType getType();
-
-	/**
-	 * Get the control value.
-	 * 
-	 * @return the value
-	 */
-	String getValue();
-
-	/**
-	 * Get a read-only flag.
-	 * 
-	 * @return the read-only flag
-	 */
-	Boolean getReadonly();
-
-	/**
-	 * Get an optional unit of measure for the control value.
-	 * 
-	 * @return the unit of measure, or {@literal null}
-	 */
-	String getUnit();
+public interface ObjectCodec extends ObjectEncoder, ObjectDecoder {
 
 }

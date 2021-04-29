@@ -22,14 +22,18 @@
 
 package net.solarnetwork.support;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.context.MessageSource;
 import net.solarnetwork.domain.Identifiable;
+import net.solarnetwork.settings.SettingSpecifier;
+import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 
 /**
  * Basic implementation of {@link Identifiable}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.56
  */
 public class BasicIdentifiable implements Identifiable {
@@ -38,6 +42,66 @@ public class BasicIdentifiable implements Identifiable {
 	private String groupUid;
 	private String displayName;
 	private MessageSource messageSource;
+
+	/**
+	 * Get settings for the configurable properties of
+	 * {@link BasicIdentifiable}.
+	 * 
+	 * <p>
+	 * Empty strings are used for the {@code prefix}, default {@code uid} and
+	 * default {@code groupUid} setting values.
+	 * </p>
+	 * 
+	 * @return the settings
+	 * @see #basicIdentifiableSettings(String, String, String)
+	 * @since 1.1
+	 */
+	public static List<SettingSpecifier> basicIdentifiableSettings() {
+		return basicIdentifiableSettings("", "", "");
+	}
+
+	/**
+	 * Get settings for the configurable properties of
+	 * {@link BasicIdentifiable}.
+	 * 
+	 * <p>
+	 * Empty strings are used for the default {@code uid} and {@code groupUid}
+	 * setting values.
+	 * </p>
+	 * 
+	 * @param prefix
+	 *        an optional prefix to include in all setting keys
+	 * @return the settings
+	 * @see #basicIdentifiableSettings(String, String, String)
+	 * @since 1.1
+	 */
+	public static List<SettingSpecifier> basicIdentifiableSettings(String prefix) {
+		return basicIdentifiableSettings(prefix, "", "");
+	}
+
+	/**
+	 * Get settings for the configurable properties of
+	 * {@link BasicIdentifiable}.
+	 * 
+	 * @param prefix
+	 *        an optional prefix to include in all setting keys
+	 * @param defaultUid
+	 *        the default {@code uid} value to use
+	 * @param defaultGroupUid
+	 *        the default {@code groupUid} value to use
+	 * @return the settings
+	 * @since 1.1
+	 */
+	public static List<SettingSpecifier> basicIdentifiableSettings(String prefix, String defaultUid,
+			String defaultGroupUid) {
+		if ( prefix == null ) {
+			prefix = "";
+		}
+		List<SettingSpecifier> results = new ArrayList<>(8);
+		results.add(new BasicTextFieldSettingSpecifier(prefix + "uid", defaultUid));
+		results.add(new BasicTextFieldSettingSpecifier(prefix + "groupUid", defaultGroupUid));
+		return results;
+	}
 
 	@Override
 	public String getUid() {

@@ -1,0 +1,7 @@
+public class Root {
+
+	public String hello() {
+		return "I am root.";
+	}
+
+}

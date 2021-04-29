@@ -1,7 +1,7 @@
 /* ==================================================================
- * NodeControlInfo.java - Sep 28, 2011 4:08:29 PM
+ * Activator.java - 26/07/2019 11:38:17 am
  * 
- * Copyright 2007-2011 SolarNetwork.net Dev Team
+ * Copyright 2019 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,56 +20,38 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain;
+package net.solarnetwork.common.jdt;
+
+import java.util.Hashtable;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import net.solarnetwork.util.JavaCompiler;
 
 /**
- * API for a user-manageable node component.
+ * Bundle activator for the JDT compiler service.
  * 
  * @author matt
  * @version 1.0
  */
-public interface NodeControlInfo {
+public class Activator implements BundleActivator {
 
-	/**
-	 * Get the control ID.
-	 * 
-	 * @return the control ID
-	 */
-	String getControlId();
+	private ServiceRegistration<JavaCompiler> msf = null;
 
-	/**
-	 * Get an optional control property name.
-	 * 
-	 * @return the control property name, or {@literal null}
-	 */
-	String getPropertyName();
+	@Override
+	public void start(BundleContext context) throws Exception {
+		Hashtable<String, Object> properties = new Hashtable<>();
+		properties.put("impl", "jdt");
+		JdtJavaCompiler compiler = new JdtJavaCompiler();
+		msf = context.registerService(JavaCompiler.class, compiler, properties);
+	}
 
-	/**
-	 * Get the control property type.
-	 * 
-	 * @return the property type
-	 */
-	NodeControlPropertyType getType();
-
-	/**
-	 * Get the control value.
-	 * 
-	 * @return the value
-	 */
-	String getValue();
-
-	/**
-	 * Get a read-only flag.
-	 * 
-	 * @return the read-only flag
-	 */
-	Boolean getReadonly();
-
-	/**
-	 * Get an optional unit of measure for the control value.
-	 * 
-	 * @return the unit of measure, or {@literal null}
-	 */
-	String getUnit();
+	@Override
+	public void stop(BundleContext context) throws Exception {
+		if ( msf != null ) {
+			msf.unregister();
+			msf = null;
+		}
+	}
 
 }

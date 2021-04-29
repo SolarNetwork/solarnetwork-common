@@ -67,6 +67,7 @@ public class S3ObjectMetaTests {
 		expectedMeta.put(S3ObjectMetadata.SIZE_KEY, contentLength);
 		expectedMeta.put(ResourceMetadata.MODIFIED_KEY, d);
 		expectedMeta.put(ResourceMetadata.CONTENT_TYPE_KEY, contentType);
+		expectedMeta.put(S3ObjectMetadata.STORAGE_CLASS_KEY, "STANDARD");
 		expectedMeta.putAll(extended);
 		assertThat("Metadata map", m.asMap(), equalTo(expectedMeta));
 

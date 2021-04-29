@@ -30,7 +30,7 @@ import java.util.Map;
  * matching the filter.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface FilterableService {
 
@@ -57,8 +57,81 @@ public interface FilterableService {
 	 * 
 	 * @param key
 	 *        the key to remove
-	 * @return the removed value, or <em>null</em> if no value was available
+	 * @return the removed value, or {@literal null} if no value was available
 	 */
 	Object removePropertyFilter(String key);
+
+	/**
+	 * Get a filter property value from an optional service that is also
+	 * optional.
+	 * 
+	 * @param <T>
+	 *        the filter property type
+	 * @param optionalService
+	 *        the optional service, or {@literal null}
+	 * @param key
+	 *        the desired filter property key
+	 * @return the filter property value, or {@literal null}
+	 * @since 1.1
+	 */
+	static <T> T filterPropValue(OptionalService<?> optionalService, String key) {
+		FilterableService service = (optionalService instanceof FilterableService
+				? (FilterableService) optionalService
+				: null);
+		return filterPropValue(service, key);
+	}
+
+	/**
+	 * Get a filter property value.
+	 * 
+	 * @param <T>
+	 *        the filter property type
+	 * @param service
+	 *        the filterable service, or {@literal null}
+	 * @param key
+	 *        the desired filter property key
+	 * @return the filter property value, or {@literal null}
+	 * @since 1.1
+	 */
+	@SuppressWarnings("unchecked")
+	static <T> T filterPropValue(FilterableService service, String key) {
+		Map<String, ?> props = (service != null ? service.getPropertyFilters() : null);
+		return (T) (props != null ? props.get(key) : null);
+	}
+
+	/**
+	 * Set a filter property value on an optional service that is also optional.
+	 * 
+	 * @param optionalService
+	 *        the optional service, or {@literal null}
+	 * @param key
+	 *        the desired filter property key
+	 * @param value
+	 *        the filter property value to set
+	 * @since 1.1
+	 */
+	static void setFilterProp(OptionalService<?> optionalService, String key, Object value) {
+		FilterableService service = (optionalService instanceof FilterableService
+				? (FilterableService) optionalService
+				: null);
+		setFilterProp(service, key, value);
+	}
+
+	/**
+	 * Set a filter property value.
+	 * 
+	 * @param service
+	 *        the filterable service, or {@literal null}
+	 * @param key
+	 *        the filter property key
+	 * @param value
+	 *        the filter property value to set
+	 * @since 1.1
+	 */
+	static void setFilterProp(FilterableService service, String key, Object value) {
+		if ( service != null ) {
+			service.setPropertyFilter(key, value);
+		}
+	}
 
 }

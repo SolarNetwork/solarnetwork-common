@@ -1,7 +1,7 @@
 /* ==================================================================
- * NodeControlInfo.java - Sep 28, 2011 4:08:29 PM
+ * ProtobufCompilerService.java - 20/04/2021 1:11:21 PM
  * 
- * Copyright 2007-2011 SolarNetwork.net Dev Team
+ * Copyright 2021 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,56 +20,33 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain;
+package net.solarnetwork.common.protobuf;
+
+import java.io.IOException;
+import java.util.Map;
+import org.springframework.core.io.Resource;
+import net.solarnetwork.domain.Identifiable;
 
 /**
- * API for a user-manageable node component.
+ * API for a service that can compile Protobuf definitions into Java classes.
  * 
  * @author matt
  * @version 1.0
  */
-public interface NodeControlInfo {
+public interface ProtobufCompilerService extends Identifiable {
 
 	/**
-	 * Get the control ID.
+	 * Compile a set of protobuf resources into Java classes.
 	 * 
-	 * @return the control ID
+	 * @param protobufResources
+	 *        the protobuf resources to compile
+	 * @param parameters
+	 *        compiler parameters
+	 * @return a class loader that can load the compiled protobuf classes
+	 * @throws IOException
+	 *         if any IO error occurs
 	 */
-	String getControlId();
-
-	/**
-	 * Get an optional control property name.
-	 * 
-	 * @return the control property name, or {@literal null}
-	 */
-	String getPropertyName();
-
-	/**
-	 * Get the control property type.
-	 * 
-	 * @return the property type
-	 */
-	NodeControlPropertyType getType();
-
-	/**
-	 * Get the control value.
-	 * 
-	 * @return the value
-	 */
-	String getValue();
-
-	/**
-	 * Get a read-only flag.
-	 * 
-	 * @return the read-only flag
-	 */
-	Boolean getReadonly();
-
-	/**
-	 * Get an optional unit of measure for the control value.
-	 * 
-	 * @return the unit of measure, or {@literal null}
-	 */
-	String getUnit();
+	ClassLoader compileProtobufResources(Iterable<Resource> protobufResources, Map<String, ?> parameters)
+			throws IOException;
 
 }
