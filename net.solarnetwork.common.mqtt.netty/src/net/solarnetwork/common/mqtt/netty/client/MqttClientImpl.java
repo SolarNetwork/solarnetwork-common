@@ -50,6 +50,8 @@ import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
 import io.netty.handler.codec.mqtt.MqttMessageType;
+import io.netty.handler.codec.mqtt.MqttProperties;
+import io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import io.netty.handler.codec.mqtt.MqttQoS;
@@ -58,6 +60,7 @@ import io.netty.handler.codec.mqtt.MqttSubscribePayload;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubscribePayload;
+import io.netty.handler.codec.mqtt.MqttVersion;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -65,7 +68,9 @@ import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
+import net.solarnetwork.common.mqtt.BasicMqttTopicAliases;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
+import net.solarnetwork.common.mqtt.MqttTopicAliases;
 
 /**
  * Represents an MqttClientImpl connected to a single MQTT server. Will try to
@@ -83,6 +88,7 @@ final class MqttClientImpl implements MqttClient {
 	private final Set<String> pendingSubscribeTopics = new HashSet<>();
 	private final MultiValueMap<MqttMessageHandler, MqttSubscription> handlerToSubscribtion = new LinkedMultiValueMap<>();
 	private final AtomicInteger nextMessageId = new AtomicInteger(0);
+	private final MqttTopicAliases clientAliases = new BasicMqttTopicAliases(0);
 
 	private final MqttClientConfig clientConfig;
 
@@ -173,7 +179,11 @@ final class MqttClientImpl implements MqttClient {
 							}
 							ChannelClosedException e = new ChannelClosedException("Channel is closed!");
 							if ( callback != null ) {
-								callback.connectionLost(e);
+								try {
+									callback.connectionLost(e);
+								} catch ( Throwable t ) {
+									// ignore
+								}
 							}
 							pendingSubscriptions.clear();
 							serverSubscriptions.clear();
@@ -183,6 +193,7 @@ final class MqttClientImpl implements MqttClient {
 							pendingPublishes.clear();
 							pendingSubscribeTopics.clear();
 							handlerToSubscribtion.clear();
+							clientAliases.clear();
 							scheduleConnectIfRequired(host, port, true);
 						});
 			} else {
@@ -479,8 +490,18 @@ final class MqttClientImpl implements MqttClient {
 		Promise<Void> future = new DefaultPromise<>(this.eventLoop.next());
 		MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBLISH, false, qos, retain,
 				0);
+		MqttProperties props = new MqttProperties();
+
+		// use topic alias if possible
+		if ( this.clientConfig.getProtocolVersion().protocolLevel() >= MqttVersion.MQTT_5
+				.protocolLevel() ) {
+			topic = this.clientAliases.topicAlias(topic, a -> {
+				props.add(new MqttProperties.IntegerProperty(MqttPropertyType.TOPIC_ALIAS.value(), a));
+			});
+		}
+
 		MqttPublishVariableHeader variableHeader = new MqttPublishVariableHeader(topic,
-				getNewMessageId().messageId());
+				getNewMessageId().messageId(), props);
 		MqttPublishMessage message = new MqttPublishMessage(fixedHeader, variableHeader, payload);
 		MqttPendingPublish pendingPublish = new MqttPendingPublish(variableHeader.packetId(), future,
 				payload.retain(), message, qos);
