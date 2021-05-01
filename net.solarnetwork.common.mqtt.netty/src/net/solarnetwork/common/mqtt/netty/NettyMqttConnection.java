@@ -51,6 +51,8 @@ import net.solarnetwork.common.mqtt.MqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectionObserver;
 import net.solarnetwork.common.mqtt.MqttMessage;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
+import net.solarnetwork.common.mqtt.MqttProperty;
+import net.solarnetwork.common.mqtt.MqttPropertyType;
 import net.solarnetwork.common.mqtt.MqttQos;
 import net.solarnetwork.common.mqtt.MqttStats;
 import net.solarnetwork.common.mqtt.netty.client.ChannelClosedException;
@@ -326,6 +328,15 @@ public class NettyMqttConnection extends BaseMqttConnection
 		switch (connConfig.getVersion()) {
 			case Mqtt31:
 				config.setProtocolVersion(MqttVersion.MQTT_3_1);
+				break;
+
+			case Mqtt5:
+				config.setProtocolVersion(MqttVersion.MQTT_5);
+				MqttProperty<Integer> maxTopicAliases = connConfig
+						.getProperty(MqttPropertyType.TOPIC_ALIAS_MAXIMUM);
+				if ( maxTopicAliases != null && maxTopicAliases.getValue() != null ) {
+					config.setMaximumTopicAliases(maxTopicAliases.getValue().intValue());
+				}
 				break;
 
 			default:

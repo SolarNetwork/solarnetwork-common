@@ -33,7 +33,7 @@ import net.solarnetwork.util.StaticOptionalService;
  * Basic implementation of {@link MqttConnectionConfig}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
@@ -70,6 +70,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	private int maximumMessageSize;
 	private int keepAliveSeconds;
 	private MqttStats stats;
+	private final BasicMutableMqttProperties properties;
 
 	/**
 	 * Default constructor.
@@ -84,6 +85,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 		this.keepAliveSeconds = DEFAULT_KEEP_ALIVE_SECONDS;
 		this.maximumMessageSize = DEFAULT_MAXIMUM_MESSAGE_SIZE;
 		this.cleanSession = DEFAULT_CLEAN_SESSION;
+		this.properties = new BasicMutableMqttProperties();
 	}
 
 	/**
@@ -461,6 +463,11 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 		if ( stats != null && uid != null ) {
 			stats.setUid(uid);
 		}
+	}
+
+	@Override
+	public BasicMutableMqttProperties getProperties() {
+		return properties;
 	}
 
 }

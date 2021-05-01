@@ -43,7 +43,7 @@ public class NettyMqttConnectionTests extends MqttConnectionIntegrationTests {
 	public void setup() throws Exception {
 		super.setup();
 		ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-		scheduler.setThreadNamePrefix("PahoMqtt-Scheduler-Test-");
+		scheduler.setThreadNamePrefix("NettyMqtt-Scheduler-Test-");
 		scheduler.initialize();
 		config.setUid("Netty-Test");
 		config.setStats(new MqttStats(5));

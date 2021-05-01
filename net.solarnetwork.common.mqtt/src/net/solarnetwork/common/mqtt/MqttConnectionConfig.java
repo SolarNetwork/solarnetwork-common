@@ -24,13 +24,14 @@ package net.solarnetwork.common.mqtt;
 
 import java.net.URI;
 import java.util.UUID;
+import net.solarnetwork.common.mqtt.MqttProperties.MutableMqttProperties;
 import net.solarnetwork.support.SSLService;
 
 /**
  * API for MQTT connection configuration.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface MqttConnectionConfig {
 
@@ -155,6 +156,50 @@ public interface MqttConnectionConfig {
 	 * @return the statistics object, or {@literal null}
 	 */
 	MqttStats getStats();
+
+	/**
+	 * Get connection properties.
+	 * 
+	 * @return the properties, or {@literal null}
+	 * @since 1.1
+	 */
+	MqttProperties getProperties();
+
+	/**
+	 * Get a property.
+	 * 
+	 * @param <T>
+	 *        the expected property value type
+	 * @param type
+	 *        the property type
+	 * @return the property, or {@literal null}
+	 */
+	@SuppressWarnings("unchecked")
+	default <T> MqttProperty<T> getProperty(MqttPropertyType type) {
+		MqttProperties props = getProperties();
+		if ( props != null ) {
+			return (MqttProperty<T>) props.getProperty(type);
+		}
+		return null;
+	}
+
+	/**
+	 * Set a property.
+	 * 
+	 * <p>
+	 * This method only works if {@link #getProperties()} returns a
+	 * {@link MutableMqttProperties} instance.
+	 * </p>
+	 * 
+	 * @param property
+	 *        the property to set
+	 */
+	default void setProperty(MqttProperty<?> property) {
+		MqttProperties props = getProperties();
+		if ( props instanceof MutableMqttProperties ) {
+			((MutableMqttProperties) props).addProperty(property);
+		}
+	}
 
 	/**
 	 * Generate a random client ID.
