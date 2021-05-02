@@ -556,7 +556,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 		}
 		io.netty.util.concurrent.Future<Void> f = c.publish(message.getTopic(),
 				Unpooled.wrappedBuffer(message.getPayload()), NettyMqttUtils.qos(message.getQosLevel()),
-				message.isRetained());
+				message.isRetained(), message.getProperties());
 
 		final MqttStats s = connectionConfig.getStats();
 		if ( s != null ) {

@@ -38,6 +38,7 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 	private int maximumAliasCount;
 	private final ConcurrentMap<String, Integer> topicAliases;
 	private final ConcurrentMap<Integer, String> aliasedTopics;
+	private final ConcurrentMap<Integer, MqttProperties> topicAliasProperties;
 
 	/**
 	 * Constructor.
@@ -47,6 +48,7 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 	 */
 	public BasicMqttTopicAliases(int maximumAliasCount) {
 		this(maximumAliasCount, new ConcurrentHashMap<>(maximumAliasCount, 0.9f, 2),
+				new ConcurrentHashMap<>(maximumAliasCount, 0.9f, 2),
 				new ConcurrentHashMap<>(maximumAliasCount, 0.9f, 2));
 	}
 
@@ -59,11 +61,14 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 	 *        the map to use for topic aliases
 	 * @param aliasedTopics
 	 *        the map to use for aliased topics
+	 * @param topicAliasProperties
+	 *        the map to use for alias properties
 	 * @throws IllegalArgumentException
 	 *         if any argument is {@literal null}
 	 */
 	public BasicMqttTopicAliases(int maximumAliasCount, ConcurrentMap<String, Integer> topicAliases,
-			ConcurrentMap<Integer, String> aliasedTopics) {
+			ConcurrentMap<Integer, String> aliasedTopics,
+			ConcurrentMap<Integer, MqttProperties> topicAliasProperties) {
 		super();
 		this.maximumAliasCount = maximumAliasCount;
 		if ( topicAliases == null ) {
@@ -74,6 +79,10 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 			throw new IllegalArgumentException("The aliasedTopics parameter must not be null.");
 		}
 		this.aliasedTopics = aliasedTopics;
+		if ( topicAliasProperties == null ) {
+			throw new IllegalArgumentException("The topicAliasProperties parameter must not be null.");
+		}
+		this.topicAliasProperties = topicAliasProperties;
 	}
 
 	@Override
@@ -91,6 +100,7 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 		synchronized ( aliasedTopics ) {
 			topicAliases.clear();
 			aliasedTopics.clear();
+			topicAliasProperties.clear();
 		}
 	}
 
@@ -108,6 +118,7 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 						topicAlias = i;
 						aliasedTopics.put(topicAlias, topic);
 						topicAliases.put(topic, topicAlias);
+						break;
 					}
 				}
 			}
@@ -131,6 +142,15 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 			topicAliases.put(topic, alias);
 		}
 		return topic;
+	}
+
+	@Override
+	public MqttProperties propertiesForAliasedTopic(Integer alias) {
+		return topicAliasProperties.computeIfAbsent(alias, a -> {
+			return (aliasedTopics.containsKey(a)
+					? SingletonProperties.property(MqttPropertyType.TOPIC_ALIAS, alias)
+					: null);
+		});
 	}
 
 }

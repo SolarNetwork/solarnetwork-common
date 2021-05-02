@@ -43,10 +43,15 @@ public class BasicMqttProperty<T> implements MqttProperty<T> {
 	 *        the type
 	 * @param value
 	 *        the value
+	 * @throws IllegalArgumentException
+	 *         if {@code type} is {@literal null}
 	 */
 	public BasicMqttProperty(MqttPropertyType type, T value) {
 		super();
 		this.type = type;
+		if ( type == null ) {
+			throw new IllegalArgumentException("The type argument must not be null.");
+		}
 		this.value = value;
 	}
 
@@ -75,6 +80,23 @@ public class BasicMqttProperty<T> implements MqttProperty<T> {
 		}
 		BasicMqttProperty<?> other = (BasicMqttProperty<?>) obj;
 		return type == other.type && Objects.equals(value, other.value);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("BasicMqttProperty{");
+		if ( type != null ) {
+			builder.append("type=");
+			builder.append(type);
+			builder.append(", ");
+		}
+		if ( value != null ) {
+			builder.append("value=");
+			builder.append(value);
+		}
+		builder.append("}");
+		return builder.toString();
 	}
 
 }

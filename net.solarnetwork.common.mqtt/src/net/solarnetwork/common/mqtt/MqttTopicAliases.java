@@ -82,4 +82,41 @@ public interface MqttTopicAliases {
 	 */
 	String aliasedTopic(String topic, Integer alias);
 
+	/**
+	 * Get a {@link MqttProperties} that includes a topic alias property.
+	 * 
+	 * @param alias
+	 *        the topic alias
+	 * @return the properties, or {@literal null} if {@code alias} is not
+	 *         already aliased
+	 */
+	MqttProperties propertiesForAliasedTopic(Integer alias);
+
+	/**
+	 * Convenience method to create a new message with a topic alias.
+	 * 
+	 * @param topic
+	 *        the topic
+	 * @param retained
+	 *        the retained flag
+	 * @param qosLevel
+	 *        the QOS level
+	 * @param payload
+	 *        the payload
+	 * @return the new message, never {@literal null}
+	 */
+	default MqttMessage mssageWithTopicAlias(String topic, boolean retained, MqttQos qosLevel,
+			byte[] payload) {
+		// using array so can mutate within callback
+		Integer[] alias = new Integer[] { null };
+		topic = topicAlias(topic, a -> {
+			alias[0] = a;
+		});
+		MqttProperties props = null;
+		if ( alias[0] != null ) {
+			props = propertiesForAliasedTopic(alias[0]);
+		}
+		return new BasicMqttMessage(topic, retained, qosLevel, payload, props);
+	}
+
 }

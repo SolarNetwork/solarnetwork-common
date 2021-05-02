@@ -42,19 +42,22 @@ import io.netty.handler.codec.mqtt.MqttSubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Promise;
-import net.solarnetwork.common.mqtt.BasicMqttTopicAliases;
 import net.solarnetwork.common.mqtt.MqttTopicAliases;
+import net.solarnetwork.common.mqtt.NoOpMqttTopicAliases;
 import net.solarnetwork.common.mqtt.netty.NettyMqttMessage;
 
 final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> {
 
 	private final MqttClientImpl client;
 	private final Promise<MqttConnectResult> connectFuture;
-	private final MqttTopicAliases serverAliases = new BasicMqttTopicAliases(0);
+	private final MqttTopicAliases serverAliases;
 
 	MqttChannelHandler(MqttClientImpl client, Promise<MqttConnectResult> connectFuture) {
 		this.client = client;
 		this.connectFuture = connectFuture;
+		this.serverAliases = (client.getClientConfig().getProtocolVersion().protocolLevel() > (byte) 4
+				? client.getTopicAliases()
+				: new NoOpMqttTopicAliases());
 	}
 
 	@Override
@@ -189,7 +192,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				}
 			}
 		}
-		serverAliases.setMaximumAliasCount(maxTopicAliases);
+		client.getTopicAliases().setMaximumAliasCount(maxTopicAliases);
 		switch (message.variableHeader().connectReturnCode()) {
 			case CONNECTION_ACCEPTED:
 				this.connectFuture.setSuccess(new MqttConnectResult(true,

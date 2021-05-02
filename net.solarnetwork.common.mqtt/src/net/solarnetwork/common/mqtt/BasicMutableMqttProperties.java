@@ -131,4 +131,26 @@ public class BasicMutableMqttProperties implements MutableMqttProperties {
 		}
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("BasicMutableMqttProperties{");
+		if ( properties != null ) {
+			builder.append("properties=");
+			builder.append(properties);
+			builder.append(", ");
+		}
+		if ( userProperties != null ) {
+			builder.append("userProperties=");
+			builder.append(userProperties);
+			builder.append(", ");
+		}
+		if ( subscriptionIds != null ) {
+			builder.append("subscriptionIds=");
+			builder.append(subscriptionIds);
+		}
+		builder.append("}");
+		return builder.toString();
+	}
+
 }

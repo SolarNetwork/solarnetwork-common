@@ -22,7 +22,7 @@
 
 package net.solarnetwork.common.mqtt.netty.test;
 
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,16 +30,21 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import io.netty.util.CharsetUtil;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
+import net.solarnetwork.common.mqtt.BasicMqttMessage;
 import net.solarnetwork.common.mqtt.BasicMqttProperty;
 import net.solarnetwork.common.mqtt.MqttConnectReturnCode;
 import net.solarnetwork.common.mqtt.MqttConnection;
+import net.solarnetwork.common.mqtt.MqttMessage;
 import net.solarnetwork.common.mqtt.MqttPropertyType;
+import net.solarnetwork.common.mqtt.MqttQos;
 import net.solarnetwork.common.mqtt.MqttStats;
 import net.solarnetwork.common.mqtt.MqttVersion;
 import net.solarnetwork.common.mqtt.netty.NettyMqttConnection;
@@ -90,6 +95,7 @@ public class NettyMqtt5IntegrationTests {
 		config.setConnectTimeoutSeconds(1);
 		config.setReconnectDelaySeconds(1);
 		config.setVersion(MqttVersion.Mqtt5);
+		config.setReconnect(false);
 		config.setUid("Netty-Test");
 		config.setStats(new MqttStats("Netty-Test", 5));
 		config.setProperty(new BasicMqttProperty<Integer>(MqttPropertyType.TOPIC_ALIAS_MAXIMUM, 32));
@@ -118,6 +124,48 @@ public class NettyMqtt5IntegrationTests {
 		} finally {
 			service.close();
 		}
+	}
+
+	@Test
+	public void publish_withAlias_first() throws Exception {
+		// GIVEN
+		Future<?> f = service.open();
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// WHEN
+		final String msg = "Hello, world.";
+		MqttMessage mqttMsg = new BasicMqttMessage("test/foo", false, MqttQos.AtLeastOnce,
+				msg.getBytes(CharsetUtil.UTF_8));
+		f = service.publish(mqttMsg);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+	}
+
+	@Test
+	public void publish_withAlias_second() throws Exception {
+		// GIVEN
+		Future<?> f = service.open();
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// WHEN
+		MqttMessage mqttMsg = new BasicMqttMessage("test/foo", false, MqttQos.AtLeastOnce,
+				"Hello, world.".getBytes(CharsetUtil.UTF_8));
+		f = service.publish(mqttMsg);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		mqttMsg = new BasicMqttMessage("test/foo", false, MqttQos.AtLeastOnce,
+				"HELLO, WORLD!".getBytes(CharsetUtil.UTF_8));
+		f = service.publish(mqttMsg);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+	}
+
+	@Test
+	public void subscribe_withAlias_first() throws Exception {
+		Assert.fail("TODO");
+	}
+
+	@Test
+	public void subscribe_withAlias_second() throws Exception {
+		Assert.fail("TODO");
 	}
 
 }
