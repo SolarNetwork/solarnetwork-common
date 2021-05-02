@@ -447,6 +447,11 @@ final class MqttClientImpl implements MqttClient {
 	}
 
 	@Override
+	public boolean isDisconnected() {
+		return disconnected = true;
+	}
+
+	@Override
 	public void setCallback(MqttClientCallback callback) {
 		this.callback = callback;
 	}

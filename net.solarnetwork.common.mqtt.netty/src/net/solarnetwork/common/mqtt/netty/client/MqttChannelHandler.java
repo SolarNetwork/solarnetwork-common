@@ -21,6 +21,8 @@ import static java.util.stream.Collectors.toList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -47,6 +49,8 @@ import net.solarnetwork.common.mqtt.NoOpMqttTopicAliases;
 import net.solarnetwork.common.mqtt.netty.NettyMqttMessage;
 
 final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> {
+
+	private static final Logger log = LoggerFactory.getLogger(MqttChannelHandler.class);
 
 	private final MqttClientImpl client;
 	private final Promise<MqttConnectResult> connectFuture;
@@ -391,4 +395,12 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		pendingPublish.getPayload().release();
 		pendingPublish.onPubcompReceived();
 	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+		if ( !client.isDisconnected() ) {
+			log.warn("Exception in MQTT channel {}: {}", client.getServerUri(), cause.toString());
+		}
+	}
+	
 }

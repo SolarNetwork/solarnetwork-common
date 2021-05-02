@@ -359,6 +359,15 @@ public interface MqttClient {
 	java.util.concurrent.Future<?> disconnect();
 
 	/**
+	 * Get disconnected flag.
+	 * 
+	 * @return {@literal true} if {@linnk #disconnect()} has been called to
+	 *         close the connection
+	 * @since 1.1
+	 */
+	boolean isDisconnected();
+
+	/**
 	 * Sets the {@link MqttClientCallback} object for this MqttClient.
 	 * 
 	 * @param callback
