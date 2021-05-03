@@ -83,6 +83,7 @@ public interface MqttProperties extends Iterable<MqttProperty<?>> {
 		 * </p>
 		 * 
 		 * @param property
+		 *        the property to add
 		 */
 		void addProperty(MqttProperty<?> property);
 
