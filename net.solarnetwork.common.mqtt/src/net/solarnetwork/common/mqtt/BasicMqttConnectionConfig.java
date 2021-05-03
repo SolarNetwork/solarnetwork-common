@@ -55,6 +55,13 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	/** The {@code cleanSession} property default value. */
 	public static final boolean DEFAULT_CLEAN_SESSION = true;
 
+	/**
+	 * The {@code version} property default value.
+	 * 
+	 * @since 1.1
+	 */
+	public static final MqttVersion DEFAULT_VERSION = MqttVersion.Mqtt311;
+
 	private String uid;
 	private URI serverUri;
 	private MqttVersion version;
@@ -78,7 +85,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	public BasicMqttConnectionConfig() {
 		super();
 		this.uid = UUID.randomUUID().toString();
-		this.version = MqttVersion.Mqtt311;
+		this.version = DEFAULT_VERSION;
 		this.connectTimeoutSeconds = DEFAULT_CONNECT_TIMEOUT_SECONDS;
 		this.reconnect = DEFAULT_RECONNECT;
 		this.reconnectDelaySeconds = DEFAULT_RECONNECT_DELAY_SECONDS;
