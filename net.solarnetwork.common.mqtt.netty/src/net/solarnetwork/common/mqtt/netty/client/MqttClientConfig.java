@@ -20,13 +20,23 @@ package net.solarnetwork.common.mqtt.netty.client;
 import java.util.Random;
 import io.netty.channel.Channel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.mqtt.MqttProperties;
+import io.netty.handler.codec.mqtt.MqttProperties.IntegerProperty;
+import io.netty.handler.codec.mqtt.MqttProperties.MqttProperty;
 import io.netty.handler.codec.mqtt.MqttVersion;
 import io.netty.handler.ssl.SslContext;
 
+/**
+ * MQTT client configuration.
+ * 
+ * @author matt
+ * @version 1.1
+ */
 public final class MqttClientConfig {
 
 	private final SslContext sslContext;
 	private final String randomClientId;
+	private final MqttProperties connectionProperties = new MqttProperties();
 
 	private String clientId;
 	private int timeoutSeconds = 60;
@@ -184,4 +194,42 @@ public final class MqttClientConfig {
 		}
 		this.maxBytesInMessage = maxBytesInMessage;
 	}
+
+	/**
+	 * Get the MQTT connection properties.
+	 * 
+	 * @return the propertes, never {@literal null}
+	 * @since 1.1
+	 */
+	public MqttProperties getConnectionProperties() {
+		return connectionProperties;
+	}
+
+	/**
+	 * Convenience method to set the {@code TOPIC_ALIAS_MAXIMUM} connection
+	 * property.
+	 * 
+	 * @param max
+	 *        the maximum number of topic aliases to allow on the connection
+	 * @since 1.1
+	 */
+	public void setMaximumTopicAliases(int max) {
+		connectionProperties.add(
+				new IntegerProperty(MqttProperties.MqttPropertyType.TOPIC_ALIAS_MAXIMUM.value(), max));
+	}
+
+	/**
+	 * Convenience method to get the {@code TOPIC_ALIAS_MAXIMUM} connection
+	 * property.
+	 * 
+	 * @return the maximum number of topic aliases to allow on the connection
+	 * @since 1.1
+	 */
+	public int getMaximumTopicAliases() {
+		@SuppressWarnings("rawtypes")
+		MqttProperty prop = connectionProperties
+				.getProperty(MqttProperties.MqttPropertyType.TOPIC_ALIAS_MAXIMUM.value());
+		return (prop instanceof IntegerProperty ? ((IntegerProperty) prop).value() : 0);
+	}
+
 }

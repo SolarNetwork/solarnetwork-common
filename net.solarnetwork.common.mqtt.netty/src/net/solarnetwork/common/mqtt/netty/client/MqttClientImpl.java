@@ -50,6 +50,9 @@ import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
 import io.netty.handler.codec.mqtt.MqttMessageType;
+import io.netty.handler.codec.mqtt.MqttProperties;
+import io.netty.handler.codec.mqtt.MqttProperties.MqttProperty;
+import io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import io.netty.handler.codec.mqtt.MqttQoS;
@@ -58,6 +61,7 @@ import io.netty.handler.codec.mqtt.MqttSubscribePayload;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubscribePayload;
+import io.netty.handler.codec.mqtt.MqttVersion;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -65,7 +69,10 @@ import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
+import net.solarnetwork.common.mqtt.BasicMqttTopicAliases;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
+import net.solarnetwork.common.mqtt.MqttTopicAliases;
+import net.solarnetwork.domain.KeyValuePair;
 
 /**
  * Represents an MqttClientImpl connected to a single MQTT server. Will try to
@@ -83,6 +90,7 @@ final class MqttClientImpl implements MqttClient {
 	private final Set<String> pendingSubscribeTopics = new HashSet<>();
 	private final MultiValueMap<MqttMessageHandler, MqttSubscription> handlerToSubscribtion = new LinkedMultiValueMap<>();
 	private final AtomicInteger nextMessageId = new AtomicInteger(0);
+	private final MqttTopicAliases clientAliases = new BasicMqttTopicAliases(0);
 
 	private final MqttClientConfig clientConfig;
 
@@ -173,7 +181,11 @@ final class MqttClientImpl implements MqttClient {
 							}
 							ChannelClosedException e = new ChannelClosedException("Channel is closed!");
 							if ( callback != null ) {
-								callback.connectionLost(e);
+								try {
+									callback.connectionLost(e);
+								} catch ( Throwable t ) {
+									// ignore
+								}
 							}
 							pendingSubscriptions.clear();
 							serverSubscriptions.clear();
@@ -183,6 +195,7 @@ final class MqttClientImpl implements MqttClient {
 							pendingPublishes.clear();
 							pendingSubscribeTopics.clear();
 							handlerToSubscribtion.clear();
+							clientAliases.clear();
 							scheduleConnectIfRequired(host, port, true);
 						});
 			} else {
@@ -233,119 +246,36 @@ final class MqttClientImpl implements MqttClient {
 		return connect(host, port);
 	}
 
-	/**
-	 * Retrieve the netty {@link EventLoopGroup} we are using
-	 *
-	 * @return The netty {@link EventLoopGroup} we use for the connection
-	 */
 	@Override
 	public EventLoopGroup getEventLoop() {
 		return eventLoop;
 	}
 
-	/**
-	 * By default we use the netty {@link NioEventLoopGroup}. If you change the
-	 * EventLoopGroup to another type, make sure to change the {@link Channel}
-	 * class using {@link MqttClientConfig#setChannelClass(Class)} If you want
-	 * to force the MqttClient to use another {@link EventLoopGroup}, call this
-	 * function before calling {@link #connect(String, int)}
-	 *
-	 * @param eventLoop
-	 *        The new eventloop to use
-	 */
 	@Override
 	public void setEventLoop(EventLoopGroup eventLoop) {
 		this.eventLoop = eventLoop;
 	}
 
-	/**
-	 * Subscribe on the given topic. When a message is received, MqttClient will
-	 * invoke the {@link MqttMessageHandler#onMessage(String, ByteBuf)} function
-	 * of the given handler
-	 *
-	 * @param topic
-	 *        The topic filter to subscribe to
-	 * @param handler
-	 *        The handler to invoke when we receive a message
-	 * @return A future which will be completed when the server acknowledges our
-	 *         subscribe request
-	 */
 	@Override
 	public Future<Void> on(String topic, MqttMessageHandler handler) {
 		return on(topic, handler, MqttQoS.AT_MOST_ONCE);
 	}
 
-	/**
-	 * Subscribe on the given topic, with the given qos. When a message is
-	 * received, MqttClient will invoke the
-	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
-	 * given handler
-	 *
-	 * @param topic
-	 *        The topic filter to subscribe to
-	 * @param handler
-	 *        The handler to invoke when we receive a message
-	 * @param qos
-	 *        The qos to request to the server
-	 * @return A future which will be completed when the server acknowledges our
-	 *         subscribe request
-	 */
 	@Override
 	public Future<Void> on(String topic, MqttMessageHandler handler, MqttQoS qos) {
 		return createSubscription(topic, handler, false, qos);
 	}
 
-	/**
-	 * Subscribe on the given topic. When a message is received, MqttClient will
-	 * invoke the {@link MqttMessageHandler#onMessage(String, ByteBuf)} function
-	 * of the given handler This subscription is only once. If the MqttClient
-	 * has received 1 message, the subscription will be removed
-	 *
-	 * @param topic
-	 *        The topic filter to subscribe to
-	 * @param handler
-	 *        The handler to invoke when we receive a message
-	 * @return A future which will be completed when the server acknowledges our
-	 *         subscribe request
-	 */
 	@Override
 	public Future<Void> once(String topic, MqttMessageHandler handler) {
 		return once(topic, handler, MqttQoS.AT_MOST_ONCE);
 	}
 
-	/**
-	 * Subscribe on the given topic, with the given qos. When a message is
-	 * received, MqttClient will invoke the
-	 * {@link MqttMessageHandler#onMessage(String, ByteBuf)} function of the
-	 * given handler This subscription is only once. If the MqttClient has
-	 * received 1 message, the subscription will be removed
-	 *
-	 * @param topic
-	 *        The topic filter to subscribe to
-	 * @param handler
-	 *        The handler to invoke when we receive a message
-	 * @param qos
-	 *        The qos to request to the server
-	 * @return A future which will be completed when the server acknowledges our
-	 *         subscribe request
-	 */
 	@Override
 	public Future<Void> once(String topic, MqttMessageHandler handler, MqttQoS qos) {
 		return createSubscription(topic, handler, true, qos);
 	}
 
-	/**
-	 * Remove the subscription for the given topic and handler If you want to
-	 * unsubscribe from all handlers known for this topic, use
-	 * {@link #off(String)}
-	 *
-	 * @param topic
-	 *        The topic to unsubscribe for
-	 * @param handler
-	 *        The handler to unsubscribe
-	 * @return A future which will be completed when the server acknowledges our
-	 *         unsubscribe request
-	 */
 	@Override
 	public Future<Void> off(String topic, MqttMessageHandler handler) {
 		Promise<Void> future = new DefaultPromise<>(this.eventLoop.next());
@@ -373,16 +303,6 @@ final class MqttClientImpl implements MqttClient {
 		return future;
 	}
 
-	/**
-	 * Remove all subscriptions for the given topic. If you want to specify
-	 * which handler to unsubscribe, use
-	 * {@link #off(String, MqttMessageHandler)}
-	 *
-	 * @param topic
-	 *        The topic to unsubscribe for
-	 * @return A future which will be completed when the server acknowledges our
-	 *         unsubscribe request
-	 */
 	@Override
 	public Future<Void> off(String topic) {
 		Promise<Void> future = new DefaultPromise<>(this.eventLoop.next());
@@ -408,79 +328,52 @@ final class MqttClientImpl implements MqttClient {
 		return future;
 	}
 
-	/**
-	 * Publish a message to the given payload
-	 *
-	 * @param topic
-	 *        The topic to publish to
-	 * @param payload
-	 *        The payload to send
-	 * @return A future which will be completed when the message is sent out of
-	 *         the MqttClient
-	 */
 	@Override
 	public Future<Void> publish(String topic, ByteBuf payload) {
-		return publish(topic, payload, MqttQoS.AT_MOST_ONCE, false);
+		return publish(topic, payload, MqttQoS.AT_MOST_ONCE, false, null);
 	}
 
-	/**
-	 * Publish a message to the given payload, using the given qos
-	 *
-	 * @param topic
-	 *        The topic to publish to
-	 * @param payload
-	 *        The payload to send
-	 * @param qos
-	 *        The qos to use while publishing
-	 * @return A future which will be completed when the message is delivered to
-	 *         the server
-	 */
 	@Override
 	public Future<Void> publish(String topic, ByteBuf payload, MqttQoS qos) {
-		return publish(topic, payload, qos, false);
+		return publish(topic, payload, qos, false, null);
 	}
 
-	/**
-	 * Publish a message to the given payload, using optional retain
-	 *
-	 * @param topic
-	 *        The topic to publish to
-	 * @param payload
-	 *        The payload to send
-	 * @param retain
-	 *        true if you want to retain the message on the server, false
-	 *        otherwise
-	 * @return A future which will be completed when the message is sent out of
-	 *         the MqttClient
-	 */
 	@Override
 	public Future<Void> publish(String topic, ByteBuf payload, boolean retain) {
-		return publish(topic, payload, MqttQoS.AT_MOST_ONCE, retain);
+		return publish(topic, payload, MqttQoS.AT_MOST_ONCE, retain, null);
 	}
 
-	/**
-	 * Publish a message to the given payload, using the given qos and optional
-	 * retain
-	 *
-	 * @param topic
-	 *        The topic to publish to
-	 * @param payload
-	 *        The payload to send
-	 * @param qos
-	 *        The qos to use while publishing
-	 * @param retain
-	 *        true if you want to retain the message on the server, false
-	 *        otherwise
-	 * @return A future which will be completed when the message is delivered to
-	 *         the server
-	 */
 	@Override
 	public Future<Void> publish(String topic, ByteBuf payload, MqttQoS qos, boolean retain) {
+		return publish(topic, payload, qos, retain, null);
+	}
+
+	@Override
+	public Future<Void> publish(String topic, ByteBuf payload, MqttQoS qos, boolean retain,
+			net.solarnetwork.common.mqtt.MqttProperties properties) {
 		Promise<Void> future = new DefaultPromise<>(this.eventLoop.next());
 		MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBLISH, false, qos, retain,
 				0);
+
+		MqttProperties props = MqttProperties.NO_PROPERTIES;
+		if ( properties != null && !properties.isEmpty() ) {
+			props = new MqttProperties();
+			copyProperties(properties, props);
+		}
+
+		// use topic alias if possible
+		if ( this.clientConfig.getProtocolVersion().protocolLevel() >= MqttVersion.MQTT_5
+				.protocolLevel() ) {
+			final MqttProperties p = (props == MqttProperties.NO_PROPERTIES ? new MqttProperties()
+					: props);
+			topic = this.clientAliases.topicAlias(topic, a -> {
+				p.add(new MqttProperties.IntegerProperty(MqttPropertyType.TOPIC_ALIAS.value(), a));
+			});
+			props = p;
+		}
+
 		MqttPublishVariableHeader variableHeader = new MqttPublishVariableHeader(topic,
-				getNewMessageId().messageId());
+				getNewMessageId().messageId(), props);
 		MqttPublishMessage message = new MqttPublishMessage(fixedHeader, variableHeader, payload);
 		MqttPendingPublish pendingPublish = new MqttPendingPublish(variableHeader.packetId(), future,
 				payload.retain(), message, qos);
@@ -503,11 +396,30 @@ final class MqttClientImpl implements MqttClient {
 		return future;
 	}
 
-	/**
-	 * Retrieve the MqttClient configuration
-	 *
-	 * @return The {@link MqttClientConfig} instance we use
-	 */
+	private void copyProperties(net.solarnetwork.common.mqtt.MqttProperties properties,
+			MqttProperties props) {
+		if ( properties == null ) {
+			return;
+		}
+		for ( net.solarnetwork.common.mqtt.MqttProperty<?> p : properties ) {
+			MqttProperty<?> prop = null;
+			Class<?> valueType = p.getType().getValueType();
+			if ( Integer.class.isAssignableFrom(valueType) ) {
+				prop = new MqttProperties.IntegerProperty(p.getType().getKey(), (Integer) p.getValue());
+			} else if ( String.class.isAssignableFrom(valueType) ) {
+				prop = new MqttProperties.StringProperty(p.getType().getKey(), p.getValue().toString());
+			} else if ( byte[].class.isAssignableFrom(valueType) ) {
+				prop = new MqttProperties.BinaryProperty(p.getType().getKey(), (byte[]) p.getValue());
+			} else if ( KeyValuePair.class.isAssignableFrom(valueType) ) {
+				KeyValuePair kp = (KeyValuePair) p.getValue();
+				prop = new MqttProperties.UserProperty(kp.getKey(), kp.getValue());
+			}
+			if ( prop != null ) {
+				props.add(prop);
+			}
+		}
+	}
+
 	@Override
 	public MqttClientConfig getClientConfig() {
 		return clientConfig;
@@ -532,6 +444,11 @@ final class MqttClientImpl implements MqttClient {
 			result.complete(null);
 		}
 		return result;
+	}
+
+	@Override
+	public boolean isDisconnected() {
+		return disconnected = true;
 	}
 
 	@Override
@@ -706,6 +623,11 @@ final class MqttClientImpl implements MqttClient {
 	@Override
 	public void setWireLogging(boolean wireLogging) {
 		this.wireLogging = wireLogging;
+	}
+
+	@Override
+	public MqttTopicAliases getTopicAliases() {
+		return clientAliases;
 	}
 
 }

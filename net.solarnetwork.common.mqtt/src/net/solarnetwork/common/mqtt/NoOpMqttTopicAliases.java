@@ -1,7 +1,7 @@
 /* ==================================================================
- * MqttMessage.java - 23/11/2019 5:20:17 pm
+ * NoOpMqttTopicAliases.java - 2/05/2021 3:31:08 PM
  * 
- * Copyright 2019 SolarNetwork.net Dev Team
+ * Copyright 2021 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -22,43 +22,50 @@
 
 package net.solarnetwork.common.mqtt;
 
+import java.util.function.Consumer;
+
 /**
- * MQTT message.
+ * Implementation of {@link MqttTopicAliases} that does not perform any
+ * aliasing.
+ * 
+ * <p>
+ * This is designed to be used when MQTT less than v5 is being used.
+ * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
+ * @since 2.2
  */
-public interface MqttMessage {
+public final class NoOpMqttTopicAliases implements MqttTopicAliases {
 
-	/**
-	 * Get the message topic.
-	 * 
-	 * @return the topic
-	 */
-	String getTopic();
+	@Override
+	public int getMaximumAliasCount() {
+		return 0;
+	}
 
-	/**
-	 * Get the retained flag.
-	 * 
-	 * @return {@literal true} if the message has the "retain" flag set
-	 */
-	boolean isRetained();
+	@Override
+	public void setMaximumAliasCount(int maximumAliasCount) {
+		// ignore
+	}
 
-	MqttQos getQosLevel();
+	@Override
+	public void clear() {
+		// nothing to do
+	}
 
-	/**
-	 * Get the message payload.
-	 * 
-	 * @return the payload
-	 */
-	byte[] getPayload();
+	@Override
+	public String topicAlias(String topic, Consumer<Integer> aliasConsumer) {
+		return topic;
+	}
 
-	/**
-	 * Get the message properties.
-	 * 
-	 * @return the properties, or {@literal null}
-	 * @since 1.1
-	 */
-	MqttProperties getProperties();
+	@Override
+	public String aliasedTopic(String topic, Integer alias) {
+		return topic;
+	}
+
+	@Override
+	public MqttProperties propertiesForAliasedTopic(Integer alias) {
+		return null;
+	}
 
 }

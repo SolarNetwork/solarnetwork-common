@@ -33,7 +33,7 @@ import net.solarnetwork.util.StaticOptionalService;
  * Basic implementation of {@link MqttConnectionConfig}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
@@ -55,6 +55,13 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	/** The {@code cleanSession} property default value. */
 	public static final boolean DEFAULT_CLEAN_SESSION = true;
 
+	/**
+	 * The {@code version} property default value.
+	 * 
+	 * @since 1.1
+	 */
+	public static final MqttVersion DEFAULT_VERSION = MqttVersion.Mqtt311;
+
 	private String uid;
 	private URI serverUri;
 	private MqttVersion version;
@@ -70,6 +77,8 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	private int maximumMessageSize;
 	private int keepAliveSeconds;
 	private MqttStats stats;
+	private boolean wireLoggingEnabled;
+	private final BasicMutableMqttProperties properties;
 
 	/**
 	 * Default constructor.
@@ -77,13 +86,14 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	public BasicMqttConnectionConfig() {
 		super();
 		this.uid = UUID.randomUUID().toString();
-		this.version = MqttVersion.Mqtt311;
+		this.version = DEFAULT_VERSION;
 		this.connectTimeoutSeconds = DEFAULT_CONNECT_TIMEOUT_SECONDS;
 		this.reconnect = DEFAULT_RECONNECT;
 		this.reconnectDelaySeconds = DEFAULT_RECONNECT_DELAY_SECONDS;
 		this.keepAliveSeconds = DEFAULT_KEEP_ALIVE_SECONDS;
 		this.maximumMessageSize = DEFAULT_MAXIMUM_MESSAGE_SIZE;
 		this.cleanSession = DEFAULT_CLEAN_SESSION;
+		this.properties = new BasicMutableMqttProperties();
 	}
 
 	/**
@@ -461,6 +471,21 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 		if ( stats != null && uid != null ) {
 			stats.setUid(uid);
 		}
+	}
+
+	@Override
+	public BasicMutableMqttProperties getProperties() {
+		return properties;
+	}
+
+	@Override
+	public boolean isWireLoggingEnabled() {
+		return wireLoggingEnabled;
+	}
+
+	@Override
+	public void setWireLoggingEnabled(boolean wireLoggingEnabled) {
+		this.wireLoggingEnabled = wireLoggingEnabled;
 	}
 
 }

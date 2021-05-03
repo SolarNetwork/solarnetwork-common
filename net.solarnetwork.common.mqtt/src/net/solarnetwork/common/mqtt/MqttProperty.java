@@ -1,7 +1,7 @@
 /* ==================================================================
- * MqttMessage.java - 23/11/2019 5:20:17 pm
+ * MqttProperty.java - 2/05/2021 8:16:03 AM
  * 
- * Copyright 2019 SolarNetwork.net Dev Team
+ * Copyright 2021 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -23,42 +23,28 @@
 package net.solarnetwork.common.mqtt;
 
 /**
- * MQTT message.
+ * An MQTT message property.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
+ * @since 2.2
+ * @param <T>
+ *        the property type
  */
-public interface MqttMessage {
+public interface MqttProperty<T> {
 
 	/**
-	 * Get the message topic.
+	 * Get the property type.
 	 * 
-	 * @return the topic
+	 * @return the property type
 	 */
-	String getTopic();
+	MqttPropertyType getType();
 
 	/**
-	 * Get the retained flag.
+	 * Get the property value.
 	 * 
-	 * @return {@literal true} if the message has the "retain" flag set
+	 * @return the value
 	 */
-	boolean isRetained();
-
-	MqttQos getQosLevel();
-
-	/**
-	 * Get the message payload.
-	 * 
-	 * @return the payload
-	 */
-	byte[] getPayload();
-
-	/**
-	 * Get the message properties.
-	 * 
-	 * @return the properties, or {@literal null}
-	 * @since 1.1
-	 */
-	MqttProperties getProperties();
+	T getValue();
 
 }

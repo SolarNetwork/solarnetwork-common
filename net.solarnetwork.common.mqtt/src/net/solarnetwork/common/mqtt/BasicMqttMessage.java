@@ -34,6 +34,7 @@ public class BasicMqttMessage implements MqttMessage {
 	private final boolean retained;
 	private final MqttQos qosLevel;
 	private final byte[] payload;
+	private final MqttProperties properties;
 
 	/**
 	 * Constructor.
@@ -48,11 +49,32 @@ public class BasicMqttMessage implements MqttMessage {
 	 *        the payload
 	 */
 	public BasicMqttMessage(String topic, boolean retained, MqttQos qosLevel, byte[] payload) {
+		this(topic, retained, qosLevel, payload, null);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param topic
+	 *        the topic
+	 * @param retained
+	 *        the retained flag
+	 * @param qosLevel
+	 *        the quality of service flag
+	 * @param payload
+	 *        the payload
+	 * @param properties
+	 *        the properties
+	 * @since 1.1
+	 */
+	public BasicMqttMessage(String topic, boolean retained, MqttQos qosLevel, byte[] payload,
+			MqttProperties properties) {
 		super();
 		this.topic = topic;
 		this.retained = retained;
 		this.qosLevel = qosLevel;
 		this.payload = payload;
+		this.properties = properties;
 	}
 
 	@Override
@@ -73,6 +95,11 @@ public class BasicMqttMessage implements MqttMessage {
 	@Override
 	public byte[] getPayload() {
 		return payload;
+	}
+
+	@Override
+	public MqttProperties getProperties() {
+		return properties;
 	}
 
 }
