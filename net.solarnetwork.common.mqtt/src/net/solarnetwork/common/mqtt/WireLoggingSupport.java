@@ -1,7 +1,7 @@
 /* ==================================================================
- * MqttMessage.java - 23/11/2019 5:20:17 pm
+ * WireLoggingSupport.java - 3/05/2021 2:29:30 PM
  * 
- * Copyright 2019 SolarNetwork.net Dev Team
+ * Copyright 2021 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -23,42 +23,33 @@
 package net.solarnetwork.common.mqtt;
 
 /**
- * MQTT message.
+ * API for components that support toggling "wire" debug logging.
+ * 
+ * <p>
+ * By "wire" we mean logging the contents of protocol data, as sent over the
+ * network connection.
+ * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
+ * @since 2.2
  */
-public interface MqttMessage {
+public interface WireLoggingSupport {
 
 	/**
-	 * Get the message topic.
+	 * Get the wire logging enabled flag.
 	 * 
-	 * @return the topic
+	 * @return {@literal true} if wire logging is enabled}
 	 */
-	String getTopic();
+	boolean isWireLoggingEnabled();
 
 	/**
-	 * Get the retained flag.
+	 * Set the wire logging enabled flag.
 	 * 
-	 * @return {@literal true} if the message has the "retain" flag set
+	 * @param enabled
+	 *        {@literal true} to enable wire logging, {@literal false} to
+	 *        disable
 	 */
-	boolean isRetained();
-
-	MqttQos getQosLevel();
-
-	/**
-	 * Get the message payload.
-	 * 
-	 * @return the payload
-	 */
-	byte[] getPayload();
-
-	/**
-	 * Get the message properties.
-	 * 
-	 * @return the properties, or {@literal null}
-	 * @since 1.1
-	 */
-	MqttProperties getProperties();
+	void setWireLoggingEnabled(boolean enabled);
 
 }

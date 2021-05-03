@@ -21,6 +21,8 @@ import static java.util.stream.Collectors.toList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -33,6 +35,8 @@ import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
 import io.netty.handler.codec.mqtt.MqttMessageType;
+import io.netty.handler.codec.mqtt.MqttProperties;
+import io.netty.handler.codec.mqtt.MqttProperties.MqttProperty;
 import io.netty.handler.codec.mqtt.MqttPubAckMessage;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
@@ -40,16 +44,24 @@ import io.netty.handler.codec.mqtt.MqttSubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Promise;
+import net.solarnetwork.common.mqtt.MqttTopicAliases;
+import net.solarnetwork.common.mqtt.NoOpMqttTopicAliases;
 import net.solarnetwork.common.mqtt.netty.NettyMqttMessage;
 
 final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> {
 
+	private static final Logger log = LoggerFactory.getLogger(MqttChannelHandler.class);
+
 	private final MqttClientImpl client;
 	private final Promise<MqttConnectResult> connectFuture;
+	private final MqttTopicAliases serverAliases;
 
 	MqttChannelHandler(MqttClientImpl client, Promise<MqttConnectResult> connectFuture) {
 		this.client = client;
 		this.connectFuture = connectFuture;
+		this.serverAliases = (client.getClientConfig().getProtocolVersion().protocolLevel() > (byte) 4
+				? client.getTopicAliases()
+				: new NoOpMqttTopicAliases());
 	}
 
 	@Override
@@ -90,50 +102,69 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
 		MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.CONNECT, false,
 				MqttQoS.AT_MOST_ONCE, false, 0);
+		MqttClientConfig config = this.client.getClientConfig();
+		// @formatter:off
 		MqttConnectVariableHeader variableHeader = new MqttConnectVariableHeader(
-				this.client.getClientConfig().getProtocolVersion().protocolName(), // Protocol Name
-				this.client.getClientConfig().getProtocolVersion().protocolLevel(), // Protocol Level
-				this.client.getClientConfig().getUsername() != null, // Has Username
-				this.client.getClientConfig().getPassword() != null, // Has Password
-				this.client.getClientConfig().getLastWill() != null // Will Retain
-						&& this.client.getClientConfig().getLastWill().isRetain(),
-				this.client.getClientConfig().getLastWill() != null // Will QOS
-						? this.client.getClientConfig().getLastWill().getQos().value()
+				config.getProtocolVersion().protocolName(), // Protocol Name
+				config.getProtocolVersion().protocolLevel(), // Protocol Level
+				config.getUsername() != null, // Has Username
+				config.getPassword() != null, // Has Password
+				config.getLastWill() != null && config.getLastWill().isRetain(), // Will Retain
+				config.getLastWill() != null // Will QOS
+						? config.getLastWill().getQos().value()
 						: 0,
-				this.client.getClientConfig().getLastWill() != null, // Has Will
-				this.client.getClientConfig().isCleanSession(), // Clean Session
-				this.client.getClientConfig().getTimeoutSeconds() // Timeout
+				config.getLastWill() != null, // Has Will
+				config.isCleanSession(), // Clean Session
+				config.getTimeoutSeconds(), // Timeout
+				config.getConnectionProperties()
 		);
-		MqttConnectPayload payload = new MqttConnectPayload(this.client.getClientConfig().getClientId(),
-				this.client.getClientConfig().getLastWill() != null
-						? this.client.getClientConfig().getLastWill().getTopic()
+		MqttConnectPayload payload = new MqttConnectPayload(config.getClientId(),
+				config.getLastWill() != null
+						? config.getLastWill().getTopic()
 						: null,
-				this.client.getClientConfig().getLastWill() != null ? this.client.getClientConfig()
-						.getLastWill().getMessage().getBytes(CharsetUtil.UTF_8) : null,
-				this.client.getClientConfig().getUsername(),
-				this.client.getClientConfig().getPassword() != null
-						? this.client.getClientConfig().getPassword().getBytes(CharsetUtil.UTF_8)
+				config.getLastWill() != null 
+						? config.getLastWill().getMessage().getBytes(CharsetUtil.UTF_8) 
+						: null,
+				config.getUsername(),
+				config.getPassword() != null
+						? config.getPassword().getBytes(CharsetUtil.UTF_8)
 						: null);
+		// @formatter: on
 		ctx.channel().writeAndFlush(new MqttConnectMessage(fixedHeader, variableHeader, payload));
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		super.channelInactive(ctx);
+		serverAliases.clear();
 	}
 
 	private void invokeHandlersForIncomingPublish(MqttPublishMessage message) {
 		boolean handlerInvoked = false;
+		
+		// decode topic alias if provided
+		String topic = message.variableHeader().topicName();
+		MqttProperties props = message.variableHeader().properties();
+		Integer topicAlias = null;
+		if ( props != null ) {
+			@SuppressWarnings("rawtypes")
+			MqttProperty prop = props.getProperty(MqttProperties.MqttPropertyType.TOPIC_ALIAS.value());
+			if ( prop instanceof MqttProperties.IntegerProperty ) {
+				topicAlias = ((MqttProperties.IntegerProperty)prop).value();
+			}
+		}
+		topic = serverAliases.aliasedTopic(topic, topicAlias);
+		
 		for ( MqttSubscription subscription : new LinkedHashSet<>(this.client.getSubscriptions().values()
 				.stream().flatMap(List::stream).collect(toList())) ) {
-			if ( subscription.matches(message.variableHeader().topicName()) ) {
+			if ( subscription.matches(topic) ) {
 				if ( subscription.isOnce() && subscription.isCalled() ) {
 					continue;
 				}
 				message.payload().markReaderIndex();
 				subscription.setCalled(true);
 				subscription.getHandler()
-						.onMqttMessage(new NettyMqttMessage(message.variableHeader().topicName(),
+						.onMqttMessage(new NettyMqttMessage(topic,
 								message.fixedHeader().isRetain(), message.fixedHeader().qosLevel(),
 								message.payload()));
 				if ( subscription.isOnce() ) {
@@ -145,7 +176,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		}
 		if ( !handlerInvoked && client.getDefaultHandler() != null ) {
 			client.getDefaultHandler()
-					.onMqttMessage(new NettyMqttMessage(message.variableHeader().topicName(),
+					.onMqttMessage(new NettyMqttMessage(topic,
 							message.fixedHeader().isRetain(), message.fixedHeader().qosLevel(),
 							message.payload()));
 		}
@@ -153,6 +184,19 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 	}
 
 	private void handleConack(Channel channel, MqttConnAckMessage message) {
+		MqttProperties props = message.variableHeader().properties();
+		int maxTopicAliases = 0;
+		if ( props != null ) {
+			@SuppressWarnings("rawtypes")
+			MqttProperty prop = props.getProperty(MqttProperties.MqttPropertyType.TOPIC_ALIAS_MAXIMUM.value());
+			if (prop instanceof MqttProperties.IntegerProperty ) {
+				Integer max = ((MqttProperties.IntegerProperty)prop).value();
+				if ( max != null ) {
+					maxTopicAliases = max.intValue();
+				}
+			}
+		}
+		client.getTopicAliases().setMaximumAliasCount(maxTopicAliases);
 		switch (message.variableHeader().connectReturnCode()) {
 			case CONNECTION_ACCEPTED:
 				this.connectFuture.setSuccess(new MqttConnectResult(true,
@@ -185,6 +229,27 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 			case CONNECTION_REFUSED_NOT_AUTHORIZED:
 			case CONNECTION_REFUSED_SERVER_UNAVAILABLE:
 			case CONNECTION_REFUSED_UNACCEPTABLE_PROTOCOL_VERSION:
+			case CONNECTION_REFUSED_BAD_AUTHENTICATION_METHOD:
+			case CONNECTION_REFUSED_BAD_USERNAME_OR_PASSWORD:
+			case CONNECTION_REFUSED_BANNED:
+			case CONNECTION_REFUSED_CLIENT_IDENTIFIER_NOT_VALID:
+			case CONNECTION_REFUSED_CONNECTION_RATE_EXCEEDED:
+			case CONNECTION_REFUSED_IMPLEMENTATION_SPECIFIC:
+			case CONNECTION_REFUSED_MALFORMED_PACKET:
+			case CONNECTION_REFUSED_NOT_AUTHORIZED_5:
+			case CONNECTION_REFUSED_PACKET_TOO_LARGE:
+			case CONNECTION_REFUSED_PAYLOAD_FORMAT_INVALID:
+			case CONNECTION_REFUSED_PROTOCOL_ERROR:
+			case CONNECTION_REFUSED_QOS_NOT_SUPPORTED:
+			case CONNECTION_REFUSED_QUOTA_EXCEEDED:
+			case CONNECTION_REFUSED_RETAIN_NOT_SUPPORTED:
+			case CONNECTION_REFUSED_SERVER_BUSY:
+			case CONNECTION_REFUSED_SERVER_MOVED:
+			case CONNECTION_REFUSED_SERVER_UNAVAILABLE_5:
+			case CONNECTION_REFUSED_TOPIC_NAME_INVALID:
+			case CONNECTION_REFUSED_UNSPECIFIED_ERROR:
+			case CONNECTION_REFUSED_UNSUPPORTED_PROTOCOL_VERSION:
+			case CONNECTION_REFUSED_USE_ANOTHER_SERVER:
 				this.connectFuture.setSuccess(new MqttConnectResult(false,
 						message.variableHeader().connectReturnCode(), channel.closeFuture()));
 				channel.close();
@@ -330,4 +395,12 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		pendingPublish.getPayload().release();
 		pendingPublish.onPubcompReceived();
 	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+		if ( !client.isDisconnected() ) {
+			log.warn("Exception in MQTT channel {}: {}", client.getServerUri(), cause.toString());
+		}
+	}
+	
 }

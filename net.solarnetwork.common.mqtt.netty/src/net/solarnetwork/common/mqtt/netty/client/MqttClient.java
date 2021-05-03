@@ -26,6 +26,8 @@ import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.Future;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
+import net.solarnetwork.common.mqtt.MqttProperties;
+import net.solarnetwork.common.mqtt.MqttTopicAliases;
 
 /**
  * API for a MQTT client.
@@ -37,7 +39,7 @@ import net.solarnetwork.common.mqtt.MqttMessageHandler;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface MqttClient {
 
@@ -302,6 +304,27 @@ public interface MqttClient {
 	Future<Void> publish(String topic, ByteBuf payload, MqttQoS qos, boolean retain);
 
 	/**
+	 * Publish a message to the given payload, using the given QOS and optional
+	 * retain flag.
+	 * 
+	 * @param topic
+	 *        The topic to publish to
+	 * @param payload
+	 *        The payload to send
+	 * @param qos
+	 *        The qos to use while publishing
+	 * @param retain
+	 *        true if you want to retain the message on the server, false
+	 *        otherwise
+	 * @param properties
+	 *        properties, or {@literal null}
+	 * @return A future which will be completed when the message is delivered to
+	 *         the server
+	 */
+	Future<Void> publish(String topic, ByteBuf payload, MqttQoS qos, boolean retain,
+			MqttProperties properties);
+
+	/**
 	 * Retrieve the MqttClient configuration.
 	 * 
 	 * @return The {@link MqttClientConfig} instance we use
@@ -336,11 +359,28 @@ public interface MqttClient {
 	java.util.concurrent.Future<?> disconnect();
 
 	/**
+	 * Get disconnected flag.
+	 * 
+	 * @return {@literal true} if {@link #disconnect()} has been called to close
+	 *         the connection
+	 * @since 1.1
+	 */
+	boolean isDisconnected();
+
+	/**
 	 * Sets the {@link MqttClientCallback} object for this MqttClient.
 	 * 
 	 * @param callback
 	 *        The callback to be set
 	 */
 	void setCallback(MqttClientCallback callback);
+
+	/**
+	 * Get the topic aliases.
+	 * 
+	 * @return the topic aliases, never {@literal null}
+	 * @since 1.1
+	 */
+	MqttTopicAliases getTopicAliases();
 
 }

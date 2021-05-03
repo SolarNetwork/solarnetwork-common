@@ -51,8 +51,11 @@ import net.solarnetwork.common.mqtt.MqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectionObserver;
 import net.solarnetwork.common.mqtt.MqttMessage;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
+import net.solarnetwork.common.mqtt.MqttProperty;
+import net.solarnetwork.common.mqtt.MqttPropertyType;
 import net.solarnetwork.common.mqtt.MqttQos;
 import net.solarnetwork.common.mqtt.MqttStats;
+import net.solarnetwork.common.mqtt.WireLoggingSupport;
 import net.solarnetwork.common.mqtt.netty.client.ChannelClosedException;
 import net.solarnetwork.common.mqtt.netty.client.MqttClient;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientCallback;
@@ -69,7 +72,7 @@ import net.solarnetwork.support.SSLService;
  * @version 1.1
  */
 public class NettyMqttConnection extends BaseMqttConnection
-		implements MqttMessageHandler, MqttClientCallback {
+		implements MqttMessageHandler, MqttClientCallback, WireLoggingSupport {
 
 	/** The {@code ioThreadCount} property default value. */
 	public static final int DEFAULT_IO_THREAD_COUNT = 2;
@@ -168,7 +171,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 				MqttClient client = null;
 				try {
 					client = MqttClient.create(config, NettyMqttConnection.this);
-					client.setWireLogging(wireLogging);
+					client.setWireLogging(wireLogging || connectionConfig.isWireLoggingEnabled());
 					client.setCallback(NettyMqttConnection.this);
 					client.setEventLoop(new NioEventLoopGroup(ioThreadCount,
 							new CustomizableThreadFactory("MQTT-" + getUid() + "-")));
@@ -326,6 +329,15 @@ public class NettyMqttConnection extends BaseMqttConnection
 		switch (connConfig.getVersion()) {
 			case Mqtt31:
 				config.setProtocolVersion(MqttVersion.MQTT_3_1);
+				break;
+
+			case Mqtt5:
+				config.setProtocolVersion(MqttVersion.MQTT_5);
+				MqttProperty<Integer> maxTopicAliases = connConfig
+						.getProperty(MqttPropertyType.TOPIC_ALIAS_MAXIMUM);
+				if ( maxTopicAliases != null && maxTopicAliases.getValue() != null ) {
+					config.setMaximumTopicAliases(maxTopicAliases.getValue().intValue());
+				}
 				break;
 
 			default:
@@ -545,7 +557,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 		}
 		io.netty.util.concurrent.Future<Void> f = c.publish(message.getTopic(),
 				Unpooled.wrappedBuffer(message.getPayload()), NettyMqttUtils.qos(message.getQosLevel()),
-				message.isRetained());
+				message.isRetained(), message.getProperties());
 
 		final MqttStats s = connectionConfig.getStats();
 		if ( s != null ) {
@@ -657,23 +669,13 @@ public class NettyMqttConnection extends BaseMqttConnection
 		this.ioThreadCount = ioThreadCount;
 	}
 
-	/**
-	 * Get the wire-level logging flag.
-	 * 
-	 * @return {@literal true} to enable wire-level logging support; defaults to
-	 *         {@link NettyMqttConnection#DEFAULT_WIRE_LOGGING}
-	 */
-	public boolean isWireLogging() {
+	@Override
+	public boolean isWireLoggingEnabled() {
 		return wireLogging;
 	}
 
-	/**
-	 * Set the wire-level logging flag.
-	 * 
-	 * @param wireLogging
-	 *        {@literal true} to enable wire-level logging support
-	 */
-	public void setWireLogging(boolean wireLogging) {
+	@Override
+	public void setWireLoggingEnabled(boolean wireLogging) {
 		this.wireLogging = wireLogging;
 	}
 

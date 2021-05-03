@@ -75,6 +75,11 @@ public interface MqttConnection extends Closeable {
 	/**
 	 * Publish a message.
 	 * 
+	 * <p>
+	 * If MQTT 5 or higher is used, then topic aliases will be automatically
+	 * applied as long as the connected broker supports them.
+	 * </p>
+	 * 
 	 * @param message
 	 *        the message to publish
 	 * @return a future that completes when the message has been published

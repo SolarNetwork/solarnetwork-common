@@ -196,6 +196,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 		if ( isEstablished() ) {
 			return CompletableFuture.completedFuture(null);
 		}
+		closed = false;
 		final long connectDelay = Math.max(200L,
 				(connectionConfig.getReconnectDelaySeconds() * 1000L) / 4);
 		final Date connectDate = new Date(System.currentTimeMillis() + connectDelay);
@@ -238,6 +239,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	public final void close() throws IOException {
 		synchronized ( this ) {
 			closed = true;
+			connectFuture = null;
 		}
 		final URI serverUri = connectionConfig.getServerUri();
 		try {
