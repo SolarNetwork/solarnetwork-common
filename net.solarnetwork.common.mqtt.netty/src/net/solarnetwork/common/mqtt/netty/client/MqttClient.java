@@ -361,8 +361,8 @@ public interface MqttClient {
 	/**
 	 * Get disconnected flag.
 	 * 
-	 * @return {@literal true} if {@linnk #disconnect()} has been called to
-	 *         close the connection
+	 * @return {@literal true} if {@link #disconnect()} has been called to close
+	 *         the connection
 	 * @since 1.1
 	 */
 	boolean isDisconnected();
