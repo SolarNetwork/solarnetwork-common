@@ -27,14 +27,15 @@ import org.springframework.scheduling.TaskScheduler;
 import net.solarnetwork.common.mqtt.MqttConnection;
 import net.solarnetwork.common.mqtt.MqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectionFactory;
+import net.solarnetwork.common.mqtt.WireLoggingSupport;
 
 /**
  * Netty implementation of {@link MqttConnectionFactory}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
-public class NettyMqttConnectionFactory implements MqttConnectionFactory {
+public class NettyMqttConnectionFactory implements MqttConnectionFactory, WireLoggingSupport {
 
 	private final Executor executor;
 	private final TaskScheduler scheduler;
@@ -59,7 +60,7 @@ public class NettyMqttConnectionFactory implements MqttConnectionFactory {
 	public MqttConnection createConnection(MqttConnectionConfig config) {
 		NettyMqttConnection conn = new NettyMqttConnection(executor, scheduler, config);
 		conn.setIoThreadCount(ioThreadCount);
-		conn.setWireLogging(wireLogging);
+		conn.setWireLoggingEnabled(wireLogging);
 		return conn;
 	}
 
@@ -88,7 +89,8 @@ public class NettyMqttConnectionFactory implements MqttConnectionFactory {
 	 * @return {@literal true} to enable wire-level logging support; defaults to
 	 *         {@link NettyMqttConnection#DEFAULT_WIRE_LOGGING}
 	 */
-	public boolean isWireLogging() {
+	@Override
+	public boolean isWireLoggingEnabled() {
 		return wireLogging;
 	}
 
@@ -98,7 +100,8 @@ public class NettyMqttConnectionFactory implements MqttConnectionFactory {
 	 * @param wireLogging
 	 *        {@literal true} to enable wire-level logging support
 	 */
-	public void setWireLogging(boolean wireLogging) {
+	@Override
+	public void setWireLoggingEnabled(boolean wireLogging) {
 		this.wireLogging = wireLogging;
 	}
 

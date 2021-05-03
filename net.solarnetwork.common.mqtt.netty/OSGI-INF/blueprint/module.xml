@@ -24,12 +24,16 @@
 	<reference id="executor" interface="java.util.concurrent.Executor"/>
 	<reference id="scheduler" interface="org.springframework.scheduling.TaskScheduler"/>
 	
-	<service interface="net.solarnetwork.common.mqtt.MqttConnectionFactory" ranking="10">
+	<service ranking="10">
+		<interfaces>
+			<value>net.solarnetwork.common.mqtt.MqttConnectionFactory</value>
+			<value>net.solarnetwork.common.mqtt.WireLoggingSupport</value>
+		</interfaces>
 		<bean class="net.solarnetwork.common.mqtt.netty.NettyMqttConnectionFactory">
 			<argument ref="executor"/>
 			<argument ref="scheduler"/>
 			<property name="ioThreadCount" value="${ioThreadCount}"/>
-			<property name="wireLogging" value="${wireLogging}"/>
+			<property name="wireLoggingEnabled" value="${wireLogging}"/>
 		</bean>
 	</service>
 		

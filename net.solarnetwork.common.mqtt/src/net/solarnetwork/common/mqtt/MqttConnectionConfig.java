@@ -33,7 +33,7 @@ import net.solarnetwork.support.SSLService;
  * @author matt
  * @version 1.1
  */
-public interface MqttConnectionConfig {
+public interface MqttConnectionConfig extends WireLoggingSupport {
 
 	/**
 	 * The default MQTT port.

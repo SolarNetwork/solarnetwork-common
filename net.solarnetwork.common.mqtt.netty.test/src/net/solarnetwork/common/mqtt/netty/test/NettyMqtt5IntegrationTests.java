@@ -109,7 +109,7 @@ public class NettyMqtt5IntegrationTests {
 		NettyMqttConnection conn = new NettyMqttConnection(
 				Executors.newCachedThreadPool(new CustomizableThreadFactory("NettyMqtt-Test-")),
 				scheduler, config);
-		conn.setWireLogging(true);
+		conn.setWireLoggingEnabled(true);
 		this.service = conn;
 	}
 

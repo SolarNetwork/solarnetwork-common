@@ -77,6 +77,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	private int maximumMessageSize;
 	private int keepAliveSeconds;
 	private MqttStats stats;
+	private boolean wireLoggingEnabled;
 	private final BasicMutableMqttProperties properties;
 
 	/**
@@ -475,6 +476,16 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	@Override
 	public BasicMutableMqttProperties getProperties() {
 		return properties;
+	}
+
+	@Override
+	public boolean isWireLoggingEnabled() {
+		return wireLoggingEnabled;
+	}
+
+	@Override
+	public void setWireLoggingEnabled(boolean wireLoggingEnabled) {
+		this.wireLoggingEnabled = wireLoggingEnabled;
 	}
 
 }
