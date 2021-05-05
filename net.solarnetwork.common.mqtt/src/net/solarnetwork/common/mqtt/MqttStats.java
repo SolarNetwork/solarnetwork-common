@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * Statistics for MQTT processing.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.2
  */
 public class MqttStats {
@@ -219,7 +219,8 @@ public class MqttStats {
 	@Override
 	public String toString() {
 		StringBuilder buf = new StringBuilder("MqttStats{\n");
-		for ( MqttStat c : countStats ) {
+		MqttStat[] s = (countStats != null ? countStats : BasicCounts.values());
+		for ( MqttStat c : s ) {
 			buf.append(String.format("%30s: %d\n", c.getDescription(), get(c)));
 		}
 		buf.append("}");
