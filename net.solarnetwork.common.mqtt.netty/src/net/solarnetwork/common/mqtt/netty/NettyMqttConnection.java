@@ -534,8 +534,12 @@ public class NettyMqttConnection extends BaseMqttConnection
 	@Override
 	public void onMqttMessage(MqttMessage message) {
 		MqttStats s = connectionConfig.getStats();
-		if ( s != null ) {
+		if ( s != null && message != null ) {
 			s.incrementAndGet(MqttStats.BasicCounts.MessagesReceived);
+			byte[] payload = message.getPayload();
+			if ( payload != null && payload.length > 0 ) {
+				s.addAndGet(MqttStats.BasicCounts.PayloadBytesReceived, payload.length);
+			}
 		}
 		MqttMessageHandler handler = this.messageHandler;
 		if ( handler != null ) {
@@ -555,8 +559,9 @@ public class NettyMqttConnection extends BaseMqttConnection
 			f.completeExceptionally(new IOException("Not connected to MQTT server."));
 			return f;
 		}
+		final byte[] payload = message.getPayload();
 		io.netty.util.concurrent.Future<Void> f = c.publish(message.getTopic(),
-				Unpooled.wrappedBuffer(message.getPayload()), NettyMqttUtils.qos(message.getQosLevel()),
+				Unpooled.wrappedBuffer(payload), NettyMqttUtils.qos(message.getQosLevel()),
 				message.isRetained(), message.getProperties());
 
 		final MqttStats s = connectionConfig.getStats();
@@ -568,6 +573,9 @@ public class NettyMqttConnection extends BaseMqttConnection
 						throws Exception {
 					if ( future.isSuccess() ) {
 						s.incrementAndGet(MqttStats.BasicCounts.MessagesDelivered);
+						if ( payload != null && payload.length > 0 ) {
+							s.addAndGet(MqttStats.BasicCounts.PayloadBytesDelivered, payload.length);
+						}
 					} else {
 						s.incrementAndGet(MqttStats.BasicCounts.MessagesDeliveredFail);
 					}
