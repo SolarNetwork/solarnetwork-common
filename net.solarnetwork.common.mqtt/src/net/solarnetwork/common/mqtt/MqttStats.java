@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * Statistics for MQTT processing.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.2
  */
 public class MqttStats {
@@ -60,7 +60,11 @@ public class MqttStats {
 
 		MessagesDelivered(5, "messages delivered"),
 
-		MessagesDeliveredFail(6, "failed message deliveries");
+		MessagesDeliveredFail(6, "failed message deliveries"),
+
+		PayloadBytesReceived(7, "payload bytes received"),
+
+		PayloadBytesDelivered(8, "payload bytes sent");
 
 		private final int index;
 		private final String description;
@@ -210,6 +214,24 @@ public class MqttStats {
 	 */
 	public long incrementAndGet(MqttStat stat) {
 		long c = counts.incrementAndGet(countStatIndex(stat));
+		if ( log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
+			log.info("MQTT {} {}: {}", uid, stat.getDescription(), c);
+		}
+		return c;
+	}
+
+	/**
+	 * Add to and get the current count value.
+	 * 
+	 * @param stat
+	 *        the count to add to and get
+	 * @param long
+	 *        count the count to add
+	 * @return the added count value
+	 * @since 1.2
+	 */
+	public long addAndGet(MqttStat stat, long count) {
+		long c = counts.addAndGet(countStatIndex(stat), count);
 		if ( log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
 			log.info("MQTT {} {}: {}", uid, stat.getDescription(), c);
 		}
