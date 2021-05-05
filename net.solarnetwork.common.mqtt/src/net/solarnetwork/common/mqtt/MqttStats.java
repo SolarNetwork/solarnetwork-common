@@ -225,8 +225,8 @@ public class MqttStats {
 	 * 
 	 * @param stat
 	 *        the count to add to and get
-	 * @param long
-	 *        count the count to add
+	 * @param count
+	 *        the amount to add
 	 * @return the added count value
 	 * @since 1.2
 	 */
