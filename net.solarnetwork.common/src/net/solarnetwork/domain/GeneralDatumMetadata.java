@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import net.solarnetwork.util.SerializeIgnore;
@@ -35,7 +36,7 @@ import net.solarnetwork.util.SerializeIgnore;
  * Metadata about general node datum streams of data.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 @JsonPropertyOrder({ "m", "pm", "t" })
 public class GeneralDatumMetadata extends GeneralDatumSupport implements Serializable {
@@ -483,4 +484,151 @@ public class GeneralDatumMetadata extends GeneralDatumSupport implements Seriali
 	public String getInfoString(String property, String key) {
 		return getMapString(key, (propertyInfo == null ? null : propertyInfo.get(property)));
 	}
+
+	/**
+	 * Get a metadata value at a given path.
+	 * 
+	 * @param path
+	 *        the path of the metadata object to get
+	 * @return the metadata value, or {@literal null} if none exists at the
+	 *         given path
+	 * @see GeneralDatumMetadata#metadataAtPath(String, GeneralDatumMetadata)
+	 * @since 1.3
+	 */
+	public Object metadataAtPath(String path) {
+		return metadataAtPath(path, this);
+	}
+
+	/**
+	 * Get a metadata value of a given type at a given path.
+	 * 
+	 * @param <T>
+	 *        the expected return type
+	 * @param path
+	 *        the path of the metadata object to get
+	 * @param clazz
+	 *        the expected class of the return type
+	 * @return the metadata, or {@literal null} if none exists at the given path
+	 *         or is not of type {@code T}
+	 * @see GeneralDatumMetadata#metadataAtPath(String, GeneralDatumMetadata,
+	 *      Class)
+	 * @since 1.3
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T metadataAtPath(String path, Class<T> clazz) {
+		Object o = metadataAtPath(path);
+		if ( o != null && clazz.isAssignableFrom(o.getClass()) ) {
+			return (T) o;
+		}
+		return null;
+	}
+
+	/**
+	 * Get a metadata value at a given path.
+	 * 
+	 * <p>
+	 * The {@code path} syntax is that of URL paths, using a {@literal /}
+	 * delimiter between nested metadata objects. The top-level path component
+	 * must be one of {@literal /m} for {@link #getInfo()} data, {@literal /pm}
+	 * for {@link #getPropertyInfo()} data, or {@literal /t} for
+	 * {@link #getTags()} data.
+	 * </p>
+	 * 
+	 * <p>
+	 * For example, the path {@literal /m/foo} would return the value associated
+	 * with the "foo" key in the {@code Map} returned from {@link #getInfo()}.
+	 * The path {@literal /pm/foo/bar} would return the "bar" key in the
+	 * {@code Map} associated with the "foo" key in the {@code Map} returned
+	 * from {@link #getPropertyInfo()}.
+	 * </p>
+	 * 
+	 * <p>
+	 * For tags, using the {@literal /t} path will return the complete
+	 * {@code Set} of tags returned by {@link #getTags()}. If the path has
+	 * another component, then the next component value will be returned if a
+	 * tag matching that component value exists. For example the path
+	 * {@literal /t/foo} would return {@literal foo} if {@link #getTags()}
+	 * contains {@literal foo}, otherwise {@literal null}.
+	 * </p>
+	 * 
+	 * @param path
+	 *        the path of the metadata object to get
+	 * @param meta
+	 *        the metadata to look in
+	 * @return the metadata value, or {@literal null} if none exists at the
+	 *         given path
+	 * @since 1.3
+	 */
+	public static Object metadataAtPath(String path, GeneralDatumMetadata meta) {
+		if ( path == null || path.isEmpty() || meta == null ) {
+			return null;
+		}
+		Object result = null;
+		String[] components = path.split("/");
+		int idx = 0;
+		if ( components[0].isEmpty() ) {
+			idx += 1;
+		}
+		if ( "m".equals(components[idx]) ) {
+			return metadataAtPath(components, idx + 1, meta.getM());
+		} else if ( "pm".equals(components[idx]) ) {
+			return metadataAtPath(components, idx + 1, meta.getPm());
+		} else if ( "t".equals(components[idx]) ) {
+			Set<String> tags = meta.getT();
+			if ( idx + 1 < components.length ) {
+				String tag = components[idx + 1];
+				return tags.contains(tag) ? tag : null;
+			}
+			return tags;
+		}
+		return result;
+	}
+
+	/**
+	 * Get a metadata value of a given type at a given path.
+	 * 
+	 * @param <T>
+	 *        the expected return type
+	 * @param path
+	 *        the path of the metadata object to get
+	 * @param meta
+	 *        the metadata to look in
+	 * @param clazz
+	 *        the expected class of the return type
+	 * @return the metadata, or {@literal null} if none exists at the given path
+	 *         or is not of type {@code T}
+	 * @see GeneralDatumMetadata#metadataAtPath(String, GeneralDatumMetadata,
+	 *      Class)
+	 * @since 1.3
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T metadataAtPath(String path, GeneralDatumMetadata meta, Class<T> clazz) {
+		Object o = metadataAtPath(path, meta);
+		if ( o != null && clazz.isAssignableFrom(o.getClass()) ) {
+			return (T) o;
+		}
+		return null;
+
+	}
+
+	private static Object metadataAtPath(String[] pathComponents, int idx, Map<String, ?> data) {
+		if ( data == null ) {
+			return null;
+		}
+		if ( idx >= pathComponents.length ) {
+			// can happen if requesting a root path
+			return data;
+		}
+		Object v = data.get(pathComponents[idx]);
+		if ( idx == pathComponents.length - 1 ) {
+			return v;
+		}
+		if ( v instanceof Map<?, ?> ) {
+			@SuppressWarnings("unchecked")
+			Map<String, ?> m = (Map<String, ?>) v;
+			return metadataAtPath(pathComponents, idx + 1, m);
+		}
+		return null;
+	}
+
 }
