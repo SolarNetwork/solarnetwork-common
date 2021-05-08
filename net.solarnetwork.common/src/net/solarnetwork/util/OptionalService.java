@@ -34,9 +34,19 @@ package net.solarnetwork.util;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public interface OptionalService<T> {
+
+	/**
+	 * A convenient configurable optional service.
+	 * 
+	 * @param <T>
+	 *        the tracked service type
+	 */
+	interface OptionalFilterableService<T> extends OptionalService<T>, FilterableService {
+		// no additional methods
+	}
 
 	/**
 	 * Get the configured service, or <em>null</em> if none available.
