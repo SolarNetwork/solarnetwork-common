@@ -52,4 +52,46 @@ public interface OptionalServiceCollection<T> {
 	 */
 	Iterable<T> services();
 
+	/**
+	 * Resolve an optional service.
+	 * 
+	 * <p>
+	 * This method is a convenient way to deal with a possibly null
+	 * {@code OptionalServiceCollection}.
+	 * </p>
+	 * 
+	 * @param <T>
+	 *        the service type
+	 * @param optional
+	 *        the optional service collection, or {@literal null}
+	 * @return the resolved services, or {@literal null}
+	 * @since 1.1
+	 */
+	static <T> Iterable<T> services(OptionalServiceCollection<T> optional) {
+		return services(optional, null);
+	}
+
+	/**
+	 * Resolve an optional service with a fallback.
+	 * 
+	 * <p>
+	 * This method is a convenient way to deal with a possibly null
+	 * {@code OptionalServiceCollection}.
+	 * </p>
+	 * 
+	 * @param <T>
+	 *        the service type
+	 * @param optional
+	 *        the optional service collection, or {@literal null}
+	 * @param fallback
+	 *        the result to return if {@code optional} is {@literal null} or its
+	 *        resolved service collection is {@literal null}
+	 * @return the resolved services, or {@code fallback}
+	 * @since 1.1
+	 */
+	static <T> Iterable<T> services(OptionalServiceCollection<T> optional, Iterable<T> fallback) {
+		Iterable<T> service = (optional != null ? optional.services() : null);
+		return (service != null ? service : fallback);
+	}
+
 }
