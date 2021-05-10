@@ -40,7 +40,7 @@ import net.solarnetwork.util.JsonUtils;
  * Test cases for the {@link MapPathMatcher} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class MapPathMatcherTests {
 
@@ -63,12 +63,30 @@ public class MapPathMatcherTests {
 	}
 
 	@Test
+	public void simpleMatch_not() {
+		// GIVEN
+		Map<String, ?> obj = JsonUtils.getStringMap("{\"foo\":\"bar\"}");
+
+		// THEN
+		assertThat("Filter matches", matches(obj, "(!(/foo=bar))"), equalTo(false));
+	}
+
+	@Test
 	public void simpleNoMatchingProp() {
 		// GIVEN
 		Map<String, ?> obj = JsonUtils.getStringMap("{\"foo\":\"bar\"}");
 
 		// THEN
 		assertThat("Filter does not match", matches(obj, "(/bar=bam)"), equalTo(false));
+	}
+
+	@Test
+	public void simpleNoMatchingProp_not() {
+		// GIVEN
+		Map<String, ?> obj = JsonUtils.getStringMap("{\"foo\":\"bar\"}");
+
+		// THEN
+		assertThat("Filter does match", matches(obj, "(!(/bar=bam))"), equalTo(true));
 	}
 
 	@Test
@@ -324,6 +342,16 @@ public class MapPathMatcherTests {
 		assertThat("Filter matches", matches(obj, "(|(/foo=A)(/foo=two))"), equalTo(true));
 		assertThat("Filter matches", matches(obj, "(|(/foo=A)(/foo=two)(/foo=three))"), equalTo(true));
 		assertThat("Filter does not match", matches(obj, "(|(/foo=A)(/foo=B)(/foo=C))"), equalTo(false));
+	}
+
+	@Test
+	public void arrayMatchNot() {
+		// GIVEN
+		Map<String, ?> obj = JsonUtils.getStringMap("{\"foo\":[\"one\",\"two\",\"three\"]}");
+
+		// THEN
+		assertThat("Filter matches", matches(obj, "(!(/foo=A))"), equalTo(true));
+		assertThat("Filter does not matche", matches(obj, "(!(/foo=one))"), equalTo(false));
 	}
 
 	@Test

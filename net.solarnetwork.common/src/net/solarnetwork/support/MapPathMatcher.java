@@ -309,13 +309,25 @@ public class MapPathMatcher {
 						logicStack.get(stackIdx).result = true;
 					}
 					if ( stackIdx < 1 ) {
-						// top-level OR has failed; all done
+						// top-level OR has matched; all done
 						foundMatch = true;
 						keepWalking = false;
 					} else {
 						logicStackSatisfiedIdx = stackIdx;
 					}
 				}
+			} else if ( currLogicOp == LogicOperator.NOT ) {
+				if ( stackIdx >= 0 ) {
+					logicStack.get(stackIdx).result = !match;
+				}
+				if ( stackIdx < 1 ) {
+					// top-level NOT has matched; all done
+					foundMatch = !match;
+					keepWalking = false;
+				} else {
+					logicStackSatisfiedIdx = stackIdx;
+				}
+
 			}
 			return !keepWalking;
 		}
