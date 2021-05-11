@@ -32,7 +32,7 @@ import net.solarnetwork.util.NumberUtils;
  * An aggregation of datum sample values.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.65
  */
 public class AggregateDatumSamples extends GeneralDatumSupport {
@@ -95,6 +95,54 @@ public class AggregateDatumSamples extends GeneralDatumSupport {
 				addTag(v);
 			}
 		}
+	}
+
+	/**
+	 * Generate a new samples instance as an average of the added samples.
+	 * 
+	 * @param decimalScale
+	 *        the average decimal scale
+	 * @param minPropertyFormat
+	 *        an optional string template to generate a "minimum" property name
+	 *        with; will be passed a single string parameter
+	 * @param maxPropertyFormat
+	 *        an optional string template to generate a "maximum" property name
+	 *        with; will be passed a single string parameter
+	 * @return the new samples instance, never {@literal null}
+	 * @since 1.1
+	 */
+	public GeneralDatumSamples average(int decimalScale, String minPropertyFormat,
+			String maxPropertyFormat) {
+		GeneralDatumSamples out = new GeneralDatumSamples();
+		Map<String, AggregateDatumProperty> i = getInstantaneous();
+		if ( i != null ) {
+			for ( Map.Entry<String, AggregateDatumProperty> me : i.entrySet() ) {
+				out.putInstantaneousSampleValue(me.getKey(), me.getValue().average(decimalScale));
+				if ( minPropertyFormat != null && !minPropertyFormat.isEmpty() ) {
+					out.putInstantaneousSampleValue(String.format(minPropertyFormat, me.getKey()),
+							me.getValue().getMin());
+				}
+				if ( maxPropertyFormat != null && !maxPropertyFormat.isEmpty() ) {
+					out.putInstantaneousSampleValue(String.format(maxPropertyFormat, me.getKey()),
+							me.getValue().getMax());
+				}
+			}
+		}
+		Map<String, AggregateDatumProperty> a = getAccumulating();
+		if ( a != null ) {
+			for ( Map.Entry<String, AggregateDatumProperty> me : a.entrySet() ) {
+				out.putAccumulatingSampleValue(me.getKey(), me.getValue().last());
+			}
+		}
+		Map<String, Object> s = getStatus();
+		if ( s != null ) {
+			out.setStatus(s);
+		}
+		Set<String> t = getTags();
+		if ( t != null ) {
+			out.setTags(t);
+		}
+		return out;
 	}
 
 	/**
