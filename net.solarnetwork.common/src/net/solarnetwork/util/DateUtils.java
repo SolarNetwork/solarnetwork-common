@@ -30,14 +30,21 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.format.TextStyle;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalQueries;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Date and time utilities.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.59
  */
 public final class DateUtils {
@@ -174,6 +181,218 @@ public final class DateUtils {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * A range delimited pattern.
+	 * 
+	 * @since 1.2
+	 */
+	public static final Pattern RANGE_DELIMITER = Pattern.compile("\\s*-\\s*");
+
+	private static String[] splitRange(String range) {
+		range = range.trim();
+		Matcher m = RANGE_DELIMITER.matcher(range);
+		if ( m.find() && m.end() < range.length() ) {
+			String a = range.substring(0, m.start());
+			String b = range.substring(m.end(), range.length());
+			return new String[] { a, b };
+		}
+		return new String[] { range, range };
+	}
+
+	private static IntRange parseRange(String[] r, Locale locale, TemporalField field, TextStyle style)
+			throws DateTimeException {
+		DateTimeFormatter f = new DateTimeFormatterBuilder().parseCaseInsensitive().parseLenient()
+				.appendText(field, style).toFormatter(locale);
+		TemporalAccessor a = f.parse(r[0]);
+		if ( r[0].equals(r[1]) ) {
+			return IntRange.rangeOf(a.get(field));
+		}
+		TemporalAccessor b = f.parse(r[1]);
+		return IntRange.rangeOf(a.get(field), b.get(field));
+	}
+
+	/**
+	 * Parse a time range.
+	 * 
+	 * <p>
+	 * The range can be specified using names, abbreviations, or numbers. The
+	 * range of allowed numbers varies by field.
+	 * </p>
+	 * 
+	 * @param field
+	 *        the time field to parse
+	 * @param range
+	 *        the range string to parse into a time range
+	 * @param locale
+	 *        the locale to parse the range as
+	 * @return the range
+	 * @throws DateTimeException
+	 *         if any parsing error occurs
+	 * @since 1.2
+	 */
+	public static IntRange parseRange(TemporalField field, String range, Locale locale)
+			throws DateTimeException {
+		if ( range == null ) {
+			return null;
+		}
+		if ( locale == null ) {
+			locale = Locale.getDefault();
+		}
+		return parseRange(splitRange(range), locale, field, TextStyle.FULL);
+	}
+
+	/**
+	 * Parse a month range.
+	 * 
+	 * <p>
+	 * The range can be specified using month names, abbreviations, or numbers.
+	 * Months are numbered from {@literal 1-12}.
+	 * </p>
+	 * 
+	 * @param range
+	 *        the range string to parse into a month range
+	 * @param locale
+	 *        the locale to parse the range as
+	 * @return the range, with a minimum of {@literal 1} and maximum of
+	 *         {@literal 12}
+	 * @throws DateTimeException
+	 *         if any parsing error occurs
+	 * @since 1.2
+	 */
+	public static IntRange parseMonthRange(String range, Locale locale) throws DateTimeException {
+		return parseRange(ChronoField.MONTH_OF_YEAR, range, locale);
+	}
+
+	/**
+	 * Parse a day of month range.
+	 * 
+	 * <p>
+	 * The range can be specified using day numbers. Days are numbered from
+	 * {@literal 1-31}.
+	 * </p>
+	 * 
+	 * @param range
+	 *        the range string to parse into a day of month range
+	 * @param locale
+	 *        the locale to parse the range as
+	 * @return the range, with a minimum of {@literal 1} and maximum of
+	 *         {@literal 31}
+	 * @throws DateTimeException
+	 *         if any parsing error occurs
+	 * @since 1.2
+	 */
+	public static IntRange parseDayOfMonthRange(String range, Locale locale) throws DateTimeException {
+		return parseRange(ChronoField.DAY_OF_MONTH, range, locale);
+	}
+
+	/**
+	 * Parse a day of week range.
+	 * 
+	 * <p>
+	 * The range can be specified using weekday names, abbreviations, or
+	 * numbers. Weekdays are numbered from {@literal 1-7} with Monday starting
+	 * at {@literal 1}.
+	 * </p>
+	 * 
+	 * @param range
+	 *        the range string to parse into a day of week range
+	 * @param locale
+	 *        the locale to parse the range as
+	 * @return the range, with a minimum of {@literal 1} and maximum of
+	 *         {@literal 7}
+	 * @throws DateTimeException
+	 *         if any parsing error occurs
+	 * @since 1.2
+	 */
+	public static IntRange parseDayOfWeekRange(String range, Locale locale) throws DateTimeException {
+		return parseRange(ChronoField.DAY_OF_WEEK, range, locale);
+	}
+
+	/**
+	 * Parse a hour of day range.
+	 * 
+	 * <p>
+	 * The range can be specified using numbers. Hours of 0 - 24 are allowed.
+	 * </p>
+	 * 
+	 * @param range
+	 *        the range string to parse into a day of week range
+	 * @param locale
+	 *        the locale to parse the range as
+	 * @return the range, with a minimum of {@literal 1} and maximum of
+	 *         {@literal 24}
+	 * @throws DateTimeException
+	 *         if any parsing error occurs
+	 * @since 1.2
+	 */
+	public static IntRange parseMinuteOfDayRange(String range, Locale locale) throws DateTimeException {
+		return parseMinuteOfDayRange(range, locale, false);
+	}
+
+	/**
+	 * Parse a minute of day range.
+	 * 
+	 * <p>
+	 * The range can be specified using ISO local time strings or numbers. For
+	 * strings, the format {@literal HH:MM} is used.
+	 * </p>
+	 * 
+	 * <p>
+	 * For numbers, the values are assumed to be whole hours and values between
+	 * 0 - 24 are allowed.
+	 * </p>
+	 * 
+	 * <p>
+	 * If {@code fix24} is {@literal true} then the value {@literal 24} will be
+	 * changed to {@code 23:59}, otherwise {@literal 24} will be left as-is.
+	 * </p>
+	 * 
+	 * @param range
+	 *        the range string to parse into a day of week range
+	 * @param locale
+	 *        the locale to parse the range as
+	 * @return the range, with a minimum of {@literal 0} and maximum of
+	 *         {@literal 1439}
+	 * @throws DateTimeException
+	 *         if any parsing error occurs
+	 * @since 1.2
+	 */
+	public static IntRange parseMinuteOfDayRange(String range, Locale locale, boolean fix24)
+			throws DateTimeException {
+		String[] r = splitRange(range);
+		int[] n = new int[2];
+		try {
+			for ( int i = 0; i < 2; i++ ) {
+				String s = r[i];
+				int h = 0;
+				int m = 0;
+				int idx = s.indexOf(':');
+				if ( idx > 0 ) {
+					h = Integer.parseInt(s.substring(0, idx));
+					m = Integer.parseInt(s.substring(idx + 1));
+				} else {
+					h = Integer.parseInt(r[i]);
+				}
+				if ( h < 0 || h > 24 ) {
+					throw new DateTimeException("Hour of day out of range: " + h);
+				}
+				if ( fix24 && h == 24 ) {
+					h = 23;
+					if ( m == 0 ) {
+						m = 59;
+					}
+				}
+				if ( m < 0 || m > 59 ) {
+					throw new DateTimeException("Minute of hour out of range: " + m);
+				}
+				n[i] = h * 60 + m;
+			}
+		} catch ( NumberFormatException e ) {
+			throw new DateTimeParseException("Invalid hour of day range", range, 0, e);
+		}
+		return IntRange.rangeOf(n[0], n[1]);
 	}
 
 }
