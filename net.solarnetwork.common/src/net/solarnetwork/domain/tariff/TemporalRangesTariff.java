@@ -22,6 +22,8 @@
 
 package net.solarnetwork.domain.tariff;
 
+import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
@@ -151,6 +153,40 @@ public class TemporalRangesTariff implements Tariff {
 	public boolean applies(TemporalRangesTariffEvaluator evaluator, LocalDateTime dateTime,
 			Map<String, ?> parameters) {
 		return evaluator.applies(this, dateTime, parameters);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("TemporalRangesTariff{");
+		if ( monthRange != null ) {
+			builder.append("months=");
+			builder.append(monthRange);
+			builder.append(", ");
+		}
+		if ( dayOfMonthRange != null ) {
+			builder.append("days=");
+			builder.append(dayOfMonthRange);
+			builder.append(", ");
+		}
+		if ( dayOfWeekRange != null ) {
+			builder.append("dows=");
+			builder.append(dayOfWeekRange);
+			builder.append(", ");
+		}
+		if ( minuteOfDayRange != null ) {
+			builder.append("times=");
+			builder.append(minuteOfDayRange);
+			builder.append(", ");
+		}
+		if ( rates != null ) {
+			builder.append("rates={");
+			builder.append(rates.values().stream().map(r -> format("%s=%s", r.getId(), r.getAmount()))
+					.collect(joining(",")));
+			builder.append("}");
+		}
+		builder.append("}");
+		return builder.toString();
 	}
 
 	/**

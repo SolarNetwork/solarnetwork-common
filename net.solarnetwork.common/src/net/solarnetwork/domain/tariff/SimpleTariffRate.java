@@ -86,6 +86,23 @@ public class SimpleTariffRate implements Tariff.Rate {
 	}
 
 	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SimpleTariffRate{");
+		if ( id != null ) {
+			builder.append("id=");
+			builder.append(id);
+			builder.append(", ");
+		}
+		if ( amount != null ) {
+			builder.append("amount=");
+			builder.append(amount);
+		}
+		builder.append("}");
+		return builder.toString();
+	}
+
+	@Override
 	public String getId() {
 		return id;
 	}
