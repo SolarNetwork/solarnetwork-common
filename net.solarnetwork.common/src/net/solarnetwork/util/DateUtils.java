@@ -191,6 +191,9 @@ public final class DateUtils {
 	public static final Pattern RANGE_DELIMITER = Pattern.compile("\\s*-\\s*");
 
 	private static String[] splitRange(String range) {
+		if ( range == null ) {
+			return null;
+		}
 		range = range.trim();
 		Matcher m = RANGE_DELIMITER.matcher(range);
 		if ( m.find() && m.end() < range.length() ) {
@@ -362,6 +365,9 @@ public final class DateUtils {
 	public static IntRange parseMinuteOfDayRange(String range, Locale locale, boolean fix24)
 			throws DateTimeException {
 		String[] r = splitRange(range);
+		if ( r == null ) {
+			return null;
+		}
 		int[] n = new int[2];
 		try {
 			for ( int i = 0; i < 2; i++ ) {

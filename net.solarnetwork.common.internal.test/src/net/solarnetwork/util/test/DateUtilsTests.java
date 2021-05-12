@@ -296,8 +296,8 @@ public class DateUtilsTests {
 					equalTo(rangeOf(0, 24 * 60)));
 		}
 		inputs = new String[] { "0-1", "4-8", "8-24", " 2 - 22 ", "23-0" };
-		IntRange[] expected = new IntRange[] { rangeOf(0, 1), rangeOf(4, 8), rangeOf(8, 24),
-				rangeOf(2, 22), rangeOf(0, 23) };
+		IntRange[] expected = new IntRange[] { rangeOf(0, 1 * 60), rangeOf(4 * 60, 8 * 60),
+				rangeOf(8 * 60, 24 * 60), rangeOf(2 * 60, 22 * 60), rangeOf(0 * 60, 23 * 60) };
 		for ( int i = 0, len = inputs.length; i < len; i++ ) {
 			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, false);
 			assertThat(format("MinuteOfDay range %d [%s] parsed", i + 1, inputs[i]), r,
