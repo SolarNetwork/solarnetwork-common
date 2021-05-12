@@ -57,7 +57,7 @@ import net.solarnetwork.util.StringUtils;
  * Unit test for the StringUtils class.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class StringUtilsTests {
 
@@ -444,4 +444,65 @@ public class StringUtilsTests {
 		assertThat("Masked key", masked.get("a"), startsWith("{SSHA-256}"));
 		assertThat("Masked key", masked.get("c"), startsWith("{SSHA-256}"));
 	}
+
+	@Test
+	public void simpleIdValue_null() {
+		String id = StringUtils.simpleIdValue(null);
+		assertThat("Null ID generated", id, nullValue());
+	}
+
+	@Test
+	public void simpleIdValue_empty() {
+		String id = StringUtils.simpleIdValue("");
+		assertThat("Empty ID generated", id, equalTo(""));
+	}
+
+	@Test
+	public void simpleIdValue_basic() {
+		String id = StringUtils.simpleIdValue("This Is A Title");
+		assertThat("Empty ID generated", id, equalTo("this-is-a-title"));
+	}
+
+	@Test
+	public void simpleIdValue_noChange() {
+		String id = StringUtils.simpleIdValue("this-is-a-title");
+		assertThat("Empty ID generated", id, equalTo("this-is-a-title"));
+	}
+
+	@Test
+	public void simpleIdValue_trim() {
+		String id = StringUtils.simpleIdValue(" This Is A Title ");
+		assertThat("Empty ID generated", id, equalTo("this-is-a-title"));
+	}
+
+	@Test
+	public void simpleIdValue_coalesce() {
+		String id = StringUtils.simpleIdValue("Hello, world");
+		assertThat("Empty ID generated", id, equalTo("hello-world"));
+	}
+
+	@Test
+	public void simpleIdValue_remove_prefix() {
+		String id = StringUtils.simpleIdValue("! Hello");
+		assertThat("Empty ID generated", id, equalTo("hello"));
+	}
+
+	@Test
+	public void simpleIdValue_remove_suffix() {
+		String id = StringUtils.simpleIdValue("Hello!!");
+		assertThat("Empty ID generated", id, equalTo("hello"));
+	}
+
+	@Test
+	public void simpleIdValue_remove_prefixAndsuffix() {
+		String id = StringUtils.simpleIdValue("!!Hello!!");
+		assertThat("Empty ID generated", id, equalTo("hello"));
+	}
+
+	@Test
+	public void simpleIdValue_complex() {
+		String id = StringUtils.simpleIdValue("!! OMG, is this like, SOO **complex**, or what?!");
+		assertThat("Empty ID generated", id, equalTo("omg-is-this-like-soo-complex-or-what"));
+	}
+
 }
