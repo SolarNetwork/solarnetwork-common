@@ -48,7 +48,7 @@ public interface Tariff {
 		 * description can be localized.
 		 * </p>
 		 * 
-		 * @return a unique ID
+		 * @return a unique ID, never {@literal null}
 		 */
 		String getId();
 
@@ -71,7 +71,8 @@ public interface Tariff {
 	/**
 	 * Get the rates that apply with this tariff.
 	 * 
-	 * @return the rates, as a mapping of rate IDs to associated rates
+	 * @return the rates, as a mapping of rate IDs to associated rates, never
+	 *         {@literal null}
 	 */
 	Map<String, Rate> getRates();
 

@@ -23,6 +23,7 @@
 package net.solarnetwork.domain.tariff;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import net.solarnetwork.util.StringUtils;
 
 /**
@@ -115,6 +116,23 @@ public class SimpleTariffRate implements Tariff.Rate {
 	@Override
 	public BigDecimal getAmount() {
 		return amount;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(amount, id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( !(obj instanceof SimpleTariffRate) ) {
+			return false;
+		}
+		SimpleTariffRate other = (SimpleTariffRate) obj;
+		return Objects.equals(amount, other.amount) && Objects.equals(id, other.id);
 	}
 
 }

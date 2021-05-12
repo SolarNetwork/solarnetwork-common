@@ -27,6 +27,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -73,8 +74,9 @@ public class TemporalRangesTariff implements Tariff {
 		this.dayOfMonthRange = dayOfMonthRange;
 		this.dayOfWeekRange = dayOfWeekRange;
 		this.minuteOfDayRange = minuteOfDayRange;
-		this.rates = rates.stream()
-				.collect(toMap(Rate::getId, Function.identity(), (k, v) -> v, LinkedHashMap::new));
+		this.rates = (rates == null ? Collections.emptyMap()
+				: rates.stream().collect(
+						toMap(Rate::getId, Function.identity(), (k, v) -> v, LinkedHashMap::new)));
 	}
 
 	/**
