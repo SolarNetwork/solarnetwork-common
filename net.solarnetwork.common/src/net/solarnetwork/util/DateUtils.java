@@ -23,6 +23,7 @@
 package net.solarnetwork.util;
 
 import java.time.DateTimeException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -34,6 +35,7 @@ import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalQueries;
 import java.util.Locale;
@@ -399,6 +401,98 @@ public final class DateUtils {
 			throw new DateTimeParseException("Invalid hour of day range", range, 0, e);
 		}
 		return IntRange.rangeOf(n[0], n[1]);
+	}
+
+	/** The number of standard minutes in a standard 24-hour day. */
+	public static final int MINUTES_PER_DAY = 60 * 24;
+
+	private static String formatMinuteOfDay(final int moh) {
+		int h = moh / 60;
+		int m = moh - h * 60;
+		return String.format("%02d:%02d", h, m);
+	}
+
+	private static String formatRange(IntRange range, Locale locale, ChronoField field, TextStyle style)
+			throws DateTimeException {
+		StringBuilder buf = new StringBuilder();
+
+		if ( field == ChronoField.MINUTE_OF_DAY ) {
+			if ( range.getMin() < 0 || range.getMax() > MINUTES_PER_DAY ) {
+				throw new DateTimeException(
+						"The start minute of hour is out of range: " + range.getMin());
+			} else if ( range.getMax() < 0 || range.getMax() > MINUTES_PER_DAY ) {
+				throw new DateTimeException("The end minute of hour is out of range: " + range.getMax());
+			}
+			// manually handle this so we support both hour and HH:MM and allow 24
+			if ( style == TextStyle.SHORT && range.getMin() % 60 == 0 && range.getMax() % 60 == 0 ) {
+				// use hour-hour style
+				buf.append(range.getMin() / 60);
+				if ( range.getMax() != range.getMin() ) {
+					buf.append('-').append(range.getMax() / 60);
+				}
+			} else {
+				// use HH:MM
+				buf.append(formatMinuteOfDay(range.getMin()));
+				if ( range.getMax() != range.getMin() ) {
+					buf.append('-').append(formatMinuteOfDay(range.getMax()));
+				}
+			}
+		} else {
+			DateTimeFormatter f = new DateTimeFormatterBuilder().appendText(field, style)
+					.toFormatter(locale);
+			LocalDateTime t = LocalDateTime.now();
+			if ( field == ChronoField.DAY_OF_WEEK ) {
+				t = t.with(TemporalAdjusters.nextOrSame(DayOfWeek.of(range.getMin())));
+			} else {
+				t = t.with(field, range.getMin());
+			}
+
+			f.formatTo(t, buf);
+			if ( range.getMax() != range.getMin() ) {
+				buf.append('-');
+				if ( field == ChronoField.DAY_OF_WEEK ) {
+					t = t.with(TemporalAdjusters.nextOrSame(DayOfWeek.of(range.getMax())));
+				} else {
+					t = t.with(field, range.getMax());
+				}
+				f.formatTo(t, buf);
+			}
+		}
+
+		return buf.toString();
+	}
+
+	/**
+	 * Format a time range.
+	 * 
+	 * <p>
+	 * The range can be specified using names, abbreviations, or numbers. The
+	 * range of allowed numbers varies by field.
+	 * </p>
+	 * 
+	 * @param field
+	 *        the time field to format
+	 * @param range
+	 *        the range to format into a string
+	 * @param locale
+	 *        the locale to format the range as, or {@literal null} to use the
+	 *        system default
+	 * @param style
+	 *        the formatting style
+	 * @return the range string
+	 * @throws DateTimeException
+	 *         if any formatting error occurs
+	 * @since 1.2
+	 */
+	public static String formatRange(ChronoField field, IntRange range, Locale locale, TextStyle style)
+			throws DateTimeException {
+		if ( range == null ) {
+			return null;
+		}
+		if ( locale == null ) {
+			locale = Locale.getDefault();
+		}
+		return formatRange(range, locale, field, style);
 	}
 
 }

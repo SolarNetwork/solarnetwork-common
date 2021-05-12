@@ -29,11 +29,14 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.IntStream;
 import org.junit.Test;
+import org.springframework.util.FileCopyUtils;
 import net.solarnetwork.domain.tariff.CsvTemporalRangeTariffParser;
 import net.solarnetwork.domain.tariff.SimpleTariffRate;
 import net.solarnetwork.domain.tariff.Tariff.Rate;
@@ -46,6 +49,15 @@ import net.solarnetwork.domain.tariff.TemporalRangesTariff;
  * @version 1.0
  */
 public class CsvTemporalRangeTariffParserTests {
+
+	private String stringResource(String resource) {
+		try {
+			return FileCopyUtils.copyToString(
+					new InputStreamReader(getClass().getResourceAsStream(resource), "UTF-8"));
+		} catch ( Exception e ) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	/**
 	 * Create a tariff where the rates names are given "column" names like in a
@@ -102,7 +114,7 @@ public class CsvTemporalRangeTariffParserTests {
 
 		// WHEN
 		try (InputStreamReader r = new InputStreamReader(
-				getClass().getResourceAsStream("test-tariffs.csv"), "UTF-8")) {
+				getClass().getResourceAsStream("test-tariffs-01.csv"), "UTF-8")) {
 			List<TemporalRangesTariff> tariffs = p.parseTariffs(r);
 
 			assertThat("Tariffs parsed", tariffs, hasSize(4));
@@ -115,6 +127,50 @@ public class CsvTemporalRangeTariffParserTests {
 			assertTemporalRangeTariff("Row 4", tariffs.get(3), "January-December", null, "Sat-Sun",
 					"8-24", "11.21");
 		}
+	}
+
+	@Test
+	public void format_hours() throws IOException {
+		// GIVEN
+		// @formatter:off
+		List<TemporalRangesTariff> tariffs = Arrays.asList(
+				spreadsheetColumnRates("January-December", null, "Mon-Fri", "0-8", "10.48", "1.23"),
+				spreadsheetColumnRates("January-December", null, "Mon-Fri", "8-24", "11.00", "2.34"),
+				spreadsheetColumnRates("January-December", null, "Sat-Sun", "0-8", "9.19", "3.45", "4.56"),
+				spreadsheetColumnRates("January-December", null, "Sat-Sun", "8-24", "11.21")
+				);
+		// @formatter:on
+
+		StringWriter w = new StringWriter(4096);
+
+		// WHEN
+		new CsvTemporalRangeTariffParser().formatCsv(tariffs, w);
+
+		// THEN
+		String csv = w.toString();
+		assertThat("Formatted CSV", csv, equalTo(stringResource("test-tariffs-02.csv")));
+	}
+
+	@Test
+	public void format_times() throws IOException {
+		// GIVEN
+		// @formatter:off
+		List<TemporalRangesTariff> tariffs = Arrays.asList(
+				spreadsheetColumnRates("January-December", null, "Mon-Fri", "00:00-08:30", "10.48", "1.23"),
+				spreadsheetColumnRates("January-December", null, "Mon-Fri", "08:30-24:00", "11.00", "2.34"),
+				spreadsheetColumnRates("January-December", null, "Sat-Sun", "00:00-08:30", "9.19", "3.45", "4.56"),
+				spreadsheetColumnRates("January-December", null, "Sat-Sun", "08:30-24:00", "11.21")
+				);
+		// @formatter:on
+
+		StringWriter w = new StringWriter(4096);
+
+		// WHEN
+		new CsvTemporalRangeTariffParser().formatCsv(tariffs, w);
+
+		// THEN
+		String csv = w.toString();
+		assertThat("Formatted CSV", csv, equalTo(stringResource("test-tariffs-03.csv")));
 	}
 
 }

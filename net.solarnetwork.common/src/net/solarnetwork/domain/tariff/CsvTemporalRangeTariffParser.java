@@ -23,15 +23,23 @@
 package net.solarnetwork.domain.tariff;
 
 import static java.lang.String.format;
+import static java.time.format.TextStyle.SHORT;
+import static net.solarnetwork.util.DateUtils.formatRange;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.time.DateTimeException;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvListWriter;
 import org.supercsv.io.ICsvListReader;
+import org.supercsv.io.ICsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 import net.solarnetwork.domain.tariff.Tariff.Rate;
 import net.solarnetwork.util.StringUtils;
@@ -152,6 +160,79 @@ public class CsvTemporalRangeTariffParser {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Encode a list of tariffs as CSV data.
+	 * 
+	 * <p>
+	 * The range columns are formatted using abbreviations if possible. The time
+	 * range column will be formatted using integer hours if possible, otherwise
+	 * {@literal HH:MM} syntax.
+	 * </p>
+	 * 
+	 * @param tariffs
+	 *        the tariffs to encode
+	 * @param writer
+	 *        the writer to write the CSV data to
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws IllegalArgumentException
+	 *         if any formatting error occurs
+	 */
+	public void formatCsv(List<TemporalRangesTariff> tariffs, Writer writer) throws IOException {
+		if ( tariffs == null || tariffs.isEmpty() ) {
+			return;
+		}
+		List<String> rateNames = extractRateDescriptions(tariffs);
+		String[] headers = new String[4 + rateNames.size()];
+		headers[0] = "Month";
+		headers[1] = "Day";
+		headers[2] = "Weekday";
+		headers[3] = "Time";
+		for ( int i = 0, len = rateNames.size(); i < len; i++ ) {
+			headers[i + 4] = rateNames.get(i);
+		}
+		try (ICsvListWriter csvWriter = new CsvListWriter(writer, CsvPreference.STANDARD_PREFERENCE)) {
+			csvWriter.writeHeader(headers);
+			try {
+				// change rate headers to IDs for faster lookup while processing rows
+				for ( int i = 4; i < headers.length; i++ ) {
+					headers[i] = StringUtils.simpleIdValue(headers[i]);
+				}
+
+				for ( TemporalRangesTariff tariff : tariffs ) {
+					encodeToCsv(tariff, headers, csvWriter);
+				}
+			} catch ( DateTimeException e ) {
+				throw new IllegalArgumentException(
+						format("Error formatting date range value in CSV row %d: %s",
+								csvWriter.getLineNumber(), e.getMessage()),
+						e);
+			} catch ( Exception e ) {
+				throw new IllegalArgumentException(format("Error formatting CSV row %d: %s",
+						csvWriter.getLineNumber(), e.getMessage()), e);
+			}
+		}
+	}
+
+	private void encodeToCsv(TemporalRangesTariff tariff, String[] headers, ICsvListWriter csvWriter)
+			throws IOException {
+		String[] row = new String[headers.length];
+		row[0] = formatRange(ChronoField.MONTH_OF_YEAR, tariff.getMonthRange(), locale, SHORT);
+		row[1] = formatRange(ChronoField.DAY_OF_MONTH, tariff.getDayOfMonthRange(), locale, SHORT);
+		row[2] = formatRange(ChronoField.DAY_OF_WEEK, tariff.getDayOfWeekRange(), locale, SHORT);
+		row[3] = formatRange(ChronoField.MINUTE_OF_DAY, tariff.getMinuteOfDayRange(), locale, SHORT);
+		for ( int i = 4; i < headers.length; i++ ) {
+			Rate r = tariff.getRates().get(headers[i]);
+			row[i] = (r != null ? r.getAmount().toPlainString() : null);
+		}
+		csvWriter.write(row);
+	}
+
+	private List<String> extractRateDescriptions(List<TemporalRangesTariff> tariffs) {
+		return new ArrayList<>(tariffs.stream().flatMap(t -> t.getRates().values().stream())
+				.map(Rate::getDescription).collect(Collectors.toCollection(LinkedHashSet::new)));
 	}
 
 }

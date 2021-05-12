@@ -23,6 +23,9 @@
 package net.solarnetwork.util.test;
 
 import static java.lang.String.format;
+import static java.time.format.TextStyle.FULL;
+import static java.time.format.TextStyle.SHORT;
+import static java.util.Locale.US;
 import static net.solarnetwork.util.IntRange.rangeOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -411,6 +414,64 @@ public class DateUtilsTests {
 			assertThat(format("MinuteOfDay singleton %d [%s] parsed", i + 1, inputs[i]), r,
 					equalTo(rangeOf(1439)));
 		}
+	}
+
+	@Test
+	public void formatMonthRange() {
+		String range = DateUtils.formatRange(ChronoField.MONTH_OF_YEAR, rangeOf(2, 11), US, SHORT);
+		assertThat("Formatted range", range, equalTo("Feb-Nov"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatMonthRange_invalid() {
+		DateUtils.formatRange(ChronoField.MONTH_OF_YEAR, rangeOf(2, 15), US, SHORT);
+	}
+
+	@Test
+	public void formatDayOfMonthRange() {
+		String range = DateUtils.formatRange(ChronoField.DAY_OF_MONTH, rangeOf(2, 11), US, SHORT);
+		assertThat("Formatted range", range, equalTo("2-11"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatDayOfMonthRange_invalid() {
+		DateUtils.formatRange(ChronoField.DAY_OF_MONTH, rangeOf(2, 55), US, SHORT);
+	}
+
+	@Test
+	public void formatDayOfWeekRange() {
+		String range = DateUtils.formatRange(ChronoField.DAY_OF_WEEK, rangeOf(2, 6), US, SHORT);
+		assertThat("Formatted range", range, equalTo("Tue-Sat"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatDayOfWeekRange_invalid() {
+		DateUtils.formatRange(ChronoField.DAY_OF_WEEK, rangeOf(2, 55), US, SHORT);
+	}
+
+	@Test
+	public void formatMinuteOfDayRange_hours() {
+		String range = DateUtils.formatRange(ChronoField.MINUTE_OF_DAY, rangeOf(2 * 60, 18 * 60), US,
+				SHORT);
+		assertThat("Formatted range", range, equalTo("2-18"));
+	}
+
+	@Test
+	public void formatMinuteOfDayRange_hours_full() {
+		String range = DateUtils.formatRange(ChronoField.MINUTE_OF_DAY, rangeOf(2 * 60, 18 * 60), US,
+				FULL);
+		assertThat("Formatted range", range, equalTo("02:00-18:00"));
+	}
+
+	@Test
+	public void formatMinuteOfDayRange_minutes() {
+		String range = DateUtils.formatRange(ChronoField.MINUTE_OF_DAY, rangeOf(30, 18 * 60), US, SHORT);
+		assertThat("Formatted range", range, equalTo("00:30-18:00"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatMinuteOfDayRange_invalid() {
+		DateUtils.formatRange(ChronoField.MINUTE_OF_DAY, rangeOf(0, 99 * 60), US, SHORT);
 	}
 
 }
