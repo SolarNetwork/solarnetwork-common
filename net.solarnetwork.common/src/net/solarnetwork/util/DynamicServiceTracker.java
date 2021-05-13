@@ -62,8 +62,9 @@ import org.springframework.beans.PropertyAccessorFactory;
  * @author matt
  * @version 1.3
  */
-public class DynamicServiceTracker<T>
-		implements OptionalService<T>, OptionalServiceCollection<T>, FilterableService {
+public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalServiceCollection<T>,
+		FilterableService, OptionalService.OptionalFilterableService<T>,
+		OptionalServiceCollection.OptionalFilterableServiceCollection<T> {
 
 	private static final Comparator<ServiceReference<?>> RANK_COMPARATOR = new ServiceReferenceRankComparator();
 
