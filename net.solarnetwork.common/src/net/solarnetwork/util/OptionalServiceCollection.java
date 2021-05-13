@@ -41,7 +41,8 @@ public interface OptionalServiceCollection<T> {
 	 * @param <T>
 	 *        the tracked service type
 	 */
-	interface OptionalFilterableServiceCollection<T> extends OptionalService<T>, FilterableService {
+	interface OptionalFilterableServiceCollection<T>
+			extends OptionalServiceCollection<T>, FilterableService {
 		// no additional methods
 	}
 
