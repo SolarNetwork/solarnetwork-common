@@ -30,7 +30,7 @@ import java.util.Map;
  * matching the filter.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public interface FilterableService {
 
@@ -60,6 +60,22 @@ public interface FilterableService {
 	 * @return the removed value, or {@literal null} if no value was available
 	 */
 	Object removePropertyFilter(String key);
+
+	/**
+	 * Get a property filter value.
+	 * 
+	 * @param <T>
+	 *        the expected property value type
+	 * @param key
+	 *        the property filter key to get the value for
+	 * @return the property value, or {@literal null} if not available
+	 * @since 1.2
+	 */
+	@SuppressWarnings("unchecked")
+	default <T> T getPropertyValue(String key) {
+		Map<String, ?> props = getPropertyFilters();
+		return (props != null ? (T) props.get(key) : null);
+	}
 
 	/**
 	 * Get a filter property value from an optional service that is also
