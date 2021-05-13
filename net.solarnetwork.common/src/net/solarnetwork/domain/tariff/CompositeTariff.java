@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class CompositeTariff implements Tariff {
 
-	private final Collection<Tariff> tariffs;
+	private final Collection<? extends Tariff> tariffs;
 
 	/**
 	 * Constructor.
@@ -50,7 +50,7 @@ public class CompositeTariff implements Tariff {
 	 * @param tariffs
 	 *        the tariffs
 	 */
-	public CompositeTariff(Collection<Tariff> tariffs) {
+	public CompositeTariff(Collection<? extends Tariff> tariffs) {
 		super();
 		this.tariffs = (tariffs != null ? tariffs : Collections.emptyList());
 	}
