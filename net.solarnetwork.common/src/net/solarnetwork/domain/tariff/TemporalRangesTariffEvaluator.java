@@ -24,13 +24,13 @@ package net.solarnetwork.domain.tariff;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import net.solarnetwork.domain.Identifiable;
 
 /**
  * API for a function that can evaluate a given {@link TemporalRangesTariff}
  * rule to see if it applies based on an input date and parameter map.
  */
-@FunctionalInterface
-public interface TemporalRangesTariffEvaluator {
+public interface TemporalRangesTariffEvaluator extends Identifiable {
 
 	/**
 	 * Test if a rule applies to a given date and set of parameters.

@@ -117,7 +117,7 @@ public class CsvTemporalRangeTariffParser {
 			}
 			String[] ids = new String[headers.length - 4];
 			for ( int i = 0, len = ids.length; i < len; i++ ) {
-				ids[0] = StringUtils.simpleIdValue(headers[i + 4]);
+				ids[i] = StringUtils.simpleIdValue(headers[i + 4]);
 			}
 			while ( true ) {
 				List<String> row = csvReader.read();
@@ -135,10 +135,10 @@ public class CsvTemporalRangeTariffParser {
 					for ( int i = 0; i < ratesLength; i++ ) {
 						int j = i + 4;
 						String rateString = row.get(j);
-						BigDecimal rateValue = (rateString != null && !rateString.isEmpty()
-								? new BigDecimal(rateString)
-								: BigDecimal.ZERO);
-						rates.add(new SimpleTariffRate(ids[i], headers[j], rateValue));
+						if ( rateString != null && !rateString.isEmpty() ) {
+							BigDecimal rateValue = new BigDecimal(rateString);
+							rates.add(new SimpleTariffRate(ids[i], headers[j], rateValue));
+						}
 					}
 					TemporalRangesTariff t = new TemporalRangesTariff(row.get(0), row.get(1), row.get(2),
 							row.get(3), rates, locale);

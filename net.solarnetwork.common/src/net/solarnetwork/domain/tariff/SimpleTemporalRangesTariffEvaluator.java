@@ -25,6 +25,7 @@ package net.solarnetwork.domain.tariff;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Map;
+import net.solarnetwork.support.BasicIdentifiable;
 import net.solarnetwork.util.IntRange;
 
 /**
@@ -38,8 +39,15 @@ import net.solarnetwork.util.IntRange;
  * maximum value is treated as an exclusive value.
  * </p>
  * 
+ * @author matt
+ * @version 1.0
+ * @since 1.71
  */
-public final class SimpleTemporalRangesTariffEvaluator implements TemporalRangesTariffEvaluator {
+public final class SimpleTemporalRangesTariffEvaluator extends BasicIdentifiable
+		implements TemporalRangesTariffEvaluator {
+
+	/** A static default instance. */
+	public static final TemporalRangesTariffEvaluator DEFAULT_EVALUATOR = new SimpleTemporalRangesTariffEvaluator();
 
 	@Override
 	public boolean applies(TemporalRangesTariff rule, LocalDateTime dateTime,
