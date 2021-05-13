@@ -122,4 +122,13 @@ public class SimpleTemporalTariffSchedule implements TariffSchedule {
 		this.firstMatchOnly = firstMatchOnly;
 	}
 
+	/**
+	 * Get the configured rules.
+	 * 
+	 * @return the rules
+	 */
+	public List<TemporalRangesTariff> getRules() {
+		return rules;
+	}
+
 }
