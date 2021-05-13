@@ -29,7 +29,7 @@ import java.util.Map;
  * API for accessing general datum sample property values.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.42
  */
 public interface GeneralDatumSamplesOperations {
@@ -156,5 +156,40 @@ public interface GeneralDatumSamplesOperations {
 	 * @return {@literal true} if a value is present for the given key
 	 */
 	boolean hasSampleValue(GeneralDatumSamplesType type, String key);
+
+	/**
+	 * Find a sample value.
+	 * 
+	 * <p>
+	 * This will search {@code Instantaneous}, {@code Accumulating}, and
+	 * {@code Status} data types, in that order, and return the first non-null
+	 * value found.
+	 * </p>
+	 * 
+	 * @param <V>
+	 *        the expected value type
+	 * @param key
+	 *        the key of the value, or tag name, to get
+	 * @return the value cast as a {@code V}, or {@literal null} if not
+	 *         available
+	 * @since 1.1
+	 */
+	<V> V findSampleValue(String key);
+
+	/**
+	 * Test is a sample value is present for a given key.
+	 * 
+	 * <p>
+	 * This will search {@code Instantaneous}, {@code Accumulating}, and
+	 * {@code Status} data types, in that order, and return the first non-null
+	 * value found.
+	 * </p>
+	 * 
+	 * @param key
+	 *        the key of the value, or name of the tag, to look for
+	 * @return {@literal true} if a value is present for the given key
+	 * @since 1.1
+	 */
+	boolean hasSampleValue(String key);
 
 }
