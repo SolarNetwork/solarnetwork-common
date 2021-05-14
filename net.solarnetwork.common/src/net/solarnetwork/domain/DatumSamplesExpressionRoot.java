@@ -123,6 +123,17 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 		return get(key) != null;
 	}
 
+	/**
+	 * An alias for {@link #containsKey(Object)}
+	 * 
+	 * @param key
+	 *        the key to search for
+	 * @return {@literal true} if a property with the given key exists
+	 */
+	public boolean has(Object key) {
+		return get(key) != null;
+	}
+
 	@Override
 	public Object get(Object key) {
 		if ( key == null ) {
