@@ -379,4 +379,13 @@ public class GeneralDatum extends BasicIdentity<DatumStreamId>
 		return samples.hasSampleValue(type, key);
 	}
 
+	/**
+	 * Get the samples instance.
+	 * 
+	 * @return the samples, never {@literal null}
+	 */
+	public GeneralDatumSamples getSamples() {
+		return samples;
+	}
+
 }
