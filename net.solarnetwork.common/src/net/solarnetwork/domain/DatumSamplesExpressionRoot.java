@@ -136,13 +136,17 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 				return o;
 			}
 		}
-		o = sample.findSampleValue(k);
-		if ( o != null ) {
-			return o;
+		if ( sample != null ) {
+			o = sample.findSampleValue(k);
+			if ( o != null ) {
+				return o;
+			}
 		}
-		o = datumOps.findSampleValue(k);
-		if ( o != null ) {
-			return o;
+		if ( datumOps != null ) {
+			o = datumOps.findSampleValue(k);
+			if ( o != null ) {
+				return o;
+			}
 		}
 		return null;
 	}
