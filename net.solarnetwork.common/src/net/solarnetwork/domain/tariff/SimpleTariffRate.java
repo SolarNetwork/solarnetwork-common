@@ -44,7 +44,7 @@ public class SimpleTariffRate implements Tariff.Rate {
 	 * 
 	 * <p>
 	 * This method will derive the {@code id} from the {@code description} via
-	 * {@link StringUtils.simpleIdValue(String)}.
+	 * {@link StringUtils#simpleIdValue(String)}.
 	 * </p>
 	 * 
 	 * @param description

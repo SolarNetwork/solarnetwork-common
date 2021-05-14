@@ -349,15 +349,13 @@ public final class DateUtils {
 	 * 0 - 24 are allowed.
 	 * </p>
 	 * 
-	 * <p>
-	 * If {@code fix24} is {@literal true} then the value {@literal 24} will be
-	 * changed to {@code 23:59}, otherwise {@literal 24} will be left as-is.
-	 * </p>
-	 * 
 	 * @param range
 	 *        the range string to parse into a day of week range
 	 * @param locale
 	 *        the locale to parse the range as
+	 * @param fix24
+	 *        if {@literal true} then the value {@literal 24} will be changed to
+	 *        {@code 23:59}, otherwise {@literal 24} will be left as-is
 	 * @return the range, with a minimum of {@literal 0} and maximum of
 	 *         {@literal 1439}
 	 * @throws DateTimeException

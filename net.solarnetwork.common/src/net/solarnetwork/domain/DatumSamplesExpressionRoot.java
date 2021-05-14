@@ -70,7 +70,10 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 * 
 	 * @param datum
 	 *        the datum currently being populated
-	 * @param
+	 * @param sample
+	 *        the samples
+	 * @param parameters
+	 *        the parameters
 	 */
 	public DatumSamplesExpressionRoot(Datum datum, GeneralDatumSamplesOperations sample,
 			Map<String, ?> parameters) {

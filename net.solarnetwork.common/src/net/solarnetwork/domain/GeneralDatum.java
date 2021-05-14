@@ -67,7 +67,6 @@ public class GeneralDatum extends BasicIdentity<DatumStreamId>
 	 * This creates a {@literal null} {@code objectId} and sets the timestamp to
 	 * the system time.
 	 * </p>
-	 * </p>
 	 * 
 	 * @param sourceId
 	 *        the source ID
