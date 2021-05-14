@@ -67,12 +67,12 @@ public class CompositeTariffTests {
 
 		// THEN
 		assertThat("Rates created", rates, notNullValue());
-		assertThat("Rate keys maintain order", rates.keySet(), contains("zero", "one", "ten", "0-1"));
+		assertThat("Rate keys maintain order", rates.keySet(), contains("zero", "one", "ten", "0_1"));
 		assertThat("Rate zero", rates, hasEntry("zero", rateList.get(0)));
 		assertThat("Rate one", rates, hasEntry("one", rateList.get(1)));
 		assertThat("Rate ten", rates, hasEntry("ten", rateList.get(2)));
 		// rate 3 is duplicate and skipped
-		assertThat("Rate 0-1", rates, hasEntry("0-1", rateList.get(4)));
+		assertThat("Rate 0_1", rates, hasEntry("0_1", rateList.get(4)));
 	}
 
 }

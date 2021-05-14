@@ -42,7 +42,7 @@ public class SimpleTariffRateTests {
 		SimpleTariffRate r = new SimpleTariffRate("TOU Rate", BigDecimal.ONE);
 
 		// THEN
-		assertThat("Simple ID created from description", r.getId(), Matchers.equalTo("tou-rate"));
+		assertThat("Simple ID created from description", r.getId(), Matchers.equalTo("tou_rate"));
 	}
 
 }

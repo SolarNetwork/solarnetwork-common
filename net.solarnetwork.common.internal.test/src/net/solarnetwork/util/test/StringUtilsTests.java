@@ -460,25 +460,25 @@ public class StringUtilsTests {
 	@Test
 	public void simpleIdValue_basic() {
 		String id = StringUtils.simpleIdValue("This Is A Title");
-		assertThat("Empty ID generated", id, equalTo("this-is-a-title"));
+		assertThat("Empty ID generated", id, equalTo("this_is_a_title"));
 	}
 
 	@Test
 	public void simpleIdValue_noChange() {
-		String id = StringUtils.simpleIdValue("this-is-a-title");
-		assertThat("Empty ID generated", id, equalTo("this-is-a-title"));
+		String id = StringUtils.simpleIdValue("this_is_a_title");
+		assertThat("Empty ID generated", id, equalTo("this_is_a_title"));
 	}
 
 	@Test
 	public void simpleIdValue_trim() {
 		String id = StringUtils.simpleIdValue(" This Is A Title ");
-		assertThat("Empty ID generated", id, equalTo("this-is-a-title"));
+		assertThat("Empty ID generated", id, equalTo("this_is_a_title"));
 	}
 
 	@Test
 	public void simpleIdValue_coalesce() {
 		String id = StringUtils.simpleIdValue("Hello, world");
-		assertThat("Empty ID generated", id, equalTo("hello-world"));
+		assertThat("Empty ID generated", id, equalTo("hello_world"));
 	}
 
 	@Test
@@ -502,7 +502,7 @@ public class StringUtilsTests {
 	@Test
 	public void simpleIdValue_complex() {
 		String id = StringUtils.simpleIdValue("!! OMG, is this like, SOO **complex**, or what?!");
-		assertThat("Empty ID generated", id, equalTo("omg-is-this-like-soo-complex-or-what"));
+		assertThat("Empty ID generated", id, equalTo("omg_is_this_like_soo_complex_or_what"));
 	}
 
 }

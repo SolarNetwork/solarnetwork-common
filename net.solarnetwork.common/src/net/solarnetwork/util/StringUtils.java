@@ -658,14 +658,14 @@ public final class StringUtils {
 	 * 
 	 * @since 1.8
 	 */
-	public static final Pattern NOT_SIMPLE_ID_CHARACTER_PATTERN = Pattern.compile("[^a-zA-Z0-9_-]+");
+	public static final Pattern NOT_SIMPLE_ID_CHARACTER_PATTERN = Pattern.compile("[^a-zA-Z0-9_]+");
 
 	/**
-	 * A pattern that matches any {@literal -} at the start or end of a string.
+	 * A pattern that matches any {@literal _} at the start or end of a string.
 	 * 
 	 * @since 1.8
 	 */
-	public static final Pattern DASH_PREFIX_OR_SUFFIX = Pattern.compile("(^-+|-+$)");
+	public static final Pattern UNDERSCORE_PREFIX_OR_SUFFIX = Pattern.compile("(^_+|_+$)");
 
 	/**
 	 * Generate a "simple" ID out of a string.
@@ -677,8 +677,8 @@ public final class StringUtils {
 	 * <ol>
 	 * <li>leading and trailing whitespace is removed</li>
 	 * <li>change to lower case</li>
-	 * <li>replace any runs of characters other than {@literal a-zA-Z0-9_-} with
-	 * a {@literal -}</li>
+	 * <li>replace any runs of characters other than {@literal a-zA-Z0-9_} with
+	 * a {@literal _}</li>
 	 * <li>
 	 * </ol>
 	 * 
@@ -692,9 +692,9 @@ public final class StringUtils {
 		if ( text == null || text.isEmpty() ) {
 			return text;
 		}
-		String s = NOT_SIMPLE_ID_CHARACTER_PATTERN.matcher(text.trim().toLowerCase()).replaceAll("-");
-		if ( s.charAt(0) == '-' || s.charAt(s.length() - 1) == '-' ) {
-			s = DASH_PREFIX_OR_SUFFIX.matcher(s).replaceAll("");
+		String s = NOT_SIMPLE_ID_CHARACTER_PATTERN.matcher(text.trim().toLowerCase()).replaceAll("_");
+		if ( s.charAt(0) == '_' || s.charAt(s.length() - 1) == '_' ) {
+			s = UNDERSCORE_PREFIX_OR_SUFFIX.matcher(s).replaceAll("");
 		}
 		return s;
 	}
