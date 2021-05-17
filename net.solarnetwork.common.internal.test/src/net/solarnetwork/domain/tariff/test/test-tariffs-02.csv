@@ -1,0 +1,5 @@
+Month,Day,Weekday,Time,E,F,G
+Jan-Dec,,Mon-Fri,0-8,10.48,1.23,
+Jan-Dec,,Mon-Fri,8-24,11.00,2.34,
+Jan-Dec,,Sat-Sun,0-8,9.19,3.45,4.56
+Jan-Dec,,Sat-Sun,8-24,11.21,,

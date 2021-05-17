@@ -31,6 +31,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -146,6 +147,208 @@ public class GeneralDatumMetadataTest {
 		assertThat(copy.getPropertyInfo().get("foo"), equalTo(meta.getPropertyInfo().get("foo")));
 		assertThat(copy.getPropertyInfo().get("foo"),
 				not(sameInstance(meta.getPropertyInfo().get("foo"))));
+	}
+
+	@Test
+	public void metadataAtPath_info() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+
+		// WHEN
+		String s = meta.metadataAtPath("/m/msg", String.class);
+
+		// THEN
+		assertThat("Resolved metadata", s, equalTo(meta.getInfoString("msg")));
+	}
+
+	@Test
+	public void metadataAtPath_info_wrongType() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+
+		// WHEN
+		Integer i = meta.metadataAtPath("/m/msg", Integer.class);
+
+		// THEN
+		assertThat("Metadata of wrong type", i, nullValue());
+	}
+
+	@Test
+	public void metadataAtPath_info_root() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+
+		// WHEN
+		@SuppressWarnings("unchecked")
+		Map<String, Object> m = meta.metadataAtPath("/m", Map.class);
+
+		// THEN
+		assertThat("Resolved metadata", m, sameInstance(meta.getInfo()));
+	}
+
+	@Test
+	public void metadataAtPath_info_notFound() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+
+		// WHEN
+		String s = meta.metadataAtPath("/m/msg_nope", String.class);
+
+		// THEN
+		assertThat("Metadata not found", s, nullValue());
+	}
+
+	@Test
+	public void metadataAtPath_propInfo() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+		meta.putInfoValue("foo", "bar", "bam");
+
+		// WHEN
+		String s = meta.metadataAtPath("/pm/foo/bar", String.class);
+
+		// THEN
+		assertThat("Resolved metadata", s, equalTo(meta.getInfoString("foo", "bar")));
+	}
+
+	@Test
+	public void metadataAtPath_propInfo_wrongType() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+		meta.putInfoValue("foo", "bar", "bam");
+
+		// WHEN
+		Integer i = meta.metadataAtPath("/pm/foo/bar", Integer.class);
+
+		// THEN
+		assertThat("Metadata of wrong type", i, nullValue());
+	}
+
+	@Test
+	public void metadataAtPath_propInfo_root() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+		meta.putInfoValue("foo", "bar", "bam");
+
+		// WHEN
+		@SuppressWarnings("unchecked")
+		Map<String, Map<String, Object>> m = meta.metadataAtPath("/pm", Map.class);
+
+		// THEN
+		assertThat("Resolved metadata", m, sameInstance(meta.getPropertyInfo()));
+	}
+
+	@Test
+	public void metadataAtPath_propInfo_nestedRoot() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+		meta.putInfoValue("foo", "bar", "bam");
+
+		// WHEN
+		@SuppressWarnings("unchecked")
+		Map<String, Object> m = meta.metadataAtPath("/pm/foo", Map.class);
+
+		// THEN
+		assertThat("Resolved metadata", m, sameInstance(meta.getPropertyInfo().get("foo")));
+	}
+
+	@Test
+	public void metadataAtPath_propInfo_notFound() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+		meta.putInfoValue("foo", "bar", "bam");
+
+		// WHEN
+		String s = meta.metadataAtPath("/m/foo/bar_nope", String.class);
+
+		// THEN
+		assertThat("Metadata not found", s, nullValue());
+	}
+
+	@Test
+	public void metadataAtPath_propInfo_notFound_propMap() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+		meta.putInfoValue("foo", "bar", "bam");
+
+		// WHEN
+		String s = meta.metadataAtPath("/m/foo_nope/bar", String.class);
+
+		// THEN
+		assertThat("Metadata not found", s, nullValue());
+	}
+
+	@Test
+	public void metadataAtPath_tags_root() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+
+		// WHEN
+		@SuppressWarnings("unchecked")
+		Set<String> s = meta.metadataAtPath("/t", Set.class);
+
+		// THEN
+		assertThat("Resolved metadata", s, sameInstance(meta.getTags()));
+	}
+
+	@Test
+	public void metadataAtPath_tags_present() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+
+		// WHEN
+		String t = meta.metadataAtPath("/t/test", String.class);
+
+		// THEN
+		assertThat("Resolved tag", t, equalTo("test"));
+	}
+
+	@Test
+	public void metadataAtPath_tags_notPresent() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+
+		// WHEN
+		String t = meta.metadataAtPath("/t/test_nope", String.class);
+
+		// THEN
+		assertThat("No tag found", t, nullValue());
+	}
+
+	@Test
+	public void metadataAtPath_invalidPath() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+
+		// WHEN
+		String t = meta.metadataAtPath("/not/valid", String.class);
+
+		// THEN
+		assertThat("No value found", t, nullValue());
+	}
+
+	@Test
+	public void metadataAtPath_emptyPath() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+
+		// WHEN
+		String t = meta.metadataAtPath("", String.class);
+
+		// THEN
+		assertThat("No value found", t, nullValue());
+	}
+
+	@Test
+	public void metadataAtPath_nullPath() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+
+		// WHEN
+		String t = meta.metadataAtPath(null, String.class);
+
+		// THEN
+		assertThat("No value found", t, nullValue());
 	}
 
 }

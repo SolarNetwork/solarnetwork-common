@@ -147,7 +147,26 @@ public class SpelExpressionServiceTests {
 		vars.put("b", "2.2");
 		String result = service.evaluateExpression("#a + ' ' + #b", vars, null, null, String.class);
 		assertThat("Decimal result", result, equalTo("3 2.2"));
+	}
 
+	@Test
+	public void rootObject() {
+		Map<String, Object> vars = new HashMap<>(2);
+		vars.put("a", new BigInteger("3"));
+		vars.put("b", new BigDecimal("2.2"));
+		TestExpressionRoot root = new TestExpressionRoot(vars, 42);
+		BigDecimal result = service.evaluateExpression("data['a'] + data['b'] * foo", null, root, null,
+				BigDecimal.class);
+		assertThat("Fesult", result, equalTo(new BigDecimal("95.4")));
+	}
+
+	@Test
+	public void rootMapObject() {
+		Map<String, Object> vars = new HashMap<>(2);
+		vars.put("a", new BigInteger("3"));
+		vars.put("b", new BigDecimal("2.2"));
+		BigDecimal result = service.evaluateExpression("a * b", null, vars, null, BigDecimal.class);
+		assertThat("Fesult", result, equalTo(new BigDecimal("6.6")));
 	}
 
 }

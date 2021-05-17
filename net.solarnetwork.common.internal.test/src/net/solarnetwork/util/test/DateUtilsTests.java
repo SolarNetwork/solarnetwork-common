@@ -22,25 +22,34 @@
 
 package net.solarnetwork.util.test;
 
+import static java.lang.String.format;
+import static java.time.format.TextStyle.FULL;
+import static java.time.format.TextStyle.SHORT;
+import static java.util.Locale.US;
+import static net.solarnetwork.util.IntRange.rangeOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import org.junit.Test;
 import net.solarnetwork.util.DateUtils;
+import net.solarnetwork.util.IntRange;
 
 /**
  * Test cases for the {@link DateUtils} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class DateUtilsTests {
 
@@ -95,7 +104,7 @@ public class DateUtilsTests {
 
 	@Test
 	public void parseIsoDateOptTimeAlt_utc_full_java8() {
-		assumeThat("Behavior in Java 11", JAVA_VERS, lessThan(11.0));
+		assumeThat("Behavior in Java 8", JAVA_VERS, lessThan(11.0));
 		// Behaviour changes from Java 8 -> 11 from bug JDK-8066982
 		// https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8066982
 		ZonedDateTime ts = DateUtils.ISO_DATE_OPT_TIME_ALT_UTC.parse("2020-02-01 20:12:34+12:00",
@@ -175,6 +184,294 @@ public class DateUtilsTests {
 	public void parseIsoAltTimestamp_date() {
 		ZonedDateTime ts = DateUtils.parseIsoAltTimestamp("2020-02-01", ZoneOffset.UTC);
 		assertThat(ts, equalTo(ZonedDateTime.of(2020, 2, 1, 0, 0, 0, 0, ZoneOffset.UTC)));
+	}
+
+	@Test
+	public void parseDateRange_missingStart() {
+		String[] inputs = new String[] { " - 3", "-3" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			try {
+				DateUtils.parseRange(ChronoField.MONTH_OF_YEAR, inputs[i], null);
+				fail(format("Missing start %d [%s] should fail to parse", i + 1, inputs[i]));
+			} catch ( DateTimeException e ) {
+				// expected
+			}
+		}
+	}
+
+	@Test
+	public void parseDateRange_missingEnd() {
+		String[] inputs = new String[] { "3 -", "3-" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			try {
+				DateUtils.parseRange(ChronoField.MONTH_OF_YEAR, inputs[i], null);
+				fail(format("Missing end %d [%s] should fail to parse", i + 1, inputs[i]));
+			} catch ( DateTimeException e ) {
+				// expected
+			}
+		}
+	}
+
+	@Test
+	public void parseMonthRange() {
+		String[] inputs = new String[] { "March-November", "Mar-Nov", "03-11", "3-11", " March  - Nov ",
+				"Nov-Mar" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMonthRange(inputs[i], null);
+			assertThat(format("Month range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(3, 11)));
+		}
+	}
+
+	@Test
+	public void parseMonthRange_singleton() {
+		String[] inputs = new String[] { "March", "Mar", "03", "3", " March  ", "Mar-Mar" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMonthRange(inputs[i], null);
+			assertThat(format("Month singleton %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(3)));
+		}
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void parseMonthRange_invalid() {
+		DateUtils.parseMonthRange("March - Howdy", null);
+	}
+
+	@Test
+	public void parseDayOfMonthRange() {
+		String[] inputs = new String[] { "7-21", "7 - 21", "07-21", "07 - 21", " 7 - 21 ", " 07  - 21 ",
+				"21-7" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseDayOfMonthRange(inputs[i], null);
+			assertThat(format("DayOfMonth range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(7, 21)));
+		}
+	}
+
+	@Test
+	public void parseDayOfMonthRange_singleton() {
+		String[] inputs = new String[] { "07", "7", " 7", " 07", " 7 ", " 07 ", "07-07" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseDayOfMonthRange(inputs[i], null);
+			assertThat(format("DayOfMonth singleton %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(7)));
+		}
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void parseDayOfMonthRange_invalid() {
+		DateUtils.parseDayOfMonthRange("1-100", null);
+	}
+
+	@Test
+	public void parseDayOfWeekRange() {
+		String[] inputs = new String[] { "Tuesday - Saturday", "Tue - Sat", "2-6", "02 - 06",
+				" Tue - 6 ", " Tue  - Sat ", "Sat-Tue" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseDayOfWeekRange(inputs[i], null);
+			assertThat(format("DayOfWeek range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(2, 6)));
+		}
+	}
+
+	@Test
+	public void parseDayOfWeekRange_singleton() {
+		String[] inputs = new String[] { "Tuesday", "Tue", "02", "2", " 2 ", " 02 ", "2 ", "Tue-Tue" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseDayOfWeekRange(inputs[i], null);
+			assertThat(format("DayOfWeek singleton %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(2)));
+		}
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void parseDayOfWeekRange_invalid() {
+		DateUtils.parseDayOfWeekRange("1-10", null);
+	}
+
+	@Test
+	public void parseMinuteOfDayRange() {
+		String[] inputs = new String[] { "00 - 24", "0 - 24", "0-24", " 0 - 24 ", "0 - 24 ", "24-0" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, false);
+			assertThat(format("MinuteOfDay range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(0, 24 * 60)));
+		}
+		inputs = new String[] { "0-1", "4-8", "8-24", " 2 - 22 ", "23-0" };
+		IntRange[] expected = new IntRange[] { rangeOf(0, 1 * 60), rangeOf(4 * 60, 8 * 60),
+				rangeOf(8 * 60, 24 * 60), rangeOf(2 * 60, 22 * 60), rangeOf(0 * 60, 23 * 60) };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, false);
+			assertThat(format("MinuteOfDay range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(expected[i]));
+		}
+	}
+
+	@Test
+	public void parseMinuteOfDayRange_singleton() {
+		String[] inputs = new String[] { "24", " 24 ", "24-24" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, false);
+			assertThat(format("MinuteOfDay singleton %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(24 * 60)));
+		}
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void parseMinuteOfDayRange_invalid() {
+		DateUtils.parseMinuteOfDayRange("1 - 25", null);
+	}
+
+	@Test
+	public void parseMinuteOfDayRange_fix24() {
+		String[] inputs = new String[] { "00 - 24", "0 - 24", "0-24", " 0 - 24 ", "0 - 24 ", "24-0" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, true);
+			assertThat(format("MinuteOfDay range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(0, 23 * 60 + 59)));
+		}
+		inputs = new String[] { "0-1", "4-8", "8-24", " 2 - 22 ", "23-0" };
+		IntRange[] expected = new IntRange[] { rangeOf(0, 1 * 60), rangeOf(4 * 60, 8 * 60),
+				rangeOf(8 * 60, 23 * 60 + 59), rangeOf(2 * 60, 22 * 60), rangeOf(0, 23 * 60) };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, true);
+			assertThat(format("MinuteOfDay range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(expected[i]));
+		}
+	}
+
+	@Test
+	public void parseMinuteOfDayRange_fix24_singleton() {
+		String[] inputs = new String[] { "24", " 24 ", "24-24" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, true);
+			assertThat(format("MinuteOfDay singleton %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(23 * 60 + 59)));
+		}
+	}
+
+	@Test
+	public void parseMinuteOfDayRange_iso() {
+		String[] inputs = new String[] { "00:30-24:00", "00:30 - 24:00", "00:30-24:00",
+				"24:00 - 00:30" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, false);
+			assertThat(format("MinuteOfDay range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(30, 1440)));
+		}
+		inputs = new String[] { "0-1", "4-8", "8-24", " 2 - 22 ", "23-0" };
+		IntRange[] expected = new IntRange[] { rangeOf(0, 60), rangeOf(4 * 60, 8 * 60),
+				rangeOf(8 * 60, 24 * 60), rangeOf(2 * 60, 22 * 60), rangeOf(0, 23 * 60) };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, false);
+			assertThat(format("MinuteOfDay range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(expected[i]));
+		}
+	}
+
+	@Test
+	public void parseMinuteOfDayRange_singleton_iso() {
+		String[] inputs = new String[] { "24:00", " 24:00 ", "24:00-24:00" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, false);
+			assertThat(format("MinuteOfDay singleton %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(1440)));
+		}
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void parseMinuteOfDayRange_invalid_iso() {
+		DateUtils.parseMinuteOfDayRange("01:00 - 25:00", null);
+	}
+
+	@Test
+	public void parseMinuteOfDayRange_iso_fix24() {
+		String[] inputs = new String[] { "00:30 - 24:00", "00:30 - 24:00", "0:30-24:00",
+				" 00:30 - 24:00 ", "00:30 - 24:00 ", "24:00-00:30" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, true);
+			assertThat(format("MinuteOfDay range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(30, 1439)));
+		}
+		inputs = new String[] { "02:40-04:20", "04:04-08:08", "08:30-24:00", " 02:20 - 22:22 ",
+				"23:30-00:10" };
+		IntRange[] expected = new IntRange[] { rangeOf(2 * 60 + 40, 4 * 60 + 20),
+				rangeOf(4 * 60 + 4, 8 * 60 + 8), rangeOf(8 * 60 + 30, 23 * 60 + 59),
+				rangeOf(2 * 60 + 20, 22 * 60 + 22), rangeOf(10, 23 * 60 + 30) };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, true);
+			assertThat(format("MinuteOfDay range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(expected[i]));
+		}
+	}
+
+	@Test
+	public void parseMinuteOfDayRange_iso_fix24_singleton() {
+		String[] inputs = new String[] { "24:00", " 24:00 ", "24:00-24:00" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMinuteOfDayRange(inputs[i], null, true);
+			assertThat(format("MinuteOfDay singleton %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(1439)));
+		}
+	}
+
+	@Test
+	public void formatMonthRange() {
+		String range = DateUtils.formatRange(ChronoField.MONTH_OF_YEAR, rangeOf(2, 11), US, SHORT);
+		assertThat("Formatted range", range, equalTo("Feb-Nov"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatMonthRange_invalid() {
+		DateUtils.formatRange(ChronoField.MONTH_OF_YEAR, rangeOf(2, 15), US, SHORT);
+	}
+
+	@Test
+	public void formatDayOfMonthRange() {
+		String range = DateUtils.formatRange(ChronoField.DAY_OF_MONTH, rangeOf(2, 11), US, SHORT);
+		assertThat("Formatted range", range, equalTo("2-11"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatDayOfMonthRange_invalid() {
+		DateUtils.formatRange(ChronoField.DAY_OF_MONTH, rangeOf(2, 55), US, SHORT);
+	}
+
+	@Test
+	public void formatDayOfWeekRange() {
+		String range = DateUtils.formatRange(ChronoField.DAY_OF_WEEK, rangeOf(2, 6), US, SHORT);
+		assertThat("Formatted range", range, equalTo("Tue-Sat"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatDayOfWeekRange_invalid() {
+		DateUtils.formatRange(ChronoField.DAY_OF_WEEK, rangeOf(2, 55), US, SHORT);
+	}
+
+	@Test
+	public void formatMinuteOfDayRange_hours() {
+		String range = DateUtils.formatRange(ChronoField.MINUTE_OF_DAY, rangeOf(2 * 60, 18 * 60), US,
+				SHORT);
+		assertThat("Formatted range", range, equalTo("2-18"));
+	}
+
+	@Test
+	public void formatMinuteOfDayRange_hours_full() {
+		String range = DateUtils.formatRange(ChronoField.MINUTE_OF_DAY, rangeOf(2 * 60, 18 * 60), US,
+				FULL);
+		assertThat("Formatted range", range, equalTo("02:00-18:00"));
+	}
+
+	@Test
+	public void formatMinuteOfDayRange_minutes() {
+		String range = DateUtils.formatRange(ChronoField.MINUTE_OF_DAY, rangeOf(30, 18 * 60), US, SHORT);
+		assertThat("Formatted range", range, equalTo("00:30-18:00"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatMinuteOfDayRange_invalid() {
+		DateUtils.formatRange(ChronoField.MINUTE_OF_DAY, rangeOf(0, 99 * 60), US, SHORT);
 	}
 
 }

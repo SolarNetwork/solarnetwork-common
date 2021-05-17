@@ -22,31 +22,32 @@
 
 package net.solarnetwork.util;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Implementation of {@link OptionalService} using a static service instance.
+ * Implementation of {@link OptionalService.OptionalFilterableService} using a
+ * static service instance.
  * 
  * <p>
- * This can be useful when the {@link OptionalService} API is required, but the
- * service is known and available statically.
+ * This can be useful when the {@link OptionalService.OptionalFilterableService}
+ * API is required, but the service is known and available statically.
  * </p>
  * 
  * @param <T>
  *        the service type
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
-public class StaticOptionalService<T> implements OptionalService<T>, FilterableService {
+public class StaticOptionalService<T> implements OptionalService.OptionalFilterableService<T> {
 
 	private final T service;
-	private Map<String, Object> propertyFilters;
+	private final Map<String, Object> propertyFilters;
 
 	public StaticOptionalService(T service) {
 		super();
 		this.service = service;
-		propertyFilters = new HashMap<String, Object>(4);
+		propertyFilters = new LinkedHashMap<String, Object>(4);
 	}
 
 	@Override
@@ -61,22 +62,12 @@ public class StaticOptionalService<T> implements OptionalService<T>, FilterableS
 
 	@Override
 	public void setPropertyFilter(String key, Object value) {
-		Map<String, Object> filters = propertyFilters;
-		if ( filters == null ) {
-			filters = new HashMap<String, Object>(4);
-			propertyFilters = filters;
-		}
-		filters.put(key, value);
+		propertyFilters.put(key, value);
 	}
 
 	@Override
 	public Object removePropertyFilter(String key) {
-		Map<String, Object> filters = propertyFilters;
-		Object result = null;
-		if ( filters != null ) {
-			result = filters.remove(key);
-		}
-		return result;
+		return propertyFilters.get(key);
 	}
 
 }

@@ -35,7 +35,7 @@ import net.solarnetwork.util.SerializeIgnore;
  * type.
  * 
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class GeneralDatumSamples extends GeneralDatumSupport
 		implements MutableGeneralDatumSamplesOperations, Serializable {
@@ -232,6 +232,25 @@ public class GeneralDatumSamples extends GeneralDatumSupport
 		}
 		Map<String, ?> m = getSampleData(type);
 		return (V) (m != null ? m.get(key) : null);
+	}
+
+	@Override
+	public <V> V findSampleValue(String key) {
+		V v = getSampleValue(GeneralDatumSamplesType.Instantaneous, key);
+		if ( v != null ) {
+			return v;
+		}
+		v = getSampleValue(GeneralDatumSamplesType.Accumulating, key);
+		if ( v != null ) {
+			return v;
+		}
+		return getSampleValue(GeneralDatumSamplesType.Status, key);
+	}
+
+	@Override
+	public boolean hasSampleValue(String key) {
+		Object o = findSampleValue(key);
+		return (o != null);
 	}
 
 	@Override

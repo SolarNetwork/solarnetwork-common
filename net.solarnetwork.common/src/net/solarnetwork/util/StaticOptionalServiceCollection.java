@@ -23,22 +23,28 @@
 package net.solarnetwork.util;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
- * Implementation of {@link OptionalServiceCollection} using a static collection
- * of service instances.
+ * Implementation of
+ * {@link OptionalServiceCollection.OptionalFilterableServiceCollection} using a
+ * static collection of service instances.
  * 
  * <p>
- * This can be useful when the {@link OptionalServiceCollection} API is
+ * This can be useful when the
+ * {@link OptionalServiceCollection.OptionalFilterableServiceCollection} API is
  * required, but the service is known and available statically.
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
-public class StaticOptionalServiceCollection<T> implements OptionalServiceCollection<T> {
+public class StaticOptionalServiceCollection<T>
+		implements OptionalServiceCollection.OptionalFilterableServiceCollection<T> {
 
 	private final Collection<T> services;
+	private final Map<String, Object> propertyFilters;
 
 	/**
 	 * Construct with the static services.
@@ -49,11 +55,27 @@ public class StaticOptionalServiceCollection<T> implements OptionalServiceCollec
 	public StaticOptionalServiceCollection(Collection<T> services) {
 		super();
 		this.services = services;
+		propertyFilters = new LinkedHashMap<String, Object>(4);
 	}
 
 	@Override
 	public Iterable<T> services() {
 		return services;
+	}
+
+	@Override
+	public Map<String, ?> getPropertyFilters() {
+		return propertyFilters;
+	}
+
+	@Override
+	public void setPropertyFilter(String key, Object value) {
+		propertyFilters.put(key, value);
+	}
+
+	@Override
+	public Object removePropertyFilter(String key) {
+		return propertyFilters.get(key);
 	}
 
 }

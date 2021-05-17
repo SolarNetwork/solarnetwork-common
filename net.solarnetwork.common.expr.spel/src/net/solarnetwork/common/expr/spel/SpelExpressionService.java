@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionException;
@@ -34,6 +35,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.ReflectivePropertyAccessor;
 import net.solarnetwork.support.ExpressionService;
 
 /**
@@ -82,7 +84,9 @@ public class SpelExpressionService implements ExpressionService {
 	 * Create a reusable evaluation context.
 	 * 
 	 * <p>
-	 * This creates a {@link RestrictedEvaluationContext}.
+	 * This creates a {@link RestrictedEvaluationContext}, with both
+	 * {@link MapAccessor} and {@link ReflectivePropertyAccessor} property
+	 * accessors.
 	 * </p>
 	 * 
 	 * {@inheritDoc}
@@ -90,7 +94,10 @@ public class SpelExpressionService implements ExpressionService {
 	@Override
 	public EvaluationContext createEvaluationContext(EvaluationConfiguration configuration,
 			Object root) {
-		return new RestrictedEvaluationContext(root);
+		RestrictedEvaluationContext ctx = new RestrictedEvaluationContext(root);
+		ctx.addPropertyAccessor(new MapAccessor());
+		ctx.addPropertyAccessor(new ReflectivePropertyAccessor());
+		return ctx;
 	}
 
 	@Override

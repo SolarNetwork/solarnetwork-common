@@ -42,7 +42,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  * 
  * @author matt
- * @version 1.7
+ * @version 1.8
  */
 public final class StringUtils {
 
@@ -651,4 +651,52 @@ public final class StringUtils {
 		}
 		return res;
 	}
+
+	/**
+	 * A pattern that matches any character not allowed in
+	 * {@link #simpleIdValue(String)}.
+	 * 
+	 * @since 1.8
+	 */
+	public static final Pattern NOT_SIMPLE_ID_CHARACTER_PATTERN = Pattern.compile("[^a-zA-Z0-9_]+");
+
+	/**
+	 * A pattern that matches any {@literal _} at the start or end of a string.
+	 * 
+	 * @since 1.8
+	 */
+	public static final Pattern UNDERSCORE_PREFIX_OR_SUFFIX = Pattern.compile("(^_+|_+$)");
+
+	/**
+	 * Generate a "simple" ID out of a string.
+	 * 
+	 * <p>
+	 * A simple ID is created by taking {@code text} and:
+	 * </p>
+	 * 
+	 * <ol>
+	 * <li>leading and trailing whitespace is removed</li>
+	 * <li>change to lower case</li>
+	 * <li>replace any runs of characters other than {@literal a-zA-Z0-9_} with
+	 * a {@literal _}</li>
+	 * <li>
+	 * </ol>
+	 * 
+	 * @param text
+	 *        the text to derive the simple ID from
+	 * @return the simple ID, or {@literal null} if {@code text} is
+	 *         {@literal null}
+	 * @since 1.8
+	 */
+	public static String simpleIdValue(String text) {
+		if ( text == null || text.isEmpty() ) {
+			return text;
+		}
+		String s = NOT_SIMPLE_ID_CHARACTER_PATTERN.matcher(text.trim().toLowerCase()).replaceAll("_");
+		if ( s.charAt(0) == '_' || s.charAt(s.length() - 1) == '_' ) {
+			s = UNDERSCORE_PREFIX_OR_SUFFIX.matcher(s).replaceAll("");
+		}
+		return s;
+	}
+
 }

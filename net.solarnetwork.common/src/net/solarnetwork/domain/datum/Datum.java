@@ -85,7 +85,7 @@ public interface Datum {
 
 	/**
 	 * A sample data key for a {@link Datum#getTimestamp()} value, as a
-	 * {@code long} millisecond epoch value for ISO 8601 formatted string.
+	 * {@code long} millisecond epoch value or ISO 8601 formatted string.
 	 */
 	String TIMESTAMP = "created";
 

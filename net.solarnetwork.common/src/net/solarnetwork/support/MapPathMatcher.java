@@ -309,13 +309,25 @@ public class MapPathMatcher {
 						logicStack.get(stackIdx).result = true;
 					}
 					if ( stackIdx < 1 ) {
-						// top-level OR has failed; all done
+						// top-level OR has matched; all done
 						foundMatch = true;
 						keepWalking = false;
 					} else {
 						logicStackSatisfiedIdx = stackIdx;
 					}
 				}
+			} else if ( currLogicOp == LogicOperator.NOT ) {
+				if ( stackIdx >= 0 ) {
+					logicStack.get(stackIdx).result = !match;
+				}
+				if ( stackIdx < 1 ) {
+					// top-level NOT has matched; all done
+					foundMatch = !match;
+					keepWalking = false;
+					//} else {
+					//	logicStackSatisfiedIdx = stackIdx;
+				}
+
 			}
 			return !keepWalking;
 		}
@@ -329,12 +341,14 @@ public class MapPathMatcher {
 					if ( parent != null ) {
 						if ( parent != logicStack.get(stackIdx).node ) {
 							while ( stackIdx >= 0 ) {
-								if ( logicStack.get(stackIdx).node == parent ) {
-									currLogicOp = logicStack.get(stackIdx).op;
-									if ( shortCircuitIfPossible(
-											logicStack.get(logicStack.size() - 1).result) ) {
+								StackObj o = logicStack.get(stackIdx);
+								if ( stackIdx + 1 < logicStack.size() ) {
+									currLogicOp = o.op;
+									if ( shortCircuitIfPossible(logicStack.get(stackIdx + 1).result) ) {
 										return false;
 									}
+								}
+								if ( o.node == parent ) {
 									break;
 								}
 								stackIdx -= 1;
@@ -446,6 +460,13 @@ public class MapPathMatcher {
 
 			if ( logicStack.size() > 0 ) {
 				foundMatch = logicStack.get(stackIdx).result;
+
+				// apply higher-stack NOT operators
+				for ( int i = stackIdx - 1; i >= 0; i-- ) {
+					if ( logicStack.get(i).op == LogicOperator.NOT ) {
+						foundMatch = !foundMatch;
+					}
+				}
 			}
 
 			return foundMatch;

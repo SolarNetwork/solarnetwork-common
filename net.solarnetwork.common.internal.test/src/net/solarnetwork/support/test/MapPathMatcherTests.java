@@ -40,7 +40,7 @@ import net.solarnetwork.util.JsonUtils;
  * Test cases for the {@link MapPathMatcher} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class MapPathMatcherTests {
 
@@ -63,12 +63,30 @@ public class MapPathMatcherTests {
 	}
 
 	@Test
+	public void simpleMatch_not() {
+		// GIVEN
+		Map<String, ?> obj = JsonUtils.getStringMap("{\"foo\":\"bar\"}");
+
+		// THEN
+		assertThat("Filter matches", matches(obj, "(!(/foo=bar))"), equalTo(false));
+	}
+
+	@Test
 	public void simpleNoMatchingProp() {
 		// GIVEN
 		Map<String, ?> obj = JsonUtils.getStringMap("{\"foo\":\"bar\"}");
 
 		// THEN
 		assertThat("Filter does not match", matches(obj, "(/bar=bam)"), equalTo(false));
+	}
+
+	@Test
+	public void simpleNoMatchingProp_not() {
+		// GIVEN
+		Map<String, ?> obj = JsonUtils.getStringMap("{\"foo\":\"bar\"}");
+
+		// THEN
+		assertThat("Filter does match", matches(obj, "(!(/bar=bam))"), equalTo(true));
 	}
 
 	@Test
@@ -127,6 +145,15 @@ public class MapPathMatcherTests {
 	}
 
 	@Test
+	public void nestedPathMultiAndMatch_not() {
+		// GIVEN
+		Map<String, ?> obj = JsonUtils.getStringMap("{\"foo\":{\"ping\":\"pong\"}, \"bam\":\"mab\"}");
+
+		// THEN
+		assertThat("Filter matches", matches(obj, "(!(&(/foo/ping=pong)(/bam=mab))"), equalTo(false));
+	}
+
+	@Test
 	public void nestedPathMultiAndNoMatch() {
 		// GIVEN
 		Map<String, ?> obj = JsonUtils.getStringMap("{\"foo\":{\"ping\":\"pong\"}, \"bam\":\"mab\"}");
@@ -134,6 +161,18 @@ public class MapPathMatcherTests {
 		// THEN
 		assertThat("Filter does not match", matches(obj, "(&(/foo/ping=pong)(/bam=NO)"), equalTo(false));
 		assertThat("Filter does not match", matches(obj, "(&(/foo/ping=NO)(/bam=mab)"), equalTo(false));
+	}
+
+	@Test
+	public void nestedPathMultiAndNoMatch_not() {
+		// GIVEN
+		Map<String, ?> obj = JsonUtils.getStringMap("{\"foo\":{\"ping\":\"pong\"}, \"bam\":\"mab\"}");
+
+		// THEN
+		assertThat("Filter does not match", matches(obj, "(!(&(/foo/ping=pong)(/bam=NO))"),
+				equalTo(true));
+		assertThat("Filter does not match", matches(obj, "(!(&(/foo/ping=NO)(/bam=mab))"),
+				equalTo(true));
 	}
 
 	@Test
@@ -147,6 +186,19 @@ public class MapPathMatcherTests {
 		assertThat("Filter matches", matches(obj, "(/foo/*=bar)"), equalTo(true));
 		assertThat("Filter matches", matches(obj, "(/foo/*=nah)"), equalTo(true));
 		assertThat("Filter does not match", matches(obj, "(/foo/*=NO)"), equalTo(false));
+	}
+
+	@Test
+	public void wildPathMatch_not() {
+		// GIVEN
+		Map<String, ?> obj = JsonUtils
+				.getStringMap("{\"foo\":{\"a\":\"boo\", \"b\":\"bar\", \"c\":\"nah\"}}");
+
+		// THEN
+		assertThat("Filter matches", matches(obj, "(!(/foo/*=boo))"), equalTo(false));
+		assertThat("Filter matches", matches(obj, "(!(/foo/*=bar))"), equalTo(false));
+		assertThat("Filter matches", matches(obj, "(!(/foo/*=nah))"), equalTo(false));
+		assertThat("Filter does not match", matches(obj, "(!(/foo/*=NO))"), equalTo(true));
 	}
 
 	@Test
@@ -186,6 +238,19 @@ public class MapPathMatcherTests {
 		assertThat("Filter matches", matches(obj, "(/**/foo=bar)"), equalTo(true));
 		assertThat("Filter matches", matches(obj, "(/**/foo=nah)"), equalTo(true));
 		assertThat("Filter does not match", matches(obj, "(/**/foo=NO)"), equalTo(false));
+	}
+
+	@Test
+	public void anyPathWildMatch_not() {
+		// GIVEN
+		Map<String, ?> obj = JsonUtils.getStringMap(
+				"{\"foo\":{\"a\":{\"foo\":\"boo\"}, \"b\":{\"foo\":\"bar\"}, \"c\":{\"foo\":\"nah\"}}}");
+
+		// THEN
+		assertThat("Filter matches", matches(obj, "(!(/**/foo=boo))"), equalTo(false));
+		assertThat("Filter matches", matches(obj, "(!(/**/foo=bar))"), equalTo(false));
+		assertThat("Filter matches", matches(obj, "(!(/**/foo=nah))"), equalTo(false));
+		assertThat("Filter does not match", matches(obj, "(!(/**/foo=NO))"), equalTo(true));
 	}
 
 	@Test
@@ -250,6 +315,23 @@ public class MapPathMatcherTests {
 				matches(obj, "(&(|(/foo/a/bim=NO)(/boo=NOPE))(/foo/c/foo=nah))"), equalTo(false));
 		assertThat("Filter does not match",
 				matches(obj, "(&(|(/foo/a/bim=bam)(/boo=NO))(/foo/c/foo=NO))"), equalTo(false));
+	}
+
+	@Test
+	public void andWithNestedOr_not() {
+		// GIVEN
+		Map<String, ?> obj = JsonUtils.getStringMap(
+				"{\"boo\":\"ya\", \"foo\":{\"a\":{\"foo\":\"boo\", \"bim\":\"bam\"}, \"b\":{\"foo\":\"bar\"}, \"c\":{\"foo\":\"nah\"}}}");
+
+		// THEN
+		assertThat("Filter does not match",
+				matches(obj, "(&(!(|(/foo/a/bim=bam)(/boo=NO)))(/foo/c/foo=nah))"), equalTo(false));
+		assertThat("Filter does not match",
+				matches(obj, "(&(!(|(/foo/a/bim=NO)(/boo=ya)))(/foo/c/foo=nah))"), equalTo(false));
+		assertThat("Filter does match",
+				matches(obj, "(&(!(|(/foo/a/bim=NO)(/boo=NOPE)))(/foo/c/foo=nah))"), equalTo(true));
+		assertThat("Filter does not match",
+				matches(obj, "(&(|(/foo/a/bim=bam)(/boo=NO))(!(/foo/c/foo=NO)))"), equalTo(true));
 	}
 
 	@Test
@@ -324,6 +406,16 @@ public class MapPathMatcherTests {
 		assertThat("Filter matches", matches(obj, "(|(/foo=A)(/foo=two))"), equalTo(true));
 		assertThat("Filter matches", matches(obj, "(|(/foo=A)(/foo=two)(/foo=three))"), equalTo(true));
 		assertThat("Filter does not match", matches(obj, "(|(/foo=A)(/foo=B)(/foo=C))"), equalTo(false));
+	}
+
+	@Test
+	public void arrayMatchNot() {
+		// GIVEN
+		Map<String, ?> obj = JsonUtils.getStringMap("{\"foo\":[\"one\",\"two\",\"three\"]}");
+
+		// THEN
+		assertThat("Filter matches", matches(obj, "(!(/foo=A))"), equalTo(true));
+		assertThat("Filter does not matche", matches(obj, "(!(/foo=one))"), equalTo(false));
 	}
 
 	@Test
