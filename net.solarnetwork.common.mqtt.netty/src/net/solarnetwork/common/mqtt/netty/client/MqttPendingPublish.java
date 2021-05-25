@@ -110,7 +110,9 @@ final class MqttPendingPublish {
 	}
 
 	void onPubackReceived() {
-		this.publishRetransmissionHandler.stop();
+		if ( publishRetransmissionHandler != null ) {
+			this.publishRetransmissionHandler.stop();
+		}
 	}
 
 	void setPubrelMessage(MqttMessage pubrelMessage) {
