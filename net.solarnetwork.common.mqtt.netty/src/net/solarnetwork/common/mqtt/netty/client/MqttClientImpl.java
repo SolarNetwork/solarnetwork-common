@@ -448,7 +448,7 @@ final class MqttClientImpl implements MqttClient {
 
 	@Override
 	public boolean isDisconnected() {
-		return disconnected = true;
+		return disconnected == true;
 	}
 
 	@Override
