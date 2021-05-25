@@ -74,7 +74,7 @@ final class MqttPendingSubscription {
 
 	void startRetransmitTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
 		if ( this.sent ) { //If the packet is sent, we can start the retransmit timer
-			this.retransmissionHandler.setHandle(
+			this.retransmissionHandler.setHandler(
 					(fixedHeader, originalMessage) -> sendPacket.accept(new MqttSubscribeMessage(
 							fixedHeader, originalMessage.variableHeader(), originalMessage.payload())));
 			this.retransmissionHandler.start(eventLoop);

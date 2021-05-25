@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import io.netty.bootstrap.Bootstrap;
@@ -76,9 +80,13 @@ import net.solarnetwork.domain.KeyValuePair;
 
 /**
  * Represents an MqttClientImpl connected to a single MQTT server. Will try to
- * keep the connection going at all times
+ * keep the connection going at all times.
+ * 
+ * @version 1.1
  */
 final class MqttClientImpl implements MqttClient {
+
+	private static final Logger log = LoggerFactory.getLogger(MqttClientImpl.class);
 
 	private final Set<String> serverSubscriptions = new HashSet<>();
 	private final IntObjectHashMap<MqttPendingUnsubscription> pendingServerUnsubscribes = new IntObjectHashMap<>();
@@ -106,6 +114,8 @@ final class MqttClientImpl implements MqttClient {
 	private String host;
 	private int port;
 	private MqttClientCallback callback;
+	private boolean publishRetransmit = false;
+	private int pendingAbortTimeoutMinutes = 60;
 
 	/**
 	 * Construct the MqttClientImpl with default config
@@ -158,7 +168,8 @@ final class MqttClientImpl implements MqttClient {
 
 	private Future<MqttConnectResult> connect(String host, int port, boolean reconnect) {
 		if ( this.eventLoop == null ) {
-			this.eventLoop = new NioEventLoopGroup();
+			NioEventLoopGroup el = new NioEventLoopGroup();
+			setEventLoop(el);
 		}
 		this.host = host;
 		this.port = port;
@@ -215,6 +226,28 @@ final class MqttClientImpl implements MqttClient {
 		}
 	}
 
+	private void cleanup() {
+		final int timeoutMins = getPendingAbortTimeoutMinutes();
+		final long timeout = TimeUnit.MINUTES.toMillis(timeoutMins);
+		if ( timeout < 1 ) {
+			return;
+		}
+		final long now = System.currentTimeMillis();
+		for ( Iterator<MqttPendingPublish> itr = getPendingPublishes().values().iterator(); itr
+				.hasNext(); ) {
+			MqttPendingPublish pending = itr.next();
+			if ( pending.getDate() + timeout < now ) {
+				log.warn("Timeout on pending publish message {}: aborting publish.",
+						pending.getMessageId());
+				pending.stop();
+				pending.getFuture().setFailure(new TimeoutException(
+						"Failed to publish message within " + timeoutMins + " minutes"));
+				pending.getPayload().release();
+				itr.remove();
+			}
+		}
+	}
+
 	@Override
 	public URI getServerUri() {
 		String host = this.host;
@@ -254,6 +287,7 @@ final class MqttClientImpl implements MqttClient {
 	@Override
 	public void setEventLoop(EventLoopGroup eventLoop) {
 		this.eventLoop = eventLoop;
+		eventLoop.scheduleWithFixedDelay(this::cleanup, 30, 30, TimeUnit.MINUTES);
 	}
 
 	@Override
@@ -372,24 +406,32 @@ final class MqttClientImpl implements MqttClient {
 			props = p;
 		}
 
+		final boolean retransmit = (publishRetransmit && qos != MqttQoS.AT_MOST_ONCE
+				|| qos == MqttQoS.EXACTLY_ONCE);
 		MqttPublishVariableHeader variableHeader = new MqttPublishVariableHeader(topic,
 				getNewMessageId().messageId(), props);
 		MqttPublishMessage message = new MqttPublishMessage(fixedHeader, variableHeader, payload);
 		MqttPendingPublish pendingPublish = new MqttPendingPublish(variableHeader.packetId(), future,
-				payload.retain(), message, qos);
+				payload.retain(), message, qos, retransmit);
+
+		// immediately stash pending in case response comes immediately
+		this.pendingPublishes.put(pendingPublish.getMessageId(), pendingPublish);
 		ChannelFuture channelFuture = this.sendAndFlushPacket(message);
 
 		if ( channelFuture != null ) {
 			pendingPublish.setSent(true);
 			if ( channelFuture.cause() != null ) {
 				future.setFailure(channelFuture.cause());
+				this.pendingPublishes.remove(pendingPublish.getMessageId());
+				payload.release();
 				return future;
 			}
 		}
 		if ( pendingPublish.isSent() && pendingPublish.getQos() == MqttQoS.AT_MOST_ONCE ) {
 			pendingPublish.getFuture().setSuccess(null); //We don't get an ACK for QOS 0
-		} else if ( pendingPublish.isSent() ) {
-			this.pendingPublishes.put(pendingPublish.getMessageId(), pendingPublish);
+			this.pendingPublishes.remove(pendingPublish.getMessageId());
+			payload.release();
+		} else if ( pendingPublish.isSent() && retransmit ) {
 			pendingPublish.startPublishRetransmissionTimer(this.eventLoop.next(),
 					this::sendAndFlushPacket);
 		}
@@ -448,7 +490,7 @@ final class MqttClientImpl implements MqttClient {
 
 	@Override
 	public boolean isDisconnected() {
-		return disconnected = true;
+		return disconnected == true;
 	}
 
 	@Override
@@ -628,6 +670,49 @@ final class MqttClientImpl implements MqttClient {
 	@Override
 	public MqttTopicAliases getTopicAliases() {
 		return clientAliases;
+	}
+
+	/**
+	 * Get the "publish retransmit" toggle.
+	 * 
+	 * @return {@literal true} if published messages should automatically get
+	 *         re-published on failure; defaults to {@literal false}
+	 * @since 1.1
+	 */
+	public boolean isPublishRetransmit() {
+		return publishRetransmit;
+	}
+
+	/**
+	 * Set the "publish retransmit" toggle.
+	 * 
+	 * @param {@literal true} if published messages should automatically get
+	 * re-published on failure
+	 * @since 1.1
+	 */
+	public void setPublishRetransmit(boolean publishRetransmit) {
+		this.publishRetransmit = publishRetransmit;
+	}
+
+	/**
+	 * Get the minimum timeout to hold on to pending messages.
+	 * 
+	 * @return the pending abort timeout, in minutes; defaults to {@literal 60}
+	 * @since 1.1
+	 */
+	public int getPendingAbortTimeoutMinutes() {
+		return pendingAbortTimeoutMinutes;
+	}
+
+	/**
+	 * Set the minimum timeout to hold on to pending messages.
+	 * 
+	 * @param the
+	 *        pending abort timeout, in minutes
+	 * @since 1.1
+	 */
+	public void setPendingAbortTimeoutMinutes(int pendingAbortTimeoutMinutes) {
+		this.pendingAbortTimeoutMinutes = pendingAbortTimeoutMinutes;
 	}
 
 }

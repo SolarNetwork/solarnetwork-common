@@ -45,7 +45,7 @@ final class MqttPendingUnsubscription {
     }
 
     void startRetransmissionTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
-        this.retransmissionHandler.setHandle((fixedHeader, originalMessage) ->
+        this.retransmissionHandler.setHandler((fixedHeader, originalMessage) ->
                 sendPacket.accept(new MqttUnsubscribeMessage(fixedHeader, originalMessage.variableHeader(), originalMessage.payload())));
         this.retransmissionHandler.start(eventLoop);
     }

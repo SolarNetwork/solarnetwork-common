@@ -399,7 +399,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		if ( !client.isDisconnected() ) {
-			log.warn("Exception in MQTT channel {}: {}", client.getServerUri(), cause.toString());
+			log.warn("Exception in MQTT channel {}: {}", client.getServerUri(), cause.toString(), cause);
 		}
 	}
 	
