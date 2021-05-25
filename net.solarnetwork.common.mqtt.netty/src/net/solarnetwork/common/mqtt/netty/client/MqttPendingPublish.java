@@ -77,7 +77,7 @@ final class MqttPendingPublish {
     }
 
     void startPublishRetransmissionTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
-        this.publishRetransmissionHandler.setHandle(((fixedHeader, originalMessage) ->
+        this.publishRetransmissionHandler.setHandler(((fixedHeader, originalMessage) ->
                 sendPacket.accept(new MqttPublishMessage(fixedHeader, originalMessage.variableHeader(), this.payload.retain()))));
         this.publishRetransmissionHandler.start(eventLoop);
     }
@@ -91,7 +91,7 @@ final class MqttPendingPublish {
     }
 
     void startPubrelRetransmissionTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
-        this.pubrelRetransmissionHandler.setHandle((fixedHeader, originalMessage) ->
+        this.pubrelRetransmissionHandler.setHandler((fixedHeader, originalMessage) ->
                 sendPacket.accept(new MqttMessage(fixedHeader, originalMessage.variableHeader())));
         this.pubrelRetransmissionHandler.start(eventLoop);
     }

@@ -14,54 +14,72 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.solarnetwork.common.mqtt.netty.client;
 
-import io.netty.channel.EventLoop;
-import io.netty.handler.codec.mqtt.MqttFixedHeader;
-import io.netty.handler.codec.mqtt.MqttMessage;
-import io.netty.util.concurrent.ScheduledFuture;
+package net.solarnetwork.common.mqtt.netty.client;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import io.netty.channel.EventLoop;
+import io.netty.handler.codec.mqtt.MqttFixedHeader;
+import io.netty.handler.codec.mqtt.MqttMessage;
+import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
+import io.netty.util.concurrent.ScheduledFuture;
 
 final class RetransmissionHandler<T extends MqttMessage> {
 
-    private ScheduledFuture<?> timer;
-    private int timeout = 10;
-    private BiConsumer<MqttFixedHeader, T> handler;
-    private T originalMessage;
+	private static final Logger log = LoggerFactory.getLogger(RetransmissionHandler.class);
 
-    void start(EventLoop eventLoop){
-        if(eventLoop == null){
-            throw new NullPointerException("eventLoop");
-        }
-        if(this.handler == null){
-            throw new NullPointerException("handler");
-        }
-        this.timeout = 10;
-        this.startTimer(eventLoop);
-    }
+	private ScheduledFuture<?> timer;
+	private int timeout = 10;
+	private BiConsumer<MqttFixedHeader, T> handler;
+	private T originalMessage;
 
-    private void startTimer(EventLoop eventLoop){
-        this.timer = eventLoop.schedule(() -> {
-            this.timeout += 5;
-            MqttFixedHeader fixedHeader = new MqttFixedHeader(this.originalMessage.fixedHeader().messageType(), true, this.originalMessage.fixedHeader().qosLevel(), this.originalMessage.fixedHeader().isRetain(), this.originalMessage.fixedHeader().remainingLength());
-            handler.accept(fixedHeader, originalMessage);
-            startTimer(eventLoop);
-        }, timeout, TimeUnit.SECONDS);
-    }
+	void start(EventLoop eventLoop) {
+		if ( eventLoop == null ) {
+			throw new NullPointerException("eventLoop");
+		}
+		if ( this.handler == null ) {
+			throw new NullPointerException("handler");
+		}
+		this.timeout = 10;
+		this.startTimer(eventLoop);
+	}
 
-    void stop(){
-        if(this.timer != null){
-            this.timer.cancel(true);
-        }
-    }
+	private void startTimer(EventLoop eventLoop) {
+		this.timer = eventLoop.schedule(() -> {
+			if ( log.isDebugEnabled() ) {
+				MqttMessageIdVariableHeader idHeader = (this.originalMessage
+						.variableHeader() instanceof MqttMessageIdVariableHeader
+								? (MqttMessageIdVariableHeader) this.originalMessage.variableHeader()
+								: null);
+				log.debug("Retransmitting {} message ID {} after timeout of {} seconds",
+						this.originalMessage.fixedHeader().messageType(),
+						idHeader != null ? idHeader.messageId() : "?", this.timeout);
+			}
+			this.timeout += 5;
+			MqttFixedHeader fixedHeader = new MqttFixedHeader(
+					this.originalMessage.fixedHeader().messageType(), true,
+					this.originalMessage.fixedHeader().qosLevel(),
+					this.originalMessage.fixedHeader().isRetain(),
+					this.originalMessage.fixedHeader().remainingLength());
+			handler.accept(fixedHeader, originalMessage);
+			startTimer(eventLoop);
+		}, timeout, TimeUnit.SECONDS);
+	}
 
-    void setHandle(BiConsumer<MqttFixedHeader, T> runnable) {
-        this.handler = runnable;
-    }
+	void stop() {
+		if ( this.timer != null ) {
+			this.timer.cancel(true);
+		}
+	}
 
-    void setOriginalMessage(T originalMessage) {
-        this.originalMessage = originalMessage;
-    }
+	void setHandler(BiConsumer<MqttFixedHeader, T> runnable) {
+		this.handler = runnable;
+	}
+
+	void setOriginalMessage(T originalMessage) {
+		this.originalMessage = originalMessage;
+	}
 }

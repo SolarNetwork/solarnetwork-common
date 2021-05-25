@@ -38,7 +38,7 @@ final class MqttIncomingQos2Publish {
     }
 
     void startPubrecRetransmitTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
-        this.retransmissionHandler.setHandle((fixedHeader, originalMessage) ->
+        this.retransmissionHandler.setHandler((fixedHeader, originalMessage) ->
                 sendPacket.accept(new MqttMessage(fixedHeader, originalMessage.variableHeader())));
         this.retransmissionHandler.start(eventLoop);
     }
