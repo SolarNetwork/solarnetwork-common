@@ -45,6 +45,7 @@ import io.netty.handler.codec.mqtt.MqttSubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Promise;
+import net.solarnetwork.common.mqtt.BasicMqttTopicAliases;
 import net.solarnetwork.common.mqtt.MqttTopicAliases;
 import net.solarnetwork.common.mqtt.NoOpMqttTopicAliases;
 import net.solarnetwork.common.mqtt.netty.NettyMqttMessage;
@@ -62,7 +63,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		this.client = client;
 		this.connectFuture = connectFuture;
 		this.serverAliases = (client.getClientConfig().getProtocolVersion().protocolLevel() > (byte) 4
-				? client.getTopicAliases()
+				? new BasicMqttTopicAliases(client.getClientConfig().getMaximumTopicAliases())
 				: new NoOpMqttTopicAliases());
 	}
 
@@ -138,14 +139,17 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		super.channelInactive(ctx);
+		log.debug("Clearing topic aliases for server (max {}) and client (max {})",
+				serverAliases.getMaximumAliasCount(), client.getTopicAliases().getMaximumAliasCount());
 		serverAliases.clear();
+		client.getTopicAliases().clear();
 	}
 
 	private void invokeHandlersForIncomingPublish(MqttPublishMessage message) {
 		boolean handlerInvoked = false;
 
 		// decode topic alias if provided
-		String topic = message.variableHeader().topicName();
+		final String msgTopic = message.variableHeader().topicName();
 		MqttProperties props = message.variableHeader().properties();
 		Integer topicAlias = null;
 		if ( props != null ) {
@@ -155,7 +159,12 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				topicAlias = ((MqttProperties.IntegerProperty) prop).value();
 			}
 		}
-		topic = serverAliases.aliasedTopic(topic, topicAlias);
+
+		final String topic = serverAliases.aliasedTopic(msgTopic, topicAlias);
+		if ( log.isDebugEnabled() && topicAlias != null ) {
+			log.debug("Received message {} resolved topic [{}] with alias {} as [{}]",
+					message.variableHeader().packetId(), msgTopic, topicAlias, topic);
+		}
 
 		for ( MqttSubscription subscription : new LinkedHashSet<>(this.client.getSubscriptions().values()
 				.stream().flatMap(List::stream).collect(toList())) ) {
@@ -197,7 +206,9 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				}
 			}
 		}
+		// enforce the server-requested maximum topic alias count when publishing from client
 		client.getTopicAliases().setMaximumAliasCount(maxTopicAliases);
+
 		switch (message.variableHeader().connectReturnCode()) {
 			case CONNECTION_ACCEPTED:
 				this.connectFuture.setSuccess(new MqttConnectResult(true,
