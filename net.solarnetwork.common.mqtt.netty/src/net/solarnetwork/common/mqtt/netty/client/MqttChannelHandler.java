@@ -38,6 +38,7 @@ import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.handler.codec.mqtt.MqttProperties.MqttProperty;
 import io.netty.handler.codec.mqtt.MqttPubAckMessage;
+import io.netty.handler.codec.mqtt.MqttPubReplyMessageVariableHeader;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.codec.mqtt.MqttSubAckMessage;
@@ -47,6 +48,7 @@ import io.netty.util.concurrent.Promise;
 import net.solarnetwork.common.mqtt.MqttTopicAliases;
 import net.solarnetwork.common.mqtt.NoOpMqttTopicAliases;
 import net.solarnetwork.common.mqtt.netty.NettyMqttMessage;
+import net.solarnetwork.support.RemoteServiceException;
 
 final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> {
 
@@ -129,7 +131,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				config.getPassword() != null
 						? config.getPassword().getBytes(CharsetUtil.UTF_8)
 						: null);
-		// @formatter: on
+		// @formatter:on
 		ctx.channel().writeAndFlush(new MqttConnectMessage(fixedHeader, variableHeader, payload));
 	}
 
@@ -141,7 +143,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
 	private void invokeHandlersForIncomingPublish(MqttPublishMessage message) {
 		boolean handlerInvoked = false;
-		
+
 		// decode topic alias if provided
 		String topic = message.variableHeader().topicName();
 		MqttProperties props = message.variableHeader().properties();
@@ -150,11 +152,11 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 			@SuppressWarnings("rawtypes")
 			MqttProperty prop = props.getProperty(MqttProperties.MqttPropertyType.TOPIC_ALIAS.value());
 			if ( prop instanceof MqttProperties.IntegerProperty ) {
-				topicAlias = ((MqttProperties.IntegerProperty)prop).value();
+				topicAlias = ((MqttProperties.IntegerProperty) prop).value();
 			}
 		}
 		topic = serverAliases.aliasedTopic(topic, topicAlias);
-		
+
 		for ( MqttSubscription subscription : new LinkedHashSet<>(this.client.getSubscriptions().values()
 				.stream().flatMap(List::stream).collect(toList())) ) {
 			if ( subscription.matches(topic) ) {
@@ -164,9 +166,8 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				message.payload().markReaderIndex();
 				subscription.setCalled(true);
 				subscription.getHandler()
-						.onMqttMessage(new NettyMqttMessage(topic,
-								message.fixedHeader().isRetain(), message.fixedHeader().qosLevel(),
-								message.payload()));
+						.onMqttMessage(new NettyMqttMessage(topic, message.fixedHeader().isRetain(),
+								message.fixedHeader().qosLevel(), message.payload()));
 				if ( subscription.isOnce() ) {
 					this.client.off(subscription.getTopic(), subscription.getHandler());
 				}
@@ -176,9 +177,8 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		}
 		if ( !handlerInvoked && client.getDefaultHandler() != null ) {
 			client.getDefaultHandler()
-					.onMqttMessage(new NettyMqttMessage(topic,
-							message.fixedHeader().isRetain(), message.fixedHeader().qosLevel(),
-							message.payload()));
+					.onMqttMessage(new NettyMqttMessage(topic, message.fixedHeader().isRetain(),
+							message.fixedHeader().qosLevel(), message.payload()));
 		}
 		message.payload().release();
 	}
@@ -188,9 +188,10 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		int maxTopicAliases = 0;
 		if ( props != null ) {
 			@SuppressWarnings("rawtypes")
-			MqttProperty prop = props.getProperty(MqttProperties.MqttPropertyType.TOPIC_ALIAS_MAXIMUM.value());
-			if (prop instanceof MqttProperties.IntegerProperty ) {
-				Integer max = ((MqttProperties.IntegerProperty)prop).value();
+			MqttProperty prop = props
+					.getProperty(MqttProperties.MqttPropertyType.TOPIC_ALIAS_MAXIMUM.value());
+			if ( prop instanceof MqttProperties.IntegerProperty ) {
+				Integer max = ((MqttProperties.IntegerProperty) prop).value();
 				if ( max != null ) {
 					maxTopicAliases = max.intValue();
 				}
@@ -345,9 +346,31 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		if ( pendingPublish == null ) {
 			return;
 		}
-		pendingPublish.getFuture().setSuccess(null);
 		pendingPublish.onPubackReceived();
 		this.client.getPendingPublishes().remove(message.variableHeader().messageId());
+		byte reasonCode = 0;
+		if ( message.variableHeader() instanceof MqttPubReplyMessageVariableHeader ) {
+			MqttPubReplyMessageVariableHeader rep = (MqttPubReplyMessageVariableHeader) message
+					.variableHeader();
+			reasonCode = rep.reasonCode();
+		}
+		if ( reasonCode != (byte) 0 ) {
+			MqttPubackReasonCode r = null;
+			try {
+				r = MqttPubackReasonCode.forCode(reasonCode);
+			} catch ( IllegalArgumentException e ) {
+				// ignore
+			}
+			String msg = (r != null
+					? String.format("Unsuccessful PUBACK reason code %d (%s) on message %d",
+							Byte.toUnsignedInt(reasonCode), r, message.variableHeader().messageId())
+					: String.format("Unsuccessful PUBACK reason code: %d on message %d",
+							Byte.toUnsignedInt(reasonCode), message.variableHeader().messageId()));
+			RemoteServiceException ex = new RemoteServiceException(msg);
+			pendingPublish.getFuture().setFailure(ex);
+		} else {
+			pendingPublish.getFuture().setSuccess(null);
+		}
 		pendingPublish.getPayload().release();
 	}
 
@@ -402,5 +425,5 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 			log.warn("Exception in MQTT channel {}: {}", client.getServerUri(), cause.toString(), cause);
 		}
 	}
-	
+
 }
