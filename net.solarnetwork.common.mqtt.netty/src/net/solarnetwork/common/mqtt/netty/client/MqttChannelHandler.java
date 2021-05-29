@@ -18,6 +18,7 @@
 package net.solarnetwork.common.mqtt.netty.client;
 
 import static java.util.stream.Collectors.toList;
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -106,11 +107,6 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.CONNECT, false,
 				MqttQoS.AT_MOST_ONCE, false, 0);
 		MqttClientConfig config = this.client.getClientConfig();
-
-		// set the max allowed aliases back to the configuration level
-		if ( config.getProtocolVersion().protocolLevel() > (byte) 4 ) {
-			serverAliases.setMaximumAliasCount(client.getClientConfig().getMaximumTopicAliases());
-		}
 
 		// @formatter:off
 		MqttConnectVariableHeader variableHeader = new MqttConnectVariableHeader(
@@ -203,7 +199,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
 	private void handleConack(Channel channel, MqttConnAckMessage message) {
 		MqttProperties props = message.variableHeader().properties();
-		int maxTopicAliases = 0;
+		int maxPublishTopicAliases = 0;
 		if ( props != null ) {
 			@SuppressWarnings("rawtypes")
 			MqttProperty prop = props
@@ -211,15 +207,25 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 			if ( prop instanceof MqttProperties.IntegerProperty ) {
 				Integer max = ((MqttProperties.IntegerProperty) prop).value();
 				if ( max != null ) {
-					maxTopicAliases = max.intValue();
+					maxPublishTopicAliases = max.intValue();
 				}
 			}
 		}
-		// enforce the server-requested maximum topic alias count when publishing from client
-		client.getTopicAliases().setMaximumAliasCount(maxTopicAliases);
 
 		switch (message.variableHeader().connectReturnCode()) {
 			case CONNECTION_ACCEPTED:
+				// enforce the server-requested maximum topic alias count when publishing from client
+				client.getTopicAliases().setMaximumAliasCount(maxPublishTopicAliases);
+
+				// enforce the client-requested maximum topic alias count when subscribing from the server
+				final int maxSubscribeTopicAliases = (client.getClientConfig().getProtocolVersion()
+						.protocolLevel() > (byte) 4 ? client.getClientConfig().getMaximumTopicAliases()
+								: 0);
+				serverAliases.setMaximumAliasCount(maxSubscribeTopicAliases);
+
+				log.debug("MQTT connection {} allowable topic aliases for server: {}; client: {}",
+						client.getServerUri(), maxSubscribeTopicAliases, maxPublishTopicAliases);
+
 				this.connectFuture.setSuccess(new MqttConnectResult(true,
 						MqttConnectReturnCode.CONNECTION_ACCEPTED, channel.closeFuture()));
 
@@ -441,8 +447,14 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		if ( !client.isDisconnected() ) {
-			log.warn("Exception in MQTT channel {}: {}", client.getServerUri(), cause.toString(), cause);
+		if ( log.isWarnEnabled() && !client.isDisconnected() ) {
+			if ( cause instanceof IOException ) {
+				log.warn("Communication problem in MQTT connection {}: {}", client.getServerUri(),
+						cause.getMessage());
+			} else {
+				log.warn("Exception in MQTT connection {}: {}", client.getServerUri(), cause.toString(),
+						cause);
+			}
 		}
 	}
 
