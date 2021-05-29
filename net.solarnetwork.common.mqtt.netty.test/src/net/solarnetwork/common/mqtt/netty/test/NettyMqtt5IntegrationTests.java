@@ -238,7 +238,7 @@ public class NettyMqtt5IntegrationTests {
 	}
 
 	@Test
-	public void subscribe_withAlias_second_afterReconnect() throws Exception {
+	public void subscribe_withAlias_first_afterReconnect() throws Exception {
 		// GIVEN
 		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
@@ -285,6 +285,71 @@ public class NettyMqtt5IntegrationTests {
 		rx = messages.poll(TIMEOUT_SECS, TimeUnit.SECONDS);
 		assertThat("Message received", rx, notNullValue());
 		assertThat("Message topic", rx.getTopic(), equalTo(tx2.getTopic()));
+		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
+		assertThat("Message payload", new String(rx.getPayload(), CharsetUtil.UTF_8),
+				equalTo(msg.toUpperCase()));
+	}
+
+	@Test
+	public void subscribe_withAlias_second_afterReconnect() throws Exception {
+		// GIVEN
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final BlockingQueue<MqttMessage> messages = new LinkedBlockingQueue<>();
+		service.setMessageHandler(new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(MqttMessage message) {
+				messages.add(message);
+			}
+		});
+
+		// WHEN
+		Future<?> f = service.subscribe("test/foo", MqttQos.AtLeastOnce, null);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final String msg = "Hello, world.";
+		final MqttMessage tx = new BasicMqttMessage("test/foo", false, MqttQos.AtLeastOnce,
+				msg.getBytes(CharsetUtil.UTF_8));
+		f = service.publish(tx);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// give a little time for broker to publish to subscriber
+		Thread.sleep(50);
+
+		service.close();
+		Thread.sleep(50);
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+		f = service.subscribe("test/foo", MqttQos.AtLeastOnce, null);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final MqttMessage tx2 = new BasicMqttMessage("test/foo", false, MqttQos.AtLeastOnce,
+				msg.toUpperCase().getBytes(CharsetUtil.UTF_8));
+		f = service.publish(tx2);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final MqttMessage tx3 = new BasicMqttMessage("test/foo", false, MqttQos.AtLeastOnce,
+				msg.toUpperCase().getBytes(CharsetUtil.UTF_8));
+		f = service.publish(tx3);
+		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		// THEN
+		MqttMessage rx = messages.poll(TIMEOUT_SECS, TimeUnit.SECONDS);
+		assertThat("Message received", rx, notNullValue());
+		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
+		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
+		assertThat("Message payload", new String(rx.getPayload(), CharsetUtil.UTF_8), equalTo(msg));
+
+		rx = messages.poll(TIMEOUT_SECS, TimeUnit.SECONDS);
+		assertThat("Message received", rx, notNullValue());
+		assertThat("Message topic", rx.getTopic(), equalTo(tx2.getTopic()));
+		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
+		assertThat("Message payload", new String(rx.getPayload(), CharsetUtil.UTF_8),
+				equalTo(msg.toUpperCase()));
+
+		rx = messages.poll(TIMEOUT_SECS, TimeUnit.SECONDS);
+		assertThat("Message received", rx, notNullValue());
+		assertThat("Message topic", rx.getTopic(), equalTo(tx3.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
 		assertThat("Message payload", new String(rx.getPayload(), CharsetUtil.UTF_8),
 				equalTo(msg.toUpperCase()));

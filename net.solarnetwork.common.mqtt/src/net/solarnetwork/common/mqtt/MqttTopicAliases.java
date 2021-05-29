@@ -47,6 +47,12 @@ public interface MqttTopicAliases {
 	/**
 	 * Set the maximum number of topic aliases supported by this instance.
 	 * 
+	 * <p>
+	 * If {@code maximumAliasCount} is smaller than the number of currently
+	 * aliased topics, the aliases should be cleared, as if {@link #clear()}
+	 * were also called.
+	 * </p>
+	 * 
 	 * @param maximumAliasCount
 	 *        the count, zero or more
 	 */

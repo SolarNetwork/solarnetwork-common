@@ -206,7 +206,7 @@ final class MqttClientImpl implements MqttClient {
 							pendingPublishes.clear();
 							pendingSubscribeTopics.clear();
 							handlerToSubscribtion.clear();
-							clientAliases.clear();
+							clientAliases.setMaximumAliasCount(0); // also clears
 							scheduleConnectIfRequired(host, port, true);
 						});
 			} else {
@@ -472,6 +472,7 @@ final class MqttClientImpl implements MqttClient {
 		disconnected = true;
 		CompletableFuture<Void> result = new CompletableFuture<>();
 		if ( this.channel != null ) {
+			this.reconnect = false;
 			MqttMessage message = new MqttMessage(new MqttFixedHeader(MqttMessageType.DISCONNECT, false,
 					MqttQoS.AT_MOST_ONCE, false, 0));
 			this.sendAndFlushPacket(message)
