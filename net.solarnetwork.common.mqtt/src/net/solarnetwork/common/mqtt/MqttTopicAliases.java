@@ -32,7 +32,7 @@ import java.util.function.Consumer;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.2
  */
 public interface MqttTopicAliases {
@@ -66,6 +66,19 @@ public interface MqttTopicAliases {
 	/**
 	 * Get a topic alias.
 	 * 
+	 * <p>
+	 * Call this method to acquire or create a topic alias. If a topic alias for
+	 * {@code topic} has not been assigned and confirmed yet, this method will
+	 * invoke the {@code aliasConsumer} and will return {@code topic} as-is.
+	 * Once the alias has been confirmed via {@link #confirmTopicAlias(String)}
+	 * then {@code aliasConsumer} will be invoked with the assigned alias.
+	 * </p>
+	 * 
+	 * <p>
+	 * No alias will be assigned if the maximum alias count is {@literal 0} or
+	 * the maximum number of aliases have been assigned.
+	 * </p>
+	 * 
 	 * @param topic
 	 *        the topic to get an alias for
 	 * @param aliasConsumer
@@ -76,6 +89,22 @@ public interface MqttTopicAliases {
 	 *         otherwise
 	 */
 	String topicAlias(String topic, Consumer<Integer> aliasConsumer);
+
+	/**
+	 * Confirm that a topic alias is allowed.
+	 * 
+	 * <p>
+	 * This should be invoked once confirmation from the MQTT broker has been
+	 * received, or immediately after receiving an alias from the broker.
+	 * </p>
+	 * 
+	 * @param topic
+	 *        the topic to confirm
+	 * @return {@literal true} if the given topic had an alias and was
+	 *         successfully confirmed
+	 * @since 1.1
+	 */
+	boolean confirmTopicAlias(String topic);
 
 	/**
 	 * Get the topic for an alias.

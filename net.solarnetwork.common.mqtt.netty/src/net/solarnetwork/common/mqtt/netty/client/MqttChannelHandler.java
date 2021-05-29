@@ -395,6 +395,12 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 			RemoteServiceException ex = new RemoteServiceException(msg);
 			pendingPublish.getFuture().setFailure(ex);
 		} else {
+			String topic = pendingPublish.getMessage().variableHeader().topicName();
+			if ( topic != null && !topic.isEmpty()
+					&& client.getTopicAliases().getMaximumAliasCount() > 0 ) {
+				// confirm alias
+				client.getTopicAliases().confirmTopicAlias(topic);
+			}
 			pendingPublish.getFuture().setSuccess(null);
 		}
 		pendingPublish.getPayload().release();

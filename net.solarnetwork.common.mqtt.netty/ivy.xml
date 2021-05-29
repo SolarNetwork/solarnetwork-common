@@ -21,7 +21,7 @@
 		<dependency org="io.netty" name="netty-resolver" rev="4.1.63.Final"/>
 		<dependency org="io.netty" name="netty-transport" rev="4.1.63.Final"/>
 		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common" rev="[1.56,)"/>
-		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.mqtt" rev="[2.3,)"/>
+		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.mqtt" rev="[2.4,)"/>
     	<dependency org="org.slf4j" name="slf4j-api" rev="1.7.21"/>
 		<dependency org="org.springframework" name="spring-context" rev="4.2.6.RELEASE"/>
 	</dependencies>
