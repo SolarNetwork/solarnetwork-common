@@ -28,6 +28,16 @@
 		<!-- Testing support -->
 		<dependency org="com.fasterxml.jackson.datatype" name="jackson-datatype-joda" rev="2.4.3" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.7"/>
+		<dependency org="io.netty" name="netty-buffer" rev="4.1.63.Final"/>
+		<dependency org="io.netty" name="netty-codec" rev="4.1.63.Final"/>
+		<dependency org="io.netty" name="netty-codec-http" rev="4.1.63.Final"/>
+		<dependency org="io.netty" name="netty-codec-mqtt" rev="4.1.63.Final"/>
+		<dependency org="io.netty" name="netty-common" rev="4.1.63.Final"/>
+		<dependency org="io.netty" name="netty-handler" rev="4.1.63.Final"/>
+		<dependency org="io.netty" name="netty-resolver" rev="4.1.63.Final"/>
+		<dependency org="io.netty" name="netty-transport" rev="4.1.63.Final"/>
+		<dependency org="io.netty" name="netty-transport-native-epoll" rev="4.1.63.Final"/>
+		<dependency org="io.netty" name="netty-transport-native-unix-common" rev="4.1.63.Final"/>
 		<dependency org="io.moquette" name="moquette-broker" rev="0.12.1"/>
 		<dependency org="org.eclipse.paho" name="org.eclipse.paho.client.mqttv3" rev="1.2.0">
 			<artifact name="org.eclipse.paho.client.mqttv3" type="jar"/>
