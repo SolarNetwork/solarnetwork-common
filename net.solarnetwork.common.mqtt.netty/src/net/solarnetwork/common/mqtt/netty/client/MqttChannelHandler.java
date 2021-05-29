@@ -63,7 +63,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		this.client = client;
 		this.connectFuture = connectFuture;
 		this.serverAliases = (client.getClientConfig().getProtocolVersion().protocolLevel() > (byte) 4
-				? new BasicMqttTopicAliases(client.getClientConfig().getMaximumTopicAliases())
+				? new BasicMqttTopicAliases(0)
 				: new NoOpMqttTopicAliases());
 	}
 
@@ -106,6 +106,12 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.CONNECT, false,
 				MqttQoS.AT_MOST_ONCE, false, 0);
 		MqttClientConfig config = this.client.getClientConfig();
+
+		// set the max allowed aliases back to the configuration level
+		if ( config.getProtocolVersion().protocolLevel() > (byte) 4 ) {
+			serverAliases.setMaximumAliasCount(client.getClientConfig().getMaximumTopicAliases());
+		}
+
 		// @formatter:off
 		MqttConnectVariableHeader variableHeader = new MqttConnectVariableHeader(
 				config.getProtocolVersion().protocolName(), // Protocol Name
@@ -141,8 +147,11 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		super.channelInactive(ctx);
 		log.debug("Clearing topic aliases for server (max {}) and client (max {})",
 				serverAliases.getMaximumAliasCount(), client.getTopicAliases().getMaximumAliasCount());
-		serverAliases.clear();
-		client.getTopicAliases().clear();
+
+		// force the client/server alias max to 0 so aliases will not be generated until after we
+		// have a new connection; the handleConack() method will restore the client max
+		serverAliases.setMaximumAliasCount(0);
+		client.getTopicAliases().setMaximumAliasCount(0);
 	}
 
 	private void invokeHandlersForIncomingPublish(MqttPublishMessage message) {

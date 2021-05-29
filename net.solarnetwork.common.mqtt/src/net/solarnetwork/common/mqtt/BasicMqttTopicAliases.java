@@ -92,7 +92,13 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 
 	@Override
 	public void setMaximumAliasCount(int maximumAliasCount) {
-		this.maximumAliasCount = maximumAliasCount;
+		synchronized ( aliasedTopics ) {
+			this.maximumAliasCount = maximumAliasCount;
+			if ( maximumAliasCount < 1 || topicAliases.size() > maximumAliasCount ) {
+				// clear any existing aliases if we have reset
+				clear();
+			}
+		}
 	}
 
 	@Override
@@ -106,12 +112,16 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 
 	@Override
 	public String topicAlias(String topic, Consumer<Integer> aliasConsumer) {
-		Integer topicAlias = topicAliases.get(topic);
-		final int maxCount = this.maximumAliasCount;
-		if ( topicAlias == null && maxCount > 0 ) {
-			// assign topic alias now
-			final String topicToAlias = topic;
-			synchronized ( aliasedTopics ) {
+		Integer topicAlias = null;
+		synchronized ( aliasedTopics ) {
+			final int maxCount = getMaximumAliasCount();
+			if ( maxCount < 1 ) {
+				return topic;
+			}
+			topicAlias = topicAliases.get(topic);
+			if ( topicAlias == null ) {
+				// assign topic alias now
+				final String topicToAlias = topic;
 				for ( int i = 1; i < maxCount; i++ ) {
 					String aliasedTopic = aliasedTopics.computeIfAbsent(i, k -> topicToAlias);
 					if ( aliasedTopic.equals(topic) ) {
@@ -121,10 +131,10 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 						break;
 					}
 				}
+			} else if ( topicAlias != null ) {
+				// set existing aliased topic to ""
+				topic = "";
 			}
-		} else if ( topicAlias != null ) {
-			// set existing aliased topic to ""
-			topic = "";
 		}
 		if ( topicAlias != null && aliasConsumer != null ) {
 			aliasConsumer.accept(topicAlias);
