@@ -78,6 +78,22 @@ public enum MqttPubackReasonCode {
 		switch (code) {
 			case (byte) 0x00:
 				return Success;
+			case (byte) 0x10:
+				return NoSubscribers;
+			case (byte) 0x80:
+				return UnspecifiedError;
+			case (byte) 0x83:
+				return ImplementationSpecificError;
+			case (byte) 0x87:
+				return NotAuthorized;
+			case (byte) 0x90:
+				return TopicNameInvalid;
+			case (byte) 0x91:
+				return PacketIdentifierInUse;
+			case (byte) 0x97:
+				return QuotaExceeded;
+			case (byte) 0x99:
+				return PayloadFormatInvalid;
 
 			default:
 				throw new IllegalArgumentException("Unsupported reason code: " + code);

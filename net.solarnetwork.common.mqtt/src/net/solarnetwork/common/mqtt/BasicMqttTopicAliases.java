@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * Basic implementation of {@link MqttTopicAliases}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.2
  */
 public class BasicMqttTopicAliases implements MqttTopicAliases {
@@ -122,17 +122,21 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 			if ( topicAlias == null ) {
 				// assign topic alias now
 				final String topicToAlias = topic;
-				for ( int i = 1; i < maxCount; i++ ) {
+				for ( int i = 1; i <= maxCount; i++ ) {
 					String aliasedTopic = aliasedTopics.computeIfAbsent(i, k -> topicToAlias);
 					if ( aliasedTopic.equals(topic) ) {
 						topicAlias = i;
 						aliasedTopics.put(topicAlias, topic);
-						topicAliases.put(topic, topicAlias);
+						// we initially assign the negative of the topic alias here, until it is confirmed
+						topicAliases.put(topic, -topicAlias);
 						break;
 					}
 				}
-			} else if ( topicAlias != null ) {
-				// set existing aliased topic to ""
+			} else if ( topicAlias.intValue() < 0 ) {
+				// alias has not been confirmed yet, so must return given topic and not provide alias yet
+				topicAlias = -topicAlias.intValue();
+			} else {
+				// alias has been confirmed, so set resulting topic to ""
 				topic = "";
 			}
 		}
@@ -140,6 +144,21 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 			aliasConsumer.accept(topicAlias);
 		}
 		return topic;
+	}
+
+	@Override
+	public boolean confirmTopicAlias(String topic) {
+		// sync on aliasedTopics like other methods are doing
+		synchronized ( aliasedTopics ) {
+			Integer alias = topicAliases.computeIfPresent(topic, (k, v) -> {
+				int a = v.intValue();
+				if ( a < 0 ) {
+					return -a;
+				}
+				return v;
+			});
+			return alias != null;
+		}
 	}
 
 	@Override
@@ -161,6 +180,17 @@ public class BasicMqttTopicAliases implements MqttTopicAliases {
 					? SingletonProperties.property(MqttPropertyType.TOPIC_ALIAS, alias)
 					: null);
 		});
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("BasicMqttTopicAliases{max=");
+		builder.append(maximumAliasCount);
+		builder.append(", aliases=");
+		builder.append(topicAliases);
+		builder.append("}");
+		return builder.toString();
 	}
 
 }

@@ -33,7 +33,7 @@ import java.util.function.Consumer;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.2
  */
 public final class NoOpMqttTopicAliases implements MqttTopicAliases {
@@ -56,6 +56,11 @@ public final class NoOpMqttTopicAliases implements MqttTopicAliases {
 	@Override
 	public String topicAlias(String topic, Consumer<Integer> aliasConsumer) {
 		return topic;
+	}
+
+	@Override
+	public boolean confirmTopicAlias(String topic) {
+		return false;
 	}
 
 	@Override

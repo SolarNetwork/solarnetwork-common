@@ -691,7 +691,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 	}
 
 	@Test
-	public void subscribeMultiWithChandleHandler() throws Exception {
+	public void subscribeMultiWithChannelHandler() throws Exception {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
@@ -749,7 +749,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 	}
 
 	@Test
-	public void unsubscribeMultiWithChandleHandler() throws Exception {
+	public void unsubscribeMultiWithChannelHandler() throws Exception {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();

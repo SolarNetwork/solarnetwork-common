@@ -390,11 +390,17 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 			String msg = (r != null
 					? String.format("Unsuccessful PUBACK reason code %d (%s) on message %d",
 							Byte.toUnsignedInt(reasonCode), r, message.variableHeader().messageId())
-					: String.format("Unsuccessful PUBACK reason code: %d on message %d",
+					: String.format("Unsuccessful PUBACK reason code %d on message %d",
 							Byte.toUnsignedInt(reasonCode), message.variableHeader().messageId()));
 			RemoteServiceException ex = new RemoteServiceException(msg);
 			pendingPublish.getFuture().setFailure(ex);
 		} else {
+			String topic = pendingPublish.getMessage().variableHeader().topicName();
+			if ( topic != null && !topic.isEmpty()
+					&& client.getTopicAliases().getMaximumAliasCount() > 0 ) {
+				// confirm alias
+				client.getTopicAliases().confirmTopicAlias(topic);
+			}
 			pendingPublish.getFuture().setSuccess(null);
 		}
 		pendingPublish.getPayload().release();
