@@ -34,6 +34,7 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.domain.datum.StreamDatum;
 import net.solarnetwork.util.BasicStreamDatumArrayDeserializer;
@@ -98,6 +99,72 @@ public class BasicStreamDatumArrayDeserializerTests {
 				is(arrayContaining(decimalArray("3.45"))));
 		assertThat("Status values", d.getProperties().getStatus(), is(nullValue()));
 		assertThat("Tags values", d.getProperties().getTags(), is(nullValue()));
+	}
+
+	@Test
+	public void deserialize_stringNumber() throws IOException {
+		// GIVEN
+		final String json = "[1234567890,-39146522915747961,-8199130050457739548"
+				+ ",null,[\"3.45\"],null,null]";
+
+		// WHEN
+		StreamDatum d = mapper.readValue(json, StreamDatum.class);
+
+		assertThat("Datum parsed", d, is(notNullValue()));
+		assertThat("Accumulating values", d.getProperties().getAccumulating(),
+				is(arrayContaining(decimalArray("3.45"))));
+	}
+
+	@Test
+	public void deserialize_numberString() throws IOException {
+		// GIVEN
+		final String json = "[1234567890,-39146522915747961,-8199130050457739548"
+				+ ",null,null,[123],null]";
+
+		// WHEN
+		StreamDatum d = mapper.readValue(json, StreamDatum.class);
+
+		assertThat("Datum parsed", d, is(notNullValue()));
+		assertThat("Status values", d.getProperties().getStatus(),
+				is(arrayContaining(new String[] { "123" })));
+	}
+
+	@Test
+	public void deserialize_arrayNullNumberValue() throws IOException {
+		// GIVEN
+		final String json = "[1234567890,-39146522915747961,-8199130050457739548"
+				+ ",null,[123,null,456],null,null]";
+
+		// WHEN
+		StreamDatum d = mapper.readValue(json, StreamDatum.class);
+
+		assertThat("Datum parsed", d, is(notNullValue()));
+		assertThat("Accumulating values", d.getProperties().getAccumulating(),
+				is(arrayContaining(decimalArray("123", null, "456"))));
+	}
+
+	@Test
+	public void deserialize_arrayNullStringValue() throws IOException {
+		// GIVEN
+		final String json = "[1234567890,-39146522915747961,-8199130050457739548"
+				+ ",null,null,[\"one\",null,\"two\"],null]";
+
+		// WHEN
+		StreamDatum d = mapper.readValue(json, StreamDatum.class);
+
+		assertThat("Datum parsed", d, is(notNullValue()));
+		assertThat("Status values", d.getProperties().getStatus(),
+				is(arrayContaining(new String[] { "one", null, "two" })));
+	}
+
+	@Test(expected = InvalidFormatException.class)
+	public void deserialize_notANumber() throws IOException {
+		// GIVEN
+		final String json = "[1234567890,-39146522915747961,-8199130050457739548"
+				+ ",null,[\"howdy\"],null,null]";
+
+		// WHEN
+		mapper.readValue(json, StreamDatum.class);
 	}
 
 }

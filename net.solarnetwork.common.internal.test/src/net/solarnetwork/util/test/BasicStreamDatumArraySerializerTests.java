@@ -124,4 +124,48 @@ public class BasicStreamDatumArraySerializerTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void serialize_arrayNullNumberValue() throws IOException {
+		// GIVEN
+		DatumProperties p = new DatumProperties();
+		p.setAccumulating(decimalArray("1.23", null, "2.34"));
+		BasicStreamDatum d = new BasicStreamDatum(UUID.randomUUID(), Instant.now(), p);
+
+		// WHEN
+		String json = mapper.writeValueAsString(d);
+
+		// THEN
+		// @formatter:off
+		assertThat("Sparse JSON", json, is(equalTo(format("[%d,%d,%d,null,[%s],null,null]", 
+				d.getTimestamp().toEpochMilli(),
+				d.getStreamId().getMostSignificantBits(), 
+				d.getStreamId().getLeastSignificantBits(),
+				Arrays.stream(p.getAccumulating()).map(e-> e != null ? e.toString() : "null")
+					.collect(joining(","))
+				))));
+		// @formatter:on
+	}
+
+	@Test
+	public void serialize_arrayNullStringValue() throws IOException {
+		// GIVEN
+		DatumProperties p = new DatumProperties();
+		p.setStatus(new String[] { "one", null, "two" });
+		BasicStreamDatum d = new BasicStreamDatum(UUID.randomUUID(), Instant.now(), p);
+
+		// WHEN
+		String json = mapper.writeValueAsString(d);
+
+		// THEN
+		// @formatter:off
+		assertThat("Sparse JSON", json, is(equalTo(format("[%d,%d,%d,null,null,[%s],null]", 
+				d.getTimestamp().toEpochMilli(),
+				d.getStreamId().getMostSignificantBits(), 
+				d.getStreamId().getLeastSignificantBits(),
+				Arrays.stream(p.getStatus()).map(e-> e != null ? "\"" + e.toString() + "\"" : "null")
+					.collect(joining(","))
+				))));
+		// @formatter:on
+	}
+
 }

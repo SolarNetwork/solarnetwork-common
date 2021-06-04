@@ -35,6 +35,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import net.solarnetwork.domain.datum.BasicStreamDatum;
 import net.solarnetwork.domain.datum.StreamDatum;
 
@@ -66,11 +67,25 @@ public class BasicStreamDatumArrayDeserializer extends StdScalarDeserializer<Str
 			List<BigDecimal> l = new ArrayList<>(8);
 			do {
 				t = p.nextToken();
-				if ( t != null && t.isNumeric() ) {
-					l.add(p.getDecimalValue());
-				} else if ( t != null && t != JsonToken.END_ARRAY ) {
-					// assume null
-					l.add(null);
+				if ( t != null ) {
+					if ( t.isNumeric() ) {
+						l.add(p.getDecimalValue());
+					} else if ( t == JsonToken.VALUE_STRING ) {
+						// try to parse number string
+						try {
+							l.add(new BigDecimal(p.getValueAsString()));
+						} catch ( NumberFormatException | ArithmeticException e ) {
+							String msg = e.getMessage();
+							if ( msg == null || msg.isEmpty() ) {
+								msg = "Invalid number value: " + p.getValueAsString();
+							}
+							throw new InvalidFormatException(p, msg, p.getValueAsString(),
+									BigDecimal.class);
+						}
+					} else if ( t != JsonToken.END_ARRAY ) {
+						// assume null
+						l.add(null);
+					}
 				}
 			} while ( t != null && t != JsonToken.END_ARRAY );
 			return l.toArray(new BigDecimal[l.size()]);
@@ -85,11 +100,13 @@ public class BasicStreamDatumArrayDeserializer extends StdScalarDeserializer<Str
 			List<String> l = new ArrayList<>(8);
 			do {
 				t = p.nextToken();
-				if ( t != null && t == JsonToken.VALUE_STRING ) {
-					l.add(p.getValueAsString());
-				} else if ( t != null && t != JsonToken.END_ARRAY ) {
-					// assume null
-					l.add(null);
+				if ( t != null ) {
+					if ( t.isScalarValue() ) {
+						l.add(p.getValueAsString());
+					} else if ( t != JsonToken.END_ARRAY ) {
+						// assume null
+						l.add(null);
+					}
 				}
 			} while ( t != null && t != JsonToken.END_ARRAY );
 			return l.toArray(new String[l.size()]);
