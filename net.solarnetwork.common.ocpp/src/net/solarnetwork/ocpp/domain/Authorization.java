@@ -35,9 +35,11 @@ import net.solarnetwork.domain.Differentiable;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class Authorization extends BasicLongEntity implements Differentiable<Authorization> {
+
+	private static final long serialVersionUID = -540993930373637753L;
 
 	private String token;
 	private boolean enabled;

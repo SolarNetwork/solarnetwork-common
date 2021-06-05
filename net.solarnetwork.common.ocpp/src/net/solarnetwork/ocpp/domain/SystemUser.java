@@ -36,9 +36,11 @@ import net.solarnetwork.util.StringUtils;
  * An OCPP charge point system user.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class SystemUser extends BasicLongEntity implements Differentiable<SystemUser> {
+
+	private static final long serialVersionUID = -8412183373239562934L;
 
 	private String username;
 	private String password;

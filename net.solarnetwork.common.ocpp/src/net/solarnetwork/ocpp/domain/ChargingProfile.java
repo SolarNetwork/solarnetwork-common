@@ -32,9 +32,11 @@ import net.solarnetwork.domain.Differentiable;
  * to apply over a time period.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ChargingProfile extends BasicUuidEntity implements Differentiable<ChargingProfile> {
+
+	private static final long serialVersionUID = -5952532162434074127L;
 
 	/** The default purpose. */
 	public static final ChargingProfilePurpose DEFAULT_PURPOSE = ChargingProfilePurpose.ChargePointMaxProfile;

@@ -28,10 +28,12 @@ import java.time.Instant;
  * Basic implementation of {@link Entity} with long primary key type.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.59
  */
 public class BasicLongEntity extends BasicEntity<Long> {
+
+	private static final long serialVersionUID = 307950311993178478L;
 
 	/**
 	 * Constructor.
@@ -50,6 +52,11 @@ public class BasicLongEntity extends BasicEntity<Long> {
 	 */
 	public BasicLongEntity(Long id, Instant created) {
 		super(id, created);
+	}
+
+	@Override
+	public BasicLongEntity clone() {
+		return (BasicLongEntity) super.clone();
 	}
 
 }
