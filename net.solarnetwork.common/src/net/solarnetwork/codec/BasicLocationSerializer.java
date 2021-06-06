@@ -58,39 +58,17 @@ public class BasicLocationSerializer extends StdScalarSerializer<Location> imple
 			return;
 		}
 		generator.writeStartObject(value, 11);
-		if ( value.getName() != null ) {
-			generator.writeStringField("name", value.getName());
-		}
-		if ( value.getCountry() != null ) {
-			generator.writeStringField("country", value.getCountry());
-		}
-		if ( value.getRegion() != null ) {
-			generator.writeStringField("region", value.getRegion());
-		}
-		if ( value.getStateOrProvince() != null ) {
-			generator.writeStringField("stateOrProvince", value.getStateOrProvince());
-		}
-		if ( value.getPostalCode() != null ) {
-			generator.writeStringField("postalCode", value.getPostalCode());
-		}
-		if ( value.getLocality() != null ) {
-			generator.writeStringField("locality", value.getLocality());
-		}
-		if ( value.getStreet() != null ) {
-			generator.writeStringField("street", value.getStreet());
-		}
-		if ( value.getLatitude() != null ) {
-			generator.writeNumberField("lat", value.getLatitude());
-		}
-		if ( value.getLongitude() != null ) {
-			generator.writeNumberField("lon", value.getLongitude());
-		}
-		if ( value.getElevation() != null ) {
-			generator.writeNumberField("el", value.getElevation());
-		}
-		if ( value.getTimeZoneId() != null ) {
-			generator.writeStringField("zone", value.getTimeZoneId());
-		}
+		BasicLocationField.Name.writeValue(generator, provider, value.getName());
+		BasicLocationField.Country.writeValue(generator, provider, value.getCountry());
+		BasicLocationField.Region.writeValue(generator, provider, value.getRegion());
+		BasicLocationField.StateOrProvince.writeValue(generator, provider, value.getStateOrProvince());
+		BasicLocationField.PostalCode.writeValue(generator, provider, value.getPostalCode());
+		BasicLocationField.Locality.writeValue(generator, provider, value.getLocality());
+		BasicLocationField.Street.writeValue(generator, provider, value.getStreet());
+		BasicLocationField.Latitude.writeValue(generator, provider, value.getLatitude());
+		BasicLocationField.Longitude.writeValue(generator, provider, value.getLongitude());
+		BasicLocationField.Elevation.writeValue(generator, provider, value.getElevation());
+		BasicLocationField.TimeZoneId.writeValue(generator, provider, value.getTimeZoneId());
 		generator.writeEndObject();
 
 	}

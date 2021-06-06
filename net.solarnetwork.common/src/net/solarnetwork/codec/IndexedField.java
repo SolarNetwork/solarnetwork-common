@@ -28,12 +28,27 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
- * API for a field that is indexed.
+ * API for a JSON field that is ordered by an index value for the purposes of
+ * serialization.
+ * 
+ * <p>
+ * This API is designed to be implemented by {@code Enum} types, to facilitate a
+ * single definition of JSON object field names and their order when serializing
+ * and deserializing a related object into/from JSON, without using reflection.
+ * See
+ * {@link JsonUtils#parseIndexedFieldsObject(JsonParser, DeserializationContext, Object[], Map)}
+ * for help in parsing JSON using this structure. The intention is that a JSON
+ * serializer and deserializer class pair would share a common {@code Enum} that
+ * implements this interface to help ensure a consistent JSON structure is used
+ * by both.
+ * </p>
  * 
  * @author matt
  * @version 1.0
@@ -69,6 +84,23 @@ public interface IndexedField {
 	 *         if any JSON processing error occurs
 	 */
 	Object parseValue(JsonParser parser, DeserializationContext ctxt)
+			throws IOException, JsonProcessingException;
+
+	/**
+	 * Write a value to a generator.
+	 * 
+	 * @param generator
+	 *        the generator
+	 * @param provider
+	 *        the provider
+	 * @param value
+	 *        the value to write
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any JSON processing error occurs
+	 */
+	void writeValue(JsonGenerator generator, SerializerProvider provider, Object value)
 			throws IOException, JsonProcessingException;
 
 	/**

@@ -23,10 +23,13 @@
 package net.solarnetwork.codec;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Map;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import net.solarnetwork.domain.BasicLocation;
 
 /**
@@ -105,6 +108,35 @@ public enum BasicLocationField implements IndexedField {
 
 			default:
 				return null;
+		}
+	}
+
+	@Override
+	public void writeValue(JsonGenerator generator, SerializerProvider provider, Object value)
+			throws IOException, JsonProcessingException {
+		if ( value == null ) {
+			return;
+		}
+		switch (this) {
+			case Name:
+			case Country:
+			case Locality:
+			case PostalCode:
+			case Region:
+			case StateOrProvince:
+			case Street:
+			case TimeZoneId:
+				generator.writeStringField(fieldName, value.toString());
+				break;
+
+			case Elevation:
+			case Latitude:
+			case Longitude:
+				generator.writeNumberField(fieldName, (BigDecimal) value);
+				break;
+
+			default:
+				// nothing
 		}
 	}
 

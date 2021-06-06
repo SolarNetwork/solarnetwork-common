@@ -25,9 +25,11 @@ package net.solarnetwork.codec;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
 
 /**
@@ -109,6 +111,45 @@ public enum BasicObjectDatumStreamMetadataField implements IndexedField {
 
 			default:
 				return null;
+		}
+	}
+
+	@Override
+	public void writeValue(JsonGenerator generator, SerializerProvider provider, Object value)
+			throws IOException, JsonProcessingException {
+		if ( value == null ) {
+			return;
+		}
+		switch (this) {
+			case StreamId:
+			case TimeZoneId:
+			case SourceId:
+				generator.writeStringField(fieldName, value.toString());
+				break;
+
+			case ObjectDatumKind:
+				generator.writeStringField(fieldName, Character
+						.toString(((net.solarnetwork.domain.datum.ObjectDatumKind) value).getKey()));
+				break;
+
+			case ObjectId:
+				generator.writeNumberField(fieldName, (Long) value);
+				break;
+
+			case Location:
+				generator.writeFieldName(fieldName);
+				BasicLocationSerializer.INSTANCE.serialize((net.solarnetwork.domain.Location) value,
+						generator, provider);
+				break;
+
+			case Instantaneous:
+			case Accumulating:
+			case Status:
+				JsonUtils.writeStringArrayField(generator, fieldName, (String[]) value);
+				break;
+
+			default:
+				// nothing
 		}
 	}
 

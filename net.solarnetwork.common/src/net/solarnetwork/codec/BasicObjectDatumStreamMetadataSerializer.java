@@ -63,41 +63,19 @@ public class BasicObjectDatumStreamMetadataSerializer
 			SerializerProvider provider) throws IOException, JsonGenerationException {
 		generator.writeStartObject(meta, 9);
 
-		// 1: UUID
-		generator.writeStringField("streamId", meta.getStreamId().toString());
-
-		// 2: Zone
-		if ( meta.getTimeZoneId() != null ) {
-			generator.writeStringField("timeZoneId", meta.getTimeZoneId());
-		}
-
-		// 3: Kind
-		if ( meta.getKind() != null ) {
-			generator.writeStringField("kind", Character.toString(meta.getKind().getKey()));
-		}
-
-		// 4: ID
-		if ( meta.getObjectId() != null ) {
-			generator.writeNumberField("objectId", meta.getObjectId());
-		}
-
-		// 5: Source ID
-		if ( meta.getSourceId() != null ) {
-			generator.writeStringField("sourceId", meta.getSourceId());
-		}
-
-		// 6: Location
-		if ( meta.getLocation() != null ) {
-			generator.writeFieldName("location");
-			BasicLocationSerializer.INSTANCE.serialize(meta.getLocation(), generator, provider);
-		}
-
-		// 7-9: i, a, s
-		JsonUtils.writeStringArrayField(generator, "i",
+		BasicObjectDatumStreamMetadataField.StreamId.writeValue(generator, provider, meta.getStreamId());
+		BasicObjectDatumStreamMetadataField.TimeZoneId.writeValue(generator, provider,
+				meta.getTimeZoneId());
+		BasicObjectDatumStreamMetadataField.ObjectDatumKind.writeValue(generator, provider,
+				meta.getKind());
+		BasicObjectDatumStreamMetadataField.ObjectId.writeValue(generator, provider, meta.getObjectId());
+		BasicObjectDatumStreamMetadataField.SourceId.writeValue(generator, provider, meta.getSourceId());
+		BasicObjectDatumStreamMetadataField.Location.writeValue(generator, provider, meta.getLocation());
+		BasicObjectDatumStreamMetadataField.Instantaneous.writeValue(generator, provider,
 				meta.propertyNamesForType(GeneralDatumSamplesType.Instantaneous));
-		JsonUtils.writeStringArrayField(generator, "a",
+		BasicObjectDatumStreamMetadataField.Accumulating.writeValue(generator, provider,
 				meta.propertyNamesForType(GeneralDatumSamplesType.Accumulating));
-		JsonUtils.writeStringArrayField(generator, "s",
+		BasicObjectDatumStreamMetadataField.Status.writeValue(generator, provider,
 				meta.propertyNamesForType(GeneralDatumSamplesType.Status));
 
 		generator.writeEndObject();
