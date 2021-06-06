@@ -23,6 +23,8 @@
 package net.solarnetwork.domain.datum;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 import net.solarnetwork.domain.GeneralDatumSamplesType;
 
@@ -198,6 +200,33 @@ public class BasicDatumStreamMetadata implements DatumStreamMetadata, Serializab
 	 */
 	public int getStatusLength() {
 		return (statusProperties != null ? statusProperties.length : 0);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(accumulatingProperties);
+		result = prime * result + Arrays.hashCode(instantaneousProperties);
+		result = prime * result + Arrays.hashCode(statusProperties);
+		result = prime * result + Objects.hash(streamId, timeZoneId);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( !(obj instanceof BasicDatumStreamMetadata) ) {
+			return false;
+		}
+		BasicDatumStreamMetadata other = (BasicDatumStreamMetadata) obj;
+		return Arrays.equals(accumulatingProperties, other.accumulatingProperties)
+				&& Arrays.equals(instantaneousProperties, other.instantaneousProperties)
+				&& Arrays.equals(statusProperties, other.statusProperties)
+				&& Objects.equals(streamId, other.streamId)
+				&& Objects.equals(timeZoneId, other.timeZoneId);
 	}
 
 }

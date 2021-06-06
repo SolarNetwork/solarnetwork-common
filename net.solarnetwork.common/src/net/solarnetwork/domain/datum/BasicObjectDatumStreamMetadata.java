@@ -23,6 +23,7 @@
 package net.solarnetwork.domain.datum;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 import net.solarnetwork.domain.BasicLocation;
 import net.solarnetwork.domain.Location;
@@ -211,6 +212,31 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 		}
 		builder.append("}");
 		return builder.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(kind, location, metaJson, objectId, sourceId);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( !super.equals(obj) ) {
+			return false;
+		}
+		if ( !(obj instanceof BasicObjectDatumStreamMetadata) ) {
+			return false;
+		}
+		BasicObjectDatumStreamMetadata other = (BasicObjectDatumStreamMetadata) obj;
+		return kind == other.kind && Objects.equals(location, other.location)
+				&& Objects.equals(metaJson, other.metaJson) && Objects.equals(objectId, other.objectId)
+				&& Objects.equals(sourceId, other.sourceId);
 	}
 
 	@Override
