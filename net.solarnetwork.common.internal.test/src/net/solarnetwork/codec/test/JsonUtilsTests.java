@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util.test;
+package net.solarnetwork.codec.test;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
-import net.solarnetwork.util.JsonUtils;
+import net.solarnetwork.codec.JsonUtils;
 
 /**
  * Test cases for the {@link JsonUtils} class.

@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.codec;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -40,12 +40,9 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * Specialized serializer of {@link BigDecimal} to string values.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.1
  * @since 1.37
- * @deprecated since 1.2, use
- *             {@link net.solarnetwork.codec.BigDecimalStringSerializer}
  */
-@Deprecated
 public class BigDecimalStringSerializer extends StdSerializer<BigDecimal> {
 
 	private static final long serialVersionUID = 4462532770316408808L;

@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util.test;
+package net.solarnetwork.codec.test;
 
 import static java.time.Instant.ofEpochMilli;
 import static net.solarnetwork.util.NumberUtils.decimalArray;
@@ -36,8 +36,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import net.solarnetwork.codec.BasicStreamDatumArrayDeserializer;
 import net.solarnetwork.domain.datum.StreamDatum;
-import net.solarnetwork.util.BasicStreamDatumArrayDeserializer;
 
 /**
  * Test cases for the {@link BasicStreamDatumArrayDeserializer} class.

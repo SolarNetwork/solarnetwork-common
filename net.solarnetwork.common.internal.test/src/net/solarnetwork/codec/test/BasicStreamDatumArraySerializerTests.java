@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util.test;
+package net.solarnetwork.codec.test;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
@@ -38,10 +38,10 @@ import org.junit.Before;
 import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import net.solarnetwork.codec.BasicStreamDatumArraySerializer;
 import net.solarnetwork.domain.datum.BasicStreamDatum;
 import net.solarnetwork.domain.datum.DatumProperties;
 import net.solarnetwork.domain.datum.StreamDatum;
-import net.solarnetwork.util.BasicStreamDatumArraySerializer;
 
 /**
  * Test cases for the {@link BasicStreamDatumArraySerializer} class.

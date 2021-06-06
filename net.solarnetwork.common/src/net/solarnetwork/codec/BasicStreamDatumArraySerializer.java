@@ -20,11 +20,10 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.codec;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.UUID;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -81,56 +80,16 @@ public class BasicStreamDatumArraySerializer extends StdScalarSerializer<StreamD
 		DatumProperties props = datum.getProperties();
 
 		// 4: array of i props
-		int len = props.getInstantaneousLength();
-		if ( len > 0 ) {
-			generator.writeStartArray(len);
-			BigDecimal[] data = props.getInstantaneous();
-			for ( int i = 0; i < len; i++ ) {
-				generator.writeNumber(data[i]);
-			}
-			generator.writeEndArray();
-		} else {
-			generator.writeNull();
-		}
+		JsonUtils.writeDecimalArray(generator, props.getInstantaneous());
 
 		// 5: array of a props
-		len = props.getAccumulatingLength();
-		if ( len > 0 ) {
-			generator.writeStartArray(len);
-			BigDecimal[] data = props.getAccumulating();
-			for ( int i = 0; i < len; i++ ) {
-				generator.writeNumber(data[i]);
-			}
-			generator.writeEndArray();
-		} else {
-			generator.writeNull();
-		}
+		JsonUtils.writeDecimalArray(generator, props.getAccumulating());
 
 		// 6: array of s props
-		len = props.getStatusLength();
-		if ( len > 0 ) {
-			generator.writeStartArray(len);
-			String[] data = props.getStatus();
-			for ( int i = 0; i < len; i++ ) {
-				generator.writeString(data[i]);
-			}
-			generator.writeEndArray();
-		} else {
-			generator.writeNull();
-		}
+		JsonUtils.writeStringArray(generator, props.getStatus());
 
 		// 7: array of tags
-		len = props.getTagsLength();
-		if ( len > 0 ) {
-			generator.writeStartArray(len);
-			String[] data = props.getTags();
-			for ( int i = 0; i < len; i++ ) {
-				generator.writeString(data[i]);
-			}
-			generator.writeEndArray();
-		} else {
-			generator.writeNull();
-		}
+		JsonUtils.writeStringArray(generator, props.getTags());
 
 		generator.writeEndArray();
 	}

@@ -1,7 +1,7 @@
 /* ==================================================================
- * JodaDateTimeEpochDeserializer.java - 6/11/2019 7:15:02 am
+ * BasicLocationDeserializer.java - 6/06/2021 9:56:41 AM
  * 
- * Copyright 2019 SolarNetwork.net Dev Team
+ * Copyright 2021 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,60 +20,66 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.codec;
 
 import java.io.IOException;
-import org.joda.time.DateTime;
+import java.io.Serializable;
+import java.math.BigDecimal;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import net.solarnetwork.domain.BasicLocation;
+import net.solarnetwork.domain.Location;
 
 /**
- * Deserialize millisecond epoch numbers into {@link DateTime} instances.
+ * Deserializer for {@link Location} objects.
  * 
  * @author matt
- * @version 1.1
- * @since 1.55
- * @deprecated since 1.1, use
- *             {@link net.solarnetwork.codec.JodaDateTimeEpochDeserializer}
+ * @version 1.0
+ * @since 1.72
  */
-@Deprecated
-public class JodaDateTimeEpochDeserializer extends StdScalarDeserializer<DateTime> {
+public class BasicLocationDeserializer extends StdScalarDeserializer<Location> implements Serializable {
 
-	private static final long serialVersionUID = 7261772164817148373L;
+	/** A default instance. */
+	public static final BasicLocationDeserializer INSTANCE = new BasicLocationDeserializer();
+
+	private static final long serialVersionUID = -5998708607249785150L;
 
 	/**
 	 * Constructor.
 	 */
-	public JodaDateTimeEpochDeserializer() {
-		super(DateTime.class);
+	public BasicLocationDeserializer() {
+		super(Location.class);
 	}
 
 	@Override
-	public DateTime deserialize(JsonParser p, DeserializationContext ctxt)
+	public Location deserialize(JsonParser p, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
 		JsonToken t = p.currentToken();
-		long l = 0;
 		if ( t == JsonToken.VALUE_NULL ) {
 			return null;
-		} else if ( t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT ) {
-			l = p.getLongValue();
-		} else {
-			String s = p.getValueAsString();
-			if ( s == null ) {
-				return null;
-			}
-			try {
-				l = Long.parseLong(s);
-			} catch ( NumberFormatException e ) {
-				throw new JsonParseException(p,
-						"Unable to parse millisecond epoch timestamp from [" + s + "]", e);
-			}
+		} else if ( p.isExpectedStartObjectToken() ) {
+			Object[] data = new Object[11];
+			JsonUtils.parseIndexedFieldsObject(p, ctxt, data, BasicLocationField.FIELD_MAP);
+			// @formatter:off
+			return new BasicLocation(
+					(String)data[0],
+					(String)data[1],
+					(String)data[2],
+					(String)data[3],
+					(String)data[5],
+					(String)data[4],
+					(String)data[6],
+					(BigDecimal)data[7],
+					(BigDecimal)data[8],
+					(BigDecimal)data[9],
+					(String)data[10]);
+			// @formatter:on
 		}
-		return new DateTime(l);
+		throw new JsonParseException(p, "Unable to parse Location (not an object)");
 	}
 
 }

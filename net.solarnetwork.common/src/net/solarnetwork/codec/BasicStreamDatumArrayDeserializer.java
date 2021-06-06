@@ -20,14 +20,12 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.codec;
 
 import static java.time.Instant.ofEpochMilli;
 import static net.solarnetwork.domain.datum.DatumProperties.propertiesOf;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -35,7 +33,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import net.solarnetwork.domain.datum.BasicStreamDatum;
 import net.solarnetwork.domain.datum.StreamDatum;
 
@@ -60,60 +57,6 @@ public class BasicStreamDatumArrayDeserializer extends StdScalarDeserializer<Str
 		super(StreamDatum.class);
 	}
 
-	private static final BigDecimal[] parseDecimalArray(JsonParser p)
-			throws IOException, JsonProcessingException {
-		JsonToken t = p.nextToken();
-		if ( p.isExpectedStartArrayToken() ) {
-			List<BigDecimal> l = new ArrayList<>(8);
-			do {
-				t = p.nextToken();
-				if ( t != null ) {
-					if ( t.isNumeric() ) {
-						l.add(p.getDecimalValue());
-					} else if ( t == JsonToken.VALUE_STRING ) {
-						// try to parse number string
-						try {
-							l.add(new BigDecimal(p.getValueAsString()));
-						} catch ( NumberFormatException | ArithmeticException e ) {
-							String msg = e.getMessage();
-							if ( msg == null || msg.isEmpty() ) {
-								msg = "Invalid number value: " + p.getValueAsString();
-							}
-							throw new InvalidFormatException(p, msg, p.getValueAsString(),
-									BigDecimal.class);
-						}
-					} else if ( t != JsonToken.END_ARRAY ) {
-						// assume null
-						l.add(null);
-					}
-				}
-			} while ( t != null && t != JsonToken.END_ARRAY );
-			return l.toArray(new BigDecimal[l.size()]);
-		}
-		return null;
-	}
-
-	private static final String[] parseStringArray(JsonParser p)
-			throws IOException, JsonProcessingException {
-		JsonToken t = p.nextToken();
-		if ( p.isExpectedStartArrayToken() ) {
-			List<String> l = new ArrayList<>(8);
-			do {
-				t = p.nextToken();
-				if ( t != null ) {
-					if ( t.isScalarValue() ) {
-						l.add(p.getValueAsString());
-					} else if ( t != JsonToken.END_ARRAY ) {
-						// assume null
-						l.add(null);
-					}
-				}
-			} while ( t != null && t != JsonToken.END_ARRAY );
-			return l.toArray(new String[l.size()]);
-		}
-		return null;
-	}
-
 	@Override
 	public StreamDatum deserialize(JsonParser p, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
@@ -128,10 +71,10 @@ public class BasicStreamDatumArrayDeserializer extends StdScalarDeserializer<Str
 				throw new JsonParseException(p,
 						"Unable to parse StreamDatum (timestamp or stream ID missing)");
 			}
-			BigDecimal[] i = parseDecimalArray(p);
-			BigDecimal[] a = parseDecimalArray(p);
-			String[] s = parseStringArray(p);
-			String[] tags = parseStringArray(p);
+			BigDecimal[] i = JsonUtils.parseDecimalArray(p);
+			BigDecimal[] a = JsonUtils.parseDecimalArray(p);
+			String[] s = JsonUtils.parseStringArray(p);
+			String[] tags = JsonUtils.parseStringArray(p);
 			p.nextToken(); // advance to final end-array ']'
 			return new BasicStreamDatum(new UUID(idHi, idLo), ofEpochMilli(ts),
 					propertiesOf(i, a, s, tags));

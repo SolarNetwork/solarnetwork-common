@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.codec;
 
 import static java.util.Arrays.asList;
 import java.io.IOException;
@@ -42,16 +42,23 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.domain.GeneralDatumMetadata;
+import net.solarnetwork.util.ObjectMapperFactoryBean;
 
 /**
  * Utilities for JSON data.
@@ -70,11 +77,9 @@ import net.solarnetwork.domain.GeneralDatumMetadata;
  * </ul>
  * 
  * @author matt
- * @version 1.6
- * @since 1.36
- * @deprecated since 1.6, use {@link net.solarnetwork.codec.JsonUtils}
+ * @version 1.0
+ * @since 1.72
  */
-@Deprecated
 public final class JsonUtils {
 
 	/** A type reference for a Map with string keys. */
@@ -510,6 +515,221 @@ public final class JsonUtils {
 	 */
 	public static ObjectMapper newObjectMapper() {
 		return OBJECT_MAPPER.copy();
+	}
+
+	/**
+	 * Parse a JSON array of scalar values into a string array.
+	 * 
+	 * @param p
+	 *        the parser
+	 * @return the parsed string array
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 */
+	public static String[] parseStringArray(JsonParser p) throws IOException, JsonProcessingException {
+		JsonToken t = p.nextToken();
+		if ( p.isExpectedStartArrayToken() ) {
+			List<String> l = new ArrayList<>(8);
+			do {
+				t = p.nextToken();
+				if ( t != null ) {
+					if ( t.isScalarValue() ) {
+						l.add(p.getValueAsString());
+					} else if ( t != JsonToken.END_ARRAY ) {
+						// assume null
+						l.add(null);
+					}
+				}
+			} while ( t != null && t != JsonToken.END_ARRAY );
+			return l.toArray(new String[l.size()]);
+		}
+		return null;
+	}
+
+	/**
+	 * Write a string array as a JSON array of strings.
+	 * 
+	 * @param generator
+	 *        the generator to write to
+	 * @param array
+	 *        the array to write
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 */
+	public static void writeStringArray(JsonGenerator generator, String[] array)
+			throws IOException, JsonGenerationException {
+		if ( array != null && array.length > 0 ) {
+			generator.writeStartArray(array, array.length);
+			for ( int i = 0; i < array.length; i++ ) {
+				String s = array[i];
+				if ( s != null ) {
+					generator.writeString(array[i]);
+				} else {
+					generator.writeNull();
+				}
+			}
+			generator.writeEndArray();
+		} else {
+			generator.writeNull();
+		}
+	}
+
+	/**
+	 * Write a string array as a JSON object field that is an array of strings.
+	 * 
+	 * @param generator
+	 *        the generator to write to
+	 * @param fieldName
+	 *        the field name
+	 * @param array
+	 *        the array to write
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 */
+	public static void writeStringArrayField(JsonGenerator generator, String fieldName, String[] array)
+			throws IOException, JsonGenerationException {
+		if ( array != null && array.length > 0 ) {
+			generator.writeFieldName(fieldName);
+			writeStringArray(generator, array);
+		}
+	}
+
+	/**
+	 * Write a string array as a JSON array of numbers.
+	 * 
+	 * @param generator
+	 *        the generator to write to
+	 * @param array
+	 *        the array to write
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 */
+	public static void writeDecimalArray(JsonGenerator generator, BigDecimal[] array)
+			throws IOException, JsonGenerationException {
+		if ( array != null && array.length > 0 ) {
+			generator.writeStartArray(array, array.length);
+			for ( int i = 0; i < array.length; i++ ) {
+				BigDecimal s = array[i];
+				if ( s != null ) {
+					generator.writeNumber(array[i]);
+				} else {
+					generator.writeNull();
+				}
+			}
+			generator.writeEndArray();
+		} else {
+			generator.writeNull();
+		}
+	}
+
+	/**
+	 * Parse a JSON numeric value into a {@link BigDecimal}.
+	 * 
+	 * @param p
+	 *        the parser
+	 * @return the decimal array
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 */
+	public static BigDecimal parseDecimal(JsonParser p) throws IOException, JsonProcessingException {
+		JsonToken t = p.nextToken();
+		if ( t != null ) {
+			if ( t.isNumeric() ) {
+				return p.getDecimalValue();
+			} else if ( t == JsonToken.VALUE_STRING ) {
+				// try to parse number string
+				try {
+					return new BigDecimal(p.getValueAsString());
+				} catch ( NumberFormatException | ArithmeticException e ) {
+					String msg = e.getMessage();
+					if ( msg == null || msg.isEmpty() ) {
+						msg = "Invalid number value: " + p.getValueAsString();
+					}
+					throw new InvalidFormatException(p, msg, p.getValueAsString(), BigDecimal.class);
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Parse a JSON array of numeric values into a {@link BigDecimal} array.
+	 * 
+	 * @param p
+	 *        the parser
+	 * @return the decimal array
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 */
+	public static BigDecimal[] parseDecimalArray(JsonParser p)
+			throws IOException, JsonProcessingException {
+		JsonToken t = p.nextToken();
+		if ( p.isExpectedStartArrayToken() ) {
+			List<BigDecimal> l = new ArrayList<>(8);
+			do {
+				BigDecimal n = parseDecimal(p);
+				if ( n != null ) {
+					l.add(n);
+				} else {
+					t = p.currentToken();
+					if ( t != JsonToken.END_ARRAY ) {
+						l.add(null);
+					}
+				}
+			} while ( t != null && t != JsonToken.END_ARRAY );
+			return l.toArray(new BigDecimal[l.size()]);
+		}
+		return null;
+	}
+
+	/**
+	 * Parse a JSON object using a map of {@link IndexedField} values.
+	 * 
+	 * @param p
+	 *        the parser
+	 * @param ctxt
+	 *        the context
+	 * @param data
+	 *        the data array to populate, based on each
+	 *        {@link IndexedField#getIndex()} value
+	 * @param fields
+	 *        the mapping of field names to associated fields
+	 * @return the decimal array
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 */
+	public static void parseIndexedFieldsObject(JsonParser p, DeserializationContext ctxt, Object[] data,
+			Map<String, IndexedField> fields) throws IOException, JsonProcessingException {
+		String f = null;
+		final int len = data.length;
+		while ( (f = p.nextFieldName()) != null ) {
+			final IndexedField field = fields.get(f);
+			if ( field == null ) {
+				continue;
+			}
+			final int index = field.getIndex();
+			if ( !(index < len) ) {
+				continue;
+			}
+			Object o = field.parseValue(p, ctxt);
+			if ( o != null ) {
+				data[index] = o;
+			}
+		}
 	}
 
 }

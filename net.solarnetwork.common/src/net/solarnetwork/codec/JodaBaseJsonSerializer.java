@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.codec;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -38,11 +38,8 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
  * strings.
  * 
  * @author matt
- * @version 1.2
- * @deprecated since 1.2, use
- *             {@link net.solarnetwork.codec.JodaBaseJsonSerializer}
+ * @version 1.1
  */
-@Deprecated
 public abstract class JodaBaseJsonSerializer<T> extends StdScalarSerializer<T> {
 
 	private static final long serialVersionUID = -7898014390210021054L;

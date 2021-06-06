@@ -33,14 +33,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.Test;
 import org.springframework.util.FileCopyUtils;
+import net.solarnetwork.codec.JsonUtils;
 import net.solarnetwork.support.MapPathMatcher;
-import net.solarnetwork.util.JsonUtils;
 
 /**
  * Test cases for the {@link MapPathMatcher} class.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class MapPathMatcherTests {
 

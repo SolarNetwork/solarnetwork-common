@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.codec;
 
 import java.io.IOException;
 import java.util.TimeZone;
@@ -33,12 +33,13 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * JsonSerializer for {@link DateTime} into simple strings.
  * 
  * @author matt
- * @version 1.2
- * @deprecated since 1.2, use
- *             {@link net.solarnetwork.codec.JodaDateTimeSerializer}
+ * @version 1.0
+ * @since 1.72
  */
-@Deprecated
 public class JodaDateTimeSerializer extends JodaBaseJsonSerializer<DateTime> {
+
+	/** A default instance. */
+	public static final JodaDateTimeSerializer INSTANCE = new JodaDateTimeSerializer();
 
 	private static final long serialVersionUID = 8752735196295119155L;
 

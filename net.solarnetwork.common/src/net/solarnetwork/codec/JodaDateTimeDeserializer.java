@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.codec;
 
 import java.io.IOException;
 import java.util.TimeZone;
@@ -50,12 +50,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
  * </ul>
  * 
  * @author matt
- * @version 1.2
- * @deprecated since 1.2, use
- *             {@link net.solarnetwork.codec.JodaDateTimeDeserializer}
+ * @version 1.0
+ * @since 1.72
  */
-@Deprecated
 public class JodaDateTimeDeserializer extends JodaBaseJsonDeserializer<DateTime> {
+
+	/** A default instance. */
+	public static final JodaDateTimeDeserializer INSTANCE = new JodaDateTimeDeserializer();
 
 	private static final long serialVersionUID = -4973232210335660362L;
 
