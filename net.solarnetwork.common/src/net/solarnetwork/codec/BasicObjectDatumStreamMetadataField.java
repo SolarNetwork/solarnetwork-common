@@ -99,6 +99,7 @@ public enum BasicObjectDatumStreamMetadataField implements IndexedField {
 				return parser.nextLongValue(0);
 
 			case Location:
+				parser.nextToken();
 				return BasicLocationDeserializer.INSTANCE.deserialize(parser, ctxt);
 
 			case Instantaneous:
