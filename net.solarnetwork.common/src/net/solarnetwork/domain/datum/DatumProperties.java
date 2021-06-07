@@ -25,6 +25,11 @@ package net.solarnetwork.domain.datum;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import net.solarnetwork.domain.GeneralDatumSamplesOperations;
+import net.solarnetwork.domain.GeneralDatumSamplesType;
 
 /**
  * A collection of property values for a datum.
@@ -70,6 +75,88 @@ public class DatumProperties implements Serializable {
 		s.status = status;
 		s.tags = tags;
 		return s;
+	}
+
+	/**
+	 * Create a new instance out of a general datum and associated stream
+	 * metadata.
+	 * 
+	 * @param datum
+	 *        the datum to create properties from
+	 * @param meta
+	 *        the metadata that defines the property order
+	 * @return the properties, or {@literal null} if {@code datum} is
+	 *         {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if the metadata does not support a property found on the datum
+	 */
+	public static DatumProperties propertiesFrom(GeneralDatum datum, ObjectDatumStreamMetadata meta)
+			throws IllegalArgumentException {
+		if ( datum == null ) {
+			return null;
+		}
+		if ( meta == null ) {
+			throw new IllegalArgumentException("No stream metadata available for datum " + datum);
+		}
+		GeneralDatumSamplesOperations ops = datum.asSampleOperations();
+		if ( ops == null ) {
+			return null;
+		}
+		BigDecimal[] data_i = decimalPropertiesFrom(meta, ops, GeneralDatumSamplesType.Instantaneous);
+		BigDecimal[] data_a = decimalPropertiesFrom(meta, ops, GeneralDatumSamplesType.Accumulating);
+		String[] data_s = stringPropertiesFrom(meta, ops, GeneralDatumSamplesType.Status);
+		Set<String> tags = ops.getTags();
+		String[] data_t = (tags != null && !tags.isEmpty() ? tags.toArray(new String[tags.size()])
+				: null);
+		return DatumProperties.propertiesOf(data_i, data_a, data_s, data_t);
+	}
+
+	private static BigDecimal[] decimalPropertiesFrom(ObjectDatumStreamMetadata meta,
+			GeneralDatumSamplesOperations ops, GeneralDatumSamplesType type) {
+		String[] propNames = meta.propertyNamesForType(type);
+		int len = (propNames != null ? propNames.length : 0);
+		BigDecimal[] data = null;
+		if ( len > 0 ) {
+			Map<String, ?> map = ops.getSampleData(type);
+			if ( map != null && !map.isEmpty() ) {
+				Set<String> props = new HashSet<>(map.keySet());
+				data = new BigDecimal[propNames.length];
+				for ( int i = 0; i < len; i++ ) {
+					data[i] = ops.getSampleBigDecimal(type, propNames[i]);
+					props.remove(propNames[i]);
+				}
+				if ( !props.isEmpty() ) {
+					// unknown property; cannot map to stream
+					throw new IllegalArgumentException(
+							"Datum stream unknown " + type + " properties encountered: " + props);
+				}
+			}
+		}
+		return data;
+	}
+
+	private static String[] stringPropertiesFrom(ObjectDatumStreamMetadata meta,
+			GeneralDatumSamplesOperations ops, GeneralDatumSamplesType type) {
+		String[] propNames = meta.propertyNamesForType(type);
+		int len = (propNames != null ? propNames.length : 0);
+		String[] data = null;
+		if ( len > 0 ) {
+			Map<String, ?> map = ops.getSampleData(type);
+			if ( map != null && !map.isEmpty() ) {
+				Set<String> props = new HashSet<>(map.keySet());
+				data = new String[propNames.length];
+				for ( int i = 0; i < len; i++ ) {
+					data[i] = ops.getSampleString(type, propNames[i]);
+					props.remove(propNames[i]);
+				}
+				if ( !props.isEmpty() ) {
+					// unknown property; cannot map to stream
+					throw new IllegalArgumentException(
+							"Datum stream unknown " + type + " properties encountered: " + props);
+				}
+			}
+		}
+		return data;
 	}
 
 	@Override

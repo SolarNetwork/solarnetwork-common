@@ -24,12 +24,13 @@ package net.solarnetwork.domain;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * API for accessing general datum sample property values.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.42
  */
 public interface GeneralDatumSamplesOperations {
@@ -191,5 +192,13 @@ public interface GeneralDatumSamplesOperations {
 	 * @since 1.1
 	 */
 	boolean hasSampleValue(String key);
+
+	/**
+	 * Get the sample tags.
+	 * 
+	 * @return the tags, or {@literal null}
+	 * @since 1.2
+	 */
+	Set<String> getTags();
 
 }
