@@ -34,8 +34,11 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
  * objects.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
+ * @deprecated since 1.1, use
+ *             {@link net.solarnetwork.codec.JodaBaseJsonDeserializer}
  */
+@Deprecated
 public abstract class JodaBaseJsonDeserializer<T> extends StdScalarDeserializer<T> {
 
 	private static final long serialVersionUID = -7136078168225301983L;

@@ -1,0 +1,9 @@
+{
+	"streamId": "a66e3344-3791-4113-afff-22b44eb3c833",
+	"objectId": 123,
+	"sourceId": "test.source",
+	"zone": "Pacific/Auckland",
+	"kind": "n",
+	"i": ["watts"],
+	"a": ["wattHours"]
+}

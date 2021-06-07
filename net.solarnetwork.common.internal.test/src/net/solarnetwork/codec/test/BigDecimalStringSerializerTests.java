@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util.test;
+package net.solarnetwork.codec.test;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -29,7 +29,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import net.solarnetwork.util.BigDecimalStringSerializer;
+import net.solarnetwork.codec.BigDecimalStringSerializer;
 
 /**
  * Test cases for the {@link BigDecimalStringSerializer} class.

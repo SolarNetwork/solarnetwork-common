@@ -31,9 +31,11 @@ import net.solarnetwork.domain.Differentiable;
  * A Charge Point entity.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class ChargePoint extends BasicLongEntity implements Differentiable<ChargePoint> {
+
+	private static final long serialVersionUID = -5780143529087352852L;
 
 	private final ChargePointInfo info;
 	private RegistrationStatus registrationStatus;

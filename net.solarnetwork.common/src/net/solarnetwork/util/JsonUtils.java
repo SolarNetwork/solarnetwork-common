@@ -70,9 +70,11 @@ import net.solarnetwork.domain.GeneralDatumMetadata;
  * </ul>
  * 
  * @author matt
- * @version 1.4
+ * @version 1.6
  * @since 1.36
+ * @deprecated since 1.6, use {@link net.solarnetwork.codec.JsonUtils}
  */
+@Deprecated
 public final class JsonUtils {
 
 	/** A type reference for a Map with string keys. */
@@ -91,17 +93,17 @@ public final class JsonUtils {
 		factory.setFeaturesToEnable(asList((Object) DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
 
 		List<com.fasterxml.jackson.databind.JsonSerializer<?>> serializers = new ArrayList<>();
-		serializers.add(new net.solarnetwork.util.JodaDateTimeSerializer());
-		serializers.add(new net.solarnetwork.util.JodaLocalDateSerializer());
-		serializers.add(new net.solarnetwork.util.JodaLocalDateTimeSerializer());
-		serializers.add(new net.solarnetwork.util.JodaLocalTimeSerializer());
+		serializers.add(net.solarnetwork.codec.JodaDateTimeSerializer.INSTANCE);
+		serializers.add(net.solarnetwork.codec.JodaLocalDateSerializer.INSTANCE);
+		serializers.add(net.solarnetwork.codec.JodaLocalDateTimeSerializer.INSTANCE);
+		serializers.add(net.solarnetwork.codec.JodaLocalTimeSerializer.INSTANCE);
 		factory.setSerializers(serializers);
 
 		List<com.fasterxml.jackson.databind.JsonDeserializer<?>> deserializers = new ArrayList<>();
-		deserializers.add(new net.solarnetwork.util.JodaDateTimeDeserializer());
-		deserializers.add(new net.solarnetwork.util.JodaLocalDateDeserializer());
-		deserializers.add(new net.solarnetwork.util.JodaLocalDateTimeDeserializer());
-		deserializers.add(new net.solarnetwork.util.JodaLocalTimeDeserializer());
+		deserializers.add(net.solarnetwork.codec.JodaDateTimeDeserializer.INSTANCE);
+		deserializers.add(net.solarnetwork.codec.JodaLocalDateDeserializer.INSTANCE);
+		deserializers.add(net.solarnetwork.codec.JodaLocalDateTimeDeserializer.INSTANCE);
+		deserializers.add(net.solarnetwork.codec.JodaLocalTimeDeserializer.INSTANCE);
 		factory.setDeserializers(deserializers);
 
 		registerOptionalModule(factory, javaTimeModule());

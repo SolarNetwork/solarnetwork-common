@@ -35,9 +35,12 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
  * Deserialize millisecond epoch numbers into {@link DateTime} instances.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.55
+ * @deprecated since 1.1, use
+ *             {@link net.solarnetwork.codec.JodaDateTimeEpochDeserializer}
  */
+@Deprecated
 public class JodaDateTimeEpochDeserializer extends StdScalarDeserializer<DateTime> {
 
 	private static final long serialVersionUID = 7261772164817148373L;

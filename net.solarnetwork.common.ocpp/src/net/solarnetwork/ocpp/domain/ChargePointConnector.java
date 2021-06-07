@@ -33,9 +33,11 @@ import net.solarnetwork.dao.BasicEntity;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ChargePointConnector extends BasicEntity<ChargePointConnectorKey> {
+
+	private static final long serialVersionUID = 519157807846471742L;
 
 	private StatusNotification info;
 
