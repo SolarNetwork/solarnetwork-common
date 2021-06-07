@@ -119,4 +119,51 @@ public class DatumPropertiesTests {
 		DatumProperties.propertiesFrom(d, meta);
 	}
 
+	@Test
+	public void fromDatum_trimTrailingNulls() {
+		// GIVEN
+		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
+				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source",
+				new String[] { "a", "b", "c" }, new String[] { "c", "d" }, new String[] { "e" });
+		GeneralDatumSamples s = new GeneralDatumSamples();
+		s.putInstantaneousSampleValue("a", 1);
+		s.putAccumulatingSampleValue("c", 3);
+		s.putStatusSampleValue("e", 5);
+		GeneralDatum d = new GeneralDatum(123L, "test.source", Instant.now(), s);
+
+		// WHEN
+		DatumProperties p = DatumProperties.propertiesFrom(d, meta);
+
+		// THEN
+		assertThat("Properties created", p, is(notNullValue()));
+		assertThat("Instantaneous values mapped", p.getInstantaneous(),
+				is(arrayContaining(decimalArray("1"))));
+		assertThat("Accumulating values mapped", p.getAccumulating(),
+				is(arrayContaining(decimalArray("3"))));
+		assertThat("Status values mapped", p.getStatus(), is(arrayContaining(new String[] { "5" })));
+	}
+
+	@Test
+	public void fromDatum_trimTrailingNulls_withHole() {
+		// GIVEN
+		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
+				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source",
+				new String[] { "a", "b", "c", "d" }, new String[] { "e", "f" }, new String[] { "g" });
+		GeneralDatumSamples s = new GeneralDatumSamples();
+		s.putInstantaneousSampleValue("a", 1);
+		// no b (the hole)
+		s.putInstantaneousSampleValue("c", 3);
+		// no trailing d
+
+		GeneralDatum d = new GeneralDatum(123L, "test.source", Instant.now(), s);
+
+		// WHEN
+		DatumProperties p = DatumProperties.propertiesFrom(d, meta);
+
+		// THEN
+		assertThat("Properties created", p, is(notNullValue()));
+		assertThat("Instantaneous values mapped", p.getInstantaneous(),
+				is(arrayContaining(decimalArray("1", null, "3"))));
+	}
+
 }

@@ -81,6 +81,11 @@ public class DatumProperties implements Serializable {
 	 * Create a new instance out of a general datum and associated stream
 	 * metadata.
 	 * 
+	 * <p>
+	 * Note that trailing {@literal null} values will be removed from the
+	 * instantaneous, accumulating, and status data arrays.
+	 * </p>
+	 * 
 	 * @param datum
 	 *        the datum to create properties from
 	 * @param meta
@@ -121,14 +126,25 @@ public class DatumProperties implements Serializable {
 			if ( map != null && !map.isEmpty() ) {
 				Set<String> props = new HashSet<>(map.keySet());
 				data = new BigDecimal[propNames.length];
+				int nonNullLength = 0;
 				for ( int i = 0; i < len; i++ ) {
-					data[i] = ops.getSampleBigDecimal(type, propNames[i]);
+					BigDecimal n = ops.getSampleBigDecimal(type, propNames[i]);
+					if ( n != null ) {
+						data[i] = n;
+						nonNullLength = i + 1;
+					}
 					props.remove(propNames[i]);
 				}
 				if ( !props.isEmpty() ) {
 					// unknown property; cannot map to stream
 					throw new IllegalArgumentException(
 							"Datum stream unknown " + type + " properties encountered: " + props);
+				}
+				if ( nonNullLength < len ) {
+					// optimization: trim trailing null values into shorter array
+					BigDecimal[] trimmedData = new BigDecimal[nonNullLength];
+					System.arraycopy(data, 0, trimmedData, 0, nonNullLength);
+					data = trimmedData;
 				}
 			}
 		}
@@ -145,14 +161,25 @@ public class DatumProperties implements Serializable {
 			if ( map != null && !map.isEmpty() ) {
 				Set<String> props = new HashSet<>(map.keySet());
 				data = new String[propNames.length];
+				int nonNullLength = 0;
 				for ( int i = 0; i < len; i++ ) {
-					data[i] = ops.getSampleString(type, propNames[i]);
+					String s = ops.getSampleString(type, propNames[i]);
+					if ( s != null ) {
+						data[i] = s;
+						nonNullLength = i + 1;
+					}
 					props.remove(propNames[i]);
 				}
 				if ( !props.isEmpty() ) {
 					// unknown property; cannot map to stream
 					throw new IllegalArgumentException(
 							"Datum stream unknown " + type + " properties encountered: " + props);
+				}
+				if ( nonNullLength < len ) {
+					// optimization: trim trailing null values into shorter array
+					String[] trimmedData = new String[nonNullLength];
+					System.arraycopy(data, 0, trimmedData, 0, nonNullLength);
+					data = trimmedData;
 				}
 			}
 		}
