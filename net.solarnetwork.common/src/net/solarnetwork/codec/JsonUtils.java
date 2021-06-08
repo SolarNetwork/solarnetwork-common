@@ -557,8 +557,8 @@ public final class JsonUtils {
 	 *        the array to write
 	 * @throws IOException
 	 *         if any IO error occurs
-	 * @throws JsonProcessingException
-	 *         if any processing exception occurs
+	 * @throws JsonGenerationException
+	 *         if any generation exception occurs
 	 */
 	public static void writeStringArray(JsonGenerator generator, String[] array)
 			throws IOException, JsonGenerationException {
@@ -589,8 +589,8 @@ public final class JsonUtils {
 	 *        the array to write
 	 * @throws IOException
 	 *         if any IO error occurs
-	 * @throws JsonProcessingException
-	 *         if any processing exception occurs
+	 * @throws JsonGenerationException
+	 *         if any generation exception occurs
 	 */
 	public static void writeStringArrayField(JsonGenerator generator, String fieldName, String[] array)
 			throws IOException, JsonGenerationException {
@@ -609,8 +609,8 @@ public final class JsonUtils {
 	 *        the array to write
 	 * @throws IOException
 	 *         if any IO error occurs
-	 * @throws JsonProcessingException
-	 *         if any processing exception occurs
+	 * @throws JsonGenerationException
+	 *         if any generation exception occurs
 	 */
 	public static void writeDecimalArray(JsonGenerator generator, BigDecimal[] array)
 			throws IOException, JsonGenerationException {
@@ -706,7 +706,6 @@ public final class JsonUtils {
 	 *        {@link IndexedField#getIndex()} value
 	 * @param fields
 	 *        the mapping of field names to associated fields
-	 * @return the decimal array
 	 * @throws IOException
 	 *         if any IO error occurs
 	 * @throws JsonProcessingException

@@ -104,7 +104,7 @@ public interface IndexedField {
 			throws IOException, JsonProcessingException;
 
 	/**
-	 * Get a mapping of field names to {@link IndexField} instances from an
+	 * Get a mapping of field names to {@link IndexedField} instances from an
 	 * enumeration that implements {@link IndexedField}.
 	 * 
 	 * @param <E>
