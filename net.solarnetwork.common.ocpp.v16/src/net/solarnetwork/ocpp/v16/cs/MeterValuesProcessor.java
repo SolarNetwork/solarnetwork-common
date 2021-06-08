@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import net.solarnetwork.codec.JsonUtils;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargeSession;
@@ -34,7 +35,6 @@ import net.solarnetwork.ocpp.domain.SampledValue;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.BaseActionMessageProcessor;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
-import net.solarnetwork.util.JsonUtils;
 import ocpp.domain.Action;
 import ocpp.domain.ErrorCodeException;
 import ocpp.v16.ActionErrorCode;
@@ -48,7 +48,7 @@ import ocpp.xml.support.XmlDateUtils;
  * Process {@link MeterValuesRequest} action messages.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class MeterValuesProcessor
 		extends BaseActionMessageProcessor<MeterValuesRequest, MeterValuesResponse> {
