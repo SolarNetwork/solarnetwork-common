@@ -38,8 +38,11 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
  * strings.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
+ * @deprecated since 1.2, use
+ *             {@link net.solarnetwork.codec.JodaBaseJsonSerializer}
  */
+@Deprecated
 public abstract class JodaBaseJsonSerializer<T> extends StdScalarSerializer<T> {
 
 	private static final long serialVersionUID = -7898014390210021054L;

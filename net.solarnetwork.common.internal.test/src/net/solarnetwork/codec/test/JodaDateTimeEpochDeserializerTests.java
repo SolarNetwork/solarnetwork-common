@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util.test;
+package net.solarnetwork.codec.test;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
@@ -31,7 +31,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import net.solarnetwork.util.JodaDateTimeEpochDeserializer;
+import net.solarnetwork.codec.JodaDateTimeEpochDeserializer;
 
 /**
  * Test cases for the {@link JodaDateTimeEpochDeserializer} class.

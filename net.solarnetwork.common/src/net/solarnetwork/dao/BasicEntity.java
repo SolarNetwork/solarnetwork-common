@@ -24,18 +24,19 @@ package net.solarnetwork.dao;
 
 import java.io.Serializable;
 import java.time.Instant;
-import net.solarnetwork.domain.BasicIdentity;
 
 /**
  * Basic implementation of {@link Entity} using a comparable and serializable
  * primary key.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.59
  */
 public class BasicEntity<K extends Comparable<K> & Serializable> extends BasicIdentity<K>
-		implements Entity<K> {
+		implements Entity<K>, Serializable {
+
+	private static final long serialVersionUID = -2236221331020004471L;
 
 	private final Instant created;
 
@@ -62,6 +63,11 @@ public class BasicEntity<K extends Comparable<K> & Serializable> extends BasicId
 	@Override
 	public Instant getCreated() {
 		return created;
+	}
+
+	@Override
+	public BasicEntity<K> clone() {
+		return (BasicEntity<K>) super.clone();
 	}
 
 }

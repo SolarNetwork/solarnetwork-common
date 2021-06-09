@@ -23,11 +23,14 @@
 package net.solarnetwork.util.test;
 
 import static org.easymock.EasyMock.expect;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import java.io.Serializable;
 import java.util.UUID;
 import org.easymock.EasyMock;
+import org.easymock.IAnswer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +65,7 @@ public class DynamicServiceTrackerTests {
 
 	@Test
 	public void highestRankWins() throws Exception {
-		// given
+		// GIVEN
 		SerializableServiceRef ref = new SerializableServiceRef(2, 10);
 		ServiceReference<?>[] services = new ServiceReference<?>[] { new SerializableServiceRef(1, 0),
 				ref, new SerializableServiceRef(3, 5), };
@@ -71,7 +74,7 @@ public class DynamicServiceTrackerTests {
 		UUID uuid = UUID.randomUUID();
 		expect(bundleContext.<Serializable> getService(ref)).andReturn(uuid);
 
-		// when
+		// WHEN
 		replayAll();
 
 		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>();
@@ -80,7 +83,94 @@ public class DynamicServiceTrackerTests {
 
 		UUID s = tracker.service();
 
-		// then
-		assertThat("Highest rank returned", s, sameInstance(uuid));
+		// THEN
+		assertThat("Highest rank returned", s, is(sameInstance(uuid)));
 	}
+
+	@Test
+	public void sticky_firstTime() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref = new SerializableServiceRef(1, 1);
+		ServiceReference<?>[] services = new ServiceReference<?>[] { ref };
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(services);
+		UUID uuid = UUID.randomUUID();
+		expect(bundleContext.<Serializable> getService(ref)).andReturn(uuid);
+
+		// WHEN
+		replayAll();
+
+		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>();
+		tracker.setBundleContext(bundleContext);
+		tracker.setServiceClassName(Serializable.class.getName());
+		tracker.setSticky(true);
+
+		UUID s = tracker.service();
+
+		// THEN
+		assertThat("Service returned via ref", s, is(sameInstance(uuid)));
+	}
+
+	@Test
+	public void sticky_secondTime() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref = new SerializableServiceRef(1, 1);
+		ServiceReference<?>[] services = new ServiceReference<?>[] { ref };
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(services);
+		UUID uuid = UUID.randomUUID();
+		expect(bundleContext.<Serializable> getService(ref)).andReturn(uuid);
+
+		// WHEN
+		replayAll();
+
+		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>();
+		tracker.setBundleContext(bundleContext);
+		tracker.setServiceClassName(Serializable.class.getName());
+		tracker.setSticky(true);
+
+		UUID s = tracker.service();
+		UUID s2 = tracker.service();
+
+		// THEN
+		assertThat("Service returned via ref", s, is(sameInstance(uuid)));
+		assertThat("Service returned via sticky cache", s2, is(sameInstance(uuid)));
+	}
+
+	@Test
+	public void sticky_gc() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref = new SerializableServiceRef(1, 1);
+		ServiceReference<?>[] services = new ServiceReference<?>[] { ref };
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(services).times(2);
+		String uuid = UUID.randomUUID().toString(); // don't hold ref to UUID so can be GC'ed
+		expect(bundleContext.<Serializable> getService(ref)).andAnswer(new IAnswer<Serializable>() {
+
+			@Override
+			public Serializable answer() throws Throwable {
+				return UUID.fromString(uuid); // again, no holder ref to UUID instance
+			}
+		}).times(2);
+
+		// WHEN
+		replayAll();
+
+		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>();
+		tracker.setBundleContext(bundleContext);
+		tracker.setServiceClassName(Serializable.class.getName());
+		tracker.setSticky(true);
+
+		String s = tracker.service().toString();
+
+		// force GC
+		System.gc();
+
+		String s2 = tracker.service().toString();
+
+		// THEN
+		assertThat("Service returned via ref", s, is(equalTo(uuid)));
+		assertThat("Service returned via ref after GC", s2, is(equalTo(uuid)));
+	}
+
 }

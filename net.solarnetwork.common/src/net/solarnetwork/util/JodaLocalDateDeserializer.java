@@ -33,8 +33,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
  * JsonDeserializer for {@link LocalDate} objects from formatted strings.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
+ * @deprecated since 1.1, use
+ *             {@link net.solarnetwork.codec.JodaLocalDateDeserializer}
  */
+@Deprecated
 public class JodaLocalDateDeserializer extends JodaBaseJsonDeserializer<LocalDate> {
 
 	private static final long serialVersionUID = -6903430362288878512L;
@@ -73,8 +76,8 @@ public class JodaLocalDateDeserializer extends JodaBaseJsonDeserializer<LocalDat
 	}
 
 	@Override
-	public LocalDate deserialize(JsonParser parser, DeserializationContext context) throws IOException,
-			JsonProcessingException {
+	public LocalDate deserialize(JsonParser parser, DeserializationContext context)
+			throws IOException, JsonProcessingException {
 		return formatter.parseLocalDate(parser.getText());
 	}
 

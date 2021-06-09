@@ -22,6 +22,7 @@
 
 package net.solarnetwork.util;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,6 +53,16 @@ import org.springframework.beans.PropertyAccessorFactory;
  * </p>
  * 
  * <p>
+ * The {@code sticky} property allows for caching of a resolved service so it
+ * need not be resolved every time {@link #service()} is invoked. The resolved
+ * service is only weakly referenced so it may still be garbage collected, after
+ * which the service will be re-resolved when {@link #service()} is later
+ * invoked. Using "sticky" mode is suitable when the runtime service is not
+ * expected to change much, or at all, during the life of this tracker, and the
+ * speed of resolving the service it critical.
+ * </p>
+ * 
+ * <p>
  * Conceptually this is very similar to what OSGi Blueprint service references
  * provide, just with more features such as filtering on service JavaBean
  * properties.
@@ -60,7 +71,7 @@ import org.springframework.beans.PropertyAccessorFactory;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalServiceCollection<T>,
 		FilterableService, OptionalService.OptionalFilterableService<T>,
@@ -75,12 +86,23 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	private Map<String, Object> propertyFilters;
 	private T fallbackService;
 	private boolean ignoreEmptyPropertyFilterValues = true;
+	private boolean sticky = false;
+	private WeakReference<T> stickyService;
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public T service() {
+		final boolean sticky = isSticky();
+		if ( sticky ) {
+			synchronized ( this ) {
+				T service = (stickyService != null ? stickyService.get() : null);
+				if ( service != null ) {
+					return service;
+				}
+			}
+		}
 		ServiceReference<?>[] refs;
 		try {
 			refs = bundleContext.getServiceReferences(serviceClassName, serviceFilter);
@@ -101,6 +123,11 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 				if ( match ) {
 					log.debug("Found {} service matching properties {}: {}",
 							new Object[] { serviceClassName, propertyFilters, service });
+					if ( sticky ) {
+						synchronized ( this ) {
+							stickyService = new WeakReference<>((T) service);
+						}
+					}
 					return (T) service;
 				}
 			}
@@ -350,6 +377,35 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	 */
 	public void setIgnoreEmptyPropertyFilterValues(boolean ignoreEmptyPropertyFilterValues) {
 		this.ignoreEmptyPropertyFilterValues = ignoreEmptyPropertyFilterValues;
+	}
+
+	/**
+	 * Get the "sticky" mode.
+	 * 
+	 * @return {@literal true} to maintain a reference to the first-available
+	 *         service
+	 * @since 1.4
+	 */
+	public synchronized boolean isSticky() {
+		return sticky;
+	}
+
+	/**
+	 * Set the "sticky" mode.
+	 * 
+	 * <p>
+	 * When {@literal true} then maintain a reference to the first-available
+	 * service discovered, rather than resolve it each time {@link #service()}
+	 * is called.
+	 * </p>
+	 * 
+	 * @param sticky
+	 *        {@literal true} to maintain a reference to the first-available
+	 *        service
+	 * @since 1.4
+	 */
+	public synchronized void setSticky(boolean sticky) {
+		this.sticky = sticky;
 	}
 
 }

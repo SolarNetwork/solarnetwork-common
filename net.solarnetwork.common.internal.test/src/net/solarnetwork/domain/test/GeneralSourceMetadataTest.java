@@ -55,7 +55,7 @@ public class GeneralSourceMetadataTest {
 		objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
 
 		SimpleModule module = new SimpleModule("TestModule", new Version(1, 0, 0, null, null, null));
-		module.addSerializer(new net.solarnetwork.util.JodaDateTimeSerializer());
+		module.addSerializer(net.solarnetwork.codec.JodaDateTimeSerializer.INSTANCE);
 		objectMapper.registerModule(module);
 	}
 

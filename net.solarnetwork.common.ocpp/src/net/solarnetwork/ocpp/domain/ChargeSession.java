@@ -31,9 +31,11 @@ import net.solarnetwork.dao.BasicUuidEntity;
  * charging cycle from authorization to end of charging.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ChargeSession extends BasicUuidEntity {
+
+	private static final long serialVersionUID = 7816221911693319631L;
 
 	private final String authId;
 	private final long chargePointId;

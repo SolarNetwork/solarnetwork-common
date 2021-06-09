@@ -32,9 +32,12 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
  * Serialize {@link DateTime} objects into millisecond epoch number values.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.55
+ * @deprecated since 1.1, use
+ *             {@link net.solarnetwork.codec.JodaDateTimeEpochSerializer}
  */
+@Deprecated
 public class JodaDateTimeEpochSerializer extends StdScalarSerializer<DateTime> {
 
 	private static final long serialVersionUID = 5162035716013692593L;

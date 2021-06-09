@@ -50,8 +50,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
  * </ul>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
+ * @deprecated since 1.2, use
+ *             {@link net.solarnetwork.codec.JodaDateTimeDeserializer}
  */
+@Deprecated
 public class JodaDateTimeDeserializer extends JodaBaseJsonDeserializer<DateTime> {
 
 	private static final long serialVersionUID = -4973232210335660362L;

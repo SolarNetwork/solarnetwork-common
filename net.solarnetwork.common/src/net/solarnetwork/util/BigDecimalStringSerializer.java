@@ -40,9 +40,12 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * Specialized serializer of {@link BigDecimal} to string values.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.37
+ * @deprecated since 1.2, use
+ *             {@link net.solarnetwork.codec.BigDecimalStringSerializer}
  */
+@Deprecated
 public class BigDecimalStringSerializer extends StdSerializer<BigDecimal> {
 
 	private static final long serialVersionUID = 4462532770316408808L;
