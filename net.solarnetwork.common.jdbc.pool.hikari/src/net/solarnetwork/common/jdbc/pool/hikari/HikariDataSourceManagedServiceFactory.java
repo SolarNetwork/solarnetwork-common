@@ -59,16 +59,18 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariConfigMXBean;
 import com.zaxxer.hikari.HikariDataSource;
 import net.solarnetwork.dao.jdbc.DataSourcePingTest;
+import net.solarnetwork.dao.jdbc.SQLExceptionHandlerDataSourceProxy;
 import net.solarnetwork.domain.PingTest;
 import net.solarnetwork.support.SearchFilter;
 import net.solarnetwork.support.SearchFilter.LogicOperator;
 import net.solarnetwork.util.ClassUtils;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * Managed service factory for {@link HikariDataSource} instances.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class HikariDataSourceManagedServiceFactory implements ManagedServiceFactory {
 
@@ -89,8 +91,17 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	 */
 	public static final String DATA_SOURCE_PING_TEST_QUERY_PROPERTY = "pingTest.query";
 
-	public static final Set<String> DEFAULT_IGNORED_PROPERTY_PREFIXES = Collections
-			.unmodifiableSet(new LinkedHashSet<>(Arrays.asList("felix.", "service.", "uid")));
+	/**
+	 * Configuration property for the data source to use a
+	 * {@link net.solarnetwork.dao.jdbc.SQLExceptionHandlerDataSourceProxy}.
+	 * 
+	 * @since 1.1
+	 */
+	public static final String EXCEPTION_HANDLER_SUPPORT_PROPERTY = "factory.exceptionHandlerSupport";
+
+	/** The {@code ignoredPropertyPrefixes} property default value. */
+	public static final Set<String> DEFAULT_IGNORED_PROPERTY_PREFIXES = Collections.unmodifiableSet(
+			new LinkedHashSet<>(Arrays.asList("factory.", "felix.", "service.", "uid")));
 
 	private final BundleContext bundleContext;
 	private final Executor executor;
@@ -188,6 +199,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				Enumeration<String> keys = properties.keys();
 				String pingTestQuery = null;
 				String dataSourceFactoryFilter = null;
+				boolean exceptionHandlerSupport = false;
 				while ( keys.hasMoreElements() ) {
 					String key = keys.nextElement();
 					if ( key.equals(DATA_SOURCE_FACTORY_FILTER_PROPERTY) ) {
@@ -201,6 +213,11 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 						String propKey = key.substring(SERVICE_PROPERTY_PREFIX.length());
 						Object propVal = servicePropertyValue(propKey, properties.get(key));
 						serviceProps.put(propKey, propVal);
+					} else if ( key.equals(EXCEPTION_HANDLER_SUPPORT_PROPERTY) ) {
+						Object propVal = properties.get(key);
+						if ( propVal != null ) {
+							exceptionHandlerSupport = StringUtils.parseBoolean(propVal.toString());
+						}
 					} else if ( ignoredPropertyPrefixes != null
 							&& ignoredPropertyPrefixes.stream().anyMatch(s -> key.startsWith(s)) ) {
 						// ignore this prop
@@ -212,7 +229,8 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 				String jdbcUrl = (String) dataSourceProps.get("url");
 				ManagedHikariDataSource mds = new ManagedHikariDataSource(pid, dataSourceFactoryFilter,
-						jdbcUrl, pingTestQuery, serviceProps, dataSourceProps, poolProps);
+						jdbcUrl, pingTestQuery, serviceProps, dataSourceProps, poolProps,
+						exceptionHandlerSupport);
 				mds.register();
 				return mds;
 			} else {
@@ -291,6 +309,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 		private final Dictionary<String, ?> serviceProps;
 		private final Properties dataSourceProps;
 		private final Properties poolProps;
+		private final boolean exceptionHandlerSupport;
 
 		private DataSource dataSource;
 		private HikariDataSource poolDataSource;
@@ -300,7 +319,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 		private ManagedHikariDataSource(String pid, String dataSourceFactoryFilter, String jdbcUrl,
 				String pingTestQuery, Dictionary<String, ?> serviceProps, Properties dataSourceProps,
-				Properties poolProps) {
+				Properties poolProps, boolean exceptionHandlerSupport) {
 			super();
 			this.pid = pid;
 			this.dataSourceFactoryFilter = dataSourceFactoryFilter;
@@ -309,6 +328,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 			this.serviceProps = serviceProps;
 			this.dataSourceProps = dataSourceProps;
 			this.poolProps = poolProps;
+			this.exceptionHandlerSupport = exceptionHandlerSupport;
 			this.dataSourceFactoryListening = false;
 		}
 
@@ -339,7 +359,11 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 		private synchronized void createDataSource(DataSourceFactory dataSourceFactory) {
 			try {
-				dataSource = dataSourceFactory.createDataSource(dataSourceProps);
+				DataSource ds = dataSourceFactory.createDataSource(dataSourceProps);
+				if ( exceptionHandlerSupport ) {
+					ds = new SQLExceptionHandlerDataSourceProxy(ds, bundleContext);
+				}
+				this.dataSource = ds;
 				register();
 			} catch ( SQLException e ) {
 				log.error("Error creating managed DataSource {} from DataSourceFactory {}: {}", pid,
