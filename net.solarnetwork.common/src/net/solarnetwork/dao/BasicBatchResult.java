@@ -1,7 +1,7 @@
 /* ==================================================================
- * MqttMessageDao.java - 10/06/2021 5:33:46 PM
+ * BasicBatchResult.java - Nov 5, 2012 11:17:29 AM
  * 
- * Copyright 2021 SolarNetwork.net Dev Team
+ * Copyright 2007-2012 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -18,21 +18,33 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
+ * $Id$
+ * ==================================================================
  */
 
-package net.solarnetwork.common.mqtt.dao;
+package net.solarnetwork.dao;
 
-import net.solarnetwork.dao.BatchableDao;
-import net.solarnetwork.dao.GenericDao;
+import net.solarnetwork.dao.BatchableDao.BatchResult;
 
 /**
- * DAO API for {@link MqttMessageEntity} objects.
+ * Basic implementation of {@link BatchResult}.
  * 
  * @author matt
  * @version 1.0
- * @since 2.5
+ * @since 1.74
  */
-public interface MqttMessageDao
-		extends GenericDao<MqttMessageEntity, Long>, BatchableDao<MqttMessageEntity> {
+public class BasicBatchResult implements BatchResult {
+
+	private int numProcessed = 0;
+
+	public BasicBatchResult(int numProcessed) {
+		super();
+		this.numProcessed = numProcessed;
+	}
+
+	@Override
+	public int numProcessed() {
+		return numProcessed;
+	}
 
 }
