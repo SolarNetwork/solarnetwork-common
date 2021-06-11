@@ -24,7 +24,6 @@ package net.solarnetwork.common.mqtt.dao;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import net.solarnetwork.dao.GenericDao;
 import net.solarnetwork.domain.SortDescriptor;
 
@@ -35,7 +34,7 @@ import net.solarnetwork.domain.SortDescriptor;
  * @version 1.0
  * @since 2.5
  */
-public interface MqttMessageDao extends GenericDao<MqttMessageEntity, UUID> {
+public interface MqttMessageDao extends GenericDao<MqttMessageEntity, Long> {
 
 	/**
 	 * API for querying for an ordered subset of results from all possible

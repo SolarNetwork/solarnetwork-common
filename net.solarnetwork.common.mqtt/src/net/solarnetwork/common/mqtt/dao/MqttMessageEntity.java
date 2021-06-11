@@ -22,17 +22,16 @@
 
 package net.solarnetwork.common.mqtt.dao;
 
-import java.util.UUID;
 import net.solarnetwork.common.mqtt.MqttMessage;
 import net.solarnetwork.dao.Entity;
 
 /**
- * An entity version of {@link MqttMessage} using a UUID primary key.
+ * An entity version of {@link MqttMessage} using a Long primary key.
  * 
  * @author matt
  * @version 1.0
  * @since 2.5
  */
-public interface MqttMessageEntity extends MqttMessage, Entity<UUID> {
+public interface MqttMessageEntity extends MqttMessage, Entity<Long> {
 
 }
