@@ -40,35 +40,35 @@ public interface BatchableDao<T> {
 	/**
 	 * Batch processing options.
 	 */
-	public interface BatchOptions {
+	interface BatchOptions {
 
 		/**
 		 * Get a unique name for this batch operation.
 		 * 
 		 * @return a name
 		 */
-		public String getName();
+		String getName();
 
 		/**
 		 * Get a batch size hint.
 		 * 
 		 * @return a batch size
 		 */
-		public int getBatchSize();
+		int getBatchSize();
 
 		/**
 		 * If <em>true</em> the batch should be updatable.
 		 * 
 		 * @return boolean
 		 */
-		public boolean isUpdatable();
+		boolean isUpdatable();
 
 		/**
 		 * Get optional additional parameters, implementation specific.
 		 * 
 		 * @return parameters
 		 */
-		public Map<String, Object> getParameters();
+		Map<String, Object> getParameters();
 
 	}
 
@@ -78,7 +78,7 @@ public interface BatchableDao<T> {
 	 * @param <T>
 	 *        the domain object type
 	 */
-	public interface BatchCallback<T> {
+	interface BatchCallback<T> {
 
 		/**
 		 * Handle a single domain instance batch operation.
@@ -93,7 +93,7 @@ public interface BatchableDao<T> {
 	/**
 	 * The result for a single batch operation.
 	 */
-	public enum BatchCallbackResult {
+	enum BatchCallbackResult {
 
 		/** Continue processing. */
 		CONTINUE,
@@ -114,7 +114,7 @@ public interface BatchableDao<T> {
 	/**
 	 * The result of the entire batch processing.
 	 */
-	public interface BatchResult {
+	interface BatchResult {
 
 		/**
 		 * Return the number of domain objects processed.
@@ -134,5 +134,5 @@ public interface BatchableDao<T> {
 	 *        the batch processing options
 	 * @return the batch results
 	 */
-	public BatchResult batchProcess(BatchCallback<T> callback, BatchOptions options);
+	BatchResult batchProcess(BatchCallback<T> callback, BatchOptions options);
 }
