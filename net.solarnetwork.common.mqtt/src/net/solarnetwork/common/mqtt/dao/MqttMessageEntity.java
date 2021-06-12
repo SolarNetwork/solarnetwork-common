@@ -34,4 +34,16 @@ import net.solarnetwork.dao.Entity;
  */
 public interface MqttMessageEntity extends MqttMessage, Entity<Long> {
 
+	/**
+	 * Get a unique destination identifier for this message.
+	 * 
+	 * <p>
+	 * This could be a URL, for example, to uniquely identify where this message
+	 * is intended for.
+	 * </p>
+	 * 
+	 * @return the destination
+	 */
+	String getDestination();
+
 }

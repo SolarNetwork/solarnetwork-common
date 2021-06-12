@@ -35,4 +35,19 @@ import net.solarnetwork.dao.GenericDao;
 public interface MqttMessageDao
 		extends GenericDao<MqttMessageEntity, Long>, BatchableDao<MqttMessageEntity> {
 
+	/**
+	 * Process a set of domain objects in batch.
+	 * 
+	 * @param destination
+	 *        the {@link MqttMessageEntity#getDestination()} to batch process.
+	 * 
+	 * @param callback
+	 *        the batch callback handler
+	 * @param options
+	 *        the batch processing options
+	 * @return the batch results
+	 */
+	BatchResult batchProcess(String destination, BatchCallback<MqttMessageEntity> callback,
+			BatchOptions options);
+
 }

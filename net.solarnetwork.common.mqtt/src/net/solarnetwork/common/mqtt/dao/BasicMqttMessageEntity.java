@@ -42,8 +42,9 @@ import net.solarnetwork.dao.BasicLongEntity;
  */
 public class BasicMqttMessageEntity extends BasicLongEntity implements MqttMessageEntity {
 
-	private static final long serialVersionUID = 6365384322157756115L;
+	private static final long serialVersionUID = 5975450598082657522L;
 
+	private final String destination;
 	private final String topic;
 	private final boolean retained;
 	private final MqttQos qos;
@@ -53,7 +54,7 @@ public class BasicMqttMessageEntity extends BasicLongEntity implements MqttMessa
 	 * Default constructor.
 	 */
 	public BasicMqttMessageEntity() {
-		this(null, null, null, false, null, null);
+		this(null, null, null, null, false, null, null);
 	}
 
 	/**
@@ -63,11 +64,13 @@ public class BasicMqttMessageEntity extends BasicLongEntity implements MqttMessa
 	 *        the primary key
 	 * @param created
 	 *        the created date
+	 * @param destination
+	 *        the destination
 	 * @param message
 	 *        the message
 	 */
-	public BasicMqttMessageEntity(Long id, Instant created, MqttMessage message) {
-		this(id, created, message.getTopic(), message.isRetained(), message.getQosLevel(),
+	public BasicMqttMessageEntity(Long id, Instant created, String destination, MqttMessage message) {
+		this(id, created, destination, message.getTopic(), message.isRetained(), message.getQosLevel(),
 				message.getPayload());
 	}
 
@@ -78,6 +81,8 @@ public class BasicMqttMessageEntity extends BasicLongEntity implements MqttMessa
 	 *        the primary key
 	 * @param created
 	 *        the created date
+	 * @param destination
+	 *        the destination
 	 * @param topic
 	 *        the topic
 	 * @param retained
@@ -87,9 +92,10 @@ public class BasicMqttMessageEntity extends BasicLongEntity implements MqttMessa
 	 * @param payload
 	 *        the message payload
 	 */
-	public BasicMqttMessageEntity(Long id, Instant created, String topic, boolean retained, MqttQos qos,
-			byte[] payload) {
+	public BasicMqttMessageEntity(Long id, Instant created, String destination, String topic,
+			boolean retained, MqttQos qos, byte[] payload) {
 		super(id, created);
+		this.destination = destination;
 		this.topic = topic;
 		this.retained = retained;
 		this.qos = qos;
@@ -99,12 +105,14 @@ public class BasicMqttMessageEntity extends BasicLongEntity implements MqttMessa
 	/**
 	 * Create a new entity from a message.
 	 * 
+	 * @param destination
+	 *        the destination
 	 * @param message
 	 *        the message
 	 * @return the entity
 	 */
-	public static BasicMqttMessageEntity forMessage(MqttMessage message) {
-		return new BasicMqttMessageEntity(null, Instant.now(), message);
+	public static BasicMqttMessageEntity forMessage(String destination, MqttMessage message) {
+		return new BasicMqttMessageEntity(null, Instant.now(), destination, message);
 	}
 
 	@Override
@@ -120,7 +128,12 @@ public class BasicMqttMessageEntity extends BasicLongEntity implements MqttMessa
 	 * @return the new entity
 	 */
 	public BasicMqttMessageEntity withId(Long id) {
-		return new BasicMqttMessageEntity(id, getCreated(), this);
+		return new BasicMqttMessageEntity(id, getCreated(), destination, this);
+	}
+
+	@Override
+	public String getDestination() {
+		return destination;
 	}
 
 	@Override
