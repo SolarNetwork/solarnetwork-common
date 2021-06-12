@@ -36,18 +36,9 @@ public interface MqttMessageDao
 		extends GenericDao<MqttMessageEntity, Long>, BatchableDao<MqttMessageEntity> {
 
 	/**
-	 * Process a set of domain objects in batch.
-	 * 
-	 * @param destination
-	 *        the {@link MqttMessageEntity#getDestination()} to batch process.
-	 * 
-	 * @param callback
-	 *        the batch callback handler
-	 * @param options
-	 *        the batch processing options
-	 * @return the batch results
+	 * A {@link BatchableDao.BatchOptions} parameter for a destination to filter
+	 * on.
 	 */
-	BatchResult batchProcess(String destination, BatchCallback<MqttMessageEntity> callback,
-			BatchOptions options);
+	String BATCH_OPTION_DESTINATION = "destination";
 
 }
