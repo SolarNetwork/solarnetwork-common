@@ -288,6 +288,9 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 		try {
 			DeleteObjectsRequest req = new DeleteObjectsRequest(bucketName).withKeys(
 					stream(keys.spliterator(), false).map(k -> new KeyVersion(k)).collect(toList()));
+			if ( req.getKeys().isEmpty() ) {
+				return Collections.emptySet();
+			}
 			DeleteObjectsResult res = client.deleteObjects(req);
 			List<DeletedObject> deleted = res.getDeletedObjects();
 			if ( deleted == null ) {
