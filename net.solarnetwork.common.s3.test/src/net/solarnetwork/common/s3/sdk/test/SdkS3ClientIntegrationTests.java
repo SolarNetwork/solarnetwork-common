@@ -507,6 +507,18 @@ public class SdkS3ClientIntegrationTests {
 	}
 
 	@Test
+	public void deleteObjects_empty() throws Exception {
+		// GIVEN
+
+		// WHEN
+		Set<String> deletedKeys = client.deleteObjects(Collections.emptySet());
+
+		// THEN
+		assertThat("Empty set returned", deletedKeys, hasSize(0));
+
+	}
+
+	@Test
 	public void deleteObjects_single() throws Exception {
 		// GIVEN
 		s3 = getS3();
