@@ -23,6 +23,9 @@
 package net.solarnetwork.codec.test;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import net.solarnetwork.codec.JsonUtils;
+import net.solarnetwork.domain.BasicDeviceInfo;
 
 /**
  * Test cases for the {@link JsonUtils} class.
@@ -169,4 +173,32 @@ public class JsonUtilsTests {
 		// THEN
 		assertThat("Joda LocalDateTime serialized as string", json, equalTo("{\"ts\":\"01:02\"}"));
 	}
+
+	@Test
+	public void stringMapFromObject() {
+		// GIVEN
+		BasicDeviceInfo info = BasicDeviceInfo.builder().withName("Super").withManufacturer("ACME")
+				.withManufactureDate(LocalDate.of(2021, 7, 9)).build();
+
+		// WHEN
+		Map<String, Object> m = JsonUtils.getStringMapFromObject(info);
+
+		// THEN
+		assertThat("Map created", m, notNullValue());
+		assertThat("Name property serialized", m, hasEntry("name", "Super"));
+		assertThat("Manufacturer property serialized", m, hasEntry("manufacturer", "ACME"));
+		assertThat("Manufacture date property serialized", m, hasEntry("manufactureDate", "2021-07-09"));
+	}
+
+	@Test
+	public void stringMapFromObject_null() {
+		// GIVEN
+
+		// WHEN
+		Map<String, Object> m = JsonUtils.getStringMapFromObject(null);
+
+		// THEN
+		assertThat("Map not created", m, nullValue());
+	}
+
 }
