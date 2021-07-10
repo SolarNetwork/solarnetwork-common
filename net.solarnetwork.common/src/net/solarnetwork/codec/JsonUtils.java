@@ -77,7 +77,7 @@ import net.solarnetwork.util.ObjectMapperFactoryBean;
  * </ul>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.72
  */
 public final class JsonUtils {
@@ -306,6 +306,40 @@ public final class JsonUtils {
 			LOG.warn("Exception deserialzing JSON node {} to Map<String, Object>", node, e);
 		}
 		return null;
+	}
+
+	/**
+	 * Convert an object into a JSON tree.
+	 * 
+	 * @param o
+	 *        the object to convert
+	 * @return the JSON tree, or {@literal null} if {@code o} is
+	 *         {@literal null}, or any exception occurs generating the JSON
+	 * @since 1.1
+	 */
+	public static JsonNode getTreeFromObject(final Object o) {
+		if ( o == null ) {
+			return null;
+		}
+		try {
+			return OBJECT_MAPPER.valueToTree(o);
+		} catch ( Exception e ) {
+			LOG.warn("Exception serialzing object {} to JsonNode", o, e);
+		}
+		return null;
+	}
+
+	/**
+	 * Convert an object into a Map with string keys.
+	 * 
+	 * @param o
+	 *        the object to convert
+	 * @return the map, or {@literal null} if {@code node} is not a JSON object,
+	 *         is {@literal null}, or any exception occurs generating the JSON
+	 * @since 1.1
+	 */
+	public static Map<String, Object> getStringMapFromObject(final Object o) {
+		return getStringMapFromTree(getTreeFromObject(o));
 	}
 
 	/**
