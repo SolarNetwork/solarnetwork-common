@@ -42,7 +42,7 @@ import net.solarnetwork.domain.GeneralDatumSamplesType;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.72
  */
 public class DatumProperties implements Serializable {
@@ -121,31 +121,35 @@ public class DatumProperties implements Serializable {
 		String[] propNames = meta.propertyNamesForType(type);
 		int len = (propNames != null ? propNames.length : 0);
 		BigDecimal[] data = null;
-		if ( len > 0 ) {
-			Map<String, ?> map = ops.getSampleData(type);
+		Map<String, ?> map = ops.getSampleData(type);
+		if ( len < 1 ) {
 			if ( map != null && !map.isEmpty() ) {
-				Set<String> props = new HashSet<>(map.keySet());
-				data = new BigDecimal[propNames.length];
-				int nonNullLength = 0;
-				for ( int i = 0; i < len; i++ ) {
-					BigDecimal n = ops.getSampleBigDecimal(type, propNames[i]);
-					if ( n != null ) {
-						data[i] = n;
-						nonNullLength = i + 1;
-					}
-					props.remove(propNames[i]);
+				// unknown property; cannot map to stream
+				throw new IllegalArgumentException(
+						"Datum stream unknown " + type + " properties encountered: " + map.keySet());
+			}
+		} else if ( map != null && !map.isEmpty() ) {
+			Set<String> props = new HashSet<>(map.keySet());
+			data = new BigDecimal[propNames.length];
+			int nonNullLength = 0;
+			for ( int i = 0; i < len; i++ ) {
+				BigDecimal n = ops.getSampleBigDecimal(type, propNames[i]);
+				if ( n != null ) {
+					data[i] = n;
+					nonNullLength = i + 1;
 				}
-				if ( !props.isEmpty() ) {
-					// unknown property; cannot map to stream
-					throw new IllegalArgumentException(
-							"Datum stream unknown " + type + " properties encountered: " + props);
-				}
-				if ( nonNullLength < len ) {
-					// optimization: trim trailing null values into shorter array
-					BigDecimal[] trimmedData = new BigDecimal[nonNullLength];
-					System.arraycopy(data, 0, trimmedData, 0, nonNullLength);
-					data = trimmedData;
-				}
+				props.remove(propNames[i]);
+			}
+			if ( !props.isEmpty() ) {
+				// unknown property; cannot map to stream
+				throw new IllegalArgumentException(
+						"Datum stream unknown " + type + " properties encountered: " + props);
+			}
+			if ( nonNullLength < len ) {
+				// optimization: trim trailing null values into shorter array
+				BigDecimal[] trimmedData = new BigDecimal[nonNullLength];
+				System.arraycopy(data, 0, trimmedData, 0, nonNullLength);
+				data = trimmedData;
 			}
 		}
 		return data;
@@ -156,33 +160,38 @@ public class DatumProperties implements Serializable {
 		String[] propNames = meta.propertyNamesForType(type);
 		int len = (propNames != null ? propNames.length : 0);
 		String[] data = null;
-		if ( len > 0 ) {
-			Map<String, ?> map = ops.getSampleData(type);
+		Map<String, ?> map = ops.getSampleData(type);
+		if ( len < 1 ) {
 			if ( map != null && !map.isEmpty() ) {
-				Set<String> props = new HashSet<>(map.keySet());
-				data = new String[propNames.length];
-				int nonNullLength = 0;
-				for ( int i = 0; i < len; i++ ) {
-					String s = ops.getSampleString(type, propNames[i]);
-					if ( s != null ) {
-						data[i] = s;
-						nonNullLength = i + 1;
-					}
-					props.remove(propNames[i]);
+				// unknown property; cannot map to stream
+				throw new IllegalArgumentException(
+						"Datum stream unknown " + type + " properties encountered: " + map.keySet());
+			}
+		} else if ( map != null && !map.isEmpty() ) {
+			Set<String> props = new HashSet<>(map.keySet());
+			data = new String[propNames.length];
+			int nonNullLength = 0;
+			for ( int i = 0; i < len; i++ ) {
+				String s = ops.getSampleString(type, propNames[i]);
+				if ( s != null ) {
+					data[i] = s;
+					nonNullLength = i + 1;
 				}
-				if ( !props.isEmpty() ) {
-					// unknown property; cannot map to stream
-					throw new IllegalArgumentException(
-							"Datum stream unknown " + type + " properties encountered: " + props);
-				}
-				if ( nonNullLength < len ) {
-					// optimization: trim trailing null values into shorter array
-					String[] trimmedData = new String[nonNullLength];
-					System.arraycopy(data, 0, trimmedData, 0, nonNullLength);
-					data = trimmedData;
-				}
+				props.remove(propNames[i]);
+			}
+			if ( !props.isEmpty() ) {
+				// unknown property; cannot map to stream
+				throw new IllegalArgumentException(
+						"Datum stream unknown " + type + " properties encountered: " + props);
+			}
+			if ( nonNullLength < len ) {
+				// optimization: trim trailing null values into shorter array
+				String[] trimmedData = new String[nonNullLength];
+				System.arraycopy(data, 0, trimmedData, 0, nonNullLength);
+				data = trimmedData;
 			}
 		}
+
 		return data;
 	}
 

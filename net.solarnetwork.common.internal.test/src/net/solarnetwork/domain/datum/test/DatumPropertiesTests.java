@@ -119,6 +119,45 @@ public class DatumPropertiesTests {
 		DatumProperties.propertiesFrom(d, meta);
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void fromDatum_unknownProperty_emptyInstantaneous() {
+		// GIVEN
+		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
+				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source", null, null, null);
+		GeneralDatumSamples s = new GeneralDatumSamples();
+		s.putInstantaneousSampleValue("foo", 1);
+		GeneralDatum d = new GeneralDatum(123L, "test.source", Instant.now(), s);
+
+		// WHEN
+		DatumProperties.propertiesFrom(d, meta);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fromDatum_unknownProperty_emptyAccumulating() {
+		// GIVEN
+		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
+				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source", null, null, null);
+		GeneralDatumSamples s = new GeneralDatumSamples();
+		s.putAccumulatingSampleValue("foo", 1);
+		GeneralDatum d = new GeneralDatum(123L, "test.source", Instant.now(), s);
+
+		// WHEN
+		DatumProperties.propertiesFrom(d, meta);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fromDatum_unknownProperty_emptyStatus() {
+		// GIVEN
+		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
+				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source", null, null, null);
+		GeneralDatumSamples s = new GeneralDatumSamples();
+		s.putStatusSampleValue("foo", "bar");
+		GeneralDatum d = new GeneralDatum(123L, "test.source", Instant.now(), s);
+
+		// WHEN
+		DatumProperties.propertiesFrom(d, meta);
+	}
+
 	@Test
 	public void fromDatum_trimTrailingNulls() {
 		// GIVEN
