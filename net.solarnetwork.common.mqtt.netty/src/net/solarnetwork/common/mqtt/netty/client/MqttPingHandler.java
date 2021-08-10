@@ -64,6 +64,12 @@ final class MqttPingHandler extends ChannelInboundHandlerAdapter {
 			IdleStateEvent event = (IdleStateEvent) evt;
 			switch (event.state()) {
 				case READER_IDLE:
+					// reader timeout: assume network connection lost (half open maybe?) so force closed
+					// because on a healthy connection we should never get here, even from a connection
+					// not explicitly publishing/receiving messages because PINGREQ message are
+					// automatically published below from writer timeout and we assume the writer timeout
+					// is less than the reader timeout
+					ctx.close();
 					break;
 				case WRITER_IDLE:
 					this.sendPingReq(ctx.channel());
