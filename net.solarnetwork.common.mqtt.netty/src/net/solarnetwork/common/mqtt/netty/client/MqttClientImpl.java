@@ -82,9 +82,18 @@ import net.solarnetwork.domain.KeyValuePair;
  * Represents an MqttClientImpl connected to a single MQTT server. Will try to
  * keep the connection going at all times.
  * 
- * @version 1.1
+ * @version 1.2
  */
 final class MqttClientImpl implements MqttClient {
+
+	/**
+	 * A multiplication factor applied to the configured
+	 * {@code IdleStateHandler} read timeout, in relation to its configured
+	 * write timeout.
+	 * 
+	 * @since 1.2
+	 */
+	public static final int READ_TIMEOUT_FACTOR = 2;
 
 	private static final Logger log = LoggerFactory.getLogger(MqttClientImpl.class);
 
@@ -650,7 +659,8 @@ final class MqttClientImpl implements MqttClient {
 			ch.pipeline().addLast("mqttDecoder", new MqttDecoder(clientConfig.getMaxBytesInMessage()));
 			ch.pipeline().addLast("mqttEncoder", MqttEncoder.INSTANCE);
 			ch.pipeline().addLast("idleStateHandler",
-					new IdleStateHandler(MqttClientImpl.this.clientConfig.getTimeoutSeconds(),
+					new IdleStateHandler(
+							MqttClientImpl.this.clientConfig.getTimeoutSeconds() * READ_TIMEOUT_FACTOR,
 							MqttClientImpl.this.clientConfig.getTimeoutSeconds(), 0));
 			ch.pipeline().addLast("mqttPingHandler",
 					new MqttPingHandler(MqttClientImpl.this.clientConfig.getTimeoutSeconds()));
