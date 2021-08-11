@@ -37,6 +37,7 @@ import net.solarnetwork.domain.GeneralDatumSamples;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.DatumProperties;
 import net.solarnetwork.domain.datum.ObjectDatumKind;
+import net.solarnetwork.util.Half;
 
 /**
  * Test cases for the {@link DatumProperties} class.
@@ -103,6 +104,27 @@ public class DatumPropertiesTests {
 		assertThat("Accumulating values mapped", p.getAccumulating(),
 				is(arrayContaining(decimalArray("3", "4"))));
 		assertThat("Status values mapped", p.getStatus(), is(arrayContaining(new String[] { "5" })));
+	}
+
+	@Test
+	public void fromDatum_withHalf() {
+		// GIVEN
+		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
+				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source", new String[] { "a", "b" },
+				new String[] { "c", "d" }, new String[] { "e" });
+		Half h = new Half("1.23");
+		GeneralDatumSamples s = new GeneralDatumSamples();
+		s.putInstantaneousSampleValue("a", 1);
+		s.putInstantaneousSampleValue("b", h);
+		GeneralDatum d = new GeneralDatum(123L, "test.source", Instant.now(), s);
+
+		// WHEN
+		DatumProperties p = DatumProperties.propertiesFrom(d, meta);
+
+		// THEN
+		assertThat("Properties created", p, is(notNullValue()));
+		assertThat("Instantaneous values mapped", p.getInstantaneous(),
+				is(arrayContaining(decimalArray("1", h.toString()))));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
