@@ -23,13 +23,15 @@
 package net.solarnetwork.codec;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import net.solarnetwork.util.DateUtils;
 
 /**
  * JSON date handling utilities.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.72
  */
 public final class JsonDateUtils implements Serializable {
@@ -99,6 +101,80 @@ public final class JsonDateUtils implements Serializable {
 		 * Constructor.
 		 */
 		public LocalDateTimeSerializer() {
+			super(DateUtils.ISO_DATE_TIME_ALT_UTC);
+		}
+
+	}
+
+	/**
+	 * {@link java.time.Instant} deserializer that formats using a space
+	 * date/time separator.
+	 * 
+	 * @since 1.1
+	 */
+	public static class InstantDeserializer
+			extends com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer<Instant> {
+
+		private static final long serialVersionUID = 6619624665216114464L;
+
+		/** A global instance. */
+		public static final InstantDeserializer INSTANCE = new InstantDeserializer();
+
+		/**
+		 * Constructor.
+		 */
+		public InstantDeserializer() {
+			super(Instant.class, DateUtils.ISO_DATE_TIME_ALT_UTC, Instant::from,
+					a -> Instant.ofEpochMilli(a.value),
+					a -> Instant.ofEpochSecond(a.integer, a.fraction), null, true);
+		}
+
+	}
+
+	/**
+	 * {@link java.time.ZonedDateTime} deserializer that formats using a space
+	 * date/time separator.
+	 * 
+	 * @since 1.1
+	 */
+	public static class ZonedDateTimeDeserializer
+			extends com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer<ZonedDateTime> {
+
+		private static final long serialVersionUID = 461897970976758049L;
+
+		/** A global instance. */
+		public static final ZonedDateTimeDeserializer INSTANCE = new ZonedDateTimeDeserializer();
+
+		/**
+		 * Constructor.
+		 */
+		public ZonedDateTimeDeserializer() {
+			super(ZonedDateTime.class, DateUtils.ISO_DATE_TIME_ALT_UTC, ZonedDateTime::from,
+					a -> ZonedDateTime.ofInstant(Instant.ofEpochMilli(a.value), a.zoneId),
+					a -> ZonedDateTime.ofInstant(Instant.ofEpochSecond(a.integer, a.fraction), a.zoneId),
+					ZonedDateTime::withZoneSameInstant, false);
+		}
+
+	}
+
+	/**
+	 * {@link java.time.LocalDateTime} deserializer that parses using a space
+	 * date/time separator.
+	 * 
+	 * @since 1.1
+	 */
+	public static class LocalDateTimeDeserializer
+			extends com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer {
+
+		private static final long serialVersionUID = -8187990594614635776L;
+
+		/** A global instance. */
+		public static final LocalDateTimeDeserializer INSTANCE = new LocalDateTimeDeserializer();
+
+		/**
+		 * Constructor.
+		 */
+		public LocalDateTimeDeserializer() {
 			super(DateUtils.ISO_DATE_TIME_ALT_UTC);
 		}
 
