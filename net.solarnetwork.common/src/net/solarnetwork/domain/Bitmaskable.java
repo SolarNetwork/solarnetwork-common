@@ -23,6 +23,7 @@
 package net.solarnetwork.domain;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,10 +38,18 @@ import java.util.Set;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.50
  */
 public interface Bitmaskable {
+
+	/**
+	 * A comparator of {@link Bitmaskable} by their type (class name) then bit
+	 * index, in ascending order.
+	 * 
+	 * @since 1.1
+	 */
+	final Comparator<Bitmaskable> SORT_BY_TYPE = new BitmaskableTypeSort();
 
 	/**
 	 * Get the bit offset.
@@ -112,4 +121,27 @@ public interface Bitmaskable {
 		}
 		return (set.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(set));
 	}
+
+	/**
+	 * Sort {@link Bitmaskable} instances by type, then bit index.
+	 * 
+	 * <p>
+	 * {@literal null} values are not supported.
+	 * </p>
+	 * 
+	 * @since 1.1
+	 */
+	final class BitmaskableTypeSort implements Comparator<Bitmaskable> {
+
+		@Override
+		public int compare(Bitmaskable o1, Bitmaskable o2) {
+			int result = (o1.getClass().getSimpleName().compareTo(o2.getClass().getSimpleName()));
+			if ( result != 0 ) {
+				return result;
+			}
+			return Integer.compare(o1.bitmaskBitOffset(), o2.bitmaskBitOffset());
+		}
+
+	}
+
 }
