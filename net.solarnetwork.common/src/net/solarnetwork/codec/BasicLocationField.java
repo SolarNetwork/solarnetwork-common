@@ -36,7 +36,7 @@ import net.solarnetwork.domain.BasicLocation;
  * Fields for {@link BasicLocation}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.72
  */
 public enum BasicLocationField implements IndexedField {
@@ -66,7 +66,7 @@ public enum BasicLocationField implements IndexedField {
 	;
 
 	/** A field map. */
-	public static final Map<String, IndexedField> FIELD_MAP = IndexedField
+	public static final Map<String, BasicLocationField> FIELD_MAP = IndexedField
 			.fieldMap(BasicLocationField.class);
 
 	private final int index;

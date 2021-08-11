@@ -746,7 +746,7 @@ public final class JsonUtils {
 	 *         if any processing exception occurs
 	 */
 	public static void parseIndexedFieldsObject(JsonParser p, DeserializationContext ctxt, Object[] data,
-			Map<String, IndexedField> fields) throws IOException, JsonProcessingException {
+			Map<String, ? extends IndexedField> fields) throws IOException, JsonProcessingException {
 		String f = null;
 		final int len = data.length;
 		while ( (f = p.nextFieldName()) != null ) {

@@ -51,7 +51,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.72
  */
 public interface IndexedField {
@@ -113,7 +113,7 @@ public interface IndexedField {
 	 *        the enum class
 	 * @return the map
 	 */
-	static <E extends Enum<E> & IndexedField> Map<String, IndexedField> fieldMap(Class<E> clazz) {
+	static <E extends Enum<E> & IndexedField> Map<String, E> fieldMap(Class<E> clazz) {
 		return Collections.unmodifiableMap(Arrays.stream(clazz.getEnumConstants())
 				.collect(Collectors.toMap(e -> e.getFieldName(), Function.identity())));
 	}

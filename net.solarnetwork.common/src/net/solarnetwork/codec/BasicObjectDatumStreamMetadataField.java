@@ -36,7 +36,7 @@ import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
  * Fields for {@link BasicObjectDatumStreamMetadata}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.72
  */
 public enum BasicObjectDatumStreamMetadataField implements IndexedField {
@@ -62,7 +62,7 @@ public enum BasicObjectDatumStreamMetadataField implements IndexedField {
 	;
 
 	/** A field map. */
-	public static final Map<String, IndexedField> FIELD_MAP = IndexedField
+	public static final Map<String, BasicObjectDatumStreamMetadataField> FIELD_MAP = IndexedField
 			.fieldMap(BasicObjectDatumStreamMetadataField.class);
 
 	private final int index;
