@@ -24,7 +24,10 @@ package net.solarnetwork.codec;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import net.solarnetwork.util.DateUtils;
 
 /**
@@ -52,7 +55,7 @@ public final class JsonDateUtils implements Serializable {
 		private static final long serialVersionUID = 2056512911882404402L;
 
 		/** A global instance. */
-		public static final InstantSerializer INSTANCE = new InstantSerializer();
+		public static final JsonSerializer<Instant> INSTANCE = new InstantSerializer();
 
 		/**
 		 * Constructor.
@@ -74,7 +77,7 @@ public final class JsonDateUtils implements Serializable {
 		private static final long serialVersionUID = 6913055308929776378L;
 
 		/** A global instance. */
-		public static final ZonedDateTimeSerializer INSTANCE = new ZonedDateTimeSerializer();
+		public static final JsonSerializer<ZonedDateTime> INSTANCE = new ZonedDateTimeSerializer();
 
 		/**
 		 * Constructor.
@@ -95,7 +98,7 @@ public final class JsonDateUtils implements Serializable {
 		private static final long serialVersionUID = 8528306055696764724L;
 
 		/** A global instance. */
-		public static final LocalDateTimeSerializer INSTANCE = new LocalDateTimeSerializer();
+		public static final JsonSerializer<LocalDateTime> INSTANCE = new LocalDateTimeSerializer();
 
 		/**
 		 * Constructor.
@@ -118,7 +121,7 @@ public final class JsonDateUtils implements Serializable {
 		private static final long serialVersionUID = 6619624665216114464L;
 
 		/** A global instance. */
-		public static final InstantDeserializer INSTANCE = new InstantDeserializer();
+		public static final JsonDeserializer<Instant> INSTANCE = new InstantDeserializer();
 
 		/**
 		 * Constructor.
@@ -143,7 +146,7 @@ public final class JsonDateUtils implements Serializable {
 		private static final long serialVersionUID = 461897970976758049L;
 
 		/** A global instance. */
-		public static final ZonedDateTimeDeserializer INSTANCE = new ZonedDateTimeDeserializer();
+		public static final JsonDeserializer<ZonedDateTime> INSTANCE = new ZonedDateTimeDeserializer();
 
 		/**
 		 * Constructor.
@@ -169,7 +172,7 @@ public final class JsonDateUtils implements Serializable {
 		private static final long serialVersionUID = -8187990594614635776L;
 
 		/** A global instance. */
-		public static final LocalDateTimeDeserializer INSTANCE = new LocalDateTimeDeserializer();
+		public static final JsonDeserializer<LocalDateTime> INSTANCE = new LocalDateTimeDeserializer();
 
 		/**
 		 * Constructor.
