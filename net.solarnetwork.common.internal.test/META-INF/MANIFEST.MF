@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Tests
 Bundle-SymbolicName: net.solarnetwork.common.internal.test
-Bundle-Version: 1.20.0
+Bundle-Version: 1.21.0
 Bundle-Vendor: SolarNetwork
-Fragment-Host: net.solarnetwork.common;bundle-version="[1.77,2.0)"
+Fragment-Host: net.solarnetwork.common;bundle-version="[1.78,2.0)"
 Automatic-Module-Name: net.solarnetwork.common.internal.test
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: 
