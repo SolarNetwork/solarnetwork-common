@@ -1,5 +1,5 @@
 /* ==================================================================
- * AuthorizationBuilderSNS.java - 13/08/2021 4:48:45 PM
+ * SnsAuthorizationBuilder.java - 13/08/2021 4:48:45 PM
  * 
  * Copyright 2021 SolarNetwork.net Dev Team
  * 
@@ -52,13 +52,22 @@ import org.springframework.util.StringUtils;
  * @version 1.0
  * @since 1.78
  */
-public class AuthorizationBuilderSNS {
+public class SnsAuthorizationBuilder {
 
 	/** The authorization scheme name. */
 	public static final String SCHEME_NAME = "SNS";
 
 	/** The message used to sign the derived signing key. */
 	public static final String SIGNING_KEY_MESSAGE = "sns_request";
+
+	/** The authorization header component for the credential (identifier). */
+	public static final String AUTHORIZATION_COMPONENT_CREDENTIAL = "Credential";
+
+	/** The authorization header component for the signed header name list. */
+	public static final String AUTHORIZATION_COMPONENT_HEADERS = "SignedHeaders";
+
+	/** The authorization header component for the signature. */
+	public static final String AUTHORIZATION_COMPONENT_SIGNATURE = "Signature";
 
 	private final String identifier;
 	private MultiValueMap<String, String> headers;
@@ -79,7 +88,7 @@ public class AuthorizationBuilderSNS {
 	 * @param identifier
 	 *        the bearer's identifier, such as a token ID or username
 	 */
-	public AuthorizationBuilderSNS(String identifier) {
+	public SnsAuthorizationBuilder(String identifier) {
 		super();
 		this.identifier = identifier;
 		reset();
@@ -108,7 +117,7 @@ public class AuthorizationBuilderSNS {
 	 * 
 	 * @return The builder.
 	 */
-	public AuthorizationBuilderSNS reset() {
+	public SnsAuthorizationBuilder reset() {
 		contentSha256 = null;
 		headers = null;
 		return verb("GET").path("/").date(null);
@@ -127,7 +136,7 @@ public class AuthorizationBuilderSNS {
 	 *        via {@code Instant.now()}; will be truncated to second resolution
 	 * @return this builder
 	 */
-	public AuthorizationBuilderSNS date(Instant date) {
+	public SnsAuthorizationBuilder date(Instant date) {
 		Instant d = (date == null ? Instant.now() : date).truncatedTo(ChronoUnit.SECONDS);
 		this.date = d;
 		header("date", AuthorizationUtils.AUTHORIZATION_DATE_HEADER_FORMATTER.format(d));
@@ -148,7 +157,7 @@ public class AuthorizationBuilderSNS {
 	 * @throws IllegalArgumentException
 	 *         if {@code verb} is {@literal null}
 	 */
-	public AuthorizationBuilderSNS verb(String verb) {
+	public SnsAuthorizationBuilder verb(String verb) {
 		if ( verb == null ) {
 			throw new IllegalArgumentException("The verb argument must not be null.");
 		}
@@ -165,7 +174,7 @@ public class AuthorizationBuilderSNS {
 	 * @throws IllegalArgumentException
 	 *         if {@code path} is {@literal null}
 	 */
-	public AuthorizationBuilderSNS path(String path) {
+	public SnsAuthorizationBuilder path(String path) {
 		if ( verb == null ) {
 			throw new IllegalArgumentException("The path argument must not be null.");
 		}
@@ -185,7 +194,7 @@ public class AuthorizationBuilderSNS {
 	 *        the host value
 	 * @return this builder
 	 */
-	public AuthorizationBuilderSNS host(String host) {
+	public SnsAuthorizationBuilder host(String host) {
 		header("host", host);
 		return this;
 	}
@@ -198,7 +207,7 @@ public class AuthorizationBuilderSNS {
 	 *        the array must have a length of {@literal 32} and will be copied
 	 * @return this builder
 	 */
-	public AuthorizationBuilderSNS contentSha256(byte[] digest) {
+	public SnsAuthorizationBuilder contentSha256(byte[] digest) {
 		byte[] copy = null;
 		if ( digest != null && digest.length >= 32 ) {
 			copy = new byte[32];
@@ -224,7 +233,7 @@ public class AuthorizationBuilderSNS {
 	 * @throws IllegalArgumentException
 	 *         if any argument is {@literal null}
 	 */
-	public AuthorizationBuilderSNS header(String headerName, String... headerValue) {
+	public SnsAuthorizationBuilder header(String headerName, String... headerValue) {
 		if ( headerName == null || headerName.isEmpty() || headerValue == null
 				|| headerValue.length < 1 ) {
 			throw new IllegalArgumentException(
@@ -235,6 +244,30 @@ public class AuthorizationBuilderSNS {
 		}
 		headers.put(headerName.toLowerCase(), Arrays.asList(headerValue));
 		return this;
+	}
+
+	/**
+	 * Get the first available header value.
+	 * 
+	 * @param headerName
+	 *        the name of the header to get the first value for
+	 * @return the header value, or {@literal null} if the header does not exist
+	 */
+	public String headerValue(String headerName) {
+		List<String> values = headerValues(headerName);
+		return (values != null && !values.isEmpty() ? values.get(0) : null);
+	}
+
+	/**
+	 * Get all available header values.
+	 * 
+	 * @param headerName
+	 *        the name of the header to get the values for
+	 * @return the header values, or {@literal null} if the header does not
+	 *         exist
+	 */
+	public List<String> headerValues(String headerName) {
+		return (headerName != null && headers != null ? headers.get(headerName) : null);
 	}
 
 	/**
@@ -254,7 +287,7 @@ public class AuthorizationBuilderSNS {
 	 * @throws SecurityException
 	 *         if any error occurs computing the key
 	 */
-	public AuthorizationBuilderSNS saveSigningKey(String secret) {
+	public SnsAuthorizationBuilder saveSigningKey(String secret) {
 		signingKey = computeSigningKey(this.date, secret);
 		return this;
 	}
@@ -273,7 +306,7 @@ public class AuthorizationBuilderSNS {
 	 *        the signing key to set
 	 * @return this builder
 	 */
-	public AuthorizationBuilderSNS signingKey(byte[] key) {
+	public SnsAuthorizationBuilder signingKey(byte[] key) {
 		signingKey = key;
 		return this;
 	}
@@ -324,6 +357,20 @@ public class AuthorizationBuilderSNS {
 		}
 		String day = AUTHORIZATION_DATE_FORMATTER.format(date.atOffset(ZoneOffset.UTC));
 		return computeHmacSha256(computeHmacSha256(SCHEME_NAME + secret, day), SIGNING_KEY_MESSAGE);
+	}
+
+	/**
+	 * Compute a signature value from a signing key and signature data.
+	 * 
+	 * @param signingKey
+	 *        the signing key, e.g. {@link #computeSigningKey(Instant, String)}
+	 * @param signatureData
+	 *        the signature data, e.g.
+	 *        {@link #computeSignatureData(Instant, String)}
+	 * @return the hex-encoded signature value
+	 */
+	public static String computeSignature(byte[] signingKey, String signatureData) {
+		return Hex.encodeHexString(computeHmacSha256(signingKey, signatureData));
 	}
 
 	/**
@@ -446,17 +493,17 @@ public class AuthorizationBuilderSNS {
 	}
 
 	/**
-	 * Compute an {@code Authorization} header value from the configured
+	 * Compute an {@literal Authorization} header value from the configured
 	 * properties on the builder, using a signing key created from a previous
 	 * call to {@link #saveSigningKey(String)} or {@link #signingKey(byte[])}.
 	 * 
 	 * <p>
-	 * The message is computed using the following algorithm:
+	 * The message is formatted using the following structure:
 	 * </p>
 	 * 
 	 * <pre>
 	 * <code>
-	 * Credential=identifier,SignedHeaders=headerList,Signature=Hex(HmacSha256(signingKey,signatureData))
+	 * SNS Credential=identifier,SignedHeaders=headerList,Signature=Hex(HmacSha256(signingKey,signatureData))
 	 * </code>
 	 * </pre>
 	 * 
@@ -479,7 +526,7 @@ public class AuthorizationBuilderSNS {
 	}
 
 	/**
-	 * Compute an {@code Authorization} header value from the configured
+	 * Compute an {@literal Authorization} header value from the configured
 	 * properties on the builder, using the provided secret.
 	 * 
 	 * @param secret
@@ -495,11 +542,75 @@ public class AuthorizationBuilderSNS {
 		return build(signingKey);
 	}
 
-	private String build(byte[] signingKey) {
-		final String[] sortedHeaderNames = sortedHeaderNames();
+	/**
+	 * Compute a signature value from the configured properties on the builder,
+	 * using a signing key created from a previous call to
+	 * {@link #saveSigningKey(String)} or {@link #signingKey(byte[])}.
+	 * 
+	 * <p>
+	 * <b>Note</b> this method returns just the signature value, not a complete
+	 * {@literal Authorization} header value. Use the {@link #build()} method to
+	 * generate a complete header value.
+	 * </p>
+	 * 
+	 * <p>
+	 * The signature is computed using the following algorithm:
+	 * </p>
+	 * 
+	 * <pre>
+	 * <code>
+	 * Hex(HmacSha256(signingKey,signatureData))
+	 * </code>
+	 * </pre>
+	 * 
+	 * <p>
+	 * Where {@code signingKey} is the signing key set via
+	 * {@link #signingKey(byte[])} or computed via
+	 * {@link #saveSigningKey(String)}, and {@code signatureData} is the
+	 * computed signature data via
+	 * {@link #computeSignatureData(Instant, String)}.
+	 * </p>
+	 * 
+	 * @return the signature value
+	 * @throws SecurityException
+	 *         if any error occurs computing the header value
+	 */
+	public String buildSignature() {
+		return buildSignature(signingKey, sortedHeaderNames());
+	}
+
+	/**
+	 * Compute a signature value from the configured properties on the builder,
+	 * using the provided secret.
+	 * 
+	 * <p>
+	 * <b>Note</b> this method returns just the signature value, not a complete
+	 * {@literal Authorization} header value. Use the {@link #build(String)}
+	 * method to generate a complete header value.
+	 * </p>
+	 * 
+	 * @param secret
+	 *        the secret to sign the digest with; will use the configured date
+	 *        to compute the singing key
+	 * @return the signature value
+	 * @throws SecurityException
+	 *         if any error occurs computing the header value
+	 * @see #buildSignature()
+	 */
+	public String buildSignature(final String secret) {
+		final byte[] signingKey = computeSigningKey(date, secret);
+		return buildSignature(signingKey, sortedHeaderNames());
+	}
+
+	private String buildSignature(byte[] signingKey, String[] sortedHeaderNames) {
 		final String signatureData = computeSignatureData(date,
 				computeCanonicalRequestMessage(sortedHeaderNames));
-		final String signature = Hex.encodeHexString(computeHmacSha256(signingKey, signatureData));
+		return computeSignature(signingKey, signatureData);
+	}
+
+	private String build(byte[] signingKey) {
+		final String[] sortedHeaderNames = sortedHeaderNames();
+		final String signature = buildSignature(signingKey, sortedHeaderNames);
 		final StringBuilder buf = new StringBuilder(SCHEME_NAME);
 		buf.append(' ');
 		buf.append("Credential=").append(identifier);

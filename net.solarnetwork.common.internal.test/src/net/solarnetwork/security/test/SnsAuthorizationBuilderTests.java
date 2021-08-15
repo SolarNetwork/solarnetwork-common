@@ -1,5 +1,5 @@
 /* ==================================================================
- * AuthorizationBuilderSNSTests.java - 13/08/2021 4:55:00 PM
+ * SnsAuthorizationBuilderTests.java - 13/08/2021 4:55:00 PM
  * 
  * Copyright 2021 SolarNetwork.net Dev Team
  * 
@@ -31,15 +31,15 @@ import java.time.ZoneOffset;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
-import net.solarnetwork.security.AuthorizationBuilderSNS;
+import net.solarnetwork.security.SnsAuthorizationBuilder;
 
 /**
- * Test cases for the {@link AuthorizationBuilderSNS} class.
+ * Test cases for the {@link SnsAuthorizationBuilder} class.
  * 
  * @author matt
  * @version 1.0
  */
-public class AuthorizationBuilderSNSTests {
+public class SnsAuthorizationBuilderTests {
 
 	@Test
 	public void computeSigningKey() {
@@ -47,7 +47,7 @@ public class AuthorizationBuilderSNSTests {
 		LocalDateTime date = LocalDateTime.of(2021, 8, 13, 13, 55, 12);
 
 		// WHEN
-		byte[] result = AuthorizationBuilderSNS.computeSigningKey(date.toInstant(ZoneOffset.UTC), "bar");
+		byte[] result = SnsAuthorizationBuilder.computeSigningKey(date.toInstant(ZoneOffset.UTC), "bar");
 
 		// THEN
 		assertThat("Result available", result, is(notNullValue()));
@@ -62,7 +62,7 @@ public class AuthorizationBuilderSNSTests {
 		LocalDateTime date = LocalDateTime.of(2021, 8, 13, 13, 55, 12);
 
 		// WHEN
-		AuthorizationBuilderSNS b = new AuthorizationBuilderSNS("foo");
+		SnsAuthorizationBuilder b = new SnsAuthorizationBuilder("foo");
 		b.verb("SEND");
 		b.path("/");
 		b.date(date.toInstant(ZoneOffset.UTC));
@@ -86,7 +86,7 @@ public class AuthorizationBuilderSNSTests {
 		LocalDateTime date = LocalDateTime.of(2021, 8, 13, 13, 55, 12);
 
 		// WHEN
-		AuthorizationBuilderSNS b = new AuthorizationBuilderSNS("foo");
+		SnsAuthorizationBuilder b = new SnsAuthorizationBuilder("foo");
 		b.verb("SPIFFY");
 		b.path("/path/here");
 		b.date(date.toInstant(ZoneOffset.UTC));
@@ -120,7 +120,7 @@ public class AuthorizationBuilderSNSTests {
 		byte[] contentDigest = DigestUtils.sha256("Hello, world.");
 
 		// WHEN
-		AuthorizationBuilderSNS b = new AuthorizationBuilderSNS("foo");
+		SnsAuthorizationBuilder b = new SnsAuthorizationBuilder("foo");
 		b.verb("GET");
 		b.path("/");
 		b.date(date.toInstant(ZoneOffset.UTC));
@@ -145,7 +145,7 @@ public class AuthorizationBuilderSNSTests {
 		LocalDateTime date = LocalDateTime.of(2021, 8, 13, 13, 55, 12);
 
 		// WHEN
-		String result = AuthorizationBuilderSNS.computeSignatureData(date.toInstant(ZoneOffset.UTC),
+		String result = SnsAuthorizationBuilder.computeSignatureData(date.toInstant(ZoneOffset.UTC),
 				"foobar");
 
 		// THEN
@@ -164,7 +164,7 @@ public class AuthorizationBuilderSNSTests {
 		LocalDateTime date = LocalDateTime.of(2021, 8, 13, 13, 55, 12);
 
 		// WHEN
-		AuthorizationBuilderSNS b = new AuthorizationBuilderSNS("foo");
+		SnsAuthorizationBuilder b = new SnsAuthorizationBuilder("foo");
 		b.verb("SEND");
 		b.path("/");
 		b.date(date.toInstant(ZoneOffset.UTC));
