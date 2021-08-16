@@ -542,6 +542,17 @@ public class SnsAuthorizationBuilder {
 		return build(signingKey);
 	}
 
+	private String build(byte[] signingKey) {
+		final String[] sortedHeaderNames = sortedHeaderNames();
+		final String signature = buildSignature(signingKey, sortedHeaderNames);
+		final StringBuilder buf = new StringBuilder(SCHEME_NAME);
+		buf.append(' ');
+		buf.append("Credential=").append(identifier);
+		buf.append(",SignedHeaders=").append(semiColonDelimitedList(sortedHeaderNames));
+		buf.append(",Signature=").append(signature);
+		return buf.toString();
+	}
+
 	/**
 	 * Compute a signature value from the configured properties on the builder,
 	 * using a signing key created from a previous call to
@@ -608,14 +619,4 @@ public class SnsAuthorizationBuilder {
 		return computeSignature(signingKey, signatureData);
 	}
 
-	private String build(byte[] signingKey) {
-		final String[] sortedHeaderNames = sortedHeaderNames();
-		final String signature = buildSignature(signingKey, sortedHeaderNames);
-		final StringBuilder buf = new StringBuilder(SCHEME_NAME);
-		buf.append(' ');
-		buf.append("Credential=").append(identifier);
-		buf.append(",SignedHeaders=").append(semiColonDelimitedList(sortedHeaderNames));
-		buf.append(",Signature=").append(signature);
-		return buf.toString();
-	}
 }
