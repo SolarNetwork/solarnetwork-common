@@ -40,7 +40,7 @@ public class SnsAuthorizationInfoTests {
 	@Test
 	public void parseAuthorization_ok() {
 		// GIVEN
-		String auth = "SNS Credential=foo,Headers=date;destination,Signature=bar";
+		String auth = "SNS Credential=foo,SignedHeaders=date;destination,Signature=bar";
 
 		// WHEN
 		SnsAuthorizationInfo info = SnsAuthorizationInfo.forAuthorizationHeader(auth);
@@ -57,7 +57,7 @@ public class SnsAuthorizationInfoTests {
 	@Test
 	public void parseAuthorization_ok_otherOrder() {
 		// GIVEN
-		String auth = "SNS Signature=bar,Credential=foo,Headers=date;destination";
+		String auth = "SNS Signature=bar,Credential=foo,SignedHeaders=date;destination";
 
 		// WHEN
 		SnsAuthorizationInfo info = SnsAuthorizationInfo.forAuthorizationHeader(auth);
