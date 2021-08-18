@@ -26,12 +26,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.BitSet;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Utilities for dealing with numbers.
  * 
  * @author matt
- * @version 1.6
+ * @version 1.7
  * @since 1.42
  */
 public final class NumberUtils {
@@ -444,6 +446,49 @@ public final class NumberUtils {
 			}
 		}
 		return bs;
+	}
+
+	/**
+	 * Increment and return the value from {@code n}, wrapping to
+	 * {@code restart} after {@link Integer#MAX_VALUE}.
+	 * 
+	 * @param n
+	 *        the atomic number
+	 * @param restart
+	 *        the value to wrap around to if {@link Integer#MAX_VALUE} is
+	 *        returned
+	 * @return the incremented value, possibly wrapped around
+	 * @since 1.7
+	 */
+	public static int getAndIncrementWithWrap(final AtomicInteger n, final int restart) {
+		int result;
+		int next;
+		do {
+			result = n.get();
+			next = (result < Integer.MAX_VALUE ? result + 1 : restart);
+		} while ( !n.compareAndSet(result, next) );
+		return result;
+	}
+
+	/**
+	 * Increment and return the value from {@code n}, wrapping to
+	 * {@code restart} after {@link Long#MAX_VALUE}.
+	 * 
+	 * @param n
+	 *        the atomic number
+	 * @param restart
+	 *        the value to wrap around to if {@link Long#MAX_VALUE} is returned
+	 * @return the incremented value, possibly wrapped around
+	 * @since 1.7
+	 */
+	public static long getAndIncrementWithWrap(final AtomicLong n, final long restart) {
+		long result;
+		long next;
+		do {
+			result = n.get();
+			next = (result < Long.MAX_VALUE ? result + 1 : restart);
+		} while ( !n.compareAndSet(result, next) );
+		return result;
 	}
 
 }

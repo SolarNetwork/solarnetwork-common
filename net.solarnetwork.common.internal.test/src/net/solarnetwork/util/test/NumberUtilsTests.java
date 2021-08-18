@@ -23,6 +23,7 @@
 package net.solarnetwork.util.test;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -30,6 +31,8 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.BitSet;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import net.solarnetwork.util.NumberUtils;
@@ -38,7 +41,7 @@ import net.solarnetwork.util.NumberUtils;
  * Unit tests for the {@link NumberUtils} class.
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class NumberUtilsTests {
 
@@ -336,6 +339,62 @@ public class NumberUtilsTests {
 	public void scaled_positive() {
 		BigDecimal s = NumberUtils.scaled(1, 4);
 		assertThat("Scaled positive", s, equalTo(new BigDecimal("10000")));
+	}
+
+	@Test
+	public void atomicInt_getAndIncrementWithWrap_noWrap() {
+		// GIVEN
+		AtomicInteger n = new AtomicInteger(0);
+
+		// WHEN
+		int result1 = NumberUtils.getAndIncrementWithWrap(n, -1);
+		int result2 = NumberUtils.getAndIncrementWithWrap(n, -1);
+
+		// THEN
+		assertThat("Got value without wrapping", result1, is(0));
+		assertThat("Got value without wrapping", result2, is(1));
+	}
+
+	@Test
+	public void atomicInt_getAndIncrementWithWrap_wrap() {
+		// GIVEN
+		AtomicInteger n = new AtomicInteger(Integer.MAX_VALUE);
+
+		// WHEN
+		int result1 = NumberUtils.getAndIncrementWithWrap(n, -1);
+		int result2 = NumberUtils.getAndIncrementWithWrap(n, -1);
+
+		// THEN
+		assertThat("Got value without wrapping", result1, is(Integer.MAX_VALUE));
+		assertThat("Got value with wrapping", result2, is(-1));
+	}
+
+	@Test
+	public void atomicLong_getAndIncrementWithWrap_noWrap() {
+		// GIVEN
+		AtomicLong n = new AtomicLong(0L);
+
+		// WHEN
+		long result1 = NumberUtils.getAndIncrementWithWrap(n, -1L);
+		long result2 = NumberUtils.getAndIncrementWithWrap(n, -1L);
+
+		// THEN
+		assertThat("Got value without wrapping", result1, is(0L));
+		assertThat("Got value without wrapping", result2, is(1L));
+	}
+
+	@Test
+	public void atomicLong_getAndIncrementWithWrap_wrap() {
+		// GIVEN
+		AtomicLong n = new AtomicLong(Long.MAX_VALUE);
+
+		// WHEN
+		long result1 = NumberUtils.getAndIncrementWithWrap(n, -1L);
+		long result2 = NumberUtils.getAndIncrementWithWrap(n, -1L);
+
+		// THEN
+		assertThat("Got value without wrapping", result1, is(Long.MAX_VALUE));
+		assertThat("Got value with wrapping", result2, is(-1L));
 	}
 
 }
