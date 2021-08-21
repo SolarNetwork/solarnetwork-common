@@ -35,6 +35,14 @@ import net.solarnetwork.domain.GeneralDatumSamples;
 public interface GeneralDatumSamplesContainer {
 
 	/**
+	 * Create a copy this instance.
+	 * 
+	 * @param samples
+	 *        the samples to use for the copy
+	 */
+	GeneralDatumSamplesContainer copyWithSamples(GeneralDatumSamples samples);
+
+	/**
 	 * Get the general datum samples held by this container.
 	 * 
 	 * @return the samples
