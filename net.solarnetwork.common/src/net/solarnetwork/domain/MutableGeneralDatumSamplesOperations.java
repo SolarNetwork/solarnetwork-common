@@ -22,14 +22,17 @@
 
 package net.solarnetwork.domain;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Extension of {@link GeneralDatumSamplesOperations} that adds mutate
  * operations.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.42
  */
 public interface MutableGeneralDatumSamplesOperations extends GeneralDatumSamplesOperations {
@@ -73,5 +76,42 @@ public interface MutableGeneralDatumSamplesOperations extends GeneralDatumSample
 	 *         if {@code type} is not supported
 	 */
 	void setSampleData(GeneralDatumSamplesType type, Map<String, ?> data);
+
+	/**
+	 * Set the tags.
+	 * 
+	 * @param tags
+	 *        the tags to set
+	 * @since 1.1
+	 */
+	void setTags(Set<String> tags);
+
+	/**
+	 * Copy all the sample data from another samples instance.
+	 * 
+	 * @param other
+	 *        the instance to copy the samples data from
+	 * @since 1.1
+	 */
+	default void copyFrom(GeneralDatumSamplesOperations other) {
+		if ( other == null ) {
+			return;
+		}
+		Map<String, ?> m = other.getSampleData(GeneralDatumSamplesType.Instantaneous);
+		if ( m != null ) {
+			setSampleData(GeneralDatumSamplesType.Instantaneous, new LinkedHashMap<>(m));
+		}
+		m = other.getSampleData(GeneralDatumSamplesType.Accumulating);
+		if ( m != null ) {
+			setSampleData(GeneralDatumSamplesType.Accumulating, new LinkedHashMap<>(m));
+		}
+		m = other.getSampleData(GeneralDatumSamplesType.Status);
+		if ( m != null ) {
+			setSampleData(GeneralDatumSamplesType.Status, new LinkedHashMap<>(m));
+		}
+		if ( other.getTags() != null ) {
+			setTags(new LinkedHashSet<>(other.getTags()));
+		}
+	}
 
 }

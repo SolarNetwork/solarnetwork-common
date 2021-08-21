@@ -44,8 +44,6 @@ public abstract class GeneralDatumSupport implements Serializable {
 
 	/**
 	 * Constructor.
-	 * 
-	 * @since 1.1
 	 */
 	public GeneralDatumSupport() {
 		super();
@@ -56,6 +54,7 @@ public abstract class GeneralDatumSupport implements Serializable {
 	 * 
 	 * @param other
 	 *        the other instance to copy
+	 * @since 1.1
 	 */
 	public GeneralDatumSupport(GeneralDatumSupport other) {
 		super();
