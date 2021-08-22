@@ -71,7 +71,7 @@ import org.springframework.beans.PropertyAccessorFactory;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalServiceCollection<T>,
 		FilterableService, OptionalService.OptionalFilterableService<T>,
@@ -226,6 +226,7 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 			propertyFilters = filters;
 		}
 		filters.put(key, value);
+		stickyService = null;
 	}
 
 	@Override
@@ -235,6 +236,7 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 		if ( filters != null ) {
 			result = filters.remove(key);
 		}
+		stickyService = null;
 		return result;
 	}
 
