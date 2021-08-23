@@ -272,8 +272,24 @@ public class StatCounter {
 	 *         configured {@code baseStats} or {@code stats} component type
 	 */
 	public long incrementAndGet(Stat stat) {
+		return incrementAndGet(stat, false);
+	}
+
+	/**
+	 * Increment and get the current count value.
+	 * 
+	 * @param stat
+	 *        the count to increment and get
+	 * @param quiet
+	 *        {@literal true} to ignore logging
+	 * @return the incremented count value
+	 * @throws IllegalArgumentException
+	 *         if {@code stat} is {@literal null} or not the same type as the
+	 *         configured {@code baseStats} or {@code stats} component type
+	 */
+	public long incrementAndGet(Stat stat, boolean quiet) {
 		long c = counts.incrementAndGet(countStatIndex(stat));
-		if ( log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
+		if ( !quiet && log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
 			log(stat, c);
 		}
 		return c;
@@ -292,8 +308,26 @@ public class StatCounter {
 	 *         configured {@code baseStats} or {@code stats} component type
 	 */
 	public long addAndGet(Stat stat, long count) {
+		return addAndGet(stat, count, false);
+	}
+
+	/**
+	 * Add to and get the current count value.
+	 * 
+	 * @param stat
+	 *        the count to add to and get
+	 * @param count
+	 *        the amount to add
+	 * @param quiet
+	 *        {@literal true} to ignore logging
+	 * @return the added count value
+	 * @throws IllegalArgumentException
+	 *         if {@code stat} is {@literal null} or not the same type as the
+	 *         configured {@code baseStats} or {@code stats} component type
+	 */
+	public long addAndGet(Stat stat, long count, boolean quiet) {
 		long c = counts.addAndGet(countStatIndex(stat), count);
-		if ( log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
+		if ( !quiet && log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
 			log(stat, c);
 		}
 		return c;
