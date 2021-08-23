@@ -185,6 +185,15 @@ public class StatCounter {
 	}
 
 	/**
+	 * Get the log frequency.
+	 * 
+	 * @return the log frequency
+	 */
+	public int getLogFrequency() {
+		return logFrequency;
+	}
+
+	/**
 	 * Set the log frequency.
 	 * 
 	 * @param logFrequency
@@ -195,10 +204,19 @@ public class StatCounter {
 	}
 
 	/**
+	 * Get the unique ID.
+	 * 
+	 * @return the unique ID
+	 */
+	public String getUid() {
+		return uid;
+	}
+
+	/**
 	 * Set the unique ID.
 	 * 
 	 * @param uid
-	 *        the unique ID
+	 *        the unique ID, or {@literal null} for none
 	 */
 	public void setUid(String uid) {
 		this.uid = uid;
@@ -234,6 +252,15 @@ public class StatCounter {
 		return counts.get(countStatIndex(stat));
 	}
 
+	private void log(Stat stat, long count) {
+		final String uid = getUid();
+		if ( uid != null && !uid.isEmpty() ) {
+			log.info("{} {} {}: {}", name, uid, stat.getDescription(), count);
+		} else {
+			log.info("{} {}: {}", name, stat.getDescription(), count);
+		}
+	}
+
 	/**
 	 * Increment and get the current count value.
 	 * 
@@ -247,7 +274,7 @@ public class StatCounter {
 	public long incrementAndGet(Stat stat) {
 		long c = counts.incrementAndGet(countStatIndex(stat));
 		if ( log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
-			log.info("{} {} {}: {}", name, uid, stat.getDescription(), c);
+			log(stat, c);
 		}
 		return c;
 	}
@@ -267,7 +294,7 @@ public class StatCounter {
 	public long addAndGet(Stat stat, long count) {
 		long c = counts.addAndGet(countStatIndex(stat), count);
 		if ( log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
-			log.info("{} {} {}: {}", uid, name, stat.getDescription(), c);
+			log(stat, c);
 		}
 		return c;
 	}
