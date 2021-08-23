@@ -39,6 +39,7 @@ public interface GeneralDatumSamplesContainer {
 	 * 
 	 * @param samples
 	 *        the samples to use for the copy
+	 * @return a new instance
 	 */
 	GeneralDatumSamplesContainer copyWithSamples(GeneralDatumSamples samples);
 
