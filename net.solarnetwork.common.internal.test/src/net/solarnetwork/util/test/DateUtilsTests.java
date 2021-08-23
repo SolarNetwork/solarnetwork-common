@@ -29,6 +29,7 @@ import static java.util.Locale.US;
 import static net.solarnetwork.util.IntRange.rangeOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -41,6 +42,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import net.solarnetwork.util.DateUtils;
 import net.solarnetwork.util.IntRange;
@@ -49,7 +51,7 @@ import net.solarnetwork.util.IntRange;
  * Test cases for the {@link DateUtils} class.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class DateUtilsTests {
 
@@ -472,6 +474,52 @@ public class DateUtilsTests {
 	@Test(expected = DateTimeException.class)
 	public void formatMinuteOfDayRange_invalid() {
 		DateUtils.formatRange(ChronoField.MINUTE_OF_DAY, rangeOf(0, 99 * 60), US, SHORT);
+	}
+
+	@Test
+	public void formatHoursMinutesSeconds_seconds() {
+		String s = DateUtils.formatHoursMinutesSeconds(TimeUnit.SECONDS.toMillis(34));
+		assertThat("Seconds formatted", s, is("00:34"));
+	}
+
+	@Test
+	public void formatHoursMinutesSeconds_60seconds() {
+		String s = DateUtils.formatHoursMinutesSeconds(TimeUnit.SECONDS.toMillis(60));
+		assertThat("60 seconds formatted", s, is("01:00"));
+	}
+
+	@Test
+	public void formatHoursMinutesSeconds_minutes() {
+		String s = DateUtils.formatHoursMinutesSeconds(
+				TimeUnit.MINUTES.toMillis(12) + TimeUnit.SECONDS.toMillis(34));
+		assertThat("Minutes formatted", s, is("12:34"));
+	}
+
+	@Test
+	public void formatHoursMinutesSeconds_60minutes() {
+		String s = DateUtils.formatHoursMinutesSeconds(TimeUnit.MINUTES.toMillis(60));
+		assertThat("60 minutes formatted", s, is("01:00:00"));
+	}
+
+	@Test
+	public void formatHoursMinutesSeconds_hours() {
+		String s = DateUtils.formatHoursMinutesSeconds(TimeUnit.HOURS.toMillis(8)
+				+ TimeUnit.MINUTES.toMillis(12) + TimeUnit.SECONDS.toMillis(34));
+		assertThat("Hours formatted", s, is("08:12:34"));
+	}
+
+	@Test
+	public void formatHoursMinutesSeconds_24hours() {
+		String s = DateUtils.formatHoursMinutesSeconds(TimeUnit.HOURS.toMillis(24));
+		assertThat("24 hours formatted", s, is("1d 00:00:00"));
+	}
+
+	@Test
+	public void formatHoursMinutesSeconds_days() {
+		String s = DateUtils
+				.formatHoursMinutesSeconds(TimeUnit.DAYS.toMillis(4) + TimeUnit.HOURS.toMillis(8)
+						+ TimeUnit.MINUTES.toMillis(12) + TimeUnit.SECONDS.toMillis(34));
+		assertThat("Hours formatted", s, is("4d 08:12:34"));
 	}
 
 }
