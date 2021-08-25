@@ -36,73 +36,73 @@ package net.solarnetwork.domain.datum;
 public interface ACEnergyDatum extends EnergyDatum {
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} status sample
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} status sample
 	 * key for {@link #getAcPhase()} values.
 	 */
 	public static final String PHASE_KEY = "phase";
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getRealPower()} values.
 	 */
 	public static final String REAL_POWER_KEY = "realPower";
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getApparentPower()} values.
 	 */
 	public static final String APPARENT_POWER_KEY = "apparentPower";
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getReactivePower()} values.
 	 */
 	public static final String REACTIVE_POWER_KEY = "reactivePower";
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getPowerFactor()} values.
 	 */
 	public static final String POWER_FACTOR_KEY = "powerFactor";
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getEffectivePowerFactor()} values.
 	 */
 	public static final String EFFECTIVE_POWER_FACTOR_KEY = "effectivePowerFactor";
 
 	/**
-	 * The{@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The{@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getFrequency()} values.
 	 */
 	public static final String FREQUENCY_KEY = "frequency";
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getVoltage()} values.
 	 */
 	public static final String VOLTAGE_KEY = "voltage";
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getCurrent()} values.
 	 */
 	public static final String CURRENT_KEY = "current";
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getPhaseVoltage()} values.
 	 */
 	public static final String PHASE_VOLTAGE_KEY = "phaseVoltage";
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getLineVoltage()} values.
 	 */
 	public static final String LINE_VOLTAGE_KEY = "lineVoltage";
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getNeutralCurrent()} values.
 	 */
 	public static final String NEUTRAL_CURRENT_KEY = "neutralCurrent";

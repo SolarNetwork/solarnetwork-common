@@ -30,15 +30,15 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
-import net.solarnetwork.domain.GeneralDatumSamplesOperations;
-import net.solarnetwork.domain.GeneralDatumSamplesType;
+import net.solarnetwork.domain.datum.DatumSamplesOperations;
+import net.solarnetwork.domain.datum.DatumSamplesType;
 import net.solarnetwork.domain.datum.GeneralDatum;
 
 /**
  * Serializer for {@link GeneralDatum} instances.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  * @since 1.78
  */
 public class BasicGeneralDatumSerializer extends StdScalarSerializer<GeneralDatum> {
@@ -66,9 +66,9 @@ public class BasicGeneralDatumSerializer extends StdScalarSerializer<GeneralDatu
 			gen.writeStringField("sourceId", value.getSourceId());
 		}
 
-		GeneralDatumSamplesOperations ops = value.asSampleOperations();
-		for ( GeneralDatumSamplesType t : GeneralDatumSamplesType.values() ) {
-			if ( t == GeneralDatumSamplesType.Tag ) {
+		DatumSamplesOperations ops = value.asSampleOperations();
+		for ( DatumSamplesType t : DatumSamplesType.values() ) {
+			if ( t == DatumSamplesType.Tag ) {
 				Set<String> tags = ops.getTags();
 				if ( tags != null && !tags.isEmpty() ) {
 					String[] tagsArray = tags.toArray(new String[tags.size()]);

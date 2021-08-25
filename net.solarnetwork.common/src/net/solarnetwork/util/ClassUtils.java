@@ -44,12 +44,13 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.PropertyBatchUpdateException;
 import org.springframework.util.StringUtils;
+import net.solarnetwork.domain.SerializeIgnore;
 
 /**
  * Utility methods for dealing with classes at runtime.
  *
  * @author matt
- * @version 1.3
+ * @version 2.0
  */
 public final class ClassUtils {
 

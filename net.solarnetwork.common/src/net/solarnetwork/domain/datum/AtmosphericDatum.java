@@ -33,7 +33,7 @@ import java.math.BigDecimal;
 public interface AtmosphericDatum extends Datum {
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * A {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link AtmosphericDatum#getCO2()} values.
 	 * 
 	 * @since 1.1
@@ -41,7 +41,7 @@ public interface AtmosphericDatum extends Datum {
 	String CO2_KEY = "co2";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * A {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link AtmosphericDatum#getLux()} values.
 	 * 
 	 * @since 1.1
@@ -49,7 +49,7 @@ public interface AtmosphericDatum extends Datum {
 	String LUX_KEY = "lux";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * A {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link AtmosphericDatum#getTemperature()} values.
 	 */
 	String TEMPERATURE_KEY = "temp";

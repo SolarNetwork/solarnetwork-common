@@ -57,8 +57,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import net.solarnetwork.domain.GeneralDatumMetadata;
-import net.solarnetwork.util.ObjectMapperFactoryBean;
+import net.solarnetwork.domain.datum.GeneralDatumMetadata;
 
 /**
  * Utilities for JSON data.
@@ -77,7 +76,7 @@ import net.solarnetwork.util.ObjectMapperFactoryBean;
  * </ul>
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  * @since 1.72
  */
 public final class JsonUtils {
@@ -96,20 +95,6 @@ public final class JsonUtils {
 				(Object) SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS,
 				(Object) SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
 		factory.setFeaturesToEnable(asList((Object) DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
-
-		List<com.fasterxml.jackson.databind.JsonSerializer<?>> serializers = new ArrayList<>();
-		serializers.add(net.solarnetwork.codec.JodaDateTimeSerializer.INSTANCE);
-		serializers.add(net.solarnetwork.codec.JodaLocalDateSerializer.INSTANCE);
-		serializers.add(net.solarnetwork.codec.JodaLocalDateTimeSerializer.INSTANCE);
-		serializers.add(net.solarnetwork.codec.JodaLocalTimeSerializer.INSTANCE);
-		factory.setSerializers(serializers);
-
-		List<com.fasterxml.jackson.databind.JsonDeserializer<?>> deserializers = new ArrayList<>();
-		deserializers.add(net.solarnetwork.codec.JodaDateTimeDeserializer.INSTANCE);
-		deserializers.add(net.solarnetwork.codec.JodaLocalDateDeserializer.INSTANCE);
-		deserializers.add(net.solarnetwork.codec.JodaLocalDateTimeDeserializer.INSTANCE);
-		deserializers.add(net.solarnetwork.codec.JodaLocalTimeDeserializer.INSTANCE);
-		factory.setDeserializers(deserializers);
 
 		registerOptionalModule(factory, javaTimeModule());
 

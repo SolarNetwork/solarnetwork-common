@@ -35,8 +35,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
-import net.solarnetwork.domain.GeneralDatumSamples;
-import net.solarnetwork.domain.GeneralDatumSamplesType;
+import net.solarnetwork.domain.datum.DatumSamples;
+import net.solarnetwork.domain.datum.DatumSamplesType;
 import net.solarnetwork.domain.datum.GeneralDatum;
 import net.solarnetwork.util.DateUtils;
 
@@ -44,7 +44,7 @@ import net.solarnetwork.util.DateUtils;
  * Deserializer for {@link GeneralDatum} objects
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  * @since 1.78
  */
 public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<GeneralDatum>
@@ -71,7 +71,7 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<General
 		} else if ( p.isExpectedStartObjectToken() ) {
 			Instant ts = null;
 			String sourceId = null;
-			GeneralDatumSamples s = new GeneralDatumSamples();
+			DatumSamples s = new DatumSamples();
 
 			String field;
 			while ( (field = p.nextFieldName()) != null ) {
@@ -90,15 +90,15 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<General
 						break;
 
 					case "i":
-						parseSampleMap(p, ctxt, s, GeneralDatumSamplesType.Instantaneous);
+						parseSampleMap(p, ctxt, s, DatumSamplesType.Instantaneous);
 						break;
 
 					case "a":
-						parseSampleMap(p, ctxt, s, GeneralDatumSamplesType.Accumulating);
+						parseSampleMap(p, ctxt, s, DatumSamplesType.Accumulating);
 						break;
 
 					case "s":
-						parseSampleMap(p, ctxt, s, GeneralDatumSamplesType.Status);
+						parseSampleMap(p, ctxt, s, DatumSamplesType.Status);
 						break;
 
 					case "t":
@@ -111,13 +111,13 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<General
 						break;
 				}
 			}
-			return new net.solarnetwork.domain.GeneralDatum(sourceId, ts, s);
+			return new net.solarnetwork.domain.datum.GeneralDatum(sourceId, ts, s);
 		}
 		throw new JsonParseException(p, "Unable to parse GeneralDatum (not an object)");
 	}
 
-	private void parseSampleMap(JsonParser p, DeserializationContext ctxt, GeneralDatumSamples s,
-			GeneralDatumSamplesType type) throws IOException {
+	private void parseSampleMap(JsonParser p, DeserializationContext ctxt, DatumSamples s,
+			DatumSamplesType type) throws IOException {
 		p.nextToken();
 		Map<String, Object> map = p.readValueAs(JsonUtils.STRING_MAP_TYPE);
 		if ( map != null && !map.isEmpty() ) {

@@ -4,16 +4,16 @@
  * Copyright 2020 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ * modify it under the terms of the GNU  Public License as 
  * published by the Free Software Foundation; either version 2 of 
  * the License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful, 
  * but WITHOUT ANY WARRANTY; without even the implied warranty of 
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
- * General Public License for more details.
+ *  Public License for more details.
  * 
- * You should have received a copy of the GNU General Public License 
+ * You should have received a copy of the GNU  Public License 
  * along with this program; if not, write to the Free Software 
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
@@ -28,8 +28,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import net.solarnetwork.domain.GeneralDatumSamplesOperations;
-import net.solarnetwork.domain.GeneralDatumSamplesType;
 
 /**
  * A collection of property values for a datum.
@@ -95,7 +93,7 @@ public class DatumProperties implements Serializable {
 	 * @throws IllegalArgumentException
 	 *         if the metadata does not support a property found on the datum
 	 */
-	public static DatumProperties propertiesFrom(GeneralDatum datum, ObjectDatumStreamMetadata meta)
+	public static DatumProperties propertiesFrom(Datum datum, ObjectDatumStreamMetadata meta)
 			throws IllegalArgumentException {
 		if ( datum == null ) {
 			return null;
@@ -103,13 +101,13 @@ public class DatumProperties implements Serializable {
 		if ( meta == null ) {
 			throw new IllegalArgumentException("No stream metadata available for datum " + datum);
 		}
-		GeneralDatumSamplesOperations ops = datum.asSampleOperations();
+		DatumSamplesOperations ops = datum.asSampleOperations();
 		if ( ops == null ) {
 			return null;
 		}
-		BigDecimal[] data_i = decimalPropertiesFrom(meta, ops, GeneralDatumSamplesType.Instantaneous);
-		BigDecimal[] data_a = decimalPropertiesFrom(meta, ops, GeneralDatumSamplesType.Accumulating);
-		String[] data_s = stringPropertiesFrom(meta, ops, GeneralDatumSamplesType.Status);
+		BigDecimal[] data_i = decimalPropertiesFrom(meta, ops, DatumSamplesType.Instantaneous);
+		BigDecimal[] data_a = decimalPropertiesFrom(meta, ops, DatumSamplesType.Accumulating);
+		String[] data_s = stringPropertiesFrom(meta, ops, DatumSamplesType.Status);
 		Set<String> tags = ops.getTags();
 		String[] data_t = (tags != null && !tags.isEmpty() ? tags.toArray(new String[tags.size()])
 				: null);
@@ -117,7 +115,7 @@ public class DatumProperties implements Serializable {
 	}
 
 	private static BigDecimal[] decimalPropertiesFrom(ObjectDatumStreamMetadata meta,
-			GeneralDatumSamplesOperations ops, GeneralDatumSamplesType type) {
+			DatumSamplesOperations ops, DatumSamplesType type) {
 		String[] propNames = meta.propertyNamesForType(type);
 		int len = (propNames != null ? propNames.length : 0);
 		BigDecimal[] data = null;
@@ -156,7 +154,7 @@ public class DatumProperties implements Serializable {
 	}
 
 	private static String[] stringPropertiesFrom(ObjectDatumStreamMetadata meta,
-			GeneralDatumSamplesOperations ops, GeneralDatumSamplesType type) {
+			DatumSamplesOperations ops, DatumSamplesType type) {
 		String[] propNames = meta.propertyNamesForType(type);
 		int len = (propNames != null ? propNames.length : 0);
 		String[] data = null;

@@ -31,13 +31,13 @@ package net.solarnetwork.domain.datum;
 public interface EnergyStorageDatum extends Datum {
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getAvailableEnergyPercentage()} values.
 	 */
 	String PERCENTAGE_KEY = "percent";
 
 	/**
-	 * The {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
 	 * sample key for {@link #getAvailableEnergy()} values.
 	 */
 	String AVAILABLE_WATT_HOURS_KEY = "availWattHours";

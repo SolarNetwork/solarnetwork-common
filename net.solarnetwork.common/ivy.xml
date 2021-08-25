@@ -19,10 +19,6 @@
 		<dependency org="commons-codec" name="commons-codec" rev="1.11"/>
 		<dependency org="net.sf.supercsv" name="super-csv" rev="2.1.0"/>
 		<dependency org="org.apache.commons" name="commons-compress" rev="1.18" />
-		<dependency org="org.apache.tomcat" name="tomcat-jdbc" rev="7.0.29" conf="compile"/>
-		<dependency org="org.osgi" name="org.osgi.core" rev="5.0.0"/>
-		<dependency org="org.osgi" name="org.osgi.enterprise" rev="5.0.0"/>
-		<dependency org="joda-time" name="joda-time" rev="2.4"/>
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.21"/>
 		<dependency org="org.springframework" name="spring-context" rev="4.3.23.RELEASE"/>
 		<dependency org="org.springframework" name="spring-expression" rev="4.3.23.RELEASE"/>

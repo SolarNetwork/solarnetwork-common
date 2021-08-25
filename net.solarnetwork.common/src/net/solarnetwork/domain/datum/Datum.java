@@ -31,7 +31,7 @@ import java.util.Map;
  * Basic persistable domain object API.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public interface Datum {
 
@@ -72,14 +72,15 @@ public interface Datum {
 	String DATUM_TYPES_PROPERTY = "_DatumTypes";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} sample key for
-	 * a {@link net.solarnetwork.domain.DeviceOperatingState#getCode()} value.
+	 * A {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} sample
+	 * key for a {@link net.solarnetwork.domain.DeviceOperatingState#getCode()}
+	 * value.
 	 */
 	String OP_STATE = "opState";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} sample key for
-	 * a bitmask of hardware-specific operating state values.
+	 * A {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} sample
+	 * key for a bitmask of hardware-specific operating state values.
 	 */
 	String OP_STATES = "opStates";
 
@@ -93,6 +94,13 @@ public interface Datum {
 	 * A sample data key for a {@link Datum#getSourceId()} value.
 	 */
 	String SOURCE_ID = "sourceId";
+
+	/**
+	 * Get the object kind.
+	 * 
+	 * @return the object kind
+	 */
+	ObjectDatumKind getKind();
 
 	/**
 	 * Get the date this datum is associated with, which is often equal to
@@ -136,5 +144,13 @@ public interface Datum {
 	 * @return a Map view of this datum
 	 */
 	Map<String, ?> asSimpleMap();
+
+	/**
+	 * Get a general accessor for the sample data.
+	 * 
+	 * @return the operations instance, or {@literal null} if no samples are
+	 *         available
+	 */
+	DatumSamplesOperations asSampleOperations();
 
 }
