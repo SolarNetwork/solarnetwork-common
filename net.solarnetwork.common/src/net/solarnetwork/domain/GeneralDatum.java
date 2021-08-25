@@ -36,7 +36,7 @@ import net.solarnetwork.domain.datum.Datum;
  * A basic implementation of {@link net.solarnetwork.domain.datum.GeneralDatum}.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.71
  */
 public class GeneralDatum extends BasicIdentity<DatumStreamId>
@@ -315,6 +315,7 @@ public class GeneralDatum extends BasicIdentity<DatumStreamId>
 	 *        the tags to set
 	 * @see net.solarnetwork.domain.GeneralDatumSupport#setTags(java.util.Set)
 	 */
+	@Override
 	public void setTags(Set<String> tags) {
 		samples.setTags(tags);
 	}

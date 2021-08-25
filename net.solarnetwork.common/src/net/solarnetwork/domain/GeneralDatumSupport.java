@@ -27,20 +27,41 @@ import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import net.solarnetwork.util.SerializeIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import net.solarnetwork.util.SerializeIgnore;
 
 /**
  * Supporting abstract class for general node datum related objects.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public abstract class GeneralDatumSupport implements Serializable {
 
 	private static final long serialVersionUID = -4264640101068495508L;
 
 	private Set<String> tags;
+
+	/**
+	 * Constructor.
+	 */
+	public GeneralDatumSupport() {
+		super();
+	}
+
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param other
+	 *        the other instance to copy
+	 * @since 1.1
+	 */
+	public GeneralDatumSupport(GeneralDatumSupport other) {
+		super();
+		if ( other != null ) {
+			this.tags = (other.tags != null ? new LinkedHashSet<>(other.tags) : null);
+		}
+	}
 
 	/**
 	 * Get a String value out of a Map. If the key exists but is not a String,

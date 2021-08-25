@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
  * Date and time utilities.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.59
  */
 public final class DateUtils {
@@ -491,6 +491,52 @@ public final class DateUtils {
 			locale = Locale.getDefault();
 		}
 		return formatRange(range, locale, field, style);
+	}
+
+	/**
+	 * Get a formatted "x days hh:mm:ss" style string from a millisecond
+	 * duration.
+	 * 
+	 * <p>
+	 * The output pattern is like: {@literal Dd HH:MM:SS} where {@literal D} is
+	 * the number of whole days, {@literal HH} the number of hours,
+	 * {@literal MM} the number of minutes, and {@literal SS} the number of
+	 * seconds.
+	 * </p>
+	 * 
+	 * <p>
+	 * The returned string will be shortened to exclude the day and hour
+	 * components if those values are {@literal 0}.
+	 * </p>
+	 * 
+	 * <p>
+	 * Examples of output are:
+	 * </p>
+	 * 
+	 * <pre>
+	 * 3d 12:34:56
+	 * 23:45:43
+	 * 34:56
+	 * 00:01
+	 * </pre>
+	 * 
+	 * @param milliseconds
+	 *        the millisecond duration
+	 * @return the formatted string
+	 */
+	public static String formatHoursMinutesSeconds(final long milliseconds) {
+		long totalSeconds = milliseconds / 1000L;
+		long hours = (int) (totalSeconds / 3600L);
+		int minutes = (int) ((totalSeconds % 3600L) / 60);
+		int seconds = (int) (totalSeconds % 60);
+		if ( hours > 23 ) {
+			int days = (int) hours / 24;
+			hours -= days * 24;
+			return String.format("%dd %02d:%02d:%02d", days, hours, minutes, seconds);
+		} else if ( hours > 0 ) {
+			return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+		}
+		return String.format("%02d:%02d", minutes, seconds);
 	}
 
 }

@@ -7,5 +7,5 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="output" path="build"/>
+	<classpathentry kind="output" path="build/eclipse"/>
 </classpath>
