@@ -32,10 +32,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.Test;
-import net.solarnetwork.domain.GeneralDatum;
-import net.solarnetwork.domain.GeneralDatumSamples;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.DatumProperties;
+import net.solarnetwork.domain.datum.DatumSamples;
+import net.solarnetwork.domain.datum.GeneralDatum;
 import net.solarnetwork.domain.datum.ObjectDatumKind;
 import net.solarnetwork.util.Half;
 
@@ -86,7 +86,7 @@ public class DatumPropertiesTests {
 		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
 				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source", new String[] { "a", "b" },
 				new String[] { "c", "d" }, new String[] { "e" });
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("a", 1);
 		s.putInstantaneousSampleValue("b", 2);
 		s.putAccumulatingSampleValue("c", 3);
@@ -113,7 +113,7 @@ public class DatumPropertiesTests {
 				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source", new String[] { "a", "b" },
 				new String[] { "c", "d" }, new String[] { "e" });
 		Half h = new Half("1.23");
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("a", 1);
 		s.putInstantaneousSampleValue("b", h);
 		GeneralDatum d = new GeneralDatum(123L, "test.source", Instant.now(), s);
@@ -133,7 +133,7 @@ public class DatumPropertiesTests {
 		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
 				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source", new String[] { "a", "b" },
 				new String[] { "c", "d" }, new String[] { "e" });
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("foo", 1);
 		GeneralDatum d = new GeneralDatum(123L, "test.source", Instant.now(), s);
 
@@ -146,7 +146,7 @@ public class DatumPropertiesTests {
 		// GIVEN
 		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
 				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source", null, null, null);
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("foo", 1);
 		GeneralDatum d = new GeneralDatum(123L, "test.source", Instant.now(), s);
 
@@ -159,7 +159,7 @@ public class DatumPropertiesTests {
 		// GIVEN
 		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
 				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source", null, null, null);
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putAccumulatingSampleValue("foo", 1);
 		GeneralDatum d = new GeneralDatum(123L, "test.source", Instant.now(), s);
 
@@ -172,7 +172,7 @@ public class DatumPropertiesTests {
 		// GIVEN
 		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
 				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source", null, null, null);
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putStatusSampleValue("foo", "bar");
 		GeneralDatum d = new GeneralDatum(123L, "test.source", Instant.now(), s);
 
@@ -186,7 +186,7 @@ public class DatumPropertiesTests {
 		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
 				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source",
 				new String[] { "a", "b", "c" }, new String[] { "c", "d" }, new String[] { "e" });
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("a", 1);
 		s.putAccumulatingSampleValue("c", 3);
 		s.putStatusSampleValue("e", 5);
@@ -210,7 +210,7 @@ public class DatumPropertiesTests {
 		BasicObjectDatumStreamMetadata meta = new BasicObjectDatumStreamMetadata(UUID.randomUUID(),
 				"Pacific/Auckland", ObjectDatumKind.Node, 123L, "test.source",
 				new String[] { "a", "b", "c", "d" }, new String[] { "e", "f" }, new String[] { "g" });
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("a", 1);
 		// no b (the hole)
 		s.putInstantaneousSampleValue("c", 3);

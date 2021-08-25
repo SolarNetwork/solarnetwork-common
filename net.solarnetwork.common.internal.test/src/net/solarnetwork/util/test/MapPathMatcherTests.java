@@ -20,9 +20,9 @@
  * ==================================================================
  */
 
-package net.solarnetwork.support.test;
+package net.solarnetwork.util.test;
 
-import static net.solarnetwork.support.MapPathMatcher.matches;
+import static net.solarnetwork.util.MapPathMatcher.matches;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.util.FileCopyUtils;
 import net.solarnetwork.codec.JsonUtils;
-import net.solarnetwork.support.MapPathMatcher;
+import net.solarnetwork.util.MapPathMatcher;
 
 /**
  * Test cases for the {@link MapPathMatcher} class.

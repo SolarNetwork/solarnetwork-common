@@ -1,5 +1,5 @@
 /* ==================================================================
- * GeneralLocationSourceMetadataTest.java - Oct 21, 2014 2:11:26 PM
+ * GeneralSourceMetadataTest.java - Oct 21, 2014 1:45:17 PM
  * 
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
@@ -20,47 +20,42 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain.test;
+package net.solarnetwork.domain.datum.test;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
-import net.solarnetwork.domain.GeneralDatumMetadata;
-import net.solarnetwork.domain.GeneralLocationSourceMetadata;
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import net.solarnetwork.codec.JsonUtils;
+import net.solarnetwork.domain.datum.GeneralDatumMetadata;
+import net.solarnetwork.domain.datum.GeneralSourceMetadata;
 
 /**
- * Test cases for the {@link GeneralLocationSourceMetadata} class.
+ * Test cases for {@link GeneralSourceMetadata}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
-public class GeneralLocationSourceMetadataTest {
+public class GeneralSourceMetadataTest {
 
 	private static final String TEST_SOURCE_ID = "test.source";
-	private static final Long TEST_LOC_ID = -1L;
 
 	private ObjectMapper objectMapper;
 
 	@Before
 	public void setup() {
-		objectMapper = new ObjectMapper();
-		objectMapper.registerModule(new JodaModule());
-		objectMapper.setSerializationInclusion(Include.NON_NULL).configure(
-				DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
+		objectMapper = JsonUtils.newObjectMapper();
 	}
 
-	private GeneralLocationSourceMetadata getTestInstance() {
-		GeneralLocationSourceMetadata result = new GeneralLocationSourceMetadata();
+	private GeneralSourceMetadata getTestInstance() {
+		GeneralSourceMetadata result = new GeneralSourceMetadata();
 		result.setCreated(testDate());
 		result.setSourceId(TEST_SOURCE_ID);
-		result.setLocationId(TEST_LOC_ID);
 
 		GeneralDatumMetadata meta = new GeneralDatumMetadata();
 		result.setMeta(meta);
@@ -80,29 +75,28 @@ public class GeneralLocationSourceMetadataTest {
 		return result;
 	}
 
-	private DateTime testDate() {
-		return new DateTime(2014, 10, 21, 12, 0, 0);
+	private Instant testDate() {
+		return LocalDateTime.of(2014, 10, 21, 12, 0, 0).atZone(ZoneId.systemDefault()).toInstant();
 	}
 
 	@Test
 	public void serializeJson() throws Exception {
 		String json = objectMapper.writeValueAsString(getTestInstance());
 		Assert.assertEquals(
-				"{\"created\":1413846000000,\"locationId\":-1,\"sourceId\":\"test.source\",\"m\":{\"currency\":\"NZD\"}"
-						+ ",\"pm\":{\"amount\":{\"units\":\"MWh\"}}" + ",\"t\":[\"price\"]}", json);
+				"{\"created\":\"2014-10-20 23:00:00Z\",\"sourceId\":\"test.source\",\"m\":{\"currency\":\"NZD\"}"
+						+ ",\"pm\":{\"amount\":{\"units\":\"MWh\"}}" + ",\"t\":[\"price\"]}",
+				json);
 	}
 
 	@Test
 	public void deserializeJson() throws Exception {
-		String json = "{\"created\":1413846000000,\"updated\":1413846000000,\"locationId\":-1,\"sourceId\":\"test.source\",\"m\":{\"currency\":\"NZD\"}"
+		String json = "{\"created\":\"2014-10-20 23:00:00Z\",\"updated\":\"2014-10-20 23:00:00Z\",\"sourceId\":\"test.source\",\"m\":{\"currency\":\"NZD\"}"
 				+ ",\"pm\":{\"amount\":{\"units\":\"MWh\"}}" + ",\"t\":[\"price\"]}";
-		GeneralLocationSourceMetadata meta = objectMapper.readValue(json,
-				GeneralLocationSourceMetadata.class);
+		GeneralSourceMetadata meta = objectMapper.readValue(json, GeneralSourceMetadata.class);
 
 		Assert.assertNotNull(meta);
-		Assert.assertEquals(testDate().getMillis(), meta.getCreated().getMillis());
-		Assert.assertEquals(testDate().getMillis(), meta.getUpdated().getMillis());
-		Assert.assertEquals(-1L, meta.getLocationId().longValue());
+		Assert.assertEquals(testDate().toEpochMilli(), meta.getCreated().toEpochMilli());
+		Assert.assertEquals(testDate().toEpochMilli(), meta.getUpdated().toEpochMilli());
 		Assert.assertEquals("test.source", meta.getSourceId());
 		Assert.assertEquals("NZD", meta.getMeta().getInfoString("currency"));
 		Assert.assertEquals("MWh", meta.getMeta().getInfoString("amount", "units"));

@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util.test;
+package net.solarnetwork.common.osgi.test;
 
 import java.io.Serializable;
 import java.util.Dictionary;

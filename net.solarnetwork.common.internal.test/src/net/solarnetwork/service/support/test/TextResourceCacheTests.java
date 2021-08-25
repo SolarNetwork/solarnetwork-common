@@ -20,13 +20,13 @@
  * ==================================================================
  */
 
-package net.solarnetwork.support.test;
+package net.solarnetwork.service.support.test;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import java.util.Collections;
 import org.junit.Test;
-import net.solarnetwork.support.TextResourceCache;
+import net.solarnetwork.service.support.TextResourceCache;
 import net.solarnetwork.util.test.ClassUtilsTests;
 
 /**

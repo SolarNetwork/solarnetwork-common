@@ -50,6 +50,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
@@ -145,11 +146,13 @@ public final class JsonUtils {
 		return createOptionalModule("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", m -> {
 			// replace default timestamp JsonSerializer with one that supports spaces
 			m.addSerializer(Instant.class, loadOptionalSerializerInstance(
-					"net.solarnetwork.util.JsonDateUtils$InstantSerializer"));
+					"net.solarnetwork.codec.JsonDateUtils$InstantSerializer"));
 			m.addSerializer(ZonedDateTime.class, loadOptionalSerializerInstance(
-					"net.solarnetwork.util.JsonDateUtils$ZonedDateTimeSerializer"));
+					"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeSerializer"));
 			m.addSerializer(LocalDateTime.class, loadOptionalSerializerInstance(
-					"net.solarnetwork.util.JsonDateUtils$LocalDateTimeSerializer"));
+					"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeSerializer"));
+			m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
+					"net.solarnetwork.codec.JsonDateUtils$InstantDeserializer"));
 		});
 	}
 
@@ -162,6 +165,19 @@ public final class JsonUtils {
 			return (JsonSerializer<T>) f.get(null);
 		} catch ( ClassNotFoundException | IllegalAccessException | NoSuchFieldException e ) {
 			LOG.info("Optional JSON serializer {} not available ({})", className, e.toString());
+			return null;
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static final <T> JsonDeserializer<T> loadOptionalDeserializerInstance(String className) {
+		try {
+			Class<? extends JsonDeserializer> clazz = JsonUtils.class.getClassLoader()
+					.loadClass(className).asSubclass(JsonDeserializer.class);
+			Field f = clazz.getDeclaredField("INSTANCE");
+			return (JsonDeserializer<T>) f.get(null);
+		} catch ( ClassNotFoundException | IllegalAccessException | NoSuchFieldException e ) {
+			LOG.info("Optional JSON deserializer {} not available ({})", className, e.toString());
 			return null;
 		}
 	}

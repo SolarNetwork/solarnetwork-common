@@ -20,18 +20,18 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain.test;
+package net.solarnetwork.domain.datum.test;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-import net.solarnetwork.domain.GeneralNodeDatumSamples;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.solarnetwork.domain.datum.GeneralNodeDatumSamples;
 
 /**
  * Test cases for {@link GeneralNodeDatumSamples}.

@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.support.test;
+package net.solarnetwork.util.test;
 
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
@@ -40,10 +40,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
-import net.solarnetwork.support.SearchFilter;
-import net.solarnetwork.support.SearchFilter.CompareOperator;
-import net.solarnetwork.support.SearchFilter.LogicOperator;
-import net.solarnetwork.support.SearchFilter.VisitorCallback;
+import net.solarnetwork.util.SearchFilter;
+import net.solarnetwork.util.SearchFilter.CompareOperator;
+import net.solarnetwork.util.SearchFilter.LogicOperator;
+import net.solarnetwork.util.SearchFilter.VisitorCallback;
 
 /**
  * Test cases for the {@link SearchFilter} class.

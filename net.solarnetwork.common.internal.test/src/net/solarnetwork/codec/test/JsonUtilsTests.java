@@ -35,7 +35,6 @@ import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.joda.time.DateTimeZone;
 import org.junit.Test;
 import net.solarnetwork.codec.JsonUtils;
 import net.solarnetwork.domain.BasicDeviceInfo;
@@ -44,7 +43,7 @@ import net.solarnetwork.domain.BasicDeviceInfo;
  * Test cases for the {@link JsonUtils} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class JsonUtilsTests {
 
@@ -118,60 +117,6 @@ public class JsonUtilsTests {
 		// THEN
 		assertThat("LocalDate serialized as milliseconds timestamp", json,
 				equalTo("{\"ts\":\"02:03:04.567\"}"));
-	}
-
-	@Test
-	public void serialize_joda_DateTime() {
-		// GIVEN
-		Map<String, Object> props = new LinkedHashMap<>(2);
-		props.put("ts", new org.joda.time.LocalDateTime(2020, 6, 1, 0, 0).toDateTime(DateTimeZone.UTC));
-
-		// WHEN
-		String json = JsonUtils.getJSONString(props, null);
-
-		// THEN
-		assertThat("Joda DateTime serialized as string", json,
-				equalTo("{\"ts\":\"2020-06-01 00:00:00.000Z\"}"));
-	}
-
-	@Test
-	public void serialize_joda_LocalDateTime() {
-		// GIVEN
-		Map<String, Object> props = new LinkedHashMap<>(2);
-		props.put("ts", new org.joda.time.LocalDateTime(2020, 6, 1, 0, 0));
-
-		// WHEN
-		String json = JsonUtils.getJSONString(props, null);
-
-		// THEN
-		assertThat("Joda LocalDateTime serialized as string", json,
-				equalTo("{\"ts\":\"2020-06-01 00:00\"}"));
-	}
-
-	@Test
-	public void serialize_joda_LocalDate() {
-		// GIVEN
-		Map<String, Object> props = new LinkedHashMap<>(2);
-		props.put("ts", new org.joda.time.LocalDate(2020, 6, 1));
-
-		// WHEN
-		String json = JsonUtils.getJSONString(props, null);
-
-		// THEN
-		assertThat("Joda LocalDateTime serialized as string", json, equalTo("{\"ts\":\"2020-06-01\"}"));
-	}
-
-	@Test
-	public void serialize_joda_LocalTime() {
-		// GIVEN
-		Map<String, Object> props = new LinkedHashMap<>(2);
-		props.put("ts", new org.joda.time.LocalTime(1, 2));
-
-		// WHEN
-		String json = JsonUtils.getJSONString(props, null);
-
-		// THEN
-		assertThat("Joda LocalDateTime serialized as string", json, equalTo("{\"ts\":\"01:02\"}"));
 	}
 
 	@Test

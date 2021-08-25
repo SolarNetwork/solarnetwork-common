@@ -34,19 +34,19 @@ package net.solarnetwork.domain.datum;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public interface EnergyDatum extends Datum {
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} accumulating
-	 * sample key for {@link #getWattHourReading()} values.
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples}
+	 * accumulating sample key for {@link #getWattHourReading()} values.
 	 */
 	public static final String WATT_HOUR_READING_KEY = "wattHours";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getWatts()} values.
+	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples}
+	 * instantaneous sample key for {@link #getWatts()} values.
 	 */
 	public static final String WATTS_KEY = "watts";
 
@@ -57,20 +57,28 @@ public interface EnergyDatum extends Datum {
 	public static final String TAG_GENERATION = "power";
 
 	/**
-	 * Get a watt-hour reading. Generally this is an accumulating value and
-	 * represents the overall energy used or produced since some reference date.
-	 * Often the reference date if fixed, but it could also shift, for example
-	 * shift to the last time a reading was taken.
+	 * Get a watt-hour reading.
 	 * 
-	 * @return the watt hour reading, or <em>null</em> if not available
+	 * <p>
+	 * Generally this is an accumulating value and represents the overall energy
+	 * used or produced since some reference date. Often the reference date if
+	 * fixed, but it could also shift, for example shift to the last time a
+	 * reading was taken.
+	 * </p>
+	 * 
+	 * @return the watt hour reading, or {@literal null} if not available
 	 */
-	public Long getWattHourReading();
+	default Long getWattHourReading() {
+		return asSampleOperations().getSampleLong(DatumSamplesType.Accumulating, WATT_HOUR_READING_KEY);
+	}
 
 	/**
 	 * Get the instantaneous watts.
 	 * 
-	 * @return watts, or <em>null</em> if not available
+	 * @return watts, or {@literal null} if not available
 	 */
-	public Integer getWatts();
+	default Integer getWatts() {
+		return asSampleOperations().getSampleInteger(DatumSamplesType.Instantaneous, WATTS_KEY);
+	}
 
 }

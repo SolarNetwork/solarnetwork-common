@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util.test;
+package net.solarnetwork.common.osgi.service.test;
 
 import static org.easymock.EasyMock.expect;
 import static org.hamcrest.Matchers.equalTo;
@@ -36,8 +36,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import net.solarnetwork.util.DynamicServiceTracker;
-import net.solarnetwork.util.test.TestServiceReference.SerializableServiceRef;
+import net.solarnetwork.common.osgi.service.DynamicServiceTracker;
+import net.solarnetwork.common.osgi.test.TestServiceReference.SerializableServiceRef;
 
 /**
  * Test cases for the {@link DynamicServiceTracker} class.

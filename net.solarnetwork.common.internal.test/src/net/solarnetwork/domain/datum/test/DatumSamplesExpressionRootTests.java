@@ -20,11 +20,11 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain.test;
+package net.solarnetwork.domain.datum.test;
 
 import static java.util.stream.Collectors.toCollection;
-import static net.solarnetwork.domain.GeneralDatumSamplesType.Accumulating;
-import static net.solarnetwork.domain.GeneralDatumSamplesType.Instantaneous;
+import static net.solarnetwork.domain.datum.DatumSamplesType.Accumulating;
+import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -36,9 +36,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.junit.Test;
-import net.solarnetwork.domain.DatumSamplesExpressionRoot;
-import net.solarnetwork.domain.GeneralDatum;
-import net.solarnetwork.domain.GeneralDatumSamples;
+import net.solarnetwork.domain.datum.DatumSamples;
+import net.solarnetwork.domain.datum.DatumSamplesExpressionRoot;
+import net.solarnetwork.domain.datum.GeneralDatum;
 
 /**
  * Test cases for the {@link ExpressionRoot} class.
@@ -55,7 +55,7 @@ public class DatumSamplesExpressionRootTests {
 		d.putSampleValue(Accumulating, "c", 7);
 		d.putSampleValue(Accumulating, "d", 9);
 
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		d.putSampleValue(Instantaneous, "b", 21);
 		d.putSampleValue(Instantaneous, "c", 23);
 		d.putSampleValue(Accumulating, "e", 25);

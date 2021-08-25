@@ -20,14 +20,14 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain.test;
+package net.solarnetwork.domain.datum.test;
 
-import static net.solarnetwork.domain.GeneralDatumSamplesType.Instantaneous;
+import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import java.math.BigDecimal;
 import org.junit.Test;
-import net.solarnetwork.domain.NumberDatumSamplePropertyConfig;
+import net.solarnetwork.domain.datum.NumberDatumSamplePropertyConfig;
 
 /**
  * Test cases for the {@link NumberDatumSamplePropertyConfig} class.

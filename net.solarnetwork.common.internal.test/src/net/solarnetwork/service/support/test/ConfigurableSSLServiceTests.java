@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.support.test;
+package net.solarnetwork.service.support.test;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -45,7 +45,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import net.solarnetwork.pki.bc.BCCertificateService;
-import net.solarnetwork.support.ConfigurableSSLService;
+import net.solarnetwork.service.support.ConfigurableSSLService;
 
 /**
  * Unit tests for the {@link ConfigurableSSLService} class.

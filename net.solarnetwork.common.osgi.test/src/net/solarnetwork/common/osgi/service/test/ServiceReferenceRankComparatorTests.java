@@ -20,15 +20,15 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util.test;
+package net.solarnetwork.common.osgi.service.test;
 
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import java.util.Arrays;
 import org.junit.Test;
-import net.solarnetwork.util.ServiceReferenceRankComparator;
-import net.solarnetwork.util.test.TestServiceReference.SerializableServiceRef;
+import net.solarnetwork.common.osgi.service.ServiceReferenceRankComparator;
+import net.solarnetwork.common.osgi.test.TestServiceReference.SerializableServiceRef;
 
 /**
  * Test cases for the {@link ServiceReferenceRankComparator} class.

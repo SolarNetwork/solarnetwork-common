@@ -35,7 +35,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.codec.BasicGeneralDatumDeserializer;
-import net.solarnetwork.domain.GeneralDatumSamples;
+import net.solarnetwork.domain.datum.DatumSamples;
 import net.solarnetwork.domain.datum.GeneralDatum;
 
 /**
@@ -78,15 +78,14 @@ public class BasicGeneralDatumDeserializerTests {
 		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
 				(int) TimeUnit.MILLISECONDS.toNanos(345));
 		Instant ts = date.toInstant(ZoneOffset.UTC);
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("a", 1);
 		s.putAccumulatingSampleValue("b", 2);
 		s.putStatusSampleValue("c", "three");
 		s.addTag("d");
-		GeneralDatum expected = new net.solarnetwork.domain.GeneralDatum("test.source", ts, s);
+		GeneralDatum expected = new net.solarnetwork.domain.datum.GeneralDatum("test.source", ts, s);
 		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
-		assertThat("GeneralDatum samples parsed",
-				((net.solarnetwork.domain.GeneralDatum) datum).getSamples(), is(equalTo(s)));
+		assertThat("GeneralDatum samples parsed", datum.getSamples(), is(equalTo(s)));
 	}
 
 }

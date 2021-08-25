@@ -1,7 +1,7 @@
 /* ==================================================================
- * JodaDateTimeEpochSerializerTests.java - 6/11/2019 9:19:54 am
+ * DatumSamplePropertyConfigTests.java - 14/03/2018 3:53:05 PM
  * 
- * Copyright 2019 SolarNetwork.net Dev Team
+ * Copyright 2018 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,45 +20,29 @@
  * ==================================================================
  */
 
-package net.solarnetwork.codec.test;
+package net.solarnetwork.domain.datum.test;
 
+import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import net.solarnetwork.codec.JodaDateTimeEpochSerializer;
+import net.solarnetwork.domain.datum.DatumSamplePropertyConfig;
 
 /**
- * Test cases for the {@link JodaDateTimeEpochSerializer} class.
+ * Test cases for the {@link GeneralDatumSamplePropertyConfig} class.
  * 
  * @author matt
  * @version 1.0
  */
-public class JodaDateTimeEpochSerializerTests {
-
-	private ObjectMapper mapper;
-
-	private ObjectMapper createObjectMapper() {
-		ObjectMapper m = new ObjectMapper();
-		SimpleModule mod = new SimpleModule("Test");
-		mod.addSerializer(DateTime.class, new JodaDateTimeEpochSerializer());
-		m.registerModule(mod);
-		return m;
-	}
-
-	@Before
-	public void setup() {
-		mapper = createObjectMapper();
-	}
+public class DatumSamplePropertyConfigTests {
 
 	@Test
-	public void serialize() throws Exception {
-		DateTime now = new DateTime();
-		String result = mapper.writeValueAsString(now);
-		assertThat("Serialized date", result, equalTo(String.valueOf(now.getMillis())));
+	public void sampleKey() {
+		DatumSamplePropertyConfig<String> c = new DatumSamplePropertyConfig<String>("foo", Instantaneous,
+				"bar");
+		assertThat(c.getPropertyKey(), equalTo("foo"));
+		assertThat(c.getPropertyType(), equalTo(Instantaneous));
+		assertThat(c.getConfig(), equalTo("bar"));
 	}
 
 }

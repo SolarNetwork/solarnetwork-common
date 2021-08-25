@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain.test;
+package net.solarnetwork.domain.datum.test;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
@@ -38,7 +38,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.solarnetwork.domain.GeneralDatumMetadata;
+import net.solarnetwork.domain.datum.GeneralDatumMetadata;
 
 /**
  * Test cases for {@link GeneralDatumMetadata}.

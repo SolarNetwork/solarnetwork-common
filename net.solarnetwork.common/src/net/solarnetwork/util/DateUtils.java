@@ -22,10 +22,13 @@
 
 package net.solarnetwork.util;
 
+import static java.time.temporal.ChronoField.HOUR_OF_DAY;
+import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -46,7 +49,7 @@ import java.util.regex.Pattern;
  * Date and time utilities.
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.59
  */
 public final class DateUtils {
@@ -138,6 +141,18 @@ public final class DateUtils {
 	 */
 	public static final DateTimeFormatter ISO_DATE_TIME_ALT_UTC = ISO_DATE_TIME_ALT
 			.withZone(ZoneOffset.UTC);
+
+	/**
+	 * Local time formatted for standard local time values like
+	 * {@literal HH:mm}.
+	 * 
+	 * @since 1.4
+	 */
+	public static final DateTimeFormatter LOCAL_TIME;
+	static {
+		LOCAL_TIME = new DateTimeFormatterBuilder().appendValue(HOUR_OF_DAY, 2).appendLiteral(':')
+				.appendValue(MINUTE_OF_HOUR, 2).toFormatter();
+	}
 
 	/**
 	 * Parse an ISO-8601 alternate timestamp using a given formatter.
@@ -539,4 +554,47 @@ public final class DateUtils {
 		return String.format("%02d:%02d", minutes, seconds);
 	}
 
+	/**
+	 * Parse a standard local time value, in {@code HH:mm} form.
+	 * 
+	 * @param value
+	 *        the time value
+	 * @return the LocalTime object
+	 */
+	public static LocalTime parseLocalTime(String value) {
+		return LOCAL_TIME.parse(value, LocalTime::from);
+	}
+
+	/**
+	 * Format a standard local time value, in {@code HH:mm} form.
+	 * 
+	 * @param value
+	 *        the LocalTime to format
+	 * @return the formatted value
+	 */
+	public static String format(LocalTime value) {
+		return LOCAL_TIME.format(value);
+	}
+
+	/**
+	 * Parse a standard local date value, in {@code yyyy-MM-dd} form.
+	 * 
+	 * @param value
+	 *        the date value
+	 * @return the LocalDate object
+	 */
+	public static LocalDate parseLocalDate(String value) {
+		return DateTimeFormatter.ISO_LOCAL_DATE.parse(value, LocalDate::from);
+	}
+
+	/**
+	 * Format a standard local date value, in {@code yyyy-MM-dd} form.
+	 * 
+	 * @param value
+	 *        the LocalDate to format
+	 * @return the formatted value
+	 */
+	public static String format(LocalDate value) {
+		return DateTimeFormatter.ISO_LOCAL_DATE.format(value);
+	}
 }
