@@ -1,7 +1,7 @@
 /* ==================================================================
- * ProgressListener.java - 11/04/2018 10:24:01 AM
+ * SimpMessageSendingOperations.java - 26/09/2016 6:24:08 PM
  * 
- * Copyright 2018 SolarNetwork.net Dev Team
+ * Copyright 2007-2016 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,26 +20,28 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.support;
+
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 
 /**
- * API for a contextual progress listener.
+ * Factory bean to facilitate auto-wiring of a
+ * {@link SimpMessageSendingOperations}.
+ * 
+ * With Spring's websocket support, the automatically registered
+ * {@code SimpMessageSendingOperations} has a generated ID, and cannot be easily
+ * exported as an OSGi service. This factory can overcome that, by auto-wiring
+ * the object as a property, then exporting the bean with a known ID (or simply
+ * as an OSGi service).
  * 
  * @author matt
  * @version 1.0
- * @since 1.43
  */
-public interface ProgressListener<T> {
+public class SimpMessageSendingOperationsFactoryBean
+		extends AutowiredPropertyFactoryBean<SimpMessageSendingOperations> {
 
-	/**
-	 * Progress change callback.
-	 * 
-	 * @param context
-	 *        the context object
-	 * @param amountComplete
-	 *        the overall amount complete, as a percentage from {@literal 0} to
-	 *        {@literal 1}
-	 */
-	void progressChanged(T context, double amountComplete);
+	public SimpMessageSendingOperationsFactoryBean() {
+		super(SimpMessageSendingOperations.class);
+	}
 
 }

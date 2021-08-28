@@ -22,7 +22,7 @@
  * ===================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.support;
 
 import java.beans.PropertyEditor;
 import java.lang.reflect.InvocationTargetException;

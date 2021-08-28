@@ -1,7 +1,7 @@
 /* ==================================================================
- * SimpMessageSendingOperations.java - 26/09/2016 6:24:08 PM
+ * ObjectEncoder.java - 26/04/2021 11:53:30 AM
  * 
- * Copyright 2007-2016 SolarNetwork.net Dev Team
+ * Copyright 2021 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,28 +20,33 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.codec;
 
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import java.io.IOException;
+import java.util.Map;
+import net.solarnetwork.domain.Identifiable;
 
 /**
- * Factory bean to facilitate auto-wiring of a
- * {@link SimpMessageSendingOperations}.
- * 
- * With Spring's websocket support, the automatically registered
- * {@code SimpMessageSendingOperations} has a generated ID, and cannot be easily
- * exported as an OSGi service. This factory can overcome that, by auto-wiring
- * the object as a property, then exporting the bean with a known ID (or simply
- * as an OSGi service).
+ * API for a service that can decode objects from alternate representations.
  * 
  * @author matt
  * @version 1.0
+ * @since 1.69
+ * @see ObjectEncoder
  */
-public class SimpMessageSendingOperationsFactoryBean
-		extends AutowiredPropertyFactoryBean<SimpMessageSendingOperations> {
+public interface ObjectDecoder extends Identifiable {
 
-	public SimpMessageSendingOperationsFactoryBean() {
-		super(SimpMessageSendingOperations.class);
-	}
+	/**
+	 * Encode an object into a byte array.
+	 * 
+	 * @param data
+	 *        the data to decode
+	 * @param parameters
+	 *        optional parameters to pass to the decoder
+	 * @return the decoded object, never {@literal null}
+	 * @throws IOException
+	 *         if a decoding problem occurs
+	 */
+	Object decodeFromBytes(byte[] data, Map<String, ?> parameters) throws IOException;
 
 }

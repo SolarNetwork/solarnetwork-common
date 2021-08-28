@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.support;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;

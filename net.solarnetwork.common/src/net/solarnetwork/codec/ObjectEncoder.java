@@ -20,16 +20,33 @@
  * ==================================================================
  */
 
-package net.solarnetwork.io;
+package net.solarnetwork.codec;
+
+import java.io.IOException;
+import java.util.Map;
+import net.solarnetwork.domain.Identifiable;
 
 /**
- * API for a service that can both encode/decode objects to/from alternate
- * representations.
+ * API for a service that can encode objects into alternate representations.
  * 
  * @author matt
  * @version 1.0
  * @since 1.69
+ * @see ObjectDecoder
  */
-public interface ObjectCodec extends ObjectEncoder, ObjectDecoder {
+public interface ObjectEncoder extends Identifiable {
+
+	/**
+	 * Encode an object into a byte array.
+	 * 
+	 * @param obj
+	 *        the object to encode
+	 * @param parameters
+	 *        optional parameters to pass to the encoder
+	 * @return the bytes, never {@literal null}
+	 * @throws IOException
+	 *         if an encoding problem occurs
+	 */
+	byte[] encodeAsBytes(Object obj, Map<String, ?> parameters) throws IOException;
 
 }

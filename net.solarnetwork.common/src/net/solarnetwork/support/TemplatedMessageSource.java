@@ -22,7 +22,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.support;
 
 import java.util.Locale;
 import java.util.regex.Matcher;

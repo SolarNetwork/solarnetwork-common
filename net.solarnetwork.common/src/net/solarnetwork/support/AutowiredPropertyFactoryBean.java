@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.util;
+package net.solarnetwork.support;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;

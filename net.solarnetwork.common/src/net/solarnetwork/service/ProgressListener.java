@@ -1,7 +1,7 @@
 /* ==================================================================
- * RemoteServiceException.java - Oct 6, 2014 1:18:02 PM
+ * ProgressListener.java - 11/04/2018 10:24:01 AM
  * 
- * Copyright 2007-2014 SolarNetwork.net Dev Team
+ * Copyright 2018 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -20,49 +20,26 @@
  * ==================================================================
  */
 
-package net.solarnetwork.io;
+package net.solarnetwork.service;
 
 /**
- * Exception thrown when interacting with a remote service.
+ * API for a contextual progress listener.
  * 
  * @author matt
  * @version 1.0
- * @since 1.54
+ * @since 1.43
  */
-public class RemoteServiceException extends RuntimeException {
-
-	private static final long serialVersionUID = 6050177744319149194L;
+public interface ProgressListener<T> {
 
 	/**
-	 * Construct with a message.
+	 * Progress change callback.
 	 * 
-	 * @param message
-	 *        the message
+	 * @param context
+	 *        the context object
+	 * @param amountComplete
+	 *        the overall amount complete, as a percentage from {@literal 0} to
+	 *        {@literal 1}
 	 */
-	public RemoteServiceException(String message) {
-		super(message);
-	}
-
-	/**
-	 * Construct with a nested exception.
-	 * 
-	 * @param cause
-	 *        the cause
-	 */
-	public RemoteServiceException(Throwable cause) {
-		super(cause);
-	}
-
-	/**
-	 * Construct with a message and nested exception.
-	 * 
-	 * @param message
-	 *        the message
-	 * @param cause
-	 *        the cause
-	 */
-	public RemoteServiceException(String message, Throwable cause) {
-		super(message, cause);
-	}
+	void progressChanged(T context, double amountComplete);
 
 }
