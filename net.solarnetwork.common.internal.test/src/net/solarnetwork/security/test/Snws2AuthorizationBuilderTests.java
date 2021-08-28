@@ -71,7 +71,7 @@ public class Snws2AuthorizationBuilderTests {
 		String msg = builder.computeSignatureData(reqDate, canonicalRequestData);
 		assertThat(msg, is(
 				  "SNWS2-HMAC-SHA256\n"
-				+ "20170425143000Z\n"
+				+ "20170425T143000Z\n"
 				+ "1b5cf4c03e8e85f1c08a01ea1d4bd89cc550fc964134b59bb0accf9e5dbb26bf"));
 		// @formatter:on
 
@@ -81,11 +81,44 @@ public class Snws2AuthorizationBuilderTests {
 	}
 
 	@Test
-	public void xSnDate() {
+	public void xSnDate_manual() {
 		final Instant reqDate = getTestDate();
 		Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(TEST_TOKEN_ID);
-		builder.date(reqDate).host("localhost").path("/api/test").header("Date",
+		builder.date(reqDate).host("localhost").path("/api/test").header(
+				AuthorizationUtils.SN_DATE_HEADER,
 				AuthorizationUtils.AUTHORIZATION_DATE_HEADER_FORMATTER.format(reqDate));
+
+		final String canonicalRequestData = builder.computeCanonicalRequestMessage();
+		assertThat(canonicalRequestData, is(
+				"GET\n/api/test\n\nhost:localhost\nx-sn-date:Tue, 25 Apr 2017 14:30:00 GMT\nhost;x-sn-date\n"
+						+ EMPTY_STRING_SHA256_HEX));
+
+		final String result = builder.build(TEST_TOKEN_SECRET);
+		assertThat(result, is(
+				"SNWS2 Credential=test-token-id,SignedHeaders=host;x-sn-date,Signature=c14fe9f67560fb9a37d2aa7c40b40c260a5936f999877e2469b8ddb1da7c0eb9"));
+	}
+
+	@Test
+	public void xSnDate_toggleBefore() {
+		final Instant reqDate = getTestDate();
+		Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(TEST_TOKEN_ID);
+		builder.useSnDate(true).date(reqDate).host("localhost").path("/api/test");
+
+		final String canonicalRequestData = builder.computeCanonicalRequestMessage();
+		assertThat(canonicalRequestData, is(
+				"GET\n/api/test\n\nhost:localhost\nx-sn-date:Tue, 25 Apr 2017 14:30:00 GMT\nhost;x-sn-date\n"
+						+ EMPTY_STRING_SHA256_HEX));
+
+		final String result = builder.build(TEST_TOKEN_SECRET);
+		assertThat(result, is(
+				"SNWS2 Credential=test-token-id,SignedHeaders=host;x-sn-date,Signature=c14fe9f67560fb9a37d2aa7c40b40c260a5936f999877e2469b8ddb1da7c0eb9"));
+	}
+
+	@Test
+	public void xSnDate_toggleAfter() {
+		final Instant reqDate = getTestDate();
+		Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(TEST_TOKEN_ID);
+		builder.date(reqDate).useSnDate(true).host("localhost").path("/api/test");
 
 		final String canonicalRequestData = builder.computeCanonicalRequestMessage();
 		assertThat(canonicalRequestData, is(

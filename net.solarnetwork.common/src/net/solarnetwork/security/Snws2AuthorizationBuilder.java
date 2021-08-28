@@ -177,16 +177,17 @@ public final class Snws2AuthorizationBuilder
 		MultiValueMap<String, String> headers = getHeaders();
 		String want, discard;
 		if ( useSnDate ) {
-			want = "x-sn-date";
+			want = AuthorizationUtils.SN_DATE_HEADER;
 			discard = "date";
 		} else {
 			want = "date";
-			discard = "x-sn-date";
+			discard = AuthorizationUtils.SN_DATE_HEADER;
 		}
 		boolean hasDiscard = headers.containsKey(discard);
 		if ( !headers.containsKey(want) && hasDiscard ) {
 			headers.put(want, headers.get(discard));
-		} else if ( hasDiscard ) {
+		}
+		if ( hasDiscard ) {
 			headers.remove(discard);
 		}
 		return this;
@@ -233,7 +234,7 @@ public final class Snws2AuthorizationBuilder
 	@Override
 	public Snws2AuthorizationBuilder date(Instant date) {
 		super.date(date);
-		return header(useSnDate ? "x-sn-date" : "date",
+		return header(useSnDate ? AuthorizationUtils.SN_DATE_HEADER : "date",
 				AuthorizationUtils.AUTHORIZATION_DATE_HEADER_FORMATTER.format(getDate()));
 	}
 
@@ -357,6 +358,11 @@ public final class Snws2AuthorizationBuilder
 				headerNames.add(s.toLowerCase());
 				count++;
 			}
+		}
+		// in case someone added both Date and X-SN-Date
+		if ( headerNames.contains("date") && headerNames.contains(AuthorizationUtils.SN_DATE_HEADER) ) {
+			headerNames.remove("date");
+			count--;
 		}
 		return headerNames.toArray(new String[count]);
 	}
