@@ -94,13 +94,13 @@ public class AuthorizationUtils {
 	 * zone.
 	 * 
 	 * <p>
-	 * An example of this date format is {@literal 20210813135512Z}.
+	 * An example of this date format is {@literal 20210813T135512Z}.
 	 * </p>
 	 */
 	public static final DateTimeFormatter AUTHORIZATION_TIMESTAMP_FORMATTER;
 
 	static {
-		AUTHORIZATION_TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss'Z'")
+		AUTHORIZATION_TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
 				.withZone(ZoneId.of("GMT"));
 	}
 

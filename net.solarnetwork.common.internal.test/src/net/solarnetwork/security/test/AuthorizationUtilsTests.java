@@ -47,10 +47,24 @@ public class AuthorizationUtilsTests {
 		Instant ts = date.toInstant(ZoneOffset.UTC);
 
 		// WHEN
+		String result = AuthorizationUtils.AUTHORIZATION_TIMESTAMP_FORMATTER.format(ts);
+
+		// THEN
+		assertThat("Instant is formatted as timestamp", result, is("20210813T135512Z"));
+	}
+
+	@Test
+	public void formatDateHeader_instant() {
+		// GIVEN
+		LocalDateTime date = LocalDateTime.of(2021, 8, 13, 13, 55, 12,
+				(int) TimeUnit.MILLISECONDS.toNanos(123));
+		Instant ts = date.toInstant(ZoneOffset.UTC);
+
+		// WHEN
 		String result = AuthorizationUtils.AUTHORIZATION_DATE_HEADER_FORMATTER.format(ts);
 
 		// THEN
-		assertThat("Instant is formatted", result, is("Fri, 13 Aug 2021 13:55:12 GMT"));
+		assertThat("Instant is formatted as date header", result, is("Fri, 13 Aug 2021 13:55:12 GMT"));
 	}
 
 }
