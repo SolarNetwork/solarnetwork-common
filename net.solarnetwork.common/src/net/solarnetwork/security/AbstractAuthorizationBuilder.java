@@ -42,7 +42,43 @@ import org.springframework.util.MultiValueMap;
 /**
  * Base class for SolarNetwork authorization builder support.
  * 
- * <T> the type
+ * <p>
+ * This builder supports an HMAC-SHA256 style digest authentication scheme in
+ * the spirit of the AWS S3 Signature v4 scheme, but adapted for SolarNetwork.
+ * In this scheme, a generated authorization credential takes the form of an
+ * HTTP {@literal Authorization} header:
+ * </p>
+ * 
+ * <pre>
+ * SCHEME Credential=C,SignedHeaders=H,Signature=S
+ * </pre>
+ * 
+ * <p>
+ * The {@literal SCHEME} is provided by {#link {@link #schemeName()}}. The
+ * credential {@literal C} is the {@code identifier} provided to the
+ * constructor, and represents a login or token ID. The signed headers
+ * {@literal H} is a semicolon-delimited list of request header names used when
+ * computing the signature {@literal S}. The signature {@literal S} is a
+ * hex-encoded HMAC-SHA256 digest.
+ * </p>
+ * 
+ * <p>
+ * The <em>signing key</em> used to sign the HMAC-SHA256 signature {@literal S}
+ * is a value derived from a provided secret (i.e. password or token secret) by
+ * computing a HMAC-SHA256 digest that uses a specific date (usually the current
+ * date). See {@link #computeSigningKey(Instant, String)} for more details.
+ * </p>
+ * 
+ * <p>
+ * The <em>signing message</em> used in the HMAC-SHA256 signature {@literal S}
+ * is a value derived from the configurable properties of this class: a date,
+ * verb, path, list of key/value headers, and any other properties defined by
+ * implementing subclasses. This message is provided by the
+ * {@link #computeCanonicalRequestMessage(String[])} method. See the
+ * {@link #computeSignatureData(Instant, String)} method for more details.
+ * </p>
+ * 
+ * <T> the implementation type
  * 
  * @author matt
  * @version 1.0
@@ -508,10 +544,15 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * <pre>
 	 * <code>
 	 * SCHEME_NAME-HMAC-SHA256\n
-	 * YYYYMMDDHHmmssZ\n
+	 * YYYYMMTDDHHmmssZ\n
 	 * Hex(Sha256(canonicalRequestMessage))
 	 * </code>
 	 * </pre>
+	 * 
+	 * <p>
+	 * The date is formatted using the
+	 * {@link AuthorizationUtils#AUTHORIZATION_TIMESTAMP_FORMATTER}.
+	 * </p>
 	 * 
 	 * @param date
 	 *        the request date
