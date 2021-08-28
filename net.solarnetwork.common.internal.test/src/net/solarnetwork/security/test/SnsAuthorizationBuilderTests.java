@@ -47,7 +47,8 @@ public class SnsAuthorizationBuilderTests {
 		LocalDateTime date = LocalDateTime.of(2021, 8, 13, 13, 55, 12);
 
 		// WHEN
-		byte[] result = SnsAuthorizationBuilder.computeSigningKey(date.toInstant(ZoneOffset.UTC), "bar");
+		byte[] result = new SnsAuthorizationBuilder("foo")
+				.computeSigningKey(date.toInstant(ZoneOffset.UTC), "bar");
 
 		// THEN
 		assertThat("Result available", result, is(notNullValue()));
@@ -145,14 +146,14 @@ public class SnsAuthorizationBuilderTests {
 		LocalDateTime date = LocalDateTime.of(2021, 8, 13, 13, 55, 12);
 
 		// WHEN
-		String result = SnsAuthorizationBuilder.computeSignatureData(date.toInstant(ZoneOffset.UTC),
-				"foobar");
+		String result = new SnsAuthorizationBuilder("foo")
+				.computeSignatureData(date.toInstant(ZoneOffset.UTC), "foobar");
 
 		// THEN
 		// @formatter:off
 		assertThat("Computed signature data", result, is(
 				  "SNS-HMAC-SHA256\n"
-				+ "20210813135512Z\n"
+				+ "20210813T135512Z\n"
 				+ Hex.encodeHexString(DigestUtils.sha256("foobar"))
 		));
 		// @formatter:on
