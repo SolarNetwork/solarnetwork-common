@@ -174,7 +174,7 @@ public class SnsAuthorizationBuilderTests {
 		// THEN
 		assertThat("Authorization computed", result,
 				is(String.format("SNS Credential=foo,SignedHeaders=date,Signature=%s",
-						"4dea8b3e8e0b43cac894e995716417793ed42e9728eafa6524bd68704bde12f7")));
+						"80644221408b05b684a15d95e0bfbb5657d2a5deb6bb38b17365a7794df171ea")));
 	}
 
 }
