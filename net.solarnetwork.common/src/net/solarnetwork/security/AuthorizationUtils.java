@@ -61,7 +61,7 @@ public class AuthorizationUtils {
 
 	/**
 	 * Date formatter that formats or parses a date without an offset, such as
-	 * '20111203'.
+	 * {@literal 20111203}, in the GMT time zone.
 	 */
 	public static final DateTimeFormatter AUTHORIZATION_DATE_FORMATTER;
 
@@ -72,7 +72,7 @@ public class AuthorizationUtils {
 		              .appendValue(ChronoField.YEAR, 4)
 		              .appendValue(ChronoField.MONTH_OF_YEAR, 2)
 		              .appendValue(ChronoField.DAY_OF_MONTH, 2)
-		              .toFormatter();
+		              .toFormatter().withZone(ZoneId.of("GMT"));
 		    // @formatter:on
 	}
 

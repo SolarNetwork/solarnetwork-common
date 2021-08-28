@@ -28,7 +28,6 @@ import static net.solarnetwork.security.AuthorizationUtils.computeHmacSha256;
 import static net.solarnetwork.security.AuthorizationUtils.computeHmacSha256Hex;
 import static net.solarnetwork.security.AuthorizationUtils.semiColonDelimitedList;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
@@ -490,7 +489,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 		if ( secret == null || date == null ) {
 			throw new IllegalArgumentException("The secret and date arguments must not be null.");
 		}
-		String day = AUTHORIZATION_DATE_FORMATTER.format(date.atOffset(ZoneOffset.UTC));
+		String day = AUTHORIZATION_DATE_FORMATTER.format(date);
 		return computeHmacSha256(computeHmacSha256(schemeName() + secret, day),
 				signingKeyMessageLiteral());
 	}
