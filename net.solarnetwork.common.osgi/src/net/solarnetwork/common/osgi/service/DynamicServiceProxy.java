@@ -77,20 +77,41 @@ import net.solarnetwork.service.OptionalService;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>, FilterableService {
 
+	private static final Logger log = LoggerFactory.getLogger(DynamicServiceProxy.class);
+
 	private static final Comparator<ServiceReference<?>> RANK_COMPARATOR = new ServiceReferenceRankComparator();
 
-	private BundleContext bundleContext;
-
-	private Class<? extends T> serviceClass;
+	private final BundleContext bundleContext;
+	private final Class<? extends T> serviceClass;
 	private String serviceFilter;
 	private Map<String, Object> propertyFilters;
 	private boolean ignoreEmptyPropertyFilterValues = true;
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	/**
+	 * Constructor.
+	 * 
+	 * @param bundleContext
+	 *        the bundle context
+	 * @param serviceClass
+	 *        the service class
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@literal null}
+	 */
+	public DynamicServiceProxy(BundleContext bundleContext, Class<? extends T> serviceClass) {
+		super();
+		if ( bundleContext == null ) {
+			throw new IllegalArgumentException("The bundleContext argument must not be null.");
+		}
+		this.bundleContext = bundleContext;
+		if ( serviceClass == null ) {
+			throw new IllegalArgumentException("The serviceClass argument must not be null.");
+		}
+		this.serviceClass = serviceClass;
+	}
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -243,32 +264,12 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 	}
 
 	/**
-	 * Set the OSGi {@link BundleContext} to use.
-	 * 
-	 * @param bundleContext
-	 *        The bundle context for resolving services with.
-	 */
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-	}
-
-	/**
 	 * Get the OSGi service interface to proxy.
 	 * 
 	 * @return The interface to proxy.
 	 */
 	public Class<? extends T> getServiceClass() {
 		return serviceClass;
-	}
-
-	/**
-	 * Set the OSGi service interface to proxy.
-	 * 
-	 * @param serviceClass
-	 *        The interface to proxy.
-	 */
-	public void setServiceClass(Class<? extends T> serviceClass) {
-		this.serviceClass = serviceClass;
 	}
 
 	/**
