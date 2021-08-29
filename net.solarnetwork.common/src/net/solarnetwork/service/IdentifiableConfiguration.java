@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain;
+package net.solarnetwork.service;
 
 import static net.solarnetwork.settings.SettingSpecifierProvider.settingsForService;
 import java.util.ArrayList;

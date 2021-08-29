@@ -26,7 +26,6 @@ import java.net.URL;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.springframework.core.io.Resource;
-import net.solarnetwork.domain.Identifiable;
 
 /**
  * Service API for a repository of resources, much like a very simple virtual

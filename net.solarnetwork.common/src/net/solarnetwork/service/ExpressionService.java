@@ -31,7 +31,6 @@ import java.util.Properties;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
-import net.solarnetwork.domain.Identifiable;
 
 /**
  * API for a service that uses the {@link Expression} API for evaluating dynamic

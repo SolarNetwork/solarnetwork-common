@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain;
+package net.solarnetwork.service;
 
 /**
  * API for a standardized way of identifying services, to support configuring

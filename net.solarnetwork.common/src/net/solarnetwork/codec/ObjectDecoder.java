@@ -24,7 +24,7 @@ package net.solarnetwork.codec;
 
 import java.io.IOException;
 import java.util.Map;
-import net.solarnetwork.domain.Identifiable;
+import net.solarnetwork.service.Identifiable;
 
 /**
  * API for a service that can decode objects from alternate representations.

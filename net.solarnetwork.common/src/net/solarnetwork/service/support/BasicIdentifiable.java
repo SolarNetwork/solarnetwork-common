@@ -20,12 +20,12 @@
  * ==================================================================
  */
 
-package net.solarnetwork.support;
+package net.solarnetwork.service.support;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.MessageSource;
-import net.solarnetwork.domain.Identifiable;
+import net.solarnetwork.service.Identifiable;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 
