@@ -39,13 +39,13 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import net.solarnetwork.util.JavaCompiler;
+import net.solarnetwork.service.JavaCompiler;
 
 /**
  * A {@link JavaCompiler} that uses the Eclipse JDT compiler implementation.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 @SuppressWarnings("restriction")
 public class JdtJavaCompiler implements JavaCompiler {
