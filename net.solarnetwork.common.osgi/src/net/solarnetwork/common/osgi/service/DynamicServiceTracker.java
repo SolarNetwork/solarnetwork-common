@@ -74,15 +74,17 @@ import net.solarnetwork.service.OptionalServiceCollection;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalServiceCollection<T>,
 		FilterableService, OptionalService.OptionalFilterableService<T>,
 		OptionalServiceCollection.OptionalFilterableServiceCollection<T> {
 
+	private static final Logger log = LoggerFactory.getLogger(DynamicServiceTracker.class);
+
 	private static final Comparator<ServiceReference<?>> RANK_COMPARATOR = new ServiceReferenceRankComparator();
 
-	private BundleContext bundleContext;
+	private final BundleContext bundleContext;
 
 	private String serviceClassName;
 	private String serviceFilter;
@@ -92,7 +94,53 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	private boolean sticky = false;
 	private WeakReference<T> stickyService;
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	/**
+	 * Constructor.
+	 * 
+	 * @param bundleContext
+	 *        the bundle context; in OSGi Blueprint this is available via an
+	 *        implicit {@literal bundleContext} bean ID
+	 * @throws IllegalArgumentException
+	 *         if the {@code bundleContext} argument is {@literal null}
+	 */
+	public DynamicServiceTracker(BundleContext bundleContext) {
+		this(bundleContext, (String) null);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param bundleContext
+	 *        the bundle context; in OSGi Blueprint this is available via an
+	 *        implicit {@literal bundleContext} bean ID
+	 * @param serviceClassName
+	 *        the service class name to track
+	 * @throws IllegalArgumentException
+	 *         if the {@code bundleContext} argument is {@literal null}
+	 */
+	public DynamicServiceTracker(BundleContext bundleContext, String serviceClassName) {
+		super();
+		if ( bundleContext == null ) {
+			throw new IllegalArgumentException("The bundleContext argument must not be null.");
+		}
+		this.bundleContext = bundleContext;
+		this.serviceClassName = serviceClassName;
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param bundleContext
+	 *        the bundle context; in OSGi Blueprint this is available via an
+	 *        implicit {@literal bundleContext} bean ID
+	 * @param serviceClass
+	 *        the service class to track
+	 * @throws IllegalArgumentException
+	 *         if the {@code bundleContext} argument is {@literal null}
+	 */
+	public DynamicServiceTracker(BundleContext bundleContext, Class<?> serviceClass) {
+		this(bundleContext, serviceClass != null ? serviceClass.getName() : null);
+	}
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -250,21 +298,6 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	 */
 	public BundleContext getBundleContext() {
 		return bundleContext;
-	}
-
-	/**
-	 * Set the OSGi bundle context to use.
-	 * 
-	 * <p>
-	 * In OSGi Blueprint, this is available via an implicit
-	 * {@literal bundleContext} bean ID.
-	 * </p>
-	 * 
-	 * @param bundleContext
-	 *        the bundle context to use
-	 */
-	public void setBundleContext(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
 	}
 
 	/**

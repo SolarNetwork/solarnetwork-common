@@ -77,9 +77,8 @@ public class DynamicServiceTrackerTests {
 		// WHEN
 		replayAll();
 
-		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>();
-		tracker.setBundleContext(bundleContext);
-		tracker.setServiceClassName(Serializable.class.getName());
+		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>(bundleContext,
+				Serializable.class);
 
 		UUID s = tracker.service();
 
@@ -100,9 +99,8 @@ public class DynamicServiceTrackerTests {
 		// WHEN
 		replayAll();
 
-		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>();
-		tracker.setBundleContext(bundleContext);
-		tracker.setServiceClassName(Serializable.class.getName());
+		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>(bundleContext,
+				Serializable.class);
 		tracker.setSticky(true);
 
 		UUID s = tracker.service();
@@ -124,9 +122,8 @@ public class DynamicServiceTrackerTests {
 		// WHEN
 		replayAll();
 
-		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>();
-		tracker.setBundleContext(bundleContext);
-		tracker.setServiceClassName(Serializable.class.getName());
+		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>(bundleContext,
+				Serializable.class);
 		tracker.setSticky(true);
 
 		UUID s = tracker.service();
@@ -156,9 +153,8 @@ public class DynamicServiceTrackerTests {
 		// WHEN
 		replayAll();
 
-		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>();
-		tracker.setBundleContext(bundleContext);
-		tracker.setServiceClassName(Serializable.class.getName());
+		DynamicServiceTracker<UUID> tracker = new DynamicServiceTracker<UUID>(bundleContext,
+				Serializable.class);
 		tracker.setSticky(true);
 
 		String s = tracker.service().toString();
