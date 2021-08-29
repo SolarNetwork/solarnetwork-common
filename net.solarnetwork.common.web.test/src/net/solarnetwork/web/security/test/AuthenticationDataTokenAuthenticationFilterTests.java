@@ -22,7 +22,7 @@
 
 package net.solarnetwork.web.security.test;
 
-import static net.solarnetwork.web.security.AuthorizationV2Builder.httpDate;
+import static net.solarnetwork.security.AuthorizationUtils.AUTHORIZATION_DATE_HEADER_FORMATTER;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
@@ -31,9 +31,9 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +48,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -58,14 +57,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import net.solarnetwork.security.Snws2AuthorizationBuilder;
 import net.solarnetwork.web.security.AuthenticationDataTokenAuthenticationFilter;
-import net.solarnetwork.web.security.AuthorizationV2Builder;
 
 /**
  * Test cases for the {@link AuthenticationDataTokenAuthenticationFilter} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class AuthenticationDataTokenAuthenticationFilterTests {
 
@@ -91,14 +90,14 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 	}
 
 	private String createAuthorizationHeaderV2Value(String tokenId, String secret,
-			MockHttpServletRequest request, Date date) {
+			MockHttpServletRequest request, Instant date) {
 		return createAuthorizationHeaderV2Value(tokenId, secret, request, date, null);
 	}
 
 	private String createAuthorizationHeaderV2Value(String tokenId, String secret,
-			MockHttpServletRequest request, Date date, byte[] bodyContent) {
-		AuthorizationV2Builder builder = new AuthorizationV2Builder(tokenId);
-		builder.date(date).host(request.getRemoteHost()).method(HttpMethod.resolve(request.getMethod()))
+			MockHttpServletRequest request, Instant date, byte[] bodyContent) {
+		Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(tokenId);
+		builder.date(date).host(request.getRemoteHost()).method(request.getMethod())
 				.path(request.getRequestURI());
 		if ( request.getParameterMap() != null ) {
 			builder.parameterMap(request.getParameterMap());
@@ -114,7 +113,7 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 			}
 		}
 		if ( bodyContent != null ) {
-			builder.contentSHA256(DigestUtils.sha256(bodyContent));
+			builder.contentSha256(DigestUtils.sha256(bodyContent));
 		}
 		return builder.build(secret);
 	}
@@ -155,8 +154,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 	public void missingDateV2() throws ServletException, IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
 		replay(filterChain, userDetailsService);
-		setupAuthorizationHeader(request,
-				createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request, new Date()));
+		setupAuthorizationHeader(request, createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN,
+				TEST_PASSWORD, request, Instant.now()));
 		try {
 			filter.doFilter(request, response, filterChain);
 		} finally {
@@ -167,8 +166,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 	@Test(expected = BadCredentialsException.class)
 	public void badPasswordV2() throws ServletException, IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
-		final Date now = new Date();
-		request.addHeader("Date", now);
+		final Instant now = Instant.now();
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 		setupAuthorizationHeader(request,
 				createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, "foobar", request, now));
 		expect(userDetailsService.loadUserByUsername(TEST_AUTH_TOKEN)).andReturn(userDetails);
@@ -183,8 +182,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 	@Test(expected = BadCredentialsException.class)
 	public void tooMuchSkewV2() throws ServletException, IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
-		final Date now = new Date(System.currentTimeMillis() - 16L * 60L * 1000L);
-		request.addHeader("Date", now);
+		final Instant now = Instant.ofEpochMilli(System.currentTimeMillis() - 16L * 60L * 1000L);
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 		setupAuthorizationHeader(request,
 				createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request, now));
 		expect(userDetailsService.loadUserByUsername(TEST_AUTH_TOKEN)).andReturn(userDetails);
@@ -200,8 +199,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 	public void tokenWithEqualSignV2() throws ServletException, IOException {
 		final String tokenId = "2^=3^rz}fgu0twxj;*fb";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
-		final Date now = new Date();
-		request.addHeader("Date", httpDate(now));
+		final Instant now = Instant.now();
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 		setupAuthorizationHeader(request,
 				createAuthorizationHeaderV2Value(tokenId, TEST_PASSWORD, request, now));
 		filterChain.doFilter(anyObject(HttpServletRequest.class), same(response));
@@ -216,8 +215,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 	@Test
 	public void simplePathWithXDateV2() throws ServletException, IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
-		final Date now = new Date();
-		request.addHeader("X-SN-Date", httpDate(now));
+		final Instant now = Instant.now();
+		request.addHeader("X-SN-Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 		setupAuthorizationHeader(request,
 				createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request, now));
 		filterChain.doFilter(anyObject(HttpServletRequest.class), same(response));
@@ -237,8 +236,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 		params.put("bar", "foo");
 		params.put("zog", "dog");
 		request.setParameters(params);
-		final Date now = new Date();
-		request.addHeader("Date", httpDate(now));
+		final Instant now = Instant.now();
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 		setupAuthorizationHeader(request,
 				createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request, now));
 		filterChain.doFilter(anyObject(HttpServletRequest.class), same(response));
@@ -259,8 +258,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 		params.put("bar", "foo");
 		params.put("zog", "dog");
 		request.setParameters(params);
-		final Date now = new Date();
-		request.addHeader("Date", httpDate(now));
+		final Instant now = Instant.now();
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 		setupAuthorizationHeader(request,
 				createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request, now));
 		filterChain.doFilter(anyObject(HttpServletRequest.class), same(response));
@@ -282,8 +281,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 		request.setContentType(contentType);
 		request.setContent(bodyContent);
 		request.addHeader("Content-MD5", contentMD5);
-		final Date now = new Date();
-		request.addHeader("Date", httpDate(now));
+		final Instant now = Instant.now();
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 		setupAuthorizationHeader(request, createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN,
 				TEST_PASSWORD, request, now, bodyContent));
 		filterChain.doFilter(anyObject(HttpServletRequest.class), same(response));
@@ -304,8 +303,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 		request.setContentType(contentType);
 		request.setContent(content.getBytes("UTF-8"));
 		request.addHeader("Content-MD5", contentMD5);
-		final Date now = new Date();
-		request.addHeader("Date", httpDate(now));
+		final Instant now = Instant.now();
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 		setupAuthorizationHeader(request,
 				createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request, now));
 		replay(filterChain, userDetailsService);
@@ -326,8 +325,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 		request.setContentType(contentType);
 		request.setContent(bodyContent);
 		request.addHeader("Content-MD5", contentMD5);
-		final Date now = new Date();
-		request.addHeader("Date", httpDate(now));
+		final Instant now = Instant.now();
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 		setupAuthorizationHeader(request, createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN,
 				TEST_PASSWORD, request, now, bodyContent));
 		filterChain.doFilter(anyObject(HttpServletRequest.class), same(response));
@@ -349,8 +348,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 		request.setContentType(contentType);
 		request.setContent(bodyContent);
 		request.addHeader("Digest", "sha-256=" + digestSHA256);
-		final Date now = new Date();
-		request.addHeader("Date", httpDate(now));
+		final Instant now = Instant.now();
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 		setupAuthorizationHeader(request, createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN,
 				TEST_PASSWORD, request, now, bodyContent));
 		filterChain.doFilter(anyObject(HttpServletRequest.class), same(response));
@@ -372,8 +371,8 @@ public class AuthenticationDataTokenAuthenticationFilterTests {
 		request.setContentType(contentType);
 		request.setContent(bodyContent);
 		request.addHeader("Digest", "sha-256=" + digestSHA256);
-		final Date now = new Date();
-		request.addHeader("Date", httpDate(now));
+		final Instant now = Instant.now();
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 		setupAuthorizationHeader(request, createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN,
 				TEST_PASSWORD, request, now, bodyContent));
 		replay(filterChain, userDetailsService);

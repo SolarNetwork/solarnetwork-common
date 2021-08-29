@@ -47,15 +47,15 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.supercsv.io.CsvMapWriter;
 import org.supercsv.io.ICsvMapWriter;
 import org.supercsv.prefs.CsvPreference;
+import net.solarnetwork.codec.PropertySerializerRegistrar;
 import net.solarnetwork.domain.Result;
 import net.solarnetwork.util.ClassUtils;
-import net.solarnetwork.util.PropertySerializerRegistrar;
 
 /**
  * {@link HttpMessageConverter} that marshals objects into CSV documents.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 

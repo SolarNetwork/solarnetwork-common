@@ -22,11 +22,12 @@
 
 package net.solarnetwork.web.security;
 
-import static net.solarnetwork.web.security.AuthorizationV2Builder.computeHMACSHA256;
+import static net.solarnetwork.security.AuthorizationUtils.computeHmacSha256;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +48,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * {@literal HS256}.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class AuthenticationDataToken {
 
@@ -175,7 +176,7 @@ public class AuthenticationDataToken {
 
 		// for expires we assume the token is valid for 7 days
 		final GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-		cal.setTime(data.getDate());
+		cal.setTime(Date.from(data.getDate()));
 
 		issued = cal.getTimeInMillis() / 1000;
 
@@ -197,7 +198,7 @@ public class AuthenticationDataToken {
 		try {
 			messageData = Base64.encodeBase64URLSafeString(mapper.writeValueAsBytes(header)) + '.'
 					+ Base64.encodeBase64URLSafeString(mapper.writeValueAsBytes(payload));
-			signature = computeHMACSHA256(secret, messageData);
+			signature = computeHmacSha256(secret, messageData);
 		} catch ( IOException e ) {
 			throw new IllegalArgumentException("Error encoding message data JSON", e);
 		}
@@ -319,7 +320,7 @@ public class AuthenticationDataToken {
 	 *         data, or the token has expired
 	 */
 	public void verify(byte[] secret, final long date) {
-		byte[] computed = computeHMACSHA256(secret, messageData);
+		byte[] computed = computeHmacSha256(secret, messageData);
 		if ( !Arrays.equals(signature, computed) ) {
 			throw new SecurityException("Signature does not match.");
 		}

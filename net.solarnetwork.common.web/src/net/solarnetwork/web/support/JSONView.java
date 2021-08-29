@@ -46,7 +46,7 @@ import org.springframework.beans.PropertyEditorRegistrar;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import net.solarnetwork.util.SerializeIgnore;
+import net.solarnetwork.domain.SerializeIgnore;
 
 /**
  * View to return JSON encoded data.
@@ -92,7 +92,7 @@ import net.solarnetwork.util.SerializeIgnore;
  * </dl>
  * 
  * @author Matt Magoffin
- * @version 1.1
+ * @version 1.2
  */
 public class JSONView extends AbstractView {
 

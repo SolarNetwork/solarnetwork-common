@@ -22,19 +22,19 @@
 
 package net.solarnetwork.web.security.test;
 
-import static net.solarnetwork.web.security.test.SecurityWebTestUtils.httpDate;
+import static net.solarnetwork.security.AuthorizationUtils.AUTHORIZATION_DATE_HEADER_FORMATTER;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import java.io.IOException;
-import java.util.Date;
+import java.time.Instant;
 import javax.servlet.http.Cookie;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
+import net.solarnetwork.security.Snws2AuthorizationBuilder;
 import net.solarnetwork.web.security.AuthenticationData;
 import net.solarnetwork.web.security.AuthenticationDataFactory;
 import net.solarnetwork.web.security.AuthenticationDataToken;
-import net.solarnetwork.web.security.AuthorizationV2Builder;
 import net.solarnetwork.web.security.SecurityException;
 import net.solarnetwork.web.security.SecurityHttpServletRequestWrapper;
 
@@ -48,7 +48,7 @@ public class AuthenticationDataTokenTests {
 
 	private static final String TEST_TOKEN_IDENTITY = "admin";
 	private static final String TEST_SECRET = "secret";
-	private static final Date TEST_DATE = new Date(1493164800000L);
+	private static final Instant TEST_DATE = Instant.ofEpochMilli(1493164800000L);
 	private static final long TEST_JTW_EXPIRATION = 1493769600L;
 
 	private static final String TEST_JWT_SIG = "6tEdtCDMz6E0XEokeNSMjNYMvMiiuwLzD9FRugg2GFo";
@@ -58,14 +58,14 @@ public class AuthenticationDataTokenTests {
 	@Test
 	public void constructFromAuthenticationData() throws IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
-		request.addHeader("Date", httpDate(TEST_DATE));
-		request.addHeader("Authorization", new AuthorizationV2Builder(TEST_TOKEN_IDENTITY)
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(TEST_DATE));
+		request.addHeader("Authorization", new Snws2AuthorizationBuilder(TEST_TOKEN_IDENTITY)
 				.date(TEST_DATE).path(request.getRequestURI()).build(TEST_SECRET));
 		AuthenticationData authData = AuthenticationDataFactory.authenticationDataForAuthorizationHeader(
 				new SecurityHttpServletRequestWrapper(request, 1024));
 		AuthenticationDataToken obj = new AuthenticationDataToken(authData, TEST_SECRET);
 		assertEquals("Identity", TEST_TOKEN_IDENTITY, obj.getIdentity());
-		assertEquals("Issued", TEST_DATE.getTime() / 1000, obj.getIssued());
+		assertEquals("Issued", TEST_DATE.toEpochMilli() / 1000, obj.getIssued());
 		assertEquals("Expires", TEST_JTW_EXPIRATION, obj.getExpires());
 		assertArrayEquals("Signature", Base64.decodeBase64(TEST_JWT_SIG), obj.getSignature());
 		obj.verify(TEST_SECRET, 0);
@@ -75,10 +75,10 @@ public class AuthenticationDataTokenTests {
 	public void constructFromCookie() {
 		AuthenticationDataToken obj = new AuthenticationDataToken(new Cookie("foo", TEST_JWT));
 		assertEquals("Identity", TEST_TOKEN_IDENTITY, obj.getIdentity());
-		assertEquals("Issued", TEST_DATE.getTime() / 1000, obj.getIssued());
+		assertEquals("Issued", TEST_DATE.toEpochMilli() / 1000, obj.getIssued());
 		assertEquals("Expires", TEST_JTW_EXPIRATION, obj.getExpires());
 		assertArrayEquals("Signature", Base64.decodeBase64(TEST_JWT_SIG), obj.getSignature());
-		obj.verify(TEST_SECRET, TEST_DATE.getTime());
+		obj.verify(TEST_SECRET, TEST_DATE.toEpochMilli());
 	}
 
 	@Test(expected = IllegalArgumentException.class)

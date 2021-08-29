@@ -329,10 +329,15 @@ public final class Snws2AuthorizationBuilder
 	}
 
 	/**
-	 * Set additional HTTP header names to sign with the digest.
+	 * Set the explicit HTTP header names to sign with the digest.
+	 * 
+	 * <p>
+	 * This completely overrides the header names provided in the
+	 * {@link #getHeaders()} map.
+	 * </p>
 	 * 
 	 * @param signedHeaderNames
-	 *        additional HTTP header names to include in the computed digest
+	 *        the explicit HTTP header names to include in the computed digest
 	 * @return this builder
 	 */
 	public Snws2AuthorizationBuilder signedHttpHeaders(Set<String> signedHeaderNames) {
@@ -343,22 +348,22 @@ public final class Snws2AuthorizationBuilder
 	@Override
 	public String[] sortedHeaderNames() {
 		SortedSet<String> headerNames = new TreeSet<>();
-		final MultiValueMap<String, String> h = getHeaders();
 		int count = 0;
-		if ( h != null ) {
-			for ( String k : h.keySet() ) {
-				if ( k != null ) {
-					headerNames.add(k.toLowerCase());
-					count++;
+		if ( signedHeaderNames != null && !signedHeaderNames.isEmpty() ) {
+			headerNames.addAll(signedHeaderNames);
+			count += signedHeaderNames.size();
+		} else {
+			final MultiValueMap<String, String> h = getHeaders();
+			if ( h != null ) {
+				for ( String k : h.keySet() ) {
+					if ( k != null ) {
+						headerNames.add(k.toLowerCase());
+						count++;
+					}
 				}
 			}
 		}
-		if ( signedHeaderNames != null ) {
-			for ( String s : signedHeaderNames ) {
-				headerNames.add(s.toLowerCase());
-				count++;
-			}
-		}
+
 		// in case someone added both Date and X-SN-Date
 		if ( headerNames.contains("date") && headerNames.contains(AuthorizationUtils.SN_DATE_HEADER) ) {
 			headerNames.remove("date");

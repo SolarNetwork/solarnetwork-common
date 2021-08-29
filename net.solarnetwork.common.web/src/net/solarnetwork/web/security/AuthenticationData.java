@@ -24,6 +24,7 @@ package net.solarnetwork.web.security;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
@@ -38,7 +39,7 @@ import org.springframework.security.authentication.BadCredentialsException;
  * in a HTTP authentication header.
  * 
  * @author matt
- * @version 1.2
+ * @version 2.0
  * @since 1.11
  */
 public abstract class AuthenticationData {
@@ -46,7 +47,7 @@ public abstract class AuthenticationData {
 	/** The fixed length of a SolarNetwork authentication token ID. */
 	public static final int AUTH_TOKEN_ID_LENGTH = 20;
 
-	private final Date date;
+	private final Instant date;
 	private final long dateSkew;
 	private final AuthenticationScheme scheme;
 
@@ -81,8 +82,8 @@ public abstract class AuthenticationData {
 		if ( dateValue < 0 ) {
 			throw new BadCredentialsException("Missing or invalid HTTP Date header value");
 		}
-		this.date = new Date(dateValue);
-		this.dateSkew = Math.abs(System.currentTimeMillis() - date.getTime());
+		this.date = Instant.ofEpochMilli(dateValue);
+		this.dateSkew = Math.abs(System.currentTimeMillis() - date.toEpochMilli());
 	}
 
 	/**
@@ -203,37 +204,11 @@ public abstract class AuthenticationData {
 	}
 
 	/**
-	 * AWS style implementation of "uri encoding" using UTF-8 encoding.
-	 * 
-	 * @param input
-	 *        The text input to encode.
-	 * @return The URI escaped string.
-	 * @deprecated see {@link AuthenticationUtils#uriEncode(CharSequence)}
-	 */
-	@Deprecated
-	public static String uriEncode(CharSequence input) {
-		return AuthenticationUtils.uriEncode(input);
-	}
-
-	/**
-	 * Get an ISO8601 formatted date.
-	 * 
-	 * @param date
-	 *        The date to format.
-	 * @return The formatted date.
-	 * @deprecated see {@link AuthenticationUtils#iso8601Date(Date)}
-	 */
-	@Deprecated
-	public static String iso8601Date(Date date) {
-		return AuthenticationUtils.iso8601Date(date);
-	}
-
-	/**
 	 * Get the date associated with the request.
 	 * 
 	 * @return The date.
 	 */
-	public Date getDate() {
+	public Instant getDate() {
 		return date;
 	}
 
@@ -280,69 +255,6 @@ public abstract class AuthenticationData {
 	 */
 	protected final byte[] computeMACDigest(final String secretKey, String macAlgorithm) {
 		return AuthenticationUtils.computeMACDigest(secretKey, getSignatureData(), macAlgorithm);
-	}
-
-	/**
-	 * Compute a Base64 MAC digest from signature data.
-	 * 
-	 * @param secretKey
-	 *        the secret key
-	 * @param data
-	 *        the data to sign
-	 * @param macAlgorithm
-	 *        the MAC algorithm to use
-	 * @return The base64 encoded digest.
-	 * @throws SecurityException
-	 *         if any error occurs
-	 * @deprecated see
-	 *             {@link AuthenticationUtils#computeMACDigest(byte[], String, String)}
-	 */
-	@Deprecated
-	public static final byte[] computeMACDigest(final byte[] secretKey, final String data,
-			String macAlgorithm) {
-		return AuthenticationUtils.computeMACDigest(secretKey, data, macAlgorithm);
-	}
-
-	/**
-	 * Compute a Base64 MAC digest from signature data.
-	 * 
-	 * @param secretKey
-	 *        the secret key
-	 * @param data
-	 *        the data to sign
-	 * @param macAlgorithm
-	 *        the MAC algorithm to use
-	 * @return The base64 encoded digest.
-	 * @throws SecurityException
-	 *         if any error occurs
-	 * @deprecated see
-	 *             {@link AuthenticationUtils#computeMACDigest(String, String, String)}
-	 */
-	@Deprecated
-	public static final byte[] computeMACDigest(final String secretKey, final String data,
-			String macAlgorithm) {
-		return AuthenticationUtils.computeMACDigest(secretKey, data, macAlgorithm);
-	}
-
-	/**
-	 * Compute a Base64 MAC digest from signature data.
-	 * 
-	 * @param secretKey
-	 *        the secret key
-	 * @param data
-	 *        the data to sign
-	 * @param macAlgorithm
-	 *        the MAC algorithm to use
-	 * @return The base64 encoded digest.
-	 * @throws SecurityException
-	 *         if any error occurs
-	 * @deprecated see
-	 *             {@link AuthenticationUtils#computeMACDigest(byte[], byte[], String)}
-	 */
-	@Deprecated
-	public static final byte[] computeMACDigest(final byte[] secretKey, final byte[] data,
-			String macAlgorithm) {
-		return AuthenticationUtils.computeMACDigest(secretKey, data, macAlgorithm);
 	}
 
 	/**
