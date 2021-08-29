@@ -19,11 +19,11 @@
 		<dependency org="org.eclipse.virgo.web" name="org.eclipse.virgo.web.dm" rev="3.7.0.M01"/>
 		<dependency org="org.osgi" name="org.osgi.core" rev="5.0.0"/>
     	<dependency org="org.slf4j" name="slf4j-api" rev="1.7.21"/>
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-beans" rev="4.2.6.RELEASE_1"/>
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-context" rev="4.2.6.RELEASE_1"/>
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-context-support" rev="4.2.6.RELEASE_1"/>
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-core" rev="4.2.6.RELEASE_1"/>
-		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-web" rev="4.2.6.RELEASE_1"/>
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-beans" rev="4.3.23.RELEASE_1"/>
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-context" rev="4.3.23.RELEASE_1"/>
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-context-support" rev="4.3.23.RELEASE_1"/>
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-core" rev="4.3.23.RELEASE_1"/>
+		<dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.spring-web" rev="4.3.23.RELEASE_1"/>
 
 		<exclude org="org.eclipse.osgi"/>
 		<exclude org="org.eclipse.virgo"/>
