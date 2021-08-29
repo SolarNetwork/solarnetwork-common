@@ -25,15 +25,15 @@ package net.solarnetwork.common.mqtt;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
-import net.solarnetwork.support.SSLService;
-import net.solarnetwork.util.OptionalService;
-import net.solarnetwork.util.StaticOptionalService;
+import net.solarnetwork.service.OptionalService;
+import net.solarnetwork.service.SSLService;
+import net.solarnetwork.service.StaticOptionalService;
 
 /**
  * Basic implementation of {@link MqttConnectionConfig}.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 

@@ -25,13 +25,13 @@ package net.solarnetwork.common.mqtt;
 import java.net.URI;
 import java.util.UUID;
 import net.solarnetwork.common.mqtt.MqttProperties.MutableMqttProperties;
-import net.solarnetwork.support.SSLService;
+import net.solarnetwork.service.SSLService;
 
 /**
  * API for MQTT connection configuration.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public interface MqttConnectionConfig extends WireLoggingSupport {
 
