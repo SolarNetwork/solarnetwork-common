@@ -2,7 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse Gemini Web Support
 Bundle-SymbolicName: net.solarnetwork.common.web.gemini
-Bundle-Version: 2.1.0
+Automatic-Module-Name: net.solarnetwork.common.web.gemini
+Bundle-Version: 2.1.1
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: 
