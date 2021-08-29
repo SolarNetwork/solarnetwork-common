@@ -2,6 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Test
 Bundle-SymbolicName: net.solarnetwork.common.test
+Automatic-Module-Name: net.solarnetwork.common.test
 Bundle-Version: 1.16.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -32,17 +33,17 @@ Import-Package:
  org.junit.runners.model;version="[4.12,5.0)",
  org.slf4j;version="[1.7,2.0)",
  org.slf4j.helpers;version="[1.7,2.0)",
- org.springframework.aop;version="[4.2,5.0)",
- org.springframework.asm;version="[4.2,5.0)",
- org.springframework.beans;version="[4.2,5.0)",
- org.springframework.beans.factory;version="[4.2,5.0)",
- org.springframework.context;version="[4.2,5.0)",
- org.springframework.core;version="[4.2,5.0)",
- org.springframework.dao;version="[4.2,5.0)",
- org.springframework.expression;version="[4.2,5.0)",
- org.springframework.test.annotation;version="[4.2,5.0)",
- org.springframework.test.context;version="[4.2,5.0)",
- org.springframework.test.context.junit4;version="[4.2,5.0)",
- org.springframework.test.context.support;version="[4.2,5.0)",
- org.springframework.test.context.transaction;version="[4.2,5.0)",
- org.springframework.util;version="[4.2,5.0)"
+ org.springframework.aop;version="[4.3,5.0)",
+ org.springframework.asm;version="[4.3,5.0)",
+ org.springframework.beans;version="[4.3,5.0)",
+ org.springframework.beans.factory;version="[4.3,5.0)",
+ org.springframework.context;version="[4.3,5.0)",
+ org.springframework.core;version="[4.3,5.0)",
+ org.springframework.dao;version="[4.3,5.0)",
+ org.springframework.expression;version="[4.3,5.0)",
+ org.springframework.test.annotation;version="[4.3,5.0)",
+ org.springframework.test.context;version="[4.3,5.0)",
+ org.springframework.test.context.junit4;version="[4.3,5.0)",
+ org.springframework.test.context.support;version="[4.3,5.0)",
+ org.springframework.test.context.transaction;version="[4.3,5.0)",
+ org.springframework.util;version="[4.3,5.0)"
