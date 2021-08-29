@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain;
+package net.solarnetwork.service;
 
 import java.util.Map;
 
