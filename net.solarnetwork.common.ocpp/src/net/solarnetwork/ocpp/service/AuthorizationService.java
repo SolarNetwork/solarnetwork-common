@@ -22,9 +22,9 @@
 
 package net.solarnetwork.ocpp.service;
 
-import net.solarnetwork.domain.Identifiable;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
+import net.solarnetwork.service.Identifiable;
 
 /**
  * API for authorizing an ID tag.
@@ -37,7 +37,7 @@ import net.solarnetwork.ocpp.domain.ChargePointIdentity;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public interface AuthorizationService extends Identifiable {
 

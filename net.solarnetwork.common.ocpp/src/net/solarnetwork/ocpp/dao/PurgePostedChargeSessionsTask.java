@@ -27,13 +27,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.solarnetwork.util.OptionalService;
+import net.solarnetwork.service.OptionalService;
 
 /**
  * Job to delete old charge sessions that have been uploaded.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class PurgePostedChargeSessionsTask implements Callable<Integer>, Runnable {
 

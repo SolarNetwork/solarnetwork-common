@@ -22,19 +22,19 @@
 
 package net.solarnetwork.ocpp.service.cs;
 
-import net.solarnetwork.domain.Identifiable;
 import net.solarnetwork.ocpp.domain.ChargePoint;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.RegistrationStatus;
 import net.solarnetwork.ocpp.domain.StatusNotification;
+import net.solarnetwork.service.Identifiable;
 
 /**
  * This API represents the set of functionality required by an OCPP Central
  * System to manage a set of Charge Point clients.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public interface ChargePointManager extends Identifiable {
 
