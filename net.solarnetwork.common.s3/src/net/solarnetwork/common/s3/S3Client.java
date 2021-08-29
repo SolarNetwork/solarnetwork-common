@@ -26,14 +26,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Set;
+import net.solarnetwork.service.ProgressListener;
 import net.solarnetwork.settings.SettingSpecifierProvider;
-import net.solarnetwork.util.ProgressListener;
 
 /**
  * API for accessing S3.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public interface S3Client extends SettingSpecifierProvider {
 

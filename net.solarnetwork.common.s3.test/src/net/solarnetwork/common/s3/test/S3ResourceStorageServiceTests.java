@@ -77,18 +77,18 @@ import net.solarnetwork.common.s3.S3ObjectRef;
 import net.solarnetwork.common.s3.S3ObjectReference;
 import net.solarnetwork.common.s3.S3ResourceStorageService;
 import net.solarnetwork.common.s3.sdk.SdkS3Client;
-import net.solarnetwork.io.ResourceStorageService;
+import net.solarnetwork.service.ProgressListener;
+import net.solarnetwork.service.ResourceStorageService;
+import net.solarnetwork.service.StaticOptionalService;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.support.SettingUtils;
 import net.solarnetwork.test.CallingThreadExecutorService;
-import net.solarnetwork.util.ProgressListener;
-import net.solarnetwork.util.StaticOptionalService;
 
 /**
  * Test cases for the {@link S3ResourceStorageService} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class S3ResourceStorageServiceTests {
 

@@ -51,22 +51,22 @@ import org.springframework.util.MimeType;
 import net.solarnetwork.common.s3.sdk.SdkS3Client;
 import net.solarnetwork.io.ResourceMetadata;
 import net.solarnetwork.io.ResourceMetadataHolder;
-import net.solarnetwork.io.ResourceStorageService;
+import net.solarnetwork.service.OptionalService;
+import net.solarnetwork.service.ProgressListener;
+import net.solarnetwork.service.ResourceStorageService;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
 import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.settings.support.BaseSettingsSpecifierLocalizedServiceInfoProvider;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 import net.solarnetwork.settings.support.SettingUtils;
-import net.solarnetwork.util.OptionalService;
-import net.solarnetwork.util.ProgressListener;
 
 /**
  * AWS S3 based implementation of {@link ResourceStorageService} using the
  * {@link S3Client} API.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
 		implements ResourceStorageService, SettingSpecifierProvider, SettingsChangeObserver {

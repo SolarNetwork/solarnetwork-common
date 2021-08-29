@@ -59,12 +59,12 @@ import net.solarnetwork.common.s3.S3Client;
 import net.solarnetwork.common.s3.S3ObjectMetadata;
 import net.solarnetwork.common.s3.S3ObjectRef;
 import net.solarnetwork.common.s3.S3ObjectReference;
+import net.solarnetwork.service.ProgressListener;
+import net.solarnetwork.service.RemoteServiceException;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.settings.support.BaseSettingsSpecifierLocalizedServiceInfoProvider;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
-import net.solarnetwork.support.RemoteServiceException;
-import net.solarnetwork.util.ProgressListener;
 
 /**
  * {@link S3Client} using the AWS SDK.

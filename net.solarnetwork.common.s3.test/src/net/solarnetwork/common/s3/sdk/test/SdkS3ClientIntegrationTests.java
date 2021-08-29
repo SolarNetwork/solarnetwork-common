@@ -83,14 +83,14 @@ import net.solarnetwork.common.s3.S3ObjectMetadata;
 import net.solarnetwork.common.s3.S3ObjectRef;
 import net.solarnetwork.common.s3.S3ObjectReference;
 import net.solarnetwork.common.s3.sdk.SdkS3Client;
+import net.solarnetwork.service.ProgressListener;
 import net.solarnetwork.test.SystemPropertyMatchTestRule;
-import net.solarnetwork.util.ProgressListener;
 
 /**
  * Test cases for {@link SdkS3Client} that tests actual network operations.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class SdkS3ClientIntegrationTests {
 
