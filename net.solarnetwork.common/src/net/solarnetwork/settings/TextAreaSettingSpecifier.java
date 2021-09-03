@@ -1,7 +1,7 @@
 /* ==================================================================
- * SliderSettingSpecifier.java - Mar 12, 2012 9:33:48 AM
+ * TextAreaSettingSpecifier.java - 16/09/2019 4:48:36 pm
  * 
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2019 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -23,44 +23,12 @@
 package net.solarnetwork.settings;
 
 /**
- * A floating point range setting between a minimum and maximum value.
+ * A read-write large string setting.
  * 
  * @author matt
  * @version 1.0
+ * @since 1.70
  */
-public interface SliderSettingSpecifier extends KeyedSettingSpecifier<Double> {
-
-	/**
-	 * The minimum value allowed.
-	 * 
-	 * <p>
-	 * If {@literal null} then {@literal 0} is assumed.
-	 * </p>
-	 * 
-	 * @return the minimum value
-	 */
-	Double getMinimumValue();
-
-	/**
-	 * The maximum value allowed.
-	 * 
-	 * <p>
-	 * If {@literal null} then {@literal 1} is assumed.
-	 * </p>
-	 * 
-	 * @return the maximum value
-	 */
-	Double getMaximumValue();
-
-	/**
-	 * Get a step value for acceptable values between the minimum and maximum.
-	 * 
-	 * <p>
-	 * If {@literal null} then {@literal 1} is assumed.
-	 * </p>
-	 * 
-	 * @return the step value
-	 */
-	Double getStep();
+public interface TextAreaSettingSpecifier extends KeyedSettingSpecifier<String> {
 
 }

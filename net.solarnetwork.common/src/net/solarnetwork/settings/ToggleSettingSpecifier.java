@@ -34,7 +34,7 @@ public interface ToggleSettingSpecifier extends KeyedSettingSpecifier<Object> {
 	 * Get the "true" value for this setting.
 	 * 
 	 * <p>
-	 * If this returns <em>null</em> then {@link Boolean#TRUE} is assumed.
+	 * If this returns {@literal null} then {@link Boolean#TRUE} is assumed.
 	 * </p>
 	 * 
 	 * @return the "true" value
@@ -45,7 +45,7 @@ public interface ToggleSettingSpecifier extends KeyedSettingSpecifier<Object> {
 	 * Get the "false" value for this setting
 	 * 
 	 * <p>
-	 * If this returns <em>null</em> then {@link Boolean#FALSE} is assumed.
+	 * If this returns {@literal null} then {@link Boolean#FALSE} is assumed.
 	 * </p>
 	 * 
 	 * @return the "false" value
