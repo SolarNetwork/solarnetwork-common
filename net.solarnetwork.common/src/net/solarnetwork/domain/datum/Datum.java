@@ -148,9 +148,18 @@ public interface Datum {
 	/**
 	 * Get a general accessor for the sample data.
 	 * 
-	 * @return the operations instance, or {@literal null} if no samples are
-	 *         available
+	 * @return the operations instance, never {@literal null}
 	 */
 	DatumSamplesOperations asSampleOperations();
+
+	/**
+	 * Create a copy of this instance with the sample properties replaced by a
+	 * given samples instance.
+	 * 
+	 * @param samples
+	 *        the samples to use for the copy
+	 * @return a new copy of this instance
+	 */
+	Datum copyWithSamples(DatumSamplesOperations samples);
 
 }

@@ -1,5 +1,5 @@
 /* ==================================================================
- * ACEnergyDatum.java - Apr 2, 2014 7:08:15 AM
+ * AcEnergyDatum.java - Apr 2, 2014 7:08:15 AM
  * 
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
@@ -22,6 +22,9 @@
 
 package net.solarnetwork.domain.datum;
 
+import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
+import static net.solarnetwork.domain.datum.DatumSamplesType.Status;
+
 /**
  * Standardized API for alternating current related energy datum to implement.
  * 
@@ -31,97 +34,94 @@ package net.solarnetwork.domain.datum;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
-public interface ACEnergyDatum extends EnergyDatum {
+public interface AcEnergyDatum extends EnergyDatum {
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} status sample
-	 * key for {@link #getAcPhase()} values.
+	 * An status sample key for {@link #getAcPhase()} values.
 	 */
-	public static final String PHASE_KEY = "phase";
+	String PHASE_KEY = "phase";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getRealPower()} values.
+	 * An instantaneous sample key for {@link #getRealPower()} values.
 	 */
-	public static final String REAL_POWER_KEY = "realPower";
+	String REAL_POWER_KEY = "realPower";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getApparentPower()} values.
+	 * An instantaneous sample key for {@link #getApparentPower()} values.
 	 */
-	public static final String APPARENT_POWER_KEY = "apparentPower";
+	String APPARENT_POWER_KEY = "apparentPower";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getReactivePower()} values.
+	 * An instantaneous sample key for {@link #getReactivePower()} values.
 	 */
-	public static final String REACTIVE_POWER_KEY = "reactivePower";
+	String REACTIVE_POWER_KEY = "reactivePower";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getPowerFactor()} values.
+	 * An instantaneous sample key for {@link #getPowerFactor()} values.
 	 */
-	public static final String POWER_FACTOR_KEY = "powerFactor";
+	String POWER_FACTOR_KEY = "powerFactor";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getEffectivePowerFactor()} values.
+	 * An instantaneous sample key for {@link #getEffectivePowerFactor()}
+	 * values.
 	 */
-	public static final String EFFECTIVE_POWER_FACTOR_KEY = "effectivePowerFactor";
+	String EFFECTIVE_POWER_FACTOR_KEY = "effectivePowerFactor";
 
 	/**
-	 * The{@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getFrequency()} values.
+	 * An instantaneous sample key for {@link #getFrequency()} values.
 	 */
-	public static final String FREQUENCY_KEY = "frequency";
+	String FREQUENCY_KEY = "frequency";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getVoltage()} values.
+	 * An instantaneous sample key for {@link #getVoltage()} values.
 	 */
-	public static final String VOLTAGE_KEY = "voltage";
+	String VOLTAGE_KEY = "voltage";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getCurrent()} values.
+	 * An instantaneous sample key for {@link #getCurrent()} values.
 	 */
-	public static final String CURRENT_KEY = "current";
+	String CURRENT_KEY = "current";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getPhaseVoltage()} values.
+	 * An instantaneous sample key for {@link #getPhaseVoltage()} values.
 	 */
-	public static final String PHASE_VOLTAGE_KEY = "phaseVoltage";
+	String PHASE_VOLTAGE_KEY = "phaseVoltage";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getLineVoltage()} values.
+	 * An instantaneous sample key for {@link #getLineVoltage()} values.
 	 */
-	public static final String LINE_VOLTAGE_KEY = "lineVoltage";
+	String LINE_VOLTAGE_KEY = "lineVoltage";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getNeutralCurrent()} values.
+	 * An instantaneous sample key for {@link #getNeutralCurrent()} values.
 	 */
-	public static final String NEUTRAL_CURRENT_KEY = "neutralCurrent";
+	String NEUTRAL_CURRENT_KEY = "neutralCurrent";
 
 	/**
 	 * Get the phase measured by this datum.
 	 * 
-	 * @return the phase, should never be {@literal null}
+	 * @return the phase, if known
 	 */
-	ACPhase getAcPhase();
+	default AcPhase getAcPhase() {
+		String p = asSampleOperations().getSampleString(Status, PHASE_KEY);
+		return (p == null ? null : AcPhase.valueOf(p));
+	}
 
 	/**
-	 * Get the instantaneous real power, in watts (W). This should return the
-	 * same value as {@link EnergyDatum#getWatts()} but has this method to be
-	 * explicit.
+	 * Get the instantaneous real power, in watts (W).
+	 * 
+	 * <p>
+	 * This should return the same value as {@link EnergyDatum#getWatts()} but
+	 * has this method to be explicit.
+	 * </p>
 	 * 
 	 * @return the real power in watts, or {@literal null} if not available
 	 */
-	Integer getRealPower();
+	default Integer getRealPower() {
+		return asSampleOperations().getSampleInteger(Instantaneous, REAL_POWER_KEY);
+	}
 
 	/**
 	 * Get the instantaneous apparent power, in volt-amperes (VA).
@@ -129,7 +129,10 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * @return the apparent power in volt-amperes, or {@literal null} if not
 	 *         available
 	 */
-	Integer getApparentPower();
+	default Integer getApparentPower() {
+		return asSampleOperations().getSampleInteger(Instantaneous, APPARENT_POWER_KEY);
+
+	}
 
 	/**
 	 * Get the instantaneous reactive power, in reactive volt-amperes (var).
@@ -137,7 +140,10 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * @return the reactive power in reactive volt-amperes, or {@literal null}
 	 *         if not available
 	 */
-	Integer getReactivePower();
+	default Integer getReactivePower() {
+		return asSampleOperations().getSampleInteger(Instantaneous, REACTIVE_POWER_KEY);
+
+	}
 
 	/**
 	 * Get the effective instantaneous power factor, as a value between
@@ -147,21 +153,27 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * 
 	 * @return the effective power factor
 	 */
-	Float getEffectivePowerFactor();
+	default Float getEffectivePowerFactor() {
+		return asSampleOperations().getSampleFloat(Instantaneous, EFFECTIVE_POWER_FACTOR_KEY);
+	}
 
 	/**
 	 * Get the instantaneous frequency, in hertz (Hz).
 	 * 
 	 * @return the frequency, or {@literal null} if not known
 	 */
-	Float getFrequency();
+	default Float getFrequency() {
+		return asSampleOperations().getSampleFloat(Instantaneous, FREQUENCY_KEY);
+	}
 
 	/**
 	 * Get the instantaneous neutral voltage.
 	 * 
 	 * @return the volts, or {@literal null} if not known
 	 */
-	Float getVoltage();
+	default Float getVoltage() {
+		return asSampleOperations().getSampleFloat(Instantaneous, VOLTAGE_KEY);
+	}
 
 	/**
 	 * Get the instantaneous phase-to-neutral line voltage for a specific phase.
@@ -170,7 +182,9 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 *        the phase
 	 * @return the volts, or {@literal null} if not known
 	 */
-	Float getVoltage(ACPhase phase);
+	default Float getVoltage(AcPhase phase) {
+		return asSampleOperations().getSampleFloat(Instantaneous, phase.withKey(VOLTAGE_KEY));
+	}
 
 	/**
 	 * Get the instantaneous current, in amps.
@@ -182,7 +196,9 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * 
 	 * @return the amps, or {@literal null} if not known
 	 */
-	Float getCurrent();
+	default Float getCurrent() {
+		return asSampleOperations().getSampleFloat(Instantaneous, CURRENT_KEY);
+	}
 
 	/**
 	 * Get the instantaneous current, in amps, for a specific phase.
@@ -191,14 +207,18 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 *        the phase
 	 * @return the phase
 	 */
-	Float getCurrent(ACPhase phase);
+	default Float getCurrent(AcPhase phase) {
+		return asSampleOperations().getSampleFloat(Instantaneous, phase.withKey(CURRENT_KEY));
+	}
 
 	/**
 	 * Get the instantaneous neutral current, in amps.
 	 * 
 	 * @return the amps, or {@literal null} if not known
 	 */
-	Float getNeutralCurrent();
+	default Float getNeutralCurrent() {
+		return asSampleOperations().getSampleFloat(Instantaneous, NEUTRAL_CURRENT_KEY);
+	}
 
 	/**
 	 * Get the instantaneous phase-to-neutral line voltage.
@@ -210,7 +230,9 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * 
 	 * @return the volts, or {@literal null} if not known
 	 */
-	Float getPhaseVoltage();
+	default Float getPhaseVoltage() {
+		return asSampleOperations().getSampleFloat(Instantaneous, PHASE_VOLTAGE_KEY);
+	}
 
 	/**
 	 * Get the instantaneous phase-to-phase line voltage.
@@ -237,9 +259,11 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 * </p>
 	 * 
 	 * @return the line voltage
-	 * @see #getLineVoltage(ACPhase)
+	 * @see #getLineVoltage(AcPhase)
 	 */
-	Float getLineVoltage();
+	default Float getLineVoltage() {
+		return asSampleOperations().getSampleFloat(Instantaneous, LINE_VOLTAGE_KEY);
+	}
 
 	/**
 	 * Get the instantaneous phase-to-phase line voltage for a specific phase.
@@ -248,12 +272,18 @@ public interface ACEnergyDatum extends EnergyDatum {
 	 *        the phase (first)
 	 * @return the line voltage
 	 */
-	Float getLineVoltage(ACPhase phase);
+	default Float getLineVoltage(AcPhase phase) {
+		return asSampleOperations().getSampleFloat(Instantaneous, phase.withLineKey(VOLTAGE_KEY));
+
+	}
 
 	/**
 	 * Get the instantaneous power factor.
 	 * 
 	 * @return the power factor, or {@literal null} if not known
 	 */
-	Float getPowerFactor();
+	default Float getPowerFactor() {
+		return asSampleOperations().getSampleFloat(Instantaneous, POWER_FACTOR_KEY);
+	}
+
 }

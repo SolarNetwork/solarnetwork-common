@@ -22,41 +22,49 @@
 
 package net.solarnetwork.domain.datum;
 
+import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
+
 /**
  * Standardized API for energy storage system related datum to implement.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public interface EnergyStorageDatum extends Datum {
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getAvailableEnergyPercentage()} values.
+	 * An instantaneous sample key for {@link #getAvailableEnergyPercentage()}
+	 * values.
 	 */
 	String PERCENTAGE_KEY = "percent";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link #getAvailableEnergy()} values.
+	 * An instantaneous sample key for {@link #getAvailableEnergy()} values.
 	 */
 	String AVAILABLE_WATT_HOURS_KEY = "availWattHours";
 
 	/**
-	 * Get the percentage of energy capacity available in the storage. This
-	 * value, multiplied by {@link #getAvailableEnergy()}, represents the total
-	 * energy capacity of the storage.
+	 * Get the percentage of energy capacity available in the storage.
+	 * 
+	 * <p>
+	 * This value, multiplied by {@link #getAvailableEnergy()}, represents the
+	 * total energy capacity of the storage.
+	 * </p>
 	 * 
 	 * @return The available energy as a percentage of the total capacity of the
 	 *         storage.
 	 */
-	Float getAvailableEnergyPercentage();
+	default Float getAvailableEnergyPercentage() {
+		return asSampleOperations().getSampleFloat(Instantaneous, PERCENTAGE_KEY);
+	}
 
 	/**
 	 * Get the available energy of the storage system, in Wh.
 	 * 
 	 * @return The available energy of the storage.
 	 */
-	Long getAvailableEnergy();
+	default Long getAvailableEnergy() {
+		return asSampleOperations().getSampleLong(Instantaneous, AVAILABLE_WATT_HOURS_KEY);
+	}
 
 }

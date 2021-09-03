@@ -37,6 +37,11 @@ import java.util.Set;
 public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 
 	/**
+	 * Remove all property values and tags.
+	 */
+	void clear();
+
+	/**
 	 * Add a value into or remove a value from a sample type collection,
 	 * creating the collection if it doesn't already exist.
 	 * 
@@ -83,6 +88,43 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 	 *        the tags to set
 	 */
 	void setTags(Set<String> tags);
+
+	/**
+	 * Add a tag.
+	 * 
+	 * @param tag
+	 *        the tag value to add
+	 * @return {@literal true} if the tag was not already present
+	 */
+	default boolean addTag(String tag) {
+		Set<String> tags = getTags();
+		if ( tags == null ) {
+			tags = new LinkedHashSet<>(2);
+			setTags(tags);
+		}
+		return tags.add(tag);
+	}
+
+	/**
+	 * Remove one or more tags.
+	 * 
+	 * @param tags
+	 *        the tags to remove
+	 * @return {@literal true} if any of the given tags were removed
+	 */
+	default boolean removeTag(String... tags) {
+		Set<String> tagSet = getTags();
+		if ( tagSet == null || tagSet.isEmpty() ) {
+			return false;
+		}
+		boolean changed = false;
+		for ( String tag : tags ) {
+			if ( tagSet.remove(tag) ) {
+				changed = true;
+			}
+		}
+		return changed;
+	}
 
 	/**
 	 * Copy all the sample data from another samples instance.

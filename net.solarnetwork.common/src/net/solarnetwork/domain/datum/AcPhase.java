@@ -1,5 +1,5 @@
 /* ==================================================================
- * ACPhase.java - Apr 2, 2014 10:05:08 AM
+ * AcPhase.java - Apr 2, 2014 10:05:08 AM
  * 
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
@@ -28,7 +28,7 @@ package net.solarnetwork.domain.datum;
  * @author matt
  * @version 1.1
  */
-public enum ACPhase {
+public enum AcPhase {
 
 	/** The first phase. */
 	PhaseA(1, 'a'),
@@ -44,7 +44,7 @@ public enum ACPhase {
 	private final int number;
 	private final char key;
 
-	private ACPhase(int n, char key) {
+	private AcPhase(int n, char key) {
 		this.number = n;
 		this.key = key;
 	}
@@ -143,16 +143,16 @@ public enum ACPhase {
 	}
 
 	/**
-	 * Get an ACPhase for a given number.
+	 * Get an AcPhase for a given number.
 	 * 
 	 * @param n
 	 *        the number
-	 * @return the ACPhase
+	 * @return the AcPhase
 	 * @see #getNumber()
 	 * @throws IllegalArgumentException
 	 *         if the number is not a valid phase value
 	 */
-	public ACPhase forNumber(final int n) {
+	public AcPhase forNumber(final int n) {
 		switch (n) {
 			case 0:
 				return Total;
@@ -167,21 +167,21 @@ public enum ACPhase {
 				return PhaseC;
 
 			default:
-				throw new IllegalArgumentException("Number " + n + " is not a valid ACPhase");
+				throw new IllegalArgumentException("Number " + n + " is not a valid AcPhase");
 		}
 	}
 
 	/**
-	 * Get an ACPhase for a given key.
+	 * Get an AcPhase for a given key.
 	 * 
 	 * @param key
 	 *        the key
-	 * @return the ACPhase
+	 * @return the AcPhase
 	 * @see #getKey()
 	 * @throws IllegalArgumentException
 	 *         if the key is not a valid phase value
 	 */
-	public ACPhase forKey(final char key) {
+	public AcPhase forKey(final char key) {
 		switch (key) {
 			case 't':
 				return Total;
@@ -196,7 +196,7 @@ public enum ACPhase {
 				return PhaseC;
 
 			default:
-				throw new IllegalArgumentException("Key " + key + " is not a valid ACPhase");
+				throw new IllegalArgumentException("Key " + key + " is not a valid AcPhase");
 		}
 	}
 

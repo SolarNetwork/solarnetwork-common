@@ -22,6 +22,9 @@
 
 package net.solarnetwork.domain.datum;
 
+import static net.solarnetwork.domain.datum.DatumSamplesType.Accumulating;
+import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
+
 /**
  * Standardized API for energy related datum to implement.
  * 
@@ -39,22 +42,20 @@ package net.solarnetwork.domain.datum;
 public interface EnergyDatum extends Datum {
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples}
-	 * accumulating sample key for {@link #getWattHourReading()} values.
+	 * An accumulating sample key for {@link #getWattHourReading()} values.
 	 */
-	public static final String WATT_HOUR_READING_KEY = "wattHours";
+	String WATT_HOUR_READING_KEY = "wattHours";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples}
-	 * instantaneous sample key for {@link #getWatts()} values.
+	 * An instantaneous sample key for {@link #getWatts()} values.
 	 */
-	public static final String WATTS_KEY = "watts";
+	String WATTS_KEY = "watts";
 
 	/** A tag for "consumption" of energy. */
-	public static final String TAG_CONSUMPTION = "consumption";
+	String TAG_CONSUMPTION = "consumption";
 
 	/** A tag for "generation" of energy. */
-	public static final String TAG_GENERATION = "power";
+	String TAG_GENERATION = "power";
 
 	/**
 	 * Get a watt-hour reading.
@@ -69,7 +70,17 @@ public interface EnergyDatum extends Datum {
 	 * @return the watt hour reading, or {@literal null} if not available
 	 */
 	default Long getWattHourReading() {
-		return asSampleOperations().getSampleLong(DatumSamplesType.Accumulating, WATT_HOUR_READING_KEY);
+		return asSampleOperations().getSampleLong(Accumulating, WATT_HOUR_READING_KEY);
+	}
+
+	/**
+	 * Get a reverse watt-hour reading.
+	 * 
+	 * @return the reverse watt hour reading
+	 */
+	default Long getReverseWattHourReading() {
+		return asSampleOperations().getSampleLong(Accumulating,
+				WATT_HOUR_READING_KEY + REVERSE_ACCUMULATING_SUFFIX_KEY);
 	}
 
 	/**
@@ -78,7 +89,26 @@ public interface EnergyDatum extends Datum {
 	 * @return watts, or {@literal null} if not available
 	 */
 	default Integer getWatts() {
-		return asSampleOperations().getSampleInteger(DatumSamplesType.Instantaneous, WATTS_KEY);
+		return asSampleOperations().getSampleInteger(Instantaneous, WATTS_KEY);
 	}
 
+	/**
+	 * Return {@literal true} if this datum is tagged with
+	 * {@link #TAG_CONSUMPTION}.
+	 * 
+	 * @return {@literal true} if this datum has the consumption tag
+	 */
+	default boolean isConsumption() {
+		return asSampleOperations().hasTag(TAG_CONSUMPTION);
+	}
+
+	/**
+	 * Return {@literal true} if this datum is tagged with
+	 * {@link #TAG_GENERATION}.
+	 * 
+	 * @return {@literal true} if this datum has the generation tag
+	 */
+	default boolean isGeneration() {
+		return asSampleOperations().hasTag(TAG_GENERATION);
+	}
 }

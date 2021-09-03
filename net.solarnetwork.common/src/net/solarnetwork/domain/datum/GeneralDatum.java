@@ -128,7 +128,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Identity<Dat
 	}
 
 	/**
-	 * Create a datum with a {@link NodeDatumStreamId}.
+	 * Create a node datum.
 	 * 
 	 * @param nodeId
 	 *        the node ID
@@ -146,7 +146,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Identity<Dat
 	}
 
 	/**
-	 * Create a datum with a {@link LocationDatumStreamId}.
+	 * Create a location datum.
 	 * 
 	 * @param locationId
 	 *        the location ID
@@ -166,6 +166,14 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Identity<Dat
 	@Override
 	public GeneralDatum clone() {
 		return (GeneralDatum) super.clone();
+	}
+
+	@Override
+	public Datum copyWithSamples(DatumSamplesOperations samples) {
+		GeneralDatum copy = clone();
+		copy.clear();
+		copy.samples.copyFrom(samples);
+		return copy;
 	}
 
 	/**
@@ -267,6 +275,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Identity<Dat
 	 * @return {@literal true} if the samples is not empty
 	 * @see net.solarnetwork.domain.datum.DatumSamples#isEmpty()
 	 */
+	@Override
 	public boolean isEmpty() {
 		return samples.isEmpty();
 	}
@@ -321,6 +330,11 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Identity<Dat
 		return samples.getTags();
 	}
 
+	@Override
+	public void clear() {
+		samples.clear();
+	}
+
 	/**
 	 * Set the sample tags.
 	 * 
@@ -346,6 +360,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Identity<Dat
 	 * @return {@literal true} if the sample tag exists
 	 * @see net.solarnetwork.domain.datum.DatumSupport#hasTag(java.lang.String)
 	 */
+	@Override
 	public boolean hasTag(String tag) {
 		return samples.hasTag(tag);
 	}
@@ -357,8 +372,9 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Identity<Dat
 	 *        the tag to add
 	 * @see net.solarnetwork.domain.datum.DatumSupport#addTag(java.lang.String)
 	 */
-	public void addTag(String tag) {
-		samples.addTag(tag);
+	@Override
+	public boolean addTag(String tag) {
+		return samples.addTag(tag);
 	}
 
 	@Override

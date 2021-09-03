@@ -64,6 +64,13 @@ public abstract class DatumSupport implements Serializable {
 	}
 
 	/**
+	 * Remove all data values.
+	 */
+	public void clear() {
+		tags = null;
+	}
+
+	/**
 	 * Get a String value out of a Map. If the key exists but is not a String,
 	 * {@link Object#toString()} will be called on that object.
 	 * 
@@ -285,16 +292,16 @@ public abstract class DatumSupport implements Serializable {
 	 * @param tag
 	 *        the tag value to add
 	 */
-	public void addTag(String tag) {
+	public boolean addTag(String tag) {
 		if ( tag == null ) {
-			return;
+			return false;
 		}
 		Set<String> set = tags;
 		if ( set == null ) {
 			set = new LinkedHashSet<String>(2);
 			tags = set;
 		}
-		set.add(tag);
+		return set.add(tag);
 	}
 
 	/**
@@ -303,14 +310,12 @@ public abstract class DatumSupport implements Serializable {
 	 * @param tag
 	 *        the tag value to add
 	 */
-	public void removeTag(String tag) {
+	public boolean removeTag(String tag) {
 		if ( tag == null ) {
-			return;
+			return false;
 		}
 		Set<String> set = tags;
-		if ( set != null ) {
-			set.remove(tag);
-		}
+		return (set != null ? set.remove(tag) : false);
 	}
 
 }

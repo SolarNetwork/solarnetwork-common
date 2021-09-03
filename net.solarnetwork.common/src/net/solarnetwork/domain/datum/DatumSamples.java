@@ -89,6 +89,17 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	}
 
 	/**
+	 * Clear all property values.
+	 */
+	@Override
+	public void clear() {
+		super.clear();
+		this.accumulating = null;
+		this.instantaneous = null;
+		this.status = null;
+	}
+
+	/**
 	 * Get a merged map of all sample data.
 	 * 
 	 * @return a map with all sample data combined
@@ -123,6 +134,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *         sets of this object
 	 * @since 1.3
 	 */
+	@Override
 	@JsonIgnore
 	@SerializeIgnore
 	public boolean isEmpty() {

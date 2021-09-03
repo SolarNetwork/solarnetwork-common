@@ -25,6 +25,7 @@ package net.solarnetwork.domain.datum;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
+import net.solarnetwork.domain.Differentiable;
 
 /**
  * API for accessing general datum sample property values.
@@ -33,7 +34,7 @@ import java.util.Set;
  * @version 1.0
  * @since 2.0
  */
-public interface DatumSamplesOperations {
+public interface DatumSamplesOperations extends Differentiable<DatumSamplesOperations> {
 
 	/**
 	 * Get specific sample data.
@@ -198,4 +199,58 @@ public interface DatumSamplesOperations {
 	 */
 	Set<String> getTags();
 
+	/**
+	 * Test if a given tag is set.
+	 * 
+	 * @param tag
+	 *        the tag to look for
+	 * @return {@literal true} if the given tag has been set on this instance
+	 */
+	default boolean hasTag(String tag) {
+		Set<String> tags = getTags();
+		return (tags != null && tags.contains(tag));
+	}
+
+	default boolean isEmpty() {
+		for ( DatumSamplesType t : new DatumSamplesType[] { DatumSamplesType.Accumulating,
+				DatumSamplesType.Instantaneous, DatumSamplesType.Status } ) {
+			Map<String, ?> d = getSampleData(t);
+			if ( d != null && !d.isEmpty() ) {
+				return false;
+			}
+		}
+		Set<String> tags = getTags();
+		return (tags == null || tags.isEmpty());
+	}
+
+	@Override
+	default boolean differsFrom(DatumSamplesOperations other) {
+		if ( other == null ) {
+			return true;
+		} else if ( this == other ) {
+			return false;
+		}
+
+		for ( DatumSamplesType t : new DatumSamplesType[] { DatumSamplesType.Accumulating,
+				DatumSamplesType.Instantaneous, DatumSamplesType.Status } ) {
+			Map<String, ?> d1 = getSampleData(t);
+			Map<String, ?> d2 = getSampleData(t);
+			if ( d1 == null ) {
+				if ( d2 != null ) {
+					return true;
+				}
+			} else if ( !d1.equals(d2) ) {
+				return true;
+			}
+		}
+		if ( getTags() == null ) {
+			if ( other.getTags() != null ) {
+				return true;
+			}
+		} else if ( !getTags().equals(other.getTags()) ) {
+			return true;
+		}
+
+		return false;
+	}
 }
