@@ -162,4 +162,11 @@ public interface Datum {
 	 */
 	Datum copyWithSamples(DatumSamplesOperations samples);
 
+	/**
+	 * Get a copy of this datum with a new ID
+	 * 
+	 * @return the copy with the given ID
+	 */
+	Datum copyWithId(DatumId id);
+
 }

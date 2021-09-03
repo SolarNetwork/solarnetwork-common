@@ -77,14 +77,17 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the samples to copy
 	 * @since 1.4
 	 */
-	public DatumSamples(DatumSamples other) {
+	@SuppressWarnings("unchecked")
+	public DatumSamples(DatumSamplesOperations other) {
 		super(other);
 		if ( other != null ) {
-			this.instantaneous = (other.instantaneous != null ? new LinkedHashMap<>(other.instantaneous)
-					: null);
-			this.accumulating = (other.accumulating != null ? new LinkedHashMap<>(other.accumulating)
-					: null);
-			this.status = (other.status != null ? new LinkedHashMap<>(other.status) : null);
+			@SuppressWarnings("rawtypes")
+			Map o = other.getSampleData(DatumSamplesType.Instantaneous);
+			this.instantaneous = (o != null ? new LinkedHashMap<>(o) : null);
+			o = other.getSampleData(DatumSamplesType.Accumulating);
+			this.accumulating = (o != null ? new LinkedHashMap<>(o) : null);
+			o = other.getSampleData(DatumSamplesType.Status);
+			this.status = (o != null ? new LinkedHashMap<>(o) : null);
 		}
 	}
 

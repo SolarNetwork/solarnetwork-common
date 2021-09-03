@@ -176,6 +176,11 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Identity<Dat
 		return copy;
 	}
 
+	@Override
+	public Datum copyWithId(DatumId id) {
+		return new GeneralDatum(id, samples);
+	}
+
 	/**
 	 * Get the object kind.
 	 * 

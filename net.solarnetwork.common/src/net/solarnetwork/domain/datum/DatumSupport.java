@@ -56,10 +56,10 @@ public abstract class DatumSupport implements Serializable {
 	 *        the other instance to copy
 	 * @since 1.1
 	 */
-	public DatumSupport(DatumSupport other) {
+	public DatumSupport(DatumSamplesOperations other) {
 		super();
 		if ( other != null ) {
-			this.tags = (other.tags != null ? new LinkedHashSet<>(other.tags) : null);
+			this.tags = (other.getTags() != null ? new LinkedHashSet<>(other.getTags()) : null);
 		}
 	}
 
