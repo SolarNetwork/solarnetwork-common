@@ -164,6 +164,29 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Identity<Dat
 	}
 
 	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder("Datum{kind=");
+		buf.append(getKind());
+		Long objectId = getObjectId();
+		if ( objectId != null ) {
+			buf.append(",objectId=").append(objectId);
+		}
+		String sourceId = getSourceId();
+		if ( sourceId != null ) {
+			buf.append(",sourceId=").append(sourceId);
+		}
+		Instant ts = getTimestamp();
+		if ( ts != null ) {
+			buf.append(",ts=").append(ts);
+		}
+		if ( !isEmpty() ) {
+			buf.append(",data=").append(samples);
+		}
+		buf.append("}");
+		return buf.toString();
+	}
+
+	@Override
 	public GeneralDatum clone() {
 		return (GeneralDatum) super.clone();
 	}
