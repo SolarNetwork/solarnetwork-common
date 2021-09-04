@@ -33,15 +33,6 @@ package net.solarnetwork.domain.datum;
 public interface DatumSamplesContainer {
 
 	/**
-	 * Create a copy this instance.
-	 * 
-	 * @param samples
-	 *        the samples to use for the copy
-	 * @return a new instance
-	 */
-	DatumSamplesContainer copyWithSamples(DatumSamples samples);
-
-	/**
 	 * Get the general datum samples held by this container.
 	 * 
 	 * @return the samples

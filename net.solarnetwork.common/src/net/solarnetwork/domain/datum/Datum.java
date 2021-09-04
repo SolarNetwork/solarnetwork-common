@@ -103,6 +103,13 @@ public interface Datum {
 	ObjectDatumKind getKind();
 
 	/**
+	 * Get a domain-specific ID related to the object kind.
+	 * 
+	 * @return the object ID, or {@literal null}
+	 */
+	Long getObjectId();
+
+	/**
 	 * Get the date this datum is associated with, which is often equal to
 	 * either the date it was persisted or the date the associated data in this
 	 * object was captured.

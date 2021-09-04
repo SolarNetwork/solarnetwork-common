@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import net.solarnetwork.domain.SerializeIgnore;
 
 /**
@@ -37,6 +38,7 @@ import net.solarnetwork.domain.SerializeIgnore;
  * @author matt
  * @version 2.0
  */
+@JsonPropertyOrder({ "i", "a", "s", "t" })
 public class DatumSamples extends DatumSupport implements MutableDatumSamplesOperations, Serializable {
 
 	private static final long serialVersionUID = 3704506858283891128L;
