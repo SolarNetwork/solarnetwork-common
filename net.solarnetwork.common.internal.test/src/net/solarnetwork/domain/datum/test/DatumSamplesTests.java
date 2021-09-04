@@ -31,9 +31,14 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -355,6 +360,45 @@ public class DatumSamplesTests {
 		s.putSampleValue(Tag, "foo", null);
 		assertThat(s.getT(), hasSize(1));
 		assertThat(s.getT(), contains(TEST_TAG));
+	}
+
+	private DatumSamples getTestInstance() {
+		DatumSamples samples = new DatumSamples();
+
+		Map<String, Number> instants = new HashMap<String, Number>(2);
+		instants.put("watts", 231);
+		samples.setInstantaneous(instants);
+
+		Map<String, Number> accum = new HashMap<String, Number>(2);
+		accum.put("watt_hours", 4123);
+		samples.setAccumulating(accum);
+
+		Map<String, Object> status = new HashMap<String, Object>(2);
+		status.put("msg", "Hello, world.");
+		samples.setStatus(status);
+
+		samples.addTag("test");
+
+		return samples;
+	}
+
+	@Test
+	public void serializeJson() throws Exception {
+		String json = objectMapper.writeValueAsString(getTestInstance());
+		assertThat("JSON", json, is(
+				"{\"i\":{\"watts\":231},\"a\":{\"watt_hours\":4123},\"s\":{\"msg\":\"Hello, world.\"},\"t\":[\"test\"]}"));
+	}
+
+	@Test
+	public void deserializeJson() throws Exception {
+		String json = "{\"i\":{\"watts\":89, \"temp\":21.2},\"s\":{\"ploc\":2502287},\"t\":[\"test\"]}";
+		DatumSamples samples = objectMapper.readValue(json, DatumSamples.class);
+		assertThat("JSON parsed", samples, is(notNullValue()));
+		assertThat("Instantaneous integer property", samples.getInstantaneousSampleInteger("watts"),
+				is(89));
+		assertThat("Status property", samples.getStatusSampleLong("ploc"), is(2502287L));
+		assertThat("Instantaneous decimal property", samples.getInstantaneousSampleBigDecimal("temp"),
+				is(new BigDecimal("21.2")));
 	}
 
 }

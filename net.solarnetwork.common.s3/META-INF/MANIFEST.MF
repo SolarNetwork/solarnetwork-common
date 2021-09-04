@@ -23,7 +23,7 @@ Import-Package:
  net.solarnetwork.io;version="[2.0,3.0)",
  net.solarnetwork.service;version="[1.0,2.0)",
  net.solarnetwork.service.support;version="[1.0,2.0)",
- net.solarnetwork.settings;version="[1.1,2.0)",
+ net.solarnetwork.settings;version="[2.0,3.0)",
  net.solarnetwork.settings.support;version="[2.0,3.0)",
  org.apache.commons.codec;version="[1.11,2.0)",
  org.apache.commons.codec.binary;version="[1.11,2.0)",

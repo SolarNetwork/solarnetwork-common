@@ -32,7 +32,7 @@ Import-Package:
  net.solarnetwork.common.mqtt;version="[2.0,3.0)",
  net.solarnetwork.domain;version="[2.0,3.0)",
  net.solarnetwork.service;version="[1.0,2.0)",
- net.solarnetwork.settings;version="[1.2,2.0)",
+ net.solarnetwork.settings;version="[2.0,3.0)",
  org.slf4j;version="[1.7,2.0)",
  org.springframework.scheduling;version="[4.2,5.0)",
  org.springframework.scheduling.concurrent;version="[4.2,5.0)",
