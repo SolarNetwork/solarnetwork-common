@@ -60,8 +60,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import net.solarnetwork.domain.Instruction;
+import net.solarnetwork.domain.InstructionStatus;
 import net.solarnetwork.domain.Location;
-import net.solarnetwork.domain.datum.GeneralDatum;
+import net.solarnetwork.domain.datum.Datum;
 import net.solarnetwork.domain.datum.GeneralDatumMetadata;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.StreamDatum;
@@ -175,11 +177,15 @@ public final class JsonUtils {
 		m.addSerializer(BasicLocationSerializer.INSTANCE);
 		m.addSerializer(BasicObjectDatumStreamMetadataSerializer.INSTANCE);
 		m.addSerializer(BasicStreamDatumArraySerializer.INSTANCE);
-		m.addDeserializer(GeneralDatum.class, BasicGeneralDatumDeserializer.INSTANCE);
+		m.addSerializer(BasicInstructionSerializer.INSTANCE);
+		m.addSerializer(BasicInstructionSerializer.INSTANCE);
+		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
 		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamMetadata.class,
 				BasicObjectDatumStreamMetadataDeserializer.INSTANCE);
 		m.addDeserializer(StreamDatum.class, BasicStreamDatumArrayDeserializer.INSTANCE);
+		m.addDeserializer(Instruction.class, BasicInstructionDeserializer.INSTANCE);
+		m.addDeserializer(InstructionStatus.class, BasicInstructionStatusDeserializer.INSTANCE);
 		DATUM_MODULE = m;
 	}
 

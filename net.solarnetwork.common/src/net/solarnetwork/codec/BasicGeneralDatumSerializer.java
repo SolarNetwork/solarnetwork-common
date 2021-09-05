@@ -30,6 +30,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
+import net.solarnetwork.domain.datum.Datum;
 import net.solarnetwork.domain.datum.DatumSamplesOperations;
 import net.solarnetwork.domain.datum.DatumSamplesType;
 import net.solarnetwork.domain.datum.GeneralDatum;
@@ -41,22 +42,22 @@ import net.solarnetwork.domain.datum.GeneralDatum;
  * @version 2.0
  * @since 1.78
  */
-public class BasicGeneralDatumSerializer extends StdScalarSerializer<GeneralDatum> {
+public class BasicGeneralDatumSerializer extends StdScalarSerializer<Datum> {
 
 	private static final long serialVersionUID = -5820173690461042501L;
 
 	/** A default instance. */
-	public static final JsonSerializer<GeneralDatum> INSTANCE = new BasicGeneralDatumSerializer();
+	public static final JsonSerializer<Datum> INSTANCE = new BasicGeneralDatumSerializer();
 
 	/**
 	 * Constructor.
 	 */
 	public BasicGeneralDatumSerializer() {
-		super(GeneralDatum.class);
+		super(Datum.class);
 	}
 
 	@Override
-	public void serialize(GeneralDatum value, JsonGenerator gen, SerializerProvider provider)
+	public void serialize(Datum value, JsonGenerator gen, SerializerProvider provider)
 			throws IOException {
 		gen.writeStartObject(7);
 		if ( value.getTimestamp() != null ) {

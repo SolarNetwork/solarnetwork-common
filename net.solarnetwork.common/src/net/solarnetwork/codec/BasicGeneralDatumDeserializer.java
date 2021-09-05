@@ -35,6 +35,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import net.solarnetwork.domain.datum.Datum;
 import net.solarnetwork.domain.datum.DatumSamples;
 import net.solarnetwork.domain.datum.DatumSamplesType;
 import net.solarnetwork.domain.datum.GeneralDatum;
@@ -47,23 +48,22 @@ import net.solarnetwork.util.DateUtils;
  * @version 2.0
  * @since 1.78
  */
-public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<GeneralDatum>
-		implements Serializable {
+public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> implements Serializable {
 
 	private static final long serialVersionUID = 3787325819424216521L;
 
 	/** A default instance. */
-	public static final JsonDeserializer<GeneralDatum> INSTANCE = new BasicGeneralDatumDeserializer();
+	public static final JsonDeserializer<Datum> INSTANCE = new BasicGeneralDatumDeserializer();
 
 	/**
 	 * Constructor.
 	 */
 	public BasicGeneralDatumDeserializer() {
-		super(GeneralDatum.class);
+		super(Datum.class);
 	}
 
 	@Override
-	public GeneralDatum deserialize(JsonParser p, DeserializationContext ctxt)
+	public Datum deserialize(JsonParser p, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {
@@ -111,7 +111,7 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<General
 						break;
 				}
 			}
-			return new net.solarnetwork.domain.datum.GeneralDatum(sourceId, ts, s);
+			return new GeneralDatum(sourceId, ts, s);
 		}
 		throw new JsonParseException(p, "Unable to parse GeneralDatum (not an object)");
 	}
