@@ -26,6 +26,7 @@ import static java.util.Arrays.asList;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,6 +38,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
@@ -58,7 +60,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import net.solarnetwork.domain.Location;
+import net.solarnetwork.domain.datum.GeneralDatum;
 import net.solarnetwork.domain.datum.GeneralDatumMetadata;
+import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
+import net.solarnetwork.domain.datum.StreamDatum;
+import net.solarnetwork.util.Half;
 
 /**
  * Utilities for JSON data.
@@ -154,6 +161,26 @@ public final class JsonUtils {
 			m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
 					"net.solarnetwork.codec.JsonDateUtils$InstantDeserializer"));
 		});
+	}
+
+	/**
+	 * A module for handling datum objects.
+	 * 
+	 * @since 2.0
+	 */
+	public static final com.fasterxml.jackson.databind.Module DATUM_MODULE;
+	static {
+		SimpleModule m = new SimpleModule("SolarNetwork Datum");
+		m.addSerializer(BasicGeneralDatumSerializer.INSTANCE);
+		m.addSerializer(BasicLocationSerializer.INSTANCE);
+		m.addSerializer(BasicObjectDatumStreamMetadataSerializer.INSTANCE);
+		m.addSerializer(BasicStreamDatumArraySerializer.INSTANCE);
+		m.addDeserializer(GeneralDatum.class, BasicGeneralDatumDeserializer.INSTANCE);
+		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
+		m.addDeserializer(ObjectDatumStreamMetadata.class,
+				BasicObjectDatumStreamMetadataDeserializer.INSTANCE);
+		m.addDeserializer(StreamDatum.class, BasicStreamDatumArrayDeserializer.INSTANCE);
+		DATUM_MODULE = m;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -553,6 +580,19 @@ public final class JsonUtils {
 	}
 
 	/**
+	 * Create a new {@link ObjectMapper} based on the internal configuration
+	 * used by other methods in this class.
+	 * 
+	 * @return a new {@link ObjectMapper}
+	 * @since 2.0
+	 */
+	public static ObjectMapper newDatumObjectMapper() {
+		ObjectMapper mapper = OBJECT_MAPPER.copy();
+		mapper.registerModule(DATUM_MODULE);
+		return mapper;
+	}
+
+	/**
 	 * Parse a JSON array of scalar values into a string array.
 	 * 
 	 * @param p
@@ -727,6 +767,86 @@ public final class JsonUtils {
 			return l.toArray(new BigDecimal[l.size()]);
 		}
 		return null;
+	}
+
+	/**
+	 * Parse a simple Map from a JSON object.
+	 * 
+	 * @param p
+	 *        the parser
+	 * @return the Map, or {@literal null} if no Map can be parsed
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 * @since 2.0
+	 */
+	public static Map<String, ?> parseSimpleMap(JsonParser p)
+			throws IOException, JsonProcessingException {
+		JsonToken t = p.nextToken();
+		Map<String, Object> result = null;
+		if ( p.isExpectedStartObjectToken() ) {
+			result = new LinkedHashMap<>(8);
+			String f;
+			while ( (f = p.nextFieldName()) != null ) {
+				t = p.nextToken();
+				Object v = null;
+				if ( t.isNumeric() ) {
+					v = p.getNumberValue();
+				} else if ( t.isScalarValue() ) {
+					v = p.getText();
+				}
+				if ( v != null ) {
+					result.put(f, v);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Write a simple Map as a JSON object.
+	 * 
+	 * <p>
+	 * Only primitive object values are supported.
+	 * </p>
+	 * 
+	 * @param generator
+	 *        the generator to write to
+	 * @param value
+	 *        the map to write
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonGenerationException
+	 *         if any generation exception occurs
+	 * @since 2.0
+	 */
+	public static void writeSimpleMap(JsonGenerator generator, Map<String, ?> value)
+			throws IOException, JsonGenerationException {
+		assert value != null;
+		generator.writeStartObject(value, value.size());
+		for ( Entry<String, ?> me : value.entrySet() ) {
+			String f = me.getKey();
+			Object v = me.getValue();
+			if ( v == null ) {
+				continue;
+			}
+			if ( v instanceof Long ) {
+				generator.writeNumberField(f, ((Long) v).longValue());
+			} else if ( v instanceof Integer ) {
+				generator.writeNumberField(f, ((Integer) v).intValue());
+			} else if ( v instanceof BigDecimal ) {
+				generator.writeNumberField(f, (BigDecimal) v);
+			} else if ( v instanceof BigInteger ) {
+				generator.writeFieldName(f);
+				generator.writeNumber((BigInteger) v);
+			} else if ( v instanceof Half ) {
+				generator.writeNumberField(f, ((Half) v).floatValue());
+			} else {
+				generator.writeStringField(f, v.toString());
+			}
+		}
+		generator.writeEndObject();
 	}
 
 	/**

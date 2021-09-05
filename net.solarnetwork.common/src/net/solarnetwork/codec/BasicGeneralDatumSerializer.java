@@ -43,10 +43,10 @@ import net.solarnetwork.domain.datum.GeneralDatum;
  */
 public class BasicGeneralDatumSerializer extends StdScalarSerializer<GeneralDatum> {
 
+	private static final long serialVersionUID = -5820173690461042501L;
+
 	/** A default instance. */
 	public static final JsonSerializer<GeneralDatum> INSTANCE = new BasicGeneralDatumSerializer();
-
-	private static final long serialVersionUID = -5820173690461042501L;
 
 	/**
 	 * Constructor.

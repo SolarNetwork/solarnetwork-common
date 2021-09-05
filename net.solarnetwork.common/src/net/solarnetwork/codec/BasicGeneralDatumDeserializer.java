@@ -50,10 +50,10 @@ import net.solarnetwork.util.DateUtils;
 public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<GeneralDatum>
 		implements Serializable {
 
+	private static final long serialVersionUID = 3787325819424216521L;
+
 	/** A default instance. */
 	public static final JsonDeserializer<GeneralDatum> INSTANCE = new BasicGeneralDatumDeserializer();
-
-	private static final long serialVersionUID = 3787325819424216521L;
 
 	/**
 	 * Constructor.

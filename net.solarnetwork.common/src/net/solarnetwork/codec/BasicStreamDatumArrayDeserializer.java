@@ -45,10 +45,10 @@ import net.solarnetwork.domain.datum.StreamDatum;
  */
 public class BasicStreamDatumArrayDeserializer extends StdScalarDeserializer<StreamDatum> {
 
+	private static final long serialVersionUID = -7518473762908606824L;
+
 	/** A default instance. */
 	public static final BasicStreamDatumArrayDeserializer INSTANCE = new BasicStreamDatumArrayDeserializer();
-
-	private static final long serialVersionUID = -7518473762908606824L;
 
 	/**
 	 * Constructor.
