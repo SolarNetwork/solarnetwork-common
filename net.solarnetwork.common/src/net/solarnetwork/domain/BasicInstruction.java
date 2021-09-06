@@ -177,6 +177,19 @@ public class BasicInstruction implements Instruction, Serializable {
 		values.add(value);
 	}
 
+	/**
+	 * Add a list of parameter values.
+	 * 
+	 * @param name
+	 *        the parameter name
+	 * @param values
+	 *        the parameter values
+	 */
+	public void putParameters(String name, List<String> values) {
+		assert name != null && values != null;
+		parameters.put(name, values);
+	}
+
 	@Override
 	public Map<String, List<String>> getParameterMultiMap() {
 		return Collections.unmodifiableMap(parameters);

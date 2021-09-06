@@ -126,12 +126,6 @@ public class BasicInstructionStatus implements InstructionStatus, Serializable {
 	}
 
 	@Override
-	public InstructionStatus newCopyWithState(InstructionState newState) {
-		return new BasicInstructionStatus(this.instructionId, newState, this.statusDate,
-				this.resultParameters);
-	}
-
-	@Override
 	public InstructionStatus newCopyWithState(InstructionState newState,
 			Map<String, ?> resultParameters) {
 		return new BasicInstructionStatus(this.instructionId, newState, this.statusDate,

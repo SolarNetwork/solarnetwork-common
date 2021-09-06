@@ -125,7 +125,9 @@ public interface InstructionStatus {
 	 *        the new state
 	 * @return the new instance
 	 */
-	InstructionStatus newCopyWithState(InstructionState newState);
+	default InstructionStatus newCopyWithState(InstructionState newState) {
+		return newCopyWithState(newState, null);
+	}
 
 	/**
 	 * Create a new InstructionStatus copy with a new state and result
