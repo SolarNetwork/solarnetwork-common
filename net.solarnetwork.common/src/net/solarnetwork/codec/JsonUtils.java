@@ -178,7 +178,7 @@ public final class JsonUtils {
 		m.addSerializer(BasicObjectDatumStreamMetadataSerializer.INSTANCE);
 		m.addSerializer(BasicStreamDatumArraySerializer.INSTANCE);
 		m.addSerializer(BasicInstructionSerializer.INSTANCE);
-		m.addSerializer(BasicInstructionSerializer.INSTANCE);
+		m.addSerializer(BasicInstructionStatusSerializer.INSTANCE);
 		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
 		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamMetadata.class,
