@@ -234,7 +234,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 		for ( DatumSamplesType t : new DatumSamplesType[] { DatumSamplesType.Accumulating,
 				DatumSamplesType.Instantaneous, DatumSamplesType.Status } ) {
 			Map<String, ?> d1 = getSampleData(t);
-			Map<String, ?> d2 = getSampleData(t);
+			Map<String, ?> d2 = other.getSampleData(t);
 			if ( d1 == null ) {
 				if ( d2 != null ) {
 					return true;
