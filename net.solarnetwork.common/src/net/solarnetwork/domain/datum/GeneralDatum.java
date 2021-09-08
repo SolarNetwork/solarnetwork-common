@@ -192,15 +192,14 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 	}
 
 	@Override
-	public Datum copyWithSamples(DatumSamplesOperations samples) {
-		GeneralDatum copy = clone();
-		copy.clear();
+	public GeneralDatum copyWithSamples(DatumSamplesOperations samples) {
+		GeneralDatum copy = new GeneralDatum(getId(), new DatumSamples());
 		copy.samples.copyFrom(samples);
 		return copy;
 	}
 
 	@Override
-	public Datum copyWithId(DatumId id) {
+	public GeneralDatum copyWithId(DatumId id) {
 		return new GeneralDatum(id, samples);
 	}
 
