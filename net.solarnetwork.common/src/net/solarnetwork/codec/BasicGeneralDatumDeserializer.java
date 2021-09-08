@@ -36,17 +36,19 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import net.solarnetwork.domain.datum.Datum;
+import net.solarnetwork.domain.datum.DatumId;
 import net.solarnetwork.domain.datum.DatumSamples;
 import net.solarnetwork.domain.datum.DatumSamplesType;
 import net.solarnetwork.domain.datum.GeneralDatum;
+import net.solarnetwork.domain.datum.ObjectDatumKind;
 import net.solarnetwork.util.DateUtils;
 
 /**
- * Deserializer for {@link GeneralDatum} objects
+ * Deserializer for {@link Datum} objects
  * 
  * @author matt
- * @version 2.0
- * @since 1.78
+ * @version 1.0
+ * @since 2.0
  */
 public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> implements Serializable {
 
@@ -71,6 +73,8 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 		} else if ( p.isExpectedStartObjectToken() ) {
 			Instant ts = null;
 			String sourceId = null;
+			Long objectId = null;
+			ObjectDatumKind kind = ObjectDatumKind.Node;
 			DatumSamples s = new DatumSamples();
 
 			String field;
@@ -87,6 +91,11 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 
 					case "sourceId":
 						sourceId = p.nextTextValue();
+						break;
+
+					case "locationId":
+						objectId = p.nextLongValue(-1);
+						kind = ObjectDatumKind.Location;
 						break;
 
 					case "i":
@@ -111,7 +120,8 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 						break;
 				}
 			}
-			return new GeneralDatum(sourceId, ts, s);
+			DatumId id = new DatumId(kind, objectId, sourceId, ts);
+			return new GeneralDatum(id, s);
 		}
 		throw new JsonParseException(p, "Unable to parse GeneralDatum (not an object)");
 	}

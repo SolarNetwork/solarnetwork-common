@@ -38,8 +38,8 @@ import net.solarnetwork.domain.Identity;
  * @version 2.0
  * @since 1.71
  */
-public class GeneralDatum extends BasicIdentity<DatumId> implements Identity<DatumId>, Datum,
-		Serializable, Cloneable, MutableDatum, MutableDatumSamplesOperations, DatumSamplesContainer {
+public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, DatumSamplesContainer,
+		MutableDatum, MutableDatumSamplesOperations, Identity<DatumId>, Serializable, Cloneable {
 
 	private static final long serialVersionUID = 1934830001340995747L;
 
@@ -220,6 +220,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Identity<Dat
 	 * 
 	 * @return the object ID
 	 */
+	@Override
 	public Long getObjectId() {
 		final DatumId id = getId();
 		return (id != null ? id.getObjectId() : null);

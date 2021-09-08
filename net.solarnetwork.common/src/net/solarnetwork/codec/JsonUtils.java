@@ -44,6 +44,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -99,7 +100,14 @@ public final class JsonUtils {
 	private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
 
 	private static final ObjectMapper createObjectMapper() {
+		return createObjectMapper(null);
+	}
+
+	private static final ObjectMapper createObjectMapper(JsonFactory jsonFactory) {
 		ObjectMapperFactoryBean factory = new ObjectMapperFactoryBean();
+		if ( jsonFactory != null ) {
+			factory.setJsonFactory(jsonFactory);
+		}
 		factory.setSerializationInclusion(Include.NON_NULL);
 		factory.setFeaturesToDisable(asList((Object) DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
 				(Object) SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS,
@@ -162,6 +170,10 @@ public final class JsonUtils {
 					"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeSerializer"));
 			m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
 					"net.solarnetwork.codec.JsonDateUtils$InstantDeserializer"));
+			m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
+					"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeDeserializer"));
+			m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
+					"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeDeserializer"));
 		});
 	}
 
@@ -594,6 +606,34 @@ public final class JsonUtils {
 	 */
 	public static ObjectMapper newDatumObjectMapper() {
 		ObjectMapper mapper = OBJECT_MAPPER.copy();
+		mapper.registerModule(DATUM_MODULE);
+		return mapper;
+	}
+
+	/**
+	 * Create a new {@link ObjectMapper} based on the internal configuration
+	 * used by other methods in this class.
+	 * 
+	 * @param the
+	 *        JSON factory to use
+	 * @return a new {@link ObjectMapper}
+	 * @since 2.0
+	 */
+	public static ObjectMapper newObjectMapper(JsonFactory jsonFactory) {
+		return createObjectMapper(jsonFactory);
+	}
+
+	/**
+	 * Create a new {@link ObjectMapper} based on the internal configuration
+	 * used by other methods in this class.
+	 * 
+	 * @param the
+	 *        JSON factory to use
+	 * @return a new {@link ObjectMapper}
+	 * @since 2.0
+	 */
+	public static ObjectMapper newDatumObjectMapper(JsonFactory jsonFactory) {
+		ObjectMapper mapper = newObjectMapper(jsonFactory);
 		mapper.registerModule(DATUM_MODULE);
 		return mapper;
 	}

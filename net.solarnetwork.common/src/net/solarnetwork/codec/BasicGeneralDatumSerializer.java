@@ -33,14 +33,14 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import net.solarnetwork.domain.datum.Datum;
 import net.solarnetwork.domain.datum.DatumSamplesOperations;
 import net.solarnetwork.domain.datum.DatumSamplesType;
-import net.solarnetwork.domain.datum.GeneralDatum;
+import net.solarnetwork.domain.datum.ObjectDatumKind;
 
 /**
- * Serializer for {@link GeneralDatum} instances.
+ * Serializer for {@link Datum} instances.
  * 
  * @author matt
- * @version 2.0
- * @since 1.78
+ * @version 1.0
+ * @since 2.0
  */
 public class BasicGeneralDatumSerializer extends StdScalarSerializer<Datum> {
 
@@ -65,6 +65,9 @@ public class BasicGeneralDatumSerializer extends StdScalarSerializer<Datum> {
 		}
 		if ( value.getSourceId() != null ) {
 			gen.writeStringField("sourceId", value.getSourceId());
+		}
+		if ( value.getKind() == ObjectDatumKind.Location && value.getObjectId() != null ) {
+			gen.writeNumberField("locationId", value.getObjectId());
 		}
 
 		DatumSamplesOperations ops = value.asSampleOperations();
