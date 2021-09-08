@@ -93,6 +93,32 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 		}
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{");
+		if ( instantaneous != null ) {
+			builder.append("i=");
+			builder.append(instantaneous);
+			builder.append(", ");
+		}
+		if ( accumulating != null ) {
+			builder.append("a=");
+			builder.append(accumulating);
+			builder.append(", ");
+		}
+		if ( status != null ) {
+			builder.append("s=");
+			builder.append(status);
+		}
+		if ( getTags() != null ) {
+			builder.append("t=");
+			builder.append(getTags());
+		}
+		builder.append("}");
+		return builder.toString();
+	}
+
 	/**
 	 * Clear all property values.
 	 */
