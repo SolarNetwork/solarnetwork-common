@@ -170,7 +170,11 @@ public interface Datum {
 	Datum copyWithSamples(DatumSamplesOperations samples);
 
 	/**
-	 * Get a copy of this datum with a new ID
+	 * Get a copy of this datum with a new ID.
+	 * 
+	 * <p>
+	 * A new samples instance will also be created.
+	 * </p>
 	 * 
 	 * @return the copy with the given ID
 	 */

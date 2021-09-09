@@ -66,26 +66,26 @@ public class AggregateDatumSamples extends DatumSupport {
 	 *        the sample whose properties should be accumulated into this
 	 *        aggregate
 	 */
-	public void addSample(DatumSamples sample) {
+	public void addSample(DatumSamplesOperations sample) {
 		if ( sample == null ) {
 			return;
 		}
 		count++;
-		Map<String, Number> m = sample.getInstantaneous();
+		Map<String, ?> m = sample.getSampleData(DatumSamplesType.Instantaneous);
 		if ( m != null ) {
-			for ( Map.Entry<String, Number> me : m.entrySet() ) {
-				putInstantaneousSampleValue(me.getKey(), me.getValue());
+			for ( Map.Entry<String, ?> me : m.entrySet() ) {
+				putInstantaneousSampleValue(me.getKey(), (Number) me.getValue());
 			}
 		}
-		m = sample.getAccumulating();
+		m = sample.getSampleData(DatumSamplesType.Accumulating);
 		if ( m != null ) {
-			for ( Map.Entry<String, Number> me : m.entrySet() ) {
-				putAccumulatingSampleValue(me.getKey(), me.getValue());
+			for ( Map.Entry<String, ?> me : m.entrySet() ) {
+				putAccumulatingSampleValue(me.getKey(), (Number) me.getValue());
 			}
 		}
-		Map<String, Object> s = sample.getStatus();
-		if ( s != null ) {
-			for ( Map.Entry<String, Object> me : s.entrySet() ) {
+		m = sample.getSampleData(DatumSamplesType.Accumulating);
+		if ( m != null ) {
+			for ( Map.Entry<String, ?> me : m.entrySet() ) {
 				putStatusSampleValue(me.getKey(), me.getValue());
 			}
 		}

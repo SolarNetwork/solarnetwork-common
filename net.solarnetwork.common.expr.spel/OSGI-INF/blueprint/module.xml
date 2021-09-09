@@ -5,7 +5,7 @@
 		http://www.osgi.org/xmlns/blueprint/v1.0.0
 		http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-	<service interface="net.solarnetwork.support.ExpressionService">
+	<service interface="net.solarnetwork.service.ExpressionService">
 		<bean class="net.solarnetwork.common.expr.spel.SpelExpressionService"/>
 	</service>
 	
