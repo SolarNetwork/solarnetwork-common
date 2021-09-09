@@ -27,14 +27,14 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalQuery;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -454,9 +454,11 @@ public final class JsonUtils {
 	}
 
 	/**
-	 * Parse a Date from a JSON object attribute value.
+	 * Parse a date from a JSON object attribute value.
 	 * 
-	 * If the date cannot be parsed, <em>null</em> will be returned.
+	 * <p>
+	 * If the date cannot be parsed, {@literal null} will be returned.
+	 * </p>
 	 * 
 	 * @param node
 	 *        the JSON node (e.g. object)
@@ -464,11 +466,15 @@ public final class JsonUtils {
 	 *        the attribute key to obtain from {@code node}
 	 * @param dateFormat
 	 *        the date format to use to parse the date string
-	 * @return the parsed {@link Date} instance, or <em>null</em> if an error
-	 *         occurs or the specified attribute {@code key} is not available
+	 * @param query
+	 *        the temporal query, e.g. {@code Instant::from}
+	 * @return the parsed date instance, or {@literal null} if an error occurs
+	 *         or the specified attribute {@code key} is not available
+	 * @since 2.0
 	 */
-	public static Date parseDateAttribute(JsonNode node, String key, DateFormat dateFormat) {
-		Date result = null;
+	public static <T> T parseDateAttribute(JsonNode node, String key, DateTimeFormatter dateFormat,
+			TemporalQuery<T> query) {
+		T result = null;
 		if ( node != null ) {
 			JsonNode attrNode = node.get(key);
 			if ( attrNode != null && !attrNode.isNull() ) {
@@ -481,14 +487,10 @@ public final class JsonUtils {
 					// replace "noon" with 12:00pm
 					dateString = dateString.replaceAll("(?i)noon", "12:00pm");
 
-					result = dateFormat.parse(dateString);
-				} catch ( ParseException e ) {
-					LOG.debug("Error parsing date attribute [{}] value [{}] using pattern {}: {}",
-							new Object[] { key, attrNode,
-									(dateFormat instanceof SimpleDateFormat
-											? ((SimpleDateFormat) dateFormat).toPattern()
-											: dateFormat.toString()),
-									e.getMessage() });
+					result = dateFormat.parse(dateString, query);
+				} catch ( DateTimeParseException e ) {
+					LOG.debug("Error parsing date attribute [{}] value [{}] using pattern {}: {}", key,
+							attrNode, dateFormat, e.getMessage());
 				}
 			}
 		}
