@@ -46,9 +46,30 @@ import net.solarnetwork.util.DateUtils;
 /**
  * Deserializer for {@link Datum} objects
  * 
+ * <p>
+ * Supports both "direct" and "nested" style of sample properties. For example a
+ * direct style looks like:
+ * </p>
+ * 
+ * <pre>
+ * <code>
+ * {"created":"2021-08-17 14:28:12.345Z","sourceId":"foo","i":{"watts":123}}
+ * </code>
+ * </pre>
+ * 
+ * <p>
+ * while the nested style looks like:
+ * </p>
+ * 
+ * <pre>
+ * <code>
+ * {"created":3801091820980,"sourceId":"foo","samples":{"i":{"watts":123}}}
+ * </code>
+ * </pre>
+ * 
  * @author matt
- * @version 1.0
- * @since 2.0
+ * @version 2.0
+ * @since 1.78
  */
 public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> implements Serializable {
 
@@ -73,16 +94,33 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 		} else if ( p.isExpectedStartObjectToken() ) {
 			Instant ts = null;
 			String sourceId = null;
+			ObjectDatumKind kind = null;
 			Long objectId = null;
-			ObjectDatumKind kind = ObjectDatumKind.Node;
 			DatumSamples s = new DatumSamples();
-
-			String field;
-			while ( (field = p.nextFieldName()) != null ) {
+			int nestLevel = 1;
+			while ( (t = p.nextToken()) != null ) {
+				if ( t == JsonToken.END_OBJECT ) {
+					if ( --nestLevel < 1 ) {
+						break;
+					}
+					continue;
+				} else if ( t == JsonToken.START_OBJECT ) {
+					nestLevel++;
+					continue;
+				}
+				if ( t != JsonToken.FIELD_NAME ) {
+					continue;
+				}
+				String field = p.getCurrentName();
 				switch (field) {
 					case "created":
 						try {
-							ts = DateUtils.ISO_DATE_TIME_ALT_UTC.parse(p.nextTextValue(), Instant::from);
+							t = p.nextToken();
+							if ( t.isNumeric() ) {
+								ts = Instant.ofEpochMilli(p.getValueAsLong());
+							} else {
+								ts = DateUtils.ISO_DATE_TIME_ALT_UTC.parse(p.getText(), Instant::from);
+							}
 						} catch ( DateTimeParseException e ) {
 							throw new JsonParseException(p, "Invalid 'created' date value.",
 									p.getCurrentLocation(), e);
@@ -91,6 +129,11 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 
 					case "sourceId":
 						sourceId = p.nextTextValue();
+						break;
+
+					case "nodeId":
+						objectId = p.nextLongValue(-1);
+						kind = ObjectDatumKind.Node;
 						break;
 
 					case "locationId":

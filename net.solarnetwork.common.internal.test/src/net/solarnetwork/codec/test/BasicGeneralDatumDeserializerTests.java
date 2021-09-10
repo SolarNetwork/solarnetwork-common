@@ -43,7 +43,7 @@ import net.solarnetwork.domain.datum.GeneralDatum;
  * Test cases for the {@link BasicGeneralDatumDeserializer} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicGeneralDatumDeserializerTests {
 
@@ -85,6 +85,96 @@ public class BasicGeneralDatumDeserializerTests {
 		s.putStatusSampleValue("c", "three");
 		s.addTag("d");
 		GeneralDatum expected = new GeneralDatum("test.source", ts, s);
+		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
+		assertThat("GeneralDatum samples parsed", datum.asSampleOperations(),
+				is(equalTo(expected.asSampleOperations())));
+	}
+
+	@Test
+	public void deserialize_typical_location() throws IOException {
+		// GIVEN
+		// @formatter:off
+		final String json = "{\"created\":\"2021-08-17 14:28:12.345Z\",\"sourceId\":\"test.source\""
+				+ ",\"locationId\":123"
+				+ ",\"i\":{\"a\":1}"
+				+ ",\"a\":{\"b\":2}"
+				+ ",\"s\":{\"c\":\"three\"}"
+				+ ",\"t\":[\"d\"]}";
+		// @formatter:on
+
+		// WHEN
+		Datum datum = mapper.readValue(json, Datum.class);
+
+		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
+				(int) TimeUnit.MILLISECONDS.toNanos(345));
+		Instant ts = date.toInstant(ZoneOffset.UTC);
+		DatumSamples s = new DatumSamples();
+		s.putInstantaneousSampleValue("a", 1);
+		s.putAccumulatingSampleValue("b", 2);
+		s.putStatusSampleValue("c", "three");
+		s.addTag("d");
+		GeneralDatum expected = GeneralDatum.locationDatum(123L, "test.source", ts, s);
+		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
+		assertThat("GeneralDatum samples parsed", datum.asSampleOperations(),
+				is(equalTo(expected.asSampleOperations())));
+	}
+
+	@Test
+	public void deserialize_nested() throws IOException {
+		// GIVEN
+		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
+				(int) TimeUnit.MILLISECONDS.toNanos(345));
+		Instant ts = date.toInstant(ZoneOffset.UTC);
+		// @formatter:off
+		final String json = "{\"created\":"+ts.toEpochMilli()+",\"sourceId\":\"test.source\""
+				+ ",\"samples\":{"
+				+ "\"i\":{\"a\":1}"
+				  + ",\"a\":{\"b\":2}"
+				  + ",\"s\":{\"c\":\"three\"}"
+				  + ",\"t\":[\"d\"]"
+				+ "}}";
+		// @formatter:on
+
+		// WHEN
+		Datum datum = mapper.readValue(json, Datum.class);
+
+		DatumSamples s = new DatumSamples();
+		s.putInstantaneousSampleValue("a", 1);
+		s.putAccumulatingSampleValue("b", 2);
+		s.putStatusSampleValue("c", "three");
+		s.addTag("d");
+		GeneralDatum expected = new GeneralDatum("test.source", ts, s);
+		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
+		assertThat("GeneralDatum samples parsed", datum.asSampleOperations(),
+				is(equalTo(expected.asSampleOperations())));
+	}
+
+	@Test
+	public void deserialize_nested_location() throws IOException {
+		// GIVEN
+		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
+				(int) TimeUnit.MILLISECONDS.toNanos(345));
+		Instant ts = date.toInstant(ZoneOffset.UTC);
+		// @formatter:off
+		final String json = "{\"created\":"+ts.toEpochMilli()+",\"sourceId\":\"test.source\""
+				+ ",\"locationId\":123"
+				+ ",\"samples\":{"
+				+ "\"i\":{\"a\":1}"
+				  + ",\"a\":{\"b\":2}"
+				  + ",\"s\":{\"c\":\"three\"}"
+				  + ",\"t\":[\"d\"]"
+				+ "}}";
+		// @formatter:on
+
+		// WHEN
+		Datum datum = mapper.readValue(json, Datum.class);
+
+		DatumSamples s = new DatumSamples();
+		s.putInstantaneousSampleValue("a", 1);
+		s.putAccumulatingSampleValue("b", 2);
+		s.putStatusSampleValue("c", "three");
+		s.addTag("d");
+		GeneralDatum expected = GeneralDatum.locationDatum(123L, "test.source", ts, s);
 		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
 		assertThat("GeneralDatum samples parsed", datum.asSampleOperations(),
 				is(equalTo(expected.asSampleOperations())));
