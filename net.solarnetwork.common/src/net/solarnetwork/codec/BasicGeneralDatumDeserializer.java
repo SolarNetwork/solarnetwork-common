@@ -22,6 +22,8 @@
 
 package net.solarnetwork.codec;
 
+import static net.solarnetwork.domain.GeneralDatum.locationDatum;
+import static net.solarnetwork.domain.GeneralDatum.nodeDatum;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.Instant;
@@ -38,13 +40,35 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import net.solarnetwork.domain.GeneralDatumSamples;
 import net.solarnetwork.domain.GeneralDatumSamplesType;
 import net.solarnetwork.domain.datum.GeneralDatum;
+import net.solarnetwork.domain.datum.ObjectDatumKind;
 import net.solarnetwork.util.DateUtils;
 
 /**
- * Deserializer for {@link GeneralDatum} objects
+ * Deserializer for {@link GeneralDatum} objects.
+ * 
+ * <p>
+ * Supports both "direct" and "nested" style of sample properties. For example a
+ * direct style looks like:
+ * </p>
+ * 
+ * <pre>
+ * <code>
+ * {"created":"2021-08-17 14:28:12.345Z","sourceId":"foo","i":{"watts":123}}
+ * </code>
+ * </pre>
+ * 
+ * <p>
+ * while the nested style looks like:
+ * </p>
+ * 
+ * <pre>
+ * <code>
+ * {"created":3801091820980,"sourceId":"foo","samples":{"i":{"watts":123}}}
+ * </code>
+ * </pre>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.78
  */
 public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<GeneralDatum>
@@ -71,14 +95,33 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<General
 		} else if ( p.isExpectedStartObjectToken() ) {
 			Instant ts = null;
 			String sourceId = null;
+			ObjectDatumKind kind = ObjectDatumKind.Node;
+			Long objectId = null;
 			GeneralDatumSamples s = new GeneralDatumSamples();
-
-			String field;
-			while ( (field = p.nextFieldName()) != null ) {
+			int nestLevel = 1;
+			while ( (t = p.nextToken()) != null ) {
+				if ( t == JsonToken.END_OBJECT ) {
+					if ( --nestLevel < 1 ) {
+						break;
+					}
+					continue;
+				} else if ( t == JsonToken.START_OBJECT ) {
+					nestLevel++;
+					continue;
+				}
+				if ( t != JsonToken.FIELD_NAME ) {
+					continue;
+				}
+				String field = p.getCurrentName();
 				switch (field) {
 					case "created":
 						try {
-							ts = DateUtils.ISO_DATE_TIME_ALT_UTC.parse(p.nextTextValue(), Instant::from);
+							t = p.nextToken();
+							if ( t.isNumeric() ) {
+								ts = Instant.ofEpochMilli(p.getValueAsLong());
+							} else {
+								ts = DateUtils.ISO_DATE_TIME_ALT_UTC.parse(p.getText(), Instant::from);
+							}
 						} catch ( DateTimeParseException e ) {
 							throw new JsonParseException(p, "Invalid 'created' date value.",
 									p.getCurrentLocation(), e);
@@ -87,6 +130,16 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<General
 
 					case "sourceId":
 						sourceId = p.nextTextValue();
+						break;
+
+					case "nodeId":
+						objectId = p.nextLongValue(0);
+						kind = ObjectDatumKind.Node;
+						break;
+
+					case "locationId":
+						objectId = p.nextLongValue(0);
+						kind = ObjectDatumKind.Location;
 						break;
 
 					case "i":
@@ -111,7 +164,10 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<General
 						break;
 				}
 			}
-			return new net.solarnetwork.domain.GeneralDatum(sourceId, ts, s);
+			if ( kind == ObjectDatumKind.Location ) {
+				return locationDatum(objectId, sourceId, ts, s);
+			}
+			return nodeDatum(objectId, sourceId, ts, s);
 		}
 		throw new JsonParseException(p, "Unable to parse GeneralDatum (not an object)");
 	}
