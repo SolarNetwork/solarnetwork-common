@@ -61,6 +61,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import net.solarnetwork.domain.Bitmaskable;
 import net.solarnetwork.domain.Instruction;
 import net.solarnetwork.domain.InstructionStatus;
 import net.solarnetwork.domain.Location;
@@ -69,6 +70,7 @@ import net.solarnetwork.domain.datum.GeneralDatumMetadata;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.StreamDatum;
 import net.solarnetwork.util.Half;
+import net.solarnetwork.util.NumberUtils;
 
 /**
  * Utilities for JSON data.
@@ -750,6 +752,124 @@ public final class JsonUtils {
 			generator.writeEndArray();
 		} else {
 			generator.writeNull();
+		}
+	}
+
+	/**
+	 * Write a number field value using the smallest possible number type.
+	 * 
+	 * <p>
+	 * If {@code value} is {@literal null} then <b>nothing</b> will be
+	 * generated.
+	 * </p>
+	 * 
+	 * @param gen
+	 *        the JSON generator
+	 * @param fieldName
+	 *        the field name
+	 * @param value
+	 *        the number value
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 2.0
+	 */
+	public static void writeNumberField(JsonGenerator gen, String fieldName, Number value)
+			throws IOException {
+		if ( value == null ) {
+			return;
+		}
+		if ( value instanceof Double ) {
+			gen.writeNumberField(fieldName, (Double) value);
+		} else if ( value instanceof Float ) {
+			gen.writeNumberField(fieldName, (Float) value);
+		} else if ( value instanceof Long ) {
+			gen.writeNumberField(fieldName, (Long) value);
+		} else if ( value instanceof Integer ) {
+			gen.writeNumberField(fieldName, (Integer) value);
+		} else if ( value instanceof Short ) {
+			gen.writeFieldName(fieldName);
+			gen.writeNumber((Short) value);
+		} else if ( value instanceof BigInteger ) {
+			gen.writeFieldName(fieldName);
+			gen.writeNumber((BigInteger) value);
+		} else {
+			BigDecimal d = NumberUtils.bigDecimalForNumber(value);
+			if ( d != null ) {
+				gen.writeNumberField(fieldName, d);
+			}
+		}
+	}
+
+	/**
+	 * Parse an ISO 8601 timestamp value into an {@link Instant}.
+	 * 
+	 * @param timestamp
+	 *        the timestamp value
+	 * @return the instant, or {@literal null} if {@code timestamp} is
+	 *         {@literal null}, empty, or cannot be parsed
+	 * @since 2.0
+	 */
+	public static Instant iso8610Timestamp(String timestamp) {
+		Instant ts = null;
+		if ( timestamp != null && !timestamp.isEmpty() ) {
+			try {
+				ts = Instant.parse(timestamp);
+			} catch ( DateTimeParseException e ) {
+				// ignore
+			}
+		}
+		return ts;
+	}
+
+	/**
+	 * Write a timestamp field value in ISO 8601 form.
+	 * 
+	 * <p>
+	 * If {@code value} is {@literal null} then <b>nothing</b> will be
+	 * generated.
+	 * </p>
+	 * 
+	 * @param gen
+	 *        the JSON generator
+	 * @param fieldName
+	 *        the field name
+	 * @param value
+	 *        the instant value
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 2.0
+	 */
+	public static void writeIso8601Timestamp(JsonGenerator gen, String fieldName, Instant value)
+			throws IOException {
+		if ( value == null ) {
+			return;
+		}
+		gen.writeStringField(fieldName, DateTimeFormatter.ISO_INSTANT.format(value));
+	}
+
+	/**
+	 * Write a bitmask set as a field number value.
+	 * 
+	 * <p>
+	 * If {@code value} is {@literal null} or empty then <b>nothing</b> will be
+	 * generated.
+	 * </p>
+	 * 
+	 * @param gen
+	 *        the JSON generator
+	 * @param fieldName
+	 *        the field name
+	 * @param value
+	 *        the instant value
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 2.0
+	 */
+	public static void writeBitmaskValue(JsonGenerator gen, String fieldName,
+			Set<? extends Bitmaskable> value) throws IOException {
+		int v = Bitmaskable.bitmaskValue(value);
+		if ( v > 0 ) {
+			gen.writeNumberField(fieldName, v);
 		}
 	}
 
