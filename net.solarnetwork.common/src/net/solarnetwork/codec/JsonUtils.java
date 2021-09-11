@@ -50,6 +50,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -474,14 +475,14 @@ public final class JsonUtils {
 	 *         or the specified attribute {@code key} is not available
 	 * @since 2.0
 	 */
-	public static <T> T parseDateAttribute(JsonNode node, String key, DateTimeFormatter dateFormat,
+	public static <T> T parseDateAttribute(TreeNode node, String key, DateTimeFormatter dateFormat,
 			TemporalQuery<T> query) {
 		T result = null;
 		if ( node != null ) {
-			JsonNode attrNode = node.get(key);
-			if ( attrNode != null && !attrNode.isNull() ) {
+			TreeNode attrNode = node.get(key);
+			if ( attrNode instanceof JsonNode && !((JsonNode) attrNode).isNull() ) {
 				try {
-					String dateString = attrNode.asText();
+					String dateString = ((JsonNode) attrNode).asText();
 
 					// replace "midnight" with 12:00am
 					dateString = dateString.replaceAll("(?i)midnight", "12:00am");
