@@ -20,12 +20,12 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain.datum.test;
+package net.solarnetwork.domain.test;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import net.solarnetwork.domain.datum.AcPhase;
+import net.solarnetwork.domain.AcPhase;
 
 /**
  * Test cases for the {@link AcPhase} class.

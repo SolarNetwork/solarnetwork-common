@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain.datum;
+package net.solarnetwork.domain;
 
 /**
  * Enumeration of AC phase values.

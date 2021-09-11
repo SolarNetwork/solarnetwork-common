@@ -24,6 +24,7 @@ package net.solarnetwork.domain.datum;
 
 import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
 import static net.solarnetwork.domain.datum.DatumSamplesType.Status;
+import net.solarnetwork.domain.AcPhase;
 
 /**
  * Standardized API for alternating current related energy datum to implement.
