@@ -172,9 +172,9 @@ public final class JsonUtils {
 					"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeSerializer"));
 			m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
 					"net.solarnetwork.codec.JsonDateUtils$InstantDeserializer"));
-			m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
+			m.addDeserializer(ZonedDateTime.class, loadOptionalDeserializerInstance(
 					"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeDeserializer"));
-			m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
+			m.addDeserializer(LocalDateTime.class, loadOptionalDeserializerInstance(
 					"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeDeserializer"));
 		});
 	}
