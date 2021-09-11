@@ -58,12 +58,12 @@ import net.solarnetwork.domain.SerializeIgnore;
  * 
  * <dl>
  * <dt>dataModelKey</dt>
- * <dd>If not <em>null</em>, then use this model key as the data object to
+ * <dd>If not {@literal null}, then use this model key as the data object to
  * render as CSV. Otherwise, export just the first available key's associated
  * object. Defaults to {@link #DEFAULT_DATA_MODEL_KEY}.</dd>
  * 
  * <dt>fieldOrderKey</dt>
- * <dd>If not <em>null</em>, then use this model key as an ordered Collection of
+ * <dd>If not {@literal null}, then use this model key as an ordered Collection of
  * exported field names, such that the CSV columns will be exported in the
  * specified order. If not specified, then for Map objects the output order will
  * be determined by the natural iteration order of the Map keys, and for

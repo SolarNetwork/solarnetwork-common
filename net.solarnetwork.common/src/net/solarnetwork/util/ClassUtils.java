@@ -211,7 +211,7 @@ public final class ClassUtils {
 	 *        the object to inspect
 	 * @param ignore
 	 *        a set of property names to ignore (optional)
-	 * @return Map (never <em>null</em>)
+	 * @return Map (never {@literal null})
 	 * @since 1.1
 	 */
 	public static Map<String, Object> getSimpleBeanProperties(Object o, Set<String> ignore) {
@@ -259,7 +259,7 @@ public final class ClassUtils {
 	 * @param dest
 	 *        the object to copy values to
 	 * @param ignore
-	 *        a set of property names to ignore (optional) where <em>null</em>
+	 *        a set of property names to ignore (optional) where {@literal null}
 	 */
 	public static void copyBeanProperties(Object src, Object dest, Set<String> ignore) {
 		copyBeanProperties(src, dest, ignore, false);
@@ -276,7 +276,7 @@ public final class ClassUtils {
 	 *        a set of property names to ignore (optional)
 	 * @param emptyStringToNull
 	 *        if <em>true</em> then String values that are empty or contain only
-	 *        whitespace will be treated as if they where <em>null</em>
+	 *        whitespace will be treated as if they where {@literal null}
 	 */
 	public static void copyBeanProperties(Object src, Object dest, Set<String> ignore,
 			boolean emptyStringToNull) {

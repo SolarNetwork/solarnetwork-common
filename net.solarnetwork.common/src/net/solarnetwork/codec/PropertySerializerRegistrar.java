@@ -60,7 +60,7 @@ public class PropertySerializerRegistrar {
 	 * The {@code propertySerializers} mappings are consulted first (using the
 	 * passed in {@code propertyName} value), and if no match is found there the
 	 * {@code classSerializers} mappings are consulted (using the passed in
-	 * {@code propertyType} value). If no match is found, <em>null</em> is
+	 * {@code propertyType} value). If no match is found, {@literal null} is
 	 * returned.
 	 * </p>
 	 * 
@@ -68,7 +68,7 @@ public class PropertySerializerRegistrar {
 	 *        the name of the property to serialize
 	 * @param propertyType
 	 *        the type of property to serialize
-	 * @return configured PropertySerializer, or <em>null</em> if none found
+	 * @return configured PropertySerializer, or {@literal null} if none found
 	 */
 	public PropertySerializer serializerFor(String propertyName, Class<?> propertyType) {
 		if ( propertyName != null && propertySerializers != null

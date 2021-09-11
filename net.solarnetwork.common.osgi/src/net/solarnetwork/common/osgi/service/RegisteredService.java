@@ -120,7 +120,7 @@ public class RegisteredService<T> {
 	/**
 	 * Get the first registration.
 	 * 
-	 * @return the registration, or <em>null</em> if none available
+	 * @return the registration, or {@literal null} if none available
 	 */
 	public ServiceRegistration<?> getReg() {
 		return (regList == null || regList.size() < 1 ? null : regList.get(0));
@@ -144,7 +144,7 @@ public class RegisteredService<T> {
 	/**
 	 * Get the list of registrations.
 	 * 
-	 * @return the registrations, or <em>null</em> if none set
+	 * @return the registrations, or {@literal null} if none set
 	 */
 	public List<ServiceRegistration<?>> getRegList() {
 		return regList;

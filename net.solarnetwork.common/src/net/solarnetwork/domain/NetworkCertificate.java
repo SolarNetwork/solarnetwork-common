@@ -33,7 +33,7 @@ public interface NetworkCertificate {
 	/**
 	 * Get an ID associated with this certificate.
 	 * 
-	 * @return a unique ID, e.g. node ID, never <em>null</em>
+	 * @return a unique ID, e.g. node ID, never {@literal null}
 	 */
 	Long getNetworkId();
 
@@ -42,7 +42,7 @@ public interface NetworkCertificate {
 	 * certificate if not immediately available in
 	 * {@link #getNetworkCertificate()}.
 	 * 
-	 * @return confirmation key, never <em>null</em>
+	 * @return confirmation key, never {@literal null}
 	 */
 	String getConfirmationKey();
 
@@ -70,7 +70,7 @@ public interface NetworkCertificate {
 	/**
 	 * Get the certificate, as Base64-encoded string.
 	 * 
-	 * @return the certificate, or <em>null</em> if the certificate is not
+	 * @return the certificate, or {@literal null} if the certificate is not
 	 *         available yet
 	 */
 	String getNetworkCertificate();

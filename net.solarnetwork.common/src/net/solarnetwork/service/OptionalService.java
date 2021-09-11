@@ -28,7 +28,7 @@ package net.solarnetwork.service;
  * <p>
  * This API is like a simplified OSGi ServiceTracker. Calling the
  * {@link #service()} method will return the first available matching service,
- * or <em>null</em> if none available.
+ * or {@literal null} if none available.
  * </p>
  * 
  * @param <T>
@@ -49,9 +49,9 @@ public interface OptionalService<T> {
 	}
 
 	/**
-	 * Get the configured service, or <em>null</em> if none available.
+	 * Get the configured service, or {@literal null} if none available.
 	 * 
-	 * @return the service, or <em>null</em>
+	 * @return the service, or {@literal null}
 	 */
 	T service();
 

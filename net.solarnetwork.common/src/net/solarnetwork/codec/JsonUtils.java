@@ -255,7 +255,7 @@ public final class JsonUtils {
 	 * @param o
 	 *        the object to serialize to JSON
 	 * @param defaultValue
-	 *        a default value to use if {@code o} is <em>null</em> or if any
+	 *        a default value to use if {@code o} is {@literal null} or if any
 	 *        error occurs serializing the object to JSON
 	 * @return the JSON string
 	 */
@@ -432,7 +432,7 @@ public final class JsonUtils {
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node}
-	 * @return the parsed {@link BigDecimal}, or <em>null</em> if an error
+	 * @return the parsed {@link BigDecimal}, or {@literal null} if an error
 	 *         occurs or the specified attribute {@code key} is not available
 	 */
 	public static BigDecimal parseBigDecimalAttribute(JsonNode node, String key) {
@@ -502,13 +502,13 @@ public final class JsonUtils {
 	/**
 	 * Parse a Integer from a JSON object attribute value.
 	 * 
-	 * If the Integer cannot be parsed, <em>null</em> will be returned.
+	 * If the Integer cannot be parsed, {@literal null} will be returned.
 	 * 
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node} node
-	 * @return the parsed {@link Integer}, or <em>null</em> if an error occurs
+	 * @return the parsed {@link Integer}, or {@literal null} if an error occurs
 	 *         or the specified attribute {@code key} is not available
 	 */
 	public static Integer parseIntegerAttribute(JsonNode node, String key) {
@@ -538,13 +538,13 @@ public final class JsonUtils {
 	/**
 	 * Parse a Long from a JSON object attribute value.
 	 * 
-	 * If the Long cannot be parsed, <em>null</em> will be returned.
+	 * If the Long cannot be parsed, {@literal null} will be returned.
 	 * 
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node} node
-	 * @return the parsed {@link Long}, or <em>null</em> if an error occurs or
+	 * @return the parsed {@link Long}, or {@literal null} if an error occurs or
 	 *         the specified attribute {@code key} is not available
 	 */
 	public static Long parseLongAttribute(JsonNode node, String key) {
@@ -570,14 +570,14 @@ public final class JsonUtils {
 	/**
 	 * Parse a String from a JSON object attribute value.
 	 * 
-	 * If the String cannot be parsed, <em>null</em> will be returned.
+	 * If the String cannot be parsed, {@literal null} will be returned.
 	 * 
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node} node
-	 * @return the parsed {@link String}, or <em>null</em> if an error occurs or
-	 *         the specified attribute {@code key} is not available
+	 * @return the parsed {@link String}, or {@literal null} if an error occurs
+	 *         or the specified attribute {@code key} is not available
 	 */
 	public static String parseStringAttribute(JsonNode node, String key) {
 		String s = null;

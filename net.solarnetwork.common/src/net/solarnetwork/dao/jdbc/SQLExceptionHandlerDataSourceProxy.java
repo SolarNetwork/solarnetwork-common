@@ -62,7 +62,7 @@ public class SQLExceptionHandlerDataSourceProxy implements DataSource, Connectio
 	 * @param delegate
 	 *        The {@link DataSource} to delegate to.
 	 * @param bundleContext
-	 *        The bundle context to use. May be <em>null</em>.
+	 *        The bundle context to use. May be {@literal null}.
 	 */
 	public SQLExceptionHandlerDataSourceProxy(DataSource delegate,
 			OptionalServiceCollection<SQLExceptionHandler> handlers) {

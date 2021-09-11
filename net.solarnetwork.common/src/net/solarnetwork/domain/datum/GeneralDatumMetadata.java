@@ -161,7 +161,7 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 	 * @param key
 	 *        the key to put
 	 * @param value
-	 *        the value to put, or <em>null</em> to remove the key
+	 *        the value to put, or {@literal null} to remove the key
 	 */
 	public void putInfoValue(String key, Object value) {
 		Map<String, Object> m = info;
@@ -180,72 +180,72 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 	}
 
 	/**
-	 * Get an Integer value from the {@link #getInfo()} map, or <em>null</em> if
-	 * not available.
+	 * Get an Integer value from the {@link #getInfo()} map, or {@literal null}
+	 * if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Integer, or <em>null</em> if not available
+	 * @return the value as an Integer, or {@literal null} if not available
 	 */
 	public Integer getInfoInteger(String key) {
 		return getMapInteger(key, info);
 	}
 
 	/**
-	 * Get a Long value from the {@link #getInfo()} map, or <em>null</em> if not
-	 * available.
+	 * Get a Long value from the {@link #getInfo()} map, or {@literal null} if
+	 * not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Long, or <em>null</em> if not available
+	 * @return the value as an Long, or {@literal null} if not available
 	 */
 	public Long getInfoLong(String key) {
 		return getMapLong(key, info);
 	}
 
 	/**
-	 * Get a Float value from the {@link #getInfo()} map, or <em>null</em> if
+	 * Get a Float value from the {@link #getInfo()} map, or {@literal null} if
 	 * not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Float, or <em>null</em> if not available
+	 * @return the value as an Float, or {@literal null} if not available
 	 */
 	public Float getInfoFloat(String key) {
 		return getMapFloat(key, info);
 	}
 
 	/**
-	 * Get a Double value from the {@link #getInfo()} map, or <em>null</em> if
+	 * Get a Double value from the {@link #getInfo()} map, or {@literal null} if
 	 * not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Double, or <em>null</em> if not available
+	 * @return the value as an Double, or {@literal null} if not available
 	 */
 	public Double getInfoDouble(String key) {
 		return getMapDouble(key, info);
 	}
 
 	/**
-	 * Get a BigDecimal value from the {@link #getInfo()} map, or <em>null</em>
-	 * if not available.
+	 * Get a BigDecimal value from the {@link #getInfo()} map, or
+	 * {@literal null} if not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or <em>null</em> if not available
+	 * @return the value as an BigDecimal, or {@literal null} if not available
 	 */
 	public BigDecimal getInfoBigDecimal(String key) {
 		return getMapBigDecimal(key, info);
 	}
 
 	/**
-	 * Get a String value from the {@link #getInfo()} map, or <em>null</em> if
+	 * Get a String value from the {@link #getInfo()} map, or {@literal null} if
 	 * not available.
 	 * 
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as a String, or <em>null</em> if not available
+	 * @return the value as a String, or {@literal null} if not available
 	 */
 	public String getInfoString(String key) {
 		return getMapString(key, info);
@@ -375,7 +375,7 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 	 * @param key
 	 *        the key to put
 	 * @param value
-	 *        the value to put, or <em>null</em> to remove the key
+	 *        the value to put, or {@literal null} to remove the key
 	 */
 	public void putInfoValue(String property, String key, Object value) {
 		Map<String, Map<String, Object>> pm = propertyInfo;
@@ -403,13 +403,13 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 
 	/**
 	 * Get an Integer value from the {@link #getPropertyInfo()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Integer, or <em>null</em> if not available
+	 * @return the value as an Integer, or {@literal null} if not available
 	 */
 	public Integer getInfoInteger(String property, String key) {
 		return getMapInteger(key, (propertyInfo == null ? null : propertyInfo.get(property)));
@@ -417,13 +417,13 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 
 	/**
 	 * Get a Long value from the {@link #getPropertyInfo()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Long, or <em>null</em> if not available
+	 * @return the value as an Long, or {@literal null} if not available
 	 */
 	public Long getInfoLong(String property, String key) {
 		return getMapLong(key, (propertyInfo == null ? null : propertyInfo.get(property)));
@@ -431,13 +431,13 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 
 	/**
 	 * Get a Float value from the {@link #getPropertyInfo()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Float, or <em>null</em> if not available
+	 * @return the value as an Float, or {@literal null} if not available
 	 */
 	public Float getInfoFloat(String property, String key) {
 		return getMapFloat(key, (propertyInfo == null ? null : propertyInfo.get(property)));
@@ -445,13 +445,13 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 
 	/**
 	 * Get a Double value from the {@link #getPropertyInfo()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Double, or <em>null</em> if not available
+	 * @return the value as an Double, or {@literal null} if not available
 	 */
 	public Double getInfoDouble(String property, String key) {
 		return getMapDouble(key, (propertyInfo == null ? null : propertyInfo.get(property)));
@@ -459,13 +459,13 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 
 	/**
 	 * Get a BigDecimal value from the {@link #getPropertyInfo()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or <em>null</em> if not available
+	 * @return the value as an BigDecimal, or {@literal null} if not available
 	 */
 	public BigDecimal getInfoBigDecimal(String property, String key) {
 		return getMapBigDecimal(key, (propertyInfo == null ? null : propertyInfo.get(property)));
@@ -473,13 +473,13 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 
 	/**
 	 * Get a String value from the {@link #getPropertyInfo()} map, or
-	 * <em>null</em> if not available.
+	 * {@literal null} if not available.
 	 * 
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as a String, or <em>null</em> if not available
+	 * @return the value as a String, or {@literal null} if not available
 	 */
 	public String getInfoString(String property, String key) {
 		return getMapString(key, (propertyInfo == null ? null : propertyInfo.get(property)));
