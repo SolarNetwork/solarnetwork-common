@@ -30,7 +30,7 @@ import org.springframework.context.MessageSource;
  * application-managed settings.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public interface SettingSpecifierProvider {
 
@@ -44,7 +44,7 @@ public interface SettingSpecifierProvider {
 	 * 
 	 * @return unique ID
 	 */
-	String getSettingUID();
+	String getSettingUid();
 
 	/**
 	 * Get a non-localized display name.
@@ -88,7 +88,7 @@ public interface SettingSpecifierProvider {
 			return null;
 		}
 		for ( SettingSpecifierProvider provider : providers ) {
-			if ( id.equals(provider.getSettingUID()) ) {
+			if ( id.equals(provider.getSettingUid()) ) {
 				return provider.getSettingSpecifiers();
 			}
 		}

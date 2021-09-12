@@ -57,7 +57,7 @@ public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK exten
 	}
 
 	@Override
-	public String getSettingUID() {
+	public String getSettingUid() {
 		PK id = getId();
 		return (id != null ? id.toString() : null);
 	}

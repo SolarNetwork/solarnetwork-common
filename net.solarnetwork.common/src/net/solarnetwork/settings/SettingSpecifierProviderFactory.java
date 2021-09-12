@@ -42,7 +42,7 @@ public interface SettingSpecifierProviderFactory {
 	 * 
 	 * @return unique ID
 	 */
-	String getFactoryUID();
+	String getFactoryUid();
 
 	/**
 	 * Get a non-localized display name.

@@ -539,7 +539,9 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * Alias for {@link #getUid()}.
 	 * 
 	 * @return the UID
+	 * @deprecated since 2.0 use {@link #getUid()}
 	 */
+	@Deprecated
 	public String getUID() {
 		return getUid();
 	}
@@ -553,7 +555,9 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * 
 	 * @param uid
 	 *        the UID to set
+	 * @deprecated since 2.0 use {@link #setUid(String)}
 	 */
+	@Deprecated
 	public void setUID(String uid) {
 		setUid(uid);
 	}
@@ -562,7 +566,9 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * Alias for {@link #getGroupUid()}.
 	 * 
 	 * @return the group UID
+	 * @deprecated use {@link #getGroupUid()}
 	 */
+	@Deprecated
 	public String getGroupUID() {
 		return getGroupUid();
 	}
@@ -576,7 +582,9 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * 
 	 * @param groupUid
 	 *        the group UID to set
+	 * @deprecated since 2.0 use {@link #setGroupUid(String)}
 	 */
+	@Deprecated
 	public void setGroupUID(String groupUid) {
 		setGroupUid(groupUid);
 	}

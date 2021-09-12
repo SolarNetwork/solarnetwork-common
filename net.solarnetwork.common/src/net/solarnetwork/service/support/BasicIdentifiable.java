@@ -33,7 +33,7 @@ import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
  * Basic implementation of {@link Identifiable}.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  * @since 1.56
  */
 public class BasicIdentifiable implements Identifiable {
@@ -165,6 +165,72 @@ public class BasicIdentifiable implements Identifiable {
 	 */
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
+	}
+
+	/*-----
+	 * The following methods are here for backwards-compatibility.
+	 *----- */
+
+	/**
+	 * Alias for {@link #getUid()}.
+	 * 
+	 * @return the UID
+	 * @deprecated since 2.0, use {@link #getUid()}
+	 */
+	@Deprecated
+	public String getUID() {
+		return getUid();
+	}
+
+	/**
+	 * Set the UID.
+	 * 
+	 * <p>
+	 * This is an alias for {@link #setUid(String)}, but only if a value has not
+	 * already been set.
+	 * </p>
+	 * 
+	 * @param uid
+	 *        the UID to set
+	 * @deprecated since 2.0, use {@link #setUid(String)}
+	 */
+	@Deprecated
+	public void setUID(String uid) {
+		String currUid = getUid();
+		if ( currUid == null || currUid.isEmpty() ) {
+			setUid(uid);
+		}
+	}
+
+	/**
+	 * Alias for {@link #getGroupUid()}.
+	 * 
+	 * @return the group UID
+	 * @deprecated since 2.0, use {@link #getGroupUid()}
+	 */
+	@Deprecated
+	public String getGroupUID() {
+		return getGroupUid();
+	}
+
+	/**
+	 * Set the group UID.
+	 * 
+	 * <p>
+	 * This is an alias for {@link #setGroupUid(String)}, but only if a value
+	 * has not already been set.
+	 * </p>
+	 * 
+	 * @param groupUid
+	 *        the group UID to set
+	 * @deprecated since 2.0, use {@link #setGroupUid(String)}
+	 */
+	@Deprecated
+	public void setGroupUID(String groupUid) {
+		String currUid = getGroupUid();
+		if ( currUid == null || currUid.isEmpty() ) {
+			setGroupUid(groupUid);
+		}
 	}
 
 }
