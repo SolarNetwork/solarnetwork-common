@@ -36,7 +36,7 @@ package net.solarnetwork.service;
 public interface PasswordEncoder {
 
 	/**
-	 * Return <em>true</em> if a password is already encrypted or not.
+	 * Return {@literal true} if a password is already encrypted or not.
 	 * 
 	 * <p>
 	 * This assumes the password has been encoded in such a way that it can be

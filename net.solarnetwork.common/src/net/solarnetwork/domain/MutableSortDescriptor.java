@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  * Mutable implementation of {@link SortDescriptor}.
  * 
- * The {@code descending} property defaults to <em>false</em>.
+ * The {@code descending} property defaults to {@literal false}.
  * 
  * @author matt
  * @version 1.1

@@ -33,7 +33,7 @@ public interface TextFieldSettingSpecifier extends TitleSettingSpecifier {
 	/**
 	 * Flag indicating the text should be hidden when editing.
 	 * 
-	 * @return <em>true</em> to hide the text
+	 * @return {@literal true} to hide the text
 	 */
 	boolean isSecureTextEntry();
 

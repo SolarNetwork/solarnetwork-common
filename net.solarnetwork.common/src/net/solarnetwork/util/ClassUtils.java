@@ -275,7 +275,7 @@ public final class ClassUtils {
 	 * @param ignore
 	 *        a set of property names to ignore (optional)
 	 * @param emptyStringToNull
-	 *        if <em>true</em> then String values that are empty or contain only
+	 *        if {@literal true} then String values that are empty or contain only
 	 *        whitespace will be treated as if they where {@literal null}
 	 */
 	public static void copyBeanProperties(Object src, Object dest, Set<String> ignore,
@@ -313,7 +313,7 @@ public final class ClassUtils {
 	 * @param ignore
 	 *        a set of property names to ignore (optional)
 	 * @param serializeIgnore
-	 *        if <em>true</em> test for the {@link SerializeIgnore} annotation
+	 *        if {@literal true} test for the {@link SerializeIgnore} annotation
 	 *        for ignoring properties
 	 * @return Map (never null)
 	 */

@@ -276,7 +276,7 @@ public abstract class DatumSupport implements Serializable {
 	}
 
 	/**
-	 * Return <em>true</em> if {@code tags} contains {@code tag}.
+	 * Return {@literal true} if {@code tags} contains {@code tag}.
 	 * 
 	 * @param tag
 	 *        the tag value to test for existence

@@ -42,10 +42,10 @@ public interface SortDescriptor {
 	String getSortKey();
 
 	/**
-	 * Return <em>true</em> if the sort should be in descending order, otherwise
+	 * Return {@literal true} if the sort should be in descending order, otherwise
 	 * the short should be in ascending order.
 	 * 
-	 * @return <em>true</em> if the sort should be in descending order
+	 * @return {@literal true} if the sort should be in descending order
 	 */
 	boolean isDescending();
 

@@ -43,7 +43,7 @@ public abstract class BaseKeyedSettingSpecifier<T> extends BaseSettingSpecifier
 	 * Constructor.
 	 * 
 	 * <p>
-	 * The {@code transient} property will be set to <em>false</em>
+	 * The {@code transient} property will be set to {@literal false}
 	 * </p>
 	 * 
 	 * @param key

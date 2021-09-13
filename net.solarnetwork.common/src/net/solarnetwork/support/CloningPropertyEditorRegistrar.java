@@ -55,9 +55,9 @@ import org.springframework.beans.PropertyEditorRegistry;
  * <dd>Map of Class objects to associated PropertyEditor instances.</dd>
  * 
  * <dt>lenient</dt>
- * <dd>If <em>true</em> (the default) then if a configured PropertyEditor does
+ * <dd>If {@literal true} (the default) then if a configured PropertyEditor does
  * not provide a public {@code clone()} method, this will configure the
- * PropertyEditor as-is, without creating a new copy. If <em>false</em> then a
+ * PropertyEditor as-is, without creating a new copy. If {@literal false} then a
  * RuntimeException will be thrown if this situation is encountered.</dd>
  * </dl>
  *

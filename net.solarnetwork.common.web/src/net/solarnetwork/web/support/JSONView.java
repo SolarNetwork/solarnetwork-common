@@ -82,7 +82,7 @@ import net.solarnetwork.domain.SerializeIgnore;
  * <dt>includeParentheses</dt>
  * <dd>If true, the entire response will be enclosed in parentheses, required
  * for JSON evaluation support in certain browsers. Defaults to
- * <em>false</em>.</dd>
+ * {@literal false}.</dd>
  * 
  * <dt>propertyEditorRegistrar</dt>
  * <dd>An optional registrar of PropertyEditor instances that can be used to

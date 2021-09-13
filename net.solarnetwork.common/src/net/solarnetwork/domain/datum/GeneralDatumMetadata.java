@@ -88,7 +88,7 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 	 * @param meta
 	 *        the metadata to merge into this object
 	 * @param replace
-	 *        if <em>true</em> then replace values in this object with
+	 *        if {@literal true} then replace values in this object with
 	 *        equivalent ones in the provided object, otherwise keep the values
 	 *        from this object
 	 */
