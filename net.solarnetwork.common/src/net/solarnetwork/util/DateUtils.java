@@ -26,6 +26,7 @@ import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -35,6 +36,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
@@ -49,7 +51,7 @@ import java.util.regex.Pattern;
  * Date and time utilities.
  * 
  * @author matt
- * @version 1.4
+ * @version 1.5
  * @since 1.59
  */
 public final class DateUtils {
@@ -153,6 +155,14 @@ public final class DateUtils {
 		LOCAL_TIME = new DateTimeFormatterBuilder().appendValue(HOUR_OF_DAY, 2).appendLiteral(':')
 				.appendValue(MINUTE_OF_HOUR, 2).toFormatter();
 	}
+
+	/**
+	 * Format for a long date and short time, for display purposes.
+	 * 
+	 * @since 1.5
+	 */
+	public static final DateTimeFormatter DISPLAY_DATE_LONG_TIME_SHORT = DateTimeFormatter
+			.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT);
 
 	/**
 	 * Parse an ISO-8601 alternate timestamp using a given formatter.
@@ -597,4 +607,17 @@ public final class DateUtils {
 	public static String format(LocalDate value) {
 		return DateTimeFormatter.ISO_LOCAL_DATE.format(value);
 	}
+
+	/**
+	 * Format an instant for display in the local (sytem) time zone.
+	 * 
+	 * @param timestamp
+	 *        the instant
+	 * @return the formatted date
+	 * @since 1.5
+	 */
+	public static String formatForLocalDisplay(Instant timestamp) {
+		return DISPLAY_DATE_LONG_TIME_SHORT.format(timestamp.atZone(ZoneId.systemDefault()));
+	}
+
 }
