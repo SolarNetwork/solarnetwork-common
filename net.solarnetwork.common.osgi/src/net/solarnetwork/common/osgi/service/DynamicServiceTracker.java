@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.osgi.framework.BundleContext;
@@ -38,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 import net.solarnetwork.service.FilterableService;
 import net.solarnetwork.service.OptionalService;
 import net.solarnetwork.service.OptionalServiceCollection;
@@ -74,7 +74,7 @@ import net.solarnetwork.service.OptionalServiceCollection;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 2.0
+ * @version 1.0
  */
 public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalServiceCollection<T>,
 		FilterableService, OptionalService.OptionalFilterableService<T>,
@@ -273,7 +273,7 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	public void setPropertyFilter(String key, Object value) {
 		Map<String, Object> filters = propertyFilters;
 		if ( filters == null ) {
-			filters = new LinkedHashMap<String, Object>(8);
+			filters = new LinkedCaseInsensitiveMap<>(2);
 			propertyFilters = filters;
 		}
 		filters.put(key, value);
@@ -357,11 +357,23 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	 * {@code serviceClassName} and {@code serviceFilter} will be returned.
 	 * </p>
 	 * 
+	 * <p>
+	 * <b>Note</b> a case-preserving but case-insensitive map will be created
+	 * and used internally. This is to support filters like {@literal UID} and
+	 * {@literal uid} which have been used interchangeably in SolarNetwork
+	 * settings.
+	 * </p>
+	 * 
 	 * @param propertyFilters
 	 *        the JavaBean property values to filter services on, or
 	 *        {@literal null} to not restrict by bean properties
 	 */
 	public void setPropertyFilters(Map<String, Object> propertyFilters) {
+		if ( propertyFilters != null ) {
+			Map<String, Object> ciMap = new LinkedCaseInsensitiveMap<>(propertyFilters.size());
+			ciMap.putAll(propertyFilters);
+			propertyFilters = ciMap;
+		}
 		this.propertyFilters = propertyFilters;
 	}
 

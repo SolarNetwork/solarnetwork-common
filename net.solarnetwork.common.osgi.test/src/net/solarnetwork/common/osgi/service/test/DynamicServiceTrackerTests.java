@@ -23,6 +23,7 @@
 package net.solarnetwork.common.osgi.service.test;
 
 import static org.easymock.EasyMock.expect;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
@@ -167,6 +168,59 @@ public class DynamicServiceTrackerTests {
 		// THEN
 		assertThat("Service returned via ref", s, is(equalTo(uuid)));
 		assertThat("Service returned via ref after GC", s2, is(equalTo(uuid)));
+	}
+
+	public static final class TestService implements Serializable {
+
+		private static final long serialVersionUID = -4342981976789683287L;
+
+		private String uid;
+		private String capitalUid;
+
+		public String getUid() {
+			return uid;
+		}
+
+		public void setUid(String uid) {
+			this.uid = uid;
+		}
+
+		public String getUID() {
+			return capitalUid;
+		}
+
+		public void setUID(String uid) {
+			capitalUid = uid;
+		}
+
+	}
+
+	@Test
+	public void caseInsensitivePropertyFilter() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref = new SerializableServiceRef(1, 1);
+		ServiceReference<?>[] services = new ServiceReference<?>[] { ref };
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(services);
+		TestService service = new TestService();
+		expect(bundleContext.<Serializable> getService(ref)).andReturn(service);
+
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+
+		// WHEN
+		replayAll();
+
+		service.uid = "foo";
+		service.capitalUid = "bar";
+		tracker.setPropertyFilter("uid", "no match here");
+		tracker.setPropertyFilter("UID", "bar"); // last one set wins
+		TestService s = tracker.service();
+
+		// THEN
+		assertThat("Service props case-insensitive", tracker.getPropertyFilters().keySet(),
+				contains("UID"));
+		assertThat("Service returned via ref", s, is(sameInstance(service)));
 	}
 
 }

@@ -77,7 +77,7 @@ import net.solarnetwork.service.OptionalService;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 2.0
+ * @version 1.0
  */
 public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>, FilterableService {
 
