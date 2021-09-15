@@ -72,15 +72,14 @@ public interface Datum {
 	String DATUM_TYPES_PROPERTY = "_DatumTypes";
 
 	/**
-	 * A {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} sample
-	 * key for a {@link net.solarnetwork.domain.DeviceOperatingState#getCode()}
-	 * value.
+	 * A status sample key for a
+	 * {@link net.solarnetwork.domain.DeviceOperatingState#getCode()} value.
 	 */
 	String OP_STATE = "opState";
 
 	/**
-	 * A {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples} sample
-	 * key for a bitmask of hardware-specific operating state values.
+	 * A status sample key for a bitmask of hardware-specific operating state
+	 * values.
 	 */
 	String OP_STATES = "opStates";
 
@@ -176,6 +175,8 @@ public interface Datum {
 	 * A new samples instance will also be created.
 	 * </p>
 	 * 
+	 * @param id
+	 *        the new ID to use
 	 * @return the copy with the given ID
 	 */
 	Datum copyWithId(DatumId id);

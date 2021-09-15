@@ -463,6 +463,8 @@ public final class JsonUtils {
 	 * If the date cannot be parsed, {@literal null} will be returned.
 	 * </p>
 	 * 
+	 * @param <T>
+	 *        the date type
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
@@ -619,8 +621,8 @@ public final class JsonUtils {
 	 * Create a new {@link ObjectMapper} based on the internal configuration
 	 * used by other methods in this class.
 	 * 
-	 * @param the
-	 *        JSON factory to use
+	 * @param jsonFactory
+	 *        the JSON factory to use
 	 * @return a new {@link ObjectMapper}
 	 * @since 2.0
 	 */
@@ -632,8 +634,8 @@ public final class JsonUtils {
 	 * Create a new {@link ObjectMapper} based on the internal configuration
 	 * used by other methods in this class.
 	 * 
-	 * @param the
-	 *        JSON factory to use
+	 * @param jsonFactory
+	 *        the JSON factory to use
 	 * @return a new {@link ObjectMapper}
 	 * @since 2.0
 	 */

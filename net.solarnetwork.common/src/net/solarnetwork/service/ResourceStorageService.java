@@ -38,8 +38,8 @@ import org.springframework.core.io.Resource;
 public interface ResourceStorageService extends Identifiable {
 
 	/**
-	 * An {@link org.osgi.service.event.Event} topic for when a resource has
-	 * been saved successfully by a {@code ResourceStorageService}.
+	 * An event topic for when a resource has been saved successfully by a
+	 * {@code ResourceStorageService}.
 	 * 
 	 * <p>
 	 * The standard properties of the event shall be:
@@ -62,8 +62,8 @@ public interface ResourceStorageService extends Identifiable {
 	String EVENT_TOPIC_RESOURCE_SAVED = "net/solarnetwork/io/ResourceStorageService/RESOURCE_SAVED";
 
 	/**
-	 * An {@link org.osgi.service.event.Event} topic for when a set of resources
-	 * have been deleted successfully by a {@code ResourceStorageService}.
+	 * An event topic for when a set of resources have been deleted successfully
+	 * by a {@code ResourceStorageService}.
 	 * 
 	 * <p>
 	 * The standard properties of the event shall be:

@@ -23,7 +23,7 @@
 package net.solarnetwork.domain.datum;
 
 /**
- * API for something that acts as a container for a {@link GeneralDatumSamples}
+ * API for something that acts as a container for a {@link DatumSamples}
  * instance.
  * 
  * @author matt

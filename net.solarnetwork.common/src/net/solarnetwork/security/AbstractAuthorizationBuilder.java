@@ -77,8 +77,8 @@ import org.springframework.util.MultiValueMap;
  * {@link #computeSignatureData(Instant, String)} method for more details.
  * </p>
  * 
- * <T> the implementation type
- * 
+ * @param <T>
+ *        the implementation type
  * @author matt
  * @version 1.0
  */

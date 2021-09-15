@@ -34,14 +34,12 @@ import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
 public interface DcEnergyDatum extends EnergyDatum {
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples}
-	 * instantaneous sample key for {@link #getDCPower()} values.
+	 * The instantaneous sample key for {@link #getDcPower()} values.
 	 */
 	static final String DC_POWER_KEY = "dcPower";
 
 	/**
-	 * The {@link net.solarnetwork.domain.datum.GeneralNodeDatumSamples}
-	 * instantaneous sample key for {@link #getDCVoltage()} values.
+	 * The instantaneous sample key for {@link #getDcVoltage()} values.
 	 */
 	static final String DC_VOLTAGE_KEY = "dcVoltage";
 

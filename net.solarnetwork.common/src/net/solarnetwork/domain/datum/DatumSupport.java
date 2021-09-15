@@ -280,7 +280,7 @@ public abstract class DatumSupport implements Serializable {
 	 * 
 	 * @param tag
 	 *        the tag value to test for existence
-	 * @return boolean
+	 * @return {@literal true} if the tag is present
 	 */
 	public boolean hasTag(String tag) {
 		return (tags != null && tags.contains(tag));
@@ -291,6 +291,8 @@ public abstract class DatumSupport implements Serializable {
 	 * 
 	 * @param tag
 	 *        the tag value to add
+	 * @return {@literal true} if the tag was added, or {@literal false} if the
+	 *         tag was already present
 	 */
 	public boolean addTag(String tag) {
 		if ( tag == null ) {
@@ -309,6 +311,8 @@ public abstract class DatumSupport implements Serializable {
 	 * 
 	 * @param tag
 	 *        the tag value to add
+	 * @return {@literal true} if the tag was removed, or {@literal false} if
+	 *         the tag was not present
 	 */
 	public boolean removeTag(String tag) {
 		if ( tag == null ) {

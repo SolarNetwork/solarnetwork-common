@@ -145,7 +145,8 @@ public class AggregateDatumSamples extends DatumSupport {
 	}
 
 	/**
-	 * Get the count of samples added via {@link #addSample(DatumSamples)}.
+	 * Get the count of samples added via
+	 * {@link #addSample(DatumSamplesOperations)}.
 	 * 
 	 * @return the count
 	 */
