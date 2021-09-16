@@ -266,7 +266,7 @@ public class Half extends Number implements Comparable<Half> {
 
 	/**
 	 * Compares this object against the specified object. The result is
-	 * {@code true} if and only if the argument is not {@code null} and is a
+	 * {@code true} if and only if the argument is not {@literal null} and is a
 	 * {@code Half} object that represents the same half-precision value as the
 	 * this object. Two half-precision values are considered to be the same if
 	 * and only if the method {@link #halfToIntBits(short)} returns an identical

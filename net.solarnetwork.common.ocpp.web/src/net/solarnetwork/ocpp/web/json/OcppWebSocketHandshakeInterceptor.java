@@ -243,7 +243,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	/**
 	 * Get the fixed {@link ChargePointIdentity} username to use.
 	 * 
-	 * @return the username to use; defaults to {@code null}
+	 * @return the username to use; defaults to {@literal null}
 	 */
 	public String getFixedIdentityUsername() {
 		return fixedIdentityUsername;

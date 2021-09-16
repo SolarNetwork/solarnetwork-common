@@ -306,7 +306,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 	/**
 	 * Get the set of signed header names.
 	 * 
-	 * @return The signed header names, or {@code null}.
+	 * @return The signed header names, or {@literal null}.
 	 */
 	public Set<String> getSignedHeaderNames() {
 		return signedHeaderNames;

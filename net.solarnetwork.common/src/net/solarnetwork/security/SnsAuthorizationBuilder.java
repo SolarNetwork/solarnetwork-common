@@ -66,7 +66,7 @@ public class SnsAuthorizationBuilder extends AbstractAuthorizationBuilder<SnsAut
 	 * Reset all values to their defaults.
 	 * 
 	 * <p>
-	 * All properties will be set to {@code null} except the following:
+	 * All properties will be set to {@literal null} except the following:
 	 * </p>
 	 * 
 	 * <dl>
