@@ -26,7 +26,7 @@
 		<dependency org="org.springframework" name="spring-test" rev="4.3.23.RELEASE"/>
 
 		<!-- Testing support -->
-		<dependency org="commons-codec" name="commons-codec" rev="1.7"/>
+		<dependency org="commons-codec" name="commons-codec" rev="1.11"/>
 		<dependency org="io.netty" name="netty-buffer" rev="4.1.63.Final"/>
 		<dependency org="io.netty" name="netty-codec" rev="4.1.63.Final"/>
 		<dependency org="io.netty" name="netty-codec-http" rev="4.1.63.Final"/>
