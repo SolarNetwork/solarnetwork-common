@@ -22,7 +22,6 @@
 
 package net.solarnetwork.web.gemini;
 
-import org.eclipse.virgo.web.dm.ServerOsgiBundleXmlWebApplicationContext;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 
@@ -36,7 +35,7 @@ import org.springframework.context.ApplicationContext;
  * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class NonValidatingServerOsgiBundleXmlWebApplicationContext
 		extends ServerOsgiBundleXmlWebApplicationContext {
