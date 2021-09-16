@@ -3,11 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Test
 Bundle-SymbolicName: net.solarnetwork.common.test
 Automatic-Module-Name: net.solarnetwork.common.test
-Bundle-Version: 1.16.0
+Bundle-Version: 1.17.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: 
- net.solarnetwork.test;version="1.6.0",
+ net.solarnetwork.test;version="1.7.0",
  net.solarnetwork.test.mqtt;version="1.0.0"
 Import-Package: 
  io.moquette;version="[0.12,1.0)";resolution:=optional,

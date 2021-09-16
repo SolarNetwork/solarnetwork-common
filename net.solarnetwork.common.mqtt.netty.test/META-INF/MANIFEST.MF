@@ -16,7 +16,7 @@ Import-Package:
  io.moquette.broker.security;version="[0.12,1.0)",
  io.netty.buffer;version="[4.1.22,5.0)",
  net.solarnetwork.common.mqtt.integration.test;version="[2.0,3.0)",
- net.solarnetwork.test;version="[1.6,2.0)",
+ net.solarnetwork.test;version="[1.7,2.0)",
  net.solarnetwork.test.mqtt;version="[1.0,2.0)",
  org.apache.commons.lang3;version="[3.4,4.0)",
  org.apache.commons.logging;version="[1.1,2.0)",
@@ -25,9 +25,5 @@ Import-Package:
  org.junit;version="[4.5,5.0)",
  org.junit.runner;version="[4.5,5.0)",
  org.slf4j;version="[1.7,2.0)",
- org.springframework.test.annotation;version="[4.3,5.0)",
- org.springframework.test.context;version="[4.3,5.0)",
- org.springframework.test.context.junit4;version="[4.3,5.0)",
- org.springframework.test.context.support;version="[4.3,5.0)",
  org.springframework.scheduling.concurrent;version="[4.3,5.0)",
  org.springframework.util;version="[4.3,5.0)"
