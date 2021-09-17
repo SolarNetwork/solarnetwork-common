@@ -22,6 +22,7 @@
 
 package net.solarnetwork.codec.test;
 
+import static net.solarnetwork.domain.GeneralDatum.locationDatum;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -42,7 +43,7 @@ import net.solarnetwork.domain.datum.GeneralDatum;
  * Test cases for the {@link BasicGeneralDatumDeserializer} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicGeneralDatumDeserializerTests {
 
@@ -84,6 +85,96 @@ public class BasicGeneralDatumDeserializerTests {
 		s.putStatusSampleValue("c", "three");
 		s.addTag("d");
 		GeneralDatum expected = new net.solarnetwork.domain.GeneralDatum("test.source", ts, s);
+		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
+		assertThat("GeneralDatum samples parsed",
+				((net.solarnetwork.domain.GeneralDatum) datum).getSamples(), is(equalTo(s)));
+	}
+
+	@Test
+	public void deserialize_typical_location() throws IOException {
+		// GIVEN
+		// @formatter:off
+		final String json = "{\"created\":\"2021-08-17 14:28:12.345Z\",\"sourceId\":\"test.source\""
+				+ ",\"locationId\":123"
+				+ ",\"i\":{\"a\":1}"
+				+ ",\"a\":{\"b\":2}"
+				+ ",\"s\":{\"c\":\"three\"}"
+				+ ",\"t\":[\"d\"]}";
+		// @formatter:on
+
+		// WHEN
+		GeneralDatum datum = mapper.readValue(json, GeneralDatum.class);
+
+		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
+				(int) TimeUnit.MILLISECONDS.toNanos(345));
+		Instant ts = date.toInstant(ZoneOffset.UTC);
+		GeneralDatumSamples s = new GeneralDatumSamples();
+		s.putInstantaneousSampleValue("a", 1);
+		s.putAccumulatingSampleValue("b", 2);
+		s.putStatusSampleValue("c", "three");
+		s.addTag("d");
+		GeneralDatum expected = locationDatum(123L, "test.source", ts, s);
+		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
+		assertThat("GeneralDatum samples parsed",
+				((net.solarnetwork.domain.GeneralDatum) datum).getSamples(), is(equalTo(s)));
+	}
+
+	@Test
+	public void deserialize_nested() throws IOException {
+		// GIVEN
+		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
+				(int) TimeUnit.MILLISECONDS.toNanos(345));
+		Instant ts = date.toInstant(ZoneOffset.UTC);
+		// @formatter:off
+		final String json = "{\"created\":"+ts.toEpochMilli()+",\"sourceId\":\"test.source\""
+				+ ",\"samples\":{"
+				+ "\"i\":{\"a\":1}"
+				  + ",\"a\":{\"b\":2}"
+				  + ",\"s\":{\"c\":\"three\"}"
+				  + ",\"t\":[\"d\"]"
+				+ "}}";
+		// @formatter:on
+
+		// WHEN
+		GeneralDatum datum = mapper.readValue(json, GeneralDatum.class);
+
+		GeneralDatumSamples s = new GeneralDatumSamples();
+		s.putInstantaneousSampleValue("a", 1);
+		s.putAccumulatingSampleValue("b", 2);
+		s.putStatusSampleValue("c", "three");
+		s.addTag("d");
+		GeneralDatum expected = new net.solarnetwork.domain.GeneralDatum("test.source", ts, s);
+		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
+		assertThat("GeneralDatum samples parsed",
+				((net.solarnetwork.domain.GeneralDatum) datum).getSamples(), is(equalTo(s)));
+	}
+
+	@Test
+	public void deserialize_nested_location() throws IOException {
+		// GIVEN
+		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
+				(int) TimeUnit.MILLISECONDS.toNanos(345));
+		Instant ts = date.toInstant(ZoneOffset.UTC);
+		// @formatter:off
+		final String json = "{\"created\":"+ts.toEpochMilli()+",\"sourceId\":\"test.source\""
+				+ ",\"locationId\":123"
+				+ ",\"samples\":{"
+				+ "\"i\":{\"a\":1}"
+				  + ",\"a\":{\"b\":2}"
+				  + ",\"s\":{\"c\":\"three\"}"
+				  + ",\"t\":[\"d\"]"
+				+ "}}";
+		// @formatter:on
+
+		// WHEN
+		GeneralDatum datum = mapper.readValue(json, GeneralDatum.class);
+
+		GeneralDatumSamples s = new GeneralDatumSamples();
+		s.putInstantaneousSampleValue("a", 1);
+		s.putAccumulatingSampleValue("b", 2);
+		s.putStatusSampleValue("c", "three");
+		s.addTag("d");
+		GeneralDatum expected = locationDatum(123L, "test.source", ts, s);
 		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
 		assertThat("GeneralDatum samples parsed",
 				((net.solarnetwork.domain.GeneralDatum) datum).getSamples(), is(equalTo(s)));
