@@ -38,11 +38,7 @@ import org.junit.Test;
 import net.solarnetwork.domain.GroupedBitmaskable;
 
 /**
- * FIXME
- * 
- * <p>
- * TODO
- * </p>
+ * Test cases for {@link GroupedBitmaskable}.
  * 
  * @author matt
  * @version 1.0
