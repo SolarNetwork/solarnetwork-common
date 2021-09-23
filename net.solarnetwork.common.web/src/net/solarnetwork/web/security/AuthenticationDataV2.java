@@ -44,7 +44,7 @@ import net.solarnetwork.util.StringUtils;
  * the signature calculation in {@link #computeSignatureDigest(String)}.
  * 
  * @author matt
- * @version 1.3
+ * @version 2.0
  * @since 1.11
  */
 public class AuthenticationDataV2 extends AuthenticationData {
@@ -183,8 +183,8 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		// 7 days to see if we get a match
 		String result = null;
 		for ( int i = 0; i < 7; i++ ) {
-			String computed = builder.date(signDate).saveSigningKey(secretKey).date(getDate())
-					.buildSignature();
+			byte[] signKey = builder.computeSigningKey(signDate, secretKey);
+			String computed = builder.signingKey(signKey).buildSignature();
 			if ( computed.equals(signatureDigest) ) {
 				return computed;
 			} else if ( result == null ) {

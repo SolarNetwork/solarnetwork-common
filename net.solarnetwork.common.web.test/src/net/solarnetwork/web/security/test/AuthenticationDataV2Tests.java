@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Hex;
@@ -682,4 +683,39 @@ public class AuthenticationDataV2Tests {
 				.build(TEST_PASSWORD);
 		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
 	}
+
+	@Test
+	public void simplePathWithXDate_toggle() throws ServletException, IOException {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
+		final Instant now = Instant.now();
+		request.addHeader("X-SN-Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
+		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
+				now);
+		request.addHeader(HTTP_HEADER_AUTH, authHeader);
+		verifyRequest(request, TEST_PASSWORD);
+
+		final Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(TEST_AUTH_TOKEN);
+		String builderAuthHeader = builder.useSnDate(true).date(now).host(TEST_HOST)
+				.path(request.getRequestURI()).build(TEST_PASSWORD);
+		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
+	}
+
+	@Test
+	public void signDateInPast() throws ServletException, IOException {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
+		final Instant now = Instant.now();
+		request.addHeader("X-SN-Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
+		final Instant aFewDaysAgo = now.minusSeconds(TimeUnit.DAYS.toSeconds(3));
+		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
+				now, aFewDaysAgo, null);
+		request.addHeader(HTTP_HEADER_AUTH, authHeader);
+		verifyRequest(request, TEST_PASSWORD);
+
+		final Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(TEST_AUTH_TOKEN);
+		String builderAuthHeader = builder.useSnDate(true).date(aFewDaysAgo)
+				.saveSigningKey(TEST_PASSWORD).date(now).host(TEST_HOST).path(request.getRequestURI())
+				.build();
+		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
+	}
+
 }
