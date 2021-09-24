@@ -22,6 +22,8 @@
 
 package net.solarnetwork.service;
 
+import java.util.Map;
+
 /**
  * API for an "optional" service.
  * 
@@ -34,7 +36,7 @@ package net.solarnetwork.service;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.2
+ * @version 2.0
  */
 public interface OptionalService<T> {
 
@@ -95,6 +97,71 @@ public interface OptionalService<T> {
 	static <T> T service(OptionalService<T> optional, T fallback) {
 		T service = (optional != null ? optional.service() : null);
 		return (service != null ? service : fallback);
+	}
+
+	/**
+	 * Resolve a required optional service, throwing an exception if not
+	 * available.
+	 * 
+	 * @param <T>
+	 *        the service type
+	 * @param optional
+	 *        the optional service, or {@literal null}
+	 * @return the resolved service, never {@literal null}
+	 * @throws OptionalServiceNotAvailableException
+	 *         if the service can not be resolved
+	 * @since 2.0
+	 */
+	static <T> T requiredService(OptionalService<T> optional) {
+		return requiredService(optional, null);
+	}
+
+	/**
+	 * Resolve a required optional service, throwing an exception if not
+	 * available.
+	 * 
+	 * @param <T>
+	 *        the service type
+	 * @param optional
+	 *        the optional service, or {@literal null}
+	 * @param description
+	 *        a description to use if the service can not be resolved, or
+	 *        {@literal null}
+	 * @return the resolved service, never {@literal null}
+	 * @throws OptionalServiceNotAvailableException
+	 *         if the service can not be resolved
+	 * @since 2.0
+	 */
+	static <T> T requiredService(OptionalService<T> optional, String description) {
+		T service = null;
+		Exception t = null;
+		try {
+			service = service(optional);
+			if ( service != null ) {
+				return service;
+			}
+		} catch ( Exception e ) {
+			t = e;
+		}
+		StringBuilder msg = new StringBuilder("Service");
+		if ( description != null ) {
+			msg.append(" [").append(description).append(']');
+		}
+		if ( optional instanceof FilterableService ) {
+			FilterableService f = (FilterableService) optional;
+			Map<String, ?> filters = f.getPropertyFilters();
+			if ( filters != null && !filters.isEmpty() ) {
+				msg.append(" matching filter ").append(filters);
+			}
+		}
+		msg.append(" not");
+		if ( optional == null ) {
+			msg.append(" configured");
+		} else {
+			msg.append(" available");
+		}
+		msg.append('.');
+		throw new OptionalServiceNotAvailableException(msg.toString(), t);
 	}
 
 }
