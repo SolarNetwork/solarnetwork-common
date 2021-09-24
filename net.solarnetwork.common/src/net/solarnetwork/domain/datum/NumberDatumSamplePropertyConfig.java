@@ -26,6 +26,10 @@ import static net.solarnetwork.util.NumberUtils.maximumDecimalScale;
 import static net.solarnetwork.util.NumberUtils.multiplied;
 import static net.solarnetwork.util.NumberUtils.offset;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import net.solarnetwork.settings.SettingSpecifier;
+import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 
 /**
  * Extension of {@link DatumSamplePropertyConfig} specifically designed to help
@@ -95,6 +99,28 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 */
 	public NumberDatumSamplePropertyConfig(String propertyKey, DatumSamplesType propertyType, V config) {
 		super(propertyKey, propertyType != null ? propertyType : DEFAULT_PROPERTY_TYPE, config);
+	}
+
+	/**
+	 * Get the number transform settings for all transforms.
+	 * 
+	 * @param prefix
+	 *        the optional prefix
+	 * @return the settings for unit intercept, unit slope, slope, and intercept
+	 * @since 2.0
+	 */
+	public static List<SettingSpecifier> numberTransformSettings(String prefix) {
+		if ( prefix == null ) {
+			prefix = "";
+		}
+		List<SettingSpecifier> result = new ArrayList<>();
+		result.add(new BasicTextFieldSettingSpecifier(prefix + "unitIntercept",
+				DEFAULT_INTERCEPT.toString()));
+		result.add(new BasicTextFieldSettingSpecifier(prefix + "unitSlope", DEFAULT_SLOPE.toString()));
+		result.add(new BasicTextFieldSettingSpecifier(prefix + "slope", DEFAULT_SLOPE.toString()));
+		result.add(
+				new BasicTextFieldSettingSpecifier(prefix + "intercept", DEFAULT_INTERCEPT.toString()));
+		return result;
 	}
 
 	/**
