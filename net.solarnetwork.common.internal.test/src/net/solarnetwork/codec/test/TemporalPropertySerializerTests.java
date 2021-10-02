@@ -50,6 +50,25 @@ public class TemporalPropertySerializerTests {
 	}
 
 	@Test
+	public void formatInstant_pat() {
+		LocalDateTime d = LocalDateTime.of(2021, 10, 2, 22, 10, 23,
+				(int) TimeUnit.MILLISECONDS.toNanos(456));
+		assertThat(
+				"Instant formatted", new TemporalPropertySerializer("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+						.serialize(null, null, d.toInstant(ZoneOffset.UTC)),
+				is("2021-10-02T22:10:23.456Z"));
+	}
+
+	@Test
+	public void formatLocalDateTime() {
+		LocalDateTime d = LocalDateTime.of(2021, 10, 2, 22, 10, 23,
+				(int) TimeUnit.MILLISECONDS.toNanos(456));
+		assertThat("Instant formatted",
+				new TemporalPropertySerializer("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").serialize(null, null, d),
+				is("2021-10-02T22:10:23.456Z"));
+	}
+
+	@Test
 	public void formatDate() {
 		LocalDateTime d = LocalDateTime.of(2021, 10, 2, 22, 10, 23,
 				(int) TimeUnit.MILLISECONDS.toNanos(456));
