@@ -132,6 +132,46 @@ public final class JsonUtils {
 	}
 
 	/**
+	 * A module for handling Java date and time objects in The SolarNetwork Way
+	 * but instant values serialized as epoch number values instead of formatted
+	 * strings.
+	 * 
+	 * <p>
+	 * Note for this module to work as expected, the associated
+	 * {@code ObjectMapper} should have the
+	 * {@link SerializationFeature#WRITE_DATES_AS_TIMESTAMPS} enabled. Also
+	 * consider the
+	 * {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} and
+	 * {@link DeserializationFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}
+	 * features (the default {@code ObjectMapper} used internally by this class
+	 * disable both those).
+	 * </p>
+	 * 
+	 * <p>
+	 * This field will be {@literal null} if the
+	 * {@code com.fasterxml.jackson.datatype.jsr310.JavaTimeModule} class is not
+	 * available.
+	 * </p>
+	 * 
+	 * @since 2.0
+	 */
+	public static final com.fasterxml.jackson.databind.Module JAVA_TIMESTAMP_MODULE;
+	static {
+		JAVA_TIMESTAMP_MODULE = createOptionalModule(
+				"com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", m -> {
+					// replace default timestamp JsonSerializer with one that supports spaces
+					m.addSerializer(LocalDateTime.class, loadOptionalSerializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeSerializer"));
+					m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$InstantDeserializer"));
+					m.addDeserializer(ZonedDateTime.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeDeserializer"));
+					m.addDeserializer(LocalDateTime.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeDeserializer"));
+				});
+	}
+
+	/**
 	 * A module for handling datum objects.
 	 * 
 	 * @since 2.0
@@ -188,6 +228,7 @@ public final class JsonUtils {
 		factory.setSerializationInclusion(Include.NON_NULL);
 		factory.setFeaturesToDisable(asList(
 				(Object) DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+				(Object) DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS,
 				(Object) SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS,
 				(Object) SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
 		factory.setFeaturesToEnable(asList(
