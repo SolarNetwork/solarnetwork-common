@@ -81,7 +81,7 @@ import net.solarnetwork.util.NumberUtils;
  * </p>
  * 
  * <ul>
- * <li>Joda and java.time date/time values, serialized as strings using the RFC
+ * <li>{@code java.time} date/time values, serialized as strings using the RFC
  * 3339 profile of ISO-8601 with a space separator between date/time sections
  * instead of a {@literal T} character.</li>
  * <li>{@literal null} values are not serialized.</li>
@@ -95,29 +95,110 @@ import net.solarnetwork.util.NumberUtils;
  */
 public final class JsonUtils {
 
+	private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
+
 	/** A type reference for a Map with string keys. */
 	public static final TypeReference<LinkedHashMap<String, Object>> STRING_MAP_TYPE = new StringMapTypeReference();
 
-	private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
+	/**
+	 * A module for handling Java date and time objects in The SolarNetwork Way.
+	 * 
+	 * <p>
+	 * This field will be {@literal null} if the
+	 * {@code com.fasterxml.jackson.datatype.jsr310.JavaTimeModule} class is not
+	 * available.
+	 * </p>
+	 * 
+	 * @since 2.0
+	 */
+	public static final com.fasterxml.jackson.databind.Module JAVA_TIME_MODULE;
+	static {
+		JAVA_TIME_MODULE = createOptionalModule("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule",
+				m -> {
+					// replace default timestamp JsonSerializer with one that supports spaces
+					m.addSerializer(Instant.class, loadOptionalSerializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$InstantSerializer"));
+					m.addSerializer(ZonedDateTime.class, loadOptionalSerializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeSerializer"));
+					m.addSerializer(LocalDateTime.class, loadOptionalSerializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeSerializer"));
+					m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$InstantDeserializer"));
+					m.addDeserializer(ZonedDateTime.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeDeserializer"));
+					m.addDeserializer(LocalDateTime.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeDeserializer"));
+				});
+	}
+
+	/**
+	 * A module for handling datum objects.
+	 * 
+	 * @since 2.0
+	 */
+	public static final com.fasterxml.jackson.databind.Module DATUM_MODULE;
+	static {
+		SimpleModule m = new SimpleModule("SolarNetwork Datum");
+		m.addSerializer(BasicGeneralDatumSerializer.INSTANCE);
+		m.addSerializer(BasicLocationSerializer.INSTANCE);
+		m.addSerializer(BasicObjectDatumStreamMetadataSerializer.INSTANCE);
+		m.addSerializer(BasicStreamDatumArraySerializer.INSTANCE);
+		m.addSerializer(BasicInstructionSerializer.INSTANCE);
+		m.addSerializer(BasicInstructionStatusSerializer.INSTANCE);
+		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
+		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
+		m.addDeserializer(ObjectDatumStreamMetadata.class,
+				BasicObjectDatumStreamMetadataDeserializer.INSTANCE);
+		m.addDeserializer(StreamDatum.class, BasicStreamDatumArrayDeserializer.INSTANCE);
+		m.addDeserializer(Instruction.class, BasicInstructionDeserializer.INSTANCE);
+		m.addDeserializer(InstructionStatus.class, BasicInstructionStatusDeserializer.INSTANCE);
+		DATUM_MODULE = m;
+	}
 
 	private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
 
 	private static final ObjectMapper createObjectMapper() {
-		return createObjectMapper(null);
+		return createObjectMapper(null, JAVA_TIME_MODULE);
 	}
 
 	private static final ObjectMapper createObjectMapper(JsonFactory jsonFactory) {
+		return createObjectMapper(jsonFactory, JAVA_TIME_MODULE);
+	}
+
+	/**
+	 * Create an {@link ObjectMapper} instance with optional modules.
+	 * 
+	 * @param jsonFactory
+	 *        an optional factory to use
+	 * @param modules
+	 *        optional modules to register; can be completely omitted and
+	 *        individual elements are allowed to be {@literal null} (e.g.
+	 *        optionally missing modules)
+	 * @return the new mapper
+	 * @throws RuntimeException
+	 *         if there is any problem creating the mapper
+	 * @since 2.0
+	 */
+	public static final ObjectMapper createObjectMapper(JsonFactory jsonFactory, Module... modules) {
 		ObjectMapperFactoryBean factory = new ObjectMapperFactoryBean();
 		if ( jsonFactory != null ) {
 			factory.setJsonFactory(jsonFactory);
 		}
+		// @formatter:off
 		factory.setSerializationInclusion(Include.NON_NULL);
-		factory.setFeaturesToDisable(asList((Object) DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+		factory.setFeaturesToDisable(asList(
+				(Object) DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
 				(Object) SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS,
 				(Object) SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
-		factory.setFeaturesToEnable(asList((Object) DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
+		factory.setFeaturesToEnable(asList(
+				(Object) DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
+		// @formatter:on
 
-		registerOptionalModule(factory, javaTimeModule());
+		if ( modules != null ) {
+			for ( Module module : modules ) {
+				registerOptionalModule(factory, module);
+			}
+		}
 
 		try {
 			ObjectMapper mapper = factory.getObject();
@@ -146,7 +227,7 @@ public final class JsonUtils {
 		}
 	}
 
-	private static void registerOptionalModule(ObjectMapperFactoryBean factory, SimpleModule m) {
+	private static void registerOptionalModule(ObjectMapperFactoryBean factory, Module m) {
 		if ( m != null ) {
 			List<Module> modules = factory.getModules();
 			if ( modules == null ) {
@@ -155,53 +236,6 @@ public final class JsonUtils {
 			modules.add(m);
 			factory.setModules(modules);
 		}
-	}
-
-	/**
-	 * Create a module for handling {@code java.time} objects.
-	 * 
-	 * @return the module, or {@literal null} if support is not available
-	 */
-	public static SimpleModule javaTimeModule() {
-		return createOptionalModule("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", m -> {
-			// replace default timestamp JsonSerializer with one that supports spaces
-			m.addSerializer(Instant.class, loadOptionalSerializerInstance(
-					"net.solarnetwork.codec.JsonDateUtils$InstantSerializer"));
-			m.addSerializer(ZonedDateTime.class, loadOptionalSerializerInstance(
-					"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeSerializer"));
-			m.addSerializer(LocalDateTime.class, loadOptionalSerializerInstance(
-					"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeSerializer"));
-			m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
-					"net.solarnetwork.codec.JsonDateUtils$InstantDeserializer"));
-			m.addDeserializer(ZonedDateTime.class, loadOptionalDeserializerInstance(
-					"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeDeserializer"));
-			m.addDeserializer(LocalDateTime.class, loadOptionalDeserializerInstance(
-					"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeDeserializer"));
-		});
-	}
-
-	/**
-	 * A module for handling datum objects.
-	 * 
-	 * @since 2.0
-	 */
-	public static final com.fasterxml.jackson.databind.Module DATUM_MODULE;
-	static {
-		SimpleModule m = new SimpleModule("SolarNetwork Datum");
-		m.addSerializer(BasicGeneralDatumSerializer.INSTANCE);
-		m.addSerializer(BasicLocationSerializer.INSTANCE);
-		m.addSerializer(BasicObjectDatumStreamMetadataSerializer.INSTANCE);
-		m.addSerializer(BasicStreamDatumArraySerializer.INSTANCE);
-		m.addSerializer(BasicInstructionSerializer.INSTANCE);
-		m.addSerializer(BasicInstructionStatusSerializer.INSTANCE);
-		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
-		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
-		m.addDeserializer(ObjectDatumStreamMetadata.class,
-				BasicObjectDatumStreamMetadataDeserializer.INSTANCE);
-		m.addDeserializer(StreamDatum.class, BasicStreamDatumArrayDeserializer.INSTANCE);
-		m.addDeserializer(Instruction.class, BasicInstructionDeserializer.INSTANCE);
-		m.addDeserializer(InstructionStatus.class, BasicInstructionStatusDeserializer.INSTANCE);
-		DATUM_MODULE = m;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -594,8 +628,8 @@ public final class JsonUtils {
 	}
 
 	/**
-	 * Create a new {@link ObjectMapper} based on the internal configuration
-	 * used by other methods in this class.
+	 * Create a new {@link ObjectMapper} based on the default internal
+	 * configuration used by other methods in this class.
 	 * 
 	 * @return a new {@link ObjectMapper}
 	 * @since 1.1
@@ -605,8 +639,8 @@ public final class JsonUtils {
 	}
 
 	/**
-	 * Create a new {@link ObjectMapper} based on the internal configuration
-	 * used by other methods in this class.
+	 * Create a new {@link ObjectMapper} based on the default internal
+	 * configuration used by other methods in this class.
 	 * 
 	 * @return a new {@link ObjectMapper}
 	 * @since 2.0
