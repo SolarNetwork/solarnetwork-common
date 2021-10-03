@@ -33,6 +33,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -87,10 +88,12 @@ public final class DateUtils {
 		// @formatter:off
 		ISO_DATE_OPT_TIME_ALT = new DateTimeFormatterBuilder()
 				.append(DateTimeFormatter.ISO_DATE)
+				.parseDefaulting(ChronoField.ERA, ChronoField.ERA.range().getMaximum())
 				.optionalStart()
 				.appendLiteral(' ')
 				.append(DateTimeFormatter.ISO_TIME)
-				.toFormatter();
+				.toFormatter()
+				.withChronology(IsoChronology.INSTANCE);
 		// @formatter:on
 	}
 
@@ -129,9 +132,11 @@ public final class DateUtils {
 		ISO_DATE_TIME_ALT = new DateTimeFormatterBuilder()
                 .parseCaseInsensitive()
                 .append(DateTimeFormatter.ISO_LOCAL_DATE)
+				.parseDefaulting(ChronoField.ERA, ChronoField.ERA.range().getMaximum())
 				.appendLiteral(' ')
 				.append(DateTimeFormatter.ISO_TIME)
-				.toFormatter();
+				.toFormatter()
+				.withChronology(IsoChronology.INSTANCE);
 		// @formatter:on
 	}
 
@@ -152,8 +157,13 @@ public final class DateUtils {
 	 */
 	public static final DateTimeFormatter LOCAL_TIME;
 	static {
-		LOCAL_TIME = new DateTimeFormatterBuilder().appendValue(HOUR_OF_DAY, 2).appendLiteral(':')
-				.appendValue(MINUTE_OF_HOUR, 2).toFormatter();
+		// @formatter:off
+		LOCAL_TIME = new DateTimeFormatterBuilder()
+				.appendValue(HOUR_OF_DAY, 2)
+				.appendLiteral(':')
+				.appendValue(MINUTE_OF_HOUR, 2)
+				.toFormatter();
+		// @formatter:on
 	}
 
 	/**
