@@ -115,7 +115,7 @@ public class JsonUtilsTests {
 		String json = JsonUtils.getJSONString(props, null);
 
 		// THEN
-		assertThat("LocalDate serialized as milliseconds timestamp", json,
+		assertThat("LocalTime serialized as milliseconds timestamp", json,
 				equalTo("{\"ts\":\"02:03:04.567\"}"));
 	}
 
