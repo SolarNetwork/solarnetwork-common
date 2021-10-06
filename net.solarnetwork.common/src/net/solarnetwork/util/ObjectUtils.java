@@ -41,14 +41,14 @@ public final class ObjectUtils {
 	 * {@code NullPointerException}. Example use:
 	 * </p>
 	 * 
-	 * @formatter:off
+	 * <!-- @formatter:off -->
 	 * <blockquote><pre>
 	 * public Foo(Bar bar, Baz baz) {
 	 * 	this.bar = ObjectUtils.requireNonNullArgument(bar, "bar");
 	 * 	this.baz = ObjectUtils.requireNonNullArgument(baz, "baz");
 	 * }
 	 * </pre></blockquote>
-	 * @formatter:on
+	 * <!-- @formatter:on -->
 	 * 
 	 * @param <T>
 	 *        the argument type
