@@ -22,21 +22,21 @@
 
 package net.solarnetwork.service;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Extension of {@link PingTestResult} to support a UI layer.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  * @since 1.52
  */
 public class PingTestResultDisplay extends PingTestResult {
 
 	private final String pingTestId;
 	private final String pingTestName;
-	private final Date start;
-	private final Date end;
+	private final Instant start;
+	private final Instant end;
 
 	/**
 	 * Construct from a test and a result.
@@ -48,12 +48,12 @@ public class PingTestResultDisplay extends PingTestResult {
 	 * @param start
 	 *        The time the test started.
 	 */
-	public PingTestResultDisplay(PingTest test, PingTest.Result result, Date start) {
+	public PingTestResultDisplay(PingTest test, PingTest.Result result, Instant start) {
 		super(result.isSuccess(), result.getMessage(), result.getProperties());
 		this.pingTestId = test.getPingTestId();
 		this.pingTestName = test.getPingTestName();
 		this.start = start;
-		this.end = new Date();
+		this.end = Instant.now();
 	}
 
 	public String getPingTestId() {
@@ -64,11 +64,11 @@ public class PingTestResultDisplay extends PingTestResult {
 		return pingTestName;
 	}
 
-	public Date getStart() {
+	public Instant getStart() {
 		return start;
 	}
 
-	public Date getEnd() {
+	public Instant getEnd() {
 		return end;
 	}
 
