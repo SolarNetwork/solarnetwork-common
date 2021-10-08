@@ -22,6 +22,8 @@
 
 package net.solarnetwork.service;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import java.time.Duration;
 import java.time.Instant;
 
 /**
@@ -47,12 +49,15 @@ public class PingTestResultDisplay extends PingTestResult {
 	 *        The result.
 	 * @param start
 	 *        The time the test started.
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@literal null}
 	 */
 	public PingTestResultDisplay(PingTest test, PingTest.Result result, Instant start) {
-		super(result.isSuccess(), result.getMessage(), result.getProperties());
-		this.pingTestId = test.getPingTestId();
+		super(requireNonNullArgument(result, "result").isSuccess(), result.getMessage(),
+				result.getProperties());
+		this.pingTestId = requireNonNullArgument(test, "test").getPingTestId();
 		this.pingTestName = test.getPingTestName();
-		this.start = start;
+		this.start = requireNonNullArgument(start, "start");
 		this.end = Instant.now();
 	}
 
@@ -70,6 +75,10 @@ public class PingTestResultDisplay extends PingTestResult {
 
 	public Instant getEnd() {
 		return end;
+	}
+
+	public Duration getDuration() {
+		return Duration.between(start, end);
 	}
 
 }
