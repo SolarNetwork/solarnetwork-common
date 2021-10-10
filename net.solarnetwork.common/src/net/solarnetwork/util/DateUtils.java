@@ -154,6 +154,7 @@ public final class DateUtils {
 	 * {@literal HH:mm}.
 	 * 
 	 * @since 1.4
+	 * @see #LOCAL_TIME_FULL
 	 */
 	public static final DateTimeFormatter LOCAL_TIME;
 	static {
@@ -177,6 +178,19 @@ public final class DateUtils {
 	 * @since 2.0
 	 */
 	public static final DateTimeFormatter LOCAL_DATE = DateTimeFormatter.ISO_LOCAL_DATE;
+
+	/**
+	 * Local time formatted for standard local time values like
+	 * {@literal HH:mm:ss}.
+	 * 
+	 * <p>
+	 * This is just an alias for {@link DateTimeFormatter#ISO_LOCAL_TIME}.
+	 * </p>
+	 * 
+	 * @since 2.0
+	 * @see {@link #LOCAL_TIME}
+	 */
+	public static final DateTimeFormatter LOCAL_TIME_FULL = DateTimeFormatter.ISO_LOCAL_TIME;
 
 	/**
 	 * Format for a long date and short time, for display purposes.
