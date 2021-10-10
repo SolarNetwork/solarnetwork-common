@@ -52,7 +52,7 @@ import java.util.regex.Pattern;
  * Date and time utilities.
  * 
  * @author matt
- * @version 1.5
+ * @version 2.0
  * @since 1.59
  */
 public final class DateUtils {
@@ -165,6 +165,18 @@ public final class DateUtils {
 				.toFormatter();
 		// @formatter:on
 	}
+
+	/**
+	 * Local time formatted for standard local time values like
+	 * {@literal yyyy-MM-dd}.
+	 * 
+	 * <p>
+	 * This is just an alias for {@link DateTimeFormatter#ISO_LOCAL_DATE}.
+	 * </p>
+	 * 
+	 * @since 2.0
+	 */
+	public static final DateTimeFormatter LOCAL_DATE = DateTimeFormatter.ISO_LOCAL_DATE;
 
 	/**
 	 * Format for a long date and short time, for display purposes.
