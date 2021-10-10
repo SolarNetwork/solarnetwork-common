@@ -188,7 +188,7 @@ public final class DateUtils {
 	 * </p>
 	 * 
 	 * @since 2.0
-	 * @see {@link #LOCAL_TIME}
+	 * @see #LOCAL_TIME
 	 */
 	public static final DateTimeFormatter LOCAL_TIME_FULL = DateTimeFormatter.ISO_LOCAL_TIME;
 
