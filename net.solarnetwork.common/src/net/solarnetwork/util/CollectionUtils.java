@@ -24,15 +24,20 @@ package net.solarnetwork.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 
 /**
  * Utility methods for dealing with collections.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.58
  */
 public final class CollectionUtils {
@@ -135,6 +140,62 @@ public final class CollectionUtils {
 			result.add(last);
 		}
 		return result;
+	}
+
+	/**
+	 * Convert a dictionary to a map.
+	 * 
+	 * <p>
+	 * This creates a new {@link Map} and copies all the key-value pairs from
+	 * the given {@link Dictionary} into it.
+	 * </p>
+	 * 
+	 * @param <K>
+	 *        the key type
+	 * @param <V>
+	 *        the value type
+	 * @param dict
+	 *        the dictionary to convert
+	 * @return the new map instance, or {@literal null} if {@code dict} is
+	 *         {@literal null}
+	 */
+	public static <K, V> Map<K, V> mapForDictionary(Dictionary<K, V> dict) {
+		if ( dict == null ) {
+			return null;
+		}
+		Map<K, V> result = new HashMap<>(dict.size());
+		Enumeration<K> keyEnum = dict.keys();
+		while ( keyEnum.hasMoreElements() ) {
+			K key = keyEnum.nextElement();
+			if ( key != null ) {
+				result.put(key, dict.get(key));
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Convert a map to a dictionary.
+	 * 
+	 * <p>
+	 * This creates a new {@link Dictionary} and copies all the key-value pairs
+	 * from the given {@link Map} into it.
+	 * </p>
+	 * 
+	 * @param <K>
+	 *        the key type
+	 * @param <V>
+	 *        the value type
+	 * @param map
+	 *        the map to convert
+	 * @return the new dictionary instance, or {@literal null} if {@code map} is
+	 *         {@literal null}
+	 */
+	public static <K, V> Dictionary<K, V> dictionaryForMap(Map<K, V> map) {
+		if ( map == null ) {
+			return null;
+		}
+		return new Hashtable<>(map);
 	}
 
 }

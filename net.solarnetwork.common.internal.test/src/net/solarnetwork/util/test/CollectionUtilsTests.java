@@ -23,10 +23,16 @@
 package net.solarnetwork.util.test;
 
 import static net.solarnetwork.util.IntRange.rangeOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.junit.Test;
@@ -111,6 +117,33 @@ public class CollectionUtilsTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void coveringIntRanges_negativeMax() {
 		CollectionUtils.coveringIntRanges(new IntRangeSet(), -1);
+	}
+
+	@Test
+	public void mapForDict_null() {
+		// WHEN
+		Map<String, Object> m = CollectionUtils.mapForDictionary(null);
+
+		// THEN
+		assertThat("Null map returned for null dictionay", m, is(nullValue()));
+	}
+
+	@Test
+	public void mapForDict_basic() {
+		// GIVEN
+		Hashtable<String, Object> dict = new Hashtable<>();
+		dict.put("foo", "bar");
+		dict.put("n", 1);
+
+		// WHEN
+		Map<String, Object> m = CollectionUtils.mapForDictionary(dict);
+
+		// THEN
+		assertThat("Map created with same size", m.keySet(), hasSize(dict.size()));
+		for ( Entry<String, Object> e : dict.entrySet() ) {
+			assertThat(String.format("Map contains copied property %s", e.getKey()), m,
+					hasEntry(e.getKey(), e.getValue()));
+		}
 	}
 
 }
