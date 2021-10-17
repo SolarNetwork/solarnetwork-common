@@ -99,7 +99,7 @@ public class BasicDeviceInfo implements DeviceInfo {
 	 *        to initialize the builder with
 	 * @return created builder
 	 */
-	public static Builder builderFrom(BasicDeviceInfo basicDeviceInfo) {
+	public static Builder builderFrom(DeviceInfo basicDeviceInfo) {
 		return new Builder(basicDeviceInfo);
 	}
 
@@ -119,14 +119,14 @@ public class BasicDeviceInfo implements DeviceInfo {
 		private Builder() {
 		}
 
-		private Builder(BasicDeviceInfo basicDeviceInfo) {
-			this.name = basicDeviceInfo.name;
-			this.manufacturer = basicDeviceInfo.manufacturer;
-			this.modelName = basicDeviceInfo.modelName;
-			this.version = basicDeviceInfo.version;
-			this.serialNumber = basicDeviceInfo.serialNumber;
-			this.manufactureDate = basicDeviceInfo.manufactureDate;
-			this.deviceAddress = basicDeviceInfo.deviceAddress;
+		private Builder(DeviceInfo basicDeviceInfo) {
+			this.name = basicDeviceInfo.getName();
+			this.manufacturer = basicDeviceInfo.getManufacturer();
+			this.modelName = basicDeviceInfo.getModelName();
+			this.version = basicDeviceInfo.getVersion();
+			this.serialNumber = basicDeviceInfo.getSerialNumber();
+			this.manufactureDate = basicDeviceInfo.getManufactureDate();
+			this.deviceAddress = basicDeviceInfo.getDeviceAddress();
 		}
 
 		public Builder withName(String name) {

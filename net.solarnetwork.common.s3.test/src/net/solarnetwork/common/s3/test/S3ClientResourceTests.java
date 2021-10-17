@@ -66,7 +66,7 @@ public class S3ClientResourceTests {
 	@Test
 	public void hash() {
 		// GIVEN
-		expect(s3Client.getSettingUID()).andReturn(TEST_CLIENT_UID).anyTimes();
+		expect(s3Client.getSettingUid()).andReturn(TEST_CLIENT_UID).anyTimes();
 
 		// WHEN
 		replayAll();
@@ -82,7 +82,7 @@ public class S3ClientResourceTests {
 	@Test
 	public void equals() {
 		// GIVEN
-		expect(s3Client.getSettingUID()).andReturn(TEST_CLIENT_UID).anyTimes();
+		expect(s3Client.getSettingUid()).andReturn(TEST_CLIENT_UID).anyTimes();
 
 		// WHEN
 		replayAll();
@@ -97,7 +97,7 @@ public class S3ClientResourceTests {
 	@Test
 	public void equals_differentRef() {
 		// GIVEN
-		expect(s3Client.getSettingUID()).andReturn(TEST_CLIENT_UID).anyTimes();
+		expect(s3Client.getSettingUid()).andReturn(TEST_CLIENT_UID).anyTimes();
 
 		// WHEN
 		replayAll();
@@ -112,9 +112,9 @@ public class S3ClientResourceTests {
 	@Test
 	public void equals_differentClient() {
 		// GIVEN
-		expect(s3Client.getSettingUID()).andReturn(TEST_CLIENT_UID).anyTimes();
+		expect(s3Client.getSettingUid()).andReturn(TEST_CLIENT_UID).anyTimes();
 		S3Client c2 = EasyMock.createMock(S3Client.class);
-		expect(c2.getSettingUID()).andReturn("other.client").anyTimes();
+		expect(c2.getSettingUid()).andReturn("other.client").anyTimes();
 
 		// WHEN
 		replayAll(c2);

@@ -48,8 +48,8 @@ public class BasicFactorySettingSpecifierProvider implements FactorySettingSpeci
 	}
 
 	@Override
-	public String getSettingUID() {
-		return delegate.getSettingUID();
+	public String getSettingUid() {
+		return delegate.getSettingUid();
 	}
 
 	@Override

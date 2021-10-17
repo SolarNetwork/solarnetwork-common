@@ -22,7 +22,6 @@
 
 package net.solarnetwork.codec.test;
 
-import static net.solarnetwork.domain.GeneralDatum.locationDatum;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -36,7 +35,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.codec.BasicGeneralDatumDeserializer;
-import net.solarnetwork.domain.GeneralDatumSamples;
+import net.solarnetwork.domain.datum.Datum;
+import net.solarnetwork.domain.datum.DatumSamples;
 import net.solarnetwork.domain.datum.GeneralDatum;
 
 /**
@@ -52,7 +52,7 @@ public class BasicGeneralDatumDeserializerTests {
 	private ObjectMapper createObjectMapper() {
 		ObjectMapper m = new ObjectMapper();
 		SimpleModule mod = new SimpleModule("Test");
-		mod.addDeserializer(GeneralDatum.class, BasicGeneralDatumDeserializer.INSTANCE);
+		mod.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
 		m.registerModule(mod);
 		return m;
 	}
@@ -74,20 +74,20 @@ public class BasicGeneralDatumDeserializerTests {
 		// @formatter:on
 
 		// WHEN
-		GeneralDatum datum = mapper.readValue(json, GeneralDatum.class);
+		Datum datum = mapper.readValue(json, Datum.class);
 
 		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
 				(int) TimeUnit.MILLISECONDS.toNanos(345));
 		Instant ts = date.toInstant(ZoneOffset.UTC);
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("a", 1);
 		s.putAccumulatingSampleValue("b", 2);
 		s.putStatusSampleValue("c", "three");
 		s.addTag("d");
-		GeneralDatum expected = new net.solarnetwork.domain.GeneralDatum("test.source", ts, s);
+		GeneralDatum expected = new GeneralDatum("test.source", ts, s);
 		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
-		assertThat("GeneralDatum samples parsed",
-				((net.solarnetwork.domain.GeneralDatum) datum).getSamples(), is(equalTo(s)));
+		assertThat("GeneralDatum samples parsed", datum.asSampleOperations(),
+				is(equalTo(expected.asSampleOperations())));
 	}
 
 	@Test
@@ -103,20 +103,20 @@ public class BasicGeneralDatumDeserializerTests {
 		// @formatter:on
 
 		// WHEN
-		GeneralDatum datum = mapper.readValue(json, GeneralDatum.class);
+		Datum datum = mapper.readValue(json, Datum.class);
 
 		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
 				(int) TimeUnit.MILLISECONDS.toNanos(345));
 		Instant ts = date.toInstant(ZoneOffset.UTC);
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("a", 1);
 		s.putAccumulatingSampleValue("b", 2);
 		s.putStatusSampleValue("c", "three");
 		s.addTag("d");
-		GeneralDatum expected = locationDatum(123L, "test.source", ts, s);
+		GeneralDatum expected = GeneralDatum.locationDatum(123L, "test.source", ts, s);
 		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
-		assertThat("GeneralDatum samples parsed",
-				((net.solarnetwork.domain.GeneralDatum) datum).getSamples(), is(equalTo(s)));
+		assertThat("GeneralDatum samples parsed", datum.asSampleOperations(),
+				is(equalTo(expected.asSampleOperations())));
 	}
 
 	@Test
@@ -136,17 +136,17 @@ public class BasicGeneralDatumDeserializerTests {
 		// @formatter:on
 
 		// WHEN
-		GeneralDatum datum = mapper.readValue(json, GeneralDatum.class);
+		Datum datum = mapper.readValue(json, Datum.class);
 
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("a", 1);
 		s.putAccumulatingSampleValue("b", 2);
 		s.putStatusSampleValue("c", "three");
 		s.addTag("d");
-		GeneralDatum expected = new net.solarnetwork.domain.GeneralDatum("test.source", ts, s);
+		GeneralDatum expected = new GeneralDatum("test.source", ts, s);
 		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
-		assertThat("GeneralDatum samples parsed",
-				((net.solarnetwork.domain.GeneralDatum) datum).getSamples(), is(equalTo(s)));
+		assertThat("GeneralDatum samples parsed", datum.asSampleOperations(),
+				is(equalTo(expected.asSampleOperations())));
 	}
 
 	@Test
@@ -167,17 +167,17 @@ public class BasicGeneralDatumDeserializerTests {
 		// @formatter:on
 
 		// WHEN
-		GeneralDatum datum = mapper.readValue(json, GeneralDatum.class);
+		Datum datum = mapper.readValue(json, Datum.class);
 
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("a", 1);
 		s.putAccumulatingSampleValue("b", 2);
 		s.putStatusSampleValue("c", "three");
 		s.addTag("d");
-		GeneralDatum expected = locationDatum(123L, "test.source", ts, s);
+		GeneralDatum expected = GeneralDatum.locationDatum(123L, "test.source", ts, s);
 		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
-		assertThat("GeneralDatum samples parsed",
-				((net.solarnetwork.domain.GeneralDatum) datum).getSamples(), is(equalTo(s)));
+		assertThat("GeneralDatum samples parsed", datum.asSampleOperations(),
+				is(equalTo(expected.asSampleOperations())));
 	}
 
 }

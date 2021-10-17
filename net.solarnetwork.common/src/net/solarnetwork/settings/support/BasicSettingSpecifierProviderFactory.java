@@ -33,13 +33,13 @@ import net.solarnetwork.settings.SettingSpecifierProviderFactory;
  */
 public class BasicSettingSpecifierProviderFactory implements SettingSpecifierProviderFactory {
 
-	private String factoryUID;
+	private String factoryUid;
 	private String displayName;
 	private MessageSource messageSource;
 
 	@Override
-	public String getFactoryUID() {
-		return factoryUID;
+	public String getFactoryUid() {
+		return factoryUid;
 	}
 
 	@Override
@@ -52,8 +52,8 @@ public class BasicSettingSpecifierProviderFactory implements SettingSpecifierPro
 		return messageSource;
 	}
 
-	public void setFactoryUID(String factoryUID) {
-		this.factoryUID = factoryUID;
+	public void setFactoryUid(String factoryUid) {
+		this.factoryUid = factoryUid;
 	}
 
 	public void setDisplayName(String displayName) {

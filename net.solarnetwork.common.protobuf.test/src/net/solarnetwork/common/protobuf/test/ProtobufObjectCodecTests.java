@@ -44,7 +44,7 @@ import net.solarnetwork.util.ClassUtils;
  * Test cases for the {@link ProtobufObjectCodec} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class ProtobufObjectCodecTests extends BaseProtocProtobufCompilerServiceTestSupport {
 

@@ -50,7 +50,7 @@ import net.solarnetwork.common.mqtt.BasicMqttTopicAliases;
 import net.solarnetwork.common.mqtt.MqttTopicAliases;
 import net.solarnetwork.common.mqtt.NoOpMqttTopicAliases;
 import net.solarnetwork.common.mqtt.netty.NettyMqttMessage;
-import net.solarnetwork.support.RemoteServiceException;
+import net.solarnetwork.service.RemoteServiceException;
 
 final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> {
 

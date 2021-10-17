@@ -33,7 +33,7 @@ import java.io.Writer;
  * API for augmenting a view response.
  * 
  * @author matt
- * @version $Revision$ $Date$
+ * @version 1.0 $Date$
  */
 public interface ViewResponseAugmentor {
 

@@ -93,21 +93,21 @@ public class S3ClientResource extends AbstractResource implements Resource {
 	 * 
 	 * <p>
 	 * This implementation returns a hash built from
-	 * {@link S3Client#getSettingUID()} and {@link S3ObjectRef}.
+	 * {@link S3Client#getSettingUid()} and {@link S3ObjectRef}.
 	 * </p>
 	 * 
 	 * {@inheritDoc}
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(client.getSettingUID(), ref);
+		return Objects.hash(client.getSettingUid(), ref);
 	}
 
 	/**
 	 * Compare for equality.
 	 * 
 	 * <p>
-	 * This implementation compares the {@link S3Client#getSettingUID()} and
+	 * This implementation compares the {@link S3Client#getSettingUid()} and
 	 * {@link S3ObjectRef} values.
 	 * </p>
 	 * 
@@ -125,7 +125,7 @@ public class S3ClientResource extends AbstractResource implements Resource {
 			return false;
 		}
 		S3ClientResource other = (S3ClientResource) obj;
-		return Objects.equals(client.getSettingUID(), other.client.getSettingUID())
+		return Objects.equals(client.getSettingUid(), other.client.getSettingUid())
 				&& Objects.equals(ref, other.ref);
 	}
 

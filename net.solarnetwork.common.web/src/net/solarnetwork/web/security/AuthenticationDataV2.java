@@ -23,21 +23,18 @@
 package net.solarnetwork.web.security;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Enumeration;
-import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
+import net.solarnetwork.security.Snws2AuthorizationBuilder;
 import net.solarnetwork.util.StringUtils;
 
 /**
@@ -47,7 +44,7 @@ import net.solarnetwork.util.StringUtils;
  * the signature calculation in {@link #computeSignatureDigest(String)}.
  * 
  * @author matt
- * @version 1.3
+ * @version 2.0
  * @since 1.11
  */
 public class AuthenticationDataV2 extends AuthenticationData {
@@ -65,9 +62,9 @@ public class AuthenticationDataV2 extends AuthenticationData {
 	private final String explicitHost;
 	private final String authTokenId;
 	private final String signatureDigest;
-	private final String signatureData;
 	private final Set<String> signedHeaderNames;
 	private final String[] sortedSignedHeaderNames;
+	private final Snws2AuthorizationBuilder builder;
 
 	/**
 	 * Constructor.
@@ -134,7 +131,8 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 		validateContentDigest(request);
 
-		signatureData = computeSignatureData(computeCanonicalRequestData(request));
+		builder = new Snws2AuthorizationBuilder(authTokenId).date(getDate());
+		setupBuilder(request);
 	}
 
 	private static Map<String, String> tokenStringToMap(final String headerValue) {
@@ -161,7 +159,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 	@Override
 	public String computeSignatureDigest(String secretKey) {
-		return computeSignatureDigest(secretKey, new Date());
+		return computeSignatureDigest(secretKey, getDate());
 	}
 
 	/**
@@ -179,136 +177,67 @@ public class AuthenticationDataV2 extends AuthenticationData {
 	 *        the signature date
 	 * @return the computed digest
 	 * @see #computeSignatureDigest(String)
-	 * @since 1.1
 	 */
-	public String computeSignatureDigest(String secretKey, Date signDate) {
+	public String computeSignatureDigest(String secretKey, Instant signDate) {
 		// signing keys are valid for 7 days, so starting with today work backwards at most
 		// 7 days to see if we get a match
-		Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-		cal.setTime(signDate);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
 		String result = null;
-		for ( int i = 0; i < 7; i += 1, cal.add(Calendar.DATE, -1) ) {
-			final byte[] signingKey = computeSigningKey(secretKey, cal);
-			String computed = Hex.encodeHexString(
-					AuthenticationUtils.computeMACDigest(signingKey, signatureData, "HmacSHA256"));
+		for ( int i = 0; i < 7; i++ ) {
+			byte[] signKey = builder.computeSigningKey(signDate, secretKey);
+			String computed = builder.signingKey(signKey).buildSignature();
 			if ( computed.equals(signatureDigest) ) {
 				return computed;
 			} else if ( result == null ) {
 				// save 1st result as one we return if nothing matches
 				result = computed;
 			}
+			signDate = signDate.minus(1, ChronoUnit.DAYS);
 		}
 		return result;
 	}
 
-	private String formatSigningDate(Calendar cal) {
-		int year = cal.get(Calendar.YEAR);
-		int month = cal.get(Calendar.MONTH) + 1;
-		int day = cal.get(Calendar.DATE);
-		StringBuilder buf = new StringBuilder();
-		buf.append(year);
-		if ( month < 10 ) {
-			buf.append('0');
-		}
-		buf.append(month);
-		if ( day < 10 ) {
-			buf.append('0');
-		}
-		buf.append(day);
-		return buf.toString();
-	}
-
-	private byte[] computeSigningKey(String secretKey, Calendar cal) {
-		/*- signing key is like:
-		 
-		HMACSHA256(HMACSHA256("SNWS2"+secretKey, "20160301"), "snws2_request")
-		*/
-		String dateStr = formatSigningDate(cal);
-		return AuthenticationUtils.computeMACDigest(
-				AuthenticationUtils.computeMACDigest(AuthenticationScheme.V2.getSchemeName() + secretKey,
-						dateStr, "HmacSHA256"),
-				"snws2_request", "HmacSHA256");
-	}
-
-	private String computeSignatureData(String canonicalRequestData) {
-		/*- signature data is like:
-		 
-		 	SNWS2-HMAC-SHA256\n
-		 	20170301T120000Z\n
-		 	Hex(SHA256(canonicalRequestData))
-		*/
-		return "SNWS2-HMAC-SHA256\n" + AuthenticationUtils.iso8601Date(getDate()) + "\n"
-				+ Hex.encodeHexString(DigestUtils.sha256(canonicalRequestData));
-	}
-
-	private String computeCanonicalRequestData(SecurityHttpServletRequestWrapper request)
-			throws IOException {
+	private void setupBuilder(SecurityHttpServletRequestWrapper request) throws IOException {
 		// 1: HTTP verb
-		StringBuilder buf = new StringBuilder(request.getMethod()).append('\n');
+		builder.method(request.getMethod());
 
-		// 2: Canonical URI
-		buf.append(request.getRequestURI()).append('\n');
+		// 2: URI
+		builder.path(request.getRequestURI());
 
-		// 3: Canonical query string
-		appendQueryParameters(request, buf);
+		// 3: Query parameters
+		builder.parameterMap(request.getParameterMap());
 
-		// 4: Canonical headers
-		appendHeaders(request, buf);
+		// 4: Headers
+		setupBuilderHeaders(request);
 
 		// 5: Signed headers
-		appendSignedHeaderNames(buf);
+		builder.signedHttpHeaders(signedHeaderNames);
 
 		// 6: Content SHA256
-		appendContentSHA256(request, buf);
+		builder.contentSha256(request.getContentSHA256());
 
-		log.trace("Canonical request data: {}", buf);
-
-		return buf.toString();
-	}
-
-	private void appendContentSHA256(SecurityHttpServletRequestWrapper request, StringBuilder buf)
-			throws IOException {
-		byte[] digest = request.getContentSHA256();
-		buf.append(digest == null ? WebConstants.EMPTY_STRING_SHA256_HEX : Hex.encodeHexString(digest));
-	}
-
-	private void appendSignedHeaderNames(StringBuilder buf) {
-		boolean first = true;
-		for ( String headerName : sortedSignedHeaderNames ) {
-			if ( first ) {
-				first = false;
-			} else {
-				buf.append(';');
-			}
-			buf.append(headerName);
+		if ( log.isDebugEnabled() ) {
+			log.debug("Canonical req data:\n{}", builder.computeCanonicalRequestMessage());
+			log.debug("Signature data:\n{}", getSignatureData());
 		}
-		buf.append('\n');
 	}
 
-	private void appendHeaders(HttpServletRequest request, StringBuilder buf) {
+	private void setupBuilderHeaders(HttpServletRequest request) {
 		for ( String headerName : sortedSignedHeaderNames ) {
-			buf.append(headerName).append(':');
 			String value = nullSafeHeaderValue(request, headerName).trim();
 			boolean isHost = HOST_HEADER.equals(headerName);
 			if ( isHost && explicitHost != null ) {
 				log.trace("Replacing host header [{}] with explicit value {}", value, explicitHost);
 				value = explicitHost;
 			}
-			buf.append(value);
 			log.trace("Signed req header: {}: {}", headerName, value);
 			if ( isHost && explicitHost == null ) {
 				if ( value.length() < 1 ) {
 					// no Host value provided
 					value = request.getServerName();
 					if ( value != null ) {
-						buf.append(value);
 						int port = request.getServerPort();
 						if ( port != 80 ) {
-							buf.append(':').append(port);
+							value += ":" + port;
 						}
 					}
 				} else if ( value.indexOf(":") < 0 ) {
@@ -324,33 +253,12 @@ public class AuthenticationDataV2 extends AuthenticationData {
 						}
 					}
 					if ( port.length() > 0 && !"80".equals(port) ) {
-						buf.append(':').append(port);
+						value += ":" + port;
 					}
 				}
 			}
-			buf.append('\n');
+			builder.header(headerName, value);
 		}
-	}
-
-	private void appendQueryParameters(HttpServletRequest request, StringBuilder buf) {
-		Set<String> paramKeys = request.getParameterMap().keySet();
-		if ( paramKeys.size() < 1 ) {
-			buf.append('\n');
-			return;
-		}
-		String[] keys = paramKeys.toArray(new String[paramKeys.size()]);
-		Arrays.sort(keys);
-		boolean first = true;
-		for ( String key : keys ) {
-			if ( first ) {
-				first = false;
-			} else {
-				buf.append('&');
-			}
-			buf.append(AuthenticationUtils.uriEncode(key)).append('=')
-					.append(AuthenticationUtils.uriEncode(request.getParameter(key)));
-		}
-		buf.append('\n');
 	}
 
 	private void validateSignedHeaderNames(SecurityHttpServletRequestWrapper request) {
@@ -392,13 +300,13 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 	@Override
 	public String getSignatureData() {
-		return signatureData;
+		return builder.computeSignatureData(getDate(), builder.computeCanonicalRequestMessage());
 	}
 
 	/**
 	 * Get the set of signed header names.
 	 * 
-	 * @return The signed header names, or {@code null}.
+	 * @return The signed header names, or {@literal null}.
 	 */
 	public Set<String> getSignedHeaderNames() {
 		return signedHeaderNames;

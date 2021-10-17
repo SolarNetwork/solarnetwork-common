@@ -77,7 +77,7 @@ public class CachedResult<T> {
 	/**
 	 * Test if this result has not expired.
 	 * 
-	 * @return <em>true</em> if the result has not expired.
+	 * @return {@literal true} if the result has not expired.
 	 */
 	public boolean isValid() {
 		return (System.currentTimeMillis() < expires);

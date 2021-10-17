@@ -60,7 +60,7 @@ public final class WebUtils {
 	 *        the HTTP request
 	 * @param viewName
 	 *        the custom view name
-	 * @return a view name (never <em>null</em>)
+	 * @return a view name (never {@literal null})
 	 */
 	public static String resolveViewFromUrlExtension(HttpServletRequest request, String viewName) {
 		// resolve the final view name based on the URL suffix, i.e. "*.xml" -> "xml"

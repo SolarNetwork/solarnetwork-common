@@ -32,7 +32,9 @@ import java.time.temporal.ChronoField;
 import java.util.Locale;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Utilities for authorization.
@@ -47,6 +49,9 @@ public class AuthorizationUtils {
 		// can't construct me
 	}
 
+	/** The {@code X-SN-Date} header name. */
+	public static final String SN_DATE_HEADER = "x-sn-date";
+
 	/** The hex-encoded SHA256 value of an empty string. */
 	public static final String EMPTY_STRING_SHA256_HEX;
 
@@ -56,7 +61,7 @@ public class AuthorizationUtils {
 
 	/**
 	 * Date formatter that formats or parses a date without an offset, such as
-	 * '20111203'.
+	 * {@literal 20111203}, in the GMT time zone.
 	 */
 	public static final DateTimeFormatter AUTHORIZATION_DATE_FORMATTER;
 
@@ -67,7 +72,7 @@ public class AuthorizationUtils {
 		              .appendValue(ChronoField.YEAR, 4)
 		              .appendValue(ChronoField.MONTH_OF_YEAR, 2)
 		              .appendValue(ChronoField.DAY_OF_MONTH, 2)
-		              .toFormatter();
+		              .toFormatter().withZone(ZoneId.of("GMT"));
 		    // @formatter:on
 	}
 
@@ -197,6 +202,62 @@ public class AuthorizationUtils {
 		} catch ( InvalidKeyException e ) {
 			throw new SecurityException("Error loading " + alg + " crypto function", e);
 		}
+	}
+
+	/**
+	 * Compute an HMAC SHA256 hex-encoded signature value from a signing key and
+	 * signature data.
+	 * 
+	 * @param signingKey
+	 *        the signing key
+	 * @param signatureData
+	 *        the signature data
+	 * @return the hex-encoded signature value
+	 */
+	public static String computeHmacSha256Hex(byte[] signingKey, String signatureData) {
+		return Hex.encodeHexString(computeHmacSha256(signingKey, signatureData));
+	}
+
+	/**
+	 * Formal implementation of "uri encoding" using UTF-8 encoding for
+	 * SolarNetwork authentication.
+	 * 
+	 * @param input
+	 *        the text input to encode
+	 * @return the URI escaped string
+	 */
+	public static String uriEncode(CharSequence input) {
+		StringBuilder result = new StringBuilder();
+		byte[] tmpByteArray = new byte[1];
+		for ( int i = 0; i < input.length(); i++ ) {
+			char ch = input.charAt(i);
+			if ( (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')
+					|| ch == '_' || ch == '-' || ch == '~' || ch == '.' ) {
+				result.append(ch);
+			} else {
+				try {
+					byte[] bytes = String.valueOf(ch).getBytes("UTF-8");
+					for ( byte b : bytes ) {
+						tmpByteArray[0] = b;
+						result.append('%').append(Hex.encodeHex(tmpByteArray, false));
+					}
+				} catch ( UnsupportedEncodingException e ) {
+					// ignore, should never be here
+				}
+			}
+		}
+		return result.toString();
+	}
+
+	/**
+	 * Format a string array into a semicolon delimited string.
+	 * 
+	 * @param list
+	 *        the list for format
+	 * @return the delimited list
+	 */
+	public static String semiColonDelimitedList(String[] list) {
+		return StringUtils.arrayToDelimitedString(list, ";");
 	}
 
 }

@@ -22,7 +22,7 @@
 
 package net.solarnetwork.web.security;
 
-import static net.solarnetwork.web.security.AuthorizationV2Builder.computeMacDigest;
+import static net.solarnetwork.security.AuthorizationUtils.computeMacDigest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
@@ -58,7 +58,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * then be presented on subsequent requests instead of the HTTP authorization.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestFilter {
 
@@ -130,7 +130,7 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 					// check if cookie should be set
 					if ( "true".equalsIgnoreCase(request.getParameter(REQUEST_PARAM_SET_COOKIE)) ) {
 						byte[] secret = computeJWTSigningKey(user.getPassword(),
-								data.getDate().getTime());
+								data.getDate().toEpochMilli());
 						AuthenticationDataToken tokenCookie = new AuthenticationDataToken(data, secret);
 						Cookie cookie = new Cookie(COOKIE_NAME_AUTH_TOKEN, tokenCookie.cookieValue());
 						cookie.setHttpOnly(true);

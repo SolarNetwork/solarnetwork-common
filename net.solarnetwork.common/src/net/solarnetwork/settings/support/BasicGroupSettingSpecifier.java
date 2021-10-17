@@ -44,7 +44,7 @@ public class BasicGroupSettingSpecifier extends BaseSettingSpecifier implements 
 
 	/**
 	 * Construct without a key. The {@code dynamic} property will be set to
-	 * <em>false</em>.
+	 * {@literal false}.
 	 * 
 	 * @param settings
 	 *        The group settings.
@@ -55,7 +55,7 @@ public class BasicGroupSettingSpecifier extends BaseSettingSpecifier implements 
 
 	/**
 	 * Construct with the group settings. The {@code dynamic} property will be
-	 * set to <em>false</em>.
+	 * set to {@literal false}.
 	 * 
 	 * @param groupKey
 	 *        The key for the entire group.

@@ -29,18 +29,18 @@ import java.util.Locale;
 import java.util.Map;
 import org.springframework.context.MessageSource;
 import net.solarnetwork.domain.LocalizedServiceInfo;
+import net.solarnetwork.service.LocalizedServiceInfoProvider;
+import net.solarnetwork.service.support.BaseLocalizedServiceInfoProvider;
 import net.solarnetwork.settings.KeyedSettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
-import net.solarnetwork.support.BaseLocalizedServiceInfoProvider;
-import net.solarnetwork.support.LocalizedServiceInfoProvider;
 
 /**
  * Convenient abstract class that is both a {@link SettingSpecifierProvider} and
  * a {@link LocalizedServiceInfoProvider}.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  * @since 1.43
  */
 public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK extends Comparable<PK>>
@@ -57,7 +57,7 @@ public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK exten
 	}
 
 	@Override
-	public String getSettingUID() {
+	public String getSettingUid() {
 		PK id = getId();
 		return (id != null ? id.toString() : null);
 	}

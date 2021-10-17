@@ -52,7 +52,7 @@ public interface FilterableDao<M extends Identity<K>, K, F> {
 	 *        an optional result offset
 	 * @param max
 	 *        an optional maximum number of returned results
-	 * @return the results, never <em>null</em>
+	 * @return the results, never {@literal null}
 	 */
 	FilterResults<M, K> findFiltered(F filter, List<SortDescriptor> sorts, Integer offset, Integer max);
 

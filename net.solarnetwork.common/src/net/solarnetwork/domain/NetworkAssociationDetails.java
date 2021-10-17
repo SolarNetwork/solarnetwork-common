@@ -23,13 +23,13 @@
 package net.solarnetwork.domain;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Command object for initial SolarNode and SolarNet association data.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class NetworkAssociationDetails extends BasicNetworkIdentity
 		implements NetworkAssociation, NetworkCertificate, Serializable {
@@ -38,7 +38,7 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 
 	private String confirmationKey;
 	private String username;
-	private Date expiration;
+	private Instant expiration;
 	private String securityPhrase;
 	private Long networkId;
 	private String networkCertificate;
@@ -103,11 +103,11 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 		this.username = username;
 	}
 
-	public Date getExpiration() {
+	public Instant getExpiration() {
 		return expiration;
 	}
 
-	public void setExpiration(Date expiration) {
+	public void setExpiration(Instant expiration) {
 		this.expiration = expiration;
 	}
 

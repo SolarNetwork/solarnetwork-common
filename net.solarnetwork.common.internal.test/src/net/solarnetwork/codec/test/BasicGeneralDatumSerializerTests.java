@@ -34,8 +34,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.codec.BasicGeneralDatumSerializer;
-import net.solarnetwork.domain.GeneralDatum;
-import net.solarnetwork.domain.GeneralDatumSamples;
+import net.solarnetwork.domain.datum.DatumSamples;
+import net.solarnetwork.domain.datum.GeneralDatum;
 
 /**
  * Test cases for the {@link BasicGeneralDatumSerializer} class.
@@ -50,8 +50,7 @@ public class BasicGeneralDatumSerializerTests {
 	private ObjectMapper createObjectMapper() {
 		ObjectMapper m = new ObjectMapper();
 		SimpleModule mod = new SimpleModule("Test");
-		mod.addSerializer(net.solarnetwork.domain.datum.GeneralDatum.class,
-				BasicGeneralDatumSerializer.INSTANCE);
+		mod.addSerializer(GeneralDatum.class, BasicGeneralDatumSerializer.INSTANCE);
 		m.registerModule(mod);
 		return m;
 	}
@@ -67,7 +66,7 @@ public class BasicGeneralDatumSerializerTests {
 		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
 				(int) TimeUnit.MILLISECONDS.toNanos(345));
 		Instant ts = date.toInstant(ZoneOffset.UTC);
-		GeneralDatumSamples s = new GeneralDatumSamples();
+		DatumSamples s = new DatumSamples();
 		s.putInstantaneousSampleValue("a", 1);
 		s.putAccumulatingSampleValue("b", 2);
 		s.putStatusSampleValue("c", "three");

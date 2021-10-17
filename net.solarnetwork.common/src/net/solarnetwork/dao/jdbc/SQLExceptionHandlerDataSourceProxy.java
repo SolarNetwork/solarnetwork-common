@@ -31,7 +31,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -39,10 +38,8 @@ import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
 import javax.sql.DataSource;
 import javax.sql.PooledConnection;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.LoggerFactory;
+import net.solarnetwork.service.OptionalServiceCollection;
 
 /**
  * A {@link DataSource} proxy that catches connection errors in order to handle
@@ -50,12 +47,12 @@ import org.slf4j.LoggerFactory;
  * system.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class SQLExceptionHandlerDataSourceProxy implements DataSource, ConnectionEventListener {
 
 	private final DataSource delegate;
-	private final BundleContext bundleContext;
+	private final OptionalServiceCollection<SQLExceptionHandler> handlers;
 
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
@@ -64,13 +61,14 @@ public class SQLExceptionHandlerDataSourceProxy implements DataSource, Connectio
 	 * 
 	 * @param delegate
 	 *        The {@link DataSource} to delegate to.
-	 * @param bundleContext
-	 *        The bundle context to use. May be <em>null</em>.
+	 * @param handlers
+	 *        The handlers to use. May be {@literal null}.
 	 */
-	public SQLExceptionHandlerDataSourceProxy(DataSource delegate, BundleContext bundleContext) {
+	public SQLExceptionHandlerDataSourceProxy(DataSource delegate,
+			OptionalServiceCollection<SQLExceptionHandler> handlers) {
 		super();
 		this.delegate = delegate;
-		this.bundleContext = bundleContext;
+		this.handlers = handlers;
 	}
 
 	/**
@@ -202,19 +200,17 @@ public class SQLExceptionHandlerDataSourceProxy implements DataSource, Connectio
 		if ( e == null ) {
 			return;
 		}
-		if ( bundleContext != null ) {
-			doWithHandlers(new SQLExceptionHandlerCallback() {
+		doWithHandlers(new SQLExceptionHandlerCallback() {
 
-				@Override
-				public void doWithHandler(SQLExceptionHandler handler) throws Exception {
-					if ( conn == null ) {
-						handler.handleGetConnectionException(e);
-					} else {
-						handler.handleConnectionException(conn, e);
-					}
+			@Override
+			public void doWithHandler(SQLExceptionHandler handler) throws Exception {
+				if ( conn == null ) {
+					handler.handleGetConnectionException(e);
+				} else {
+					handler.handleConnectionException(conn, e);
 				}
-			});
-		}
+			}
+		});
 	}
 
 	static interface SQLExceptionHandlerCallback {
@@ -224,22 +220,17 @@ public class SQLExceptionHandlerDataSourceProxy implements DataSource, Connectio
 	}
 
 	private void doWithHandlers(SQLExceptionHandlerCallback callback) throws SQLException {
-		Collection<ServiceReference<SQLExceptionHandler>> handlerRefs;
-		try {
-			handlerRefs = bundleContext.getServiceReferences(SQLExceptionHandler.class, null);
-		} catch ( InvalidSyntaxException e ) {
-			log.error("Exception getting SQLExceptionHandler references from bundle context", e);
-			return;
-		}
-		for ( ServiceReference<SQLExceptionHandler> ref : handlerRefs ) {
-			SQLExceptionHandler handler = bundleContext.getService(ref);
-			if ( handler != null ) {
-				try {
-					callback.doWithHandler(handler);
-				} catch ( SQLException e ) {
-					throw e;
-				} catch ( Exception e ) {
-					log.error("SQLExceptionHandler threw exception", e);
+		Iterable<SQLExceptionHandler> list = OptionalServiceCollection.services(handlers);
+		if ( list != null ) {
+			for ( SQLExceptionHandler handler : list ) {
+				if ( handler != null ) {
+					try {
+						callback.doWithHandler(handler);
+					} catch ( SQLException e ) {
+						throw e;
+					} catch ( Exception e ) {
+						log.error("SQLExceptionHandler threw exception", e);
+					}
 				}
 			}
 		}

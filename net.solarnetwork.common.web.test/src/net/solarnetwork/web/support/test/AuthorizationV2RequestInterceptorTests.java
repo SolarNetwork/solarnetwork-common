@@ -34,14 +34,16 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import java.nio.charset.Charset;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -53,8 +55,8 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import net.solarnetwork.security.Snws2AuthorizationBuilder;
 import net.solarnetwork.web.security.AuthorizationCredentialsProvider;
-import net.solarnetwork.web.security.AuthorizationV2Builder;
 import net.solarnetwork.web.support.AuthorizationV2RequestInterceptor;
 import net.solarnetwork.web.support.StaticAuthorizationCredentialsProvider;
 
@@ -69,6 +71,8 @@ public class AuthorizationV2RequestInterceptorTests {
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	private static final String TEST_HOST = "localhost";
 	private static final String TEST_BASE_URL = "http://" + TEST_HOST;
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private AuthorizationCredentialsProvider credentialsProvider;
 	private RestTemplate restTemplate;
@@ -107,7 +111,7 @@ public class AuthorizationV2RequestInterceptorTests {
 	        .andExpect(method(HttpMethod.GET))
 	        .andExpect(header(HttpHeaders.HOST, "localhost"))
 	        .andExpect(header(HttpHeaders.AUTHORIZATION, 
-	            startsWith("SNWS2 Credential=" + credentialsProvider.getAuthorizationId() + ",SignedHeaders=date;host,Signature=")))
+	            startsWith("SNWS2 Credential=" + credentialsProvider.getAuthorizationId() + ",SignedHeaders=accept;content-length;date;host,Signature=")))
 	        .andRespond(withSuccess(responseBody, APPLICATION_JSON_UTF8).headers(respHeaders));
 	    // @formatter:on
 
@@ -132,13 +136,19 @@ public class AuthorizationV2RequestInterceptorTests {
 		final long reqDate = System.currentTimeMillis();
 
 		// @formatter:off
-		AuthorizationV2Builder auth = new AuthorizationV2Builder(credentialsProvider.getAuthorizationId())
-				.method(HttpMethod.POST)
+		Snws2AuthorizationBuilder auth = new Snws2AuthorizationBuilder(credentialsProvider.getAuthorizationId())
+				.method(HttpMethod.POST.toString())
 				.host(TEST_HOST)
 				.path("/foo/bar")
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED.toString())
-				.date(new Date(reqDate))
+				.date(Instant.ofEpochMilli(reqDate))
+				.header("Accept", "application/json, application/*+json")
+				.header("Content-Length", "9")
 				.parameterMap(Collections.singletonMap("topic", new String[] { "foo" }));
+		
+		log.debug("Canonical req data:\n{}", auth.computeCanonicalRequestMessage());
+		log.debug("Signature data:\n{}", auth.computeSignatureData(Instant.ofEpochMilli(reqDate), auth.computeCanonicalRequestMessage()));
+		
 		final String authHeader = auth.build(credentialsProvider.getAuthorizationSecret());
 
 	    server.expect(requestTo(startsWith(TEST_BASE_URL + "/foo/bar")))

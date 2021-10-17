@@ -25,6 +25,7 @@ package net.solarnetwork.codec;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -34,7 +35,7 @@ import net.solarnetwork.util.DateUtils;
  * JSON date handling utilities.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.72
  */
 public final class JsonDateUtils implements Serializable {
@@ -110,6 +111,28 @@ public final class JsonDateUtils implements Serializable {
 	}
 
 	/**
+	 * {@link java.time.LocalTime} serializer that formats as {@literal HH:mm}.
+	 * 
+	 * @since 1.2
+	 */
+	public static class LocalTimeSerializer
+			extends com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer {
+
+		private static final long serialVersionUID = 196884631172254679L;
+
+		/** A global instance. */
+		public static final JsonSerializer<LocalTime> INSTANCE = new LocalTimeSerializer();
+
+		/**
+		 * Constructor.
+		 */
+		public LocalTimeSerializer() {
+			super(DateUtils.LOCAL_TIME);
+		}
+
+	}
+
+	/**
 	 * {@link java.time.Instant} deserializer that formats using a space
 	 * date/time separator.
 	 * 
@@ -179,6 +202,29 @@ public final class JsonDateUtils implements Serializable {
 		 */
 		public LocalDateTimeDeserializer() {
 			super(DateUtils.ISO_DATE_TIME_ALT_UTC);
+		}
+
+	}
+
+	/**
+	 * {@link java.time.LocalTime} deserializer that parses using the pattern
+	 * {@literal HH:mm}.
+	 * 
+	 * @since 1.2
+	 */
+	public static class LocalTimeDeserializer
+			extends com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer {
+
+		private static final long serialVersionUID = -6074927087464237331L;
+
+		/** A global instance. */
+		public static final JsonDeserializer<LocalTime> INSTANCE = new LocalTimeDeserializer();
+
+		/**
+		 * Constructor.
+		 */
+		public LocalTimeDeserializer() {
+			super(DateUtils.LOCAL_TIME);
 		}
 
 	}

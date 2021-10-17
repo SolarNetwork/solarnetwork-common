@@ -25,14 +25,14 @@ package net.solarnetwork.ocpp.service;
 import java.util.Set;
 import java.util.TreeSet;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
-import net.solarnetwork.util.OptionalServiceCollection;
+import net.solarnetwork.service.OptionalServiceCollection;
 
 /**
  * Simple implementation of {@link ChargePointRouter} using an
  * {@link OptionalServiceCollection} of brokers.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class ChargePointBrokerTracker implements ChargePointRouter {
 

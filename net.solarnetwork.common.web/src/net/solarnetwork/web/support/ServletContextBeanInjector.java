@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.web.support;
@@ -34,7 +32,7 @@ import org.springframework.web.context.ServletContextAware;
  * Helper class to inject beans into a ServletContext.
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.0
  */
 public class ServletContextBeanInjector implements ServletContextAware {
 

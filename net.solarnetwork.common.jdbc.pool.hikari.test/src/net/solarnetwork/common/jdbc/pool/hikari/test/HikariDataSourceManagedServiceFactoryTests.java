@@ -57,7 +57,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.zaxxer.hikari.HikariDataSource;
 import net.solarnetwork.common.jdbc.pool.hikari.HikariDataSourceManagedServiceFactory;
 import net.solarnetwork.dao.jdbc.DataSourcePingTest;
-import net.solarnetwork.domain.PingTest;
+import net.solarnetwork.service.PingTest;
 import net.solarnetwork.test.CallingThreadExecutorService;
 
 /**

@@ -25,13 +25,13 @@ package net.solarnetwork.common.protobuf;
 import java.io.IOException;
 import java.util.Map;
 import org.springframework.core.io.Resource;
-import net.solarnetwork.domain.Identifiable;
+import net.solarnetwork.service.Identifiable;
 
 /**
  * API for a service that can compile Protobuf definitions into Java classes.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public interface ProtobufCompilerService extends Identifiable {
 

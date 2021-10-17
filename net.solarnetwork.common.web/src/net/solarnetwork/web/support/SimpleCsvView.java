@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
  * 02111-1307 USA
  * ==================================================================
- * $Id$
- * ==================================================================
  */
 
 package net.solarnetwork.web.support;
@@ -38,12 +36,12 @@ import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import net.solarnetwork.util.SerializeIgnore;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.supercsv.io.CsvMapWriter;
 import org.supercsv.io.ICsvMapWriter;
 import org.supercsv.prefs.CsvPreference;
+import net.solarnetwork.domain.SerializeIgnore;
 
 /**
  * Spring {@link org.springframework.web.servlet.View} for turning objects into
@@ -60,12 +58,12 @@ import org.supercsv.prefs.CsvPreference;
  * 
  * <dl>
  * <dt>dataModelKey</dt>
- * <dd>If not <em>null</em>, then use this model key as the data object to
+ * <dd>If not {@literal null}, then use this model key as the data object to
  * render as CSV. Otherwise, export just the first available key's associated
  * object. Defaults to {@link #DEFAULT_DATA_MODEL_KEY}.</dd>
  * 
  * <dt>fieldOrderKey</dt>
- * <dd>If not <em>null</em>, then use this model key as an ordered Collection of
+ * <dd>If not {@literal null}, then use this model key as an ordered Collection of
  * exported field names, such that the CSV columns will be exported in the
  * specified order. If not specified, then for Map objects the output order will
  * be determined by the natural iteration order of the Map keys, and for
@@ -75,7 +73,7 @@ import org.supercsv.prefs.CsvPreference;
  * 
  * 
  * @author matt
- * @version $Revision$
+ * @version 1.1
  */
 public class SimpleCsvView extends AbstractView {
 
@@ -111,8 +109,9 @@ public class SimpleCsvView extends AbstractView {
 		response.setCharacterEncoding(charset);
 		response.setContentType(getContentType());
 
-		final Object data = (dataModelKey != null && model.containsKey(dataModelKey) ? model
-				.get(dataModelKey) : model);
+		final Object data = (dataModelKey != null && model.containsKey(dataModelKey)
+				? model.get(dataModelKey)
+				: model);
 
 		if ( data == null ) {
 			return;
@@ -120,8 +119,9 @@ public class SimpleCsvView extends AbstractView {
 
 		@SuppressWarnings("unchecked")
 		final Collection<String> fieldOrder = (fieldOrderKey != null
-				&& model.get(fieldOrderKey) instanceof Collection ? (Collection<String>) model
-				.get(fieldOrderKey) : null);
+				&& model.get(fieldOrderKey) instanceof Collection
+						? (Collection<String>) model.get(fieldOrderKey)
+						: null);
 
 		Iterable<?> rows = null;
 		if ( data instanceof Iterable ) {
@@ -192,8 +192,8 @@ public class SimpleCsvView extends AbstractView {
 			// use bean properties
 			if ( getPropertySerializerRegistrar() != null ) {
 				// try whole-bean serialization first
-				Object o = getPropertySerializerRegistrar().serializeProperty("row", row.getClass(),
-						row, row);
+				Object o = getPropertySerializerRegistrar().serializeProperty("row", row.getClass(), row,
+						row);
 				if ( o != row ) {
 					if ( o != null ) {
 						result = getCSVFields(o, fieldOrder);
@@ -244,8 +244,8 @@ public class SimpleCsvView extends AbstractView {
 			// use bean properties
 			if ( getPropertySerializerRegistrar() != null ) {
 				// try whole-bean serialization first
-				row = getPropertySerializerRegistrar()
-						.serializeProperty("row", row.getClass(), row, row);
+				row = getPropertySerializerRegistrar().serializeProperty("row", row.getClass(), row,
+						row);
 				if ( row == null ) {
 					return;
 				}

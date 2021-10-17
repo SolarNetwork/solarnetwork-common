@@ -56,7 +56,7 @@ public final class AuthenticationDataFactory {
 	 * 
 	 * @param request
 	 *        The HTTP request.
-	 * @return the authentication data, or {@code null} if no
+	 * @return the authentication data, or {@literal null} if no
 	 *         {@code Authorization} header provided on the request or the
 	 *         authorization scheme is not supported
 	 * @throws IOException

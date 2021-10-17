@@ -43,10 +43,10 @@ import net.solarnetwork.domain.Location;
  */
 public class BasicLocationDeserializer extends StdScalarDeserializer<Location> implements Serializable {
 
+	private static final long serialVersionUID = -5998708607249785150L;
+
 	/** A default instance. */
 	public static final BasicLocationDeserializer INSTANCE = new BasicLocationDeserializer();
-
-	private static final long serialVersionUID = -5998708607249785150L;
 
 	/**
 	 * Constructor.

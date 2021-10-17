@@ -26,13 +26,13 @@ import java.util.Hashtable;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import net.solarnetwork.util.JavaCompiler;
+import net.solarnetwork.service.JavaCompiler;
 
 /**
  * Bundle activator for the JDT compiler service.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class Activator implements BundleActivator {
 

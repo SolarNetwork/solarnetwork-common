@@ -42,15 +42,15 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.FileCopyUtils;
 import net.solarnetwork.common.protobuf.ProtobufCompilerService;
-import net.solarnetwork.support.BasicIdentifiable;
-import net.solarnetwork.util.JavaCompiler;
+import net.solarnetwork.service.JavaCompiler;
+import net.solarnetwork.service.support.BasicIdentifiable;
 
 /**
  * Implementation of {@link ProtobufCompilerService} that uses the
  * {@literal protoc} command line tool along with the ECJ compiler.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class ProtocProtobufCompilerService extends BasicIdentifiable implements ProtobufCompilerService {
 

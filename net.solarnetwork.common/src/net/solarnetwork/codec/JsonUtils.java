@@ -26,30 +26,35 @@ import static java.util.Arrays.asList;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.ParseException;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalQuery;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
@@ -57,8 +62,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import net.solarnetwork.domain.GeneralDatumMetadata;
-import net.solarnetwork.util.ObjectMapperFactoryBean;
+import net.solarnetwork.domain.Bitmaskable;
+import net.solarnetwork.domain.Instruction;
+import net.solarnetwork.domain.InstructionStatus;
+import net.solarnetwork.domain.Location;
+import net.solarnetwork.domain.datum.Datum;
+import net.solarnetwork.domain.datum.GeneralDatumMetadata;
+import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
+import net.solarnetwork.domain.datum.StreamDatum;
+import net.solarnetwork.util.Half;
+import net.solarnetwork.util.NumberUtils;
 
 /**
  * Utilities for JSON data.
@@ -68,7 +81,7 @@ import net.solarnetwork.util.ObjectMapperFactoryBean;
  * </p>
  * 
  * <ul>
- * <li>Joda and java.time date/time values, serialized as strings using the RFC
+ * <li>{@code java.time} date/time values, serialized as strings using the RFC
  * 3339 profile of ISO-8601 with a space separator between date/time sections
  * instead of a {@literal T} character.</li>
  * <li>{@literal null} values are not serialized.</li>
@@ -77,41 +90,156 @@ import net.solarnetwork.util.ObjectMapperFactoryBean;
  * </ul>
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  * @since 1.72
  */
 public final class JsonUtils {
 
+	private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
+
 	/** A type reference for a Map with string keys. */
 	public static final TypeReference<LinkedHashMap<String, Object>> STRING_MAP_TYPE = new StringMapTypeReference();
 
-	private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
+	/**
+	 * A module for handling Java date and time objects in The SolarNetwork Way.
+	 * 
+	 * <p>
+	 * This field will be {@literal null} if the
+	 * {@code com.fasterxml.jackson.datatype.jsr310.JavaTimeModule} class is not
+	 * available.
+	 * </p>
+	 * 
+	 * @since 2.0
+	 */
+	public static final com.fasterxml.jackson.databind.Module JAVA_TIME_MODULE;
+	static {
+		JAVA_TIME_MODULE = createOptionalModule("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule",
+				m -> {
+					// replace default timestamp JsonSerializer with one that supports spaces
+					m.addSerializer(Instant.class, loadOptionalSerializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$InstantSerializer"));
+					m.addSerializer(ZonedDateTime.class, loadOptionalSerializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeSerializer"));
+					m.addSerializer(LocalDateTime.class, loadOptionalSerializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeSerializer"));
+					m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$InstantDeserializer"));
+					m.addDeserializer(ZonedDateTime.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeDeserializer"));
+					m.addDeserializer(LocalDateTime.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeDeserializer"));
+				});
+	}
+
+	/**
+	 * A module for handling Java date and time objects in The SolarNetwork Way
+	 * but instant values serialized as epoch number values instead of formatted
+	 * strings.
+	 * 
+	 * <p>
+	 * Note for this module to work as expected, the associated
+	 * {@code ObjectMapper} should have the
+	 * {@link SerializationFeature#WRITE_DATES_AS_TIMESTAMPS} enabled. Also
+	 * consider the
+	 * {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS} and
+	 * {@link DeserializationFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}
+	 * features (the default {@code ObjectMapper} used internally by this class
+	 * disable both those).
+	 * </p>
+	 * 
+	 * <p>
+	 * This field will be {@literal null} if the
+	 * {@code com.fasterxml.jackson.datatype.jsr310.JavaTimeModule} class is not
+	 * available.
+	 * </p>
+	 * 
+	 * @since 2.0
+	 */
+	public static final com.fasterxml.jackson.databind.Module JAVA_TIMESTAMP_MODULE;
+	static {
+		JAVA_TIMESTAMP_MODULE = createOptionalModule(
+				"com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", m -> {
+					// replace default timestamp JsonSerializer with one that supports spaces
+					m.addSerializer(LocalDateTime.class, loadOptionalSerializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeSerializer"));
+					m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$InstantDeserializer"));
+					m.addDeserializer(ZonedDateTime.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeDeserializer"));
+					m.addDeserializer(LocalDateTime.class, loadOptionalDeserializerInstance(
+							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeDeserializer"));
+				});
+	}
+
+	/**
+	 * A module for handling datum objects.
+	 * 
+	 * @since 2.0
+	 */
+	public static final com.fasterxml.jackson.databind.Module DATUM_MODULE;
+	static {
+		SimpleModule m = new SimpleModule("SolarNetwork Datum");
+		m.addSerializer(BasicGeneralDatumSerializer.INSTANCE);
+		m.addSerializer(BasicLocationSerializer.INSTANCE);
+		m.addSerializer(BasicObjectDatumStreamMetadataSerializer.INSTANCE);
+		m.addSerializer(BasicStreamDatumArraySerializer.INSTANCE);
+		m.addSerializer(BasicInstructionSerializer.INSTANCE);
+		m.addSerializer(BasicInstructionStatusSerializer.INSTANCE);
+		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
+		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
+		m.addDeserializer(ObjectDatumStreamMetadata.class,
+				BasicObjectDatumStreamMetadataDeserializer.INSTANCE);
+		m.addDeserializer(StreamDatum.class, BasicStreamDatumArrayDeserializer.INSTANCE);
+		m.addDeserializer(Instruction.class, BasicInstructionDeserializer.INSTANCE);
+		m.addDeserializer(InstructionStatus.class, BasicInstructionStatusDeserializer.INSTANCE);
+		DATUM_MODULE = m;
+	}
 
 	private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
 
 	private static final ObjectMapper createObjectMapper() {
+		return createObjectMapper(null, JAVA_TIME_MODULE);
+	}
+
+	private static final ObjectMapper createObjectMapper(JsonFactory jsonFactory) {
+		return createObjectMapper(jsonFactory, JAVA_TIME_MODULE);
+	}
+
+	/**
+	 * Create an {@link ObjectMapper} instance with optional modules.
+	 * 
+	 * @param jsonFactory
+	 *        an optional factory to use
+	 * @param modules
+	 *        optional modules to register; can be completely omitted and
+	 *        individual elements are allowed to be {@literal null} (e.g.
+	 *        optionally missing modules)
+	 * @return the new mapper
+	 * @throws RuntimeException
+	 *         if there is any problem creating the mapper
+	 * @since 2.0
+	 */
+	public static final ObjectMapper createObjectMapper(JsonFactory jsonFactory, Module... modules) {
 		ObjectMapperFactoryBean factory = new ObjectMapperFactoryBean();
+		if ( jsonFactory != null ) {
+			factory.setJsonFactory(jsonFactory);
+		}
+		// @formatter:off
 		factory.setSerializationInclusion(Include.NON_NULL);
-		factory.setFeaturesToDisable(asList((Object) DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+		factory.setFeaturesToDisable(asList(
+				(Object) DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+				(Object) DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS,
 				(Object) SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS,
 				(Object) SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
-		factory.setFeaturesToEnable(asList((Object) DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
+		factory.setFeaturesToEnable(asList(
+				(Object) DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS));
+		// @formatter:on
 
-		List<com.fasterxml.jackson.databind.JsonSerializer<?>> serializers = new ArrayList<>();
-		serializers.add(net.solarnetwork.codec.JodaDateTimeSerializer.INSTANCE);
-		serializers.add(net.solarnetwork.codec.JodaLocalDateSerializer.INSTANCE);
-		serializers.add(net.solarnetwork.codec.JodaLocalDateTimeSerializer.INSTANCE);
-		serializers.add(net.solarnetwork.codec.JodaLocalTimeSerializer.INSTANCE);
-		factory.setSerializers(serializers);
-
-		List<com.fasterxml.jackson.databind.JsonDeserializer<?>> deserializers = new ArrayList<>();
-		deserializers.add(net.solarnetwork.codec.JodaDateTimeDeserializer.INSTANCE);
-		deserializers.add(net.solarnetwork.codec.JodaLocalDateDeserializer.INSTANCE);
-		deserializers.add(net.solarnetwork.codec.JodaLocalDateTimeDeserializer.INSTANCE);
-		deserializers.add(net.solarnetwork.codec.JodaLocalTimeDeserializer.INSTANCE);
-		factory.setDeserializers(deserializers);
-
-		registerOptionalModule(factory, javaTimeModule());
+		if ( modules != null ) {
+			for ( Module module : modules ) {
+				registerOptionalModule(factory, module);
+			}
+		}
 
 		try {
 			ObjectMapper mapper = factory.getObject();
@@ -140,7 +268,7 @@ public final class JsonUtils {
 		}
 	}
 
-	private static void registerOptionalModule(ObjectMapperFactoryBean factory, SimpleModule m) {
+	private static void registerOptionalModule(ObjectMapperFactoryBean factory, Module m) {
 		if ( m != null ) {
 			List<Module> modules = factory.getModules();
 			if ( modules == null ) {
@@ -149,23 +277,6 @@ public final class JsonUtils {
 			modules.add(m);
 			factory.setModules(modules);
 		}
-	}
-
-	/**
-	 * Create a module for handling {@code java.time} objects.
-	 * 
-	 * @return the module, or {@literal null} if support is not available
-	 */
-	public static SimpleModule javaTimeModule() {
-		return createOptionalModule("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", m -> {
-			// replace default timestamp JsonSerializer with one that supports spaces
-			m.addSerializer(Instant.class, loadOptionalSerializerInstance(
-					"net.solarnetwork.util.JsonDateUtils$InstantSerializer"));
-			m.addSerializer(ZonedDateTime.class, loadOptionalSerializerInstance(
-					"net.solarnetwork.util.JsonDateUtils$ZonedDateTimeSerializer"));
-			m.addSerializer(LocalDateTime.class, loadOptionalSerializerInstance(
-					"net.solarnetwork.util.JsonDateUtils$LocalDateTimeSerializer"));
-		});
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -177,6 +288,19 @@ public final class JsonUtils {
 			return (JsonSerializer<T>) f.get(null);
 		} catch ( ClassNotFoundException | IllegalAccessException | NoSuchFieldException e ) {
 			LOG.info("Optional JSON serializer {} not available ({})", className, e.toString());
+			return null;
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static final <T> JsonDeserializer<T> loadOptionalDeserializerInstance(String className) {
+		try {
+			Class<? extends JsonDeserializer> clazz = JsonUtils.class.getClassLoader()
+					.loadClass(className).asSubclass(JsonDeserializer.class);
+			Field f = clazz.getDeclaredField("INSTANCE");
+			return (JsonDeserializer<T>) f.get(null);
+		} catch ( ClassNotFoundException | IllegalAccessException | NoSuchFieldException e ) {
+			LOG.info("Optional JSON deserializer {} not available ({})", className, e.toString());
 			return null;
 		}
 	}
@@ -207,7 +331,7 @@ public final class JsonUtils {
 	 * @param o
 	 *        the object to serialize to JSON
 	 * @param defaultValue
-	 *        a default value to use if {@code o} is <em>null</em> or if any
+	 *        a default value to use if {@code o} is {@literal null} or if any
 	 *        error occurs serializing the object to JSON
 	 * @return the JSON string
 	 */
@@ -384,7 +508,7 @@ public final class JsonUtils {
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node}
-	 * @return the parsed {@link BigDecimal}, or <em>null</em> if an error
+	 * @return the parsed {@link BigDecimal}, or {@literal null} if an error
 	 *         occurs or the specified attribute {@code key} is not available
 	 */
 	public static BigDecimal parseBigDecimalAttribute(JsonNode node, String key) {
@@ -408,26 +532,34 @@ public final class JsonUtils {
 	}
 
 	/**
-	 * Parse a Date from a JSON object attribute value.
+	 * Parse a date from a JSON object attribute value.
 	 * 
-	 * If the date cannot be parsed, <em>null</em> will be returned.
+	 * <p>
+	 * If the date cannot be parsed, {@literal null} will be returned.
+	 * </p>
 	 * 
+	 * @param <T>
+	 *        the date type
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node}
 	 * @param dateFormat
 	 *        the date format to use to parse the date string
-	 * @return the parsed {@link Date} instance, or <em>null</em> if an error
-	 *         occurs or the specified attribute {@code key} is not available
+	 * @param query
+	 *        the temporal query, e.g. {@code Instant::from}
+	 * @return the parsed date instance, or {@literal null} if an error occurs
+	 *         or the specified attribute {@code key} is not available
+	 * @since 2.0
 	 */
-	public static Date parseDateAttribute(JsonNode node, String key, DateFormat dateFormat) {
-		Date result = null;
+	public static <T> T parseDateAttribute(TreeNode node, String key, DateTimeFormatter dateFormat,
+			TemporalQuery<T> query) {
+		T result = null;
 		if ( node != null ) {
-			JsonNode attrNode = node.get(key);
-			if ( attrNode != null && !attrNode.isNull() ) {
+			TreeNode attrNode = node.get(key);
+			if ( attrNode instanceof JsonNode && !((JsonNode) attrNode).isNull() ) {
 				try {
-					String dateString = attrNode.asText();
+					String dateString = ((JsonNode) attrNode).asText();
 
 					// replace "midnight" with 12:00am
 					dateString = dateString.replaceAll("(?i)midnight", "12:00am");
@@ -435,14 +567,10 @@ public final class JsonUtils {
 					// replace "noon" with 12:00pm
 					dateString = dateString.replaceAll("(?i)noon", "12:00pm");
 
-					result = dateFormat.parse(dateString);
-				} catch ( ParseException e ) {
-					LOG.debug("Error parsing date attribute [{}] value [{}] using pattern {}: {}",
-							new Object[] { key, attrNode,
-									(dateFormat instanceof SimpleDateFormat
-											? ((SimpleDateFormat) dateFormat).toPattern()
-											: dateFormat.toString()),
-									e.getMessage() });
+					result = dateFormat.parse(dateString, query);
+				} catch ( DateTimeParseException e ) {
+					LOG.debug("Error parsing date attribute [{}] value [{}] using pattern {}: {}", key,
+							attrNode, dateFormat, e.getMessage());
 				}
 			}
 		}
@@ -452,13 +580,13 @@ public final class JsonUtils {
 	/**
 	 * Parse a Integer from a JSON object attribute value.
 	 * 
-	 * If the Integer cannot be parsed, <em>null</em> will be returned.
+	 * If the Integer cannot be parsed, {@literal null} will be returned.
 	 * 
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node} node
-	 * @return the parsed {@link Integer}, or <em>null</em> if an error occurs
+	 * @return the parsed {@link Integer}, or {@literal null} if an error occurs
 	 *         or the specified attribute {@code key} is not available
 	 */
 	public static Integer parseIntegerAttribute(JsonNode node, String key) {
@@ -488,13 +616,13 @@ public final class JsonUtils {
 	/**
 	 * Parse a Long from a JSON object attribute value.
 	 * 
-	 * If the Long cannot be parsed, <em>null</em> will be returned.
+	 * If the Long cannot be parsed, {@literal null} will be returned.
 	 * 
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node} node
-	 * @return the parsed {@link Long}, or <em>null</em> if an error occurs or
+	 * @return the parsed {@link Long}, or {@literal null} if an error occurs or
 	 *         the specified attribute {@code key} is not available
 	 */
 	public static Long parseLongAttribute(JsonNode node, String key) {
@@ -520,14 +648,14 @@ public final class JsonUtils {
 	/**
 	 * Parse a String from a JSON object attribute value.
 	 * 
-	 * If the String cannot be parsed, <em>null</em> will be returned.
+	 * If the String cannot be parsed, {@literal null} will be returned.
 	 * 
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node} node
-	 * @return the parsed {@link String}, or <em>null</em> if an error occurs or
-	 *         the specified attribute {@code key} is not available
+	 * @return the parsed {@link String}, or {@literal null} if an error occurs
+	 *         or the specified attribute {@code key} is not available
 	 */
 	public static String parseStringAttribute(JsonNode node, String key) {
 		String s = null;
@@ -541,14 +669,55 @@ public final class JsonUtils {
 	}
 
 	/**
-	 * Create a new {@link ObjectMapper} based on the internal configuration
-	 * used by other methods in this class.
+	 * Create a new {@link ObjectMapper} based on the default internal
+	 * configuration used by other methods in this class.
 	 * 
 	 * @return a new {@link ObjectMapper}
 	 * @since 1.1
 	 */
 	public static ObjectMapper newObjectMapper() {
 		return OBJECT_MAPPER.copy();
+	}
+
+	/**
+	 * Create a new {@link ObjectMapper} based on the default internal
+	 * configuration used by other methods in this class.
+	 * 
+	 * @return a new {@link ObjectMapper}
+	 * @since 2.0
+	 */
+	public static ObjectMapper newDatumObjectMapper() {
+		ObjectMapper mapper = OBJECT_MAPPER.copy();
+		mapper.registerModule(DATUM_MODULE);
+		return mapper;
+	}
+
+	/**
+	 * Create a new {@link ObjectMapper} based on the internal configuration
+	 * used by other methods in this class.
+	 * 
+	 * @param jsonFactory
+	 *        the JSON factory to use
+	 * @return a new {@link ObjectMapper}
+	 * @since 2.0
+	 */
+	public static ObjectMapper newObjectMapper(JsonFactory jsonFactory) {
+		return createObjectMapper(jsonFactory);
+	}
+
+	/**
+	 * Create a new {@link ObjectMapper} based on the internal configuration
+	 * used by other methods in this class.
+	 * 
+	 * @param jsonFactory
+	 *        the JSON factory to use
+	 * @return a new {@link ObjectMapper}
+	 * @since 2.0
+	 */
+	public static ObjectMapper newDatumObjectMapper(JsonFactory jsonFactory) {
+		ObjectMapper mapper = newObjectMapper(jsonFactory);
+		mapper.registerModule(DATUM_MODULE);
+		return mapper;
 	}
 
 	/**
@@ -665,6 +834,124 @@ public final class JsonUtils {
 	}
 
 	/**
+	 * Write a number field value using the smallest possible number type.
+	 * 
+	 * <p>
+	 * If {@code value} is {@literal null} then <b>nothing</b> will be
+	 * generated.
+	 * </p>
+	 * 
+	 * @param gen
+	 *        the JSON generator
+	 * @param fieldName
+	 *        the field name
+	 * @param value
+	 *        the number value
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 2.0
+	 */
+	public static void writeNumberField(JsonGenerator gen, String fieldName, Number value)
+			throws IOException {
+		if ( value == null ) {
+			return;
+		}
+		if ( value instanceof Double ) {
+			gen.writeNumberField(fieldName, (Double) value);
+		} else if ( value instanceof Float ) {
+			gen.writeNumberField(fieldName, (Float) value);
+		} else if ( value instanceof Long ) {
+			gen.writeNumberField(fieldName, (Long) value);
+		} else if ( value instanceof Integer ) {
+			gen.writeNumberField(fieldName, (Integer) value);
+		} else if ( value instanceof Short ) {
+			gen.writeFieldName(fieldName);
+			gen.writeNumber((Short) value);
+		} else if ( value instanceof BigInteger ) {
+			gen.writeFieldName(fieldName);
+			gen.writeNumber((BigInteger) value);
+		} else {
+			BigDecimal d = NumberUtils.bigDecimalForNumber(value);
+			if ( d != null ) {
+				gen.writeNumberField(fieldName, d);
+			}
+		}
+	}
+
+	/**
+	 * Parse an ISO 8601 timestamp value into an {@link Instant}.
+	 * 
+	 * @param timestamp
+	 *        the timestamp value
+	 * @return the instant, or {@literal null} if {@code timestamp} is
+	 *         {@literal null}, empty, or cannot be parsed
+	 * @since 2.0
+	 */
+	public static Instant iso8610Timestamp(String timestamp) {
+		Instant ts = null;
+		if ( timestamp != null && !timestamp.isEmpty() ) {
+			try {
+				ts = Instant.parse(timestamp);
+			} catch ( DateTimeParseException e ) {
+				// ignore
+			}
+		}
+		return ts;
+	}
+
+	/**
+	 * Write a timestamp field value in ISO 8601 form.
+	 * 
+	 * <p>
+	 * If {@code value} is {@literal null} then <b>nothing</b> will be
+	 * generated.
+	 * </p>
+	 * 
+	 * @param gen
+	 *        the JSON generator
+	 * @param fieldName
+	 *        the field name
+	 * @param value
+	 *        the instant value
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 2.0
+	 */
+	public static void writeIso8601Timestamp(JsonGenerator gen, String fieldName, Instant value)
+			throws IOException {
+		if ( value == null ) {
+			return;
+		}
+		gen.writeStringField(fieldName, DateTimeFormatter.ISO_INSTANT.format(value));
+	}
+
+	/**
+	 * Write a bitmask set as a field number value.
+	 * 
+	 * <p>
+	 * If {@code value} is {@literal null} or empty then <b>nothing</b> will be
+	 * generated.
+	 * </p>
+	 * 
+	 * @param gen
+	 *        the JSON generator
+	 * @param fieldName
+	 *        the field name
+	 * @param value
+	 *        the instant value
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 2.0
+	 */
+	public static void writeBitmaskValue(JsonGenerator gen, String fieldName,
+			Set<? extends Bitmaskable> value) throws IOException {
+		int v = Bitmaskable.bitmaskValue(value);
+		if ( v > 0 ) {
+			gen.writeNumberField(fieldName, v);
+		}
+	}
+
+	/**
 	 * Parse a JSON numeric value into a {@link BigDecimal}.
 	 * 
 	 * @param p
@@ -726,6 +1013,86 @@ public final class JsonUtils {
 			return l.toArray(new BigDecimal[l.size()]);
 		}
 		return null;
+	}
+
+	/**
+	 * Parse a simple Map from a JSON object.
+	 * 
+	 * @param p
+	 *        the parser
+	 * @return the Map, or {@literal null} if no Map can be parsed
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 * @since 2.0
+	 */
+	public static Map<String, ?> parseSimpleMap(JsonParser p)
+			throws IOException, JsonProcessingException {
+		JsonToken t = p.nextToken();
+		Map<String, Object> result = null;
+		if ( p.isExpectedStartObjectToken() ) {
+			result = new LinkedHashMap<>(8);
+			String f;
+			while ( (f = p.nextFieldName()) != null ) {
+				t = p.nextToken();
+				Object v = null;
+				if ( t.isNumeric() ) {
+					v = p.getNumberValue();
+				} else if ( t.isScalarValue() ) {
+					v = p.getText();
+				}
+				if ( v != null ) {
+					result.put(f, v);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Write a simple Map as a JSON object.
+	 * 
+	 * <p>
+	 * Only primitive object values are supported.
+	 * </p>
+	 * 
+	 * @param generator
+	 *        the generator to write to
+	 * @param value
+	 *        the map to write
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonGenerationException
+	 *         if any generation exception occurs
+	 * @since 2.0
+	 */
+	public static void writeSimpleMap(JsonGenerator generator, Map<String, ?> value)
+			throws IOException, JsonGenerationException {
+		assert value != null;
+		generator.writeStartObject(value, value.size());
+		for ( Entry<String, ?> me : value.entrySet() ) {
+			String f = me.getKey();
+			Object v = me.getValue();
+			if ( v == null ) {
+				continue;
+			}
+			if ( v instanceof Long ) {
+				generator.writeNumberField(f, ((Long) v).longValue());
+			} else if ( v instanceof Integer ) {
+				generator.writeNumberField(f, ((Integer) v).intValue());
+			} else if ( v instanceof BigDecimal ) {
+				generator.writeNumberField(f, (BigDecimal) v);
+			} else if ( v instanceof BigInteger ) {
+				generator.writeFieldName(f);
+				generator.writeNumber((BigInteger) v);
+			} else if ( v instanceof Half ) {
+				generator.writeNumberField(f, ((Half) v).floatValue());
+			} else {
+				generator.writeStringField(f, v.toString());
+			}
+		}
+		generator.writeEndObject();
 	}
 
 	/**

@@ -24,7 +24,7 @@ package net.solarnetwork.domain.tariff;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import net.solarnetwork.domain.Identifiable;
+import net.solarnetwork.service.Identifiable;
 
 /**
  * API for a function that can evaluate a given {@link TemporalRangesTariff}

@@ -22,16 +22,22 @@
 
 package net.solarnetwork.util;
 
+import static java.time.temporal.ChronoField.HOUR_OF_DAY;
+import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
@@ -46,7 +52,7 @@ import java.util.regex.Pattern;
  * Date and time utilities.
  * 
  * @author matt
- * @version 1.3
+ * @version 2.0
  * @since 1.59
  */
 public final class DateUtils {
@@ -82,10 +88,12 @@ public final class DateUtils {
 		// @formatter:off
 		ISO_DATE_OPT_TIME_ALT = new DateTimeFormatterBuilder()
 				.append(DateTimeFormatter.ISO_DATE)
+				.parseDefaulting(ChronoField.ERA, ChronoField.ERA.range().getMaximum())
 				.optionalStart()
 				.appendLiteral(' ')
 				.append(DateTimeFormatter.ISO_TIME)
-				.toFormatter();
+				.toFormatter()
+				.withChronology(IsoChronology.INSTANCE);
 		// @formatter:on
 	}
 
@@ -124,9 +132,11 @@ public final class DateUtils {
 		ISO_DATE_TIME_ALT = new DateTimeFormatterBuilder()
                 .parseCaseInsensitive()
                 .append(DateTimeFormatter.ISO_LOCAL_DATE)
+				.parseDefaulting(ChronoField.ERA, ChronoField.ERA.range().getMaximum())
 				.appendLiteral(' ')
 				.append(DateTimeFormatter.ISO_TIME)
-				.toFormatter();
+				.toFormatter()
+				.withChronology(IsoChronology.INSTANCE);
 		// @formatter:on
 	}
 
@@ -138,6 +148,57 @@ public final class DateUtils {
 	 */
 	public static final DateTimeFormatter ISO_DATE_TIME_ALT_UTC = ISO_DATE_TIME_ALT
 			.withZone(ZoneOffset.UTC);
+
+	/**
+	 * Local time formatted for standard local time values like
+	 * {@literal HH:mm}.
+	 * 
+	 * @since 1.4
+	 * @see #LOCAL_TIME_FULL
+	 */
+	public static final DateTimeFormatter LOCAL_TIME;
+	static {
+		// @formatter:off
+		LOCAL_TIME = new DateTimeFormatterBuilder()
+				.appendValue(HOUR_OF_DAY, 2)
+				.appendLiteral(':')
+				.appendValue(MINUTE_OF_HOUR, 2)
+				.toFormatter();
+		// @formatter:on
+	}
+
+	/**
+	 * Local time formatted for standard local time values like
+	 * {@literal yyyy-MM-dd}.
+	 * 
+	 * <p>
+	 * This is just an alias for {@link DateTimeFormatter#ISO_LOCAL_DATE}.
+	 * </p>
+	 * 
+	 * @since 2.0
+	 */
+	public static final DateTimeFormatter LOCAL_DATE = DateTimeFormatter.ISO_LOCAL_DATE;
+
+	/**
+	 * Local time formatted for standard local time values like
+	 * {@literal HH:mm:ss}.
+	 * 
+	 * <p>
+	 * This is just an alias for {@link DateTimeFormatter#ISO_LOCAL_TIME}.
+	 * </p>
+	 * 
+	 * @since 2.0
+	 * @see #LOCAL_TIME
+	 */
+	public static final DateTimeFormatter LOCAL_TIME_FULL = DateTimeFormatter.ISO_LOCAL_TIME;
+
+	/**
+	 * Format for a long date and short time, for display purposes.
+	 * 
+	 * @since 1.5
+	 */
+	public static final DateTimeFormatter DISPLAY_DATE_LONG_TIME_SHORT = DateTimeFormatter
+			.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT);
 
 	/**
 	 * Parse an ISO-8601 alternate timestamp using a given formatter.
@@ -537,6 +598,62 @@ public final class DateUtils {
 			return String.format("%02d:%02d:%02d", hours, minutes, seconds);
 		}
 		return String.format("%02d:%02d", minutes, seconds);
+	}
+
+	/**
+	 * Parse a standard local time value, in {@code HH:mm} form.
+	 * 
+	 * @param value
+	 *        the time value
+	 * @return the LocalTime object
+	 */
+	public static LocalTime parseLocalTime(String value) {
+		return LOCAL_TIME.parse(value, LocalTime::from);
+	}
+
+	/**
+	 * Format a standard local time value, in {@code HH:mm} form.
+	 * 
+	 * @param value
+	 *        the LocalTime to format
+	 * @return the formatted value
+	 */
+	public static String format(LocalTime value) {
+		return LOCAL_TIME.format(value);
+	}
+
+	/**
+	 * Parse a standard local date value, in {@code yyyy-MM-dd} form.
+	 * 
+	 * @param value
+	 *        the date value
+	 * @return the LocalDate object
+	 */
+	public static LocalDate parseLocalDate(String value) {
+		return DateTimeFormatter.ISO_LOCAL_DATE.parse(value, LocalDate::from);
+	}
+
+	/**
+	 * Format a standard local date value, in {@code yyyy-MM-dd} form.
+	 * 
+	 * @param value
+	 *        the LocalDate to format
+	 * @return the formatted value
+	 */
+	public static String format(LocalDate value) {
+		return DateTimeFormatter.ISO_LOCAL_DATE.format(value);
+	}
+
+	/**
+	 * Format an instant for display in the local (sytem) time zone.
+	 * 
+	 * @param timestamp
+	 *        the instant
+	 * @return the formatted date
+	 * @since 1.5
+	 */
+	public static String formatForLocalDisplay(Instant timestamp) {
+		return DISPLAY_DATE_LONG_TIME_SHORT.format(timestamp.atZone(ZoneId.systemDefault()));
 	}
 
 }

@@ -62,14 +62,14 @@ import net.solarnetwork.common.mqtt.netty.client.MqttClientCallback;
 import net.solarnetwork.common.mqtt.netty.client.MqttClientConfig;
 import net.solarnetwork.common.mqtt.netty.client.MqttConnectResult;
 import net.solarnetwork.common.mqtt.netty.client.MqttLastWill;
-import net.solarnetwork.support.CertificateException;
-import net.solarnetwork.support.SSLService;
+import net.solarnetwork.service.CertificateException;
+import net.solarnetwork.service.SSLService;
 
 /**
  * Netty based implementation of {@link MqttConnection}.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class NettyMqttConnection extends BaseMqttConnection
 		implements MqttMessageHandler, MqttClientCallback, WireLoggingSupport {
