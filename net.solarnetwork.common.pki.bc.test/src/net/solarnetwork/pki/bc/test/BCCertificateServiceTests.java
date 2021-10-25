@@ -45,7 +45,7 @@ import org.springframework.util.FileCopyUtils;
  * @author matt
  * @version 1.0
  */
-public class BCCertificateServiceTest {
+public class BCCertificateServiceTests {
 
 	private static final String TEST_DN = "UID=1, O=SolarNetwork";
 	private static final String TEST_CA_DN = "CN=Test CA, O=SolarTest";
