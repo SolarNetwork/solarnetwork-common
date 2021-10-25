@@ -24,6 +24,7 @@ package net.solarnetwork.pki.bc.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import java.io.InputStreamReader;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -32,12 +33,12 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import net.solarnetwork.pki.bc.BCCertificateService;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
+import net.solarnetwork.pki.bc.BCCertificateService;
 
 /**
  * Test cases for the {@link BCCertificateService} class.
@@ -88,8 +89,8 @@ public class BCCertificateServiceTests {
 
 	@Test
 	public void parsePKCS7() throws Exception {
-		String pkcs7Pem = FileCopyUtils.copyToString(new InputStreamReader(getClass()
-				.getResourceAsStream("test-pkcs7-chain.pem"), "UTF-8"));
+		String pkcs7Pem = FileCopyUtils.copyToString(
+				new InputStreamReader(getClass().getResourceAsStream("test-pkcs7-chain.pem"), "UTF-8"));
 		X509Certificate[] chain = service.parsePKCS7CertificateChainString(pkcs7Pem);
 		assertNotNull(chain);
 		assertEquals(3, chain.length);
@@ -117,6 +118,31 @@ public class BCCertificateServiceTests {
 		X509Certificate signed = service.signCertificate(csr, caCert, caKeypair.getPrivate());
 		assertEquals("Issuer", caCert.getSubjectX500Principal(), signed.getIssuerX500Principal());
 		assertEquals("Subject", cert.getSubjectX500Principal(), signed.getSubjectX500Principal());
+	}
+
+	@Test
+	public void renewCertificate() throws Exception {
+		// GIVEN
+		X509Certificate cert = service.generateCertificate(TEST_DN, publicKey, privateKey);
+		String csr = service.generatePKCS10CertificateRequestString(cert, privateKey);
+
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+		keyGen.initialize(2048, new SecureRandom());
+		KeyPair caKeypair = keyGen.generateKeyPair();
+		X509Certificate caCert = service.generateCertificationAuthorityCertificate(TEST_CA_DN,
+				caKeypair.getPublic(), caKeypair.getPrivate());
+
+		X509Certificate signed = service.signCertificate(csr, caCert, caKeypair.getPrivate());
+
+		// WHEN
+		final String pkcs7 = service
+				.generatePKCS7CertificateChainString(new X509Certificate[] { signed });
+		X509Certificate renewed = service.signCertificate(pkcs7, caCert, privateKey);
+
+		// THEN
+		assertEquals("Issuer", caCert.getSubjectX500Principal(), renewed.getIssuerX500Principal());
+		assertEquals("Subject", cert.getSubjectX500Principal(), renewed.getSubjectX500Principal());
+		assertNotSame("Renewed certificate is new certificate", signed, renewed);
 	}
 
 }

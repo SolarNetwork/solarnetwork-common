@@ -44,8 +44,10 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.security.auth.x500.X500Principal;
+import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.KeyUsage;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -168,14 +170,25 @@ public class BCCertificateService implements CertificateService, CertificationAu
 			reader = new PemReader(new StringReader(csrPEM));
 			PemObject pemObj = reader.readPemObject();
 			log.debug("Parsed PEM type {}", pemObj.getType());
-			PKCS10CertificationRequest csr = new PKCS10CertificationRequest(pemObj.getContent());
 
+			X500Name subject;
+			SubjectPublicKeyInfo subjectPublicKeyInfo;
+			if ( pemObj.getType().equalsIgnoreCase("certificate") ) {
+				X509Certificate[] chain = parsePKCS7CertificateChainString(csrPEM);
+				subject = JcaX500NameUtil.getSubject(chain[0]);
+				subjectPublicKeyInfo = SubjectPublicKeyInfo
+						.getInstance(chain[0].getPublicKey().getEncoded());
+			} else {
+				PKCS10CertificationRequest csr = new PKCS10CertificationRequest(pemObj.getContent());
+				subject = csr.getSubject();
+				subjectPublicKeyInfo = csr.getSubjectPublicKeyInfo();
+			}
 			Date now = new Date();
 			Date expire = new Date(now.getTime() + (1000L * 60L * 60L * 24L * certificateExpireDays));
 			X509v3CertificateBuilder builder = new X509v3CertificateBuilder(
 					JcaX500NameUtil.getIssuer(caCert),
-					new BigInteger(String.valueOf(counter.incrementAndGet())), now, expire,
-					csr.getSubject(), csr.getSubjectPublicKeyInfo());
+					new BigInteger(String.valueOf(counter.incrementAndGet())), now, expire, subject,
+					subjectPublicKeyInfo);
 
 			JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder(signatureAlgorithm);
 			ContentSigner signer;
@@ -187,19 +200,17 @@ public class BCCertificateService implements CertificateService, CertificationAu
 						digestCalcProvider.get(digestAlgFinder.find("SHA-256")));
 				builder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
 				builder.addExtension(X509Extension.subjectKeyIdentifier, false,
-						extUtils.createSubjectKeyIdentifier(csr.getSubjectPublicKeyInfo()));
+						extUtils.createSubjectKeyIdentifier(subjectPublicKeyInfo));
 				builder.addExtension(X509Extension.authorityKeyIdentifier, false,
 						extUtils.createAuthorityKeyIdentifier(caCert));
 
 				signer = signerBuilder.build(privateKey);
 			} catch ( OperatorException e ) {
-				log.error("Error signing CSR {}", csr.getSubject(), e);
-				throw new CertificateException(
-						"Error signing CSR" + csr.getSubject() + ": " + e.getMessage());
+				log.error("Error signing CSR {}", subject, e);
+				throw new CertificateException("Error signing CSR" + subject + ": " + e.getMessage());
 			} catch ( CertificateEncodingException e ) {
-				log.error("Error signing CSR {}", csr.getSubject().toString(), e);
-				throw new CertificateException(
-						"Error signing CSR" + csr.getSubject() + ": " + e.getMessage());
+				log.error("Error signing CSR {}", subject.toString(), e);
+				throw new CertificateException("Error signing CSR" + subject + ": " + e.getMessage());
 			}
 
 			X509CertificateHolder holder = builder.build(signer);
