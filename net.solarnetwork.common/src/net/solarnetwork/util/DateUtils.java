@@ -23,7 +23,9 @@
 package net.solarnetwork.util;
 
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
+import static java.time.temporal.ChronoField.MILLI_OF_SECOND;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
+import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -199,6 +201,88 @@ public final class DateUtils {
 	 */
 	public static final DateTimeFormatter DISPLAY_DATE_LONG_TIME_SHORT = DateTimeFormatter
 			.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT);
+
+	/**
+	 * Date and time formatter using the ISO 8601 style for local time with
+	 * optional seconds, but with an optional milliseconds of second fraction
+	 * component (instead of nanoseconds of second).
+	 * 
+	 * <p>
+	 * This supports patterns like:
+	 * </p>
+	 * <ul>
+	 * <li>{@literal 20:12:34.567}</li>
+	 * <li>{@literal 20:12:34}</li>
+	 * <li>{@literal 20:12}</li>
+	 * </ul>
+	 * 
+	 * @since 2.0
+	 */
+	public static final DateTimeFormatter ISO_LOCAL_TIME_OPT_MILLIS;
+	static {
+		// @formatter:off
+		ISO_LOCAL_TIME_OPT_MILLIS = new DateTimeFormatterBuilder()
+                .appendValue(HOUR_OF_DAY, 2)
+                .appendLiteral(':')
+                .appendValue(MINUTE_OF_HOUR, 2)
+                .optionalStart()
+                .appendLiteral(':')
+                .appendValue(SECOND_OF_MINUTE, 2)
+                .optionalStart()
+                .appendFraction(MILLI_OF_SECOND, 0, 3, true)
+                .toFormatter()
+				.withChronology(IsoChronology.INSTANCE);
+    	// @formatter:on
+	}
+
+	/**
+	 * Date and time formatter using the ISO 8601 style but with an optional
+	 * time component using an optional milliseconds of secodn component, and a
+	 * space character for the date/time separator instead of {@literal T}.
+	 * 
+	 * <p>
+	 * This supports patterns like:
+	 * </p>
+	 * <ul>
+	 * <li>{@literal 2020-02-01 20:12:34.567}</li>
+	 * <li>{@literal 2020-02-01 20:12:34}</li>
+	 * <li>{@literal 2020-02-01 20:12}</li>
+	 * <li>{@literal 2020-02-01}</li>
+	 * </ul>
+	 * 
+	 * @since 2.0
+	 */
+	public static final DateTimeFormatter ISO_DATE_OPT_TIME_OPT_MILLIS_ALT;
+	static {
+		// @formatter:off
+		ISO_DATE_OPT_TIME_OPT_MILLIS_ALT = new DateTimeFormatterBuilder()
+                .parseCaseInsensitive()
+                .append(DateTimeFormatter.ISO_LOCAL_DATE)
+				.parseDefaulting(ChronoField.ERA, ChronoField.ERA.range().getMaximum())
+				.optionalStart()
+				.appendLiteral(' ')
+				.append(ISO_LOCAL_TIME_OPT_MILLIS)
+				.optionalEnd()
+				.parseDefaulting(ChronoField.HOUR_OF_DAY, ChronoField.HOUR_OF_DAY.range().getMinimum())
+				.parseDefaulting(ChronoField.MINUTE_OF_HOUR, ChronoField.MINUTE_OF_HOUR.range().getMinimum())
+				.parseDefaulting(ChronoField.SECOND_OF_MINUTE, ChronoField.SECOND_OF_MINUTE.range().getMinimum())
+				.parseDefaulting(ChronoField.MILLI_OF_SECOND, ChronoField.MILLI_OF_SECOND.range().getMinimum())
+				.toFormatter()
+				.withChronology(IsoChronology.INSTANCE);
+		// @formatter:on
+	}
+
+	/**
+	 * Date and time formatter based on
+	 * {@link #ISO_DATE_OPT_TIME_OPT_MILLIS_ALT} with a UTC time zone offset
+	 * applied.
+	 * 
+	 * @since 2.0
+	 */
+	public static final DateTimeFormatter ISO_DATE_OPT_TIME_OPT_MILLIS_ALT_UTC;
+	static {
+		ISO_DATE_OPT_TIME_OPT_MILLIS_ALT_UTC = ISO_DATE_OPT_TIME_OPT_MILLIS_ALT.withZone(ZoneOffset.UTC);
+	}
 
 	/**
 	 * Parse an ISO-8601 alternate timestamp using a given formatter.

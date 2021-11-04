@@ -420,6 +420,35 @@ public class DateUtilsTests {
 	}
 
 	@Test
+	public void parseIsoDateOptTimeOptMillisAlt_localDateTime_withMillis() {
+		LocalDateTime ts = DateUtils.ISO_DATE_OPT_TIME_OPT_MILLIS_ALT.parse("2020-02-01 20:12:34.567",
+				LocalDateTime::from);
+		assertThat(ts, equalTo(
+				LocalDateTime.of(2020, 2, 1, 20, 12, 34, (int) TimeUnit.MILLISECONDS.toNanos(567))));
+	}
+
+	@Test
+	public void parseIsoDateOptTimeOptMillisAlt_localDateTime_noMillis() {
+		LocalDateTime ts = DateUtils.ISO_DATE_OPT_TIME_OPT_MILLIS_ALT.parse("2020-02-01 20:12:34",
+				LocalDateTime::from);
+		assertThat(ts, equalTo(LocalDateTime.of(2020, 2, 1, 20, 12, 34, 0)));
+	}
+
+	@Test
+	public void parseIsoDateOptTimeOptMillisAlt_localDateTime_noSeconds() {
+		LocalDateTime ts = DateUtils.ISO_DATE_OPT_TIME_OPT_MILLIS_ALT.parse("2020-02-01 20:12",
+				LocalDateTime::from);
+		assertThat(ts, equalTo(LocalDateTime.of(2020, 2, 1, 20, 12, 0, 0)));
+	}
+
+	@Test
+	public void parseIsoDateOptTimeOptMillisAlt_localDateTime_noTime() {
+		LocalDateTime ts = DateUtils.ISO_DATE_OPT_TIME_OPT_MILLIS_ALT.parse("2020-02-01",
+				LocalDateTime::from);
+		assertThat(ts, equalTo(LocalDateTime.of(2020, 2, 1, 0, 0, 0, 0)));
+	}
+
+	@Test
 	public void formatMonthRange() {
 		String range = DateUtils.formatRange(ChronoField.MONTH_OF_YEAR, rangeOf(2, 11), US, SHORT);
 		assertThat("Formatted range", range, equalTo("Feb-Nov"));
