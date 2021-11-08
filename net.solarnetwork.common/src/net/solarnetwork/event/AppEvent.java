@@ -23,7 +23,9 @@
 package net.solarnetwork.event;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An application event.
@@ -69,5 +71,59 @@ public interface AppEvent {
 	 * @return the event properties, never {@literal null}
 	 */
 	Map<String, ?> getEventProperties();
+
+	/**
+	 * Test if a event property is available.
+	 * 
+	 * @param key
+	 *        the event property name to test
+	 * @return {@literal true} if a non-{@literal null} property exists for
+	 *         {@code key}
+	 */
+	default boolean containsProperty(String key) {
+		Map<String, ?> props = getEventProperties();
+		return (props != null ? props.containsKey(key) : false);
+	}
+
+	/**
+	 * Get all available property names as an array.
+	 * 
+	 * @return the available property names, never {@literal null}
+	 */
+	default String[] getPropertyNames() {
+		Map<String, ?> props = getEventProperties();
+		Set<String> keys = (props != null ? props.keySet() : Collections.emptySet());
+		return keys.toArray(new String[keys.size()]);
+	}
+
+	/**
+	 * Get an event property by key.
+	 * 
+	 * @param key
+	 *        the event property name to get
+	 * @return the associated property value, or {@literal null} if not
+	 *         available
+	 */
+	default Object getProperty(String key) {
+		Map<String, ?> props = getEventProperties();
+		return (props != null ? props.get(key) : null);
+	}
+
+	/**
+	 * Get an event property of a specific type.
+	 * 
+	 * @param <T>
+	 *        the type of property value expected
+	 * @param key
+	 *        the property key to get
+	 * @param type
+	 *        the property type
+	 * @return the associated property value, or {@literal null} if not
+	 *         available or not of type {@code T}
+	 */
+	default <T> T getProperty(String key, Class<T> type) {
+		Object o = getProperty(key);
+		return (o != null && type.isAssignableFrom(o.getClass()) ? type.cast(o) : null);
+	}
 
 }
