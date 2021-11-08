@@ -20,18 +20,22 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.osgi.event;
-
-import org.osgi.service.event.EventHandler;
+package net.solarnetwork.event;
 
 /**
- * API for registering OSGi {@link EventHandler} instances with topics.
+ * API for registering {@link AppEventHandler} instances with topics.
+ * 
+ * <p>
+ * This is similar in spirit to the OSGI
+ * <code>org.osgi.service.event.EventAdmin</code> service, but handlers are
+ * explicitly registered to work outside of OSGi environments.
+ * </p>
  * 
  * @author matt
  * @version 1.0
- * @since 1.36
+ * @since 2.0
  */
-public interface EventHandlerRegistrar {
+public interface AppEventHandlerRegistrar {
 
 	/**
 	 * Register a handler for a set of topics.
@@ -41,7 +45,7 @@ public interface EventHandlerRegistrar {
 	 * @param topics
 	 *        the topics to regsiter
 	 */
-	void registerEventHandler(EventHandler handler, String... topics);
+	void registerEventHandler(AppEventHandler handler, String... topics);
 
 	/**
 	 * Deregister a handler from all topics.
@@ -49,6 +53,6 @@ public interface EventHandlerRegistrar {
 	 * @param handler
 	 *        the handler to deregister
 	 */
-	void deregisterEventHandler(EventHandler handler);
+	void deregisterEventHandler(AppEventHandler handler);
 
 }
