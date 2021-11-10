@@ -22,6 +22,8 @@
 
 package net.solarnetwork.domain.datum;
 
+import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
+import static net.solarnetwork.domain.datum.DatumSamplesType.Status;
 import java.math.BigDecimal;
 
 /**
@@ -33,91 +35,84 @@ import java.math.BigDecimal;
 public interface AtmosphericDatum extends Datum {
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link AtmosphericDatum#getCO2()} values.
+	 * An instantaneous sample key for {@link AtmosphericDatum#getCO2()} values.
 	 * 
 	 * @since 1.1
 	 */
 	String CO2_KEY = "co2";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link AtmosphericDatum#getLux()} values.
+	 * An instantaneous sample key for {@link AtmosphericDatum#getLux()} values.
 	 * 
 	 * @since 1.1
 	 */
 	String LUX_KEY = "lux";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} instantaneous
-	 * sample key for {@link AtmosphericDatum#getTemperature()} values.
+	 * An instantaneous sample key for {@link AtmosphericDatum#getTemperature()}
+	 * values.
 	 */
 	String TEMPERATURE_KEY = "temp";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} instantaneous
-	 * sample key for {@link AtmosphericDatum#getHumidity()} values.
+	 * An instantaneous sample key for {@link AtmosphericDatum#getHumidity()}
+	 * values.
 	 */
 	String HUMIDITY_KEY = "humidity";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} instantaneous
-	 * sample key for {@link AtmosphericDatum#getDewPoint()} values.
+	 * An instantaneous sample key for {@link AtmosphericDatum#getDewPoint()}
+	 * values.
 	 */
 	String DEW_POINT_KEY = "dew";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} instantaneous
-	 * sample key for {@link AtmosphericDatum#getAtmosphericPressure()} values.
+	 * An instantaneous sample key for
+	 * {@link AtmosphericDatum#getAtmosphericPressure()} values.
 	 */
 	String ATMOSPHERIC_PRESSURE_KEY = "atm";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} instantaneous
-	 * sample key for {@link AtmosphericDatum#getAtmosphericPressure()} values.
+	 * A instantaneous sample key for {@link AtmosphericDatum#getVisibility()}
+	 * values.
 	 */
 	String VISIBILITY_KEY = "visibility";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
-	 * for {@link AtmosphericDatum#getSkyConditions()} values.
+	 * A status sample key for {@link AtmosphericDatum#getSkyConditions()}
+	 * values.
 	 */
 	String SKY_CONDITIONS_KEY = "sky";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
-	 * for a bitmask of {@link net.solarnetwork.domain.SkyCondition#getCode()}
-	 * values.
+	 * An status sample key for a bitmask of
+	 * {@link net.solarnetwork.domain.SkyCondition#getCode()} values.
 	 */
 	String SKY_CONDITION_CODES_KEY = "skies";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
-	 * for {@link AtmosphericDatum#getWindSpeed()} values.
+	 * A status sample key for {@link AtmosphericDatum#getWindSpeed()} values.
 	 */
 	String WIND_SPEED_KEY = "wspeed";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
-	 * for {@link AtmosphericDatum#getWindDirection()} values.
+	 * A status sample key for {@link AtmosphericDatum#getWindDirection()}
+	 * values.
 	 */
 	String WIND_DIRECTION_KEY = "wdir";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
-	 * for {@link AtmosphericDatum#getRain()} values.
+	 * A status sample key for {@link AtmosphericDatum#getRain()} values.
 	 */
 	String RAIN_KEY = "rain";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
-	 * for {@link AtmosphericDatum#getSnow()} values.
+	 * A status sample key for {@link AtmosphericDatum#getSnow()} values.
 	 */
 	String SNOW_KEY = "snow";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralDatumSamples} status sample key
-	 * for {@link AtmosphericDatum#getIrradiance()} values.
+	 * A status sample key for {@link AtmosphericDatum#getIrradiance()} values.
 	 */
 	String IRRADIANCE_KEY = "irradiance";
 
@@ -137,31 +132,37 @@ public interface AtmosphericDatum extends Datum {
 	 * Get the instantaneous CO2 level, in parts-per-million.
 	 * 
 	 * @return the CO2, in parts-per-million
-	 * @since 1.1
 	 */
-	BigDecimal getCO2();
+	default BigDecimal getCO2() {
+		return asSampleOperations().getSampleBigDecimal(Instantaneous, CO2_KEY);
+	}
 
 	/**
 	 * Get the instantaneous luminosity level, in lux.
 	 * 
 	 * @return the luminosity, in lux
-	 * @since 1.1
 	 */
-	BigDecimal getLux();
+	default BigDecimal getLux() {
+		return asSampleOperations().getSampleBigDecimal(Instantaneous, LUX_KEY);
+	}
 
 	/**
 	 * Get the instantaneous temperature, in degrees Celsius.
 	 * 
 	 * @return the temperature, in degrees Celsius
 	 */
-	BigDecimal getTemperature();
+	default BigDecimal getTemperature() {
+		return asSampleOperations().getSampleBigDecimal(Instantaneous, TEMPERATURE_KEY);
+	}
 
 	/**
 	 * Get the instantaneous dew point, in degrees Celsius.
 	 * 
-	 * @return the dew point, in degrees celsius
+	 * @return the dew point, in degrees Celsius
 	 */
-	BigDecimal getDewPoint();
+	default BigDecimal getDewPoint() {
+		return asSampleOperations().getSampleBigDecimal(Instantaneous, DEW_POINT_KEY);
+	}
 
 	/**
 	 * Get the instantaneous humidity, as an integer percentage (where 100
@@ -169,21 +170,27 @@ public interface AtmosphericDatum extends Datum {
 	 * 
 	 * @return the humidity, as an integer percentage
 	 */
-	Integer getHumidity();
+	default Integer getHumidity() {
+		return asSampleOperations().getSampleInteger(Instantaneous, HUMIDITY_KEY);
+	}
 
 	/**
 	 * Get the instantaneous atmospheric pressure, in pascals.
 	 * 
 	 * @return the atmospheric pressure, in pascals
 	 */
-	Integer getAtmosphericPressure();
+	default Integer getAtmosphericPressure() {
+		return asSampleOperations().getSampleInteger(Instantaneous, ATMOSPHERIC_PRESSURE_KEY);
+	}
 
 	/**
 	 * Get the instantaneous visibility, in meters.
 	 * 
 	 * @return visibility, in meters
 	 */
-	Integer getVisibility();
+	default Integer getVisibility() {
+		return asSampleOperations().getSampleInteger(Instantaneous, VISIBILITY_KEY);
+	}
 
 	/**
 	 * Get a textual description of the sky conditions, e.g. "clear", "cloudy",
@@ -191,41 +198,53 @@ public interface AtmosphericDatum extends Datum {
 	 * 
 	 * @return general sky conditions
 	 */
-	String getSkyConditions();
+	default String getSkyConditions() {
+		return asSampleOperations().getSampleString(Status, SKY_CONDITIONS_KEY);
+	}
 
 	/**
 	 * Get the wind speed, in meters / second.
 	 * 
 	 * @return wind speed
 	 */
-	BigDecimal getWindSpeed();
+	default BigDecimal getWindSpeed() {
+		return asSampleOperations().getSampleBigDecimal(Instantaneous, WIND_SPEED_KEY);
+	}
 
 	/**
 	 * Get the wind direction, in degrees.
 	 * 
 	 * @return wind direction
 	 */
-	Integer getWindDirection();
+	default Integer getWindDirection() {
+		return asSampleOperations().getSampleInteger(Instantaneous, WIND_DIRECTION_KEY);
+	}
 
 	/**
 	 * Get the rain accumulation, in millimeters.
 	 * 
 	 * @return rain accumulation
 	 */
-	Integer getRain();
+	default Integer getRain() {
+		return asSampleOperations().getSampleInteger(Instantaneous, RAIN_KEY);
+	}
 
 	/**
 	 * Get the snow accumulation, in millimeters.
 	 * 
 	 * @return snow accumulation
 	 */
-	Integer getSnow();
+	default Integer getSnow() {
+		return asSampleOperations().getSampleInteger(Instantaneous, SNOW_KEY);
+	}
 
 	/**
 	 * Get the solar irradiance level, in watts / square meter.
 	 * 
 	 * @return irradiance level
 	 */
-	BigDecimal getIrradiance();
+	default BigDecimal getIrradiance() {
+		return asSampleOperations().getSampleBigDecimal(Instantaneous, IRRADIANCE_KEY);
+	}
 
 }

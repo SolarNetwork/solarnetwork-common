@@ -42,7 +42,7 @@ public interface SettingSpecifierProviderFactory {
 	 * 
 	 * @return unique ID
 	 */
-	String getFactoryUID();
+	String getFactoryUid();
 
 	/**
 	 * Get a non-localized display name.
@@ -55,11 +55,11 @@ public interface SettingSpecifierProviderFactory {
 	 * Get a MessageSource to localize the setting text.
 	 * 
 	 * <p>
-	 * This method can return <em>null</em> if the provider does not have any
+	 * This method can return {@literal null} if the provider does not have any
 	 * localized resources.
 	 * </p>
 	 * 
-	 * @return the MessageSource, or <em>null</em>
+	 * @return the MessageSource, or {@literal null}
 	 */
 	MessageSource getMessageSource();
 

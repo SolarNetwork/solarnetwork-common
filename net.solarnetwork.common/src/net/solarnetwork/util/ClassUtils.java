@@ -44,12 +44,13 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.PropertyBatchUpdateException;
 import org.springframework.util.StringUtils;
+import net.solarnetwork.domain.SerializeIgnore;
 
 /**
  * Utility methods for dealing with classes at runtime.
  *
  * @author matt
- * @version 1.3
+ * @version 2.0
  */
 public final class ClassUtils {
 
@@ -210,7 +211,7 @@ public final class ClassUtils {
 	 *        the object to inspect
 	 * @param ignore
 	 *        a set of property names to ignore (optional)
-	 * @return Map (never <em>null</em>)
+	 * @return Map (never {@literal null})
 	 * @since 1.1
 	 */
 	public static Map<String, Object> getSimpleBeanProperties(Object o, Set<String> ignore) {
@@ -258,7 +259,7 @@ public final class ClassUtils {
 	 * @param dest
 	 *        the object to copy values to
 	 * @param ignore
-	 *        a set of property names to ignore (optional) where <em>null</em>
+	 *        a set of property names to ignore (optional) where {@literal null}
 	 */
 	public static void copyBeanProperties(Object src, Object dest, Set<String> ignore) {
 		copyBeanProperties(src, dest, ignore, false);
@@ -274,8 +275,8 @@ public final class ClassUtils {
 	 * @param ignore
 	 *        a set of property names to ignore (optional)
 	 * @param emptyStringToNull
-	 *        if <em>true</em> then String values that are empty or contain only
-	 *        whitespace will be treated as if they where <em>null</em>
+	 *        if {@literal true} then String values that are empty or contain only
+	 *        whitespace will be treated as if they where {@literal null}
 	 */
 	public static void copyBeanProperties(Object src, Object dest, Set<String> ignore,
 			boolean emptyStringToNull) {
@@ -312,7 +313,7 @@ public final class ClassUtils {
 	 * @param ignore
 	 *        a set of property names to ignore (optional)
 	 * @param serializeIgnore
-	 *        if <em>true</em> test for the {@link SerializeIgnore} annotation
+	 *        if {@literal true} test for the {@link SerializeIgnore} annotation
 	 *        for ignoring properties
 	 * @return Map (never null)
 	 */

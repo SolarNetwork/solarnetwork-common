@@ -30,8 +30,8 @@
 	
 	<service ref="certificateService">
 		<interfaces>
-			<value>net.solarnetwork.support.CertificateService</value>
-			<value>net.solarnetwork.support.CertificationAuthorityService</value>
+			<value>net.solarnetwork.service.CertificateService</value>
+			<value>net.solarnetwork.service.CertificationAuthorityService</value>
 		</interfaces>
 	</service>
 	

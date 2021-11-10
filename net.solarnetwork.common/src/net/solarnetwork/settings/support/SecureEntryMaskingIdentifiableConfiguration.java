@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.util.ClassUtils;
-import net.solarnetwork.domain.IdentifiableConfiguration;
+import net.solarnetwork.service.IdentifiableConfiguration;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.TextFieldSettingSpecifier;
 import net.solarnetwork.util.StringUtils;

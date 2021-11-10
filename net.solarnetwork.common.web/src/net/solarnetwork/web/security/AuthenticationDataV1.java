@@ -28,12 +28,13 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.security.authentication.BadCredentialsException;
+import net.solarnetwork.security.AuthorizationUtils;
 
 /**
  * Original HMAC-SHA1 authentication token scheme.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  * @since 1.11
  */
 public class AuthenticationDataV1 extends AuthenticationData {
@@ -62,7 +63,8 @@ public class AuthenticationDataV1 extends AuthenticationData {
 		buf.append("\n");
 		buf.append(nullSafeHeaderValue(request, "Content-MD5")).append("\n");
 		buf.append(nullSafeHeaderValue(request, "Content-Type")).append("\n");
-		buf.append(httpDate(getDate())).append("\n");
+		buf.append(AuthorizationUtils.AUTHORIZATION_DATE_HEADER_FORMATTER.format(getDate()))
+				.append("\n");
 		buf.append(request.getRequestURI());
 		appendQueryParameters(request, buf);
 		return buf.toString();

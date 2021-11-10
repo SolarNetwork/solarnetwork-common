@@ -1528,4 +1528,18 @@ public class IntRangeSetTests {
 		c.remove(1);
 	}
 
+	@Test
+	public void nonOrderedInputOrderedAndCombined() {
+		IntRangeSet set = new IntRangeSet();
+		set.addRange(3109, 3109 + 2);
+		set.addRange(3059, 3059 + 2);
+		set.addRange(3009, 3009 + 2);
+		set.addRange(3035, 3035 + 2);
+		set.addRange(3203, 3203 + 4);
+		set.addRange(3207, 3207 + 4);
+		List<IntRange> ranges = stream(set.ranges().spliterator(), false).collect(toList());
+		assertThat("Ranges", ranges, contains(rangeOf(3009, 3011), rangeOf(3035, 3037),
+				rangeOf(3059, 3061), rangeOf(3109, 3111), rangeOf(3203, 3211)));
+	}
+
 }

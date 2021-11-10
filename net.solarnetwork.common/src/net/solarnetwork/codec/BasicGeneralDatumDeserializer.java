@@ -22,8 +22,6 @@
 
 package net.solarnetwork.codec;
 
-import static net.solarnetwork.domain.GeneralDatum.locationDatum;
-import static net.solarnetwork.domain.GeneralDatum.nodeDatum;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.Instant;
@@ -37,14 +35,16 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
-import net.solarnetwork.domain.GeneralDatumSamples;
-import net.solarnetwork.domain.GeneralDatumSamplesType;
+import net.solarnetwork.domain.datum.Datum;
+import net.solarnetwork.domain.datum.DatumId;
+import net.solarnetwork.domain.datum.DatumSamples;
+import net.solarnetwork.domain.datum.DatumSamplesType;
 import net.solarnetwork.domain.datum.GeneralDatum;
 import net.solarnetwork.domain.datum.ObjectDatumKind;
 import net.solarnetwork.util.DateUtils;
 
 /**
- * Deserializer for {@link GeneralDatum} objects.
+ * Deserializer for {@link Datum} objects
  * 
  * <p>
  * Supports both "direct" and "nested" style of sample properties. For example a
@@ -68,26 +68,25 @@ import net.solarnetwork.util.DateUtils;
  * </pre>
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  * @since 1.78
  */
-public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<GeneralDatum>
-		implements Serializable {
-
-	/** A default instance. */
-	public static final JsonDeserializer<GeneralDatum> INSTANCE = new BasicGeneralDatumDeserializer();
+public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> implements Serializable {
 
 	private static final long serialVersionUID = 3787325819424216521L;
+
+	/** A default instance. */
+	public static final JsonDeserializer<Datum> INSTANCE = new BasicGeneralDatumDeserializer();
 
 	/**
 	 * Constructor.
 	 */
 	public BasicGeneralDatumDeserializer() {
-		super(GeneralDatum.class);
+		super(Datum.class);
 	}
 
 	@Override
-	public GeneralDatum deserialize(JsonParser p, DeserializationContext ctxt)
+	public Datum deserialize(JsonParser p, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {
@@ -95,9 +94,9 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<General
 		} else if ( p.isExpectedStartObjectToken() ) {
 			Instant ts = null;
 			String sourceId = null;
-			ObjectDatumKind kind = ObjectDatumKind.Node;
+			ObjectDatumKind kind = null;
 			Long objectId = null;
-			GeneralDatumSamples s = new GeneralDatumSamples();
+			DatumSamples s = new DatumSamples();
 			int nestLevel = 1;
 			while ( (t = p.nextToken()) != null ) {
 				if ( t == JsonToken.END_OBJECT ) {
@@ -133,25 +132,25 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<General
 						break;
 
 					case "nodeId":
-						objectId = p.nextLongValue(0);
+						objectId = p.nextLongValue(-1);
 						kind = ObjectDatumKind.Node;
 						break;
 
 					case "locationId":
-						objectId = p.nextLongValue(0);
+						objectId = p.nextLongValue(-1);
 						kind = ObjectDatumKind.Location;
 						break;
 
 					case "i":
-						parseSampleMap(p, ctxt, s, GeneralDatumSamplesType.Instantaneous);
+						parseSampleMap(p, ctxt, s, DatumSamplesType.Instantaneous);
 						break;
 
 					case "a":
-						parseSampleMap(p, ctxt, s, GeneralDatumSamplesType.Accumulating);
+						parseSampleMap(p, ctxt, s, DatumSamplesType.Accumulating);
 						break;
 
 					case "s":
-						parseSampleMap(p, ctxt, s, GeneralDatumSamplesType.Status);
+						parseSampleMap(p, ctxt, s, DatumSamplesType.Status);
 						break;
 
 					case "t":
@@ -164,16 +163,14 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<General
 						break;
 				}
 			}
-			if ( kind == ObjectDatumKind.Location ) {
-				return locationDatum(objectId, sourceId, ts, s);
-			}
-			return nodeDatum(objectId, sourceId, ts, s);
+			DatumId id = new DatumId(kind, objectId, sourceId, ts);
+			return new GeneralDatum(id, s);
 		}
 		throw new JsonParseException(p, "Unable to parse GeneralDatum (not an object)");
 	}
 
-	private void parseSampleMap(JsonParser p, DeserializationContext ctxt, GeneralDatumSamples s,
-			GeneralDatumSamplesType type) throws IOException {
+	private void parseSampleMap(JsonParser p, DeserializationContext ctxt, DatumSamples s,
+			DatumSamplesType type) throws IOException {
 		p.nextToken();
 		Map<String, Object> map = p.readValueAs(JsonUtils.STRING_MAP_TYPE);
 		if ( map != null && !map.isEmpty() ) {

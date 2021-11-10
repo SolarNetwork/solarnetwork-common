@@ -30,33 +30,34 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
-import net.solarnetwork.domain.GeneralDatumSamplesOperations;
-import net.solarnetwork.domain.GeneralDatumSamplesType;
-import net.solarnetwork.domain.datum.GeneralDatum;
+import net.solarnetwork.domain.datum.Datum;
+import net.solarnetwork.domain.datum.DatumSamplesOperations;
+import net.solarnetwork.domain.datum.DatumSamplesType;
+import net.solarnetwork.domain.datum.ObjectDatumKind;
 
 /**
- * Serializer for {@link GeneralDatum} instances.
+ * Serializer for {@link Datum} instances.
  * 
  * @author matt
  * @version 1.0
- * @since 1.78
+ * @since 2.0
  */
-public class BasicGeneralDatumSerializer extends StdScalarSerializer<GeneralDatum> {
-
-	/** A default instance. */
-	public static final JsonSerializer<GeneralDatum> INSTANCE = new BasicGeneralDatumSerializer();
+public class BasicGeneralDatumSerializer extends StdScalarSerializer<Datum> {
 
 	private static final long serialVersionUID = -5820173690461042501L;
+
+	/** A default instance. */
+	public static final JsonSerializer<Datum> INSTANCE = new BasicGeneralDatumSerializer();
 
 	/**
 	 * Constructor.
 	 */
 	public BasicGeneralDatumSerializer() {
-		super(GeneralDatum.class);
+		super(Datum.class);
 	}
 
 	@Override
-	public void serialize(GeneralDatum value, JsonGenerator gen, SerializerProvider provider)
+	public void serialize(Datum value, JsonGenerator gen, SerializerProvider provider)
 			throws IOException {
 		gen.writeStartObject(7);
 		if ( value.getTimestamp() != null ) {
@@ -65,10 +66,13 @@ public class BasicGeneralDatumSerializer extends StdScalarSerializer<GeneralDatu
 		if ( value.getSourceId() != null ) {
 			gen.writeStringField("sourceId", value.getSourceId());
 		}
+		if ( value.getKind() == ObjectDatumKind.Location && value.getObjectId() != null ) {
+			gen.writeNumberField("locationId", value.getObjectId());
+		}
 
-		GeneralDatumSamplesOperations ops = value.asSampleOperations();
-		for ( GeneralDatumSamplesType t : GeneralDatumSamplesType.values() ) {
-			if ( t == GeneralDatumSamplesType.Tag ) {
+		DatumSamplesOperations ops = value.asSampleOperations();
+		for ( DatumSamplesType t : DatumSamplesType.values() ) {
+			if ( t == DatumSamplesType.Tag ) {
 				Set<String> tags = ops.getTags();
 				if ( tags != null && !tags.isEmpty() ) {
 					String[] tagsArray = tags.toArray(new String[tags.size()]);

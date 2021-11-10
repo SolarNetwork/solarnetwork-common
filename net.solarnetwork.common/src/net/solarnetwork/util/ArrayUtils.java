@@ -54,7 +54,7 @@ public final class ArrayUtils {
 	 * {@code factory} is not provided a new instance of {@code itemClass} via
 	 * {@link Class#newInstance()}. The {@link ObjectFactory#getObject()} method
 	 * (or class constructor if no {@code factory} provided) will be called for
-	 * <b>each</b> {@code null} array index.
+	 * <b>each</b> {@literal null} array index.
 	 * </p>
 	 * 
 	 * <p>

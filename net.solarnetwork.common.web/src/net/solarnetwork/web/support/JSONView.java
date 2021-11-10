@@ -46,7 +46,7 @@ import org.springframework.beans.PropertyEditorRegistrar;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import net.solarnetwork.util.SerializeIgnore;
+import net.solarnetwork.domain.SerializeIgnore;
 
 /**
  * View to return JSON encoded data.
@@ -82,7 +82,7 @@ import net.solarnetwork.util.SerializeIgnore;
  * <dt>includeParentheses</dt>
  * <dd>If true, the entire response will be enclosed in parentheses, required
  * for JSON evaluation support in certain browsers. Defaults to
- * <em>false</em>.</dd>
+ * {@literal false}.</dd>
  * 
  * <dt>propertyEditorRegistrar</dt>
  * <dd>An optional registrar of PropertyEditor instances that can be used to
@@ -92,7 +92,7 @@ import net.solarnetwork.util.SerializeIgnore;
  * </dl>
  * 
  * @author Matt Magoffin
- * @version 1.1
+ * @version 1.2
  */
 public class JSONView extends AbstractView {
 

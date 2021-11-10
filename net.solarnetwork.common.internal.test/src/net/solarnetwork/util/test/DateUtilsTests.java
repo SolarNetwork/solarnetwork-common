@@ -37,6 +37,7 @@ import static org.junit.Assume.assumeThat;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -419,6 +420,35 @@ public class DateUtilsTests {
 	}
 
 	@Test
+	public void parseIsoDateOptTimeOptMillisAlt_localDateTime_withMillis() {
+		LocalDateTime ts = DateUtils.ISO_DATE_OPT_TIME_OPT_MILLIS_ALT.parse("2020-02-01 20:12:34.567",
+				LocalDateTime::from);
+		assertThat(ts, equalTo(
+				LocalDateTime.of(2020, 2, 1, 20, 12, 34, (int) TimeUnit.MILLISECONDS.toNanos(567))));
+	}
+
+	@Test
+	public void parseIsoDateOptTimeOptMillisAlt_localDateTime_noMillis() {
+		LocalDateTime ts = DateUtils.ISO_DATE_OPT_TIME_OPT_MILLIS_ALT.parse("2020-02-01 20:12:34",
+				LocalDateTime::from);
+		assertThat(ts, equalTo(LocalDateTime.of(2020, 2, 1, 20, 12, 34, 0)));
+	}
+
+	@Test
+	public void parseIsoDateOptTimeOptMillisAlt_localDateTime_noSeconds() {
+		LocalDateTime ts = DateUtils.ISO_DATE_OPT_TIME_OPT_MILLIS_ALT.parse("2020-02-01 20:12",
+				LocalDateTime::from);
+		assertThat(ts, equalTo(LocalDateTime.of(2020, 2, 1, 20, 12, 0, 0)));
+	}
+
+	@Test
+	public void parseIsoDateOptTimeOptMillisAlt_localDateTime_noTime() {
+		LocalDateTime ts = DateUtils.ISO_DATE_OPT_TIME_OPT_MILLIS_ALT.parse("2020-02-01",
+				LocalDateTime::from);
+		assertThat(ts, equalTo(LocalDateTime.of(2020, 2, 1, 0, 0, 0, 0)));
+	}
+
+	@Test
 	public void formatMonthRange() {
 		String range = DateUtils.formatRange(ChronoField.MONTH_OF_YEAR, rangeOf(2, 11), US, SHORT);
 		assertThat("Formatted range", range, equalTo("Feb-Nov"));
@@ -520,6 +550,42 @@ public class DateUtilsTests {
 				.formatHoursMinutesSeconds(TimeUnit.DAYS.toMillis(4) + TimeUnit.HOURS.toMillis(8)
 						+ TimeUnit.MINUTES.toMillis(12) + TimeUnit.SECONDS.toMillis(34));
 		assertThat("Hours formatted", s, is("4d 08:12:34"));
+	}
+
+	@Test
+	public void parseLocalTime_hhmm() {
+		LocalTime d = DateUtils.parseLocalTime("09:30");
+		assertThat("Time parsed", d, is(LocalTime.of(9, 30)));
+	}
+
+	@Test
+	public void formatLocalTime_hhmm() {
+		String s = DateUtils.format(LocalTime.of(9, 30));
+		assertThat("Time formatted", s, is("09:30"));
+	}
+
+	@Test
+	public void parseLocalTime_24hhmm() {
+		LocalTime d = DateUtils.parseLocalTime("19:30");
+		assertThat("Time parsed", d, is(LocalTime.of(19, 30)));
+	}
+
+	@Test
+	public void formatLocalTime_24hhmm() {
+		String s = DateUtils.format(LocalTime.of(19, 30));
+		assertThat("Time formatted", s, is("19:30"));
+	}
+
+	@Test
+	public void parseLocalDate() {
+		LocalDate d = DateUtils.parseLocalDate("2021-08-26");
+		assertThat("Date parsed", d, is(LocalDate.of(2021, 8, 26)));
+	}
+
+	@Test
+	public void formatLocalDate() {
+		String s = DateUtils.format(LocalDate.of(2021, 8, 26));
+		assertThat("Time formatted", s, is("2021-08-26"));
 	}
 
 }

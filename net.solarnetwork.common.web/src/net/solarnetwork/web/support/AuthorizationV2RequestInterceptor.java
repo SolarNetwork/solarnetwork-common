@@ -27,9 +27,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
@@ -40,8 +42,8 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import net.solarnetwork.security.Snws2AuthorizationBuilder;
 import net.solarnetwork.web.security.AuthorizationCredentialsProvider;
-import net.solarnetwork.web.security.AuthorizationV2Builder;
 
 /**
  * Interceptor to add an {@literal Authorization} HTTP header using the SNWS2
@@ -54,11 +56,12 @@ import net.solarnetwork.web.security.AuthorizationV2Builder;
  * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.16
  */
 public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInterceptor {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final AuthorizationCredentialsProvider credentialsProvider;
 
 	/**
@@ -76,7 +79,7 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 	public ClientHttpResponse intercept(HttpRequest request, byte[] body,
 			ClientHttpRequestExecution execution) throws IOException {
 
-		AuthorizationV2Builder builder = new AuthorizationV2Builder(
+		Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(
 				credentialsProvider.getAuthorizationId());
 		URI uri = request.getURI();
 		HttpHeaders headers = request.getHeaders();
@@ -97,16 +100,21 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 				&& MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType) ) {
 			builder.queryParams(queryParams(new String(body, charset.name()), charset));
 		}
-		builder.method(request.getMethod()).path(uri.getPath()).headers(headers);
+		builder.method(request.getMethod().toString()).path(uri.getPath()).headers(headers);
 		long reqDate = request.getHeaders().getDate();
 		if ( reqDate < 1 ) {
 			reqDate = System.currentTimeMillis();
 			headers.setDate(reqDate);
 		}
-		builder.date(new Date(reqDate));
+		builder.date(Instant.ofEpochMilli(reqDate));
 		if ( body != null && body.length > 0
 				&& !MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType) ) {
-			builder.contentSHA256(DigestUtils.sha256(body));
+			builder.contentSha256(DigestUtils.sha256(body));
+		}
+		if ( log.isDebugEnabled() ) {
+			log.debug("Canonical req data:\n{}", builder.computeCanonicalRequestMessage());
+			log.debug("Signature data:\n{}", builder.computeSignatureData(Instant.ofEpochMilli(reqDate),
+					builder.computeCanonicalRequestMessage()));
 		}
 		headers.set(HttpHeaders.AUTHORIZATION,
 				builder.build(credentialsProvider.getAuthorizationSecret()));

@@ -57,7 +57,7 @@ public class BasicTextFieldSettingSpecifier extends BasicTitleSettingSpecifier
 	 * @param defaultValue
 	 *        the default value
 	 * @param secureTextEntry
-	 *        <em>true</em> if the text should be hidden when editing.
+	 *        {@literal true} if the text should be hidden when editing.
 	 */
 	public BasicTextFieldSettingSpecifier(String key, String defaultValue, boolean secureTextEntry) {
 		super(key, defaultValue);

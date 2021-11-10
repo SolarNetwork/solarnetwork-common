@@ -38,13 +38,13 @@ import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STWriter;
 import net.solarnetwork.domain.BasicIdentity;
-import net.solarnetwork.support.TemplateRenderer;
+import net.solarnetwork.service.TemplateRenderer;
 
 /**
  * StringTemplate 4 implementation of {@link TemplateRenderer}.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class ST4TemplateRenderer extends BasicIdentity<String> implements TemplateRenderer {
 

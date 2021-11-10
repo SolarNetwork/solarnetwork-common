@@ -36,7 +36,7 @@ import org.springframework.expression.spel.SpelCompilerMode;
 import org.springframework.expression.spel.SpelParserConfiguration;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.ReflectivePropertyAccessor;
-import net.solarnetwork.support.ExpressionService;
+import net.solarnetwork.service.ExpressionService;
 
 /**
  * Spring Expression Language implementation of {@link ExpressionService}.

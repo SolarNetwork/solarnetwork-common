@@ -30,13 +30,13 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.protobuf.Message;
-import net.solarnetwork.io.ObjectCodec;
-import net.solarnetwork.io.ObjectDecoder;
-import net.solarnetwork.io.ObjectEncoder;
+import net.solarnetwork.codec.ObjectCodec;
+import net.solarnetwork.codec.ObjectDecoder;
+import net.solarnetwork.codec.ObjectEncoder;
+import net.solarnetwork.service.FilterableService;
+import net.solarnetwork.service.OptionalService;
+import net.solarnetwork.service.support.BasicIdentifiable;
 import net.solarnetwork.settings.SettingsChangeObserver;
-import net.solarnetwork.support.BasicIdentifiable;
-import net.solarnetwork.util.FilterableService;
-import net.solarnetwork.util.OptionalService;
 
 /**
  * A {@link ObjectEncoder} and {@link ObjectDecoder} service that uses a
@@ -49,7 +49,7 @@ import net.solarnetwork.util.OptionalService;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public abstract class ProtobufObjectCodec extends BasicIdentifiable
 		implements ObjectCodec, SettingsChangeObserver {

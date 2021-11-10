@@ -31,7 +31,7 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
-import net.solarnetwork.support.PasswordEncoder;
+import net.solarnetwork.service.PasswordEncoder;
 
 /**
  * A Bouncy Castle implementation of a password encoder using the {@code PBKDF2}
@@ -51,7 +51,7 @@ import net.solarnetwork.support.PasswordEncoder;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class BCPBKDF2PasswordEncoder implements PasswordEncoder {
 

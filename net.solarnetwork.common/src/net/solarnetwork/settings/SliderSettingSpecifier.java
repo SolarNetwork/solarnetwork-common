@@ -34,7 +34,7 @@ public interface SliderSettingSpecifier extends KeyedSettingSpecifier<Double> {
 	 * The minimum value allowed.
 	 * 
 	 * <p>
-	 * If <em>null</em> then <code>0.0</code> is assumed.
+	 * If {@literal null} then {@literal 0} is assumed.
 	 * </p>
 	 * 
 	 * @return the minimum value
@@ -45,7 +45,7 @@ public interface SliderSettingSpecifier extends KeyedSettingSpecifier<Double> {
 	 * The maximum value allowed.
 	 * 
 	 * <p>
-	 * If <em>null</em> then <code>1.0</code> is assumed.
+	 * If {@literal null} then {@literal 1} is assumed.
 	 * </p>
 	 * 
 	 * @return the maximum value
@@ -56,7 +56,7 @@ public interface SliderSettingSpecifier extends KeyedSettingSpecifier<Double> {
 	 * Get a step value for acceptable values between the minimum and maximum.
 	 * 
 	 * <p>
-	 * If <em>null</em> then <code>1.0</code> is assumed.
+	 * If {@literal null} then {@literal 1} is assumed.
 	 * </p>
 	 * 
 	 * @return the step value

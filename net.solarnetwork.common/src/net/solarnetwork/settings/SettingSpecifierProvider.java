@@ -30,7 +30,7 @@ import org.springframework.context.MessageSource;
  * application-managed settings.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public interface SettingSpecifierProvider {
 
@@ -44,7 +44,7 @@ public interface SettingSpecifierProvider {
 	 * 
 	 * @return unique ID
 	 */
-	String getSettingUID();
+	String getSettingUid();
 
 	/**
 	 * Get a non-localized display name.
@@ -57,11 +57,11 @@ public interface SettingSpecifierProvider {
 	 * Get a MessageSource to localize the setting text.
 	 * 
 	 * <p>
-	 * This method can return <em>null</em> if the provider does not have any
+	 * This method can return {@literal null} if the provider does not have any
 	 * localized resources.
 	 * </p>
 	 * 
-	 * @return the MessageSource, or <em>null</em>
+	 * @return the MessageSource, or {@literal null}
 	 */
 	MessageSource getMessageSource();
 
@@ -88,7 +88,7 @@ public interface SettingSpecifierProvider {
 			return null;
 		}
 		for ( SettingSpecifierProvider provider : providers ) {
-			if ( id.equals(provider.getSettingUID()) ) {
+			if ( id.equals(provider.getSettingUid()) ) {
 				return provider.getSettingSpecifiers();
 			}
 		}

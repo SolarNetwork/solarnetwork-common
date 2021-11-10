@@ -42,7 +42,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 import net.solarnetwork.ocpp.dao.SystemUserDao;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.SystemUser;
-import net.solarnetwork.support.PasswordEncoder;
+import net.solarnetwork.service.PasswordEncoder;
 
 /**
  * Intercept the OCPP Charge Point web socket handshake.
@@ -54,7 +54,7 @@ import net.solarnetwork.support.PasswordEncoder;
  * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
@@ -243,7 +243,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	/**
 	 * Get the fixed {@link ChargePointIdentity} username to use.
 	 * 
-	 * @return the username to use; defaults to {@code null}
+	 * @return the username to use; defaults to {@literal null}
 	 */
 	public String getFixedIdentityUsername() {
 		return fixedIdentityUsername;

@@ -44,11 +44,10 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.security.auth.x500.X500Principal;
-import net.solarnetwork.support.CertificateException;
-import net.solarnetwork.support.CertificateService;
-import net.solarnetwork.support.CertificationAuthorityService;
+import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.KeyUsage;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -73,12 +72,15 @@ import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import net.solarnetwork.service.CertificateException;
+import net.solarnetwork.service.CertificateService;
+import net.solarnetwork.service.CertificationAuthorityService;
 
 /**
  * Bouncy Castle implementation of {@link CertificateService}.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class BCCertificateService implements CertificateService, CertificationAuthorityService {
 
@@ -95,8 +97,9 @@ public class BCCertificateService implements CertificateService, CertificationAu
 		X500Principal issuer = new X500Principal(dn);
 		Date now = new Date();
 		Date expire = new Date(now.getTime() + (1000L * 60L * 60L * 24L * certificateExpireDays));
-		JcaX509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(issuer, new BigInteger(
-				String.valueOf(counter.incrementAndGet())), now, expire, issuer, publicKey);
+		JcaX509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(issuer,
+				new BigInteger(String.valueOf(counter.incrementAndGet())), now, expire, issuer,
+				publicKey);
 		JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder(signatureAlgorithm);
 		ContentSigner signer;
 		try {
@@ -167,14 +170,25 @@ public class BCCertificateService implements CertificateService, CertificationAu
 			reader = new PemReader(new StringReader(csrPEM));
 			PemObject pemObj = reader.readPemObject();
 			log.debug("Parsed PEM type {}", pemObj.getType());
-			PKCS10CertificationRequest csr = new PKCS10CertificationRequest(pemObj.getContent());
 
+			X500Name subject;
+			SubjectPublicKeyInfo subjectPublicKeyInfo;
+			if ( pemObj.getType().equalsIgnoreCase("certificate") ) {
+				X509Certificate[] chain = parsePKCS7CertificateChainString(csrPEM);
+				subject = JcaX500NameUtil.getSubject(chain[0]);
+				subjectPublicKeyInfo = SubjectPublicKeyInfo
+						.getInstance(chain[0].getPublicKey().getEncoded());
+			} else {
+				PKCS10CertificationRequest csr = new PKCS10CertificationRequest(pemObj.getContent());
+				subject = csr.getSubject();
+				subjectPublicKeyInfo = csr.getSubjectPublicKeyInfo();
+			}
 			Date now = new Date();
 			Date expire = new Date(now.getTime() + (1000L * 60L * 60L * 24L * certificateExpireDays));
 			X509v3CertificateBuilder builder = new X509v3CertificateBuilder(
-					JcaX500NameUtil.getIssuer(caCert), new BigInteger(String.valueOf(counter
-							.incrementAndGet())), now, expire, csr.getSubject(),
-					csr.getSubjectPublicKeyInfo());
+					JcaX500NameUtil.getIssuer(caCert),
+					new BigInteger(String.valueOf(counter.incrementAndGet())), now, expire, subject,
+					subjectPublicKeyInfo);
 
 			JcaContentSignerBuilder signerBuilder = new JcaContentSignerBuilder(signatureAlgorithm);
 			ContentSigner signer;
@@ -186,19 +200,17 @@ public class BCCertificateService implements CertificateService, CertificationAu
 						digestCalcProvider.get(digestAlgFinder.find("SHA-256")));
 				builder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
 				builder.addExtension(X509Extension.subjectKeyIdentifier, false,
-						extUtils.createSubjectKeyIdentifier(csr.getSubjectPublicKeyInfo()));
+						extUtils.createSubjectKeyIdentifier(subjectPublicKeyInfo));
 				builder.addExtension(X509Extension.authorityKeyIdentifier, false,
 						extUtils.createAuthorityKeyIdentifier(caCert));
 
 				signer = signerBuilder.build(privateKey);
 			} catch ( OperatorException e ) {
-				log.error("Error signing CSR {}", csr.getSubject(), e);
-				throw new CertificateException("Error signing CSR" + csr.getSubject() + ": "
-						+ e.getMessage());
+				log.error("Error signing CSR {}", subject, e);
+				throw new CertificateException("Error signing CSR" + subject + ": " + e.getMessage());
 			} catch ( CertificateEncodingException e ) {
-				log.error("Error signing CSR {}", csr.getSubject().toString(), e);
-				throw new CertificateException("Error signing CSR" + csr.getSubject() + ": "
-						+ e.getMessage());
+				log.error("Error signing CSR {}", subject.toString(), e);
+				throw new CertificateException("Error signing CSR" + subject + ": " + e.getMessage());
 			}
 
 			X509CertificateHolder holder = builder.build(signer);
@@ -296,8 +308,8 @@ public class BCCertificateService implements CertificateService, CertificationAu
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
 			PemObject pemObj = reader.readPemObject();
 			log.debug("Parsed PEM type {}", pemObj.getType());
-			Collection<? extends Certificate> certs = cf.generateCertificates(new ByteArrayInputStream(
-					pemObj.getContent()));
+			Collection<? extends Certificate> certs = cf
+					.generateCertificates(new ByteArrayInputStream(pemObj.getContent()));
 
 			// OK barf, generateCertificates() and even CertPath doesn't return the chain in order
 			// (see http://bugs.sun.com/view_bug.do?bug_id=6238093; but we can't use the Sun-specific

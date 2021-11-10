@@ -25,7 +25,7 @@ package net.solarnetwork.domain.tariff;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Map;
-import net.solarnetwork.support.BasicIdentifiable;
+import net.solarnetwork.service.support.BasicIdentifiable;
 import net.solarnetwork.util.IntRange;
 
 /**

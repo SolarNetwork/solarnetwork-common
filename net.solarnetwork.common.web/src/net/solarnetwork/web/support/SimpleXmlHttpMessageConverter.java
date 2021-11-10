@@ -43,8 +43,8 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import net.solarnetwork.codec.PropertySerializerRegistrar;
 import net.solarnetwork.util.ClassUtils;
-import net.solarnetwork.util.PropertySerializerRegistrar;
 
 /**
  * {@link HttpMessageConverter} that marshals objects into XML documents.

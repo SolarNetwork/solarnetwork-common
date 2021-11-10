@@ -28,7 +28,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
-import net.solarnetwork.domain.GeneralDatumSamplesType;
+import net.solarnetwork.domain.datum.DatumSamplesType;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 
 /**
@@ -40,16 +40,16 @@ import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  * @since 1.72
  */
 public class BasicObjectDatumStreamMetadataSerializer
 		extends StdScalarSerializer<ObjectDatumStreamMetadata> implements Serializable {
 
+	private static final long serialVersionUID = -1844182290390256234L;
+
 	/** A default instance. */
 	public static final BasicObjectDatumStreamMetadataSerializer INSTANCE = new BasicObjectDatumStreamMetadataSerializer();
-
-	private static final long serialVersionUID = -1844182290390256234L;
 
 	/**
 	 * Constructor.
@@ -72,11 +72,11 @@ public class BasicObjectDatumStreamMetadataSerializer
 		BasicObjectDatumStreamMetadataField.SourceId.writeValue(generator, provider, meta.getSourceId());
 		BasicObjectDatumStreamMetadataField.Location.writeValue(generator, provider, meta.getLocation());
 		BasicObjectDatumStreamMetadataField.Instantaneous.writeValue(generator, provider,
-				meta.propertyNamesForType(GeneralDatumSamplesType.Instantaneous));
+				meta.propertyNamesForType(DatumSamplesType.Instantaneous));
 		BasicObjectDatumStreamMetadataField.Accumulating.writeValue(generator, provider,
-				meta.propertyNamesForType(GeneralDatumSamplesType.Accumulating));
+				meta.propertyNamesForType(DatumSamplesType.Accumulating));
 		BasicObjectDatumStreamMetadataField.Status.writeValue(generator, provider,
-				meta.propertyNamesForType(GeneralDatumSamplesType.Status));
+				meta.propertyNamesForType(DatumSamplesType.Status));
 
 		generator.writeEndObject();
 	}

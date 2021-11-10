@@ -58,12 +58,14 @@ import org.slf4j.LoggerFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariConfigMXBean;
 import com.zaxxer.hikari.HikariDataSource;
+import net.solarnetwork.common.osgi.service.DynamicServiceTracker;
 import net.solarnetwork.dao.jdbc.DataSourcePingTest;
+import net.solarnetwork.dao.jdbc.SQLExceptionHandler;
 import net.solarnetwork.dao.jdbc.SQLExceptionHandlerDataSourceProxy;
-import net.solarnetwork.domain.PingTest;
-import net.solarnetwork.support.SearchFilter;
-import net.solarnetwork.support.SearchFilter.LogicOperator;
+import net.solarnetwork.service.PingTest;
 import net.solarnetwork.util.ClassUtils;
+import net.solarnetwork.util.SearchFilter;
+import net.solarnetwork.util.SearchFilter.LogicOperator;
 import net.solarnetwork.util.StringUtils;
 
 /**
@@ -361,7 +363,9 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 			try {
 				DataSource ds = dataSourceFactory.createDataSource(dataSourceProps);
 				if ( exceptionHandlerSupport ) {
-					ds = new SQLExceptionHandlerDataSourceProxy(ds, bundleContext);
+					DynamicServiceTracker<SQLExceptionHandler> handlers = new DynamicServiceTracker<>(
+							bundleContext, SQLExceptionHandler.class);
+					ds = new SQLExceptionHandlerDataSourceProxy(ds, handlers);
 				}
 				this.dataSource = ds;
 				register();

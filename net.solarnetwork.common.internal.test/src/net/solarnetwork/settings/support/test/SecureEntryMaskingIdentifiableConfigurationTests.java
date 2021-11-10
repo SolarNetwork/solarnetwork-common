@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import net.solarnetwork.domain.BasicIdentifiableConfiguration;
-import net.solarnetwork.domain.IdentifiableConfiguration;
+import net.solarnetwork.service.IdentifiableConfiguration;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 import net.solarnetwork.settings.support.SecureEntryMaskingIdentifiableConfiguration;
@@ -43,7 +43,7 @@ import net.solarnetwork.settings.support.SecureEntryMaskingIdentifiableConfigura
  * Test cases for the {@link SecureEntryMaskingIdentifiableConfiguration} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class SecureEntryMaskingIdentifiableConfigurationTests {
 

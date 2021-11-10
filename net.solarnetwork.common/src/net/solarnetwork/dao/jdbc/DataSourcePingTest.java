@@ -29,8 +29,8 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import javax.sql.DataSource;
-import net.solarnetwork.domain.PingTest;
-import net.solarnetwork.domain.PingTestResult;
+import net.solarnetwork.service.PingTest;
+import net.solarnetwork.service.PingTestResult;
 
 /**
  * {@link PingTest} to verify a {@link DataSource} connection is available.
@@ -41,7 +41,7 @@ import net.solarnetwork.domain.PingTestResult;
  * </p>
  * 
  * @author matt
- * @version 1.01
+ * @version 2.0
  * @since 1.52
  */
 public class DataSourcePingTest implements PingTest {

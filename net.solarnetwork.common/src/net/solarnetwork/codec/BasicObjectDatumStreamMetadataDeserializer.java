@@ -51,10 +51,10 @@ import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 public class BasicObjectDatumStreamMetadataDeserializer
 		extends StdScalarDeserializer<ObjectDatumStreamMetadata> implements Serializable {
 
+	private static final long serialVersionUID = -1844182290390256234L;
+
 	/** A default instance. */
 	public static final BasicObjectDatumStreamMetadataDeserializer INSTANCE = new BasicObjectDatumStreamMetadataDeserializer();
-
-	private static final long serialVersionUID = -1844182290390256234L;
 
 	/**
 	 * Constructor.

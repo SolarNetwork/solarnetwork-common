@@ -49,14 +49,14 @@ import net.solarnetwork.ocpp.dao.SystemUserDao;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.SystemUser;
 import net.solarnetwork.ocpp.web.json.OcppWebSocketHandshakeInterceptor;
-import net.solarnetwork.support.PasswordEncoder;
+import net.solarnetwork.service.PasswordEncoder;
 import ocpp.json.WebSocketSubProtocol;
 
 /**
  * Test cases for the {@link OcppWebSocketHandshakeInterceptor} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class OcppWebSocketHandshakeInterceptorTests {
 

@@ -24,13 +24,13 @@ package net.solarnetwork.common.s3.sdk;
 
 import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.event.ProgressEventType;
-import net.solarnetwork.util.ProgressListener;
+import net.solarnetwork.service.ProgressListener;
 
 /**
  * Adapts {@link ProgressListener} to the AWS SDK {@code ProgressListener}.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class SdkTransferProgressListenerAdapter<T> implements com.amazonaws.event.ProgressListener {
 
@@ -49,9 +49,10 @@ public class SdkTransferProgressListenerAdapter<T> implements com.amazonaws.even
 	 *        the listener context
 	 * @param trackRequest
 	 *        {@literal true} to track upload (request) progress,
-	 *        {@literal false} to track download (resopnse) progress
+	 *        {@literal false} to track download (response) progress
 	 */
-	public SdkTransferProgressListenerAdapter(ProgressListener<T> delegate, T context, boolean trackRequest) {
+	public SdkTransferProgressListenerAdapter(ProgressListener<T> delegate, T context,
+			boolean trackRequest) {
 		super();
 		this.delegate = delegate;
 		this.context = context;

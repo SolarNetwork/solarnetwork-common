@@ -51,22 +51,22 @@ import org.springframework.util.MimeType;
 import net.solarnetwork.common.s3.sdk.SdkS3Client;
 import net.solarnetwork.io.ResourceMetadata;
 import net.solarnetwork.io.ResourceMetadataHolder;
-import net.solarnetwork.io.ResourceStorageService;
+import net.solarnetwork.service.OptionalService;
+import net.solarnetwork.service.ProgressListener;
+import net.solarnetwork.service.ResourceStorageService;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
 import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.settings.support.BaseSettingsSpecifierLocalizedServiceInfoProvider;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 import net.solarnetwork.settings.support.SettingUtils;
-import net.solarnetwork.util.OptionalService;
-import net.solarnetwork.util.ProgressListener;
 
 /**
  * AWS S3 based implementation of {@link ResourceStorageService} using the
  * {@link S3Client} API.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
 		implements ResourceStorageService, SettingSpecifierProvider, SettingsChangeObserver {
@@ -539,7 +539,9 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * Alias for {@link #getUid()}.
 	 * 
 	 * @return the UID
+	 * @deprecated since 2.0 use {@link #getUid()}
 	 */
+	@Deprecated
 	public String getUID() {
 		return getUid();
 	}
@@ -553,7 +555,9 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * 
 	 * @param uid
 	 *        the UID to set
+	 * @deprecated since 2.0 use {@link #setUid(String)}
 	 */
+	@Deprecated
 	public void setUID(String uid) {
 		setUid(uid);
 	}
@@ -562,7 +566,9 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * Alias for {@link #getGroupUid()}.
 	 * 
 	 * @return the group UID
+	 * @deprecated use {@link #getGroupUid()}
 	 */
+	@Deprecated
 	public String getGroupUID() {
 		return getGroupUid();
 	}
@@ -576,7 +582,9 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * 
 	 * @param groupUid
 	 *        the group UID to set
+	 * @deprecated since 2.0 use {@link #setGroupUid(String)}
 	 */
+	@Deprecated
 	public void setGroupUID(String groupUid) {
 		setGroupUid(groupUid);
 	}

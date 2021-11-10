@@ -31,7 +31,7 @@ import java.util.Map;
  * Basic persistable domain object API.
  * 
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public interface Datum {
 
@@ -72,14 +72,14 @@ public interface Datum {
 	String DATUM_TYPES_PROPERTY = "_DatumTypes";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} sample key for
-	 * a {@link net.solarnetwork.domain.DeviceOperatingState#getCode()} value.
+	 * A status sample key for a
+	 * {@link net.solarnetwork.domain.DeviceOperatingState#getCode()} value.
 	 */
 	String OP_STATE = "opState";
 
 	/**
-	 * A {@link net.solarnetwork.domain.GeneralNodeDatumSamples} sample key for
-	 * a bitmask of hardware-specific operating state values.
+	 * A status sample key for a bitmask of hardware-specific operating state
+	 * values.
 	 */
 	String OP_STATES = "opStates";
 
@@ -93,6 +93,20 @@ public interface Datum {
 	 * A sample data key for a {@link Datum#getSourceId()} value.
 	 */
 	String SOURCE_ID = "sourceId";
+
+	/**
+	 * Get the object kind.
+	 * 
+	 * @return the object kind
+	 */
+	ObjectDatumKind getKind();
+
+	/**
+	 * Get a domain-specific ID related to the object kind.
+	 * 
+	 * @return the object ID, or {@literal null}
+	 */
+	Long getObjectId();
 
 	/**
 	 * Get the date this datum is associated with, which is often equal to
@@ -136,5 +150,35 @@ public interface Datum {
 	 * @return a Map view of this datum
 	 */
 	Map<String, ?> asSimpleMap();
+
+	/**
+	 * Get a general accessor for the sample data.
+	 * 
+	 * @return the operations instance, never {@literal null}
+	 */
+	DatumSamplesOperations asSampleOperations();
+
+	/**
+	 * Create a copy of this instance with the sample properties replaced by a
+	 * given samples instance.
+	 * 
+	 * @param samples
+	 *        the samples to use for the copy
+	 * @return a new copy of this instance
+	 */
+	Datum copyWithSamples(DatumSamplesOperations samples);
+
+	/**
+	 * Get a copy of this datum with a new ID.
+	 * 
+	 * <p>
+	 * A new samples instance will also be created.
+	 * </p>
+	 * 
+	 * @param id
+	 *        the new ID to use
+	 * @return the copy with the given ID
+	 */
+	Datum copyWithId(DatumId id);
 
 }

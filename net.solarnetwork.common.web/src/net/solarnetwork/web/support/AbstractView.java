@@ -32,7 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import net.solarnetwork.util.PropertySerializerRegistrar;
+import net.solarnetwork.codec.PropertySerializerRegistrar;
 
 /**
  * Extension of {@link org.springframework.web.servlet.view.AbstractView} that
@@ -67,7 +67,7 @@ import net.solarnetwork.util.PropertySerializerRegistrar;
  * </dl>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public abstract class AbstractView extends org.springframework.web.servlet.view.AbstractView {
 
@@ -108,8 +108,8 @@ public abstract class AbstractView extends org.springframework.web.servlet.view.
 		}
 
 		// Consolidate static and dynamic model attributes.
-		Map<String, Object> mergedModel = new LinkedHashMap<String, Object>(getStaticAttributes().size()
-				+ (model != null ? model.size() : 0));
+		Map<String, Object> mergedModel = new LinkedHashMap<String, Object>(
+				getStaticAttributes().size() + (model != null ? model.size() : 0));
 		mergedModel.putAll(getStaticAttributes());
 		if ( model != null ) {
 			mergedModel.putAll(model);
@@ -147,9 +147,9 @@ public abstract class AbstractView extends org.springframework.web.servlet.view.
 			for ( Iterator<Map.Entry<String, Object>> itr = mergedModel.entrySet().iterator(); itr
 					.hasNext(); ) {
 				Map.Entry<String, Object> me = itr.next();
-				Object o = (me.getValue() == null ? null : propertySerializerRegistrar
-						.serializeProperty(me.getKey(), me.getValue().getClass(), me.getValue(),
-								me.getValue()));
+				Object o = (me.getValue() == null ? null
+						: propertySerializerRegistrar.serializeProperty(me.getKey(),
+								me.getValue().getClass(), me.getValue(), me.getValue()));
 				if ( o == null ) {
 					if ( logger.isDebugEnabled() ) {
 						logger.debug("Removing model entry [" + me.getKey()

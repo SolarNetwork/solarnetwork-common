@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.osgi.service.event.Event;
 import net.solarnetwork.domain.SimpleSortDescriptor;
 import net.solarnetwork.domain.SortDescriptor;
 
@@ -41,7 +40,7 @@ import net.solarnetwork.domain.SortDescriptor;
  * @param <K>
  *        the entity primary key type
  * @author matt
- * @version 1.0
+ * @version 2.0
  * @since 1.59
  */
 public interface GenericDao<T extends Entity<K>, K> {
@@ -182,12 +181,10 @@ public interface GenericDao<T extends Entity<K>, K> {
 	 *        the primary key
 	 * @param entity
 	 *        the optional entity
-	 * @param topic
-	 *        the event topic
 	 * @return the new event instance
 	 */
-	static <E extends Entity<I>, I> Event createEntityEvent(I id, E entity, String topic) {
-		if ( id == null || topic == null ) {
+	static <E extends Entity<I>, I> Map<String, Object> createEntityEventProperties(I id, E entity) {
+		if ( id == null ) {
 			return null;
 		}
 		Map<String, Object> props = new HashMap<>(2);
@@ -195,7 +192,7 @@ public interface GenericDao<T extends Entity<K>, K> {
 		if ( entity != null ) {
 			props.put(ENTITY_EVENT_ENTITY_PROPERTY, entity);
 		}
-		return new Event(topic, props);
+		return props;
 	}
 
 	/**

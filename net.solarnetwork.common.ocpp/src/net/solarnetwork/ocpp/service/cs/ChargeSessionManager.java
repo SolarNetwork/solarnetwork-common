@@ -24,7 +24,6 @@ package net.solarnetwork.ocpp.service.cs;
 
 import java.util.Collection;
 import java.util.UUID;
-import net.solarnetwork.domain.Identifiable;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargeSession;
@@ -32,14 +31,14 @@ import net.solarnetwork.ocpp.domain.ChargeSessionEndInfo;
 import net.solarnetwork.ocpp.domain.ChargeSessionStartInfo;
 import net.solarnetwork.ocpp.domain.SampledValue;
 import net.solarnetwork.ocpp.service.AuthorizationException;
+import net.solarnetwork.service.Identifiable;
 
 /**
  * This API represents the set of functionality required by an OCPP Central
  * System to manage charging sessions (OCPP transactions) for Charge Point
  * clients.
  * 
- * @author matt
- * @version 1.0
+ * @author matt @version2.0
  */
 public interface ChargeSessionManager extends Identifiable {
 

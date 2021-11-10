@@ -191,7 +191,7 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 	/**
 	 * Compute the MD5 hash of the request body.
 	 * 
-	 * @return the MD5 hash, or <em>null</em> if there is no request content
+	 * @return the MD5 hash, or {@literal null} if there is no request content
 	 * @throws IOException
 	 *         if an IO exception occurs
 	 * @throws SecurityException
@@ -215,7 +215,7 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 	/**
 	 * Compute the SHA1 hash of the request body.
 	 * 
-	 * @return the SHA1 hash, or <em>null</em> if there is no request content
+	 * @return the SHA1 hash, or {@literal null} if there is no request content
 	 * @throws IOException
 	 *         if an IO exception occurs
 	 * @throws SecurityException
@@ -239,7 +239,7 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 	/**
 	 * Compute the SHA256 hash of the request body.
 	 * 
-	 * @return the SHA256 hash, or <em>null</em> if there is no request content
+	 * @return the SHA256 hash, or {@literal null} if there is no request content
 	 * @throws IOException
 	 *         if an IO exception occurs
 	 * @throws SecurityException

@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Utilities for dealing with numbers.
  * 
  * @author matt
- * @version 1.7
+ * @version 1.8
  * @since 1.42
  */
 public final class NumberUtils {
@@ -171,9 +171,40 @@ public final class NumberUtils {
 			v = new BigDecimal(value.intValue());
 		} else if ( value instanceof Double ) {
 			v = BigDecimal.valueOf(value.doubleValue());
+		} else if ( value instanceof BigInteger ) {
+			v = new BigDecimal((BigInteger) value);
 		} else {
 			// note Float falls through to here per recommended way of converting that to BigDecimal
 			v = new BigDecimal(value.toString());
+		}
+		return v;
+	}
+
+	/**
+	 * Get a {@link BigInteger} for a number.
+	 * 
+	 * <p>
+	 * If {@code value} is already a {@link BigInteger} it will be returned
+	 * directly. Otherwise a new {@link BigInteger} instance will be created out
+	 * of {@code value}.
+	 * </p>
+	 * 
+	 * @param value
+	 *        the number to get a {@code BigInteger} version of
+	 * @return the {@code BigInteger} version of {@code value}, or
+	 *         {@literal null} if {@code value} is {@literal null}
+	 * @since 1.8
+	 */
+	public static BigInteger bigIntegerForNumber(Number value) {
+		BigInteger v = null;
+		if ( value == null ) {
+			return null;
+		} else if ( value instanceof BigInteger ) {
+			v = (BigInteger) value;
+		} else if ( value instanceof BigDecimal ) {
+			v = ((BigDecimal) value).toBigInteger();
+		} else {
+			v = new BigDecimal(value.toString()).toBigInteger();
 		}
 		return v;
 	}
@@ -489,6 +520,123 @@ public final class NumberUtils {
 			next = (result < Long.MAX_VALUE ? result + 1 : restart);
 		} while ( !n.compareAndSet(result, next) );
 		return result;
+	}
+
+	/**
+	 * Parse a String into a Number of a specific type.
+	 * 
+	 * @param numberString
+	 *        the String to parse
+	 * @param numberType
+	 *        the type of Number to return
+	 * @return the new Number instance
+	 * @since 1.8
+	 */
+	public static Number parseNumber(String numberString, Class<? extends Number> numberType) {
+		if ( Integer.class.isAssignableFrom(numberType) ) {
+			return Integer.valueOf(numberString);
+		} else if ( Float.class.isAssignableFrom(numberType) ) {
+			return Float.valueOf(numberString);
+		} else if ( Long.class.isAssignableFrom(numberType) ) {
+			return Long.valueOf(numberString);
+		} else if ( BigDecimal.class.isAssignableFrom(numberType) ) {
+			return new BigDecimal(numberString);
+		} else if ( BigInteger.class.isAssignableFrom(numberType) ) {
+			return new BigInteger(numberString);
+		}
+		return Double.valueOf(numberString);
+	}
+
+	/**
+	 * Divide two {@link Number} instances using a specific implementation of
+	 * Number.
+	 * 
+	 * <p>
+	 * Really the {@code numberType} argument should be considered a
+	 * {@code Class<? extends Number>} but to simplify calling this method any
+	 * Class is allowed.
+	 * </p>
+	 * 
+	 * @param dividend
+	 *        the dividend value
+	 * @param divisor
+	 *        the divisor value
+	 * @param numberType
+	 *        the type of Number to treat the dividend and divisor as
+	 * @return a Number instance of type {@code numberType}
+	 * @since 1.8
+	 */
+	public static Number divide(Number dividend, Number divisor, Class<?> numberType) {
+		if ( Integer.class.isAssignableFrom(numberType) ) {
+			return dividend.intValue() / divisor.intValue();
+		} else if ( Float.class.isAssignableFrom(numberType) ) {
+			return dividend.floatValue() / divisor.floatValue();
+		} else if ( Long.class.isAssignableFrom(numberType) ) {
+			return dividend.longValue() / divisor.longValue();
+		} else if ( dividend instanceof BigDecimal ) {
+			return ((BigDecimal) dividend).divide((bigDecimalForNumber(divisor)));
+		} else if ( BigInteger.class.isAssignableFrom(numberType) ) {
+			return new BigDecimal((BigInteger) dividend).divide((bigDecimalForNumber(divisor)));
+		}
+		return dividend.doubleValue() / divisor.doubleValue();
+	}
+
+	/**
+	 * Subtract two Number instances.
+	 * 
+	 * <p>
+	 * The returned Number will be an instance of the {@code start} class.
+	 * </p>
+	 * 
+	 * @param start
+	 *        the starting number to subtract from
+	 * @param offset
+	 *        the amount to subtract
+	 * @return a Number instance of the same type as {@code start}
+	 * @since 1.8
+	 */
+	public static Number subtract(Number start, Number offset) {
+		if ( start instanceof Integer ) {
+			return Integer.valueOf(start.intValue() - offset.intValue());
+		} else if ( start instanceof Float ) {
+			return Float.valueOf(start.floatValue() - offset.floatValue());
+		} else if ( start instanceof Long ) {
+			return Long.valueOf(start.longValue() - offset.longValue());
+		} else if ( start instanceof BigDecimal ) {
+			return ((BigDecimal) start).subtract((bigDecimalForNumber(offset)));
+		} else if ( start instanceof BigInteger ) {
+			return ((BigInteger) start).subtract(bigIntegerForNumber(offset));
+		}
+		return Double.valueOf(start.doubleValue() - offset.doubleValue());
+	}
+
+	/**
+	 * Multiply two Number instances.
+	 * 
+	 * <p>
+	 * The returned Number will be an instance of the {@code a} class.
+	 * </p>
+	 * 
+	 * @param a
+	 *        first number
+	 * @param b
+	 *        second number
+	 * @return a Number instance of the same type as {@code a}
+	 * @since 1.8
+	 */
+	public static Number multiply(Number a, Number b) {
+		if ( a instanceof Integer ) {
+			return Integer.valueOf(a.intValue() * b.intValue());
+		} else if ( a instanceof Float ) {
+			return Float.valueOf(a.floatValue() * b.floatValue());
+		} else if ( a instanceof Long ) {
+			return Long.valueOf(a.longValue() * b.longValue());
+		} else if ( a instanceof BigDecimal ) {
+			return ((BigDecimal) a).multiply((bigDecimalForNumber(b)));
+		} else if ( a instanceof BigInteger ) {
+			return ((BigInteger) a).multiply(bigIntegerForNumber(b));
+		}
+		return Double.valueOf(a.doubleValue() * b.doubleValue());
 	}
 
 }

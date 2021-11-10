@@ -36,10 +36,10 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
-import net.solarnetwork.domain.PingTest;
-import net.solarnetwork.domain.PingTestResult;
+import net.solarnetwork.service.PingTest;
+import net.solarnetwork.service.PingTestResult;
+import net.solarnetwork.service.support.BasicIdentifiable;
 import net.solarnetwork.settings.SettingsChangeObserver;
-import net.solarnetwork.support.BasicIdentifiable;
 
 /**
  * Base implementation of {@link MqttConnection}.
