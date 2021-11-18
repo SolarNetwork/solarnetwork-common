@@ -658,12 +658,17 @@ final class MqttClientImpl implements MqttClient {
 			}
 			ch.pipeline().addLast("mqttDecoder", new MqttDecoder(clientConfig.getMaxBytesInMessage()));
 			ch.pipeline().addLast("mqttEncoder", MqttEncoder.INSTANCE);
-			ch.pipeline().addLast("idleStateHandler",
-					new IdleStateHandler(
-							MqttClientImpl.this.clientConfig.getTimeoutSeconds() * READ_TIMEOUT_FACTOR,
-							MqttClientImpl.this.clientConfig.getTimeoutSeconds(), 0));
-			ch.pipeline().addLast("mqttPingHandler",
-					new MqttPingHandler(MqttClientImpl.this.clientConfig.getTimeoutSeconds()));
+
+			final int timeout = MqttClientImpl.this.clientConfig.getTimeoutSeconds();
+			final int readTimeout = MqttClientImpl.this.clientConfig.getReadTimeoutSeconds();
+			final int writeTimeout = MqttClientImpl.this.clientConfig.getWriteTimeoutSeconds();
+			if ( readTimeout > 0 || writeTimeout > 0 ) {
+				ch.pipeline().addLast("idleStateHandler",
+						new IdleStateHandler(
+								readTimeout >= 0 ? readTimeout : timeout * READ_TIMEOUT_FACTOR,
+								writeTimeout >= 0 ? writeTimeout : timeout, 0));
+			}
+			ch.pipeline().addLast("mqttPingHandler", new MqttPingHandler(timeout, readTimeout != 0));
 			ch.pipeline().addLast("mqttHandler",
 					new MqttChannelHandler(MqttClientImpl.this, connectFuture));
 		}

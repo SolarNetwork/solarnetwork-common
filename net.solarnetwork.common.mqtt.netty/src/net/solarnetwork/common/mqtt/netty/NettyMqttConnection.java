@@ -55,6 +55,7 @@ import net.solarnetwork.common.mqtt.MqttProperty;
 import net.solarnetwork.common.mqtt.MqttPropertyType;
 import net.solarnetwork.common.mqtt.MqttQos;
 import net.solarnetwork.common.mqtt.MqttStats;
+import net.solarnetwork.common.mqtt.MqttUtils;
 import net.solarnetwork.common.mqtt.WireLoggingSupport;
 import net.solarnetwork.common.mqtt.netty.client.ChannelClosedException;
 import net.solarnetwork.common.mqtt.netty.client.MqttClient;
@@ -69,7 +70,7 @@ import net.solarnetwork.support.SSLService;
  * Netty based implementation of {@link MqttConnection}.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class NettyMqttConnection extends BaseMqttConnection
 		implements MqttMessageHandler, MqttClientCallback, WireLoggingSupport {
@@ -553,6 +554,14 @@ public class NettyMqttConnection extends BaseMqttConnection
 		if ( message == null ) {
 			return CompletableFuture.completedFuture(null);
 		}
+		try {
+			MqttUtils.validateTopicName(message.getTopic(), getConnectionConfig().getVersion());
+		} catch ( IllegalArgumentException e ) {
+			CompletableFuture<Void> f = new CompletableFuture<>();
+			f.completeExceptionally(e);
+			return f;
+		}
+
 		MqttClient c = this.client;
 		if ( c == null ) {
 			CompletableFuture<Void> f = new CompletableFuture<>();
