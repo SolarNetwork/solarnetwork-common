@@ -22,14 +22,16 @@
 
 package net.solarnetwork.util.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -395,6 +397,22 @@ public class NumberUtilsTests {
 		// THEN
 		assertThat("Got value without wrapping", result1, is(Long.MAX_VALUE));
 		assertThat("Got value with wrapping", result2, is(-1L));
+	}
+
+	@Test
+	public void testHumanReadableCount() {
+		// GIVEN
+		final Long[] inputs = new Long[] { 0L, 27L, 999L, 1000L, 1023L, 1024L, 1728L, 110592L, 7077888L,
+				452984832L, 28991029248L, 1855425871872L, 9223372036854775807L };
+
+		// WHEN
+		final String[] result = Arrays.stream(inputs).map(n -> NumberUtils.humanReadableCount(n))
+				.toArray(String[]::new);
+
+		// THEN
+		assertThat("Counts converted to formatted strings", result,
+				arrayContaining("0 B", "27 B", "999 B", "1.0 kB", "1.0 kB", "1.0 kB", "1.7 kB",
+						"110.6 kB", "7.1 MB", "453.0 MB", "29.0 GB", "1.9 TB", "9.2 EB"));
 	}
 
 }

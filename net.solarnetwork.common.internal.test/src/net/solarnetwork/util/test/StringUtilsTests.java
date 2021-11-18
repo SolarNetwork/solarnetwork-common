@@ -22,9 +22,11 @@
 
 package net.solarnetwork.util.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -32,7 +34,6 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,13 +50,14 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import net.solarnetwork.domain.KeyValuePair;
+import net.solarnetwork.util.ByteUtils;
 import net.solarnetwork.util.StringUtils;
 
 /**
  * Unit test for the StringUtils class.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class StringUtilsTests {
 
@@ -501,6 +503,22 @@ public class StringUtilsTests {
 	public void simpleIdValue_complex() {
 		String id = StringUtils.simpleIdValue("!! OMG, is this like, SOO **complex**, or what?!");
 		assertThat("Empty ID generated", id, equalTo("omg_is_this_like_soo_complex_or_what"));
+	}
+
+	@Test
+	public void utf8length_basic() {
+		String input = "hello";
+
+		assertThat("UTF-8 byte count", StringUtils.utf8length(input),
+				is(equalTo(input.getBytes(ByteUtils.UTF8).length)));
+	}
+
+	@Test
+	public void utf8length_greek() {
+		String input = "\u03ba\u03cc\u03c3\u03bc\u03b5";
+
+		assertThat("UTF-8 byte count", StringUtils.utf8length(input),
+				is(equalTo(input.getBytes(ByteUtils.UTF8).length)));
 	}
 
 }

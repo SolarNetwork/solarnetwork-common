@@ -24,12 +24,12 @@ package net.solarnetwork.util.test;
 
 import static net.solarnetwork.domain.ByteOrdering.BigEndian;
 import static net.solarnetwork.domain.ByteOrdering.LittleEndian;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -41,7 +41,7 @@ import net.solarnetwork.util.ByteUtils;
  * Test cases for the {@link ByteUtils} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ByteUtilsTests {
 
@@ -549,6 +549,22 @@ public class ByteUtilsTests {
 		for ( int i = 0; i < data.length; i++ ) {
 			assertThat("Byte turned to primitive " + i, result[i], equalTo(data[i]));
 		}
+	}
+
+	@Test
+	public void testHumanReadableByteCount() {
+		// GIVEN
+		final Long[] inputs = new Long[] { 0L, 27L, 999L, 1000L, 1023L, 1024L, 1728L, 110592L, 7077888L,
+				452984832L, 28991029248L, 1855425871872L, 9223372036854775807L };
+
+		// WHEN
+		final String[] result = Arrays.stream(inputs).map(n -> ByteUtils.humanReadableByteCount(n))
+				.toArray(String[]::new);
+
+		// THEN
+		assertThat("Counts converted to formatted strings", result,
+				arrayContaining("0 B", "27 B", "999 B", "1000 B", "1023 B", "1.0 KiB", "1.7 KiB",
+						"108.0 KiB", "6.8 MiB", "432.0 MiB", "27.0 GiB", "1.7 TiB", "8.0 EiB"));
 	}
 
 }

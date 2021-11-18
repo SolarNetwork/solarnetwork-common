@@ -25,6 +25,8 @@ package net.solarnetwork.util;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
 import net.solarnetwork.domain.BitDataType;
 import net.solarnetwork.domain.ByteOrdering;
 
@@ -37,7 +39,7 @@ import net.solarnetwork.domain.ByteOrdering;
  * </p>
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.54
  */
 public final class ByteUtils {
@@ -1110,6 +1112,40 @@ public final class ByteUtils {
 			result[i] = array[i] != null ? array[i].byteValue() : nullValue;
 		}
 		return result;
+	}
+
+	/**
+	 * Format a byte count in a "human readable" format, with progressively
+	 * larger binary units (powers of 1024).
+	 * 
+	 * <p>
+	 * For example this method will return {@literal 6.8 MiB} for input of
+	 * {@literal 7077888}.
+	 * </p>
+	 * 
+	 * <p>
+	 * Adapted from
+	 * <a href="https://stackoverflow.com/a/3758880/3072216">@aioobe on Stack
+	 * Overflow</a>
+	 * 
+	 * @param count
+	 *        the byte count to format
+	 * @return the count formatted as a string
+	 * @since 1.3
+	 */
+	public static String humanReadableByteCount(long count) {
+		long absB = count == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(count);
+		if ( absB < 1024 ) {
+			return count + " B";
+		}
+		long value = absB;
+		CharacterIterator ci = new StringCharacterIterator("KMGTPE");
+		for ( int i = 40; i >= 0 && absB > 0xfffccccccccccccL >> i; i -= 10 ) {
+			value >>= 10;
+			ci.next();
+		}
+		value *= Long.signum(count);
+		return String.format("%.1f %ciB", value / 1024.0, ci.current());
 	}
 
 }

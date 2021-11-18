@@ -25,6 +25,8 @@ package net.solarnetwork.util;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -33,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Utilities for dealing with numbers.
  * 
  * @author matt
- * @version 1.8
+ * @version 1.9
  * @since 1.42
  */
 public final class NumberUtils {
@@ -637,6 +639,37 @@ public final class NumberUtils {
 			return ((BigInteger) a).multiply(bigIntegerForNumber(b));
 		}
 		return Double.valueOf(a.doubleValue() * b.doubleValue());
+	}
+
+	/**
+	 * Format a count in a "human readable" format, with progressively larger SI
+	 * units.
+	 * 
+	 * <p>
+	 * For example this method will return {@literal 7.1 MB} for input of
+	 * {@literal 7077888}.
+	 * </p>
+	 * 
+	 * <p>
+	 * Adapted from
+	 * <a href="https://stackoverflow.com/a/3758880/3072216">@aioobe on Stack
+	 * Overflow</a>
+	 * 
+	 * @param count
+	 *        the count to format
+	 * @return the count formatted as a string
+	 * @since 1.9
+	 */
+	public static String humanReadableCount(long count) {
+		if ( -1000 < count && count < 1000 ) {
+			return count + " B";
+		}
+		CharacterIterator ci = new StringCharacterIterator("kMGTPE");
+		while ( count <= -999_950 || count >= 999_950 ) {
+			count /= 1000;
+			ci.next();
+		}
+		return String.format("%.1f %cB", count / 1000.0, ci.current());
 	}
 
 }

@@ -23,9 +23,10 @@
 package net.solarnetwork.common.mqtt.integration.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -381,6 +382,35 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		String result = session.getPublishPayloadStringAtIndex(0);
 		assertThat("Published message payload", result, equalTo(msg));
+	}
+
+	@Test
+	public void publish_invalidTopic() throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(false);
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final String msg = "Hello, world.";
+		try {
+			service.publish(
+					new BasicMqttMessage("bad/#/topic", false, MqttQos.AtLeastOnce, msg.getBytes(UTF8)))
+					.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+		} catch ( ExecutionException e ) {
+			assertThat("Invalid topic results in IllegalArgumentException", e.getCause(),
+					instanceOf(IllegalArgumentException.class));
+		}
+
+		stopMqttServer(); // to flush messages
+
+		// then
+		TestingInterceptHandler session = getTestingInterceptHandler();
+		assertThat("Published no message", session.publishMessages, hasSize(0));
 	}
 
 	private void publishConcurrently(final MqttQos qos) throws Exception {
