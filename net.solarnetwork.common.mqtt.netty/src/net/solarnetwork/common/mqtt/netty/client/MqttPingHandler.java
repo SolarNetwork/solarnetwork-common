@@ -33,11 +33,18 @@ import io.netty.util.concurrent.ScheduledFuture;
 final class MqttPingHandler extends ChannelInboundHandlerAdapter {
 
 	private final int keepaliveSeconds;
+	private final boolean closeOnReaderIdle;
 
 	private ScheduledFuture<?> pingRespTimeout;
 
 	MqttPingHandler(int keepaliveSeconds) {
+		this(keepaliveSeconds, true);
+	}
+
+	MqttPingHandler(int keepaliveSeconds, boolean closeOnReaderIdle) {
+		super();
 		this.keepaliveSeconds = keepaliveSeconds;
+		this.closeOnReaderIdle = closeOnReaderIdle;
 	}
 
 	@Override
@@ -64,12 +71,18 @@ final class MqttPingHandler extends ChannelInboundHandlerAdapter {
 			IdleStateEvent event = (IdleStateEvent) evt;
 			switch (event.state()) {
 				case READER_IDLE:
-					// reader timeout: assume network connection lost (half open maybe?) so force closed
-					// because on a healthy connection we should never get here, even from a connection
-					// not explicitly publishing/receiving messages because PINGREQ message are
-					// automatically published below from writer timeout and we assume the writer timeout
-					// is less than the reader timeout
-					ctx.close();
+					if ( this.closeOnReaderIdle ) {
+						// reader timeout: assume network connection lost (half open maybe?) so force closed
+						// because on a healthy connection we should never get here, even from a connection
+						// not explicitly publishing/receiving messages because PINGREQ message are
+						// automatically published below from writer timeout and we assume the writer timeout
+						// is less than the reader timeout
+						ctx.close();
+					} else {
+						// perhaps a publish-only connection, so just push a PINGREQ to ensure the connection
+						// is actually fully open 
+						this.sendPingReq(ctx.channel());
+					}
 					break;
 				case WRITER_IDLE:
 					this.sendPingReq(ctx.channel());

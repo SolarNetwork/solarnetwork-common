@@ -30,7 +30,7 @@ import io.netty.handler.ssl.SslContext;
  * MQTT client configuration.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public final class MqttClientConfig {
 
@@ -40,6 +40,8 @@ public final class MqttClientConfig {
 
 	private String clientId;
 	private int timeoutSeconds = 60;
+	private int readTimeoutSeconds = -1;
+	private int writeTimeoutSeconds = -1;
 	private MqttVersion protocolVersion = MqttVersion.MQTT_3_1;
 	private String username = null;
 	private String password = null;
@@ -88,6 +90,50 @@ public final class MqttClientConfig {
 			throw new IllegalArgumentException("timeoutSeconds must be > 0 or -1");
 		}
 		this.timeoutSeconds = timeoutSeconds;
+	}
+
+	/**
+	 * Get a read-specific timeout.
+	 * 
+	 * @return the seconds to use for a read-specific timeout, or {@literal 0}
+	 *         to disable or {@literal -1} to use the
+	 *         {@link #getTimeoutSeconds()} value; defaults to {@literal -1}
+	 */
+	public int getReadTimeoutSeconds() {
+		return readTimeoutSeconds;
+	}
+
+	/**
+	 * Set the read-specific timeout.
+	 * 
+	 * @param readTimeoutSeconds
+	 *        the timeout to set, or {@literal 0} to disable or {@literal -1} to
+	 *        use the {@link #getTimeoutSeconds()} value
+	 */
+	public void setReadTimeoutSeconds(int readTimeoutSeconds) {
+		this.readTimeoutSeconds = readTimeoutSeconds;
+	}
+
+	/**
+	 * Get a write-specific timeout.
+	 * 
+	 * @return the seconds to use for a write-specific timeout, or {@literal 0}
+	 *         to disable or {@literal -1} to use the
+	 *         {@link #getTimeoutSeconds()} value; defaults to {@literal -1}
+	 */
+	public int getWriteTimeoutSeconds() {
+		return writeTimeoutSeconds;
+	}
+
+	/**
+	 * Set the write-specific timeout.
+	 * 
+	 * @param writeTimeoutSeconds
+	 *        the timeout to set, or {@literal 0} to disable or {@literal -1} to
+	 *        use the {@link #getTimeoutSeconds()} value
+	 */
+	public void setWriteTimeoutSeconds(int writeTimeoutSeconds) {
+		this.writeTimeoutSeconds = writeTimeoutSeconds;
 	}
 
 	public MqttVersion getProtocolVersion() {

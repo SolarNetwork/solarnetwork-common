@@ -485,7 +485,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 					message.isRetained(), null,
 					new CompletableMqttActionListener(f, MqttStats.BasicCounts.MessagesDelivered,
 							MqttStats.BasicCounts.MessagesDeliveredFail));
-		} catch ( MqttException e ) {
+		} catch ( Exception e ) {
 			if ( s != null ) {
 				s.incrementAndGet(MqttStats.BasicCounts.MessagesDeliveredFail);
 			}

@@ -42,7 +42,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  * 
  * @author matt
- * @version 1.8
+ * @version 1.10
  */
 public final class StringUtils {
 
@@ -697,6 +697,24 @@ public final class StringUtils {
 			s = UNDERSCORE_PREFIX_OR_SUFFIX.matcher(s).replaceAll("");
 		}
 		return s;
+	}
+
+	/**
+	 * Calcualte the UTF-8 byte length of a given string.
+	 * 
+	 * <p>
+	 * This is faster than converting the string to a byte array in the UTF-8
+	 * encoding.
+	 * </p>
+	 * 
+	 * @param text
+	 *        the text to calcualte the UTF-8 length of
+	 * @return the length
+	 * @since 1.10
+	 */
+	public static int utf8length(CharSequence text) {
+		return text.length()
+				+ text.codePoints().filter(cp -> cp > 0x7f).map(cp -> cp <= 0x7ff ? 1 : 2).sum();
 	}
 
 }
