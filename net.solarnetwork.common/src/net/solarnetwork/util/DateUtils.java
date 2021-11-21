@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
  * Date and time utilities.
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.59
  */
 public final class DateUtils {
@@ -282,6 +282,53 @@ public final class DateUtils {
 	public static final DateTimeFormatter ISO_DATE_OPT_TIME_OPT_MILLIS_ALT_UTC;
 	static {
 		ISO_DATE_OPT_TIME_OPT_MILLIS_ALT_UTC = ISO_DATE_OPT_TIME_OPT_MILLIS_ALT.withZone(ZoneOffset.UTC);
+	}
+
+	/**
+	 * Date and time formatter using the ISO 8601 style but with an optional
+	 * time component using an optional milliseconds of secodn component.
+	 * 
+	 * <p>
+	 * This supports patterns like:
+	 * </p>
+	 * <ul>
+	 * <li>{@literal 2020-02-01T20:12:34.567}</li>
+	 * <li>{@literal 2020-02-01T20:12:34}</li>
+	 * <li>{@literal 2020-02-01T20:12}</li>
+	 * <li>{@literal 2020-02-01}</li>
+	 * </ul>
+	 * 
+	 * @since 2.1
+	 */
+	public static final DateTimeFormatter ISO_DATE_OPT_TIME_OPT_MILLIS;
+	static {
+		// @formatter:off
+		ISO_DATE_OPT_TIME_OPT_MILLIS = new DateTimeFormatterBuilder()
+                .parseCaseInsensitive()
+                .append(DateTimeFormatter.ISO_LOCAL_DATE)
+				.parseDefaulting(ChronoField.ERA, ChronoField.ERA.range().getMaximum())
+				.optionalStart()
+				.appendLiteral('T')
+				.append(ISO_LOCAL_TIME_OPT_MILLIS)
+				.optionalEnd()
+				.parseDefaulting(ChronoField.HOUR_OF_DAY, ChronoField.HOUR_OF_DAY.range().getMinimum())
+				.parseDefaulting(ChronoField.MINUTE_OF_HOUR, ChronoField.MINUTE_OF_HOUR.range().getMinimum())
+				.parseDefaulting(ChronoField.SECOND_OF_MINUTE, ChronoField.SECOND_OF_MINUTE.range().getMinimum())
+				.parseDefaulting(ChronoField.MILLI_OF_SECOND, ChronoField.MILLI_OF_SECOND.range().getMinimum())
+				.toFormatter()
+				.withChronology(IsoChronology.INSTANCE);
+		// @formatter:on
+	}
+
+	/**
+	 * Date and time formatter based on {@link #ISO_DATE_OPT_TIME_OPT_MILLIS}
+	 * with a UTC time zone offset applied.
+	 * 
+	 * @since 2.1
+	 */
+	public static final DateTimeFormatter ISO_DATE_OPT_TIME_OPT_MILLIS_UTC;
+	static {
+		ISO_DATE_OPT_TIME_OPT_MILLIS_UTC = ISO_DATE_OPT_TIME_OPT_MILLIS.withZone(ZoneOffset.UTC);
 	}
 
 	/**
