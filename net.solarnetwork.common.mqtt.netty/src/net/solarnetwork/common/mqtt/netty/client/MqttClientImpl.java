@@ -662,7 +662,7 @@ final class MqttClientImpl implements MqttClient {
 			final int timeout = MqttClientImpl.this.clientConfig.getTimeoutSeconds();
 			final int readTimeout = MqttClientImpl.this.clientConfig.getReadTimeoutSeconds();
 			final int writeTimeout = MqttClientImpl.this.clientConfig.getWriteTimeoutSeconds();
-			if ( readTimeout > 0 || writeTimeout > 0 ) {
+			if ( readTimeout != 0 || writeTimeout != 0 ) {
 				ch.pipeline().addLast("idleStateHandler",
 						new IdleStateHandler(
 								readTimeout >= 0 ? readTimeout : timeout * READ_TIMEOUT_FACTOR,
