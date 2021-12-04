@@ -95,6 +95,13 @@ public class MeterValuesProcessor
 			ChargeSession session = chargeSessionManager.getActiveChargingSession(chargePointId,
 					req.getTransactionId());
 
+			if ( session == null ) {
+				ErrorCodeException err = new ErrorCodeException(ActionErrorCode.GenericError,
+						"Charge session not found for given IDs.");
+				resultHandler.handleActionMessageResult(message, null, err);
+				return;
+			}
+
 			List<MeterValue> values = req.getMeterValue();
 			List<SampledValue> newReadings = new ArrayList<>();
 			if ( values != null && !values.isEmpty() ) {
