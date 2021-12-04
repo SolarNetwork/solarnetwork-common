@@ -26,6 +26,7 @@ import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.expect;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -50,6 +51,8 @@ import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
 import net.solarnetwork.ocpp.v16.cs.MeterValuesProcessor;
+import ocpp.domain.ErrorCodeException;
+import ocpp.v16.ActionErrorCode;
 import ocpp.v16.CentralSystemAction;
 import ocpp.v16.cs.Location;
 import ocpp.v16.cs.Measurand;
@@ -172,6 +175,43 @@ public class MeterValuesProcessorTests {
 				assertThat("Value copied 1", sve.getValue(), equalTo("3000"));
 			}
 		}
+	}
+
+	@Test
+	public void process_err_noSession() throws InterruptedException {
+		// given
+		CountDownLatch l = new CountDownLatch(1);
+		ChargePointIdentity clientId = createClientId();
+		ChargePoint cp = new ChargePoint(UUID.randomUUID().getMostSignificantBits(), Instant.now(),
+				new ChargePointInfo(clientId.getIdentifier()));
+		String idTag = UUID.randomUUID().toString().substring(0, 20);
+		int transactionId = 1;
+
+		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
+				transactionId);
+		expect(chargeSessionManager.getActiveChargingSession(clientId, transactionId)).andReturn(null);
+
+		// when
+		replayAll();
+		MeterValuesRequest req = new MeterValuesRequest();
+		req.setConnectorId(session.getConnectorId());
+		req.setTransactionId(session.getTransactionId());
+
+		ActionMessage<MeterValuesRequest> message = new BasicActionMessage<MeterValuesRequest>(clientId,
+				CentralSystemAction.MeterValues, req);
+		processor.processActionMessage(message, (msg, res, err) -> {
+			assertThat("Message passed", msg, sameInstance(message));
+			assertThat("Result available", res, nullValue());
+			assertThat("Error thrown", err, instanceOf(ErrorCodeException.class));
+			ErrorCodeException ex = (ErrorCodeException) err;
+			assertThat("Error is generic", ex.getErrorCode(), equalTo(ActionErrorCode.GenericError));
+
+			l.countDown();
+			return true;
+		});
+
+		// then
+		assertThat("Result handler invoked", l.await(1, TimeUnit.SECONDS), equalTo(true));
 	}
 
 }
