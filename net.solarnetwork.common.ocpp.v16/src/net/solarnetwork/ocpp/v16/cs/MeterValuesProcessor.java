@@ -48,7 +48,7 @@ import ocpp.xml.support.XmlDateUtils;
  * Process {@link MeterValuesRequest} action messages.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class MeterValuesProcessor
 		extends BaseActionMessageProcessor<MeterValuesRequest, MeterValuesResponse> {
