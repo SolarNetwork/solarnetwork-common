@@ -170,12 +170,16 @@ public class NettyMqttConnection extends BaseMqttConnection
 			}
 			if ( config != null ) {
 				MqttClient client = null;
+				MqttStats s = connectionConfig.getStats();
 				try {
 					client = MqttClient.create(config, NettyMqttConnection.this);
 					client.setWireLogging(wireLogging || connectionConfig.isWireLoggingEnabled());
 					client.setCallback(NettyMqttConnection.this);
 					client.setEventLoop(new NioEventLoopGroup(ioThreadCount,
 							new CustomizableThreadFactory("MQTT-" + getUid() + "-")));
+					if ( s != null ) {
+						s.incrementAndGet(MqttStats.BasicCounts.ConnectionAttempts);
+					}
 					log.info("Connecting to MQTT server {}...", connectionConfig.getServerUri());
 					Future<MqttConnectResult> f = client.connect(connectionConfig.getHost(),
 							connectionConfig.getPort());
@@ -197,7 +201,6 @@ public class NettyMqttConnection extends BaseMqttConnection
 						}
 					}
 				}
-				MqttStats s = connectionConfig.getStats();
 				if ( s != null ) {
 					s.incrementAndGet(MqttStats.BasicCounts.ConnectionFail);
 				}
