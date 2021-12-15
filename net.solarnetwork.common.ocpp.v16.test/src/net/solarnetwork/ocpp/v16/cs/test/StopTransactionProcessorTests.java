@@ -26,6 +26,7 @@ import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.expect;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -55,6 +56,8 @@ import net.solarnetwork.ocpp.domain.ChargeSessionEndReason;
 import net.solarnetwork.ocpp.service.AuthorizationException;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
 import net.solarnetwork.ocpp.v16.cs.StopTransactionProcessor;
+import ocpp.domain.ErrorHolder;
+import ocpp.v16.ActionErrorCode;
 import ocpp.v16.CentralSystemAction;
 import ocpp.v16.cs.IdTagInfo;
 import ocpp.v16.cs.Location;
@@ -98,7 +101,7 @@ public class StopTransactionProcessorTests {
 	}
 
 	@Test
-	public void start_ok() throws InterruptedException {
+	public void stop_ok() throws InterruptedException {
 		// given
 		CountDownLatch l = new CountDownLatch(1);
 		ChargePointIdentity clientId = createClientId();
@@ -205,7 +208,7 @@ public class StopTransactionProcessorTests {
 	}
 
 	@Test
-	public void start_notAuthorized() throws InterruptedException {
+	public void stop_notAuthorized() throws InterruptedException {
 		// given
 		CountDownLatch l = new CountDownLatch(1);
 		ChargePointIdentity chargePointId = createClientId();
@@ -236,6 +239,45 @@ public class StopTransactionProcessorTests {
 			assertThat("Result info available", tagInfo, notNullValue());
 			assertThat("Result tag status", tagInfo.getStatus(),
 					equalTo(ocpp.v16.cs.AuthorizationStatus.BLOCKED));
+
+			l.countDown();
+			return true;
+		});
+
+		// then
+		assertThat("Result handler invoked", l.await(1, TimeUnit.SECONDS), equalTo(true));
+	}
+
+	@Test
+	public void stop_transactionNotFound() throws InterruptedException {
+		// given
+		CountDownLatch l = new CountDownLatch(1);
+		ChargePointIdentity chargePointId = createClientId();
+		String idTag = UUID.randomUUID().toString().substring(0, 20);
+		int transactionId = 1;
+
+		expect(chargeSessionManager.getActiveChargingSession(chargePointId, transactionId))
+				.andReturn(null);
+
+		// when
+		replayAll();
+		StopTransactionRequest req = new StopTransactionRequest();
+		req.setIdTag(idTag);
+		req.setTransactionId(transactionId);
+		req.setTimestamp(XmlDateUtils.newXmlCalendar());
+		req.setMeterStop(12345);
+		req.setReason(Reason.LOCAL);
+
+		ActionMessage<StopTransactionRequest> message = new BasicActionMessage<StopTransactionRequest>(
+				chargePointId, CentralSystemAction.StopTransaction, req);
+		processor.processActionMessage(message, (msg, res, err) -> {
+			assertThat("Message passed", msg, sameInstance(message));
+			assertThat("Result available", res, nullValue());
+			assertThat("Error happened", err, instanceOf(ErrorHolder.class));
+
+			ErrorHolder error = (ErrorHolder) err;
+			assertThat("Is PropertyConstraintViolation error", error.getErrorCode(),
+					equalTo(ActionErrorCode.PropertyConstraintViolation));
 
 			l.countDown();
 			return true;
