@@ -15,6 +15,8 @@ Import-Package:
  com.fasterxml.jackson.databind;version="[2.10,3.0)",
  com.fasterxml.jackson.module.jaxb;version="[2.10,3.0)",
  com.sun.xml.bind.v2;resolution:=optional,
+ javax.websocket;version="[1.1,2.0)",
+ javax.websocket.server;version="[1.1,2.0)",
  javax.xml.bind,
  javax.xml.bind.annotation,
  net.solarnetwork.ocpp.dao;version="[2.0,3.0)",
@@ -33,6 +35,7 @@ Import-Package:
  org.springframework.http.server;version="[4.3,5.0)",
  org.springframework.scheduling;version="[4.3,5.0)",
  org.springframework.web.socket;version="[4.3,5.0)",
+ org.springframework.web.socket.adapter;version="[4.3,5.0)",
  org.springframework.web.socket.handler;version="[4.3,5.0)",
  org.springframework.web.socket.server;version="[4.3,5.0)",
  org.springframework.web.socket.server.support;version="[4.3,5.0)"
