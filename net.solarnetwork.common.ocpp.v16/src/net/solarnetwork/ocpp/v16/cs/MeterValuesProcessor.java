@@ -48,7 +48,7 @@ import ocpp.xml.support.XmlDateUtils;
  * Process {@link MeterValuesRequest} action messages.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class MeterValuesProcessor
 		extends BaseActionMessageProcessor<MeterValuesRequest, MeterValuesResponse> {
@@ -94,6 +94,13 @@ public class MeterValuesProcessor
 		try {
 			ChargeSession session = chargeSessionManager.getActiveChargingSession(chargePointId,
 					req.getTransactionId());
+
+			if ( session == null ) {
+				ErrorCodeException err = new ErrorCodeException(ActionErrorCode.GenericError,
+						"Charge session not found for given IDs.");
+				resultHandler.handleActionMessageResult(message, null, err);
+				return;
+			}
 
 			List<MeterValue> values = req.getMeterValue();
 			List<SampledValue> newReadings = new ArrayList<>();

@@ -54,7 +54,7 @@ import ocpp.xml.support.XmlDateUtils;
  * Process {@link StopTransactionRequest} action messages.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class StopTransactionProcessor
 		extends BaseActionMessageProcessor<StopTransactionRequest, StopTransactionResponse> {
@@ -97,6 +97,14 @@ public class StopTransactionProcessor
 			ChargeSession session = chargeSessionManager.getActiveChargingSession(chargePointId,
 					req.getTransactionId());
 
+			if ( session == null ) {
+				ErrorCodeException err = new ErrorCodeException(
+						ActionErrorCode.PropertyConstraintViolation,
+						String.format("Transaction %d not available.", req.getTransactionId()));
+				resultHandler.handleActionMessageResult(message, null, err);
+				return;
+			}
+
 			// @formatter:off
 			ChargeSessionEndInfo info = ChargeSessionEndInfo.builder()
 					.withChargePointId(chargePointId)
@@ -125,6 +133,7 @@ public class StopTransactionProcessor
 			res.setIdTagInfo(tagInfo);
 			resultHandler.handleActionMessageResult(message, res, null);
 		} catch ( Throwable t ) {
+			log.error("Exception handling StopTransactionRequest: {}", t.toString(), t);
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.InternalError,
 					"Internal error: " + t.getMessage());
 			resultHandler.handleActionMessageResult(message, null, err);
