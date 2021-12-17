@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Set;
@@ -42,6 +43,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -64,6 +66,7 @@ import net.solarnetwork.dao.jdbc.SQLExceptionHandler;
 import net.solarnetwork.dao.jdbc.SQLExceptionHandlerDataSourceProxy;
 import net.solarnetwork.service.PingTest;
 import net.solarnetwork.util.ClassUtils;
+import net.solarnetwork.util.CollectionUtils;
 import net.solarnetwork.util.SearchFilter;
 import net.solarnetwork.util.SearchFilter.LogicOperator;
 import net.solarnetwork.util.StringUtils;
@@ -155,16 +158,29 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 		if ( destroyed.get() ) {
 			return;
 		}
+		@SuppressWarnings("unchecked")
+		final Map<String, ?> props = CollectionUtils.mapForDictionary(properties);
+		final Map<String, ?> logProps = props.entrySet().stream()
+				.filter(e -> !e.getKey().contains("password")).collect(Collectors.toMap(Entry::getKey,
+						Entry::getValue, (l, r) -> r, LinkedHashMap::new));
+		log.info("Configuring managed HikariCP DataSource {} with properties {}", pid, logProps);
 		executor.execute(new Runnable() {
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public void run() {
 				try {
-					doUpdate(pid, properties);
+					doUpdate(pid, props);
 				} catch ( Throwable t ) {
-					log.error("Error applying managed HikariCP DataSource {} properties {}: {} ", pid,
-							properties, t.toString(), t);
+					log.error(
+							"Error applying managed HikariCP DataSource {} properties {} (will retry): {} ",
+							pid, logProps, t.toString(), t);
+					// try, try again
+					try {
+						executor.execute(this);
+					} catch ( Exception e ) {
+						log.error("Unable to retry applying managed HikariCP DataSource {} properties",
+								pid, t);
+					}
 				}
 			}
 		});
@@ -188,7 +204,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 		}
 	}
 
-	private void doUpdate(String pid, Dictionary<String, ?> properties) {
+	private void doUpdate(String pid, Map<String, ?> properties) {
 		if ( destroyed.get() ) {
 			return;
 		}
@@ -198,25 +214,24 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				Properties poolProps = new Properties();
 				Hashtable<String, Object> serviceProps = new Hashtable<>();
 				Properties dataSourceProps = new Properties();
-				Enumeration<String> keys = properties.keys();
 				String pingTestQuery = null;
 				String dataSourceFactoryFilter = null;
 				boolean exceptionHandlerSupport = false;
-				while ( keys.hasMoreElements() ) {
-					String key = keys.nextElement();
+				for ( Entry<String, ?> me : properties.entrySet() ) {
+					String key = me.getKey();
+					Object val = me.getValue();
 					if ( key.equals(DATA_SOURCE_FACTORY_FILTER_PROPERTY) ) {
-						dataSourceFactoryFilter = (String) properties.get(key);
+						dataSourceFactoryFilter = (String) val;
 					} else if ( key.equals(DATA_SOURCE_PING_TEST_QUERY_PROPERTY) ) {
-						pingTestQuery = (String) properties.get(key);
+						pingTestQuery = (String) val;
 					} else if ( key.startsWith(DATA_SOURCE_PROPERTY_PREFIX) ) {
-						dataSourceProps.put(key.substring(DATA_SOURCE_PROPERTY_PREFIX.length()),
-								properties.get(key));
+						dataSourceProps.put(key.substring(DATA_SOURCE_PROPERTY_PREFIX.length()), val);
 					} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
 						String propKey = key.substring(SERVICE_PROPERTY_PREFIX.length());
-						Object propVal = servicePropertyValue(propKey, properties.get(key));
+						Object propVal = servicePropertyValue(propKey, val);
 						serviceProps.put(propKey, propVal);
 					} else if ( key.equals(EXCEPTION_HANDLER_SUPPORT_PROPERTY) ) {
-						Object propVal = properties.get(key);
+						Object propVal = val;
 						if ( propVal != null ) {
 							exceptionHandlerSupport = StringUtils.parseBoolean(propVal.toString());
 						}
@@ -225,7 +240,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 						// ignore this prop
 						log.debug("Ignoring DataSource property {}", key);
 					} else {
-						poolProps.put(key, properties.get(key));
+						poolProps.put(key, val);
 					}
 				}
 
@@ -234,6 +249,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 						jdbcUrl, pingTestQuery, serviceProps, dataSourceProps, poolProps,
 						exceptionHandlerSupport);
 				mds.register();
+				log.info("Registered managed HikariCP DataSource {}", pid);
 				return mds;
 			} else {
 				synchronized ( v ) {
@@ -241,16 +257,15 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 					HikariConfigMXBean bean = v.poolDataSource.getHikariConfigMXBean();
 					Map<String, Object> p = new HashMap<>(8);
 					Hashtable<String, Object> serviceProps = new Hashtable<>();
-					Enumeration<String> keys = properties.keys();
-					while ( keys.hasMoreElements() ) {
-						String key = keys.nextElement();
+					for ( Entry<String, ?> me : properties.entrySet() ) {
+						String key = me.getKey();
+						Object val = me.getValue();
 						if ( key.equals(DATA_SOURCE_FACTORY_FILTER_PROPERTY) ) {
 							// TODO: handle change?
 						} else if ( key.equals(DATA_SOURCE_PING_TEST_QUERY_PROPERTY) ) {
 							// TODO: handle change?
 						} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
-							serviceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()),
-									properties.get(key));
+							serviceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()), val);
 						} else if ( key.startsWith(DATA_SOURCE_PROPERTY_PREFIX) ) {
 							// TODO: handle change?
 						} else if ( ignoredPropertyPrefixes != null
@@ -258,7 +273,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 							// ignore this prop
 							log.debug("Ignoring DataSource property {}", key);
 						} else {
-							p.put(key, properties.get(key));
+							p.put(key, val);
 						}
 					}
 					if ( !serviceProps.isEmpty() ) {
@@ -298,6 +313,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	private void doDelete(String pid) {
 		instances.computeIfPresent(pid, (k, v) -> {
 			v.unregister();
+			log.info("Unregistered managed HikariCP DataSource {} {}", pid);
 			return null;
 		});
 	}
