@@ -24,6 +24,7 @@ package net.solarnetwork.ocpp.web.json;
 
 import static java.util.Collections.singletonList;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Deque;
@@ -39,15 +40,18 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.websocket.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.SubProtocolCapable;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.adapter.NativeWebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -111,7 +115,7 @@ import ocpp.v16.cs.json.CentralServiceActionPayloadDecoder;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler
@@ -119,6 +123,9 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 
 	/** The default {@code pendingMessageTimeout} property. */
 	public static final long DEFAULT_PENDING_MESSAGE_TIMEOUT = TimeUnit.SECONDS.toMillis(120);
+
+	/** The default {@code pingFrequencySecs} property. */
+	public static final int DEFAULT_PING_FREQUENCY_SECS = 50;
 
 	/** A class logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -137,9 +144,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	private ActionPayloadDecoder centralServiceActionPayloadDecoder;
 	private ActionPayloadDecoder chargePointActionPayloadDecoder;
 	private long pendingMessageTimeout = DEFAULT_PENDING_MESSAGE_TIMEOUT;
+	private int pingFrequencySecs = DEFAULT_PING_FREQUENCY_SECS;
 
 	private Future<?> startupTask;
 	private ScheduledFuture<?> pendingTimeoutChore;
+	private ScheduledFuture<?> pingChore;
 
 	private static ObjectMapper defaultObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
@@ -280,11 +289,20 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			log.info("Scheduled pending timeout cleaner task at rate {}s with timeout {}s", freq / 1000,
 					pendingMessageTimeout / 1000);
 		}
+		if ( pingChore == null && pingFrequencySecs > 0 ) {
+			long freq = TimeUnit.SECONDS.toMillis(pingFrequencySecs);
+			pingChore = taskScheduler.scheduleWithFixedDelay(new PingChore(),
+					new Date(System.currentTimeMillis() + freq), freq);
+			log.info("Scheduled PING task at rate {}s", pingFrequencySecs);
+		}
 	}
 
 	private synchronized void unshceduleChores() {
 		if ( pendingTimeoutChore != null ) {
 			pendingTimeoutChore.cancel(true);
+		}
+		if ( pingChore != null ) {
+			pingChore.cancel(true);
 		}
 	}
 
@@ -336,6 +354,63 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 				if ( processNext ) {
 					processNextPendingMessage(q);
 				}
+			}
+		}
+
+	}
+
+	private final class PingTask implements Runnable {
+
+		private final ChargePointIdentity cp;
+		private final Session s;
+
+		private PingTask(ChargePointIdentity cp, Session s) {
+			super();
+			this.cp = cp;
+			this.s = s;
+		}
+
+		@Override
+		public void run() {
+			try {
+				if ( s.isOpen() ) {
+					ByteBuffer msg = ByteBuffer.allocate(0);
+					log.trace("Sending PING to charge point {}", cp);
+					s.getBasicRemote().sendPing(msg);
+				}
+			} catch ( IOException e ) {
+				log.debug("Communication problem sending PING to charge point {}: {}", cp, e);
+			} catch ( Exception e ) {
+				log.info("Exception sending PING to charge point {}: {}", cp, e);
+			}
+		}
+	}
+
+	private final class PingChore implements Runnable {
+
+		@Override
+		public void run() {
+			int count = 0;
+			for ( Entry<ChargePointIdentity, WebSocketSession> me : clientSessions.entrySet() ) {
+				WebSocketSession wss = me.getValue();
+				Session s = null;
+				if ( wss instanceof NativeWebSocketSession ) {
+					s = ((NativeWebSocketSession) wss).getNativeSession(Session.class);
+				}
+				if ( s == null ) {
+					continue;
+				}
+				if ( s.isOpen() ) {
+					try {
+						executor.execute(new PingTask(me.getKey(), s));
+						count++;
+					} catch ( TaskRejectedException e ) {
+						log.warn("Unable to schedule PING task for charge point {}: {}", me.getKey(), e);
+					}
+				}
+			}
+			if ( count > 0 ) {
+				log.info("Scheduled PING frames for {} connected charge points", count);
 			}
 		}
 
@@ -1046,6 +1121,26 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 */
 	public void setPendingMessageTimeout(long pendingMessageTimeout) {
 		this.pendingMessageTimeout = pendingMessageTimeout;
+	}
+
+	/**
+	 * Get the frequency at which to emit PING frames.
+	 * 
+	 * @return the frequency in seconds, or {@literal 0} to disable; defaults to
+	 *         {@link #DEFAULT_PING_FREQUENCY_SECS}
+	 */
+	public int getPingFrequency() {
+		return pingFrequencySecs;
+	}
+
+	/**
+	 * Set the frequency at which to emit PING frames.
+	 * 
+	 * @param pingFrequencySecs
+	 *        the frequency in seconds, or {@literal 0} to disable
+	 */
+	public void setPingFrequency(int pingFrequencySecs) {
+		this.pingFrequencySecs = pingFrequencySecs;
 	}
 
 }
