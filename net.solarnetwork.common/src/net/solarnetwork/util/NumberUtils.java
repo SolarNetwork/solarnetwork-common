@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Utilities for dealing with numbers.
  * 
  * @author matt
- * @version 1.9
+ * @version 1.10
  * @since 1.42
  */
 public final class NumberUtils {
@@ -670,6 +670,86 @@ public final class NumberUtils {
 			ci.next();
 		}
 		return String.format("%.1f %cB", count / 1000.0, ci.current());
+	}
+
+	/**
+	 * Return the minimum between two number values.
+	 * 
+	 * @param n1
+	 *        the first number
+	 * @param n2
+	 *        the second number
+	 * @return the minimum number, or {@literal null} if both arguments are
+	 *         {@literal null}
+	 * @since 1.10
+	 */
+	public static Number min(Number n1, Number n2) {
+		if ( n1 == null && n2 == null ) {
+			return null;
+		}
+		if ( n1 == null ) {
+			return n2;
+		}
+		if ( n2 == null ) {
+			return n1;
+		}
+		if ( ((n1 instanceof Integer) || (n1 instanceof Short))
+				&& ((n2 instanceof Integer) || (n2 instanceof Short)) ) {
+			return Math.min(n1.intValue(), n2.intValue());
+		}
+		if ( (n1 instanceof Long) && (n2 instanceof Long) ) {
+			return Math.min(n1.longValue(), n2.longValue());
+		}
+		if ( (n1 instanceof Float) && (n2 instanceof Float) ) {
+			return Math.min(n1.floatValue(), n2.floatValue());
+		}
+		if ( (n1 instanceof Double) && (n2 instanceof Double) ) {
+			return Math.min(n1.doubleValue(), n2.doubleValue());
+		}
+		if ( (n1 instanceof BigInteger) && (n2 instanceof BigInteger) ) {
+			return ((BigInteger) n1).min((BigInteger) n2);
+		}
+		return bigDecimalForNumber(n1).min(bigDecimalForNumber(n2));
+	}
+
+	/**
+	 * Return the maximum between two number values.
+	 * 
+	 * @param n1
+	 *        the first number
+	 * @param n2
+	 *        the second number
+	 * @return the maximum number, or {@literal null} if both arguments are
+	 *         {@literal null}
+	 * @since 1.10
+	 */
+	public static Number max(Number n1, Number n2) {
+		if ( n1 == null && n2 == null ) {
+			return null;
+		}
+		if ( n1 == null ) {
+			return n2;
+		}
+		if ( n2 == null ) {
+			return n1;
+		}
+		if ( ((n1 instanceof Integer) || (n1 instanceof Short))
+				&& ((n2 instanceof Integer) || (n2 instanceof Short)) ) {
+			return Math.max(n1.intValue(), n2.intValue());
+		}
+		if ( (n1 instanceof Long) && (n2 instanceof Long) ) {
+			return Math.max(n1.longValue(), n2.longValue());
+		}
+		if ( (n1 instanceof Float) && (n2 instanceof Float) ) {
+			return Math.max(n1.floatValue(), n2.floatValue());
+		}
+		if ( (n1 instanceof Double) && (n2 instanceof Double) ) {
+			return Math.max(n1.doubleValue(), n2.doubleValue());
+		}
+		if ( (n1 instanceof BigInteger) && (n2 instanceof BigInteger) ) {
+			return ((BigInteger) n1).max((BigInteger) n2);
+		}
+		return bigDecimalForNumber(n1).max(bigDecimalForNumber(n2));
 	}
 
 }

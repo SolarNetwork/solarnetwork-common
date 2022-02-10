@@ -43,7 +43,7 @@ import net.solarnetwork.util.NumberUtils;
  * Unit tests for the {@link NumberUtils} class.
  * 
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class NumberUtilsTests {
 
@@ -415,4 +415,91 @@ public class NumberUtilsTests {
 						"110.6 kB", "7.1 MB", "453.0 MB", "29.0 GB", "1.9 TB", "9.2 EB"));
 	}
 
+	@Test
+	public void min_short() {
+		assertThat("Short input returns Integer", NumberUtils.min((short) 1, (short) 2), is(1));
+		assertThat("Short input returns Integer", NumberUtils.min((short) 2, (short) 1), is(1));
+	}
+
+	@Test
+	public void min_int() {
+		assertThat("Int input returns Integer", NumberUtils.min(1, 2), is(1));
+		assertThat("Int input returns Integer", NumberUtils.min(2, 1), is(1));
+	}
+
+	@Test
+	public void min_long() {
+		assertThat("Long input returns Long", NumberUtils.min(1L, 2L), is(1L));
+		assertThat("Long input returns Long", NumberUtils.min(2L, 1L), is(1L));
+	}
+
+	@Test
+	public void min_bigInteger() {
+		assertThat("BigInteger input returns BigInteger",
+				NumberUtils.min(new BigInteger("1"), new BigInteger("2")), is(new BigInteger("1")));
+		assertThat("BigInteger input returns BigInteger",
+				NumberUtils.min(new BigInteger("2"), new BigInteger("1")), is(new BigInteger("1")));
+	}
+
+	@Test
+	public void min_bigDecimal() {
+		assertThat("BigDecimal input returns BigDecimal",
+				NumberUtils.min(new BigDecimal("1.1"), new BigDecimal("2.2")),
+				is(new BigDecimal("1.1")));
+		assertThat("BigDecimal input returns BigDecimal",
+				NumberUtils.min(new BigDecimal("2.2"), new BigDecimal("1.1")),
+				is(new BigDecimal("1.1")));
+	}
+
+	@Test
+	public void min_mixed() {
+		assertThat("Mixed input returns BigDecimal", NumberUtils.min(1, new BigDecimal("2.2")),
+				is(new BigDecimal("1")));
+		assertThat("Mixed input returns BigDecimal", NumberUtils.min(new BigDecimal("2.2"), 1),
+				is(new BigDecimal("1")));
+	}
+
+	@Test
+	public void max_short() {
+		assertThat("Short input returns Integer", NumberUtils.max((short) 1, (short) 2), is(2));
+		assertThat("Short input returns Integer", NumberUtils.max((short) 2, (short) 1), is(2));
+	}
+
+	@Test
+	public void max_int() {
+		assertThat("Int input returns Integer", NumberUtils.max(1, 2), is(2));
+		assertThat("Int input returns Integer", NumberUtils.max(2, 1), is(2));
+	}
+
+	@Test
+	public void max_long() {
+		assertThat("Long input returns Long", NumberUtils.max(1L, 2L), is(2L));
+		assertThat("Long input returns Long", NumberUtils.max(2L, 1L), is(2L));
+	}
+
+	@Test
+	public void max_bigInteger() {
+		assertThat("BigInteger input returns BigInteger",
+				NumberUtils.max(new BigInteger("1"), new BigInteger("2")), is(new BigInteger("2")));
+		assertThat("BigInteger input returns BigInteger",
+				NumberUtils.max(new BigInteger("2"), new BigInteger("1")), is(new BigInteger("2")));
+	}
+
+	@Test
+	public void max_bigDecimal() {
+		assertThat("BigDecimal input returns BigDecimal",
+				NumberUtils.max(new BigDecimal("1.1"), new BigDecimal("2.2")),
+				is(new BigDecimal("2.2")));
+		assertThat("BigDecimal input returns BigDecimal",
+				NumberUtils.max(new BigDecimal("2.2"), new BigDecimal("1.1")),
+				is(new BigDecimal("2.2")));
+	}
+
+	@Test
+	public void max_mixed() {
+		assertThat("Mixed input returns BigDecimal", NumberUtils.max(1, new BigDecimal("2.2")),
+				is(new BigDecimal("2.2")));
+		assertThat("Mixed input returns BigDecimal", NumberUtils.max(new BigDecimal("2.2"), 1),
+				is(new BigDecimal("2.2")));
+	}
 }

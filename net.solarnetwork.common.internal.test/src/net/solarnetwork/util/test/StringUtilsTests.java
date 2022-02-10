@@ -35,6 +35,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,7 +59,7 @@ import net.solarnetwork.util.StringUtils;
  * Unit test for the StringUtils class.
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class StringUtilsTests {
 
@@ -519,6 +521,28 @@ public class StringUtilsTests {
 
 		assertThat("UTF-8 byte count", StringUtils.utf8length(input),
 				is(equalTo(input.getBytes(ByteUtils.UTF8).length)));
+	}
+
+	@Test
+	public void numberValue_null() {
+		assertThat("Null input returns null", StringUtils.numberValue(null), is(nullValue()));
+	}
+
+	@Test
+	public void numberValue_nan() {
+		assertThat("NaN input returns null", StringUtils.numberValue("not a number"), is(nullValue()));
+	}
+
+	@Test
+	public void numberValue_int() {
+		assertThat("Integer input returns BigInteger", StringUtils.numberValue("12345"),
+				is(new BigInteger("12345")));
+	}
+
+	@Test
+	public void numberValue_float() {
+		assertThat("Decimal input returns BigDecimal", StringUtils.numberValue("123.45"),
+				is(new BigDecimal("123.45")));
 	}
 
 }

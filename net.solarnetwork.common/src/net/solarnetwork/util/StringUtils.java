@@ -23,6 +23,8 @@
 package net.solarnetwork.util;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +44,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  * 
  * @author matt
- * @version 1.10
+ * @version 1.11
  */
 public final class StringUtils {
 
@@ -55,6 +57,20 @@ public final class StringUtils {
 	 * <code>{name}</code>.
 	 */
 	public static final Pattern NAMES_PATTERN = Pattern.compile("\\{([^/]+?)\\}");
+
+	/**
+	 * A pattern to match integer number values.
+	 * 
+	 * @since 1.11
+	 */
+	public static Pattern INTEGER_PATTERN = Pattern.compile("[+-]?\\d+");
+
+	/**
+	 * A pattern to match decimal number values.
+	 * 
+	 * @since 1.11
+	 */
+	public static Pattern DECIMAL_PATTERN = Pattern.compile("[+-]?\\d+(\\.\\d+)?([Ee][+-]?\\d+)?");
 
 	/**
 	 * Replace variables in a string template with corresponding values.
@@ -715,6 +731,36 @@ public final class StringUtils {
 	public static int utf8length(CharSequence text) {
 		return text.length()
 				+ text.codePoints().filter(cp -> cp > 0x7f).map(cp -> cp <= 0x7ff ? 1 : 2).sum();
+	}
+
+	/**
+	 * Parse a number value if possible.
+	 * 
+	 * <p>
+	 * This method will return either a {@link BigInteger} or {@link BigDecimal}
+	 * value.
+	 * </p>
+	 * 
+	 * @param text
+	 *        the string to parse
+	 * @return a number instance if {@code text} can be parsed as a number, or
+	 *         {@literal null} otherwise
+	 * @since 1.11
+	 */
+	public static Number numberValue(String text) {
+		if ( text == null ) {
+			return null;
+		}
+		try {
+			if ( INTEGER_PATTERN.matcher(text).matches() ) {
+				return new BigInteger(text);
+			} else if ( DECIMAL_PATTERN.matcher(text).matches() ) {
+				return new BigDecimal(text);
+			}
+		} catch ( NumberFormatException e ) {
+			// don't expect to get here, but just to be sure we ignore this
+		}
+		return null;
 	}
 
 }
