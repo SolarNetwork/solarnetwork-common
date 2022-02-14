@@ -387,14 +387,7 @@ public final class NumberUtils {
 	 * @since 1.3
 	 */
 	public static Number maximumDecimalScale(Number value, int maxDecimalScale) {
-		if ( value == null || maxDecimalScale < 0 ) {
-			return value;
-		}
-		BigDecimal v = bigDecimalForNumber(value);
-		if ( v.scale() > maxDecimalScale ) {
-			v = v.setScale(maxDecimalScale, RoundingMode.HALF_UP);
-		}
-		return v;
+		return round(value, maxDecimalScale, RoundingMode.HALF_UP);
 	}
 
 	/**
@@ -750,6 +743,216 @@ public final class NumberUtils {
 			return ((BigInteger) n1).max((BigInteger) n2);
 		}
 		return bigDecimalForNumber(n1).max(bigDecimalForNumber(n2));
+	}
+
+	/**
+	 * Round a number towards zero to the nearest integer multiple of a specific
+	 * significance.
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#DOWN} mode.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 1.10
+	 * @see #mround(Number, Number, RoundingMode)
+	 */
+	public static Number down(Number n, Number significance) {
+		return mround(n, significance, RoundingMode.DOWN);
+	}
+
+	/**
+	 * Round a number towards zero to the nearest integer multiple of a specific
+	 * significance.
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#UP} mode.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 1.10
+	 * @see #mround(Number, Number, RoundingMode)
+	 */
+	public static Number up(Number n, Number significance) {
+		return mround(n, significance, RoundingMode.UP);
+	}
+
+	/**
+	 * Round positive numbers towards zero and negative numbers away from zero,
+	 * to the nearest integer multiple of a specific significance.
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#FLOOR} mode.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 1.10
+	 * @see #mround(Number, Number, RoundingMode)
+	 */
+	public static Number floor(Number n, Number significance) {
+		return mround(n, significance, RoundingMode.FLOOR);
+	}
+
+	/**
+	 * Round positive numbers away from zero and negative numbers towards zero,
+	 * to the nearest integer multiple of a specific significance.
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#CEILING} mode.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 1.10
+	 * @see #mround(Number, Number, RoundingMode)
+	 */
+	public static Number ceil(Number n, Number significance) {
+		return mround(n, significance, RoundingMode.CEILING);
+	}
+
+	/**
+	 * Round a number to the nearest integer multiple of a specific
+	 * significance.
+	 * 
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#HALF_UP} mode.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 1.10
+	 * @see #mround(Number, Number, RoundingMode)
+	 */
+	public static Number mround(Number n, Number significance) {
+		return mround(n, significance, RoundingMode.HALF_UP);
+	}
+
+	/**
+	 * Round a number to the nearest integer multiple of a specific significance
+	 * using a specific rounding mode.
+	 * 
+	 * <p>
+	 * This method supports rounding like supported by common spreadsheet
+	 * application formulas {@code CEILING}, {@code FLOOR}, and {@code MROUND},
+	 * which accept a significance factor to round to.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @param mode
+	 *        the rounding mode to use
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 1.10
+	 */
+	public static Number mround(Number n, Number significance, RoundingMode mode) {
+		BigDecimal d = bigDecimalForNumber(n);
+		BigDecimal s = bigDecimalForNumber(significance);
+		if ( d == null || s == null ) {
+			return null;
+		}
+		if ( mode == null ) {
+			mode = RoundingMode.HALF_UP;
+		}
+		return d.divide(s, mode).setScale(0, mode).multiply(s);
+	}
+
+	/**
+	 * Round a number to a maximum number of decimal digits using the
+	 * {@link RoundingMode#HALF_UP} mode.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param digits
+	 *        the maximum number of decimal digits
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code digits} is {@literal null}
+	 * @since 1.10
+	 * @see #round(Number, Number, RoundingMode)
+	 */
+	public static Number round(Number n, Number digits) {
+		return round(n, digits, RoundingMode.HALF_UP);
+	}
+
+	/**
+	 * Round a number away from zero to a maximum number of decimal digits.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param digits
+	 *        the maximum number of decimal digits
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code digits} is {@literal null}
+	 * @since 1.10
+	 * @see #round(Number, Number, RoundingMode)
+	 */
+	public static Number roundup(Number n, Number digits) {
+		return round(n, digits, RoundingMode.UP);
+	}
+
+	/**
+	 * Round a number towards zero to a maximum number of decimal digits.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param digits
+	 *        the maximum number of decimal digits
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code digits} is {@literal null}
+	 * @since 1.10
+	 * @see #round(Number, Number, RoundingMode)
+	 */
+	public static Number rounddown(Number n, Number digits) {
+		return round(n, digits, RoundingMode.DOWN);
+	}
+
+	/**
+	 * Round a number to a maximum number of decimal digits.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param digits
+	 *        the maximum number of decimal digits
+	 * @param mode
+	 *        the rounding mode
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code digits} is {@literal null}
+	 * @since 1.10
+	 */
+	public static Number round(Number n, Number digits, RoundingMode mode) {
+		BigDecimal d = bigDecimalForNumber(n);
+		if ( d == null || digits == null ) {
+			return null;
+		}
+		int s = digits.intValue();
+		if ( s >= 0 && d.scale() > s ) {
+			if ( mode == null ) {
+				mode = RoundingMode.HALF_UP;
+			}
+			d = d.setScale(s, mode);
+		}
+		return d;
 	}
 
 }
