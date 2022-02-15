@@ -879,6 +879,10 @@ public final class NumberUtils {
 		if ( mode == null ) {
 			mode = RoundingMode.HALF_UP;
 		}
+		// optimize for significance of 1: avoid divide/multiply
+		if ( BigDecimal.ONE.compareTo(s) == 0 ) {
+			return d.setScale(0, mode);
+		}
 		return d.divide(s, mode).setScale(0, mode).multiply(s);
 	}
 

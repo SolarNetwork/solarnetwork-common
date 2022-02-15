@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain.datum;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -247,6 +248,20 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 
 	/**
 	 * Round positive numbers away from zero and negative numbers towards zero,
+	 * to the nearest integer.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @return the rounded number, or {@literal null} if {@code n} is
+	 *         {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number ceil(Number n) {
+		return NumberUtils.ceil(n, BigDecimal.ONE);
+	}
+
+	/**
+	 * Round positive numbers away from zero and negative numbers towards zero,
 	 * to the nearest integer multiple of a specific significance.
 	 * 
 	 * @param n
@@ -267,6 +282,20 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 * 
 	 * @param n
 	 *        the number to round
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number floor(Number n) {
+		return NumberUtils.floor(n, BigDecimal.ONE);
+	}
+
+	/**
+	 * Round positive numbers towards zero and negative numbers away from zero,
+	 * to the nearest integer multiple of a specific significance.
+	 * 
+	 * @param n
+	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
 	 * @return the rounded number, or {@literal null} if {@code n} or
@@ -275,6 +304,24 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 */
 	public static final Number floor(Number n, Number significance) {
 		return NumberUtils.floor(n, significance);
+	}
+
+	/**
+	 * Round a number towards zero to the nearest integer.
+	 * 
+	 * <p>
+	 * This method is a shortcut for calling {@code roundUp(n, 0)}.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @return the rounded number, or {@literal null} if {@code n} is
+	 *         {@literal null}
+	 * @since 2.1
+	 * @see #roundUp(Number, Number)
+	 */
+	public static final Number up(Number n) {
+		return NumberUtils.roundUp(n, 0);
 	}
 
 	/**
@@ -291,6 +338,24 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 */
 	public static final Number up(Number n, Number significance) {
 		return NumberUtils.up(n, significance);
+	}
+
+	/**
+	 * Round a number towards zero to the nearest integer.
+	 * 
+	 * <p>
+	 * This method is a shortcut for calling {@code roundDown(n, 0)}.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @return the rounded number, or {@literal null} if {@code n} is
+	 *         {@literal null}
+	 * @since 2.1
+	 * @see #roundDown(Number, Number)
+	 */
+	public static final Number down(Number n) {
+		return NumberUtils.roundDown(n, 0);
 	}
 
 	/**
@@ -327,6 +392,23 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 */
 	public static final Number mround(Number n, Number significance) {
 		return NumberUtils.mround(n, significance);
+	}
+
+	/**
+	 * Round a number to the nearest integer.
+	 * 
+	 * <p>
+	 * This is a shortcut for calling {@code round(n, 0)}.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @return the rounded number, or {@literal null} if {@code n} is
+	 *         {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number round(Number n) {
+		return NumberUtils.round(n, 0);
 	}
 
 	/**
