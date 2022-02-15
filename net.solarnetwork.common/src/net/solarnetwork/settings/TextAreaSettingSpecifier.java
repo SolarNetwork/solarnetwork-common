@@ -26,9 +26,22 @@ package net.solarnetwork.settings;
  * A read-write large string setting.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.70
  */
 public interface TextAreaSettingSpecifier extends KeyedSettingSpecifier<String> {
+
+	/**
+	 * Flag indicating the text area content should be handled directly like a
+	 * text field.
+	 * 
+	 * @return {@literal true} to treat the text area content directly like a
+	 *         text field, {@literal false} to treat like an external resource
+	 *         to upload indirectly
+	 * @since 1.1
+	 */
+	default boolean isDirect() {
+		return false;
+	}
 
 }

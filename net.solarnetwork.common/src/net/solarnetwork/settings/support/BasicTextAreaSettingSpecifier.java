@@ -30,11 +30,13 @@ import net.solarnetwork.settings.TextAreaSettingSpecifier;
  * Basic implementation of {@link TextAreaSettingSpecifier}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
 public class BasicTextAreaSettingSpecifier extends BaseKeyedSettingSpecifier<String>
 		implements TextAreaSettingSpecifier {
+
+	private boolean direct = false;
 
 	/**
 	 * Constructor.
@@ -48,12 +50,29 @@ public class BasicTextAreaSettingSpecifier extends BaseKeyedSettingSpecifier<Str
 		super(key, defaultValue);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param key
+	 *        the key
+	 * @param defaultValue
+	 *        the default value
+	 * @param direct
+	 *        the direct mode
+	 * @since 1.1
+	 */
+	public BasicTextAreaSettingSpecifier(String key, String defaultValue, boolean direct) {
+		super(key, defaultValue);
+		setDirect(direct);
+	}
+
 	@Override
 	public SettingSpecifier mappedWithPlaceholer(String template) {
 		BasicTextAreaSettingSpecifier spec = new BasicTextAreaSettingSpecifier(
 				String.format(template, getKey()), getDefaultValue());
 		spec.setTitle(getTitle());
 		spec.setDescriptionArguments(getDescriptionArguments());
+		spec.setDirect(isDirect());
 		return spec;
 	}
 
@@ -63,7 +82,23 @@ public class BasicTextAreaSettingSpecifier extends BaseKeyedSettingSpecifier<Str
 				getDefaultValue());
 		spec.setTitle(getTitle());
 		spec.setDescriptionArguments(getDescriptionArguments());
+		spec.setDirect(isDirect());
 		return spec;
+	}
+
+	@Override
+	public boolean isDirect() {
+		return direct;
+	}
+
+	/**
+	 * Set the direct mode toggle.
+	 * 
+	 * @param direct
+	 *        the mode to set
+	 */
+	public void setDirect(boolean direct) {
+		this.direct = direct;
 	}
 
 }
