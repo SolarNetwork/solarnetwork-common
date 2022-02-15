@@ -21,6 +21,7 @@
 		<dependency org="commons-codec" name="commons-codec" rev="1.11"/>
 		<dependency org="org.osgi" name="osgi.core" rev="7.0.0" />
 		<dependency org="org.tukaani" name="xz" rev="1.8" />
+		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.expr.spel" rev="[2.0,)"/>
 		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.pki.bc" rev="[2.0,)"/>
 
 		<exclude org="net.solarnetwork.common" module="net.solarnetwork.common"/>

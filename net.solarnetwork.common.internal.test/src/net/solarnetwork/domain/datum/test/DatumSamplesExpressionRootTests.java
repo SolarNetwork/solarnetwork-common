@@ -30,23 +30,30 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.junit.Test;
+import net.solarnetwork.common.expr.spel.SpelExpressionService;
 import net.solarnetwork.domain.datum.DatumSamples;
 import net.solarnetwork.domain.datum.DatumSamplesExpressionRoot;
+import net.solarnetwork.domain.datum.DatumSamplesType;
 import net.solarnetwork.domain.datum.GeneralDatum;
+import net.solarnetwork.domain.datum.MutableDatumSamplesOperations;
+import net.solarnetwork.service.ExpressionService;
 
 /**
  * Test cases for the {@link ExpressionRoot} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class DatumSamplesExpressionRootTests {
+
+	private final ExpressionService expressionService = new SpelExpressionService();
 
 	private DatumSamplesExpressionRoot createTestRoot() {
 		GeneralDatum d = new GeneralDatum("foo");
@@ -97,6 +104,55 @@ public class DatumSamplesExpressionRootTests {
 		assertThat("Set size", set, hasSize(7));
 		Set<String> keys = set.stream().map(Entry::getKey).collect(toCollection(LinkedHashSet::new));
 		assertThat("Key order", keys, contains("a", "b", "c", "d", "e", "f", "g"));
+	}
+
+	@Test
+	public void min() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+
+		// WHEN
+		Number result = expressionService.evaluateExpression("min(a,b)", null, root, null, Number.class);
+
+		// THEN
+		assertThat("min() result", result, is(3));
+	}
+
+	@Test
+	public void max() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+
+		// WHEN
+		Number result = expressionService.evaluateExpression("max(a,b)", null, root, null, Number.class);
+
+		// THEN
+		assertThat("max() result", result, is(21));
+	}
+
+	@Test
+	public void mround() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"foo", new BigDecimal("1.234567890"));
+
+		// THEN
+		assertThat("Round 0 digits",
+				expressionService.evaluateExpression("round(foo,0)", null, root, null, Number.class),
+				is(new BigDecimal("1")));
+		assertThat("Round left",
+				expressionService.evaluateExpression("round(foo,1)", null, root, null, Number.class),
+				is(new BigDecimal("1.2")));
+		assertThat("Round half",
+				expressionService.evaluateExpression("round(foo,3)", null, root, null, Number.class),
+				is(new BigDecimal("1.235")));
+		assertThat("Round right",
+				expressionService.evaluateExpression("round(foo,4)", null, root, null, Number.class),
+				is(new BigDecimal("1.2346")));
+		assertThat("Round zero",
+				expressionService.evaluateExpression("round(foo,8)", null, root, null, Number.class),
+				is(new BigDecimal("1.23456789")));
 	}
 
 }

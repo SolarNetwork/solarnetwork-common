@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain.datum;
 
+import java.math.RoundingMode;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Iterator;
@@ -29,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import net.solarnetwork.domain.DatumExpressionRoot;
+import net.solarnetwork.util.NumberUtils;
 
 /**
  * An expression root object implementation that acts like a composite map of
@@ -53,7 +55,7 @@ import net.solarnetwork.domain.DatumExpressionRoot;
  * </ol>
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.71
  */
 public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
@@ -211,6 +213,166 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 			return delegate.size();
 		}
 
+	}
+
+	/**
+	 * Return the minimum between two number values.
+	 * 
+	 * @param n1
+	 *        the first number
+	 * @param n2
+	 *        the second number
+	 * @return the minimum number, or {@literal null} if both arguments are
+	 *         {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number min(Number n1, Number n2) {
+		return NumberUtils.min(n1, n2);
+	}
+
+	/**
+	 * Return the maximum between two number values.
+	 * 
+	 * @param n1
+	 *        the first number
+	 * @param n2
+	 *        the second number
+	 * @return the maximum number, or {@literal null} if both arguments are
+	 *         {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number max(Number n1, Number n2) {
+		return NumberUtils.max(n1, n2);
+	}
+
+	/**
+	 * Round positive numbers away from zero and negative numbers towards zero,
+	 * to the nearest integer multiple of a specific significance.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number ceil(Number n, Number significance) {
+		return NumberUtils.ceil(n, significance);
+	}
+
+	/**
+	 * Round positive numbers towards zero and negative numbers away from zero,
+	 * to the nearest integer multiple of a specific significance.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number floor(Number n, Number significance) {
+		return NumberUtils.floor(n, significance);
+	}
+
+	/**
+	 * Round a number towards zero to the nearest integer multiple of a specific
+	 * significance.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number up(Number n, Number significance) {
+		return NumberUtils.up(n, significance);
+	}
+
+	/**
+	 * Round a number towards zero to the nearest integer multiple of a specific
+	 * significance.
+	 * 
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#DOWN} mode.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number down(Number n, Number significance) {
+		return NumberUtils.down(n, significance);
+	}
+
+	/**
+	 * Round a number to the nearest integer multiple of a specific
+	 * significance.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code significance} are {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number mround(Number n, Number significance) {
+		return NumberUtils.mround(n, significance);
+	}
+
+	/**
+	 * Round a number to a maximum number of decimal digits using the
+	 * {@link RoundingMode#HALF_UP} mode.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param digits
+	 *        the maximum number of decimal digits
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code digits} is {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number round(Number n, Number digits) {
+		return NumberUtils.round(n, digits);
+	}
+
+	/**
+	 * Round a number away from zero to a maximum number of decimal digits.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param digits
+	 *        the maximum number of decimal digits
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code digits} is {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number roundUp(Number n, Number digits) {
+		return NumberUtils.roundUp(n, digits);
+	}
+
+	/**
+	 * Round a number towards zero to a maximum number of decimal digits.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param digits
+	 *        the maximum number of decimal digits
+	 * @return the rounded number, or {@literal null} if {@code n} or
+	 *         {@code digits} is {@literal null}
+	 * @since 2.1
+	 */
+	public static final Number roundDown(Number n, Number digits) {
+		return NumberUtils.roundDown(n, digits);
 	}
 
 }

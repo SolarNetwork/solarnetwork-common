@@ -748,6 +748,7 @@ public final class NumberUtils {
 	/**
 	 * Round a number towards zero to the nearest integer multiple of a specific
 	 * significance.
+	 * 
 	 * <p>
 	 * This method rounds using the {@link RoundingMode#DOWN} mode.
 	 * </p>
@@ -756,8 +757,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
@@ -768,6 +769,7 @@ public final class NumberUtils {
 	/**
 	 * Round a number towards zero to the nearest integer multiple of a specific
 	 * significance.
+	 * 
 	 * <p>
 	 * This method rounds using the {@link RoundingMode#UP} mode.
 	 * </p>
@@ -776,8 +778,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
@@ -788,6 +790,7 @@ public final class NumberUtils {
 	/**
 	 * Round positive numbers towards zero and negative numbers away from zero,
 	 * to the nearest integer multiple of a specific significance.
+	 * 
 	 * <p>
 	 * This method rounds using the {@link RoundingMode#FLOOR} mode.
 	 * </p>
@@ -796,8 +799,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
@@ -808,6 +811,7 @@ public final class NumberUtils {
 	/**
 	 * Round positive numbers away from zero and negative numbers towards zero,
 	 * to the nearest integer multiple of a specific significance.
+	 * 
 	 * <p>
 	 * This method rounds using the {@link RoundingMode#CEILING} mode.
 	 * </p>
@@ -816,8 +820,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
@@ -837,8 +841,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
@@ -862,8 +866,8 @@ public final class NumberUtils {
 	 *        the multiple factor to round to
 	 * @param mode
 	 *        the rounding mode to use
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
 	 * @since 1.10
 	 */
 	public static Number mround(Number n, Number significance, RoundingMode mode) {
@@ -886,8 +890,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param digits
 	 *        the maximum number of decimal digits
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code digits} is {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code digits} is {@literal null}
 	 * @since 1.10
 	 * @see #round(Number, Number, RoundingMode)
 	 */
@@ -902,12 +906,12 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param digits
 	 *        the maximum number of decimal digits
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code digits} is {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code digits} is {@literal null}
 	 * @since 1.10
 	 * @see #round(Number, Number, RoundingMode)
 	 */
-	public static Number roundup(Number n, Number digits) {
+	public static Number roundUp(Number n, Number digits) {
 		return round(n, digits, RoundingMode.UP);
 	}
 
@@ -918,12 +922,12 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param digits
 	 *        the maximum number of decimal digits
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code digits} is {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code digits} is {@literal null}
 	 * @since 1.10
 	 * @see #round(Number, Number, RoundingMode)
 	 */
-	public static Number rounddown(Number n, Number digits) {
+	public static Number roundDown(Number n, Number digits) {
 		return round(n, digits, RoundingMode.DOWN);
 	}
 
@@ -936,8 +940,8 @@ public final class NumberUtils {
 	 *        the maximum number of decimal digits
 	 * @param mode
 	 *        the rounding mode
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code digits} is {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code digits} is {@literal null}
 	 * @since 1.10
 	 */
 	public static Number round(Number n, Number digits, RoundingMode mode) {
