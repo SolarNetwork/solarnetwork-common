@@ -83,7 +83,7 @@ public class OcppWebSocketHandlerV16Tests {
 		handler.addActionMessageProcessor(new HeartbeatProcessor());
 
 		// send HeartbeatResponse
-		Capture<TextMessage> outMessageCaptor = new Capture<>();
+		Capture<TextMessage> outMessageCaptor = Capture.newInstance();
 		session.sendMessage(capture(outMessageCaptor));
 
 		// WHEN

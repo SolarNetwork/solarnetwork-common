@@ -294,12 +294,12 @@ public class S3ResourceStorageServiceTests {
 		final Date date = new Date();
 		final String path = "foo";
 
-		Capture<InputStream> inCaptor = new Capture<>();
-		Capture<S3ObjectMetadata> metaCaptor = new Capture<>();
+		Capture<InputStream> inCaptor = Capture.newInstance();
+		Capture<S3ObjectMetadata> metaCaptor = Capture.newInstance();
 		expect(s3Client.putObject(eq(path), capture(inCaptor), capture(metaCaptor), isNull(), same(r)))
 				.andReturn(new S3ObjectRef(path, r.contentLength(), date, s3Url(path)));
 
-		Capture<Event> eventCaptor = new Capture<>();
+		Capture<Event> eventCaptor = Capture.newInstance();
 		eventAdmin.postEvent(capture(eventCaptor));
 
 		// WHEN
@@ -338,12 +338,12 @@ public class S3ResourceStorageServiceTests {
 		final Date date = new Date();
 		final String path = "foo";
 
-		Capture<InputStream> inCaptor = new Capture<>();
-		Capture<S3ObjectMetadata> metaCaptor = new Capture<>();
+		Capture<InputStream> inCaptor = Capture.newInstance();
+		Capture<S3ObjectMetadata> metaCaptor = Capture.newInstance();
 		expect(s3Client.putObject(eq(path), capture(inCaptor), capture(metaCaptor), isNull(), same(r)))
 				.andReturn(new S3ObjectRef(path, r.contentLength(), date, s3Url(path)));
 
-		Capture<Event> eventCaptor = new Capture<>();
+		Capture<Event> eventCaptor = Capture.newInstance();
 		eventAdmin.postEvent(capture(eventCaptor));
 
 		// WHEN
@@ -388,12 +388,12 @@ public class S3ResourceStorageServiceTests {
 		final String path = "foo";
 		final String fullPath = pathPrefix + path;
 
-		Capture<InputStream> inCaptor = new Capture<>();
-		Capture<S3ObjectMetadata> metaCaptor = new Capture<>();
+		Capture<InputStream> inCaptor = Capture.newInstance();
+		Capture<S3ObjectMetadata> metaCaptor = Capture.newInstance();
 		expect(s3Client.putObject(eq(fullPath), capture(inCaptor), capture(metaCaptor), isNull(),
 				same(r))).andReturn(new S3ObjectRef(fullPath, r.contentLength(), date, s3Url(fullPath)));
 
-		Capture<Event> eventCaptor = new Capture<>();
+		Capture<Event> eventCaptor = Capture.newInstance();
 		eventAdmin.postEvent(capture(eventCaptor));
 
 		// WHEN
@@ -426,12 +426,12 @@ public class S3ResourceStorageServiceTests {
 		final String path = "foo";
 		final String fullPath = pathPrefix + path;
 
-		Capture<InputStream> inCaptor = new Capture<>();
-		Capture<S3ObjectMetadata> metaCaptor = new Capture<>();
+		Capture<InputStream> inCaptor = Capture.newInstance();
+		Capture<S3ObjectMetadata> metaCaptor = Capture.newInstance();
 		expect(s3Client.putObject(eq(fullPath), capture(inCaptor), capture(metaCaptor), isNull(),
 				same(r))).andReturn(new S3ObjectRef(fullPath, r.contentLength(), date, s3Url(fullPath)));
 
-		Capture<Event> eventCaptor = new Capture<>();
+		Capture<Event> eventCaptor = Capture.newInstance();
 		eventAdmin.postEvent(capture(eventCaptor));
 
 		// WHEN
@@ -469,8 +469,8 @@ public class S3ResourceStorageServiceTests {
 			}
 		};
 
-		Capture<InputStream> inCaptor = new Capture<>();
-		Capture<S3ObjectMetadata> metaCaptor = new Capture<>();
+		Capture<InputStream> inCaptor = Capture.newInstance();
+		Capture<S3ObjectMetadata> metaCaptor = Capture.newInstance();
 		expect(s3Client.putObject(eq(path), capture(inCaptor), capture(metaCaptor), same(listener),
 				same(r))).andAnswer(new IAnswer<S3ObjectReference>() {
 
@@ -491,7 +491,7 @@ public class S3ResourceStorageServiceTests {
 					}
 				});
 
-		Capture<Event> eventCaptor = new Capture<>();
+		Capture<Event> eventCaptor = Capture.newInstance();
 		eventAdmin.postEvent(capture(eventCaptor));
 
 		// WHEN
@@ -520,7 +520,7 @@ public class S3ResourceStorageServiceTests {
 
 		expect(s3Client.deleteObjects(pathsToDelete)).andReturn(pathsToDelete);
 
-		Capture<Event> eventCaptor = new Capture<>();
+		Capture<Event> eventCaptor = Capture.newInstance();
 		eventAdmin.postEvent(capture(eventCaptor));
 
 		// WHEN
@@ -556,7 +556,7 @@ public class S3ResourceStorageServiceTests {
 
 		expect(s3Client.deleteObjects(fullPathsToDelete)).andReturn(fullPathsToDelete);
 
-		Capture<Event> eventCaptor = new Capture<>();
+		Capture<Event> eventCaptor = Capture.newInstance();
 		eventAdmin.postEvent(capture(eventCaptor));
 
 		// WHEN
@@ -586,7 +586,7 @@ public class S3ResourceStorageServiceTests {
 
 		expect(s3Client.deleteObjects(fullPathsToDelete)).andReturn(fullPathsToDelete);
 
-		Capture<Event> eventCaptor = new Capture<>();
+		Capture<Event> eventCaptor = Capture.newInstance();
 		eventAdmin.postEvent(capture(eventCaptor));
 
 		// WHEN
@@ -617,7 +617,7 @@ public class S3ResourceStorageServiceTests {
 
 		expect(s3Client.deleteObjects(fullPathsToDelete)).andReturn(fullPathsToDelete);
 
-		Capture<Event> eventCaptor = new Capture<>();
+		Capture<Event> eventCaptor = Capture.newInstance();
 		eventAdmin.postEvent(capture(eventCaptor));
 
 		// WHEN
@@ -643,7 +643,7 @@ public class S3ResourceStorageServiceTests {
 		Set<String> deletedKeys = new LinkedHashSet<>(asList("one", "three"));
 		expect(s3Client.deleteObjects(pathsToDelete)).andReturn(deletedKeys);
 
-		Capture<Event> eventCaptor = new Capture<>();
+		Capture<Event> eventCaptor = Capture.newInstance();
 		eventAdmin.postEvent(capture(eventCaptor));
 
 		// WHEN
