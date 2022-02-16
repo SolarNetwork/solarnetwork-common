@@ -12,7 +12,7 @@ Export-Package:
  net.solarnetwork.dao;version="2.0.0",
  net.solarnetwork.dao.jdbc;version="2.0.0",
  net.solarnetwork.domain;version="2.0.0",
- net.solarnetwork.domain.datum;version="2.0.0",
+ net.solarnetwork.domain.datum;version="2.1.0",
  net.solarnetwork.domain.tariff;version="1.0.0",
  net.solarnetwork.event;version="1.0.0",
  net.solarnetwork.io;version="2.0.0",
