@@ -26,10 +26,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import net.solarnetwork.domain.DatumExpressionRoot;
 import net.solarnetwork.util.NumberUtils;
 
@@ -174,6 +176,9 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 
 	private static final DatumSamplesType[] TYPES = new DatumSamplesType[] {
 			DatumSamplesType.Instantaneous, DatumSamplesType.Accumulating, DatumSamplesType.Status };
+
+	private static final DatumSamplesType[] NUMBER_TYPES = new DatumSamplesType[] {
+			DatumSamplesType.Instantaneous, DatumSamplesType.Accumulating };
 
 	private final class EntrySet extends AbstractSet<Entry<String, Object>>
 			implements Set<Entry<String, Object>> {
@@ -455,6 +460,94 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 */
 	public static final Number roundDown(Number n, Number digits) {
 		return NumberUtils.roundDown(n, digits);
+	}
+
+	private static <T> void populateMap(Map<String, T> dest, DatumSamplesOperations ops,
+			DatumSamplesType[] types, Pattern pat) {
+		for ( DatumSamplesType type : types ) {
+			@SuppressWarnings("unchecked")
+			Map<String, T> data = (Map<String, T>) ops.getSampleData(type);
+			if ( data != null ) {
+				for ( Entry<String, T> e : data.entrySet() ) {
+					if ( pat == null || pat.matcher(e.getKey()).find() ) {
+						dest.put(e.getKey(), e.getValue());
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Group a set of properties matching a pattern into a collection.
+	 * 
+	 * @param pattern
+	 *        the property name pattern to group
+	 * @return the group of matching properties, never {@literal null}
+	 * @since 2.1
+	 */
+	public final Collection<? extends Number> group(String pattern) {
+		Pattern pat = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+		Map<String, Number> values = new LinkedHashMap<>(8);
+		if ( datumOps != null ) {
+			populateMap(values, datumOps, NUMBER_TYPES, pat);
+		}
+		if ( sample != null ) {
+			populateMap(values, sample, NUMBER_TYPES, pat);
+		}
+		if ( parameters != null ) {
+			for ( Entry<String, ?> e : parameters.entrySet() ) {
+				if ( pat.matcher(e.getKey()).find() && (e.getValue() instanceof Number) ) {
+					values.put(e.getKey(), (Number) e.getValue());
+				}
+			}
+		}
+		return values.values();
+	}
+
+	/**
+	 * Compute the sum a group of numbers.
+	 * 
+	 * @param set
+	 *        the numbers to sum; if {@literal null} or empty then
+	 *        {@literal null} will be returned
+	 * @return the sum of {@code set}
+	 * @since 2.1
+	 */
+	public static Number sum(Collection<? extends Number> set) {
+		BigDecimal result = null;
+		if ( set != null && !set.isEmpty() ) {
+			result = BigDecimal.ZERO;
+			for ( Number n : set ) {
+				result = result.add(NumberUtils.bigDecimalForNumber(n));
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Compute the average (mean) of a group of numbers.
+	 * 
+	 * @param set
+	 *        the numbers to average; if {@literal null} or empty then
+	 *        {@literal null} will be returned
+	 * @return the average of {@code set}
+	 * @since 2.1
+	 */
+	public static Number avg(Collection<? extends Number> set) {
+		BigDecimal sum = (BigDecimal) sum(set);
+		if ( sum == null ) {
+			return null;
+		}
+		if ( set.size() == 1 ) {
+			return sum;
+		}
+		BigDecimal count = new BigDecimal(set.size());
+		try {
+			return sum.divide(count);
+		} catch ( ArithmeticException e ) {
+			// try with rounding
+			return sum.divide(count, 12, RoundingMode.HALF_UP);
+		}
 	}
 
 }

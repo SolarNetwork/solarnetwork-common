@@ -26,11 +26,13 @@ import static java.util.stream.Collectors.toCollection;
 import static net.solarnetwork.domain.datum.DatumSamplesType.Accumulating;
 import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -153,6 +155,99 @@ public class DatumSamplesExpressionRootTests {
 		assertThat("Round zero",
 				expressionService.evaluateExpression("round(foo,8)", null, root, null, Number.class),
 				is(new BigDecimal("1.23456789")));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void group() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f1", 1);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f2", 2);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f3", 3);
+
+		// THEN
+		assertThat("Group props", (Collection<Number>) expressionService
+				.evaluateExpression("group('^f')", null, root, null, Collection.class),
+				containsInAnyOrder(35, 1, 2, 3));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void group_sum() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f1", 1);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f2", 2);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f3", 3);
+
+		// THEN
+		assertThat(
+				"Group props + sum", (Collection<Number>) expressionService
+						.evaluateExpression("sum(group('^f'))", null, root, null, Collection.class),
+				containsInAnyOrder(new BigDecimal("41")));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void group_avg() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f1", 1);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f2", 2);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f3", 3);
+
+		// THEN
+		assertThat(
+				"Group props + sum", (Collection<Number>) expressionService
+						.evaluateExpression("avg(group('^f'))", null, root, null, Collection.class),
+				containsInAnyOrder(new BigDecimal("10.25")));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void group_avg_nonTerminatingDecimal() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f1", 1);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f2", 0);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f3", 0);
+
+		// THEN
+		assertThat("Group props + sum",
+				(Collection<Number>) expressionService.evaluateExpression("avg(group('^f\\d'))", null,
+						root, null, Collection.class),
+				containsInAnyOrder(new BigDecimal("0.333333333333")));
+	}
+
+	@Test
+	public void group_avg_manual() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f1", 1);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f2", 2);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f3", 3);
+
+		// THEN
+		assertThat("Group props + manual average is integer calculation",
+				expressionService.evaluateExpression("sum(group('^f')) / group('^f').size()", null, root,
+						null, BigDecimal.class),
+				is(new BigDecimal("10")));
 	}
 
 }
