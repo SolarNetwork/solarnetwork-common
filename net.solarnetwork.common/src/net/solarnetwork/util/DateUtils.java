@@ -237,7 +237,7 @@ public final class DateUtils {
 
 	/**
 	 * Date and time formatter using the ISO 8601 style but with an optional
-	 * time component using an optional milliseconds of secodn component, and a
+	 * time component using an optional milliseconds of second component, and a
 	 * space character for the date/time separator instead of {@literal T}.
 	 * 
 	 * <p>
@@ -286,7 +286,7 @@ public final class DateUtils {
 
 	/**
 	 * Date and time formatter using the ISO 8601 style but with an optional
-	 * time component using an optional milliseconds of secodn component.
+	 * time component using an optional milliseconds of second component.
 	 * 
 	 * <p>
 	 * This supports patterns like:
