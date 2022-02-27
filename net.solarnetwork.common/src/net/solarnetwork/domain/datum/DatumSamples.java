@@ -100,16 +100,23 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 		if ( instantaneous != null ) {
 			builder.append("i=");
 			builder.append(instantaneous);
-			builder.append(", ");
+			if ( accumulating != null || status != null || getTags() != null ) {
+				builder.append(", ");
+			}
 		}
 		if ( accumulating != null ) {
 			builder.append("a=");
 			builder.append(accumulating);
-			builder.append(", ");
+			if ( status != null || getTags() != null ) {
+				builder.append(", ");
+			}
 		}
 		if ( status != null ) {
 			builder.append("s=");
 			builder.append(status);
+			if ( getTags() != null ) {
+				builder.append(", ");
+			}
 		}
 		if ( getTags() != null ) {
 			builder.append("t=");
