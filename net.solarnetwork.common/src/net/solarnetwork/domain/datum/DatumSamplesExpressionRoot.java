@@ -100,7 +100,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 * 
 	 * @return the datum samples; may be {@literal null}
 	 */
-	public DatumSamplesOperations getSample() {
+	public DatumSamplesOperations getSamples() {
 		return sample;
 	}
 
