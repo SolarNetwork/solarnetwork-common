@@ -111,6 +111,24 @@ public class GeneralDatumMetadata extends DatumSupport
 	}
 
 	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder();
+		buf.append("GeneralDatumMetadata{");
+		if ( info != null && !info.isEmpty() ) {
+			buf.append("m=").append(info).append(", ");
+		}
+		if ( propertyInfo != null && !propertyInfo.isEmpty() ) {
+
+			buf.append("pm=").append(propertyInfo).append(", ");
+		}
+		if ( getTags() != null && !getTags().isEmpty() ) {
+			buf.append("t=").append(getTags());
+		}
+		buf.append("}");
+		return buf.toString();
+	}
+
+	@Override
 	public void clear() {
 		super.clear();
 		info = null;
