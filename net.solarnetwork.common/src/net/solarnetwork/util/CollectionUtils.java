@@ -22,6 +22,8 @@
 
 package net.solarnetwork.util;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -37,7 +39,7 @@ import java.util.SortedSet;
  * Utility methods for dealing with collections.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.58
  */
 public final class CollectionUtils {
@@ -196,6 +198,290 @@ public final class CollectionUtils {
 			return null;
 		}
 		return new Hashtable<>(map);
+	}
+
+	/**
+	 * Get a String value out of a Map.
+	 * 
+	 * <p>
+	 * If the key exists but is not a String, {@link Object#toString()} will be
+	 * called on that object.
+	 * </p>
+	 * 
+	 * @param key
+	 *        the key of the object to get
+	 * @param map
+	 *        the map to inspect, {@literal null} is allowed
+	 * @return the value, or {@literal null} if not found
+	 * @since 1.2
+	 */
+	public static String getMapString(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object s = map.get(key);
+		if ( s == null ) {
+			return null;
+		}
+		if ( s instanceof String ) {
+			return (String) s;
+		}
+		return s.toString();
+	}
+
+	/**
+	 * Get a Short value out of a Map.
+	 * 
+	 * <p>
+	 * If the key exists, is not an Short, but is a Number,
+	 * {@link Number#shortValue()} will be called on that object.
+	 * </p>
+	 * 
+	 * @param key
+	 *        the key of the object to get
+	 * @param map
+	 *        the map to inspect, {@literal null} is allowed
+	 * @return the value, or {@literal null} if not found or not compatible with
+	 *         Short
+	 * @since 1.2
+	 */
+	public static Short getMapShort(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Short ) {
+			return (Short) n;
+		}
+		if ( n instanceof Number ) {
+			return ((Number) n).shortValue();
+		}
+		try {
+			return Short.valueOf(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
+	}
+
+	/**
+	 * Get an Integer value out of a Map.
+	 * 
+	 * <p>
+	 * If the key exists, is not an Integer, but is a Number,
+	 * {@link Number#intValue()} will be called on that object.
+	 * </p>
+	 * 
+	 * @param key
+	 *        the key of the object to get
+	 * @param map
+	 *        the map to inspect, {@literal null} is allowed
+	 * @return the value, or {@literal null} if not found or not compatible with
+	 *         Integer
+	 * @since 1.2
+	 */
+	public static Integer getMapInteger(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Integer ) {
+			return (Integer) n;
+		}
+		if ( n instanceof Number ) {
+			return ((Number) n).intValue();
+		}
+		try {
+			return Integer.valueOf(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
+	}
+
+	/**
+	 * Get a Long value out of a Map.
+	 * 
+	 * <p>
+	 * If the key exists, is not a Long, but is a Number,
+	 * {@link Number#longValue()} will be called on that object.
+	 * </p>
+	 * 
+	 * @param key
+	 *        the key of the object to get
+	 * @param map
+	 *        the map to inspect, {@literal null} is allowed
+	 * @return the value, or {@literal null} if not found or not compatible with
+	 *         Long
+	 * @since 1.2
+	 */
+	public static Long getMapLong(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Long ) {
+			return (Long) n;
+		}
+		if ( n instanceof Number ) {
+			return ((Number) n).longValue();
+		}
+		try {
+			return Long.valueOf(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
+	}
+
+	/**
+	 * Get a Float value out of a Map.
+	 * 
+	 * <p>
+	 * If the key exists, is not a Float, but is a Number,
+	 * {@link Number#floatValue()} will be called on that object.
+	 * </p>
+	 * 
+	 * @param key
+	 *        the key of the object to get
+	 * @param map
+	 *        the map to inspect, {@literal null} is allowed
+	 * @return the value, or {@literal null} if not found or not compatible with
+	 *         Float
+	 * @since 1.2
+	 */
+	public static Float getMapFloat(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Float ) {
+			return (Float) n;
+		}
+		if ( n instanceof Number ) {
+			return ((Number) n).floatValue();
+		}
+		try {
+			return Float.valueOf(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
+	}
+
+	/**
+	 * Get a Double value out of a Map
+	 * 
+	 * <p>
+	 * If the key exists, is not a Double, but is a Number,
+	 * {@link Number#doubleValue()} will be called on that object.
+	 * </p>
+	 * 
+	 * @param key
+	 *        the key of the object to get
+	 * @param map
+	 *        the map to inspect, {@literal null} is allowed
+	 * @return the value, or {@literal null} if not found or not compatible with
+	 *         Double
+	 * @since 1.2
+	 */
+	public static Double getMapDouble(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Double ) {
+			return (Double) n;
+		}
+		if ( n instanceof Number ) {
+			return ((Number) n).doubleValue();
+		}
+		try {
+			return Double.valueOf(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
+	}
+
+	/**
+	 * Get a BigDecimal value out of a Map.
+	 * 
+	 * <p>
+	 * If the key exists but is not a BigDecimal, {@link Object#toString()} will
+	 * be called on that object and {@link BigDecimal#BigDecimal(String)} will
+	 * be returned.
+	 * </p>
+	 * 
+	 * @param key
+	 *        the key of the object to get
+	 * @param map
+	 *        the map to inspect, {@literal null} is allowed
+	 * @return the value, or {@literal null} if not found or not compatible with
+	 *         BigDecimal
+	 * @since 1.2
+	 */
+	public static BigDecimal getMapBigDecimal(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Number ) {
+			return NumberUtils.bigDecimalForNumber((Number) n);
+		}
+		try {
+			return new BigDecimal(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
+	}
+
+	/**
+	 * Get a BigDecimal value out of a Map.
+	 * 
+	 * <p>
+	 * If the key exists but is not a BigDecimal, {@link Object#toString()} will
+	 * be called on that object and {@link BigDecimal#BigDecimal(String)} will
+	 * be returned.
+	 * </p>
+	 * 
+	 * @param key
+	 *        the key of the object to get
+	 * @param map
+	 *        the map to inspect, {@literal null} is allowed
+	 * @return the value, or {@literal null} if not found or not compatible with
+	 *         BigInteger
+	 * @since 1.2
+	 */
+	public static BigInteger getMapBigInteger(String key, Map<String, ?> map) {
+		if ( map == null ) {
+			return null;
+		}
+		Object n = map.get(key);
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Number ) {
+			return NumberUtils.bigIntegerForNumber((Number) n);
+		}
+		try {
+			return new BigInteger(n.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
 	}
 
 }

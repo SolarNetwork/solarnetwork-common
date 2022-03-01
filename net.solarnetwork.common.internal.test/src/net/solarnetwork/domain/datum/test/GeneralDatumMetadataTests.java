@@ -46,7 +46,7 @@ import net.solarnetwork.domain.datum.GeneralDatumMetadata;
  * @author matt
  * @version 1.1
  */
-public class GeneralDatumMetadataTest {
+public class GeneralDatumMetadataTests {
 
 	private ObjectMapper objectMapper;
 

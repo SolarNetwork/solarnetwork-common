@@ -23,12 +23,14 @@
 package net.solarnetwork.domain.datum;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import net.solarnetwork.domain.SerializeIgnore;
 
@@ -36,10 +38,12 @@ import net.solarnetwork.domain.SerializeIgnore;
  * Metadata about general node datum streams of data.
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 @JsonPropertyOrder({ "m", "pm", "t" })
-public class GeneralDatumMetadata extends DatumSupport implements Serializable {
+@JsonIgnoreProperties({ "empty", "infoKeys" })
+public class GeneralDatumMetadata extends DatumSupport
+		implements DatumMetadataOperations, MutableDatumMetadataOperations, Serializable {
 
 	private static final long serialVersionUID = -2571643375746163527L;
 
@@ -81,54 +85,6 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 	}
 
 	/**
-	 * Merge the values from another {@link GeneralDatumMetadata} instance into
-	 * this one. Existing values will <b>not</b> be replaced by values in the
-	 * provided instance, only new values will be merged.
-	 * 
-	 * @param meta
-	 *        the metadata to merge into this object
-	 * @param replace
-	 *        if {@literal true} then replace values in this object with
-	 *        equivalent ones in the provided object, otherwise keep the values
-	 *        from this object
-	 */
-	public void merge(final GeneralDatumMetadata meta, final boolean replace) {
-		if ( meta.getTags() != null ) {
-			for ( String tag : meta.getTags() ) {
-				addTag(tag);
-			}
-		}
-		if ( meta.getInfo() != null ) {
-			for ( Map.Entry<String, Object> me : meta.getInfo().entrySet() ) {
-				// only overwrite keys, if replace is true
-				if ( replace || getInfo() == null || getInfo().containsKey(me.getKey()) == false ) {
-					putInfoValue(me.getKey(), me.getValue());
-				}
-			}
-		}
-		if ( meta.getPropertyInfo() != null ) {
-			Map<String, Map<String, Object>> gdmPropertyMeta = getPropertyInfo();
-			if ( gdmPropertyMeta == null ) {
-				setPropertyInfo(meta.getPropertyInfo());
-			} else {
-				for ( Map.Entry<String, Map<String, Object>> me : meta.getPropertyInfo().entrySet() ) {
-					if ( gdmPropertyMeta.get(me.getKey()) == null ) {
-						gdmPropertyMeta.put(me.getKey(), me.getValue());
-					} else {
-						for ( Map.Entry<String, Object> pme : me.getValue().entrySet() ) {
-							if ( replace == false
-									&& gdmPropertyMeta.get(me.getKey()).containsKey(pme.getKey()) ) {
-								continue;
-							}
-							putInfoValue(me.getKey(), pme.getKey(), pme.getValue());
-						}
-					}
-				}
-			}
-		}
-	}
-
-	/**
 	 * Construct with values.
 	 * 
 	 * @param info
@@ -154,15 +110,69 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 		this.propertyInfo = propertyInfo;
 	}
 
-	/**
-	 * Put a value into or remove a value from the {@link #getInfo()} map,
-	 * creating the map if it doesn't exist.
-	 * 
-	 * @param key
-	 *        the key to put
-	 * @param value
-	 *        the value to put, or {@literal null} to remove the key
-	 */
+	@Override
+	public void clear() {
+		super.clear();
+		info = null;
+		propertyInfo = null;
+	}
+
+	@JsonIgnore
+	@Override
+	public Set<String> getPropertyInfoKeys() {
+		return (propertyInfo != null ? propertyInfo.keySet() : Collections.emptySet());
+	}
+
+	@JsonIgnore
+	@Override
+	public Map<String, ?> getPropertyInfo(String key) {
+		return (propertyInfo != null ? propertyInfo.get(key) : null);
+	}
+
+	@Override
+	public void merge(final DatumMetadataOperations meta, final boolean replace) {
+		if ( meta.getTags() != null ) {
+			for ( String tag : meta.getTags() ) {
+				addTag(tag);
+			}
+		}
+		if ( meta.getInfo() != null ) {
+			for ( Map.Entry<String, ?> me : meta.getInfo().entrySet() ) {
+				// only overwrite keys, if replace is true
+				if ( replace || getInfo() == null || getInfo().containsKey(me.getKey()) == false ) {
+					putInfoValue(me.getKey(), me.getValue());
+				}
+			}
+		}
+		Set<String> propKeys = meta.getPropertyInfoKeys();
+		if ( propKeys != null ) {
+			Map<String, Map<String, Object>> gdmPropertyMeta = getPropertyInfo();
+			if ( gdmPropertyMeta == null ) {
+				for ( String propKey : propKeys ) {
+					setInfo(propKey, new LinkedHashMap<>(meta.getPropertyInfo(propKey)));
+				}
+			} else {
+				for ( String propKey : propKeys ) {
+					if ( gdmPropertyMeta.get(propKey) == null ) {
+						gdmPropertyMeta.put(propKey, new LinkedHashMap<>(meta.getPropertyInfo(propKey)));
+					} else {
+						Map<String, ?> pi = meta.getPropertyInfo(propKey);
+						if ( pi != null ) {
+							for ( Entry<String, ?> pme : pi.entrySet() ) {
+								if ( replace == false
+										&& gdmPropertyMeta.get(propKey).containsKey(pme.getKey()) ) {
+									continue;
+								}
+								putInfoValue(propKey, pme.getKey(), pme.getValue());
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@Override
 	public void putInfoValue(String key, Object value) {
 		Map<String, Object> m = info;
 		if ( m == null ) {
@@ -177,78 +187,6 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 		} else {
 			m.put(key, value);
 		}
-	}
-
-	/**
-	 * Get an Integer value from the {@link #getInfo()} map, or {@literal null}
-	 * if not available.
-	 * 
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Integer, or {@literal null} if not available
-	 */
-	public Integer getInfoInteger(String key) {
-		return getMapInteger(key, info);
-	}
-
-	/**
-	 * Get a Long value from the {@link #getInfo()} map, or {@literal null} if
-	 * not available.
-	 * 
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Long, or {@literal null} if not available
-	 */
-	public Long getInfoLong(String key) {
-		return getMapLong(key, info);
-	}
-
-	/**
-	 * Get a Float value from the {@link #getInfo()} map, or {@literal null} if
-	 * not available.
-	 * 
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Float, or {@literal null} if not available
-	 */
-	public Float getInfoFloat(String key) {
-		return getMapFloat(key, info);
-	}
-
-	/**
-	 * Get a Double value from the {@link #getInfo()} map, or {@literal null} if
-	 * not available.
-	 * 
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Double, or {@literal null} if not available
-	 */
-	public Double getInfoDouble(String key) {
-		return getMapDouble(key, info);
-	}
-
-	/**
-	 * Get a BigDecimal value from the {@link #getInfo()} map, or
-	 * {@literal null} if not available.
-	 * 
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or {@literal null} if not available
-	 */
-	public BigDecimal getInfoBigDecimal(String key) {
-		return getMapBigDecimal(key, info);
-	}
-
-	/**
-	 * Get a String value from the {@link #getInfo()} map, or {@literal null} if
-	 * not available.
-	 * 
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as a String, or {@literal null} if not available
-	 */
-	public String getInfoString(String key) {
-		return getMapString(key, info);
 	}
 
 	@Override
@@ -297,17 +235,14 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 		return true;
 	}
 
-	/**
-	 * Get a map of <em>info</em> values. These are arbitrary values.
-	 * 
-	 * @return map of info values
-	 */
+	@Override
 	@JsonIgnore
 	@SerializeIgnore
 	public Map<String, Object> getInfo() {
 		return info;
 	}
 
+	@Override
 	public void setInfo(Map<String, Object> info) {
 		this.info = info;
 	}
@@ -343,6 +278,20 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 		return propertyInfo;
 	}
 
+	@Override
+	public void setInfo(String key, Map<String, Object> info) {
+		Map<String, Map<String, Object>> map = getPropertyInfo();
+		if ( map == null ) {
+			map = new LinkedHashMap<>(8);
+			setPropertyInfo(map);
+		}
+		if ( info == null ) {
+			map.remove(key);
+		} else {
+			map.put(key, info);
+		}
+	}
+
 	public void setPropertyInfo(Map<String, Map<String, Object>> propertyInfo) {
 		this.propertyInfo = propertyInfo;
 	}
@@ -366,17 +315,7 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 		setPropertyInfo(map);
 	}
 
-	/**
-	 * Put a value into or remove a value from the {@link #getPropertyInfo()}
-	 * map, creating the map if it doesn't exist.
-	 * 
-	 * @param property
-	 *        the property name
-	 * @param key
-	 *        the key to put
-	 * @param value
-	 *        the value to put, or {@literal null} to remove the key
-	 */
+	@Override
 	public void putInfoValue(String property, String key, Object value) {
 		Map<String, Map<String, Object>> pm = propertyInfo;
 		if ( pm == null ) {
@@ -401,119 +340,12 @@ public class GeneralDatumMetadata extends DatumSupport implements Serializable {
 		}
 	}
 
-	/**
-	 * Get an Integer value from the {@link #getPropertyInfo()} map, or
-	 * {@literal null} if not available.
-	 * 
-	 * @param property
-	 *        the property name
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Integer, or {@literal null} if not available
-	 */
-	public Integer getInfoInteger(String property, String key) {
-		return getMapInteger(key, (propertyInfo == null ? null : propertyInfo.get(property)));
-	}
-
-	/**
-	 * Get a Long value from the {@link #getPropertyInfo()} map, or
-	 * {@literal null} if not available.
-	 * 
-	 * @param property
-	 *        the property name
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Long, or {@literal null} if not available
-	 */
-	public Long getInfoLong(String property, String key) {
-		return getMapLong(key, (propertyInfo == null ? null : propertyInfo.get(property)));
-	}
-
-	/**
-	 * Get a Float value from the {@link #getPropertyInfo()} map, or
-	 * {@literal null} if not available.
-	 * 
-	 * @param property
-	 *        the property name
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Float, or {@literal null} if not available
-	 */
-	public Float getInfoFloat(String property, String key) {
-		return getMapFloat(key, (propertyInfo == null ? null : propertyInfo.get(property)));
-	}
-
-	/**
-	 * Get a Double value from the {@link #getPropertyInfo()} map, or
-	 * {@literal null} if not available.
-	 * 
-	 * @param property
-	 *        the property name
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an Double, or {@literal null} if not available
-	 */
-	public Double getInfoDouble(String property, String key) {
-		return getMapDouble(key, (propertyInfo == null ? null : propertyInfo.get(property)));
-	}
-
-	/**
-	 * Get a BigDecimal value from the {@link #getPropertyInfo()} map, or
-	 * {@literal null} if not available.
-	 * 
-	 * @param property
-	 *        the property name
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or {@literal null} if not available
-	 */
-	public BigDecimal getInfoBigDecimal(String property, String key) {
-		return getMapBigDecimal(key, (propertyInfo == null ? null : propertyInfo.get(property)));
-	}
-
-	/**
-	 * Get a String value from the {@link #getPropertyInfo()} map, or
-	 * {@literal null} if not available.
-	 * 
-	 * @param property
-	 *        the property name
-	 * @param key
-	 *        the key of the value to get
-	 * @return the value as a String, or {@literal null} if not available
-	 */
-	public String getInfoString(String property, String key) {
-		return getMapString(key, (propertyInfo == null ? null : propertyInfo.get(property)));
-	}
-
-	/**
-	 * Get a metadata value at a given path.
-	 * 
-	 * @param path
-	 *        the path of the metadata object to get
-	 * @return the metadata value, or {@literal null} if none exists at the
-	 *         given path
-	 * @see GeneralDatumMetadata#metadataAtPath(String, GeneralDatumMetadata)
-	 * @since 1.3
-	 */
+	@Override
 	public Object metadataAtPath(String path) {
 		return metadataAtPath(path, this);
 	}
 
-	/**
-	 * Get a metadata value of a given type at a given path.
-	 * 
-	 * @param <T>
-	 *        the expected return type
-	 * @param path
-	 *        the path of the metadata object to get
-	 * @param clazz
-	 *        the expected class of the return type
-	 * @return the metadata, or {@literal null} if none exists at the given path
-	 *         or is not of type {@code T}
-	 * @see GeneralDatumMetadata#metadataAtPath(String, GeneralDatumMetadata,
-	 *      Class)
-	 * @since 1.3
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T metadataAtPath(String path, Class<T> clazz) {
 		Object o = metadataAtPath(path);
