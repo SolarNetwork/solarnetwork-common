@@ -297,6 +297,9 @@ public interface DatumMathFunctions {
 		if ( set != null ) {
 			result = BigDecimal.ZERO;
 			for ( Number n : set ) {
+				if ( n == null ) {
+					continue;
+				}
 				result = result.add(NumberUtils.bigDecimalForNumber(n));
 			}
 		}
@@ -319,7 +322,13 @@ public interface DatumMathFunctions {
 		if ( set.size() == 1 ) {
 			return sum;
 		}
-		BigDecimal count = new BigDecimal(set.size());
+		int nonNullCount = 0;
+		for ( Number n : set ) {
+			if ( n != null ) {
+				nonNullCount += 1;
+			}
+		}
+		BigDecimal count = new BigDecimal(nonNullCount);
 		try {
 			return sum.divide(count);
 		} catch ( ArithmeticException e ) {
@@ -343,6 +352,9 @@ public interface DatumMathFunctions {
 		BigDecimal max = null;
 		for ( Number n : set ) {
 			BigDecimal d = decimal(n);
+			if ( d == null ) {
+				continue;
+			}
 			if ( max == null || d.compareTo(max) > 0 ) {
 				max = d;
 			}
@@ -365,6 +377,9 @@ public interface DatumMathFunctions {
 		BigDecimal min = null;
 		for ( Number n : set ) {
 			BigDecimal d = decimal(n);
+			if ( d == null ) {
+				continue;
+			}
 			if ( min == null || d.compareTo(min) < 0 ) {
 				min = d;
 			}

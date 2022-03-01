@@ -77,7 +77,8 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *         instance
 	 */
 	default boolean hasInfo(String key) {
-		return (getInfo(key) != null);
+		Map<String, ?> info = getInfo();
+		return (info != null ? info.containsKey(key) : false);
 	}
 
 	/**
@@ -107,6 +108,21 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	default boolean hasPropertyInfo(String key) {
 		Map<String, ?> info = getPropertyInfo(key);
 		return (info != null);
+	}
+
+	/**
+	 * Test if a given property info key is available.
+	 * 
+	 * @param property
+	 *        the property name
+	 * @param key
+	 *        the key of the value to get
+	 * @return {@literal true} if info for the given property key has been set
+	 *         on this instance
+	 */
+	default boolean hasInfo(String property, String key) {
+		Map<String, ?> info = getPropertyInfo(property);
+		return (info != null ? info.containsKey(key) : false);
 	}
 
 	/**
@@ -193,6 +209,18 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 		}
 
 		return false;
+	}
+
+	/**
+	 * Test if metadata at a given path is available.
+	 * 
+	 * @param path
+	 *        the path of the metadata object to get
+	 * @return {@literal true} if metadata for the given path is available on
+	 *         this instance
+	 */
+	default boolean hasMetadataAtPath(String path) {
+		return (metadataAtPath(path) != null);
 	}
 
 	/**
