@@ -246,6 +246,29 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	<T> T metadataAtPath(String path, Class<T> clazz);
 
 	/**
+	 * Get a Number value from the {@link #getInfo()} map, or {@literal null} if
+	 * not available.
+	 * 
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as a Short, or {@literal null} if not available
+	 */
+	default Number getInfoNumber(String key) {
+		Map<String, ?> info = getInfo();
+		Object v = (info != null ? info.get(key) : null);
+		if ( v == null ) {
+			return null;
+		} else if ( v instanceof Number ) {
+			return (Number) v;
+		}
+		try {
+			return new BigDecimal(v.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
+	}
+
+	/**
 	 * Get a Short value from the {@link #getInfo()} map, or {@literal null} if
 	 * not available.
 	 * 
@@ -339,6 +362,31 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 */
 	default String getInfoString(String key) {
 		return CollectionUtils.getMapString(key, getInfo());
+	}
+
+	/**
+	 * Get a Number value from the {@link #getPropertyInfo(String)} map, or
+	 * {@literal null} if not available.
+	 * 
+	 * @param property
+	 *        the property name
+	 * @param key
+	 *        the key of the value to get
+	 * @return the value as a Number, or {@literal null} if not available
+	 */
+	default Number getInfoNumber(String property, String key) {
+		Map<String, ?> info = getPropertyInfo(property);
+		Object v = (info != null ? info.get(key) : null);
+		if ( v == null ) {
+			return null;
+		} else if ( v instanceof Number ) {
+			return (Number) v;
+		}
+		try {
+			return new BigDecimal(v.toString());
+		} catch ( NumberFormatException e ) {
+			return null;
+		}
 	}
 
 	/**
