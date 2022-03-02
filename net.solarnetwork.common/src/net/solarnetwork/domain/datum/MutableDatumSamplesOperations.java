@@ -53,6 +53,12 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 	 * {@code key} and the tag to add as {@code value}.
 	 * </p>
 	 * 
+	 * <p>
+	 * For {@link DatumSamplesType#Instantaneous} and
+	 * {@link DatumSamplesType#Accumulating} if {@code value} is non-null but
+	 * not a {@link Number}, it will be silently ignored.
+	 * </p>
+	 * 
 	 * @param type
 	 *        the type of sample data to get
 	 * @param key
