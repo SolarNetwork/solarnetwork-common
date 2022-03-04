@@ -763,4 +763,40 @@ public final class StringUtils {
 		return null;
 	}
 
+	/**
+	 * Test if a string matches a pattern, returning the text along with any
+	 * capture groups as an array if there is a match.
+	 * 
+	 * <p>
+	 * Note that {@link Matcher#find()} is used, so the pattern matches anywhere
+	 * in {@code text} by default.
+	 * </p>
+	 * 
+	 * @param pattern
+	 *        the pattern
+	 * @param text
+	 *        the string to test against {@code pattern}
+	 * @return if the string does not match or either argument is
+	 *         {@literal null}, {@literal null}; otherwise an array whose first
+	 *         element is {@code text} and any additional elements are pattern
+	 *         capture values
+	 * @since 1.11
+	 */
+	public static String[] match(Pattern pattern, String text) {
+		if ( pattern == null || text == null ) {
+			return null;
+		}
+		Matcher m = pattern.matcher(text);
+		if ( m.find() ) {
+			int groupCount = m.groupCount();
+			String[] result = new String[1 + groupCount];
+			result[0] = text;
+			for ( int i = 1; i <= groupCount; i++ ) {
+				result[i] = m.group(i);
+			}
+			return result;
+		}
+		return null;
+	}
+
 }

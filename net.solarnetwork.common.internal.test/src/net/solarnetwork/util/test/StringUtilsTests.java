@@ -23,6 +23,7 @@
 package net.solarnetwork.util.test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
@@ -543,6 +544,34 @@ public class StringUtilsTests {
 	public void numberValue_float() {
 		assertThat("Decimal input returns BigDecimal", StringUtils.numberValue("123.45"),
 				is(new BigDecimal("123.45")));
+	}
+
+	@Test
+	public void match_nullInput() {
+		assertThat("Null pattern input returns null", StringUtils.match(null, "foo"), is(nullValue()));
+		assertThat("Null text input returns null", StringUtils.match(Pattern.compile("foo"), null),
+				is(nullValue()));
+		assertThat("All null input returns null", StringUtils.match(null, null), is(nullValue()));
+	}
+
+	@Test
+	public void match_noMatch() {
+		Pattern p = Pattern.compile("foo/(.*)");
+		assertThat("No match returns null", StringUtils.match(p, "bar/foo"), is(nullValue()));
+	}
+
+	@Test
+	public void match_noCaptureGroups() {
+		Pattern p = Pattern.compile("foo/.*");
+		assertThat("Match without capture groups returns array of 1", StringUtils.match(p, "foo/bar"),
+				is(arrayContaining("foo/bar")));
+	}
+
+	@Test
+	public void match_withCaptureGroups() {
+		Pattern p = Pattern.compile("foo/(.*)/(.*)");
+		assertThat("Match with capture groups returns array with captured group values",
+				StringUtils.match(p, "foo/bar/bam"), is(arrayContaining("foo/bar/bam", "bar", "bam")));
 	}
 
 }
