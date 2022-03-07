@@ -25,6 +25,7 @@ package net.solarnetwork.service.support;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static net.solarnetwork.util.ArrayUtils.arrayWithLength;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -35,7 +36,8 @@ import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.support.BasicGroupSettingSpecifier;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 import net.solarnetwork.settings.support.SettingUtils;
-import net.solarnetwork.util.ArrayUtils;
+import net.solarnetwork.util.NumberUtils;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * Basic implementation of {@link Identifiable}.
@@ -136,11 +138,182 @@ public class BasicIdentifiable implements Identifiable {
 					public Collection<SettingSpecifier> mapListSettingKey(KeyValuePair value, int index,
 							String key) {
 						List<SettingSpecifier> g = new ArrayList<>(2);
-						g.add(new BasicTextFieldSettingSpecifier(key + ".key", null));
-						g.add(new BasicTextFieldSettingSpecifier(key + ".value", null));
+						g.add(new BasicTextFieldSettingSpecifier(key + ".key",
+								value != null ? value.getKey() : null));
+						g.add(new BasicTextFieldSettingSpecifier(key + ".value",
+								value != null ? value.getValue() : null));
 						return singletonList(new BasicGroupSettingSpecifier(g));
 					}
 				}));
+	}
+
+	/**
+	 * Get a specific metadata value for a given key.
+	 * 
+	 * @param key
+	 *        the metadata key to get the value for
+	 * @return the value found on the first matching metadata key, or
+	 *         {@literal null} if not found
+	 * @since 2.1
+	 */
+	public String metadataValue(String key) {
+		if ( key == null ) {
+			return null;
+		}
+		final KeyValuePair[] data = getMetadata();
+		if ( data != null ) {
+			for ( KeyValuePair p : data ) {
+				if ( p == null ) {
+					continue;
+				}
+				if ( key.equals(p.getKey()) ) {
+					return p.getValue();
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get a specific metadata value for a given key, coerced to a number if
+	 * possible.
+	 * 
+	 * @param key
+	 *        the metadata key to get the value for
+	 * @return the value found on the first matching metadata key, or
+	 *         {@literal null} if not found
+	 * @since 2.1
+	 */
+	public Object smartMetadataValue(String key) {
+		String val = metadataValue(key);
+		if ( val != null ) {
+			Number n = NumberUtils.narrow(StringUtils.numberValue(val), 2);
+			if ( n != null ) {
+				return n;
+			}
+		}
+		return val;
+	}
+
+	/**
+	 * Get a specific metadata value for a given key as a number.
+	 * 
+	 * @param key
+	 *        the metadata key to get the value for
+	 * @return the value found on the first matching metadata key, or
+	 *         {@literal null} if not found or the value cannot be coerced to a
+	 *         number
+	 * @since 2.1
+	 */
+	public Number numberMetadataValue(String key) {
+		Object val = smartMetadataValue(key);
+		return (val instanceof Number ? (Number) val : null);
+	}
+
+	/**
+	 * Get a specific metadata value for a given key as an integer.
+	 * 
+	 * @param key
+	 *        the metadata key to get the value for
+	 * @return the value found on the first matching metadata key, or
+	 *         {@literal null} if not found or the value cannot be coerced to an
+	 *         integer
+	 * @since 2.1
+	 */
+	public Integer integerMetadataValue(String key) {
+		Object val = smartMetadataValue(key);
+		return (val instanceof Integer ? (Integer) val
+				: val instanceof Number ? ((Number) val).intValue() : null);
+	}
+
+	/**
+	 * Get a specific metadata value for a given key as a double.
+	 * 
+	 * @param key
+	 *        the metadata key to get the value for
+	 * @return the value found on the first matching metadata key, or
+	 *         {@literal null} if not found or the value cannot be coerced to a
+	 *         double
+	 * @since 2.1
+	 */
+	public Double doubleMetadataValue(String key) {
+		Object val = smartMetadataValue(key);
+		return (val instanceof Double ? (Double) val
+				: val instanceof Number ? ((Double) val).doubleValue() : null);
+	}
+
+	/**
+	 * Save a specific metadata value for a given key, optionally adding a new
+	 * {@link KeyValuePair} if not found.
+	 * 
+	 * @param key
+	 *        the metadata key to get the value for
+	 * @param value
+	 *        the value to save
+	 * @param create
+	 *        {@literal true} if a new {@link KeyValuePair} instance should be
+	 *        added if one with {@code key} does not already exist
+	 * @since 2.1
+	 */
+	public void saveMetadataValue(String key, Object value, boolean create) {
+		if ( key == null ) {
+			return;
+		}
+		String val = (value != null ? value.toString() : null);
+		KeyValuePair[] data = getMetadata();
+		if ( data != null ) {
+			for ( KeyValuePair p : data ) {
+				if ( p != null && key.equals(p.getKey()) ) {
+					p.setValue(val);
+					return;
+				}
+			}
+		}
+		if ( create ) {
+			data = arrayWithLength(data, (data == null ? 0 : data.length) + 1, KeyValuePair.class,
+					KeyValuePair::new);
+			data[data.length - 1].setKey(key);
+			data[data.length - 1].setValue(val);
+			setMetadata(data);
+		}
+	}
+
+	/**
+	 * Save a specific metadata value for a given key, optionally adding a new
+	 * {@link KeyValuePair} if not found.
+	 * 
+	 * @param index
+	 *        a specific index to save the metadata to
+	 * @param key
+	 *        the metadata key to use
+	 * @param value
+	 *        the value to save
+	 * @param create
+	 *        {@literal true} if a new {@link KeyValuePair} instance should be
+	 *        added if one with {@code key} does not already exist
+	 * @since 2.1
+	 */
+	public void saveMetadataValue(int index, String key, Object value, boolean create) {
+		if ( index < 0 ) {
+			throw new ArrayIndexOutOfBoundsException(index);
+		}
+		String val = (value != null ? value.toString() : null);
+		KeyValuePair[] data = getMetadata();
+		if ( data != null && index < data.length ) {
+			KeyValuePair p = data[index];
+			if ( p == null && create ) {
+				p = new KeyValuePair(key, val);
+				data[index] = p;
+			} else if ( p != null ) {
+				p.setKey(key);
+				p.setValue(val);
+			}
+		} else if ( create ) {
+			data = arrayWithLength(data, index + 1, KeyValuePair.class, KeyValuePair::new);
+			data[index].setKey(key);
+			data[index].setValue(val);
+			setMetadata(data);
+		}
 	}
 
 	@Override
@@ -318,7 +491,7 @@ public class BasicIdentifiable implements Identifiable {
 	 * @since 2.1
 	 */
 	public void setMetadataCount(int count) {
-		setMetadata(ArrayUtils.arrayWithLength(getMetadata(), count, KeyValuePair.class, null));
+		setMetadata(arrayWithLength(getMetadata(), count, KeyValuePair.class, KeyValuePair::new));
 	}
 
 }
