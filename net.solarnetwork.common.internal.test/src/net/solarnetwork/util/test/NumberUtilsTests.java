@@ -793,4 +793,82 @@ public class NumberUtilsTests {
 				is(new BigDecimal("-1.123")));
 	}
 
+	@Test
+	public void narrowBigInteger() {
+		assertThat("narrowed to byte", NumberUtils.narrow(new BigInteger("7"), 0), is((byte) 7));
+		assertThat("narrowed to short", NumberUtils.narrow(new BigInteger("723"), 0), is((short) 723));
+		assertThat("narrowed to int", NumberUtils.narrow(new BigInteger("72356789"), 0), is(72356789));
+		assertThat("narrowed to long", NumberUtils.narrow(new BigInteger("7235678972356789"), 0),
+				is(7235678972356789L));
+		BigInteger n = new BigInteger("72356789723567897235678972356789");
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
+	@Test
+	public void narrowBigDecimal() {
+		assertThat("narrowed to byte", NumberUtils.narrow(new BigDecimal("7"), 0), is((byte) 7));
+		assertThat("narrowed to short", NumberUtils.narrow(new BigDecimal("723"), 0), is((short) 723));
+		assertThat("narrowed to int", NumberUtils.narrow(new BigDecimal("72356789"), 0), is(72356789));
+		assertThat("narrowed to float", NumberUtils.narrow(BigDecimal.valueOf(123.00005), 0),
+				is((float) 123.00005));
+		assertThat("narrowed to long", NumberUtils.narrow(new BigDecimal("7235678972356789"), 0),
+				is(7235678972356789L));
+		assertThat("narrowed to double", NumberUtils.narrow(BigDecimal.valueOf(723567897.2356789), 0),
+				is(723567897.2356789));
+		BigDecimal n = new BigDecimal("72356789723567897235678972356789");
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
+	@Test
+	public void narrowShort() {
+		assertThat("narrowed to byte", NumberUtils.narrow((short) 11, 0), is((byte) 11));
+
+		Short n = (short) 11;
+		assertThat("min power disallows narrowing", NumberUtils.narrow(n, 1), is(sameInstance(n)));
+
+		n = (short) 12345;
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
+	@Test
+	public void narrowInteger() {
+		assertThat("narrowed to byte", NumberUtils.narrow(11, 0), is((byte) 11));
+		assertThat("narrowed to short", NumberUtils.narrow(12345, 0), is((short) 12345));
+
+		Integer n = 11;
+		assertThat("min power constrains narrowing to short", NumberUtils.narrow(n, 1), is((short) 11));
+		assertThat("min power disallows narrowing", NumberUtils.narrow(n, 2), is(sameInstance(n)));
+
+		n = 123456789;
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
+	@Test
+	public void narrowLong() {
+		assertThat("narrowed to byte", NumberUtils.narrow(11L, 0), is((byte) 11));
+		assertThat("narrowed to short", NumberUtils.narrow(12345L, 0), is((short) 12345));
+		assertThat("narrowed to int", NumberUtils.narrow(123456789L, 0), is(123456789));
+
+		Long n = 11L;
+		assertThat("min power constrains narrowing to short", NumberUtils.narrow(n, 1), is((short) 11));
+		assertThat("min power constrains narrowing to int", NumberUtils.narrow(n, 2), is(11));
+		assertThat("min power disallows narrowing", NumberUtils.narrow(n, 3), is(sameInstance(n)));
+
+		n = 1234567890123789L;
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
+	@Test
+	public void narrowFloat() {
+		Float f = 123.0f;
+		assertThat("float cannot be narrowed", NumberUtils.narrow(f, 0), is(sameInstance(f)));
+	}
+
+	@Test
+	public void narrowDouble() {
+		assertThat("narrowed to float", NumberUtils.narrow(123.0, 0), is(123.0f));
+		Number n = 1238909809.190298093;
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
 }

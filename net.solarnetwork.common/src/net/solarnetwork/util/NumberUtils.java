@@ -963,4 +963,235 @@ public final class NumberUtils {
 		return d;
 	}
 
+	/**
+	 * Narrow a number to the smallest possible number type that can exactly
+	 * represent the given number.
+	 * 
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to narrow
+	 * @param minBytePower
+	 *        a minimum power-of-two byte size to narrow to; to; for example
+	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
+	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
+	 *        most a {@link Long} or {@link Double}
+	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
+	 *         is {@literal null}
+	 * @since 1.10
+	 */
+	public static Number narrow(final Number n, final int minBytePower) {
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof BigInteger ) {
+			return narrow((BigInteger) n, minBytePower);
+		} else if ( n instanceof BigDecimal ) {
+			return narrow((BigDecimal) n, minBytePower);
+		} else if ( (n instanceof Float) || (n instanceof Byte) ) {
+			return n;
+		} else if ( n instanceof Double ) {
+			float f = n.floatValue();
+			if ( Double.compare(f, n.doubleValue()) == 0 ) {
+				return f;
+			}
+		} else if ( n instanceof Long ) {
+			if ( minBytePower < 4 ) {
+				Number res = narrow(bigIntegerForNumber(n), minBytePower);
+				return (n.equals(res) ? n : res);
+			} else {
+				return n;
+			}
+		} else if ( n instanceof Integer ) {
+			if ( minBytePower < 3 ) {
+				Number res = narrow(bigIntegerForNumber(n), minBytePower);
+				return (n.equals(res) ? n : res);
+			} else {
+				return n;
+			}
+		} else if ( n instanceof Short ) {
+			if ( minBytePower < 2 ) {
+				Number res = narrow(bigIntegerForNumber(n), minBytePower);
+				return (n.equals(res) ? n : res);
+			} else {
+				return n;
+			}
+		}
+
+		// last resort: convert to BigDecimal and narrow that
+		Number res = narrow(bigDecimalForNumber(n), minBytePower);
+		return (n.equals(res) ? n : res);
+
+	}
+
+	/**
+	 * Narrow a {@link BigInteger} to the smallest possible number type that can
+	 * exactly represent the given number.
+	 * 
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to narrow
+	 * @param minBytePower
+	 *        a minimum power-of-two byte size to narrow to; to; for example
+	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
+	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
+	 *        most a {@link Long} or {@link Double}
+	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
+	 *         is {@literal null}
+	 * @since 1.10
+	 */
+	public static Number narrow(final BigInteger n, final int minBytePower) {
+		if ( n == null ) {
+			return null;
+		}
+		if ( minBytePower < 1 ) {
+			try {
+				return n.byteValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 2 ) {
+			try {
+				return n.shortValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 3 ) {
+			try {
+				return n.intValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 4 ) {
+			try {
+				return n.longValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		return n;
+	}
+
+	/**
+	 * Narrow a {@link BigDecimal} to the smallest possible number type that can
+	 * exactly represent the given number.
+	 * 
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to narrow
+	 * @param minBytePower
+	 *        a minimum power-of-two byte size to narrow to; to; for example
+	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
+	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
+	 *        most a {@link Long} or {@link Double}
+	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
+	 *         is {@literal null}
+	 * @since 1.10
+	 */
+	public static Number narrow(final BigDecimal n, final int minBytePower) {
+		if ( n == null ) {
+			return null;
+		}
+		if ( minBytePower < 1 ) {
+			try {
+				return n.byteValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 2 ) {
+			try {
+				return n.shortValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 3 ) {
+			try {
+				return n.intValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+			// try float
+			try {
+				return floatValueExact(n);
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 4 ) {
+			try {
+				return n.longValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+			// try double
+			try {
+				return doubleValueExact(n);
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		return n;
+	}
+
+	/**
+	 * Attempt to convert a {@link BigDecimal} exactly to a {@code float}.
+	 * 
+	 * @param n
+	 *        the number to convert
+	 * @return the converted value, or {@literal null} if {@code n} is
+	 *         {@literal null}
+	 * @since 1.10
+	 * @throws ArithmeticException
+	 *         if an exact conversion cannot be done
+	 */
+	public static Float floatValueExact(BigDecimal n) {
+		if ( n == null ) {
+			return null;
+		}
+		float result = n.floatValue();
+		if ( !(Float.isNaN(result) || Float.isInfinite(result)) ) {
+			if ( new BigDecimal(String.valueOf(result)).compareTo(n) == 0 ) {
+				return result;
+			}
+		}
+		throw new ArithmeticException("Overflow");
+	}
+
+	/**
+	 * Attempt to convert a {@link BigDecimal} exactly to a {@code double}.
+	 * 
+	 * @param n
+	 *        the number to convert
+	 * @return the converted value, or {@literal null} if {@code n} is
+	 *         {@literal null}
+	 * @since 1.10
+	 * @throws ArithmeticException
+	 *         if an exact conversion cannot be done
+	 */
+	public static Double doubleValueExact(BigDecimal n) {
+		if ( n == null ) {
+			return null;
+		}
+		double result = n.doubleValue();
+		if ( !(Double.isNaN(result) || Double.isInfinite(result)) ) {
+			if ( new BigDecimal(String.valueOf(result)).compareTo(n) == 0 ) {
+				return result;
+			}
+		}
+		throw new ArithmeticException("Overflow");
+	}
+
 }
