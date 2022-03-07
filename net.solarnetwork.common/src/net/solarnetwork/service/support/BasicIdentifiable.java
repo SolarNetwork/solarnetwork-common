@@ -22,18 +22,26 @@
 
 package net.solarnetwork.service.support;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.springframework.context.MessageSource;
+import net.solarnetwork.domain.KeyValuePair;
 import net.solarnetwork.service.Identifiable;
 import net.solarnetwork.settings.SettingSpecifier;
+import net.solarnetwork.settings.support.BasicGroupSettingSpecifier;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
+import net.solarnetwork.settings.support.SettingUtils;
+import net.solarnetwork.util.ArrayUtils;
 
 /**
  * Basic implementation of {@link Identifiable}.
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.56
  */
 public class BasicIdentifiable implements Identifiable {
@@ -42,6 +50,7 @@ public class BasicIdentifiable implements Identifiable {
 	private String groupUid;
 	private String displayName;
 	private MessageSource messageSource;
+	private KeyValuePair[] metadata;
 
 	/**
 	 * Get settings for the configurable properties of
@@ -61,8 +70,8 @@ public class BasicIdentifiable implements Identifiable {
 	}
 
 	/**
-	 * Get settings for the configurable properties of
-	 * {@link BasicIdentifiable}.
+	 * Get settings for the configurable {@code uid}/{@code groupUid} properties
+	 * of {@link BasicIdentifiable}.
 	 * 
 	 * <p>
 	 * Empty strings are used for the default {@code uid} and {@code groupUid}
@@ -80,8 +89,8 @@ public class BasicIdentifiable implements Identifiable {
 	}
 
 	/**
-	 * Get settings for the configurable properties of
-	 * {@link BasicIdentifiable}.
+	 * Get settings for the configurable {@code uid}/{@code groupUid} properties
+	 * of {@link BasicIdentifiable}.
 	 * 
 	 * @param prefix
 	 *        an optional prefix to include in all setting keys
@@ -101,6 +110,37 @@ public class BasicIdentifiable implements Identifiable {
 		results.add(new BasicTextFieldSettingSpecifier(prefix + "uid", defaultUid));
 		results.add(new BasicTextFieldSettingSpecifier(prefix + "groupUid", defaultGroupUid));
 		return results;
+	}
+
+	/**
+	 * Get settings for the configurable {@code metadata} list property.
+	 * 
+	 * @param prefix
+	 *        an optional prefix to include in all setting keys
+	 * @param metadata
+	 *        the metadata to get settings for
+	 * @return the settings
+	 * @see #basicIdentifiableSettings(String, String, String)
+	 * @since 2.1
+	 */
+	public static List<SettingSpecifier> basicIdentifiableMetadataSettings(String prefix,
+			KeyValuePair[] metadata) {
+		if ( prefix == null ) {
+			prefix = "";
+		}
+		List<KeyValuePair> exprConfsList = (metadata != null ? asList(metadata) : emptyList());
+		return singletonList(SettingUtils.dynamicListSettingSpecifier(prefix + "metadata", exprConfsList,
+				new SettingUtils.KeyedListCallback<KeyValuePair>() {
+
+					@Override
+					public Collection<SettingSpecifier> mapListSettingKey(KeyValuePair value, int index,
+							String key) {
+						List<SettingSpecifier> g = new ArrayList<>(2);
+						g.add(new BasicTextFieldSettingSpecifier(key + ".key", null));
+						g.add(new BasicTextFieldSettingSpecifier(key + ".value", null));
+						return singletonList(new BasicGroupSettingSpecifier(g));
+					}
+				}));
 	}
 
 	@Override
@@ -231,6 +271,54 @@ public class BasicIdentifiable implements Identifiable {
 		if ( currUid == null || currUid.isEmpty() ) {
 			setGroupUid(groupUid);
 		}
+	}
+
+	/**
+	 * Get a list of metadata values.
+	 * 
+	 * @return the metadata, or {@literal null}
+	 * @since 2.1
+	 */
+	public KeyValuePair[] getMetadata() {
+		return metadata;
+	}
+
+	/**
+	 * Set a list of metadata values.
+	 * 
+	 * @param metadata
+	 *        the metadata to set, or {@literal null}
+	 * @since 2.1
+	 */
+	public void setMetadata(KeyValuePair[] metadata) {
+		this.metadata = metadata;
+	}
+
+	/**
+	 * Get the number of configured {@code metadata} elements.
+	 *
+	 * @return the number of {@code metadata} elements
+	 * @since 2.1
+	 */
+	public int getMetadataCount() {
+		final KeyValuePair[] vals = getMetadata();
+		return (vals == null ? 0 : vals.length);
+	}
+
+	/**
+	 * Adjust the number of configured {@code metadata} elements.
+	 *
+	 * <p>
+	 * Any newly added element values will be set to new {@link KeyValuePair}
+	 * instances.
+	 * </p>
+	 *
+	 * @param count
+	 *        the desired number of {@code metadata} elements
+	 * @since 2.1
+	 */
+	public void setMetadataCount(int count) {
+		setMetadata(ArrayUtils.arrayWithLength(getMetadata(), count, KeyValuePair.class, null));
 	}
 
 }
