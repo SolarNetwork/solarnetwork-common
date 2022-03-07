@@ -22,13 +22,17 @@
 
 package net.solarnetwork.domain.datum.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -38,13 +42,14 @@ import org.junit.Test;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.solarnetwork.domain.KeyValuePair;
 import net.solarnetwork.domain.datum.GeneralDatumMetadata;
 
 /**
  * Test cases for {@link GeneralDatumMetadata}.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class GeneralDatumMetadataTests {
 
@@ -349,6 +354,59 @@ public class GeneralDatumMetadataTests {
 
 		// THEN
 		assertThat("No value found", t, nullValue());
+	}
+
+	@Test
+	public void populateFromPairs_simple() {
+		// GIVEN
+		GeneralDatumMetadata meta = new GeneralDatumMetadata();
+
+		// WHEN
+		// @formatter:off
+		KeyValuePair[] data = new KeyValuePair[] {
+				new KeyValuePair("a", "b"),
+				new KeyValuePair("b", "123"),
+				new KeyValuePair("c", "123.456"),
+				new KeyValuePair("d", "129837198237918273912873"),
+				new KeyValuePair("e", "18927318902731.12930128301298301293"),
+		};
+		// @formatter:on
+		meta.populate(data);
+
+		// THEN
+		assertThat("Info string value populated as string", meta.getInfo(), hasEntry("a", "b"));
+		assertThat("Info int value populated as int", meta.getInfo(), hasEntry("b", 123));
+		assertThat("Info float value populated as float", meta.getInfo(), hasEntry("c", 123.456f));
+		assertThat("Info big int value populated as BigInteger", meta.getInfo(),
+				hasEntry("d", new BigInteger("129837198237918273912873")));
+		assertThat("Info big decimal value populated as BigDecimal", meta.getInfo(),
+				hasEntry("e", new BigDecimal("18927318902731.12930128301298301293")));
+	}
+
+	@Test
+	public void populateFromPairs_paths() {
+		// GIVEN
+		GeneralDatumMetadata meta = new GeneralDatumMetadata();
+
+		// WHEN
+		// @formatter:off
+		KeyValuePair[] data = new KeyValuePair[] {
+				new KeyValuePair("/m", "b"), // ignored from missing path segment
+				new KeyValuePair("/m/a", "c"),
+				new KeyValuePair("/pm/", "123.456"), // ignored from missing path segment
+				new KeyValuePair("/pm/p", "123"), // ignored from missing path segment
+				new KeyValuePair("/pm/p/boom", "1234"),
+				new KeyValuePair("/t", "t1"),
+				new KeyValuePair("/t/2", "t2"), // path suffix ignored
+		};
+		// @formatter:on
+		meta.populate(data);
+
+		// THEN
+		assertThat("Info string value populated as string", meta.getInfo(), hasEntry("a", "c"));
+		assertThat("Property info int value populated as int", meta.getPropertyInfo("p"),
+				hasEntry("boom", 1234));
+		assertThat("Tags populated", meta.getTags(), containsInAnyOrder("t1", "t2"));
 	}
 
 }

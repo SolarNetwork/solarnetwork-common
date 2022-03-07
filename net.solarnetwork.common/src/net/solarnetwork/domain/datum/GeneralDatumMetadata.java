@@ -32,7 +32,10 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import net.solarnetwork.domain.KeyValuePair;
 import net.solarnetwork.domain.SerializeIgnore;
+import net.solarnetwork.util.NumberUtils;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * Metadata about general node datum streams of data.
@@ -108,6 +111,93 @@ public class GeneralDatumMetadata extends DatumSupport
 		super();
 		this.info = info;
 		this.propertyInfo = propertyInfo;
+	}
+
+	/**
+	 * Populate metadata values based on a list of {@link KeyValuePair}
+	 * instances.
+	 * 
+	 * <p>
+	 * Each pair's key will be used as a general metadata key, unless it starts
+	 * with a {@literal /} character in which case a path is assumed. Values
+	 * that can be coerced to number types will be.
+	 * </p>
+	 * 
+	 * @param data
+	 *        the data to populate
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void populate(final KeyValuePair[] data) {
+		final int len = (data != null ? data.length : 0);
+		for ( int i = 0; i < len; i++ ) {
+			KeyValuePair kv = data[i];
+			if ( kv == null ) {
+				continue;
+			}
+			String key = kv.getKey();
+			if ( key != null ) {
+				key = key.trim();
+			}
+			if ( key == null || key.isEmpty() ) {
+				continue;
+			}
+			String val = kv.getValue();
+			if ( val != null ) {
+				val = val.trim();
+			}
+			// treat as a number if we can
+			Number numVal = NumberUtils.narrow(StringUtils.numberValue(val), 2);
+			if ( key.startsWith("/") ) {
+				String[] components = key.split("/");
+				int idx = 0;
+				if ( components[0].isEmpty() ) {
+					idx += 1;
+				}
+				Map<String, Object> root = null;
+				if ( "m".equals(components[idx]) && idx + 1 < components.length ) {
+					root = getInfo();
+					if ( root == null ) {
+						root = new LinkedHashMap<>(8);
+						setInfo(root);
+					}
+					idx++;
+				} else if ( "pm".equals(components[idx]) && idx + 2 < components.length ) {
+					root = (Map) getPropertyInfo();
+					if ( root == null ) {
+						root = new LinkedHashMap<>();
+						setPropertyInfo((Map) root);
+					}
+					idx++;
+				} else if ( "t".equals(components[idx]) ) {
+					Set<String> tags = getTags();
+					if ( tags == null ) {
+						tags = new LinkedHashSet<>(8);
+						setTags(tags);
+					}
+					tags.add(val);
+				}
+				if ( root != null ) {
+					putMetadataAtPath(components, idx, root, numVal != null ? numVal : val);
+				}
+			} else {
+				putInfoValue(key, numVal != null ? numVal : val);
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void putMetadataAtPath(String[] components, int idx, Map<String, Object> root,
+			Object value) {
+		if ( idx + 1 < components.length ) {
+			Object nested = root.get(components[idx]);
+			if ( !(nested instanceof Map) ) {
+				nested = new LinkedHashMap<>(8);
+				root.put(components[idx], nested);
+			}
+			putMetadataAtPath(components, idx + 1, (Map<String, Object>) nested, value);
+			return;
+		}
+		root.put(components[idx], value);
 	}
 
 	@Override
