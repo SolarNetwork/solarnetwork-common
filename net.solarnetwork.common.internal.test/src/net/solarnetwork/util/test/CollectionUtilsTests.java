@@ -25,10 +25,14 @@ package net.solarnetwork.util.test;
 import static net.solarnetwork.util.IntRange.rangeOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -143,6 +147,44 @@ public class CollectionUtilsTests {
 		for ( Entry<String, Object> e : dict.entrySet() ) {
 			assertThat(String.format("Map contains copied property %s", e.getKey()), m,
 					hasEntry(e.getKey(), e.getValue()));
+		}
+	}
+
+	@Test
+	public void sensitiveNames_null() {
+		assertThat("Null input results in empty set", CollectionUtils.sensitiveNamesToMask(null),
+				hasSize(0));
+	}
+
+	@Test
+	public void sensitiveNames_empty() {
+		assertThat("Empty input results in empty set",
+				CollectionUtils.sensitiveNamesToMask(Collections.emptySet()), hasSize(0));
+	}
+
+	@Test
+	public void sensitiveNames_noMatches() {
+		assertThat("Non-matching input results in empty set",
+				CollectionUtils.sensitiveNamesToMask(new HashSet<>(Arrays.asList("foo", "bar"))),
+				hasSize(0));
+	}
+
+	@Test
+	public void sensitiveNames_match() {
+		// @formatter:off
+		String[] input = new String[] {
+				"secret",
+				"SeCrEt",
+				"a string with secretThingy in it",
+				"pass",
+				"password",
+				"myPassword",
+		};
+		// @formatter:on
+		for ( String s : input ) {
+			assertThat(String.format("'%s' input results in '%<s' set", s),
+					CollectionUtils.sensitiveNamesToMask(new HashSet<>(Arrays.asList("foo", s))),
+					containsInAnyOrder(s));
 		}
 	}
 

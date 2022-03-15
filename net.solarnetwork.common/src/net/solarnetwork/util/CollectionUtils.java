@@ -29,11 +29,14 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
+import java.util.regex.Pattern;
 
 /**
  * Utility methods for dealing with collections.
@@ -482,6 +485,68 @@ public final class CollectionUtils {
 		} catch ( NumberFormatException e ) {
 			return null;
 		}
+	}
+
+	/**
+	 * A regular expression to match sensitive key names.
+	 * 
+	 * @since 1.2
+	 * @see #sensitiveNamesToMask(Set)
+	 */
+	public static final Pattern SENSITIVE_NAME_PATTERN = Pattern.compile("(?:secret|pass)",
+			Pattern.CASE_INSENSITIVE);
+
+	/**
+	 * Extract a set of values from a set that have sensitive-sounding names.
+	 * 
+	 * <p>
+	 * The point of this method is to identify keys from a map that appear to
+	 * have associated "sensitive" values, such as passwords, with the aim of
+	 * then not printing those values somewhere, such as the application log.
+	 * </p>
+	 * 
+	 * <p>
+	 * This method calls {@link #valuesMatching(Set, Pattern)}, passing in the
+	 * {@link #SENSITIVE_NAME_PATTERN} pattern.
+	 * </p>
+	 * 
+	 * @param set
+	 *        the names to examine, {@literal null} is allowed
+	 * @return the sensitive looking names, never {@literal null}
+	 * @since 1.2
+	 * @see StringUtils#sha256MaskedMap(Map, Set)
+	 */
+	public static Set<String> sensitiveNamesToMask(Set<String> set) {
+		return valuesMatching(set, SENSITIVE_NAME_PATTERN);
+	}
+
+	/**
+	 * Extract a set of values from a set that match a regular expression.
+	 * 
+	 * @param set
+	 *        the names to examine, {@literal null} is allowed
+	 * @param pattern
+	 *        the regular expression whose matches should be returned
+	 * @return the matching names, never {@literal null}
+	 * @since 1.2
+	 */
+	public static Set<String> valuesMatching(Set<String> set, Pattern pattern) {
+		if ( set == null || set.isEmpty() ) {
+			return Collections.emptySet();
+		}
+		Set<String> result = null;
+		for ( String n : set ) {
+			if ( n == null || n.isEmpty() ) {
+				continue;
+			}
+			if ( pattern.matcher(n).find() ) {
+				if ( result == null ) {
+					result = new HashSet<>(4, 0.9f);
+				}
+				result.add(n);
+			}
+		}
+		return (result == null ? Collections.emptySet() : result);
 	}
 
 }
