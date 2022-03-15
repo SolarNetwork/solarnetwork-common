@@ -59,15 +59,17 @@ public class DeleteOnCloseFileResourceTests {
 	@Test
 	public void deleteShadowFileOnClose() throws IOException {
 		File tempFile = File.createTempFile("foo-", ".bar");
+		String tempContent = "Hello, world.";
+		FileCopyUtils.copy(tempContent.getBytes(), tempFile);
 		File shadowFile = File.createTempFile("foo-", ".bar");
-		String shadowContent = "Hello, world.";
+		String shadowContent = "Goodbye, world.";
 		FileCopyUtils.copy(shadowContent.getBytes(), shadowFile);
 		assertThat("File exists", tempFile.exists(), equalTo(true));
 		assertThat("Shadow file exists", shadowFile.exists(), equalTo(true));
 		DeleteOnCloseFileResource r = new DeleteOnCloseFileResource(new FileSystemResource(tempFile),
 				shadowFile);
 		String contents = new String(FileCopyUtils.copyToByteArray(r.getInputStream()));
-		assertThat("Resource contents", contents, equalTo(shadowContent));
+		assertThat("Resource contents from resouce, not shadow", contents, equalTo(tempContent));
 		assertThat("File exists", tempFile.exists(), equalTo(true));
 		assertThat("Shadow file deleted", shadowFile.exists(), equalTo(false));
 		tempFile.delete();
