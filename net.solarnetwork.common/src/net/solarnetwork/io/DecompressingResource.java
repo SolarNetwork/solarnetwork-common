@@ -111,7 +111,22 @@ public class DecompressingResource extends AbstractResource {
 
 	@Override
 	public String getDescription() {
-		return "DecompressingResource{source=" + source + "}";
+		StringBuilder builder = new StringBuilder();
+		builder.append("DecompressingResource{");
+		if ( compressionType != null ) {
+			builder.append("compressionType=");
+			builder.append(compressionType);
+			builder.append(", ");
+		}
+		builder.append("contentLength=");
+		builder.append(contentLength);
+		builder.append(", ");
+		if ( source != null ) {
+			builder.append("source=");
+			builder.append(source);
+		}
+		builder.append("}");
+		return builder.toString();
 	}
 
 	@Override

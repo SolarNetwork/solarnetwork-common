@@ -34,7 +34,7 @@ import org.springframework.core.io.Resource;
  * returned by {@link #getInputStream()} is closed.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.43
  */
 public class DeleteOnCloseFileResource implements Resource {
@@ -70,6 +70,23 @@ public class DeleteOnCloseFileResource implements Resource {
 		super();
 		this.delegate = delegate;
 		this.file = file;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("DeleteOnCloseFileResource{");
+		if ( file != null ) {
+			builder.append("file=");
+			builder.append(file);
+			builder.append(", ");
+		}
+		if ( delegate != null ) {
+			builder.append("resource=");
+			builder.append(delegate);
+		}
+		builder.append("}");
+		return builder.toString();
 	}
 
 	@Override
