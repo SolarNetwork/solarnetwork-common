@@ -22,8 +22,9 @@
 
 package net.solarnetwork.io.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import org.junit.Test;
@@ -53,8 +54,9 @@ public class DecompressingResourceTests {
 		DecompressingResource r = new DecompressingResource(
 				new ClassPathResource("text-file.txt.gz", getClass()));
 		String data = FileCopyUtils.copyToString(new InputStreamReader(r.getInputStream(), "UTF-8"));
-		assertThat(data, equalTo("Hello, world."));
-		assertThat(r.getCompressionType(), equalTo("gz"));
+		assertThat("Decompressed data", data, equalTo("Hello, world."));
+		assertThat("Content length", r.contentLength(), is(13L));
+		assertThat("Compression type", r.getCompressionType(), is("gz"));
 	}
 
 	@Test
@@ -62,8 +64,9 @@ public class DecompressingResourceTests {
 		DecompressingResource r = new DecompressingResource(
 				new ClassPathResource("text-file.txt.xz", getClass()));
 		String data = FileCopyUtils.copyToString(new InputStreamReader(r.getInputStream(), "UTF-8"));
-		assertThat(data, equalTo("Hello, world."));
-		assertThat(r.getCompressionType(), equalTo("xz"));
+		assertThat("Decompressed data", data, equalTo("Hello, world."));
+		assertThat("Content length", r.contentLength(), is(13L));
+		assertThat("Compression type", r.getCompressionType(), equalTo("xz"));
 	}
 
 	@Test
@@ -71,8 +74,9 @@ public class DecompressingResourceTests {
 		DecompressingResource r = new DecompressingResource(
 				new ClassPathResource("text-file.txt.lz4", getClass()));
 		String data = FileCopyUtils.copyToString(new InputStreamReader(r.getInputStream(), "UTF-8"));
-		assertThat(data, equalTo("Hello, world!\n"));
-		assertThat(r.getCompressionType(), equalTo("lz4-framed"));
+		assertThat("Decompressed data", data, equalTo("Hello, world!\n"));
+		assertThat("Content length", r.contentLength(), is(14L));
+		assertThat("Compression type", r.getCompressionType(), equalTo("lz4-framed"));
 	}
 
 }

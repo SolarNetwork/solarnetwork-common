@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URL;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.commons.compress.utils.CountingInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.AbstractResource;
@@ -47,7 +48,7 @@ import org.springframework.core.io.Resource;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.47
  */
 public class DecompressingResource extends AbstractResource {
@@ -63,6 +64,7 @@ public class DecompressingResource extends AbstractResource {
 	private final Resource source;
 
 	private String compressionType;
+	private long contentLength = -1;
 
 	/**
 	 * Constructor.
@@ -84,9 +86,27 @@ public class DecompressingResource extends AbstractResource {
 	 *        automatically detect the type
 	 */
 	public DecompressingResource(Resource source, String compressionType) {
+		this(source, compressionType, -1);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param source
+	 *        the source (compressed) resource
+	 * @param compressionType
+	 *        the compression type to use, or {@literal null} to try to
+	 *        automatically detect the type
+	 * @param contentLength
+	 *        the known uncompressed content length of the resource, or
+	 *        {@literal -1} to automatically determine
+	 * @since 1.1
+	 */
+	public DecompressingResource(Resource source, String compressionType, long contentLength) {
 		super();
 		this.source = source;
 		this.compressionType = compressionType;
+		this.contentLength = contentLength;
 	}
 
 	@Override
@@ -171,7 +191,16 @@ public class DecompressingResource extends AbstractResource {
 
 	@Override
 	public long contentLength() throws IOException {
-		return source.contentLength();
+		if ( contentLength < 0 ) {
+			try (CountingInputStream in = new CountingInputStream(getInputStream())) {
+				byte[] tmp = new byte[4096];
+				while ( in.read(tmp) != -1 ) {
+					// nothing
+				}
+				contentLength = in.getBytesRead();
+			}
+		}
+		return contentLength;
 	}
 
 	@Override

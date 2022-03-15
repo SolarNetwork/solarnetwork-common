@@ -48,6 +48,7 @@ Import-Package:
  org.apache.commons.codec.binary;version="[1.7,2.0)",
  org.apache.commons.codec.digest;version="[1.7,2.0)",
  org.apache.commons.compress.compressors;version="[1.18,2.0)";resolution:=optional,
+ org.apache.commons.compress.utils;version="[1.18,2.0)";resolution:=optional,
  org.slf4j;version="[1.7,2.0)",
  org.springframework.beans;version="[4.3,5.0)",
  org.springframework.beans.factory;version="[4.3,5.0)",
