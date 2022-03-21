@@ -22,13 +22,19 @@
 
 package net.solarnetwork.codec;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import net.solarnetwork.util.DateUtils;
 
 /**
@@ -133,8 +139,8 @@ public final class JsonDateUtils implements Serializable {
 	}
 
 	/**
-	 * {@link java.time.Instant} deserializer that formats using a space
-	 * date/time separator.
+	 * {@link java.time.Instant} deserializer that formats using a space or
+	 * {@literal T} date/time separator.
 	 * 
 	 * @since 1.1
 	 */
@@ -155,11 +161,30 @@ public final class JsonDateUtils implements Serializable {
 					a -> Instant.ofEpochSecond(a.integer, a.fraction), null, true);
 		}
 
+		@Override
+		public Instant deserialize(JsonParser parser, DeserializationContext context)
+				throws IOException {
+			try {
+				return super.deserialize(parser, context);
+			} catch ( InvalidFormatException e ) {
+				// try T separator
+				Object v = e.getValue();
+				if ( v instanceof String ) {
+					try {
+						return DateTimeFormatter.ISO_INSTANT.parse(v.toString(), Instant::from);
+					} catch ( DateTimeParseException e2 ) {
+						// ignore this and throw original exception
+					}
+				}
+				throw e;
+			}
+		}
+
 	}
 
 	/**
-	 * {@link java.time.ZonedDateTime} deserializer that formats using a space
-	 * date/time separator.
+	 * {@link java.time.ZonedDateTime} deserializer that parses using a space or
+	 * {@literal T} date/time separator.
 	 * 
 	 * @since 1.1
 	 */
@@ -181,11 +206,30 @@ public final class JsonDateUtils implements Serializable {
 					ZonedDateTime::withZoneSameInstant, false);
 		}
 
+		@Override
+		public ZonedDateTime deserialize(JsonParser parser, DeserializationContext context)
+				throws IOException {
+			try {
+				return super.deserialize(parser, context);
+			} catch ( InvalidFormatException e ) {
+				// try T separator
+				Object v = e.getValue();
+				if ( v instanceof String ) {
+					try {
+						return DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(v.toString(),
+								ZonedDateTime::from);
+					} catch ( DateTimeParseException e2 ) {
+						// ignore this and throw original exception
+					}
+				}
+				throw e;
+			}
+		}
 	}
 
 	/**
-	 * {@link java.time.LocalDateTime} deserializer that parses using a space
-	 * date/time separator.
+	 * {@link java.time.LocalDateTime} deserializer that parses using a space or
+	 * {@literal T} date/time separator.
 	 * 
 	 * @since 1.1
 	 */
@@ -202,6 +246,26 @@ public final class JsonDateUtils implements Serializable {
 		 */
 		public LocalDateTimeDeserializer() {
 			super(DateUtils.ISO_DATE_TIME_ALT_UTC);
+		}
+
+		@Override
+		public LocalDateTime deserialize(JsonParser parser, DeserializationContext context)
+				throws IOException {
+			try {
+				return super.deserialize(parser, context);
+			} catch ( InvalidFormatException e ) {
+				// try T separator
+				Object v = e.getValue();
+				if ( v instanceof String ) {
+					try {
+						return DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(v.toString(),
+								LocalDateTime::from);
+					} catch ( DateTimeParseException e2 ) {
+						// ignore this and throw original exception
+					}
+				}
+				throw e;
+			}
 		}
 
 	}

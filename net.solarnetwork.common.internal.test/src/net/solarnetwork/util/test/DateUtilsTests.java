@@ -52,7 +52,7 @@ import net.solarnetwork.util.IntRange;
  * Test cases for the {@link DateUtils} class.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class DateUtilsTests {
 
@@ -208,6 +208,44 @@ public class DateUtilsTests {
 	@Test
 	public void parseIsoAltTimestamp_date() {
 		ZonedDateTime ts = DateUtils.parseIsoAltTimestamp("2020-02-01", ZoneOffset.UTC);
+		assertThat(ts, equalTo(ZonedDateTime.of(2020, 2, 1, 0, 0, 0, 0, ZoneOffset.UTC)));
+	}
+
+	@Test
+	public void parseIsoTimestamp_full_millis() {
+		ZonedDateTime ts = DateUtils.parseIsoTimestamp("2020-02-01T20:12:34.123+12:00", ZoneOffset.UTC);
+		assertThat(ts, equalTo(ZonedDateTime.of(2020, 2, 1, 20, 12, 34,
+				(int) TimeUnit.MILLISECONDS.toNanos(123), ZoneOffset.ofHours(12))));
+	}
+
+	@Test
+	public void parseIsoTimestamp_full() {
+		ZonedDateTime ts = DateUtils.parseIsoTimestamp("2020-02-01T20:12:34+12:00", ZoneOffset.UTC);
+		assertThat(ts, equalTo(ZonedDateTime.of(2020, 2, 1, 20, 12, 34, 0, ZoneOffset.ofHours(12))));
+	}
+
+	@Test
+	public void parseIsoTimestamp_noZone() {
+		ZonedDateTime ts = DateUtils.parseIsoTimestamp("2020-02-01T20:12:34", ZoneOffset.UTC);
+		assertThat(ts, equalTo(ZonedDateTime.of(2020, 2, 1, 20, 12, 34, 0, ZoneOffset.UTC)));
+	}
+
+	@Test
+	public void parseIsoTimestamp_noZone_millis() {
+		ZonedDateTime ts = DateUtils.parseIsoTimestamp("2020-02-01T20:12:34.123", ZoneOffset.UTC);
+		assertThat(ts, equalTo(ZonedDateTime.of(2020, 2, 1, 20, 12, 34,
+				(int) TimeUnit.MILLISECONDS.toNanos(123), ZoneOffset.UTC)));
+	}
+
+	@Test
+	public void parseIsoTimestamp_dateWithZone() {
+		ZonedDateTime ts = DateUtils.parseIsoTimestamp("2020-02-01+12:00", ZoneOffset.UTC);
+		assertThat(ts, equalTo(ZonedDateTime.of(2020, 2, 1, 0, 0, 0, 0, ZoneOffset.ofHours(12))));
+	}
+
+	@Test
+	public void parseIsoTimestamp_date() {
+		ZonedDateTime ts = DateUtils.parseIsoTimestamp("2020-02-01", ZoneOffset.UTC);
 		assertThat(ts, equalTo(ZonedDateTime.of(2020, 2, 1, 0, 0, 0, 0, ZoneOffset.UTC)));
 	}
 

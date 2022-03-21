@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
  * Date and time utilities.
  * 
  * @author matt
- * @version 2.1
+ * @version 2.2
  * @since 1.59
  */
 public final class DateUtils {
@@ -111,6 +111,65 @@ public final class DateUtils {
 	 * local system default time zone applied.
 	 */
 	public static final DateTimeFormatter ISO_DATE_OPT_TIME_ALT_LOCAL = ISO_DATE_OPT_TIME_ALT
+			.withZone(ZoneId.systemDefault());
+
+	/**
+	 * Date and time formatter using the ISO 8601 style but with an optional
+	 * time component.
+	 * 
+	 * <p>
+	 * This supports patterns like:
+	 * </p>
+	 * <ul>
+	 * <li>{@literal 2020-02-01T20:12:34+12:00}</li>
+	 * <li>{@literal 2020-02-01T20:12:34}</li>
+	 * <li>{@literal 2020-02-01T20:12}</li>
+	 * <li>{@literal 2020-02-01+12:00}</li>
+	 * <li>{@literal 2020-02-01}</li>
+	 * </ul>
+	 * 
+	 * <p>
+	 * Note that parsing the date + zone form like {@literal 2020-02-01+12:00}
+	 * requires using a {@link java.time.temporal.TemporalAccessor}, like:
+	 * </p>
+	 * 
+	 * <pre>
+	 * <code>TemporalAccessor ta = DateUtils.ISO_DATE_OPT_TIME.parse("2020-02-01+12:00");
+	 * ZonedDateTime ts = LocalDate.from(ta).atStartOfDay(ZoneId.from(ta));</code>
+	 * </pre>
+	 * 
+	 * @since 2.2
+	 */
+	public static final DateTimeFormatter ISO_DATE_OPT_TIME;
+	static {
+		// @formatter:off
+		ISO_DATE_OPT_TIME = new DateTimeFormatterBuilder()
+				.append(DateTimeFormatter.ISO_DATE)
+				.parseDefaulting(ChronoField.ERA, ChronoField.ERA.range().getMaximum())
+				.optionalStart()
+				.appendLiteral('T')
+				.append(DateTimeFormatter.ISO_TIME)
+				.toFormatter()
+				.withChronology(IsoChronology.INSTANCE);
+		// @formatter:on
+	}
+
+	/**
+	 * Date and time formatter based on {@link #ISO_DATE_OPT_TIME} with a UTC
+	 * time zone offset applied.
+	 * 
+	 * @since 2.2
+	 */
+	public static final DateTimeFormatter ISO_DATE_OPT_TIME_UTC = ISO_DATE_OPT_TIME_ALT
+			.withZone(ZoneOffset.UTC);
+
+	/**
+	 * Date and time formatter based on {@link #ISO_DATE_OPT_TIME} with the
+	 * local system default time zone applied.
+	 * 
+	 * @since 2.2
+	 */
+	public static final DateTimeFormatter ISO_DATE_OPT_TIME_LOCAL = ISO_DATE_OPT_TIME_ALT
 			.withZone(ZoneId.systemDefault());
 
 	/**
@@ -332,7 +391,7 @@ public final class DateUtils {
 	}
 
 	/**
-	 * Parse an ISO-8601 alternate timestamp using a given formatter.
+	 * Parse an ISO-8601 alternate timestamp.
 	 * 
 	 * <p>
 	 * This method handles input values that both include or omit a time zone
@@ -349,14 +408,61 @@ public final class DateUtils {
 	 *         any reason
 	 */
 	public static ZonedDateTime parseIsoAltTimestamp(final String value, final ZoneId defaultZone) {
+		return parseIsoTimestamp(ISO_DATE_OPT_TIME_ALT, value, defaultZone);
+	}
+
+	/**
+	 * Parse an ISO-8601 timestamp.
+	 * 
+	 * <p>
+	 * This method handles input values that both include or omit a time zone
+	 * offset. If a time zone offset is not provided in the input, then
+	 * {@code defaultZone} will be used to get a final result.
+	 * </p>
+	 * 
+	 * @param value
+	 *        the date time string to parse
+	 * @param defaultZone
+	 *        a default time zone to use if one is not available in
+	 *        {@code value}
+	 * @return the parsed date, or {@literal null} if it cannot be parsed for
+	 *         any reason
+	 * @since 2.2
+	 */
+	public static ZonedDateTime parseIsoTimestamp(final String value, final ZoneId defaultZone) {
+		return parseIsoTimestamp(ISO_DATE_OPT_TIME, value, defaultZone);
+	}
+
+	/**
+	 * Parse an ISO-8601 alternate timestamp using a given formatter.
+	 * 
+	 * <p>
+	 * This method handles input values that both include or omit a time zone
+	 * offset. If a time zone offset is not provided in the input, then
+	 * {@code defaultZone} will be used to get a final result.
+	 * </p>
+	 * 
+	 * @param formatter
+	 *        the formatter, which must support {@link ZonedDateTime} parsing
+	 * @param value
+	 *        the date time string to parse
+	 * @param defaultZone
+	 *        a default time zone to use if one is not available in
+	 *        {@code value}
+	 * @return the parsed date, or {@literal null} if it cannot be parsed for
+	 *         any reason
+	 * @since 2.2
+	 */
+	public static ZonedDateTime parseIsoTimestamp(final DateTimeFormatter formatter, final String value,
+			final ZoneId defaultZone) {
 		ZonedDateTime result = null;
 		try {
 			// try with full time zone from value first
-			result = ISO_DATE_OPT_TIME_ALT.parse(value, ZonedDateTime::from);
+			result = formatter.parse(value, ZonedDateTime::from);
 		} catch ( DateTimeException e ) {
 			// try date + zone approach
 			try {
-				TemporalAccessor ta = ISO_DATE_OPT_TIME_ALT.parse(value);
+				TemporalAccessor ta = formatter.parse(value);
 				ZoneId zone = ta.query(TemporalQueries.zone());
 				if ( zone == null ) {
 					zone = defaultZone;
