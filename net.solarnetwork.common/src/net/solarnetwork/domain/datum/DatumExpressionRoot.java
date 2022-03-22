@@ -20,29 +20,28 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain;
+package net.solarnetwork.domain.datum;
 
 import java.util.Map;
-import net.solarnetwork.domain.datum.Datum;
 
 /**
  * API for a datum-based expression root.
  * 
  * @author matt
  * @version 1.0
- * @since 1.71
+ * @since 2.0
  */
-public interface DatumExpressionRoot {
+public interface DatumExpressionRoot extends DatumMathFunctions, Map<String, Object> {
 
 	/**
 	 * Get the datum.
 	 * 
-	 * @return the datum
+	 * @return the datum; may be {@literal null}
 	 */
 	Datum getDatum();
 
 	/**
-	 * Get the datum properties, i.e. {@link Datum#getSampleData()}.
+	 * Get the datum properties.
 	 * 
 	 * @return the datum properties
 	 */

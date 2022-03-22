@@ -401,4 +401,60 @@ public class DatumSamplesTests {
 				is(new BigDecimal("21.2")));
 	}
 
+	@Test
+	public void mergeFrom_overwrite() {
+		// GIVEN
+		DatumSamples other = getTestInstance();
+
+		DatumSamples samples = new DatumSamples();
+		samples.putInstantaneousSampleValue("my_watts", 123);
+		samples.putInstantaneousSampleValue("watts", 234);
+		samples.putAccumulatingSampleValue("watt_hours", 1234);
+		samples.putAccumulatingSampleValue("my_watt_hours", 2345);
+		samples.putStatusSampleValue("msg", "the msg");
+		samples.putStatusSampleValue("my_msg", "my msg");
+		samples.addTag("my-test");
+
+		// WHEN
+		samples.mergeFrom(other);
+
+		// THEN
+		assertThat("Overwrote i sample", samples.getInstantaneousSampleInteger("watts"), is(231));
+		assertThat("Preserved i sample", samples.getInstantaneousSampleInteger("my_watts"), is(123));
+		assertThat("Overwrote a sample", samples.getAccumulatingSampleInteger("watt_hours"), is(4123));
+		assertThat("Preserved a sample", samples.getAccumulatingSampleInteger("my_watt_hours"),
+				is(2345));
+		assertThat("Overwrote s sample", samples.getStatusSampleString("msg"), is("Hello, world."));
+		assertThat("Preserved s sample", samples.getStatusSampleString("my_msg"), is("my msg"));
+		assertThat("Merged tags", samples.getTags(), containsInAnyOrder("test", "my-test"));
+	}
+
+	@Test
+	public void mergeFrom_preserve() {
+		// GIVEN
+		DatumSamples other = getTestInstance();
+
+		DatumSamples samples = new DatumSamples();
+		samples.putInstantaneousSampleValue("my_watts", 123);
+		samples.putInstantaneousSampleValue("watts", 234);
+		samples.putAccumulatingSampleValue("watt_hours", 1234);
+		samples.putAccumulatingSampleValue("my_watt_hours", 2345);
+		samples.putStatusSampleValue("msg", "the msg");
+		samples.putStatusSampleValue("my_msg", "my msg");
+		samples.addTag("my-test");
+
+		// WHEN
+		samples.mergeFrom(other, false);
+
+		// THEN
+		assertThat("Overwrote i sample", samples.getInstantaneousSampleInteger("watts"), is(234));
+		assertThat("Preserved i sample", samples.getInstantaneousSampleInteger("my_watts"), is(123));
+		assertThat("Overwrote a sample", samples.getAccumulatingSampleInteger("watt_hours"), is(1234));
+		assertThat("Preserved a sample", samples.getAccumulatingSampleInteger("my_watt_hours"),
+				is(2345));
+		assertThat("Overwrote s sample", samples.getStatusSampleString("msg"), is("the msg"));
+		assertThat("Preserved s sample", samples.getStatusSampleString("my_msg"), is("my msg"));
+		assertThat("Merged tags", samples.getTags(), containsInAnyOrder("test", "my-test"));
+	}
+
 }

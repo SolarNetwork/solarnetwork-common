@@ -26,27 +26,36 @@ import static java.util.stream.Collectors.toCollection;
 import static net.solarnetwork.domain.datum.DatumSamplesType.Accumulating;
 import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.junit.Test;
+import net.solarnetwork.common.expr.spel.SpelExpressionService;
 import net.solarnetwork.domain.datum.DatumSamples;
 import net.solarnetwork.domain.datum.DatumSamplesExpressionRoot;
+import net.solarnetwork.domain.datum.DatumSamplesType;
 import net.solarnetwork.domain.datum.GeneralDatum;
+import net.solarnetwork.domain.datum.MutableDatumSamplesOperations;
+import net.solarnetwork.service.ExpressionService;
 
 /**
  * Test cases for the {@link ExpressionRoot} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class DatumSamplesExpressionRootTests {
+
+	private final ExpressionService expressionService = new SpelExpressionService();
 
 	private DatumSamplesExpressionRoot createTestRoot() {
 		GeneralDatum d = new GeneralDatum("foo");
@@ -97,6 +106,148 @@ public class DatumSamplesExpressionRootTests {
 		assertThat("Set size", set, hasSize(7));
 		Set<String> keys = set.stream().map(Entry::getKey).collect(toCollection(LinkedHashSet::new));
 		assertThat("Key order", keys, contains("a", "b", "c", "d", "e", "f", "g"));
+	}
+
+	@Test
+	public void min() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+
+		// WHEN
+		Number result = expressionService.evaluateExpression("min(a,b)", null, root, null, Number.class);
+
+		// THEN
+		assertThat("min() result", result, is(3));
+	}
+
+	@Test
+	public void max() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+
+		// WHEN
+		Number result = expressionService.evaluateExpression("max(a,b)", null, root, null, Number.class);
+
+		// THEN
+		assertThat("max() result", result, is(21));
+	}
+
+	@Test
+	public void mround() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"foo", new BigDecimal("1.234567890"));
+
+		// THEN
+		assertThat("Round 0 digits",
+				expressionService.evaluateExpression("round(foo,0)", null, root, null, Number.class),
+				is(new BigDecimal("1")));
+		assertThat("Round left",
+				expressionService.evaluateExpression("round(foo,1)", null, root, null, Number.class),
+				is(new BigDecimal("1.2")));
+		assertThat("Round half",
+				expressionService.evaluateExpression("round(foo,3)", null, root, null, Number.class),
+				is(new BigDecimal("1.235")));
+		assertThat("Round right",
+				expressionService.evaluateExpression("round(foo,4)", null, root, null, Number.class),
+				is(new BigDecimal("1.2346")));
+		assertThat("Round zero",
+				expressionService.evaluateExpression("round(foo,8)", null, root, null, Number.class),
+				is(new BigDecimal("1.23456789")));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void group() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f1", 1);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f2", 2);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f3", 3);
+
+		// THEN
+		assertThat("Group props", (Collection<Number>) expressionService
+				.evaluateExpression("group('^f')", null, root, null, Collection.class),
+				containsInAnyOrder(35, 1, 2, 3));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void group_sum() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f1", 1);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f2", 2);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f3", 3);
+
+		// THEN
+		assertThat(
+				"Group props + sum", (Collection<Number>) expressionService
+						.evaluateExpression("sum(group('^f'))", null, root, null, Collection.class),
+				containsInAnyOrder(new BigDecimal("41")));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void group_avg() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f1", 1);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f2", 2);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f3", 3);
+
+		// THEN
+		assertThat(
+				"Group props + sum", (Collection<Number>) expressionService
+						.evaluateExpression("avg(group('^f'))", null, root, null, Collection.class),
+				containsInAnyOrder(new BigDecimal("10.25")));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void group_avg_nonTerminatingDecimal() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f1", 1);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f2", 0);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f3", 0);
+
+		// THEN
+		assertThat("Group props + sum",
+				(Collection<Number>) expressionService.evaluateExpression("avg(group('^f\\d'))", null,
+						root, null, Collection.class),
+				containsInAnyOrder(new BigDecimal("0.333333333333")));
+	}
+
+	@Test
+	public void group_avg_manual() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f1", 1);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f2", 2);
+		((MutableDatumSamplesOperations) root.getDatum()).putSampleValue(DatumSamplesType.Instantaneous,
+				"f3", 3);
+
+		// THEN
+		assertThat("Group props + manual average is integer calculation",
+				expressionService.evaluateExpression("sum(group('^f')) / group('^f').size()", null, root,
+						null, BigDecimal.class),
+				is(new BigDecimal("10")));
 	}
 
 }

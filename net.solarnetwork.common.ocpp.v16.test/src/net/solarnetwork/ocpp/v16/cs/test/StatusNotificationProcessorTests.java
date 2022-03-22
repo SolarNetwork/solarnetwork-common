@@ -84,7 +84,7 @@ public class StatusNotificationProcessorTests {
 		CountDownLatch l = new CountDownLatch(1);
 		ChargePointIdentity identity = createClientId();
 
-		Capture<StatusNotification> notifCaptor = new Capture<>();
+		Capture<StatusNotification> notifCaptor = Capture.newInstance();
 		chargePointManager.updateChargePointStatus(eq(identity), capture(notifCaptor));
 
 		// WHEN

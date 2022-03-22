@@ -84,6 +84,21 @@ public class JsonDateUtilsTests {
 	}
 
 	@Test
+	public void deser_instant_t() throws IOException {
+		// GIVEN
+		String json = "\"2021-08-11T11:47:00.123Z\"";
+
+		// WHEN
+		Instant result = mapper.readValue(json, Instant.class);
+
+		// THEN
+		Instant expected = LocalDateTime
+				.of(2021, 8, 11, 11, 47, 0, (int) TimeUnit.MILLISECONDS.toNanos(123))
+				.toInstant(ZoneOffset.UTC);
+		assertThat("Instant parsed", result, is(equalTo(expected)));
+	}
+
+	@Test
 	public void deser_instant_millis() throws IOException {
 		// GIVEN
 		long now = System.currentTimeMillis();
@@ -125,6 +140,20 @@ public class JsonDateUtilsTests {
 	}
 
 	@Test
+	public void deser_localDateTime_t() throws IOException {
+		// GIVEN
+		String json = "\"2021-08-11T11:47:00.123\"";
+
+		// WHEN
+		LocalDateTime result = mapper.readValue(json, LocalDateTime.class);
+
+		// THEN
+		LocalDateTime expected = LocalDateTime.of(2021, 8, 11, 11, 47, 0,
+				(int) TimeUnit.MILLISECONDS.toNanos(123));
+		assertThat("LocalDateTime parsed", result, is(equalTo(expected)));
+	}
+
+	@Test
 	public void deser_zonedDateTime() throws IOException {
 		// GIVEN
 		String json = "\"2021-08-11 11:47:00.123Z\"";
@@ -136,6 +165,21 @@ public class JsonDateUtilsTests {
 		ZonedDateTime expected = LocalDateTime
 				.of(2021, 8, 11, 11, 47, 0, (int) TimeUnit.MILLISECONDS.toNanos(123))
 				.atZone(ZoneId.of("UTC"));
+		assertThat("Instant parsed", result, is(equalTo(expected)));
+	}
+
+	@Test
+	public void deser_zonedDateTime_t() throws IOException {
+		// GIVEN
+		String json = "\"2021-08-11T11:47:00.123Z\"";
+
+		// WHEN
+		ZonedDateTime result = mapper.readValue(json, ZonedDateTime.class);
+
+		// THEN
+		ZonedDateTime expected = LocalDateTime
+				.of(2021, 8, 11, 11, 47, 0, (int) TimeUnit.MILLISECONDS.toNanos(123))
+				.atZone(ZoneId.of("Z"));
 		assertThat("Instant parsed", result, is(equalTo(expected)));
 	}
 

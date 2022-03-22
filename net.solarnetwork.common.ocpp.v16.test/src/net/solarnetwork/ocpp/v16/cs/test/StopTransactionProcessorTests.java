@@ -110,7 +110,7 @@ public class StopTransactionProcessorTests {
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 		int transactionId = 1;
 
-		Capture<ChargeSessionEndInfo> infoCaptor = new Capture<>();
+		Capture<ChargeSessionEndInfo> infoCaptor = Capture.newInstance();
 		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
 				2);
 		expect(chargeSessionManager.getActiveChargingSession(clientId, transactionId))

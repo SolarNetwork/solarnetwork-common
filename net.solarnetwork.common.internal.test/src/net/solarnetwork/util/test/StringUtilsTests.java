@@ -23,6 +23,7 @@
 package net.solarnetwork.util.test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
@@ -35,6 +36,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,7 +60,7 @@ import net.solarnetwork.util.StringUtils;
  * Unit test for the StringUtils class.
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class StringUtilsTests {
 
@@ -519,6 +522,56 @@ public class StringUtilsTests {
 
 		assertThat("UTF-8 byte count", StringUtils.utf8length(input),
 				is(equalTo(input.getBytes(ByteUtils.UTF8).length)));
+	}
+
+	@Test
+	public void numberValue_null() {
+		assertThat("Null input returns null", StringUtils.numberValue(null), is(nullValue()));
+	}
+
+	@Test
+	public void numberValue_nan() {
+		assertThat("NaN input returns null", StringUtils.numberValue("not a number"), is(nullValue()));
+	}
+
+	@Test
+	public void numberValue_int() {
+		assertThat("Integer input returns BigInteger", StringUtils.numberValue("12345"),
+				is(new BigInteger("12345")));
+	}
+
+	@Test
+	public void numberValue_float() {
+		assertThat("Decimal input returns BigDecimal", StringUtils.numberValue("123.45"),
+				is(new BigDecimal("123.45")));
+	}
+
+	@Test
+	public void match_nullInput() {
+		assertThat("Null pattern input returns null", StringUtils.match(null, "foo"), is(nullValue()));
+		assertThat("Null text input returns null", StringUtils.match(Pattern.compile("foo"), null),
+				is(nullValue()));
+		assertThat("All null input returns null", StringUtils.match(null, null), is(nullValue()));
+	}
+
+	@Test
+	public void match_noMatch() {
+		Pattern p = Pattern.compile("foo/(.*)");
+		assertThat("No match returns null", StringUtils.match(p, "bar/foo"), is(nullValue()));
+	}
+
+	@Test
+	public void match_noCaptureGroups() {
+		Pattern p = Pattern.compile("foo/.*");
+		assertThat("Match without capture groups returns array of 1", StringUtils.match(p, "foo/bar"),
+				is(arrayContaining("foo/bar")));
+	}
+
+	@Test
+	public void match_withCaptureGroups() {
+		Pattern p = Pattern.compile("foo/(.*)/(.*)");
+		assertThat("Match with capture groups returns array with captured group values",
+				StringUtils.match(p, "foo/bar/bam"), is(arrayContaining("foo/bar/bam", "bar", "bam")));
 	}
 
 }

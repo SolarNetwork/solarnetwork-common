@@ -43,7 +43,7 @@ import net.solarnetwork.util.NumberUtils;
  * Unit tests for the {@link NumberUtils} class.
  * 
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class NumberUtilsTests {
 
@@ -413,6 +413,462 @@ public class NumberUtilsTests {
 		assertThat("Counts converted to formatted strings", result,
 				arrayContaining("0 B", "27 B", "999 B", "1.0 kB", "1.0 kB", "1.0 kB", "1.7 kB",
 						"110.6 kB", "7.1 MB", "453.0 MB", "29.0 GB", "1.9 TB", "9.2 EB"));
+	}
+
+	@Test
+	public void min_short() {
+		assertThat("Short input returns Integer", NumberUtils.min((short) 1, (short) 2), is(1));
+		assertThat("Short input returns Integer", NumberUtils.min((short) 2, (short) 1), is(1));
+	}
+
+	@Test
+	public void min_int() {
+		assertThat("Int input returns Integer", NumberUtils.min(1, 2), is(1));
+		assertThat("Int input returns Integer", NumberUtils.min(2, 1), is(1));
+	}
+
+	@Test
+	public void min_long() {
+		assertThat("Long input returns Long", NumberUtils.min(1L, 2L), is(1L));
+		assertThat("Long input returns Long", NumberUtils.min(2L, 1L), is(1L));
+	}
+
+	@Test
+	public void min_bigInteger() {
+		assertThat("BigInteger input returns BigInteger",
+				NumberUtils.min(new BigInteger("1"), new BigInteger("2")), is(new BigInteger("1")));
+		assertThat("BigInteger input returns BigInteger",
+				NumberUtils.min(new BigInteger("2"), new BigInteger("1")), is(new BigInteger("1")));
+	}
+
+	@Test
+	public void min_bigDecimal() {
+		assertThat("BigDecimal input returns BigDecimal",
+				NumberUtils.min(new BigDecimal("1.1"), new BigDecimal("2.2")),
+				is(new BigDecimal("1.1")));
+		assertThat("BigDecimal input returns BigDecimal",
+				NumberUtils.min(new BigDecimal("2.2"), new BigDecimal("1.1")),
+				is(new BigDecimal("1.1")));
+	}
+
+	@Test
+	public void min_mixed() {
+		assertThat("Mixed input returns BigDecimal", NumberUtils.min(1, new BigDecimal("2.2")),
+				is(new BigDecimal("1")));
+		assertThat("Mixed input returns BigDecimal", NumberUtils.min(new BigDecimal("2.2"), 1),
+				is(new BigDecimal("1")));
+	}
+
+	@Test
+	public void max_short() {
+		assertThat("Short input returns Integer", NumberUtils.max((short) 1, (short) 2), is(2));
+		assertThat("Short input returns Integer", NumberUtils.max((short) 2, (short) 1), is(2));
+	}
+
+	@Test
+	public void max_int() {
+		assertThat("Int input returns Integer", NumberUtils.max(1, 2), is(2));
+		assertThat("Int input returns Integer", NumberUtils.max(2, 1), is(2));
+	}
+
+	@Test
+	public void max_long() {
+		assertThat("Long input returns Long", NumberUtils.max(1L, 2L), is(2L));
+		assertThat("Long input returns Long", NumberUtils.max(2L, 1L), is(2L));
+	}
+
+	@Test
+	public void max_bigInteger() {
+		assertThat("BigInteger input returns BigInteger",
+				NumberUtils.max(new BigInteger("1"), new BigInteger("2")), is(new BigInteger("2")));
+		assertThat("BigInteger input returns BigInteger",
+				NumberUtils.max(new BigInteger("2"), new BigInteger("1")), is(new BigInteger("2")));
+	}
+
+	@Test
+	public void max_bigDecimal() {
+		assertThat("BigDecimal input returns BigDecimal",
+				NumberUtils.max(new BigDecimal("1.1"), new BigDecimal("2.2")),
+				is(new BigDecimal("2.2")));
+		assertThat("BigDecimal input returns BigDecimal",
+				NumberUtils.max(new BigDecimal("2.2"), new BigDecimal("1.1")),
+				is(new BigDecimal("2.2")));
+	}
+
+	@Test
+	public void max_mixed() {
+		assertThat("Mixed input returns BigDecimal", NumberUtils.max(1, new BigDecimal("2.2")),
+				is(new BigDecimal("2.2")));
+		assertThat("Mixed input returns BigDecimal", NumberUtils.max(new BigDecimal("2.2"), 1),
+				is(new BigDecimal("2.2")));
+	}
+
+	@Test
+	public void floor_1() {
+		assertThat("positive exact", NumberUtils.floor(1.0, 1), is(new BigDecimal("1")));
+		assertThat("positive left", NumberUtils.floor(1.2, 1), is(new BigDecimal("1")));
+		assertThat("positive even", NumberUtils.floor(1.5, 1), is(new BigDecimal("1")));
+		assertThat("positive right", NumberUtils.floor(1.7, 1), is(new BigDecimal("1")));
+
+		assertThat("negative exact", NumberUtils.floor(-1.0, 1), is(new BigDecimal("-1")));
+		assertThat("negative left", NumberUtils.floor(-1.2, 1), is(new BigDecimal("-2")));
+		assertThat("negative even", NumberUtils.floor(-1.5, 1), is(new BigDecimal("-2")));
+		assertThat("negative right", NumberUtils.floor(-1.7, 1), is(new BigDecimal("-2")));
+	}
+
+	@Test
+	public void ceil_1() {
+		assertThat("positive exact", NumberUtils.ceil(1.0, 1), is(new BigDecimal("1")));
+		assertThat("positive left", NumberUtils.ceil(1.2, 1), is(new BigDecimal("2")));
+		assertThat("positive even", NumberUtils.ceil(1.5, 1), is(new BigDecimal("2")));
+		assertThat("positive right", NumberUtils.ceil(1.7, 1), is(new BigDecimal("2")));
+
+		assertThat("negative exact", NumberUtils.ceil(-1.0, 1), is(new BigDecimal("-1")));
+		assertThat("negative left", NumberUtils.ceil(-1.2, 1), is(new BigDecimal("-1")));
+		assertThat("negative even", NumberUtils.ceil(-1.5, 1), is(new BigDecimal("-1")));
+		assertThat("negative right", NumberUtils.ceil(-1.7, 1), is(new BigDecimal("-1")));
+	}
+
+	@Test
+	public void down_1() {
+		assertThat("positive exact", NumberUtils.down(1.0, 1), is(new BigDecimal("1")));
+		assertThat("positive left", NumberUtils.down(1.2, 1), is(new BigDecimal("1")));
+		assertThat("positive even", NumberUtils.down(1.5, 1), is(new BigDecimal("1")));
+		assertThat("positive right", NumberUtils.down(1.7, 1), is(new BigDecimal("1")));
+
+		assertThat("negative exact", NumberUtils.down(-1.0, 1), is(new BigDecimal("-1")));
+		assertThat("negative left", NumberUtils.down(-1.2, 1), is(new BigDecimal("-1")));
+		assertThat("negative even", NumberUtils.down(-1.5, 1), is(new BigDecimal("-1")));
+		assertThat("negative right", NumberUtils.down(-1.7, 1), is(new BigDecimal("-1")));
+	}
+
+	@Test
+	public void up_1() {
+		assertThat("positive exact", NumberUtils.up(1.0, 1), is(new BigDecimal("1")));
+		assertThat("positive left", NumberUtils.up(1.2, 1), is(new BigDecimal("2")));
+		assertThat("positive even", NumberUtils.up(1.5, 1), is(new BigDecimal("2")));
+		assertThat("positive right", NumberUtils.up(1.7, 1), is(new BigDecimal("2")));
+
+		assertThat("negative exact", NumberUtils.up(-1.0, 1), is(new BigDecimal("-1")));
+		assertThat("negative left", NumberUtils.up(-1.2, 1), is(new BigDecimal("-2")));
+		assertThat("negative even", NumberUtils.up(-1.5, 1), is(new BigDecimal("-2")));
+		assertThat("negative right", NumberUtils.up(-1.7, 1), is(new BigDecimal("-2")));
+	}
+
+	@Test
+	public void mround_1() {
+		assertThat("positive exact", NumberUtils.mround(1.0, 1), is(new BigDecimal("1")));
+		assertThat("positive left", NumberUtils.mround(1.2, 1), is(new BigDecimal("1")));
+		assertThat("positive even", NumberUtils.mround(1.5, 1), is(new BigDecimal("2")));
+		assertThat("positive right", NumberUtils.mround(1.7, 1), is(new BigDecimal("2")));
+
+		assertThat("negative exact", NumberUtils.mround(-1.0, 1), is(new BigDecimal("-1")));
+		assertThat("negative left", NumberUtils.mround(-1.2, 1), is(new BigDecimal("-1")));
+		assertThat("negative even", NumberUtils.mround(-1.5, 1), is(new BigDecimal("-2")));
+		assertThat("negative right", NumberUtils.mround(-1.7, 1), is(new BigDecimal("-2")));
+	}
+
+	@Test
+	public void floor_3() {
+		assertThat("positive zero", NumberUtils.floor(0.0, 3), is(new BigDecimal("0")));
+		assertThat("positive left", NumberUtils.floor(1.2, 3), is(new BigDecimal("0")));
+		assertThat("positive even", NumberUtils.floor(1.5, 3), is(new BigDecimal("0")));
+		assertThat("positive right", NumberUtils.floor(2.7, 3), is(new BigDecimal("0")));
+		assertThat("positive exact", NumberUtils.floor(3.0, 3), is(new BigDecimal("3")));
+
+		assertThat("negative zero", NumberUtils.floor(-0.0, 3), is(new BigDecimal("-0")));
+		assertThat("negative left", NumberUtils.floor(-1.2, 3), is(new BigDecimal("-3")));
+		assertThat("negative even", NumberUtils.floor(-1.5, 3), is(new BigDecimal("-3")));
+		assertThat("negative right", NumberUtils.floor(-2.7, 3), is(new BigDecimal("-3")));
+		assertThat("negative exact", NumberUtils.floor(-3.0, 3), is(new BigDecimal("-3")));
+	}
+
+	@Test
+	public void ceil_3() {
+		assertThat("positive zero", NumberUtils.ceil(0.0, 3), is(new BigDecimal("0")));
+		assertThat("positive left", NumberUtils.ceil(1.2, 3), is(new BigDecimal("3")));
+		assertThat("positive even", NumberUtils.ceil(1.5, 3), is(new BigDecimal("3")));
+		assertThat("positive right", NumberUtils.ceil(2.7, 3), is(new BigDecimal("3")));
+		assertThat("positive exact", NumberUtils.ceil(3.0, 3), is(new BigDecimal("3")));
+
+		assertThat("negative zero", NumberUtils.ceil(-0.0, 3), is(new BigDecimal("-0")));
+		assertThat("negative left", NumberUtils.ceil(-1.2, 3), is(new BigDecimal("-0")));
+		assertThat("negative even", NumberUtils.ceil(-1.5, 3), is(new BigDecimal("-0")));
+		assertThat("negative right", NumberUtils.ceil(-2.7, 3), is(new BigDecimal("-0")));
+		assertThat("negative exact", NumberUtils.ceil(-3.0, 3), is(new BigDecimal("-3")));
+	}
+
+	@Test
+	public void down_3() {
+		assertThat("positive zero", NumberUtils.down(0.0, 3), is(new BigDecimal("0")));
+		assertThat("positive left", NumberUtils.down(1.2, 3), is(new BigDecimal("0")));
+		assertThat("positive even", NumberUtils.down(1.5, 3), is(new BigDecimal("0")));
+		assertThat("positive right", NumberUtils.down(2.7, 3), is(new BigDecimal("0")));
+		assertThat("positive exact", NumberUtils.down(3.0, 3), is(new BigDecimal("3")));
+
+		assertThat("negative zero", NumberUtils.down(-0.0, 3), is(new BigDecimal("-0")));
+		assertThat("negative left", NumberUtils.down(-1.2, 3), is(new BigDecimal("-0")));
+		assertThat("negative even", NumberUtils.down(-1.5, 3), is(new BigDecimal("-0")));
+		assertThat("negative right", NumberUtils.down(-2.7, 3), is(new BigDecimal("-0")));
+		assertThat("negative exact", NumberUtils.down(-3.0, 3), is(new BigDecimal("-3")));
+	}
+
+	@Test
+	public void up_3() {
+		assertThat("positive zero", NumberUtils.up(0.0, 3), is(new BigDecimal("0")));
+		assertThat("positive left", NumberUtils.up(1.2, 3), is(new BigDecimal("3")));
+		assertThat("positive even", NumberUtils.up(1.5, 3), is(new BigDecimal("3")));
+		assertThat("positive right", NumberUtils.up(2.7, 3), is(new BigDecimal("3")));
+		assertThat("positive exact", NumberUtils.up(3.0, 3), is(new BigDecimal("3")));
+
+		assertThat("negative zero", NumberUtils.up(-0.0, 3), is(new BigDecimal("-0")));
+		assertThat("negative left", NumberUtils.up(-1.2, 3), is(new BigDecimal("-3")));
+		assertThat("negative even", NumberUtils.up(-1.5, 3), is(new BigDecimal("-3")));
+		assertThat("negative right", NumberUtils.up(-2.7, 3), is(new BigDecimal("-3")));
+		assertThat("negative exact", NumberUtils.up(-3.0, 3), is(new BigDecimal("-3")));
+	}
+
+	@Test
+	public void mround_3() {
+		assertThat("positive zero", NumberUtils.mround(0.0, 3), is(new BigDecimal("0")));
+		assertThat("positive left", NumberUtils.mround(1.2, 3), is(new BigDecimal("0")));
+		assertThat("positive even", NumberUtils.mround(1.5, 3), is(new BigDecimal("3")));
+		assertThat("positive right", NumberUtils.mround(2.7, 3), is(new BigDecimal("3")));
+		assertThat("positive exact", NumberUtils.mround(3.0, 3), is(new BigDecimal("3")));
+
+		assertThat("negative zero", NumberUtils.mround(-0.0, 3), is(new BigDecimal("-0")));
+		assertThat("negative left", NumberUtils.mround(-1.2, 3), is(new BigDecimal("-0")));
+		assertThat("negative even", NumberUtils.mround(-1.5, 3), is(new BigDecimal("-3")));
+		assertThat("negative right", NumberUtils.mround(-2.7, 3), is(new BigDecimal("-3")));
+		assertThat("negative exact", NumberUtils.mround(-3.0, 3), is(new BigDecimal("-3")));
+	}
+
+	@Test
+	public void round_0() {
+		assertThat("positive zero", NumberUtils.round(new BigDecimal("0.0"), 0),
+				is(new BigDecimal("0")));
+		assertThat("positive left", NumberUtils.round(new BigDecimal("1.2"), 0),
+				is(new BigDecimal("1")));
+		assertThat("positive even", NumberUtils.round(new BigDecimal("1.5"), 0),
+				is(new BigDecimal("2")));
+		assertThat("positive right", NumberUtils.round(new BigDecimal("2.7"), 0),
+				is(new BigDecimal("3")));
+		assertThat("positive exact", NumberUtils.round(new BigDecimal("3.0"), 0),
+				is(new BigDecimal("3")));
+
+		assertThat("negative zero", NumberUtils.round(new BigDecimal("-0.0"), 0),
+				is(new BigDecimal("-0")));
+		assertThat("negative left", NumberUtils.round(new BigDecimal("-1.2"), 0),
+				is(new BigDecimal("-1")));
+		assertThat("negative even", NumberUtils.round(new BigDecimal("-1.5"), 0),
+				is(new BigDecimal("-2")));
+		assertThat("negative right", NumberUtils.round(new BigDecimal("-2.7"), 0),
+				is(new BigDecimal("-3")));
+		assertThat("negative exact", NumberUtils.round(new BigDecimal("-3.0"), 0),
+				is(new BigDecimal("-3")));
+	}
+
+	@Test
+	public void round_3() {
+		assertThat("positive zero", NumberUtils.round(new BigDecimal("0.0"), 3),
+				is(new BigDecimal("0.0")));
+		assertThat("positive left", NumberUtils.round(new BigDecimal("1.1232"), 3),
+				is(new BigDecimal("1.123")));
+		assertThat("positive even", NumberUtils.round(new BigDecimal("1.1235"), 3),
+				is(new BigDecimal("1.124")));
+		assertThat("positive right", NumberUtils.round(new BigDecimal("1.1237"), 3),
+				is(new BigDecimal("1.124")));
+		assertThat("positive exact", NumberUtils.round(new BigDecimal("1.1230"), 3),
+				is(new BigDecimal("1.123")));
+
+		assertThat("negative zero", NumberUtils.round(new BigDecimal("-0.0"), 3),
+				is(new BigDecimal("-0.0")));
+		assertThat("negative left", NumberUtils.round(new BigDecimal("-1.1232"), 3),
+				is(new BigDecimal("-1.123")));
+		assertThat("negative even", NumberUtils.round(new BigDecimal("-1.1235"), 3),
+				is(new BigDecimal("-1.124")));
+		assertThat("negative right", NumberUtils.round(new BigDecimal("-1.1237"), 3),
+				is(new BigDecimal("-1.124")));
+		assertThat("negative exact", NumberUtils.round(new BigDecimal("-1.1230"), 3),
+				is(new BigDecimal("-1.123")));
+	}
+
+	@Test
+	public void roundup_0() {
+		assertThat("positive zero", NumberUtils.roundUp(new BigDecimal("0.0"), 0),
+				is(new BigDecimal("0")));
+		assertThat("positive left", NumberUtils.roundUp(new BigDecimal("1.2"), 0),
+				is(new BigDecimal("2")));
+		assertThat("positive even", NumberUtils.roundUp(new BigDecimal("1.5"), 0),
+				is(new BigDecimal("2")));
+		assertThat("positive right", NumberUtils.roundUp(new BigDecimal("2.7"), 0),
+				is(new BigDecimal("3")));
+		assertThat("positive exact", NumberUtils.roundUp(new BigDecimal("3.0"), 0),
+				is(new BigDecimal("3")));
+
+		assertThat("negative zero", NumberUtils.roundUp(new BigDecimal("-0.0"), 0),
+				is(new BigDecimal("-0")));
+		assertThat("negative left", NumberUtils.roundUp(new BigDecimal("-1.2"), 0),
+				is(new BigDecimal("-2")));
+		assertThat("negative even", NumberUtils.roundUp(new BigDecimal("-1.5"), 0),
+				is(new BigDecimal("-2")));
+		assertThat("negative right", NumberUtils.roundUp(new BigDecimal("-2.7"), 0),
+				is(new BigDecimal("-3")));
+		assertThat("negative exact", NumberUtils.roundUp(new BigDecimal("-3.0"), 0),
+				is(new BigDecimal("-3")));
+	}
+
+	@Test
+	public void roundup_3() {
+		assertThat("positive zero", NumberUtils.roundUp(new BigDecimal("0.0"), 3),
+				is(new BigDecimal("0.0")));
+		assertThat("positive left", NumberUtils.roundUp(new BigDecimal("1.1232"), 3),
+				is(new BigDecimal("1.124")));
+		assertThat("positive even", NumberUtils.roundUp(new BigDecimal("1.1235"), 3),
+				is(new BigDecimal("1.124")));
+		assertThat("positive right", NumberUtils.roundUp(new BigDecimal("1.1237"), 3),
+				is(new BigDecimal("1.124")));
+		assertThat("positive exact", NumberUtils.roundUp(new BigDecimal("1.1230"), 3),
+				is(new BigDecimal("1.123")));
+
+		assertThat("negative zero", NumberUtils.roundUp(new BigDecimal("-0.0"), 3),
+				is(new BigDecimal("-0.0")));
+		assertThat("negative left", NumberUtils.roundUp(new BigDecimal("-1.1232"), 3),
+				is(new BigDecimal("-1.124")));
+		assertThat("negative even", NumberUtils.roundUp(new BigDecimal("-1.1235"), 3),
+				is(new BigDecimal("-1.124")));
+		assertThat("negative right", NumberUtils.roundUp(new BigDecimal("-1.1237"), 3),
+				is(new BigDecimal("-1.124")));
+		assertThat("negative exact", NumberUtils.roundUp(new BigDecimal("-1.1230"), 3),
+				is(new BigDecimal("-1.123")));
+	}
+
+	@Test
+	public void rounddown_0() {
+		assertThat("positive zero", NumberUtils.roundDown(new BigDecimal("0.0"), 0),
+				is(new BigDecimal("0")));
+		assertThat("positive left", NumberUtils.roundDown(new BigDecimal("1.2"), 0),
+				is(new BigDecimal("1")));
+		assertThat("positive even", NumberUtils.roundDown(new BigDecimal("1.5"), 0),
+				is(new BigDecimal("1")));
+		assertThat("positive right", NumberUtils.roundDown(new BigDecimal("2.7"), 0),
+				is(new BigDecimal("2")));
+		assertThat("positive exact", NumberUtils.roundDown(new BigDecimal("3.0"), 0),
+				is(new BigDecimal("3")));
+
+		assertThat("negative zero", NumberUtils.roundDown(new BigDecimal("-0.0"), 0),
+				is(new BigDecimal("-0")));
+		assertThat("negative left", NumberUtils.roundDown(new BigDecimal("-1.2"), 0),
+				is(new BigDecimal("-1")));
+		assertThat("negative even", NumberUtils.roundDown(new BigDecimal("-1.5"), 0),
+				is(new BigDecimal("-1")));
+		assertThat("negative right", NumberUtils.roundDown(new BigDecimal("-2.7"), 0),
+				is(new BigDecimal("-2")));
+		assertThat("negative exact", NumberUtils.roundDown(new BigDecimal("-3.0"), 0),
+				is(new BigDecimal("-3")));
+	}
+
+	@Test
+	public void rounddown_3() {
+		assertThat("positive zero", NumberUtils.roundDown(new BigDecimal("0.0"), 3),
+				is(new BigDecimal("0.0")));
+		assertThat("positive left", NumberUtils.roundDown(new BigDecimal("1.1232"), 3),
+				is(new BigDecimal("1.123")));
+		assertThat("positive even", NumberUtils.roundDown(new BigDecimal("1.1235"), 3),
+				is(new BigDecimal("1.123")));
+		assertThat("positive right", NumberUtils.roundDown(new BigDecimal("1.1237"), 3),
+				is(new BigDecimal("1.123")));
+		assertThat("positive exact", NumberUtils.roundDown(new BigDecimal("1.1230"), 3),
+				is(new BigDecimal("1.123")));
+
+		assertThat("negative zero", NumberUtils.roundDown(new BigDecimal("-0.0"), 3),
+				is(new BigDecimal("-0.0")));
+		assertThat("negative left", NumberUtils.roundDown(new BigDecimal("-1.1232"), 3),
+				is(new BigDecimal("-1.123")));
+		assertThat("negative even", NumberUtils.roundDown(new BigDecimal("-1.1235"), 3),
+				is(new BigDecimal("-1.123")));
+		assertThat("negative right", NumberUtils.roundDown(new BigDecimal("-1.1237"), 3),
+				is(new BigDecimal("-1.123")));
+		assertThat("negative exact", NumberUtils.roundDown(new BigDecimal("-1.1230"), 3),
+				is(new BigDecimal("-1.123")));
+	}
+
+	@Test
+	public void narrowBigInteger() {
+		assertThat("narrowed to byte", NumberUtils.narrow(new BigInteger("7"), 0), is((byte) 7));
+		assertThat("narrowed to short", NumberUtils.narrow(new BigInteger("723"), 0), is((short) 723));
+		assertThat("narrowed to int", NumberUtils.narrow(new BigInteger("72356789"), 0), is(72356789));
+		assertThat("narrowed to long", NumberUtils.narrow(new BigInteger("7235678972356789"), 0),
+				is(7235678972356789L));
+		BigInteger n = new BigInteger("72356789723567897235678972356789");
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
+	@Test
+	public void narrowBigDecimal() {
+		assertThat("narrowed to byte", NumberUtils.narrow(new BigDecimal("7"), 0), is((byte) 7));
+		assertThat("narrowed to short", NumberUtils.narrow(new BigDecimal("723"), 0), is((short) 723));
+		assertThat("narrowed to int", NumberUtils.narrow(new BigDecimal("72356789"), 0), is(72356789));
+		assertThat("narrowed to float", NumberUtils.narrow(BigDecimal.valueOf(123.00005), 0),
+				is((float) 123.00005));
+		assertThat("narrowed to long", NumberUtils.narrow(new BigDecimal("7235678972356789"), 0),
+				is(7235678972356789L));
+		assertThat("narrowed to double", NumberUtils.narrow(BigDecimal.valueOf(723567897.2356789), 0),
+				is(723567897.2356789));
+		BigDecimal n = new BigDecimal("72356789723567897235678972356789");
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
+	@Test
+	public void narrowShort() {
+		assertThat("narrowed to byte", NumberUtils.narrow((short) 11, 0), is((byte) 11));
+
+		Short n = (short) 11;
+		assertThat("min power disallows narrowing", NumberUtils.narrow(n, 1), is(sameInstance(n)));
+
+		n = (short) 12345;
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
+	@Test
+	public void narrowInteger() {
+		assertThat("narrowed to byte", NumberUtils.narrow(11, 0), is((byte) 11));
+		assertThat("narrowed to short", NumberUtils.narrow(12345, 0), is((short) 12345));
+
+		Integer n = 11;
+		assertThat("min power constrains narrowing to short", NumberUtils.narrow(n, 1), is((short) 11));
+		assertThat("min power disallows narrowing", NumberUtils.narrow(n, 2), is(sameInstance(n)));
+
+		n = 123456789;
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
+	@Test
+	public void narrowLong() {
+		assertThat("narrowed to byte", NumberUtils.narrow(11L, 0), is((byte) 11));
+		assertThat("narrowed to short", NumberUtils.narrow(12345L, 0), is((short) 12345));
+		assertThat("narrowed to int", NumberUtils.narrow(123456789L, 0), is(123456789));
+
+		Long n = 11L;
+		assertThat("min power constrains narrowing to short", NumberUtils.narrow(n, 1), is((short) 11));
+		assertThat("min power constrains narrowing to int", NumberUtils.narrow(n, 2), is(11));
+		assertThat("min power disallows narrowing", NumberUtils.narrow(n, 3), is(sameInstance(n)));
+
+		n = 1234567890123789L;
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
+	@Test
+	public void narrowFloat() {
+		Float f = 123.0f;
+		assertThat("float cannot be narrowed", NumberUtils.narrow(f, 0), is(sameInstance(f)));
+	}
+
+	@Test
+	public void narrowDouble() {
+		assertThat("narrowed to float", NumberUtils.narrow(123.0, 0), is(123.0f));
+		Number n = 1238909809.190298093;
+		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
 	}
 
 }

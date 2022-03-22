@@ -108,7 +108,7 @@ public class MeterValuesProcessorTests {
 		expect(chargeSessionManager.getActiveChargingSession(clientId, transactionId))
 				.andReturn(session);
 
-		Capture<Iterable<net.solarnetwork.ocpp.domain.SampledValue>> readingsCaptor = new Capture<>();
+		Capture<Iterable<net.solarnetwork.ocpp.domain.SampledValue>> readingsCaptor = Capture.newInstance();
 		chargeSessionManager.addChargingSessionReadings(capture(readingsCaptor));
 
 		// when

@@ -95,7 +95,7 @@ public class StartTransactionProcessorTests {
 				new ChargePointInfo(clientId.getIdentifier()));
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 
-		Capture<ChargeSessionStartInfo> infoCaptor = new Capture<>();
+		Capture<ChargeSessionStartInfo> infoCaptor = Capture.newInstance();
 		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
 				2);
 		expect(chargeSessionManager.startChargingSession(capture(infoCaptor))).andReturn(session);

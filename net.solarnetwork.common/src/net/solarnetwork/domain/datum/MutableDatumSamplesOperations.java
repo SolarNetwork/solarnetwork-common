@@ -25,13 +25,14 @@ package net.solarnetwork.domain.datum;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
  * Extension of {@link DatumSamplesOperations} that adds mutate operations.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
 public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
@@ -50,6 +51,12 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 	 * To remove a tag, pass the tag name for {@code key} and {@literal null}
 	 * for {@code value}. To replace a tag, pass the tag to remove for
 	 * {@code key} and the tag to add as {@code value}.
+	 * </p>
+	 * 
+	 * <p>
+	 * For {@link DatumSamplesType#Instantaneous} and
+	 * {@link DatumSamplesType#Accumulating} if {@code value} is non-null but
+	 * not a {@link Number}, it will be silently ignored.
 	 * </p>
 	 * 
 	 * @param type
@@ -130,7 +137,7 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 	 * Copy all the sample data from another samples instance.
 	 * 
 	 * @param other
-	 *        the instance to copy the samples data from
+	 *        the instance to copy the sample data from
 	 */
 	default void copyFrom(DatumSamplesOperations other) {
 		if ( other == null ) {
@@ -150,6 +157,58 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 		}
 		if ( other.getTags() != null ) {
 			setTags(new LinkedHashSet<>(other.getTags()));
+		}
+	}
+
+	/**
+	 * Merge all the sample data from another samples instance, overwriting any
+	 * duplicate properties in this instance.
+	 * 
+	 * @param other
+	 *        the instance to merge the sample data from
+	 */
+	default void mergeFrom(DatumSamplesOperations other) {
+		mergeFrom(other, true);
+	}
+
+	/**
+	 * Merge all the sample data from another samples instance.
+	 * 
+	 * @param other
+	 *        the instance to merge the sample data from
+	 * @param overwrite
+	 *        {@literal true} to replace any duplicate properties in this
+	 *        instance with those from {@code other}, {@literal false} to skip
+	 *        duplicate properties and preserve the values from this instance
+	 */
+	default void mergeFrom(DatumSamplesOperations other, boolean overwrite) {
+		for ( DatumSamplesType type : DatumSamplesType.values() ) {
+			if ( type != DatumSamplesType.Tag ) {
+				Map<String, ?> otherData = other.getSampleData(type);
+				if ( otherData != null ) {
+					@SuppressWarnings("unchecked")
+					Map<String, Object> data = (Map<String, Object>) getSampleData(type);
+					if ( data == null ) {
+						setSampleData(type, otherData);
+					} else if ( overwrite ) {
+						data.putAll(otherData);
+					} else {
+						for ( Entry<String, ?> e : otherData.entrySet() ) {
+							data.putIfAbsent(e.getKey(), e.getValue());
+						}
+					}
+				}
+			} else {
+				Set<String> otherTags = other.getTags();
+				if ( otherTags != null ) {
+					Set<String> tags = getTags();
+					if ( tags == null ) {
+						setTags(otherTags);
+					} else {
+						tags.addAll(otherTags);
+					}
+				}
+			}
 		}
 	}
 

@@ -30,12 +30,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import net.solarnetwork.service.IdentifiableConfiguration;
+import net.solarnetwork.util.CollectionUtils;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * Basic implementation of {@link IdentifiableConfiguration}.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.42
  */
 @JsonPropertyOrder({ "name", "serviceIdentifier", "serviceProperties" })
@@ -71,6 +73,31 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 			Map<String, Object> sprops = new LinkedHashMap<String, Object>(other.getServiceProperties());
 			setServiceProps(sprops);
 		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(getClass().getSimpleName());
+		builder.append("{");
+		if ( name != null ) {
+			builder.append("name=");
+			builder.append(name);
+			builder.append(", ");
+		}
+		if ( serviceIdentifier != null ) {
+			builder.append("serviceIdentifier=");
+			builder.append(serviceIdentifier);
+			builder.append(", ");
+		}
+		if ( serviceProps != null ) {
+			builder.append("serviceProps=");
+			Map<String, Object> maskedServiceProps = StringUtils.sha256MaskedMap(serviceProps,
+					CollectionUtils.sensitiveNamesToMask(serviceProps.keySet()));
+			builder.append(maskedServiceProps);
+		}
+		builder.append("}");
+		return builder.toString();
 	}
 
 	/**

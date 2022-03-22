@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.solarnetwork.domain.SerializeIgnore;
+import net.solarnetwork.util.CollectionUtils;
 
 /**
  * Supporting abstract class for general node datum related objects.
@@ -81,17 +82,7 @@ public abstract class DatumSupport implements Serializable {
 	 * @return the value, or {@literal null} if not found
 	 */
 	protected String getMapString(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object s = map.get(key);
-		if ( s == null ) {
-			return null;
-		}
-		if ( s instanceof String ) {
-			return (String) s;
-		}
-		return s.toString();
+		return CollectionUtils.getMapString(key, map);
 	}
 
 	/**
@@ -105,24 +96,7 @@ public abstract class DatumSupport implements Serializable {
 	 * @return the value, or {@literal null} if not found
 	 */
 	protected Integer getMapInteger(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object n = map.get(key);
-		if ( n == null ) {
-			return null;
-		}
-		if ( n instanceof Integer ) {
-			return (Integer) n;
-		}
-		if ( n instanceof Number ) {
-			return ((Number) n).intValue();
-		}
-		try {
-			return Integer.valueOf(n.toString());
-		} catch ( NumberFormatException e ) {
-			return null;
-		}
+		return CollectionUtils.getMapInteger(key, map);
 	}
 
 	/**
@@ -136,24 +110,7 @@ public abstract class DatumSupport implements Serializable {
 	 * @return the value, or {@literal null} if not found
 	 */
 	protected Long getMapLong(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object n = map.get(key);
-		if ( n == null ) {
-			return null;
-		}
-		if ( n instanceof Long ) {
-			return (Long) n;
-		}
-		if ( n instanceof Number ) {
-			return ((Number) n).longValue();
-		}
-		try {
-			return Long.valueOf(n.toString());
-		} catch ( NumberFormatException e ) {
-			return null;
-		}
+		return CollectionUtils.getMapLong(key, map);
 	}
 
 	/**
@@ -167,24 +124,7 @@ public abstract class DatumSupport implements Serializable {
 	 * @return the value, or {@literal null} if not found
 	 */
 	protected Float getMapFloat(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object n = map.get(key);
-		if ( n == null ) {
-			return null;
-		}
-		if ( n instanceof Float ) {
-			return (Float) n;
-		}
-		if ( n instanceof Number ) {
-			return ((Number) n).floatValue();
-		}
-		try {
-			return Float.valueOf(n.toString());
-		} catch ( NumberFormatException e ) {
-			return null;
-		}
+		return CollectionUtils.getMapFloat(key, map);
 	}
 
 	/**
@@ -198,24 +138,7 @@ public abstract class DatumSupport implements Serializable {
 	 * @return the value, or {@literal null} if not found
 	 */
 	protected Double getMapDouble(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object n = map.get(key);
-		if ( n == null ) {
-			return null;
-		}
-		if ( n instanceof Double ) {
-			return (Double) n;
-		}
-		if ( n instanceof Number ) {
-			return ((Number) n).doubleValue();
-		}
-		try {
-			return Double.valueOf(n.toString());
-		} catch ( NumberFormatException e ) {
-			return null;
-		}
+		return CollectionUtils.getMapDouble(key, map);
 	}
 
 	/**
@@ -230,21 +153,7 @@ public abstract class DatumSupport implements Serializable {
 	 * @return the value, or {@literal null} if not found
 	 */
 	protected BigDecimal getMapBigDecimal(String key, Map<String, ?> map) {
-		if ( map == null ) {
-			return null;
-		}
-		Object n = map.get(key);
-		if ( n == null ) {
-			return null;
-		}
-		if ( n instanceof BigDecimal ) {
-			return (BigDecimal) n;
-		}
-		try {
-			return new BigDecimal(n.toString());
-		} catch ( NumberFormatException e ) {
-			return null;
-		}
+		return CollectionUtils.getMapBigDecimal(key, map);
 	}
 
 	/**

@@ -24,11 +24,12 @@ package net.solarnetwork.domain.datum;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import net.solarnetwork.domain.DatumExpressionRoot;
+import java.util.regex.Pattern;
 
 /**
  * An expression root object implementation that acts like a composite map of
@@ -53,11 +54,11 @@ import net.solarnetwork.domain.DatumExpressionRoot;
  * </ol>
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.71
  */
 public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
-		implements DatumExpressionRoot, Map<String, Object> {
+		implements DatumExpressionRoot, DatumMathFunctions {
 
 	private final Datum datum;
 	private final DatumSamplesOperations datumOps;
@@ -78,11 +79,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 			Map<String, ?> parameters) {
 		super();
 		this.datum = datum;
-		if ( datum instanceof Datum ) {
-			this.datumOps = datum.asSampleOperations();
-		} else {
-			this.datumOps = null;
-		}
+		this.datumOps = (datum != null ? datum.asSampleOperations() : null);
 		this.sample = sample;
 		this.parameters = parameters;
 	}
@@ -90,6 +87,30 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	@Override
 	public Datum getDatum() {
 		return datum;
+	}
+
+	/**
+	 * Get the samples.
+	 * 
+	 * <p>
+	 * This may or may not be the same samples as returned by
+	 * {@link Datum#asSampleOperations()} on the {@code Datum} returned by
+	 * {@link #getDatum()}.
+	 * </p>
+	 * 
+	 * @return the datum samples; may be {@literal null}
+	 */
+	public DatumSamplesOperations getSamples() {
+		return sample;
+	}
+
+	/**
+	 * Get optional additional parameters.
+	 * 
+	 * @return the parameters; may be {@literal null}
+	 */
+	public Map<String, ?> getParameters() {
+		return parameters;
 	}
 
 	/**
@@ -172,6 +193,9 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	private static final DatumSamplesType[] TYPES = new DatumSamplesType[] {
 			DatumSamplesType.Instantaneous, DatumSamplesType.Accumulating, DatumSamplesType.Status };
 
+	private static final DatumSamplesType[] NUMBER_TYPES = new DatumSamplesType[] {
+			DatumSamplesType.Instantaneous, DatumSamplesType.Accumulating };
+
 	private final class EntrySet extends AbstractSet<Entry<String, Object>>
 			implements Set<Entry<String, Object>> {
 
@@ -211,6 +235,48 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 			return delegate.size();
 		}
 
+	}
+
+	private static <T> void populateMap(Map<String, T> dest, DatumSamplesOperations ops,
+			DatumSamplesType[] types, Pattern pat) {
+		for ( DatumSamplesType type : types ) {
+			@SuppressWarnings("unchecked")
+			Map<String, T> data = (Map<String, T>) ops.getSampleData(type);
+			if ( data != null ) {
+				for ( Entry<String, T> e : data.entrySet() ) {
+					if ( pat == null || pat.matcher(e.getKey()).find() ) {
+						dest.put(e.getKey(), e.getValue());
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Group a set of properties matching a pattern into a collection.
+	 * 
+	 * @param pattern
+	 *        the property name pattern to group
+	 * @return the group of matching properties, never {@literal null}
+	 * @since 2.1
+	 */
+	public final Collection<? extends Number> group(String pattern) {
+		Pattern pat = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+		Map<String, Number> values = new LinkedHashMap<>(8);
+		if ( datumOps != null ) {
+			populateMap(values, datumOps, NUMBER_TYPES, pat);
+		}
+		if ( sample != null ) {
+			populateMap(values, sample, NUMBER_TYPES, pat);
+		}
+		if ( parameters != null ) {
+			for ( Entry<String, ?> e : parameters.entrySet() ) {
+				if ( pat.matcher(e.getKey()).find() && (e.getValue() instanceof Number) ) {
+					values.put(e.getKey(), (Number) e.getValue());
+				}
+			}
+		}
+		return values.values();
 	}
 
 }

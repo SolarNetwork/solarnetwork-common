@@ -36,7 +36,7 @@ import net.solarnetwork.domain.SerializeIgnore;
  * type.
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 @JsonPropertyOrder({ "i", "a", "s", "t" })
 public class DatumSamples extends DatumSupport implements MutableDatumSamplesOperations, Serializable {
@@ -100,16 +100,23 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 		if ( instantaneous != null ) {
 			builder.append("i=");
 			builder.append(instantaneous);
-			builder.append(", ");
+			if ( accumulating != null || status != null || getTags() != null ) {
+				builder.append(", ");
+			}
 		}
 		if ( accumulating != null ) {
 			builder.append("a=");
 			builder.append(accumulating);
-			builder.append(", ");
+			if ( status != null || getTags() != null ) {
+				builder.append(", ");
+			}
 		}
 		if ( status != null ) {
 			builder.append("s=");
 			builder.append(status);
+			if ( getTags() != null ) {
+				builder.append(", ");
+			}
 		}
 		if ( getTags() != null ) {
 			builder.append("t=");
@@ -306,6 +313,9 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 				}
 				addTag(value.toString());
 			}
+			return;
+		} else if ( type != DatumSamplesType.Status && value != null && !(value instanceof Number) ) {
+			// refuse to add non-Number value to i,a maps; silently ignore
 			return;
 		}
 		@SuppressWarnings({ "unchecked", "rawtypes" })

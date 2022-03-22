@@ -30,11 +30,7 @@ import org.junit.Test;
 import net.solarnetwork.util.ObjectUtils;
 
 /**
- * FIXME
- * 
- * <p>
- * TODO
- * </p>
+ * Test cases for the {@link ObjectUtils} class.
  * 
  * @author matt
  * @version 1.0

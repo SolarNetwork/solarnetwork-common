@@ -69,6 +69,7 @@ import net.solarnetwork.domain.Location;
 import net.solarnetwork.domain.datum.Datum;
 import net.solarnetwork.domain.datum.GeneralDatumMetadata;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
+import net.solarnetwork.domain.datum.ObjectDatumStreamMetadataId;
 import net.solarnetwork.domain.datum.StreamDatum;
 import net.solarnetwork.util.Half;
 import net.solarnetwork.util.NumberUtils;
@@ -185,6 +186,8 @@ public final class JsonUtils {
 		m.addSerializer(BasicStreamDatumArraySerializer.INSTANCE);
 		m.addSerializer(BasicInstructionSerializer.INSTANCE);
 		m.addSerializer(BasicInstructionStatusSerializer.INSTANCE);
+		m.addSerializer(ObjectDatumStreamMetadataId.class,
+				BasicObjectDatumStreamMetadataIdSerializer.INSTANCE);
 		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
 		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamMetadata.class,
@@ -192,6 +195,8 @@ public final class JsonUtils {
 		m.addDeserializer(StreamDatum.class, BasicStreamDatumArrayDeserializer.INSTANCE);
 		m.addDeserializer(Instruction.class, BasicInstructionDeserializer.INSTANCE);
 		m.addDeserializer(InstructionStatus.class, BasicInstructionStatusDeserializer.INSTANCE);
+		m.addDeserializer(ObjectDatumStreamMetadataId.class,
+				BasicObjectDatumStreamMetadataIdDeserializer.INSTANCE);
 		DATUM_MODULE = m;
 	}
 

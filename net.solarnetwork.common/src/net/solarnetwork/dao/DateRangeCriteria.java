@@ -28,7 +28,7 @@ import java.time.Instant;
  * Search criteria for a date range.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.67
  */
 public interface DateRangeCriteria {
@@ -73,6 +73,26 @@ public interface DateRangeCriteria {
 	 */
 	default boolean hasStartDate() {
 		return getStartDate() != null;
+	}
+
+	/**
+	 * Test if the filter as an end date specified.
+	 * 
+	 * @return {@literal true} if the end date is non-null
+	 * @since 1.1
+	 */
+	default boolean hasEndDate() {
+		return getEndDate() != null;
+	}
+
+	/**
+	 * Test if the filter has a start or end date specified.
+	 * 
+	 * @return {@literal true} if either a start or end date is non-null
+	 * @since 1.1
+	 */
+	default boolean hasDate() {
+		return (getStartDate() != null || getEndDate() != null);
 	}
 
 }

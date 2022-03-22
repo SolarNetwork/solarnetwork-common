@@ -121,9 +121,9 @@ public class HikariDataSourceManagedServiceFactoryTests {
 		props.put("serviceProperty.db", "test");
 		props.put("serviceProperty.foo", "bar");
 
-		Capture<Properties> dataSourcePropCaptor = new Capture<>();
-		Capture<DataSource> dataSourceCaptor = new Capture<>();
-		Capture<Dictionary<String, ?>> servicePropCaptor = new Capture<>();
+		Capture<Properties> dataSourcePropCaptor = Capture.newInstance();
+		Capture<DataSource> dataSourceCaptor = Capture.newInstance();
+		Capture<Dictionary<String, ?>> servicePropCaptor = Capture.newInstance();
 
 		expect(bundleContext.getServiceReferences(DataSourceFactory.class, dsFactoryFilter))
 				.andReturn(Collections.singleton(dataSourceFactoryRef));
@@ -185,9 +185,9 @@ public class HikariDataSourceManagedServiceFactoryTests {
 		props.put("serviceProperty.foo", "bar");
 		props.put("serviceProperty.service.ranking", "-10");
 
-		Capture<Properties> dataSourcePropCaptor = new Capture<>();
-		Capture<DataSource> dataSourceCaptor = new Capture<>();
-		Capture<Dictionary<String, ?>> servicePropCaptor = new Capture<>();
+		Capture<Properties> dataSourcePropCaptor = Capture.newInstance();
+		Capture<DataSource> dataSourceCaptor = Capture.newInstance();
+		Capture<Dictionary<String, ?>> servicePropCaptor = Capture.newInstance();
 
 		expect(bundleContext.getServiceReferences(DataSourceFactory.class, dsFactoryFilter))
 				.andReturn(Collections.singleton(dataSourceFactoryRef));
@@ -253,10 +253,10 @@ public class HikariDataSourceManagedServiceFactoryTests {
 		props.put("serviceProperty.db", "test");
 		props.put("serviceProperty.foo", "bar");
 
-		Capture<Properties> dataSourcePropCaptor = new Capture<>();
-		Capture<DataSource> dataSourceCaptor = new Capture<>();
-		Capture<Dictionary<String, ?>> servicePropCaptor = new Capture<>();
-		Capture<PingTest> pingTestCaptor = new Capture<>();
+		Capture<Properties> dataSourcePropCaptor = Capture.newInstance();
+		Capture<DataSource> dataSourceCaptor = Capture.newInstance();
+		Capture<Dictionary<String, ?>> servicePropCaptor = Capture.newInstance();
+		Capture<PingTest> pingTestCaptor = Capture.newInstance();
 
 		expect(bundleContext.getServiceReferences(DataSourceFactory.class, dsFactoryFilter))
 				.andReturn(Collections.singleton(dataSourceFactoryRef));
@@ -326,10 +326,10 @@ public class HikariDataSourceManagedServiceFactoryTests {
 		props.put("serviceProperty.db", "test");
 		props.put("serviceProperty.foo", "bar");
 
-		Capture<ServiceListener> dataSourceFactoryListenerCaptor = new Capture<>(CaptureType.ALL);
-		Capture<Properties> dataSourcePropCaptor = new Capture<>();
-		Capture<DataSource> dataSourceCaptor = new Capture<>();
-		Capture<Dictionary<String, ?>> servicePropCaptor = new Capture<>();
+		Capture<ServiceListener> dataSourceFactoryListenerCaptor = Capture.newInstance(CaptureType.ALL);
+		Capture<Properties> dataSourcePropCaptor = Capture.newInstance();
+		Capture<DataSource> dataSourceCaptor = Capture.newInstance();
+		Capture<Dictionary<String, ?>> servicePropCaptor = Capture.newInstance();
 
 		// no DataSourceFactory registered at first
 		expect(bundleContext.getServiceReferences(DataSourceFactory.class, dsFactoryFilter))

@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Utilities for dealing with numbers.
  * 
  * @author matt
- * @version 1.9
+ * @version 1.10
  * @since 1.42
  */
 public final class NumberUtils {
@@ -387,14 +387,7 @@ public final class NumberUtils {
 	 * @since 1.3
 	 */
 	public static Number maximumDecimalScale(Number value, int maxDecimalScale) {
-		if ( value == null || maxDecimalScale < 0 ) {
-			return value;
-		}
-		BigDecimal v = bigDecimalForNumber(value);
-		if ( v.scale() > maxDecimalScale ) {
-			v = v.setScale(maxDecimalScale, RoundingMode.HALF_UP);
-		}
-		return v;
+		return round(value, maxDecimalScale, RoundingMode.HALF_UP);
 	}
 
 	/**
@@ -670,6 +663,535 @@ public final class NumberUtils {
 			ci.next();
 		}
 		return String.format("%.1f %cB", count / 1000.0, ci.current());
+	}
+
+	/**
+	 * Return the minimum between two number values.
+	 * 
+	 * @param n1
+	 *        the first number
+	 * @param n2
+	 *        the second number
+	 * @return the minimum number, or {@literal null} if both arguments are
+	 *         {@literal null}
+	 * @since 1.10
+	 */
+	public static Number min(Number n1, Number n2) {
+		if ( n1 == null && n2 == null ) {
+			return null;
+		}
+		if ( n1 == null ) {
+			return n2;
+		}
+		if ( n2 == null ) {
+			return n1;
+		}
+		if ( ((n1 instanceof Integer) || (n1 instanceof Short))
+				&& ((n2 instanceof Integer) || (n2 instanceof Short)) ) {
+			return Math.min(n1.intValue(), n2.intValue());
+		}
+		if ( (n1 instanceof Long) && (n2 instanceof Long) ) {
+			return Math.min(n1.longValue(), n2.longValue());
+		}
+		if ( (n1 instanceof Float) && (n2 instanceof Float) ) {
+			return Math.min(n1.floatValue(), n2.floatValue());
+		}
+		if ( (n1 instanceof Double) && (n2 instanceof Double) ) {
+			return Math.min(n1.doubleValue(), n2.doubleValue());
+		}
+		if ( (n1 instanceof BigInteger) && (n2 instanceof BigInteger) ) {
+			return ((BigInteger) n1).min((BigInteger) n2);
+		}
+		return bigDecimalForNumber(n1).min(bigDecimalForNumber(n2));
+	}
+
+	/**
+	 * Return the maximum between two number values.
+	 * 
+	 * @param n1
+	 *        the first number
+	 * @param n2
+	 *        the second number
+	 * @return the maximum number, or {@literal null} if both arguments are
+	 *         {@literal null}
+	 * @since 1.10
+	 */
+	public static Number max(Number n1, Number n2) {
+		if ( n1 == null && n2 == null ) {
+			return null;
+		}
+		if ( n1 == null ) {
+			return n2;
+		}
+		if ( n2 == null ) {
+			return n1;
+		}
+		if ( ((n1 instanceof Integer) || (n1 instanceof Short))
+				&& ((n2 instanceof Integer) || (n2 instanceof Short)) ) {
+			return Math.max(n1.intValue(), n2.intValue());
+		}
+		if ( (n1 instanceof Long) && (n2 instanceof Long) ) {
+			return Math.max(n1.longValue(), n2.longValue());
+		}
+		if ( (n1 instanceof Float) && (n2 instanceof Float) ) {
+			return Math.max(n1.floatValue(), n2.floatValue());
+		}
+		if ( (n1 instanceof Double) && (n2 instanceof Double) ) {
+			return Math.max(n1.doubleValue(), n2.doubleValue());
+		}
+		if ( (n1 instanceof BigInteger) && (n2 instanceof BigInteger) ) {
+			return ((BigInteger) n1).max((BigInteger) n2);
+		}
+		return bigDecimalForNumber(n1).max(bigDecimalForNumber(n2));
+	}
+
+	/**
+	 * Round a number towards zero to the nearest integer multiple of a specific
+	 * significance.
+	 * 
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#DOWN} mode.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
+	 * @since 1.10
+	 * @see #mround(Number, Number, RoundingMode)
+	 */
+	public static Number down(Number n, Number significance) {
+		return mround(n, significance, RoundingMode.DOWN);
+	}
+
+	/**
+	 * Round a number towards zero to the nearest integer multiple of a specific
+	 * significance.
+	 * 
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#UP} mode.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
+	 * @since 1.10
+	 * @see #mround(Number, Number, RoundingMode)
+	 */
+	public static Number up(Number n, Number significance) {
+		return mround(n, significance, RoundingMode.UP);
+	}
+
+	/**
+	 * Round positive numbers towards zero and negative numbers away from zero,
+	 * to the nearest integer multiple of a specific significance.
+	 * 
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#FLOOR} mode.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
+	 * @since 1.10
+	 * @see #mround(Number, Number, RoundingMode)
+	 */
+	public static Number floor(Number n, Number significance) {
+		return mround(n, significance, RoundingMode.FLOOR);
+	}
+
+	/**
+	 * Round positive numbers away from zero and negative numbers towards zero,
+	 * to the nearest integer multiple of a specific significance.
+	 * 
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#CEILING} mode.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
+	 * @since 1.10
+	 * @see #mround(Number, Number, RoundingMode)
+	 */
+	public static Number ceil(Number n, Number significance) {
+		return mround(n, significance, RoundingMode.CEILING);
+	}
+
+	/**
+	 * Round a number to the nearest integer multiple of a specific
+	 * significance.
+	 * 
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#HALF_UP} mode.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
+	 * @since 1.10
+	 * @see #mround(Number, Number, RoundingMode)
+	 */
+	public static Number mround(Number n, Number significance) {
+		return mround(n, significance, RoundingMode.HALF_UP);
+	}
+
+	/**
+	 * Round a number to the nearest integer multiple of a specific significance
+	 * using a specific rounding mode.
+	 * 
+	 * <p>
+	 * This method supports rounding like supported by common spreadsheet
+	 * application formulas {@code CEILING}, {@code FLOOR}, and {@code MROUND},
+	 * which accept a significance factor to round to.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param significance
+	 *        the multiple factor to round to
+	 * @param mode
+	 *        the rounding mode to use
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code significance} are {@literal null}
+	 * @since 1.10
+	 */
+	public static Number mround(Number n, Number significance, RoundingMode mode) {
+		BigDecimal d = bigDecimalForNumber(n);
+		BigDecimal s = bigDecimalForNumber(significance);
+		if ( d == null || s == null ) {
+			return null;
+		}
+		if ( mode == null ) {
+			mode = RoundingMode.HALF_UP;
+		}
+		// optimize for significance of 1: avoid divide/multiply
+		if ( BigDecimal.ONE.compareTo(s) == 0 ) {
+			return d.setScale(0, mode);
+		}
+		return d.divide(s, mode).setScale(0, mode).multiply(s);
+	}
+
+	/**
+	 * Round a number to a maximum number of decimal digits using the
+	 * {@link RoundingMode#HALF_UP} mode.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param digits
+	 *        the maximum number of decimal digits
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code digits} is {@literal null}
+	 * @since 1.10
+	 * @see #round(Number, Number, RoundingMode)
+	 */
+	public static Number round(Number n, Number digits) {
+		return round(n, digits, RoundingMode.HALF_UP);
+	}
+
+	/**
+	 * Round a number away from zero to a maximum number of decimal digits.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param digits
+	 *        the maximum number of decimal digits
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code digits} is {@literal null}
+	 * @since 1.10
+	 * @see #round(Number, Number, RoundingMode)
+	 */
+	public static Number roundUp(Number n, Number digits) {
+		return round(n, digits, RoundingMode.UP);
+	}
+
+	/**
+	 * Round a number towards zero to a maximum number of decimal digits.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param digits
+	 *        the maximum number of decimal digits
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code digits} is {@literal null}
+	 * @since 1.10
+	 * @see #round(Number, Number, RoundingMode)
+	 */
+	public static Number roundDown(Number n, Number digits) {
+		return round(n, digits, RoundingMode.DOWN);
+	}
+
+	/**
+	 * Round a number to a maximum number of decimal digits.
+	 * 
+	 * @param n
+	 *        the number to round
+	 * @param digits
+	 *        the maximum number of decimal digits
+	 * @param mode
+	 *        the rounding mode
+	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
+	 *         {@code n} or {@code digits} is {@literal null}
+	 * @since 1.10
+	 */
+	public static Number round(Number n, Number digits, RoundingMode mode) {
+		BigDecimal d = bigDecimalForNumber(n);
+		if ( d == null || digits == null ) {
+			return null;
+		}
+		int s = digits.intValue();
+		if ( s >= 0 && d.scale() > s ) {
+			if ( mode == null ) {
+				mode = RoundingMode.HALF_UP;
+			}
+			d = d.setScale(s, mode);
+		}
+		return d;
+	}
+
+	/**
+	 * Narrow a number to the smallest possible number type that can exactly
+	 * represent the given number.
+	 * 
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to narrow
+	 * @param minBytePower
+	 *        a minimum power-of-two byte size to narrow to; to; for example
+	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
+	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
+	 *        most a {@link Long} or {@link Double}
+	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
+	 *         is {@literal null}
+	 * @since 1.10
+	 */
+	public static Number narrow(final Number n, final int minBytePower) {
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof BigInteger ) {
+			return narrow((BigInteger) n, minBytePower);
+		} else if ( n instanceof BigDecimal ) {
+			return narrow((BigDecimal) n, minBytePower);
+		} else if ( (n instanceof Float) || (n instanceof Byte) ) {
+			return n;
+		} else if ( n instanceof Double ) {
+			float f = n.floatValue();
+			if ( Double.compare(f, n.doubleValue()) == 0 ) {
+				return f;
+			}
+		} else if ( n instanceof Long ) {
+			if ( minBytePower < 4 ) {
+				Number res = narrow(bigIntegerForNumber(n), minBytePower);
+				return (n.equals(res) ? n : res);
+			} else {
+				return n;
+			}
+		} else if ( n instanceof Integer ) {
+			if ( minBytePower < 3 ) {
+				Number res = narrow(bigIntegerForNumber(n), minBytePower);
+				return (n.equals(res) ? n : res);
+			} else {
+				return n;
+			}
+		} else if ( n instanceof Short ) {
+			if ( minBytePower < 2 ) {
+				Number res = narrow(bigIntegerForNumber(n), minBytePower);
+				return (n.equals(res) ? n : res);
+			} else {
+				return n;
+			}
+		}
+
+		// last resort: convert to BigDecimal and narrow that
+		Number res = narrow(bigDecimalForNumber(n), minBytePower);
+		return (n.equals(res) ? n : res);
+
+	}
+
+	/**
+	 * Narrow a {@link BigInteger} to the smallest possible number type that can
+	 * exactly represent the given number.
+	 * 
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to narrow
+	 * @param minBytePower
+	 *        a minimum power-of-two byte size to narrow to; to; for example
+	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
+	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
+	 *        most a {@link Long} or {@link Double}
+	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
+	 *         is {@literal null}
+	 * @since 1.10
+	 */
+	public static Number narrow(final BigInteger n, final int minBytePower) {
+		if ( n == null ) {
+			return null;
+		}
+		if ( minBytePower < 1 ) {
+			try {
+				return n.byteValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 2 ) {
+			try {
+				return n.shortValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 3 ) {
+			try {
+				return n.intValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 4 ) {
+			try {
+				return n.longValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		return n;
+	}
+
+	/**
+	 * Narrow a {@link BigDecimal} to the smallest possible number type that can
+	 * exactly represent the given number.
+	 * 
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to narrow
+	 * @param minBytePower
+	 *        a minimum power-of-two byte size to narrow to; to; for example
+	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
+	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
+	 *        most a {@link Long} or {@link Double}
+	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
+	 *         is {@literal null}
+	 * @since 1.10
+	 */
+	public static Number narrow(final BigDecimal n, final int minBytePower) {
+		if ( n == null ) {
+			return null;
+		}
+		if ( minBytePower < 1 ) {
+			try {
+				return n.byteValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 2 ) {
+			try {
+				return n.shortValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 3 ) {
+			try {
+				return n.intValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+			// try float
+			try {
+				return floatValueExact(n);
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		if ( minBytePower < 4 ) {
+			try {
+				return n.longValueExact();
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+			// try double
+			try {
+				return doubleValueExact(n);
+			} catch ( ArithmeticException e ) {
+				// ignore
+			}
+		}
+		return n;
+	}
+
+	/**
+	 * Attempt to convert a {@link BigDecimal} exactly to a {@code float}.
+	 * 
+	 * @param n
+	 *        the number to convert
+	 * @return the converted value, or {@literal null} if {@code n} is
+	 *         {@literal null}
+	 * @since 1.10
+	 * @throws ArithmeticException
+	 *         if an exact conversion cannot be done
+	 */
+	public static Float floatValueExact(BigDecimal n) {
+		if ( n == null ) {
+			return null;
+		}
+		float result = n.floatValue();
+		if ( !(Float.isNaN(result) || Float.isInfinite(result)) ) {
+			if ( new BigDecimal(String.valueOf(result)).compareTo(n) == 0 ) {
+				return result;
+			}
+		}
+		throw new ArithmeticException("Overflow");
+	}
+
+	/**
+	 * Attempt to convert a {@link BigDecimal} exactly to a {@code double}.
+	 * 
+	 * @param n
+	 *        the number to convert
+	 * @return the converted value, or {@literal null} if {@code n} is
+	 *         {@literal null}
+	 * @since 1.10
+	 * @throws ArithmeticException
+	 *         if an exact conversion cannot be done
+	 */
+	public static Double doubleValueExact(BigDecimal n) {
+		if ( n == null ) {
+			return null;
+		}
+		double result = n.doubleValue();
+		if ( !(Double.isNaN(result) || Double.isInfinite(result)) ) {
+			if ( new BigDecimal(String.valueOf(result)).compareTo(n) == 0 ) {
+				return result;
+			}
+		}
+		throw new ArithmeticException("Overflow");
 	}
 
 }

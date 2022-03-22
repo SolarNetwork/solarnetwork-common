@@ -1,5 +1,5 @@
 /* ==================================================================
- * GeneralSourceMetadataTest.java - Oct 21, 2014 1:45:17 PM
+ * GeneralLocationSourceMetadataTests.java - Oct 21, 2014 2:11:26 PM
  * 
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  * 
@@ -33,17 +33,18 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.solarnetwork.codec.JsonUtils;
 import net.solarnetwork.domain.datum.GeneralDatumMetadata;
-import net.solarnetwork.domain.datum.GeneralSourceMetadata;
+import net.solarnetwork.domain.datum.GeneralLocationSourceMetadata;
 
 /**
- * Test cases for {@link GeneralSourceMetadata}.
+ * Test cases for the {@link GeneralLocationSourceMetadata} class.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.0
  */
-public class GeneralSourceMetadataTest {
+public class GeneralLocationSourceMetadataTests {
 
 	private static final String TEST_SOURCE_ID = "test.source";
+	private static final Long TEST_LOC_ID = -1L;
 
 	private ObjectMapper objectMapper;
 
@@ -52,10 +53,11 @@ public class GeneralSourceMetadataTest {
 		objectMapper = JsonUtils.newObjectMapper();
 	}
 
-	private GeneralSourceMetadata getTestInstance() {
-		GeneralSourceMetadata result = new GeneralSourceMetadata();
+	private GeneralLocationSourceMetadata getTestInstance() {
+		GeneralLocationSourceMetadata result = new GeneralLocationSourceMetadata();
 		result.setCreated(testDate());
 		result.setSourceId(TEST_SOURCE_ID);
+		result.setLocationId(TEST_LOC_ID);
 
 		GeneralDatumMetadata meta = new GeneralDatumMetadata();
 		result.setMeta(meta);
@@ -83,20 +85,22 @@ public class GeneralSourceMetadataTest {
 	public void serializeJson() throws Exception {
 		String json = objectMapper.writeValueAsString(getTestInstance());
 		Assert.assertEquals(
-				"{\"created\":\"2014-10-20 23:00:00Z\",\"sourceId\":\"test.source\",\"m\":{\"currency\":\"NZD\"}"
+				"{\"created\":\"2014-10-20 23:00:00Z\",\"locationId\":-1,\"sourceId\":\"test.source\",\"m\":{\"currency\":\"NZD\"}"
 						+ ",\"pm\":{\"amount\":{\"units\":\"MWh\"}}" + ",\"t\":[\"price\"]}",
 				json);
 	}
 
 	@Test
 	public void deserializeJson() throws Exception {
-		String json = "{\"created\":\"2014-10-20 23:00:00Z\",\"updated\":\"2014-10-20 23:00:00Z\",\"sourceId\":\"test.source\",\"m\":{\"currency\":\"NZD\"}"
+		String json = "{\"created\":\"2014-10-20 23:00:00Z\",\"updated\":\"2014-10-20 23:00:00Z\",\"locationId\":-1,\"sourceId\":\"test.source\",\"m\":{\"currency\":\"NZD\"}"
 				+ ",\"pm\":{\"amount\":{\"units\":\"MWh\"}}" + ",\"t\":[\"price\"]}";
-		GeneralSourceMetadata meta = objectMapper.readValue(json, GeneralSourceMetadata.class);
+		GeneralLocationSourceMetadata meta = objectMapper.readValue(json,
+				GeneralLocationSourceMetadata.class);
 
 		Assert.assertNotNull(meta);
 		Assert.assertEquals(testDate().toEpochMilli(), meta.getCreated().toEpochMilli());
 		Assert.assertEquals(testDate().toEpochMilli(), meta.getUpdated().toEpochMilli());
+		Assert.assertEquals(-1L, meta.getLocationId().longValue());
 		Assert.assertEquals("test.source", meta.getSourceId());
 		Assert.assertEquals("NZD", meta.getMeta().getInfoString("currency"));
 		Assert.assertEquals("MWh", meta.getMeta().getInfoString("amount", "units"));
