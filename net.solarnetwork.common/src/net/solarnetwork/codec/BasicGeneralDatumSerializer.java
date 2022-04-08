@@ -24,6 +24,7 @@ package net.solarnetwork.codec;
 
 import static net.solarnetwork.util.DateUtils.ISO_DATE_TIME_ALT_UTC;
 import java.io.IOException;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Set;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -39,7 +40,7 @@ import net.solarnetwork.domain.datum.ObjectDatumKind;
  * Serializer for {@link Datum} instances.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
 public class BasicGeneralDatumSerializer extends StdScalarSerializer<Datum> {
@@ -61,7 +62,8 @@ public class BasicGeneralDatumSerializer extends StdScalarSerializer<Datum> {
 			throws IOException {
 		gen.writeStartObject(7);
 		if ( value.getTimestamp() != null ) {
-			gen.writeStringField("created", ISO_DATE_TIME_ALT_UTC.format(value.getTimestamp()));
+			gen.writeStringField("created",
+					ISO_DATE_TIME_ALT_UTC.format(value.getTimestamp().truncatedTo(ChronoUnit.MILLIS)));
 		}
 		if ( value.getSourceId() != null ) {
 			gen.writeStringField("sourceId", value.getSourceId());
