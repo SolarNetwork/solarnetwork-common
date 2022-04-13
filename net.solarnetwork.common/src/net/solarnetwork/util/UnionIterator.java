@@ -22,6 +22,7 @@
 
 package net.solarnetwork.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -31,7 +32,7 @@ import java.util.Iterator;
  * @param <E>
  *        the element type
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class UnionIterator<E> implements Iterator<E> {
 
@@ -45,7 +46,7 @@ public class UnionIterator<E> implements Iterator<E> {
 	 */
 	public UnionIterator(Collection<Iterator<E>> iterators) {
 		assert iterators != null;
-		this.iterators = iterators;
+		this.iterators = new ArrayList<>(iterators);
 	}
 
 	@Override
