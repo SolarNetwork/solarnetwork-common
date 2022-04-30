@@ -211,6 +211,12 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 		return (tags != null && tags.contains(tag));
 	}
 
+	/**
+	 * Test if there are any properties available.
+	 * 
+	 * @return {@literal true} if there is at least one non-{@literal null}
+	 *         property or tag available
+	 */
 	default boolean isEmpty() {
 		for ( DatumSamplesType t : new DatumSamplesType[] { DatumSamplesType.Accumulating,
 				DatumSamplesType.Instantaneous, DatumSamplesType.Status } ) {

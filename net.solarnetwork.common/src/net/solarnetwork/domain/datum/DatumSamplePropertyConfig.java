@@ -25,7 +25,7 @@ package net.solarnetwork.domain.datum;
 /**
  * Join some sort of configuration with a sample property key and type.
  * 
- * @param V
+ * @param <V>
  *        the configuration type
  * @author matt
  * @version 2.0
