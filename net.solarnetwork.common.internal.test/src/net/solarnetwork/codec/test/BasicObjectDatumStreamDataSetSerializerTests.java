@@ -1,5 +1,5 @@
 /* ==================================================================
- * ObjectDatumStreamDataSerializerTests.java - 29/04/2022 12:19:55 PM
+ * BasicObjectDatumStreamDataSetSerializerTests.java - 29/04/2022 12:19:55 PM
  * 
  * Copyright 2022 SolarNetwork.net Dev Team
  * 
@@ -23,6 +23,10 @@
 package net.solarnetwork.codec.test;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static net.solarnetwork.domain.datum.BasicObjectDatumStreamDataSet.dataSet;
+import static net.solarnetwork.domain.datum.DatumProperties.propertiesOf;
 import static net.solarnetwork.util.NumberUtils.decimalArray;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -30,35 +34,36 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import net.solarnetwork.codec.ObjectDatumStreamDataSerializer;
+import net.solarnetwork.codec.BasicObjectDatumStreamDataSetSerializer;
+import net.solarnetwork.domain.datum.BasicObjectDatumStreamDataSet;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.BasicStreamDatum;
 import net.solarnetwork.domain.datum.DatumProperties;
 import net.solarnetwork.domain.datum.ObjectDatumKind;
-import net.solarnetwork.domain.datum.ObjectDatumStreamData;
+import net.solarnetwork.domain.datum.ObjectDatumStreamDataSet;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.StreamDatum;
 
 /**
- * Test cases for the {@link ObjectDatumStreamDataSerializer} class.
+ * Test cases for the {@link BasicObjectDatumStreamDataSetSerializer} class.
  * 
  * @author matt
  * @version 1.0
  */
-public class ObjectDatumStreamDataSerializerTests {
+public class BasicObjectDatumStreamDataSetSerializerTests {
 
 	private ObjectMapper mapper;
 
 	private ObjectMapper createObjectMapper() {
 		ObjectMapper m = new ObjectMapper();
 		SimpleModule mod = new SimpleModule("Test");
-		mod.addSerializer(ObjectDatumStreamData.class, ObjectDatumStreamDataSerializer.INSTANCE);
+		mod.addSerializer(ObjectDatumStreamDataSet.class,
+				BasicObjectDatumStreamDataSetSerializer.INSTANCE);
 		m.registerModule(mod);
 		return m;
 	}
@@ -75,7 +80,7 @@ public class ObjectDatumStreamDataSerializerTests {
 	}
 
 	@Test
-	public void serialize_typical() throws IOException {
+	public void oneStream() throws IOException {
 		// GIVEN
 		ObjectDatumStreamMetadata meta = nodeMeta(123L, "test/source", new String[] { "a", "b" },
 				new String[] { "c" }, new String[] { "d" });
@@ -95,21 +100,21 @@ public class ObjectDatumStreamDataSerializerTests {
 		p2.setStatus(new String[] { "bar" });
 		StreamDatum d2 = new BasicStreamDatum(meta.getStreamId(), start.plusSeconds(1), p2);
 
-		ObjectDatumStreamData data = new ObjectDatumStreamData(meta, Arrays.asList(d1, d2));
+		BasicObjectDatumStreamDataSet data = dataSet(asList(meta), asList(d1, d2));
 
 		// WHEN
 		String json = mapper.writeValueAsString(data);
 
 		// THEN
-		assertThat("JSON", json, is(format("{\"meta\":{\"streamId\":\"%s\",", meta.getStreamId())
+		assertThat("JSON", json, is(format("{\"meta\":[{\"streamId\":\"%s\",", meta.getStreamId())
 				+ "\"zone\":\"Pacific/Auckland\",\"kind\":\"n\",\"objectId\":123,"
-				+ "\"sourceId\":\"test/source\",\"i\":[\"a\",\"b\"],\"a\":[\"c\"],\"s\":[\"d\"]},"
-				+ "\"data\":[[1651197120000,1.23,2.34,3.45,\"foo\",\"a\"],"
-				+ "[1651197121000,3.21,4.32,5.43,\"bar\"]]}"));
+				+ "\"sourceId\":\"test/source\",\"i\":[\"a\",\"b\"],\"a\":[\"c\"],\"s\":[\"d\"]}],"
+				+ "\"data\":[[0,1651197120000,1.23,2.34,3.45,\"foo\",\"a\"],"
+				+ "[0,1651197121000,3.21,4.32,5.43,\"bar\"]]}"));
 	}
 
 	@Test
-	public void serialize_missingData() throws IOException {
+	public void oneStream_missingData() throws IOException {
 		// GIVEN
 		ObjectDatumStreamMetadata meta = nodeMeta(123L, "test/source", new String[] { "a", "b" },
 				new String[] { "c" }, new String[] { "d" });
@@ -126,17 +131,75 @@ public class ObjectDatumStreamDataSerializerTests {
 		p2.setInstantaneous(decimalArray(null, "4.32"));
 		StreamDatum d2 = new BasicStreamDatum(meta.getStreamId(), start.plusSeconds(1), p2);
 
-		ObjectDatumStreamData data = new ObjectDatumStreamData(meta, Arrays.asList(d1, d2));
+		BasicObjectDatumStreamDataSet data = dataSet(asList(meta), asList(d1, d2));
 
 		// WHEN
 		String json = mapper.writeValueAsString(data);
 
 		// THEN
-		assertThat("JSON", json, is(format("{\"meta\":{\"streamId\":\"%s\",", meta.getStreamId())
+		assertThat("JSON", json, is(format("{\"meta\":[{\"streamId\":\"%s\",", meta.getStreamId())
 				+ "\"zone\":\"Pacific/Auckland\",\"kind\":\"n\",\"objectId\":123,"
-				+ "\"sourceId\":\"test/source\",\"i\":[\"a\",\"b\"],\"a\":[\"c\"],\"s\":[\"d\"]},"
-				+ "\"data\":[[1651197120000,null,null,3.45,\"foo\",\"a\"],"
-				+ "[1651197121000,null,4.32,null,null]]}"));
+				+ "\"sourceId\":\"test/source\",\"i\":[\"a\",\"b\"],\"a\":[\"c\"],\"s\":[\"d\"]}],"
+				+ "\"data\":[[0,1651197120000,null,null,3.45,\"foo\",\"a\"],"
+				+ "[0,1651197121000,null,4.32,null,null]]}"));
+	}
+
+	@Test
+	public void emptyStream() throws IOException {
+		// GIVEN
+		BasicObjectDatumStreamDataSet data = dataSet(emptyList(), emptyList());
+
+		// WHEN
+		String json = mapper.writeValueAsString(data);
+
+		// THEN
+		assertThat("JSON", json, is("{}"));
+
+	}
+
+	@Test
+	public void multiStream() throws IOException {
+		// GIVEN
+		ObjectDatumStreamMetadata meta1 = nodeMeta(123L, "test/source/1", new String[] { "a", "b" },
+				new String[] { "c" }, new String[] { "d" });
+		ObjectDatumStreamMetadata meta2 = nodeMeta(123L, "test/source/2", new String[] { "aa", "bb" },
+				new String[] { "cc" }, new String[] { "dd" });
+		Instant start = Instant
+				.from(LocalDateTime.of(2022, 4, 29, 13, 52).atZone(ZoneId.of("Pacific/Auckland")));
+
+		StreamDatum d1_1 = new BasicStreamDatum(meta1.getStreamId(), start,
+				propertiesOf(decimalArray("1.23", "2.34"), decimalArray("3.45"), new String[] { "foo" },
+						new String[] { "a" }));
+
+		StreamDatum d2_1 = new BasicStreamDatum(meta2.getStreamId(), start,
+				propertiesOf(decimalArray("1.234", "2.345"), decimalArray("3.456"),
+						new String[] { "fooo" }, new String[] { "aa" }));
+
+		StreamDatum d1_2 = new BasicStreamDatum(meta1.getStreamId(), start.plusSeconds(1), propertiesOf(
+				decimalArray("3.21", "4.32"), decimalArray("5.43"), new String[] { "bar" }, null));
+
+		StreamDatum d2_2 = new BasicStreamDatum(meta2.getStreamId(), start.plusSeconds(1), propertiesOf(
+				decimalArray("3.211", "4.321"), decimalArray("5.432"), new String[] { "barr" }, null));
+		BasicObjectDatumStreamDataSet data = dataSet(asList(meta1, meta2),
+				asList(d1_1, d2_1, d1_2, d2_2));
+
+		// WHEN
+		String json = mapper.writeValueAsString(data);
+
+		// THEN
+		// @formatter:off
+		assertThat("JSON", json, is(format("{\"meta\":[{\"streamId\":\"%s\",", meta1.getStreamId())
+				+ "\"zone\":\"Pacific/Auckland\",\"kind\":\"n\",\"objectId\":123,"
+				+ "\"sourceId\":\"test/source/1\",\"i\":[\"a\",\"b\"],\"a\":[\"c\"],\"s\":[\"d\"]},"
+				+ format("{\"streamId\":\"%s\",", meta2.getStreamId())
+				+ "\"zone\":\"Pacific/Auckland\",\"kind\":\"n\",\"objectId\":123,"
+				+ "\"sourceId\":\"test/source/2\",\"i\":[\"aa\",\"bb\"],\"a\":[\"cc\"],\"s\":[\"dd\"]}],\"data\":["
+				+ "[0,1651197120000,1.23,2.34,3.45,\"foo\",\"a\"],"
+				+ "[1,1651197120000,1.234,2.345,3.456,\"fooo\",\"aa\"],"
+				+ "[0,1651197121000,3.21,4.32,5.43,\"bar\"],"
+				+ "[1,1651197121000,3.211,4.321,5.432,\"barr\"]"
+				+ "]}"));
+		// @formatter:on
 	}
 
 }
