@@ -30,14 +30,17 @@ import java.util.UUID;
 /**
  * Basic implementation of {@link ObjectDatumStreamDataSet}.
  * 
+ * @param <T>
+ *        the stream datum type
  * @author matt
  * @version 1.0
  * @since 2.4
  */
-public class BasicObjectDatumStreamDataSet implements ObjectDatumStreamDataSet {
+public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
+		implements ObjectDatumStreamDataSet<T> {
 
 	private final ObjectDatumStreamMetadataProvider provider;
-	private final Iterable<StreamDatum> data;
+	private final Iterable<T> data;
 	private final Long totalResultCount;
 	private final Integer returnedResultCount;
 	private final Integer startingOffset;
@@ -45,20 +48,24 @@ public class BasicObjectDatumStreamDataSet implements ObjectDatumStreamDataSet {
 	/**
 	 * Create a new data set instance out of a set of metadata.
 	 * 
+	 * @param <T>
+	 *        the stream datum type
 	 * @param metadatas
 	 *        the metadata
 	 * @param data
 	 *        the data
 	 * @return the new instance
 	 */
-	public static final BasicObjectDatumStreamDataSet dataSet(
-			Iterable<ObjectDatumStreamMetadata> metadatas, Iterable<StreamDatum> data) {
+	public static final <T extends StreamDatum> BasicObjectDatumStreamDataSet<T> dataSet(
+			Iterable<ObjectDatumStreamMetadata> metadatas, Iterable<T> data) {
 		return dataSet(metadatas, data, null, null, null);
 	}
 
 	/**
 	 * Create a new data set instance out of a set of metadata.
 	 * 
+	 * @param <T>
+	 *        the stream datum type
 	 * @param metadatas
 	 *        the metadata
 	 * @param data
@@ -73,10 +80,10 @@ public class BasicObjectDatumStreamDataSet implements ObjectDatumStreamDataSet {
 	 *        if not known
 	 * @return the new instance
 	 */
-	public static final BasicObjectDatumStreamDataSet dataSet(
-			Iterable<ObjectDatumStreamMetadata> metadatas, Iterable<StreamDatum> data,
-			Long totalResultCount, Integer startingOffset, Integer returnedResultCount) {
-		return new BasicObjectDatumStreamDataSet(
+	public static final <T extends StreamDatum> BasicObjectDatumStreamDataSet<T> dataSet(
+			Iterable<ObjectDatumStreamMetadata> metadatas, Iterable<T> data, Long totalResultCount,
+			Integer startingOffset, Integer returnedResultCount) {
+		return new BasicObjectDatumStreamDataSet<T>(
 				ObjectDatumStreamMetadataProvider.staticProvider(metadatas), data, totalResultCount,
 				startingOffset, returnedResultCount);
 	}
@@ -91,8 +98,7 @@ public class BasicObjectDatumStreamDataSet implements ObjectDatumStreamDataSet {
 	 * @throws IllegalArgumentException
 	 *         if any argument is {@literal null}
 	 */
-	public BasicObjectDatumStreamDataSet(ObjectDatumStreamMetadataProvider provider,
-			Iterable<StreamDatum> data) {
+	public BasicObjectDatumStreamDataSet(ObjectDatumStreamMetadataProvider provider, Iterable<T> data) {
 		this(provider, data, null, null, null);
 	}
 
@@ -114,9 +120,8 @@ public class BasicObjectDatumStreamDataSet implements ObjectDatumStreamDataSet {
 	 * @throws IllegalArgumentException
 	 *         if either {@code provider} or {@code data} is {@literal null}
 	 */
-	public BasicObjectDatumStreamDataSet(ObjectDatumStreamMetadataProvider provider,
-			Iterable<StreamDatum> data, Long totalResultCount, Integer startingOffset,
-			Integer returnedResultCount) {
+	public BasicObjectDatumStreamDataSet(ObjectDatumStreamMetadataProvider provider, Iterable<T> data,
+			Long totalResultCount, Integer startingOffset, Integer returnedResultCount) {
 		super();
 		this.provider = requireNonNullArgument(provider, "provider");
 		this.data = requireNonNullArgument(data, "data");
@@ -141,12 +146,12 @@ public class BasicObjectDatumStreamDataSet implements ObjectDatumStreamDataSet {
 	}
 
 	@Override
-	public Iterator<StreamDatum> iterator() {
+	public Iterator<T> iterator() {
 		return data.iterator();
 	}
 
 	@Override
-	public Iterable<StreamDatum> getResults() {
+	public Iterable<T> getResults() {
 		return data;
 	}
 

@@ -25,12 +25,14 @@ package net.solarnetwork.domain.datum;
 /**
  * A set of {@link StreamDatum} with associated metadata.
  * 
+ * @param <T>
+ *        the stream datum type
  * @author matt
  * @version 1.0
  * @since 2.4
  */
-public interface ObjectDatumStreamDataSet
-		extends ObjectDatumStreamMetadataProvider, Iterable<StreamDatum> {
+public interface ObjectDatumStreamDataSet<T extends StreamDatum>
+		extends ObjectDatumStreamMetadataProvider, Iterable<T> {
 
 	/**
 	 * Get the actual results.
@@ -41,7 +43,7 @@ public interface ObjectDatumStreamDataSet
 	 * 
 	 * @return the results, never {@literal null}
 	 */
-	Iterable<StreamDatum> getResults();
+	Iterable<T> getResults();
 
 	/**
 	 * Get a total number of available results, if known.

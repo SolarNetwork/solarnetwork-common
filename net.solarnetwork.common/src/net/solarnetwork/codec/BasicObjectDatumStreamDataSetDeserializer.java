@@ -55,7 +55,7 @@ import net.solarnetwork.domain.datum.StreamDatum;
  * @since 2.4
  */
 public class BasicObjectDatumStreamDataSetDeserializer
-		extends StdScalarDeserializer<ObjectDatumStreamDataSet> {
+		extends StdScalarDeserializer<ObjectDatumStreamDataSet<StreamDatum>> {
 
 	private static final long serialVersionUID = 3809268939568086603L;
 
@@ -70,7 +70,7 @@ public class BasicObjectDatumStreamDataSetDeserializer
 	}
 
 	@Override
-	public ObjectDatumStreamDataSet deserialize(JsonParser p, DeserializationContext ctxt)
+	public ObjectDatumStreamDataSet<StreamDatum> deserialize(JsonParser p, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {

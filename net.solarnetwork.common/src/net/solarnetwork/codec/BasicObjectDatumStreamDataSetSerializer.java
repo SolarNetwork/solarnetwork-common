@@ -72,8 +72,8 @@ import net.solarnetwork.domain.datum.StreamDatum;
  * @version 1.0
  * @since 2.4
  */
-public class BasicObjectDatumStreamDataSetSerializer
-		extends StdScalarSerializer<ObjectDatumStreamDataSet> implements Serializable {
+public class BasicObjectDatumStreamDataSetSerializer extends
+		StdScalarSerializer<ObjectDatumStreamDataSet<? extends StreamDatum>> implements Serializable {
 
 	private static final long serialVersionUID = -4226762305023708915L;
 
@@ -102,15 +102,15 @@ public class BasicObjectDatumStreamDataSetSerializer
 	 * Constructor.
 	 */
 	public BasicObjectDatumStreamDataSetSerializer() {
-		super(ObjectDatumStreamDataSet.class);
+		super(ObjectDatumStreamDataSet.class, false);
 	}
 
 	@Override
-	public void serialize(ObjectDatumStreamDataSet value, JsonGenerator gen, SerializerProvider provider)
-			throws IOException {
+	public void serialize(ObjectDatumStreamDataSet<? extends StreamDatum> value, JsonGenerator gen,
+			SerializerProvider provider) throws IOException {
 		final Collection<UUID> streamIds = value.metadataStreamIds();
 		final Map<UUID, Integer> metaIndexMap = new HashMap<>(streamIds.size());
-		final Iterator<StreamDatum> itr = value.iterator();
+		final Iterator<? extends StreamDatum> itr = value.iterator();
 		int count = (value.getReturnedResultCount() != null ? 1 : 0)
 				+ (value.getStartingOffset() != null ? 1 : 0)
 				+ (value.getTotalResultCount() != null ? 1 : 0)

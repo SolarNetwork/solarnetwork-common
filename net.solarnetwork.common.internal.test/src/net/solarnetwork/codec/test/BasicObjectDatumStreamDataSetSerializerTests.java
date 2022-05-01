@@ -37,6 +37,7 @@ import java.time.ZoneId;
 import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.codec.BasicObjectDatumStreamDataSetSerializer;
@@ -59,11 +60,12 @@ public class BasicObjectDatumStreamDataSetSerializerTests {
 
 	private ObjectMapper mapper;
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private ObjectMapper createObjectMapper() {
 		ObjectMapper m = new ObjectMapper();
 		SimpleModule mod = new SimpleModule("Test");
 		mod.addSerializer(ObjectDatumStreamDataSet.class,
-				BasicObjectDatumStreamDataSetSerializer.INSTANCE);
+				(JsonSerializer) BasicObjectDatumStreamDataSetSerializer.INSTANCE);
 		m.registerModule(mod);
 		return m;
 	}
@@ -100,7 +102,7 @@ public class BasicObjectDatumStreamDataSetSerializerTests {
 		p2.setStatus(new String[] { "bar" });
 		StreamDatum d2 = new BasicStreamDatum(meta.getStreamId(), start.plusSeconds(1), p2);
 
-		BasicObjectDatumStreamDataSet data = dataSet(asList(meta), asList(d1, d2));
+		BasicObjectDatumStreamDataSet<StreamDatum> data = dataSet(asList(meta), asList(d1, d2));
 
 		// WHEN
 		String json = mapper.writeValueAsString(data);
@@ -131,7 +133,7 @@ public class BasicObjectDatumStreamDataSetSerializerTests {
 		p2.setInstantaneous(decimalArray(null, "4.32"));
 		StreamDatum d2 = new BasicStreamDatum(meta.getStreamId(), start.plusSeconds(1), p2);
 
-		BasicObjectDatumStreamDataSet data = dataSet(asList(meta), asList(d1, d2));
+		BasicObjectDatumStreamDataSet<StreamDatum> data = dataSet(asList(meta), asList(d1, d2));
 
 		// WHEN
 		String json = mapper.writeValueAsString(data);
@@ -147,7 +149,7 @@ public class BasicObjectDatumStreamDataSetSerializerTests {
 	@Test
 	public void emptyStream() throws IOException {
 		// GIVEN
-		BasicObjectDatumStreamDataSet data = dataSet(emptyList(), emptyList());
+		BasicObjectDatumStreamDataSet<StreamDatum> data = dataSet(emptyList(), emptyList());
 
 		// WHEN
 		String json = mapper.writeValueAsString(data);
@@ -180,7 +182,7 @@ public class BasicObjectDatumStreamDataSetSerializerTests {
 
 		StreamDatum d2_2 = new BasicStreamDatum(meta2.getStreamId(), start.plusSeconds(1), propertiesOf(
 				decimalArray("3.211", "4.321"), decimalArray("5.432"), new String[] { "barr" }, null));
-		BasicObjectDatumStreamDataSet data = dataSet(asList(meta1, meta2),
+		BasicObjectDatumStreamDataSet<StreamDatum> data = dataSet(asList(meta1, meta2),
 				asList(d1_1, d2_1, d1_2, d2_2));
 
 		// WHEN

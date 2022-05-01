@@ -89,7 +89,9 @@ public class BasicObjectDatumStreamDataSetDeserializerTests {
 				.from(LocalDateTime.of(2022, 4, 29, 13, 52).atZone(ZoneId.of("Pacific/Auckland")));
 
 		// WHEN
-		ObjectDatumStreamDataSet result = mapper.readValue(json, ObjectDatumStreamDataSet.class);
+		@SuppressWarnings("unchecked")
+		ObjectDatumStreamDataSet<StreamDatum> result = mapper.readValue(json,
+				ObjectDatumStreamDataSet.class);
 
 		// THEN
 		assertThat("Result parsed", result, is(notNullValue()));
@@ -150,7 +152,9 @@ public class BasicObjectDatumStreamDataSetDeserializerTests {
 				.from(LocalDateTime.of(2022, 4, 29, 13, 52).atZone(ZoneId.of("Pacific/Auckland")));
 
 		// WHEN
-		ObjectDatumStreamDataSet result = mapper.readValue(json, ObjectDatumStreamDataSet.class);
+		@SuppressWarnings("unchecked")
+		ObjectDatumStreamDataSet<StreamDatum> result = mapper.readValue(json,
+				ObjectDatumStreamDataSet.class);
 
 		// THEN
 		List<StreamDatum> data = StreamSupport.stream(result.spliterator(), false)
@@ -203,7 +207,9 @@ public class BasicObjectDatumStreamDataSetDeserializerTests {
 		String json = "{}";
 
 		// WHEN
-		ObjectDatumStreamDataSet result = mapper.readValue(json, ObjectDatumStreamDataSet.class);
+		@SuppressWarnings("unchecked")
+		ObjectDatumStreamDataSet<StreamDatum> result = mapper.readValue(json,
+				ObjectDatumStreamDataSet.class);
 
 		// THEN
 		assertThat("Result parsed", result, is(notNullValue()));
@@ -230,7 +236,9 @@ public class BasicObjectDatumStreamDataSetDeserializerTests {
 		Instant start = Instant
 				.from(LocalDateTime.of(2022, 4, 29, 13, 52).atZone(ZoneId.of("Pacific/Auckland")));
 
-		ObjectDatumStreamDataSet result = mapper.readValue(json, ObjectDatumStreamDataSet.class);
+		@SuppressWarnings("unchecked")
+		ObjectDatumStreamDataSet<StreamDatum> result = mapper.readValue(json,
+				ObjectDatumStreamDataSet.class);
 
 		// THEN
 		List<StreamDatum> data = StreamSupport.stream(result.spliterator(), false)
