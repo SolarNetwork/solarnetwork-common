@@ -34,7 +34,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * Utilities for dealing with arrays.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.42
  */
 public final class ArrayUtils {
@@ -152,4 +152,31 @@ public final class ArrayUtils {
 		}
 		return finalEnabledProtocols;
 	}
+
+	/**
+	 * Test if an array has only {@literal null} elements or is itself
+	 * {@literal null} or empty.
+	 * 
+	 * <p>
+	 * This method will perform a linear search for the first non-null element.
+	 * </p>
+	 * 
+	 * @param array
+	 *        the array to test
+	 * @return {@literal true} if {@code array} is {@literal null}, empty, or
+	 *         has only {@literal null} elements
+	 * @since 1.2
+	 */
+	public static boolean isOnlyNull(Object[] array) {
+		if ( array == null || array.length < 1 ) {
+			return true;
+		}
+		for ( Object o : array ) {
+			if ( o != null ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 }
