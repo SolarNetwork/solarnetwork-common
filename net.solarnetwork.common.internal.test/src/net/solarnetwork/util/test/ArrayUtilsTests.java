@@ -25,6 +25,7 @@ package net.solarnetwork.util.test;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -38,7 +39,7 @@ import net.solarnetwork.util.ArrayUtils;
  * Test cases for the {@link ArrayUtils} class.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class ArrayUtilsTests {
 
@@ -205,4 +206,33 @@ public class ArrayUtilsTests {
 		assertThat("Result", res, arrayContaining("TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
 				"TLS_RSA_WITH_AES_128_GCM_SHA256"));
 	}
+
+	@Test
+	public void isOnlyNull_null() {
+		assertThat("Null input is truthy", ArrayUtils.isOnlyNull(null), is(true));
+	}
+
+	@Test
+	public void isOnlyNull_empty() {
+		assertThat("Empty input is truthy", ArrayUtils.isOnlyNull(new String[0]), is(true));
+	}
+
+	@Test
+	public void isOnlyNull_allNull() {
+		assertThat("Array with all null elements is truthy",
+				ArrayUtils.isOnlyNull(new String[] { null, null, null }), is(true));
+	}
+
+	@Test
+	public void isOnlyNull_allNull_2d() {
+		assertThat("2D array with all null elements is truthy",
+				ArrayUtils.isOnlyNull(new String[][] { null, null, null }), is(true));
+	}
+
+	@Test
+	public void isOnlyNull_notAllNull() {
+		assertThat("Array with a non-null element is falsy",
+				ArrayUtils.isOnlyNull(new String[] { null, "hi", null }), is(false));
+	}
+
 }

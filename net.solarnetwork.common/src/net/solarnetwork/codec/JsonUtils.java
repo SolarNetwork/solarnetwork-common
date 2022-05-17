@@ -68,6 +68,7 @@ import net.solarnetwork.domain.InstructionStatus;
 import net.solarnetwork.domain.Location;
 import net.solarnetwork.domain.datum.Datum;
 import net.solarnetwork.domain.datum.GeneralDatumMetadata;
+import net.solarnetwork.domain.datum.ObjectDatumStreamDataSet;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadataId;
 import net.solarnetwork.domain.datum.StreamDatum;
@@ -91,7 +92,7 @@ import net.solarnetwork.util.NumberUtils;
  * </ul>
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.72
  */
 public final class JsonUtils {
@@ -188,6 +189,7 @@ public final class JsonUtils {
 		m.addSerializer(BasicInstructionStatusSerializer.INSTANCE);
 		m.addSerializer(ObjectDatumStreamMetadataId.class,
 				BasicObjectDatumStreamMetadataIdSerializer.INSTANCE);
+		m.addSerializer(BasicObjectDatumStreamDataSetSerializer.INSTANCE);
 		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
 		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamMetadata.class,
@@ -197,6 +199,8 @@ public final class JsonUtils {
 		m.addDeserializer(InstructionStatus.class, BasicInstructionStatusDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamMetadataId.class,
 				BasicObjectDatumStreamMetadataIdDeserializer.INSTANCE);
+		m.addDeserializer(ObjectDatumStreamDataSet.class,
+				BasicObjectDatumStreamDataSetDeserializer.INSTANCE);
 		DATUM_MODULE = m;
 	}
 
@@ -809,6 +813,44 @@ public final class JsonUtils {
 	}
 
 	/**
+	 * Write a fixed number of string array values as JSON array numbers.
+	 * 
+	 * <p>
+	 * This method does not write any starting or ending JSON array, it only
+	 * writes the values. It always writes {@code count} values, regardless of
+	 * the length of {@code array}. JSON {@literal null} values will be written
+	 * for any missing {@code array} values.
+	 * </p>
+	 * 
+	 * @param generator
+	 *        the generator to write to
+	 * @param array
+	 *        the array values to write
+	 * @param count
+	 *        the number of string values to write
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonGenerationException
+	 *         if any generation exception occurs
+	 * @since 2.1
+	 */
+	public static void writeStringArrayValues(final JsonGenerator generator, final String[] array,
+			final int count) throws IOException {
+		int i;
+		final int arrayLen = (array != null ? array.length : 0);
+		for ( i = 0; i < count && i < arrayLen; i++ ) {
+			if ( array[i] != null ) {
+				generator.writeString(array[i]);
+			} else {
+				generator.writeNull();
+			}
+		}
+		for ( ; i < count; i++ ) {
+			generator.writeNull();
+		}
+	}
+
+	/**
 	 * Write a string array as a JSON array of numbers.
 	 * 
 	 * @param generator
@@ -834,6 +876,44 @@ public final class JsonUtils {
 			}
 			generator.writeEndArray();
 		} else {
+			generator.writeNull();
+		}
+	}
+
+	/**
+	 * Write a fixed number of decimal array values as JSON array numbers.
+	 * 
+	 * <p>
+	 * This method does not write any starting or ending JSON array, it only
+	 * writes the values. It always writes {@code count} values, regardless of
+	 * the length of {@code array}. JSON {@literal null} values will be written
+	 * for any missing {@code array} values.
+	 * </p>
+	 * 
+	 * @param generator
+	 *        the generator to write to
+	 * @param array
+	 *        the array values to write
+	 * @param count
+	 *        the number of string values to write
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonGenerationException
+	 *         if any generation exception occurs
+	 * @since 2.1
+	 */
+	public static void writeDecimalArrayValues(final JsonGenerator generator, final BigDecimal[] array,
+			final int count) throws IOException {
+		int i;
+		final int arrayLen = (array != null ? array.length : 0);
+		for ( i = 0; i < count && i < arrayLen; i++ ) {
+			if ( array[i] != null ) {
+				generator.writeNumber(array[i]);
+			} else {
+				generator.writeNull();
+			}
+		}
+		for ( ; i < count; i++ ) {
 			generator.writeNull();
 		}
 	}
