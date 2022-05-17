@@ -31,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * Basic, immutable implementation of {@link Location}.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BasicLocation implements Location, Cloneable, Serializable {
@@ -173,17 +173,37 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 			return false;
 		}
 		Location other = (Location) obj;
+		if ( elevation != null && other.getElevation() != null ) {
+			if ( elevation.compareTo(other.getElevation()) != 0 ) {
+				return false;
+			}
+		} else if ( !Objects.equals(elevation, other.getElevation()) ) {
+			return false;
+		}
+		if ( latitude != null && other.getLatitude() != null ) {
+			if ( latitude.compareTo(other.getLatitude()) != 0 ) {
+				return false;
+			}
+		} else if ( !Objects.equals(latitude, other.getLatitude()) ) {
+			return false;
+		}
+		if ( longitude != null && other.getLongitude() != null ) {
+			if ( longitude.compareTo(other.getLongitude()) != 0 ) {
+				return false;
+			}
+		} else if ( !Objects.equals(elevation, other.getLongitude()) ) {
+			return false;
+		}
+		// @formatter:off
 		return Objects.equals(country, other.getCountry())
-				&& Objects.equals(elevation, other.getElevation())
-				&& Objects.equals(latitude, other.getLatitude())
 				&& Objects.equals(locality, other.getLocality())
-				&& Objects.equals(longitude, other.getLongitude())
 				&& Objects.equals(name, other.getName())
 				&& Objects.equals(postalCode, other.getPostalCode())
 				&& Objects.equals(region, other.getRegion())
 				&& Objects.equals(stateOrProvince, other.getStateOrProvince())
 				&& Objects.equals(street, other.getStreet())
 				&& Objects.equals(timeZoneId, other.getTimeZoneId());
+		// @formatter:on
 	}
 
 	/**
