@@ -27,15 +27,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.StreamSupport;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import net.solarnetwork.domain.Identity;
 
 /**
  * Basic implementation of {@link FilterResults}.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.59
  */
+@JsonPropertyOrder({ "totalResults", "startingOffset", "returnedResultCount", "results" })
 public class BasicFilterResults<M extends Identity<K>, K> implements FilterResults<M, K> {
 
 	private final Iterable<M> results;
