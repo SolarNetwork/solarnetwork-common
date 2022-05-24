@@ -23,6 +23,7 @@
 package net.solarnetwork.domain.datum;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Collection;
 import net.solarnetwork.util.NumberUtils;
@@ -32,10 +33,148 @@ import net.solarnetwork.util.StringUtils;
  * API for datum-related math helper functions.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.1
  */
 public interface DatumMathFunctions {
+
+	/**
+	 * Apply a bitwise {@literal and} operation to an integer number.
+	 * 
+	 * @param n
+	 *        the integer number
+	 * @param mask
+	 *        the mask
+	 * @return the result of {@code (n & mask)}, or {@code n} as an integer if
+	 *         {@code mask} is {@literal null} or {@literal null} if {@code n}
+	 *         cannot be converted to an integer
+	 * @since 1.1
+	 */
+	default BigInteger and(Number n, Number mask) {
+		BigInteger integer = integer(n);
+		BigInteger m = integer(mask);
+		return (integer != null && m != null ? integer.and(m) : integer);
+	}
+
+	/**
+	 * Apply a bitwise {@literal not} operation to an integer number.
+	 * 
+	 * @param n
+	 *        the integer number
+	 * @return the result of {@code (~n)}, or {@code n} as an integer or
+	 *         {@literal null} if {@code n} cannot be converted to an integer
+	 * @since 1.1
+	 */
+	default BigInteger not(Number n) {
+		BigInteger integer = integer(n);
+		return (integer != null ? integer.not() : integer);
+	}
+
+	/**
+	 * Apply a bitwise {@literal and} operation to an integer number that has
+	 * had a {@literal not} operation applied.
+	 * 
+	 * @param n
+	 *        the integer number
+	 * @param mask
+	 *        the mask
+	 * @return the result of {@code (n & ~mask)}, or {@code n} as an integer if
+	 *         {@code mask} is {@literal null} or {@literal null} if {@code n}
+	 *         cannot be converted to an integer
+	 * @since 1.1
+	 */
+	default BigInteger andNot(Number n, Number mask) {
+		BigInteger integer = integer(n);
+		BigInteger m = integer(mask);
+		return (integer != null && m != null ? integer.andNot(m) : integer);
+	}
+
+	/**
+	 * Apply a bitwise {@literal or} operation to an integer number.
+	 * 
+	 * @param n
+	 *        the integer number
+	 * @param mask
+	 *        the mask
+	 * @return the result of {@code (n | mask)}, or {@code n} as an integer if
+	 *         {@code mask} is {@literal null} or {@literal null} if {@code n}
+	 *         cannot be converted to an integer
+	 * @since 1.1
+	 */
+	default BigInteger or(Number n, Number mask) {
+		BigInteger integer = integer(n);
+		BigInteger m = integer(mask);
+		return (integer != null && m != null ? integer.or(m) : integer);
+	}
+
+	/**
+	 * Apply a bitwise {@literal xor} operation to an integer number.
+	 * 
+	 * @param n
+	 *        the integer number
+	 * @param mask
+	 *        the mask
+	 * @return the result of {@code (n ^ mask)}, or {@code n} as an integer if
+	 *         {@code mask} is {@literal null} or {@literal null} if {@code n}
+	 *         cannot be converted to an integer
+	 * @since 1.1
+	 */
+	default BigInteger xor(Number n, Number mask) {
+		BigInteger integer = integer(n);
+		BigInteger m = integer(mask);
+		return (integer != null && m != null ? integer.xor(m) : integer);
+	}
+
+	/**
+	 * Apply a bitwise right-shift operation to an integer number.
+	 * 
+	 * @param n
+	 *        the integer number
+	 * @param count
+	 *        the shift distance, in bits
+	 * @return the result of {@code (n >> count)}, or {@code n} as an integer if
+	 *         {@code count} is {@literal null} or {@literal null} if {@code n}
+	 *         cannot be converted to an integer
+	 * @since 1.1
+	 */
+	default BigInteger shiftRight(Number n, Number count) {
+		BigInteger integer = integer(n);
+		return (integer != null && count != null ? integer.shiftRight(count.intValue()) : integer);
+	}
+
+	/**
+	 * Apply a bitwise left-shift operation to an integer number.
+	 * 
+	 * @param n
+	 *        the integer number
+	 * @param count
+	 *        the shift distance, in bits
+	 * @return the result of {@code (n << count)}, or {@code n} as an integer if
+	 *         {@code count} is {@literal null} or {@literal null} if {@code n}
+	 *         cannot be converted to an integer
+	 * @since 1.1
+	 */
+	default BigInteger shiftLeft(Number n, Number count) {
+		BigInteger integer = integer(n);
+		return (integer != null && count != null ? integer.shiftLeft(count.intValue()) : integer);
+	}
+
+	/**
+	 * Test if a bit is set on an integer number.
+	 * 
+	 * @param n
+	 *        the integer number
+	 * @param bit
+	 *        the bit to test
+	 * @return the result of {@code ((n & (1 << bit)) != 0)}, or {@code n} as an
+	 *         integer if {@code bit} is {@literal null} or {@literal null} if
+	 *         {@code n} cannot be converted to an integer
+	 * @since 1.1
+	 */
+	default boolean testBit(Number n, Number bit) {
+		BigInteger integer = integer(n);
+		return (integer != null && bit != null ? integer.testBit(bit.intValue()) : false);
+	}
 
 	/**
 	 * Return a {@link BigDecimal} for a given value.
@@ -56,6 +195,28 @@ public interface DatumMathFunctions {
 			n = StringUtils.numberValue(value.toString());
 		}
 		return NumberUtils.bigDecimalForNumber(n);
+	}
+
+	/**
+	 * Return a {@link BigInteger} for a given value.
+	 * 
+	 * @param value
+	 *        the object to get as a {@link BigInteger}
+	 * @return the integer instance, or {@literal null} if {@code value} is
+	 *         {@literal null} or cannot be parsed as an integer
+	 * @since 1.1
+	 */
+	default BigInteger integer(Object value) {
+		if ( value == null ) {
+			return null;
+		}
+		Number n = null;
+		if ( value instanceof Number ) {
+			n = (Number) value;
+		} else {
+			n = StringUtils.numberValue(value.toString());
+		}
+		return NumberUtils.bigIntegerForNumber(n);
 	}
 
 	/**
@@ -282,6 +443,101 @@ public interface DatumMathFunctions {
 	 */
 	default Number roundDown(Number n, Number digits) {
 		return NumberUtils.roundDown(n, digits);
+	}
+
+	/**
+	 * Narrow a number to the smallest possible number type that can exactly
+	 * represent the given number.
+	 * 
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to narrow
+	 * @param minBytePower
+	 *        a minimum power-of-two byte size to narrow to; to; for example
+	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
+	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
+	 *        most a {@link Long} or {@link Double}
+	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
+	 *         is {@literal null}
+	 * @since 1.1
+	 */
+	default Number narrow(Number n, Number digits) {
+		return NumberUtils.narrow(n, digits.intValue());
+	}
+
+	/**
+	 * Narrow a number to at minimum an 8-bit value that can exactly represent
+	 * the given number.
+	 * 
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to narrow
+	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
+	 *         is {@literal null}
+	 * @since 1.1
+	 */
+	default Number narrow8(Number n) {
+		return NumberUtils.narrow(n, 0);
+	}
+
+	/**
+	 * Narrow a number to at minimum a 16-bit value that can exactly represent
+	 * the given number.
+	 * 
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to narrow
+	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
+	 *         is {@literal null}
+	 * @since 1.1
+	 */
+	default Number narrow16(Number n) {
+		return NumberUtils.narrow(n, 1);
+	}
+
+	/**
+	 * Narrow a number to at minimum a 32-bit value that can exactly represent
+	 * the given number.
+	 * 
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to narrow
+	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
+	 *         is {@literal null}
+	 * @since 1.1
+	 */
+	default Number narrow32(Number n) {
+		return NumberUtils.narrow(n, 2);
+	}
+
+	/**
+	 * Narrow a number to at minimum a 64-bit value that can exactly represent
+	 * the given number.
+	 * 
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 * 
+	 * @param n
+	 *        the number to narrow
+	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
+	 *         is {@literal null}
+	 * @since 1.1
+	 */
+	default Number narrow64(Number n) {
+		return NumberUtils.narrow(n, 3);
 	}
 
 	/**
