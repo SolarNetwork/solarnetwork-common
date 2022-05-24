@@ -250,4 +250,25 @@ public class DatumSamplesExpressionRootTests {
 				is(new BigDecimal("10")));
 	}
 
+	@Test
+	public void testBit() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+
+		// THEN
+		// "b" is 21, e.g. 0b10101b
+		assertThat("Bit 0",
+				expressionService.evaluateExpression("testBit(b,0)", null, root, null, Boolean.class),
+				is(true));
+		assertThat("Bit 1",
+				expressionService.evaluateExpression("testBit(b,1)", null, root, null, Boolean.class),
+				is(false));
+		assertThat("Bit 2",
+				expressionService.evaluateExpression("testBit(b,2)", null, root, null, Boolean.class),
+				is(true));
+		assertThat("Bit 3",
+				expressionService.evaluateExpression("testBit(b,3)", null, root, null, Boolean.class),
+				is(false));
+	}
+
 }

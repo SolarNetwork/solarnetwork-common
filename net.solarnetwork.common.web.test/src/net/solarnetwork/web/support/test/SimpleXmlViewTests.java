@@ -76,4 +76,17 @@ public class SimpleXmlViewTests {
 				+ "<SimpleXmlViewTests.TestObj><data><entry key=\"tags\"><value type=\"String\" value=\"a\"/><value type=\"String\" value=\"b\"/></entry></data></SimpleXmlViewTests.TestObj>"));
 	}
 
+	@Test
+	public void renderDatumSamples_specialCharacters() throws Exception {
+		MockHttpServletRequest req = new MockHttpServletRequest("GET", "/foo.xml");
+		MockHttpServletResponse res = new MockHttpServletResponse();
+		SimpleXmlView view = new SimpleXmlView();
+		TestObj samples = new TestObj();
+		samples.data = Collections.singletonMap("p", "a & 'thing' \"yes\" < 0 > 1");
+		view.render(singletonMap("obj", samples), req, res);
+
+		assertThat("Output XML", res.getContentAsString(), equalTo(XML_PREAMBLE
+				+ "<SimpleXmlViewTests.TestObj><data><entry key=\"p\"><value type=\"String\" value=\"a &amp; &apos;thing&apos; &quot;yes&quot; &lt; 0 &gt; 1\"/></entry></data></SimpleXmlViewTests.TestObj>"));
+	}
+
 }
