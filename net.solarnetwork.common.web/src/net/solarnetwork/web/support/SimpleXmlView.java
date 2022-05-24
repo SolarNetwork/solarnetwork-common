@@ -53,7 +53,7 @@ import net.solarnetwork.util.ClassUtils;
  * </p>
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class SimpleXmlView extends AbstractView {
 
@@ -66,6 +66,8 @@ public class SimpleXmlView extends AbstractView {
 	private static final ThreadLocal<SimpleDateFormat> SDF = new ThreadLocal<SimpleDateFormat>();
 
 	private static final Pattern AMP = Pattern.compile("&(?!\\w+;)");
+
+	private static final Pattern SPECIAL = Pattern.compile("[\"'<>]");
 
 	private String rootElementName = DEFAULT_ROOT_ELEMENT_NAME;
 	private boolean singleBeanAsRoot = true;
@@ -278,15 +280,44 @@ public class SimpleXmlView extends AbstractView {
 				}
 
 				if ( val != null ) {
+					out.write(' ');
+					out.write(key);
+					out.write("=\"");
+
 					// replace & with &amp;
 					String attVal = val.toString();
 					Matcher matcher = AMP.matcher(attVal);
 					attVal = matcher.replaceAll("&amp;");
-					attVal = attVal.replace("\"", "&quot;");
-					out.write(' ');
-					out.write(key);
-					out.write("=\"");
-					out.write(attVal);
+
+					// replace other special characters
+					matcher = SPECIAL.matcher(attVal);
+					int idx = 0;
+					while ( matcher.find(idx) ) {
+						out.write(attVal.substring(idx, matcher.start()));
+						char c = matcher.group().charAt(0);
+						switch (c) {
+							case '"':
+								out.write("&quot;");
+								break;
+							case '\'':
+								out.write("&apos;");
+								break;
+							case '<':
+								out.write("&lt;");
+								break;
+							case '>':
+								out.write("&gt;");
+								break;
+							default:
+								// should not be here
+								break;
+						}
+						idx = matcher.end();
+					}
+					if ( idx < attVal.length() ) {
+						out.write(attVal.substring(idx));
+					}
+
 					out.write('"');
 				}
 			}
