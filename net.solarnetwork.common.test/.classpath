@@ -12,6 +12,8 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/solarnetwork-osgi-target/support/slf4j-log4j12-1.7.26.jar"/>
+	<classpathentry kind="lib" path="/solarnetwork-osgi-target/support/log4j-api-2.17.2.jar" sourcepath="/solarnetwork-osgi-target/support/log4j-api-2.17.2-sources.jar"/>
+	<classpathentry kind="lib" path="/solarnetwork-osgi-target/support/log4j-core-2.17.2.jar" sourcepath="/solarnetwork-osgi-target/support/log4j-core-2.17.2-sources.jar"/>
+	<classpathentry kind="lib" path="/solarnetwork-osgi-target/support/log4j-slf4j-impl-2.17.2.jar" sourcepath="/solarnetwork-osgi-target/support/log4j-slf4j-impl-2.17.2-sources.jar"/>
 	<classpathentry kind="output" path="build/eclipse"/>
 </classpath>
