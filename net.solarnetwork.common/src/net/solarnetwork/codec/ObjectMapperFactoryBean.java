@@ -30,6 +30,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -79,7 +80,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * </dl>
  * 
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 		implements FactoryBean<ObjectMapper> {
@@ -140,6 +141,8 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 				m.configure((SerializationFeature) o, state);
 			} else if ( o instanceof DeserializationFeature ) {
 				m.configure((DeserializationFeature) o, state);
+			} else if ( o instanceof MapperFeature ) {
+				m.configure((MapperFeature) o, state);
 			}
 		}
 	}
