@@ -192,7 +192,7 @@ public class Result<T> {
 	 * @since 1.2
 	 */
 	public static <V> Result<V> success(V data) {
-		return new Result<V>(Boolean.TRUE, null, null, null, null);
+		return new Result<V>(Boolean.TRUE, null, null, null, data);
 	}
 
 	/**
