@@ -24,12 +24,14 @@
 
 package net.solarnetwork.domain;
 
+import java.util.Comparator;
+
 /**
  * Common API for identity information in SolarNetwork participating services.
  * 
  * @param <PK>
  *        the primary data type that uniquely identifies the object
- * @version 1.1
+ * @version 1.2
  * @author matt
  * @since 1.43
  */
@@ -62,6 +64,20 @@ public interface Identity<PK> extends Comparable<PK> {
 	 */
 	default boolean hasId() {
 		return getId() != null;
+	}
+
+	/**
+	 * Sort instances by their ID values.
+	 * 
+	 * @param <T>
+	 *        the {@code Identity} type
+	 * @param <PK>
+	 *        the {@code Identity} ID type
+	 * @return the comparator
+	 * @since 1.2
+	 */
+	static <T extends Identity<PK>, PK extends Comparable<PK>> Comparator<T> sortByIdentity() {
+		return (l, r) -> l.compareTo(r.getId());
 	}
 
 }
