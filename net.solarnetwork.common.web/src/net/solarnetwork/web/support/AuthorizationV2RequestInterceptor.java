@@ -56,7 +56,7 @@ import net.solarnetwork.web.security.AuthorizationCredentialsProvider;
  * </p>
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.16
  */
 public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInterceptor {
@@ -81,6 +81,11 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 
 		Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(
 				credentialsProvider.getAuthorizationId());
+
+		final byte[] signKey = credentialsProvider.getAuthorizationSigningKey();
+		if ( signKey != null ) {
+			builder.date(credentialsProvider.getAuthorizationSigningDate()).signingKey(signKey);
+		}
 		URI uri = request.getURI();
 		HttpHeaders headers = request.getHeaders();
 		if ( !headers.containsKey(HttpHeaders.HOST) ) {
@@ -116,8 +121,8 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 			log.debug("Signature data:\n{}", builder.computeSignatureData(Instant.ofEpochMilli(reqDate),
 					builder.computeCanonicalRequestMessage()));
 		}
-		headers.set(HttpHeaders.AUTHORIZATION,
-				builder.build(credentialsProvider.getAuthorizationSecret()));
+		headers.set(HttpHeaders.AUTHORIZATION, signKey != null ? builder.build()
+				: builder.build(credentialsProvider.getAuthorizationSecret()));
 		return execution.execute(request, body);
 	}
 

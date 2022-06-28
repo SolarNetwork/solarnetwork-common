@@ -22,11 +22,13 @@
 
 package net.solarnetwork.web.security;
 
+import java.time.Instant;
+
 /**
  * API for a provider of authorization credentials.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.16
  */
 public interface AuthorizationCredentialsProvider {
@@ -44,5 +46,27 @@ public interface AuthorizationCredentialsProvider {
 	 * @return the authorization secret
 	 */
 	String getAuthorizationSecret();
+
+	/**
+	 * Get a pre-computed signing key.
+	 * 
+	 * @return the pre-computed signing key, signed using the
+	 *         {@link #getAuthorizationSigningDate()} date, or {@literal null}
+	 *         if {@link #getAuthorizationSecret()} should be used
+	 * @see #getAuthorizationSigningDate()
+	 */
+	default byte[] getAuthorizationSigningKey() {
+		return null;
+	}
+
+	/**
+	 * Get the pre-computed signing key sign date.
+	 * 
+	 * @return the date used to sign {@link #getAuthorizationSigningKey()} if
+	 *         that is non-{@literal null}
+	 */
+	default Instant getAuthorizationSigningDate() {
+		return null;
+	}
 
 }

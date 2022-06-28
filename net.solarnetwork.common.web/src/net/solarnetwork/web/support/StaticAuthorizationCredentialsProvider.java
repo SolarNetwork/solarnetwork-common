@@ -22,19 +22,22 @@
 
 package net.solarnetwork.web.support;
 
+import java.time.Instant;
 import net.solarnetwork.web.security.AuthorizationCredentialsProvider;
 
 /**
  * A simple statically assigned authorization credentials provider.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.16
  */
 public class StaticAuthorizationCredentialsProvider implements AuthorizationCredentialsProvider {
 
 	private final String authorizationId;
 	private final String authorizationSecret;
+	private final byte[] signingKey;
+	private final Instant signingDate;
 
 	/**
 	 * Constructor.
@@ -48,6 +51,27 @@ public class StaticAuthorizationCredentialsProvider implements AuthorizationCred
 		super();
 		this.authorizationId = authorizationId;
 		this.authorizationSecret = authorizationSecret;
+		this.signingKey = null;
+		this.signingDate = null;
+	}
+
+	/**
+	 * Constructor for a signing key.
+	 * 
+	 * @param authorizationId
+	 *        the authorization ID
+	 * @param signingKey
+	 *        the authorization signing key
+	 * @param signingDate
+	 *        the authorization signing date
+	 */
+	public StaticAuthorizationCredentialsProvider(String authorizationId, byte[] signingKey,
+			Instant signingDate) {
+		super();
+		this.authorizationId = authorizationId;
+		this.authorizationSecret = null;
+		this.signingKey = signingKey;
+		this.signingDate = signingDate;
 	}
 
 	@Override
@@ -58,6 +82,16 @@ public class StaticAuthorizationCredentialsProvider implements AuthorizationCred
 	@Override
 	public String getAuthorizationSecret() {
 		return authorizationSecret;
+	}
+
+	@Override
+	public byte[] getAuthorizationSigningKey() {
+		return signingKey;
+	}
+
+	@Override
+	public Instant getAuthorizationSigningDate() {
+		return signingDate;
 	}
 
 }
