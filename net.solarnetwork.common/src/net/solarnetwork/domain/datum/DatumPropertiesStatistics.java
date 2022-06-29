@@ -111,6 +111,28 @@ public class DatumPropertiesStatistics implements Serializable {
 		return builder.toString();
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.deepHashCode(accumulating);
+		result = prime * result + Arrays.deepHashCode(instantaneous);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( !(obj instanceof DatumPropertiesStatistics) ) {
+			return false;
+		}
+		DatumPropertiesStatistics other = (DatumPropertiesStatistics) obj;
+		return Arrays.deepEquals(accumulating, other.accumulating)
+				&& Arrays.deepEquals(instantaneous, other.instantaneous);
+	}
+
 	/**
 	 * Get the overall number of array property values (first dimension).
 	 * 

@@ -26,6 +26,7 @@ import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -98,6 +99,24 @@ public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
 		}
 		builder.append("}");
 		return builder.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(properties, streamId, timestamp);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) {
+			return true;
+		}
+		if ( !(obj instanceof BasicStreamDatum) ) {
+			return false;
+		}
+		BasicStreamDatum other = (BasicStreamDatum) obj;
+		return Objects.equals(properties, other.properties) && Objects.equals(streamId, other.streamId)
+				&& Objects.equals(timestamp, other.timestamp);
 	}
 
 	@Override
