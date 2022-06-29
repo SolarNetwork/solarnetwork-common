@@ -1,7 +1,7 @@
 /* ==================================================================
- * BasicStreamDatum.java - 22/10/2020 10:02:38 am
+ * BasicAggregateStreamDatum.java - 29/06/2022 10:25:04 am
  * 
- * Copyright 2020 SolarNetwork.net Dev Team
+ * Copyright 2022 SolarNetwork.net Dev Team
  * 
  * This program is free software; you can redistribute it and/or 
  * modify it under the terms of the GNU General Public License as 
@@ -22,62 +22,51 @@
 
 package net.solarnetwork.domain.datum;
 
-import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.UUID;
 
 /**
- * Basic implementation of {@link StreamDatum}.
+ * Basic implementation of {@link AggregateStreamDatum}.
  * 
  * @author matt
  * @version 1.0
- * @since 1.72
+ * @since 2.7
  */
-public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
+public class BasicAggregateStreamDatum extends BasicStreamDatum implements AggregateStreamDatum {
 
-	private static final long serialVersionUID = -8735056339943547310L;
+	private static final long serialVersionUID = 2501630135742744682L;
 
-	private final UUID streamId;
-	private final Instant timestamp;
-	private final DatumProperties properties;
+	private final Instant endTimestamp;
+	private final DatumPropertiesStatistics statistics;
 
 	/**
-	 * Constructor.
-	 * 
 	 * @param streamId
-	 *        the stream ID
 	 * @param timestamp
-	 *        the timestamp
 	 * @param properties
-	 *        the optional samples
-	 * @throws IllegalArgumentException
-	 *         if {@code streamId} or {@code timestamp} are {@literal null}
 	 */
-	public BasicStreamDatum(UUID streamId, Instant timestamp, DatumProperties properties) {
-		super();
-		this.streamId = requireNonNullArgument(streamId, "streamId");
-		this.timestamp = requireNonNullArgument(timestamp, "timestamp");
-		this.properties = properties;
+	public BasicAggregateStreamDatum(UUID streamId, Instant timestamp, DatumProperties properties,
+			Instant endTimestamp, DatumPropertiesStatistics statistics) {
+		super(streamId, timestamp, properties);
+		this.endTimestamp = endTimestamp;
+		this.statistics = statistics;
 	}
 
 	@Override
-	public BasicStreamDatum clone() {
-		try {
-			return (BasicStreamDatum) super.clone();
-		} catch ( CloneNotSupportedException e ) {
-			throw new RuntimeException(e);
-		}
+	public BasicAggregateStreamDatum clone() {
+		return (BasicAggregateStreamDatum) super.clone();
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("BasicStreamDatum{streamId=");
-		builder.append(streamId);
+		builder.append("BasicAggregateStreamDatum{streamId=");
+		builder.append(getStreamId());
 		builder.append(", ts=");
-		builder.append(timestamp);
+		builder.append(getTimestamp());
+		builder.append(", endTs=");
+		builder.append(endTimestamp);
+		DatumProperties properties = getProperties();
 		if ( properties != null ) {
 			if ( properties.getInstantaneous() != null ) {
 				builder.append(", i=");
@@ -96,23 +85,28 @@ public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
 				builder.append(Arrays.toString(properties.getTags()));
 			}
 		}
+		if ( statistics != null ) {
+			if ( statistics.getInstantaneous() != null ) {
+				builder.append(", si=");
+				builder.append(Arrays.deepToString(statistics.getInstantaneous()));
+			}
+			if ( statistics.getAccumulating() != null ) {
+				builder.append(", sa=");
+				builder.append(Arrays.deepToString(statistics.getAccumulating()));
+			}
+		}
 		builder.append("}");
 		return builder.toString();
 	}
 
 	@Override
-	public Instant getTimestamp() {
-		return timestamp;
+	public Instant getEndTimestamp() {
+		return endTimestamp;
 	}
 
 	@Override
-	public UUID getStreamId() {
-		return streamId;
-	}
-
-	@Override
-	public DatumProperties getProperties() {
-		return properties;
+	public DatumPropertiesStatistics getStatistics() {
+		return statistics;
 	}
 
 }
