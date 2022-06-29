@@ -40,7 +40,7 @@ import java.util.Set;
  * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.72
  */
 public class DatumProperties implements Serializable {
@@ -289,6 +289,22 @@ public class DatumProperties implements Serializable {
 	}
 
 	/**
+	 * Get the value of a specific instantaneous property by index.
+	 * 
+	 * @param index
+	 *        the property index to return
+	 * @return the value, or {@literal null} if not available
+	 * @since 1.2
+	 */
+	public BigDecimal instantaneousValue(int index) {
+		final BigDecimal[] values = getInstantaneous();
+		if ( values != null && index < values.length ) {
+			return values[index];
+		}
+		return null;
+	}
+
+	/**
 	 * Get the accumulating values array length.
 	 * 
 	 * @return the number of accumulating values (including {@literal null}
@@ -316,6 +332,22 @@ public class DatumProperties implements Serializable {
 	 */
 	public void setAccumulating(BigDecimal[] values) {
 		this.accumulating = values;
+	}
+
+	/**
+	 * Get the value of a specific accumulating property by index.
+	 * 
+	 * @param index
+	 *        the property index to return
+	 * @return the value, or {@literal null} if not available
+	 * @since 1.2
+	 */
+	public BigDecimal accumulatingValue(int index) {
+		final BigDecimal[] values = getAccumulating();
+		if ( values != null && index < values.length ) {
+			return values[index];
+		}
+		return null;
 	}
 
 	/**
@@ -348,6 +380,22 @@ public class DatumProperties implements Serializable {
 	}
 
 	/**
+	 * Get the value of a specific status property by index.
+	 * 
+	 * @param index
+	 *        the property index to return
+	 * @return the value, or {@literal null} if not available
+	 * @since 1.2
+	 */
+	public String statusValue(int index) {
+		final String[] values = getStatus();
+		if ( values != null && index < values.length ) {
+			return values[index];
+		}
+		return null;
+	}
+
+	/**
 	 * Get the tags array length.
 	 * 
 	 * @return the number of tags (including {@literal null} values)
@@ -374,6 +422,27 @@ public class DatumProperties implements Serializable {
 	 */
 	public void setTags(String[] tags) {
 		this.tags = tags;
+	}
+
+	/**
+	 * Test if a specific tag exits (case-insensitive).
+	 * 
+	 * @param tag
+	 *        the tag to test for
+	 * @return {@literal true} if the given tag is present in the
+	 *         {@link #getTags()} array
+	 * @since 1.2
+	 */
+	public boolean hasTag(String tag) {
+		final String[] tags = getTags();
+		if ( tags != null ) {
+			for ( int i = 0, len = tags.length; i < len; i++ ) {
+				if ( tag.equalsIgnoreCase(tags[i]) ) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 }
