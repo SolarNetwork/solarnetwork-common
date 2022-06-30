@@ -88,6 +88,16 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 		}
 		URI uri = request.getURI();
 		HttpHeaders headers = request.getHeaders();
+
+		// for GET/HEAD/etc requests where no body is expected, remove any Content-Length header which may
+		// have been inserted, because it won't be sent in the request and will cause the signature
+		// check to fail
+		if ( headers.getContentLength() != -1 && !(request.getMethod().equals(HttpMethod.PATCH)
+				|| request.getMethod().equals(HttpMethod.POST)
+				|| request.getMethod().equals(HttpMethod.PUT)) ) {
+			headers.remove(HttpHeaders.CONTENT_LENGTH);
+		}
+
 		if ( !headers.containsKey(HttpHeaders.HOST) ) {
 			StringBuilder buf = new StringBuilder(uri.getHost());
 			if ( uri.getPort() > 0 && uri.getPort() != 80 ) {

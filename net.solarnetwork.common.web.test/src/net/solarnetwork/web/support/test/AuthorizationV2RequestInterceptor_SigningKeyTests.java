@@ -124,7 +124,7 @@ public class AuthorizationV2RequestInterceptor_SigningKeyTests {
 	        .andExpect(method(HttpMethod.GET))
 	        .andExpect(header(HttpHeaders.HOST, "localhost"))
 	        .andExpect(header(HttpHeaders.AUTHORIZATION, 
-	            startsWith("SNWS2 Credential=" + credentialsProvider.getAuthorizationId() + ",SignedHeaders=accept;content-length;date;host,Signature=")))
+	            startsWith("SNWS2 Credential=" + credentialsProvider.getAuthorizationId() + ",SignedHeaders=accept;date;host,Signature=")))
 	        .andRespond(withSuccess(responseBody, APPLICATION_JSON_UTF8).headers(respHeaders));
 	    // @formatter:on
 
