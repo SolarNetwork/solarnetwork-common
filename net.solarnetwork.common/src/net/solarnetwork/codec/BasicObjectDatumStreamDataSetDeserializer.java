@@ -111,7 +111,7 @@ public class BasicObjectDatumStreamDataSetDeserializer
 							int i = -2;
 							ObjectDatumStreamMetadata meta = null;
 							long ts = 0;
-							long tsEnd = 0;
+							long tsEnd = -1;
 
 							String[] iNames = null;
 							String[] aNames = null;
@@ -160,6 +160,8 @@ public class BasicObjectDatumStreamDataSetDeserializer
 										t = p.nextToken();
 										if ( t != JsonToken.VALUE_NULL ) {
 											tsEnd = p.getLongValue();
+										} else {
+											tsEnd = 0;
 										}
 										t = p.nextToken(); // consume end array
 										iStats = new BigDecimal[iLen][];
@@ -214,13 +216,14 @@ public class BasicObjectDatumStreamDataSetDeserializer
 									tags.add(p.getText());
 								}
 							}
-							if ( tsEnd > 0 ) {
+							if ( tsEnd > -1 ) {
 								data.add(new BasicAggregateStreamDatum(meta.getStreamId(),
 										ofEpochMilli(ts),
 										propertiesOf(iData, aData, sData,
 												tags != null ? tags.toArray(new String[tags.size()])
 														: null),
-										ofEpochMilli(tsEnd), statisticsOf(iStats, aStats)));
+										tsEnd > 0 ? ofEpochMilli(tsEnd) : null,
+										statisticsOf(iStats, aStats)));
 							} else {
 								data.add(new BasicStreamDatum(meta.getStreamId(), ofEpochMilli(ts),
 										propertiesOf(iData, aData, sData,

@@ -279,6 +279,61 @@ public class BasicObjectDatumStreamDataSetDeserializerTests {
 	}
 
 	@Test
+	public void oneStream_aggregate_nullEndDate() throws IOException {
+		// GIVEN
+		String json = ClassUtils.getResourceAsString("node-agg-stream-02.json", getClass());
+
+		// WHEN
+		@SuppressWarnings("unchecked")
+		ObjectDatumStreamDataSet<StreamDatum> result = mapper.readValue(json,
+				ObjectDatumStreamDataSet.class);
+
+		// THEN
+		assertThat("Result parsed", result, is(notNullValue()));
+
+		final UUID streamId = UUID.fromString("5514f762-2361-4ec2-98ab-7e96807b3255");
+		assertThat("Metadata parsed", result.metadataStreamIds(), containsInAnyOrder(streamId));
+		ObjectDatumStreamMetadata meta = result.metadataForStreamId(streamId);
+		assertThat("Stream ID parsed", meta.getStreamId(), is(streamId));
+		assertThat("Time zone parsed", meta.getTimeZoneId(), is("America/New_York"));
+		assertThat("Kind parsed", meta.getKind(), is(ObjectDatumKind.Node));
+		assertThat("Object ID parsed", meta.getObjectId(), is(123L));
+		assertThat("Source ID parsed", meta.getSourceId(), is("/pyrometer/1"));
+		assertThat("Instantaneous property names parsed",
+				meta.propertyNamesForType(DatumSamplesType.Instantaneous),
+				is(arrayContaining("irradiance", "temperature")));
+		assertThat("Accumulating property names parsed",
+				meta.propertyNamesForType(DatumSamplesType.Accumulating),
+				is(arrayContaining("irradianceHours")));
+		assertThat("Status property names parsed", meta.propertyNamesForType(DatumSamplesType.Status),
+				is(arrayContaining("state", "code")));
+
+		List<StreamDatum> data = StreamSupport.stream(result.spliterator(), false)
+				.collect(Collectors.toList());
+
+		assertThat("Data parsed", data, hasSize(1));
+
+		assertThat("Datum parsed as AggregateStreamDatum", data.get(0),
+				is(instanceOf(AggregateStreamDatum.class)));
+		AggregateStreamDatum d = (AggregateStreamDatum) data.get(0);
+		assertThat("Datum timestamp", d.getTimestamp(), is(ofEpochMilli(1650945600000L)));
+		assertThat("Datum end timestamp", d.getEndTimestamp(), is(nullValue()));
+		assertThat("Datum properties parsed", d.getProperties(), is(notNullValue()));
+		assertThat("Datum instantaneous values", d.getProperties().getInstantaneous(),
+				is(arrayContaining(decimalArray("3.6", "19.1"))));
+		assertThat("Datum instantaneous stats", d.getStatistics().getInstantaneous(),
+				is(arrayContaining(new BigDecimal[][] { decimalArray("2", "0", "7.2"),
+						decimalArray("2", "18.1", "20.1"), })));
+		assertThat("Datum accumulating values", d.getProperties().getAccumulating(),
+				is(arrayContaining(decimalArray("1.422802"))));
+		assertThat("Datum accumulating stats", d.getStatistics().getAccumulating(),
+				is(arrayContaining(new BigDecimal[][] { decimalArray("1138.446687", "1139.869489") })));
+		assertThat("Datum status values", d.getProperties().getStatus(),
+				is(arrayContaining("Nominal", "S1")));
+		assertThat("Datum tag values", d.getProperties().getTags(), is(arrayContaining("active")));
+	}
+
+	@Test
 	public void multiStream() throws IOException {
 		// GIVEN
 		UUID streamId1 = UUID.randomUUID();
