@@ -28,7 +28,7 @@ import java.util.UUID;
  * Metadata about a datum stream.
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 2.0
  */
 public interface DatumStreamMetadata {
@@ -63,5 +63,27 @@ public interface DatumStreamMetadata {
 	 *         {@code type} is {@link DatumSamplesType#Tag}
 	 */
 	String[] propertyNamesForType(DatumSamplesType type);
+
+	/**
+	 * Get the index of a specific property name.
+	 * 
+	 * @param type
+	 *        the type of property to get the index for
+	 * @param name
+	 *        the property name to search for
+	 * @return the index, or {@literal -1} if not available
+	 * @since 2.1
+	 */
+	default int propertyIndex(DatumSamplesType type, String name) {
+		String[] names = propertyNamesForType(type);
+		if ( names != null ) {
+			for ( int i = 0, len = names.length; i < len; i++ ) {
+				if ( name.equals(names[i]) ) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
 
 }

@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.codec.binary.Hex;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -66,7 +67,7 @@ import net.solarnetwork.web.support.StaticAuthorizationCredentialsProvider;
  * @author matt
  * @version 1.0
  */
-public class AuthorizationV2RequestInterceptorTests {
+public class AuthorizationV2RequestInterceptor_SigningKeyTests {
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	private static final String TEST_HOST = "localhost";
@@ -74,15 +75,27 @@ public class AuthorizationV2RequestInterceptorTests {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	private Instant signingDate;
+	private String tokenId;
+	private String tokenSecret;
+	private byte[] signingKey;
+	private String signingKeyHex;
 	private AuthorizationCredentialsProvider credentialsProvider;
 	private RestTemplate restTemplate;
 	private MockRestServiceServer server;
 
 	@Before
-	public void setup() {
+	public void setup() throws Exception {
 		restTemplate = new RestTemplate();
-		credentialsProvider = new StaticAuthorizationCredentialsProvider(randomUUID().toString(),
-				randomUUID().toString());
+
+		tokenId = randomUUID().toString();
+		tokenSecret = randomUUID().toString();
+		signingDate = Instant.now();
+		signingKeyHex = new Snws2AuthorizationBuilder(tokenId).date(signingDate)
+				.saveSigningKey(tokenSecret).signingKeyHex();
+		signingKey = Hex.decodeHex(signingKeyHex);
+		credentialsProvider = new StaticAuthorizationCredentialsProvider(tokenId, signingKey,
+				signingDate);
 		setupRestTemplateInterceptors(credentialsProvider);
 		server = MockRestServiceServer.createServer(restTemplate);
 	}
@@ -137,6 +150,8 @@ public class AuthorizationV2RequestInterceptorTests {
 
 		// @formatter:off
 		Snws2AuthorizationBuilder auth = new Snws2AuthorizationBuilder(credentialsProvider.getAuthorizationId())
+				.date(signingDate)
+				.signingKey(signingKey)
 				.method(HttpMethod.POST.toString())
 				.host(TEST_HOST)
 				.path("/foo/bar")
@@ -149,7 +164,7 @@ public class AuthorizationV2RequestInterceptorTests {
 		log.debug("Canonical req data:\n{}", auth.computeCanonicalRequestMessage());
 		log.debug("Signature data:\n{}", auth.computeSignatureData(Instant.ofEpochMilli(reqDate), auth.computeCanonicalRequestMessage()));
 		
-		final String authHeader = auth.build(credentialsProvider.getAuthorizationSecret());
+		final String authHeader = auth.build();
 
 	    server.expect(requestTo(startsWith(TEST_BASE_URL + "/foo/bar")))
 	        .andExpect(method(HttpMethod.POST))

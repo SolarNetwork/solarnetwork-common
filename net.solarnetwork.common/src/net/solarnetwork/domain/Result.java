@@ -46,10 +46,11 @@ public class Result<T> {
 	/**
 	 * An error detail object.
 	 */
-	@JsonPropertyOrder({ "location", "rejectedValue", "message" })
+	@JsonPropertyOrder({ "location", "code", "rejectedValue", "message" })
 	public static class ErrorDetail {
 
 		private final String location;
+		private final String code;
 		private final String rejectedValue;
 		private final String message;
 
@@ -59,14 +60,34 @@ public class Result<T> {
 		 * @param location
 		 *        the error location, such as a bean-style path, or
 		 *        {@literal null} for an overall error
+		 * @param code
+		 *        the code
 		 * @param rejectedValue
 		 *        the value the rejected value, if available
 		 * @param message
 		 *        the error message
 		 */
 		public ErrorDetail(String location, String rejectedValue, String message) {
+			this(location, null, rejectedValue, message);
+		}
+
+		/**
+		 * Constructor.
+		 * 
+		 * @param location
+		 *        the error location, such as a bean-style path, or
+		 *        {@literal null} for an overall error
+		 * @param code
+		 *        the code
+		 * @param rejectedValue
+		 *        the value the rejected value, if available
+		 * @param message
+		 *        the error message
+		 */
+		public ErrorDetail(String location, String code, String rejectedValue, String message) {
 			super();
 			this.location = location;
+			this.code = code;
 			this.rejectedValue = rejectedValue;
 			this.message = message;
 		}
@@ -78,6 +99,15 @@ public class Result<T> {
 		 */
 		public String getLocation() {
 			return location;
+		}
+
+		/**
+		 * Get an error code.
+		 * 
+		 * @return the code
+		 */
+		public String getCode() {
+			return code;
 		}
 
 		/**

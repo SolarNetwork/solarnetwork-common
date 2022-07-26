@@ -23,6 +23,7 @@
 package net.solarnetwork.codec.test;
 
 import static java.lang.String.format;
+import static java.time.Instant.ofEpochMilli;
 import static net.solarnetwork.util.NumberUtils.decimalArray;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
@@ -30,10 +31,12 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -46,11 +49,13 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.codec.BasicObjectDatumStreamDataSetDeserializer;
+import net.solarnetwork.domain.datum.AggregateStreamDatum;
 import net.solarnetwork.domain.datum.DatumSamplesType;
 import net.solarnetwork.domain.datum.ObjectDatumKind;
 import net.solarnetwork.domain.datum.ObjectDatumStreamDataSet;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.StreamDatum;
+import net.solarnetwork.util.ClassUtils;
 
 /**
  * Test cases for the {@link BasicObjectDatumStreamDataSetDeserializer} class.
@@ -216,6 +221,116 @@ public class BasicObjectDatumStreamDataSetDeserializerTests {
 		assertThat("Result metadata is empty", result.metadataStreamIds(), is(empty()));
 		assertThat("Result data is empty", result.getResults(), is(emptyIterable()));
 
+	}
+
+	@Test
+	public void oneStream_aggregate() throws IOException {
+		// GIVEN
+		String json = ClassUtils.getResourceAsString("node-agg-stream-01.json", getClass());
+
+		// WHEN
+		@SuppressWarnings("unchecked")
+		ObjectDatumStreamDataSet<StreamDatum> result = mapper.readValue(json,
+				ObjectDatumStreamDataSet.class);
+
+		// THEN
+		assertThat("Result parsed", result, is(notNullValue()));
+
+		final UUID streamId = UUID.fromString("5514f762-2361-4ec2-98ab-7e96807b3255");
+		assertThat("Metadata parsed", result.metadataStreamIds(), containsInAnyOrder(streamId));
+		ObjectDatumStreamMetadata meta = result.metadataForStreamId(streamId);
+		assertThat("Stream ID parsed", meta.getStreamId(), is(streamId));
+		assertThat("Time zone parsed", meta.getTimeZoneId(), is("America/New_York"));
+		assertThat("Kind parsed", meta.getKind(), is(ObjectDatumKind.Node));
+		assertThat("Object ID parsed", meta.getObjectId(), is(123L));
+		assertThat("Source ID parsed", meta.getSourceId(), is("/pyrometer/1"));
+		assertThat("Instantaneous property names parsed",
+				meta.propertyNamesForType(DatumSamplesType.Instantaneous),
+				is(arrayContaining("irradiance", "temperature")));
+		assertThat("Accumulating property names parsed",
+				meta.propertyNamesForType(DatumSamplesType.Accumulating),
+				is(arrayContaining("irradianceHours")));
+		assertThat("Status property names parsed", meta.propertyNamesForType(DatumSamplesType.Status),
+				is(arrayContaining("state", "code")));
+
+		List<StreamDatum> data = StreamSupport.stream(result.spliterator(), false)
+				.collect(Collectors.toList());
+
+		assertThat("Data parsed", data, hasSize(1));
+
+		assertThat("Datum parsed as AggregateStreamDatum", data.get(0),
+				is(instanceOf(AggregateStreamDatum.class)));
+		AggregateStreamDatum d = (AggregateStreamDatum) data.get(0);
+		assertThat("Datum timestamp", d.getTimestamp(), is(ofEpochMilli(1650945600000L)));
+		assertThat("Datum end timestamp", d.getEndTimestamp(), is(ofEpochMilli(1651032000000L)));
+		assertThat("Datum properties parsed", d.getProperties(), is(notNullValue()));
+		assertThat("Datum instantaneous values", d.getProperties().getInstantaneous(),
+				is(arrayContaining(decimalArray("3.6", "19.1"))));
+		assertThat("Datum instantaneous stats", d.getStatistics().getInstantaneous(),
+				is(arrayContaining(new BigDecimal[][] { decimalArray("2", "0", "7.2"),
+						decimalArray("2", "18.1", "20.1"), })));
+		assertThat("Datum accumulating values", d.getProperties().getAccumulating(),
+				is(arrayContaining(decimalArray("1.422802"))));
+		assertThat("Datum accumulating stats", d.getStatistics().getAccumulating(),
+				is(arrayContaining(new BigDecimal[][] { decimalArray("1138.446687", "1139.869489") })));
+		assertThat("Datum status values", d.getProperties().getStatus(),
+				is(arrayContaining("Nominal", "S1")));
+		assertThat("Datum tag values", d.getProperties().getTags(), is(arrayContaining("active")));
+	}
+
+	@Test
+	public void oneStream_aggregate_nullEndDate() throws IOException {
+		// GIVEN
+		String json = ClassUtils.getResourceAsString("node-agg-stream-02.json", getClass());
+
+		// WHEN
+		@SuppressWarnings("unchecked")
+		ObjectDatumStreamDataSet<StreamDatum> result = mapper.readValue(json,
+				ObjectDatumStreamDataSet.class);
+
+		// THEN
+		assertThat("Result parsed", result, is(notNullValue()));
+
+		final UUID streamId = UUID.fromString("5514f762-2361-4ec2-98ab-7e96807b3255");
+		assertThat("Metadata parsed", result.metadataStreamIds(), containsInAnyOrder(streamId));
+		ObjectDatumStreamMetadata meta = result.metadataForStreamId(streamId);
+		assertThat("Stream ID parsed", meta.getStreamId(), is(streamId));
+		assertThat("Time zone parsed", meta.getTimeZoneId(), is("America/New_York"));
+		assertThat("Kind parsed", meta.getKind(), is(ObjectDatumKind.Node));
+		assertThat("Object ID parsed", meta.getObjectId(), is(123L));
+		assertThat("Source ID parsed", meta.getSourceId(), is("/pyrometer/1"));
+		assertThat("Instantaneous property names parsed",
+				meta.propertyNamesForType(DatumSamplesType.Instantaneous),
+				is(arrayContaining("irradiance", "temperature")));
+		assertThat("Accumulating property names parsed",
+				meta.propertyNamesForType(DatumSamplesType.Accumulating),
+				is(arrayContaining("irradianceHours")));
+		assertThat("Status property names parsed", meta.propertyNamesForType(DatumSamplesType.Status),
+				is(arrayContaining("state", "code")));
+
+		List<StreamDatum> data = StreamSupport.stream(result.spliterator(), false)
+				.collect(Collectors.toList());
+
+		assertThat("Data parsed", data, hasSize(1));
+
+		assertThat("Datum parsed as AggregateStreamDatum", data.get(0),
+				is(instanceOf(AggregateStreamDatum.class)));
+		AggregateStreamDatum d = (AggregateStreamDatum) data.get(0);
+		assertThat("Datum timestamp", d.getTimestamp(), is(ofEpochMilli(1650945600000L)));
+		assertThat("Datum end timestamp", d.getEndTimestamp(), is(nullValue()));
+		assertThat("Datum properties parsed", d.getProperties(), is(notNullValue()));
+		assertThat("Datum instantaneous values", d.getProperties().getInstantaneous(),
+				is(arrayContaining(decimalArray("3.6", "19.1"))));
+		assertThat("Datum instantaneous stats", d.getStatistics().getInstantaneous(),
+				is(arrayContaining(new BigDecimal[][] { decimalArray("2", "0", "7.2"),
+						decimalArray("2", "18.1", "20.1"), })));
+		assertThat("Datum accumulating values", d.getProperties().getAccumulating(),
+				is(arrayContaining(decimalArray("1.422802"))));
+		assertThat("Datum accumulating stats", d.getStatistics().getAccumulating(),
+				is(arrayContaining(new BigDecimal[][] { decimalArray("1138.446687", "1139.869489") })));
+		assertThat("Datum status values", d.getProperties().getStatus(),
+				is(arrayContaining("Nominal", "S1")));
+		assertThat("Datum tag values", d.getProperties().getTags(), is(arrayContaining("active")));
 	}
 
 	@Test

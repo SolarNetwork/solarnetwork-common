@@ -30,6 +30,7 @@ import static net.solarnetwork.codec.BasicObjectDatumStreamDataSetSerializer.RET
 import static net.solarnetwork.codec.BasicObjectDatumStreamDataSetSerializer.STARTING_OFFSET_FIELD_NAME;
 import static net.solarnetwork.codec.BasicObjectDatumStreamDataSetSerializer.TOTAL_RESULT_COUNT_FIELD_NAME;
 import static net.solarnetwork.domain.datum.DatumProperties.propertiesOf;
+import static net.solarnetwork.domain.datum.DatumPropertiesStatistics.statisticsOf;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -40,6 +41,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import net.solarnetwork.domain.datum.AggregateStreamDatum;
+import net.solarnetwork.domain.datum.BasicAggregateStreamDatum;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamDataSet;
 import net.solarnetwork.domain.datum.BasicStreamDatum;
 import net.solarnetwork.domain.datum.DatumSamplesType;
@@ -50,8 +53,13 @@ import net.solarnetwork.domain.datum.StreamDatum;
 /**
  * Deserializer for {@link ObjectDatumStreamDataSet}.
  * 
+ * <p>
+ * Note that {@link AggregateStreamDatum} instances will be returned when
+ * appropriate.
+ * </p>
+ * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.4
  */
 public class BasicObjectDatumStreamDataSetDeserializer
@@ -75,8 +83,7 @@ public class BasicObjectDatumStreamDataSetDeserializer
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {
 			return null;
-		} else if ( p.isExpectedStartObjectToken() ) {/*-&& p.nextFieldName(META_FIELD_NAME)
-				&& p.nextToken() == JsonToken.START_OBJECT ) {*/
+		} else if ( p.isExpectedStartObjectToken() ) {
 			Integer returnedResultCount = null;
 			Integer startingOffset = null;
 			Long totalResultCount = null;
@@ -104,6 +111,7 @@ public class BasicObjectDatumStreamDataSetDeserializer
 							int i = -2;
 							ObjectDatumStreamMetadata meta = null;
 							long ts = 0;
+							long tsEnd = -1;
 
 							String[] iNames = null;
 							String[] aNames = null;
@@ -119,6 +127,8 @@ public class BasicObjectDatumStreamDataSetDeserializer
 							BigDecimal[] aData = null;
 							String[] sData = null;
 							List<String> tags = null;
+							BigDecimal[][] iStats = null;
+							BigDecimal[][] aStats = null;
 
 							for ( t = p.nextToken(); t != null
 									&& t != JsonToken.END_ARRAY; t = p.nextToken(), i++ ) {
@@ -143,12 +153,60 @@ public class BasicObjectDatumStreamDataSetDeserializer
 									aData = (aLen > 0 ? new BigDecimal[aLen] : null);
 									sData = (sLen > 0 ? new String[sLen] : null);
 								} else if ( i == -1 ) {
-									ts = p.getLongValue();
+									if ( t == JsonToken.START_ARRAY ) {
+										// we have a 2-element start/end array
+										t = p.nextToken();
+										ts = p.getLongValue();
+										t = p.nextToken();
+										if ( t != JsonToken.VALUE_NULL ) {
+											tsEnd = p.getLongValue();
+										} else {
+											tsEnd = 0;
+										}
+										t = p.nextToken(); // consume end array
+										iStats = new BigDecimal[iLen][];
+										aStats = new BigDecimal[aLen][];
+									} else {
+										ts = p.getLongValue();
+									}
 								} else if ( iLen > 0 && i < aStart ) {
-									iData[i] = (t == JsonToken.VALUE_NULL ? null : p.getDecimalValue());
+									if ( t == JsonToken.START_ARRAY ) {
+										BigDecimal[] stats = new BigDecimal[3];
+										iStats[i] = stats;
+										int j = -1;
+										for ( t = p.nextToken(); t != null
+												&& t != JsonToken.END_ARRAY; t = p.nextToken(), j++ ) {
+											if ( j < 0 ) {
+												iData[i] = (t == JsonToken.VALUE_NULL ? null
+														: p.getDecimalValue());
+											} else if ( j < 3 ) {
+												stats[j] = (t == JsonToken.VALUE_NULL ? null
+														: p.getDecimalValue());
+											}
+										}
+									} else {
+										iData[i] = (t == JsonToken.VALUE_NULL ? null
+												: p.getDecimalValue());
+									}
 								} else if ( aLen > 0 && i < sStart ) {
-									aData[i - aStart] = (t == JsonToken.VALUE_NULL ? null
-											: p.getDecimalValue());
+									if ( t == JsonToken.START_ARRAY ) {
+										BigDecimal[] stats = new BigDecimal[2];
+										aStats[i - aStart] = stats;
+										int j = -1;
+										for ( t = p.nextToken(); t != null
+												&& t != JsonToken.END_ARRAY; t = p.nextToken(), j++ ) {
+											if ( j < 0 ) {
+												aData[i - aStart] = (t == JsonToken.VALUE_NULL ? null
+														: p.getDecimalValue());
+											} else if ( j < 2 ) {
+												stats[j] = (t == JsonToken.VALUE_NULL ? null
+														: p.getDecimalValue());
+											}
+										}
+									} else {
+										aData[i - aStart] = (t == JsonToken.VALUE_NULL ? null
+												: p.getDecimalValue());
+									}
 								} else if ( sLen > 0 && i < tStart ) {
 									sData[i - sStart] = (t == JsonToken.VALUE_NULL ? null : p.getText());
 								} else if ( t == JsonToken.VALUE_STRING ) {
@@ -158,10 +216,20 @@ public class BasicObjectDatumStreamDataSetDeserializer
 									tags.add(p.getText());
 								}
 							}
-							data.add(new BasicStreamDatum(meta.getStreamId(), ofEpochMilli(ts),
-									propertiesOf(iData, aData, sData,
-											tags != null ? tags.toArray(new String[tags.size()])
-													: null)));
+							if ( tsEnd > -1 ) {
+								data.add(new BasicAggregateStreamDatum(meta.getStreamId(),
+										ofEpochMilli(ts),
+										propertiesOf(iData, aData, sData,
+												tags != null ? tags.toArray(new String[tags.size()])
+														: null),
+										tsEnd > 0 ? ofEpochMilli(tsEnd) : null,
+										statisticsOf(iStats, aStats)));
+							} else {
+								data.add(new BasicStreamDatum(meta.getStreamId(), ofEpochMilli(ts),
+										propertiesOf(iData, aData, sData,
+												tags != null ? tags.toArray(new String[tags.size()])
+														: null)));
+							}
 						}
 					}
 				}

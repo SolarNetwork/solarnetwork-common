@@ -56,7 +56,7 @@ import net.solarnetwork.web.security.AuthorizationCredentialsProvider;
  * </p>
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.16
  */
 public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInterceptor {
@@ -81,8 +81,23 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 
 		Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(
 				credentialsProvider.getAuthorizationId());
+
+		final byte[] signKey = credentialsProvider.getAuthorizationSigningKey();
+		if ( signKey != null ) {
+			builder.date(credentialsProvider.getAuthorizationSigningDate()).signingKey(signKey);
+		}
 		URI uri = request.getURI();
 		HttpHeaders headers = request.getHeaders();
+
+		// for GET/HEAD/etc requests where no body is expected, remove any Content-Length header which may
+		// have been inserted, because it won't be sent in the request and will cause the signature
+		// check to fail
+		if ( headers.getContentLength() != -1 && !(request.getMethod().equals(HttpMethod.PATCH)
+				|| request.getMethod().equals(HttpMethod.POST)
+				|| request.getMethod().equals(HttpMethod.PUT)) ) {
+			headers.remove(HttpHeaders.CONTENT_LENGTH);
+		}
+
 		if ( !headers.containsKey(HttpHeaders.HOST) ) {
 			StringBuilder buf = new StringBuilder(uri.getHost());
 			if ( uri.getPort() > 0 && uri.getPort() != 80 ) {
@@ -116,8 +131,8 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 			log.debug("Signature data:\n{}", builder.computeSignatureData(Instant.ofEpochMilli(reqDate),
 					builder.computeCanonicalRequestMessage()));
 		}
-		headers.set(HttpHeaders.AUTHORIZATION,
-				builder.build(credentialsProvider.getAuthorizationSecret()));
+		headers.set(HttpHeaders.AUTHORIZATION, signKey != null ? builder.build()
+				: builder.build(credentialsProvider.getAuthorizationSecret()));
 		return execution.execute(request, body);
 	}
 
