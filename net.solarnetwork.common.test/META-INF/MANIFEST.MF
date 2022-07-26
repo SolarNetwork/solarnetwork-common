@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Test
+Bundle-Description: Common testing support for SolarNetwork projects.
 Bundle-SymbolicName: net.solarnetwork.common.test
 Automatic-Module-Name: net.solarnetwork.common.test
 Bundle-Version: 1.19.0

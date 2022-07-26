@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Spring Expression Service
+Bundle-Description: Spring Expression implementation of ExpressionService.
 Bundle-SymbolicName: net.solarnetwork.common.expr.spel
 Bundle-Version: 2.0.0
 Bundle-Vendor: SolarNetwork
