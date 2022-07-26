@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bouncy Castle PKI
+Bundle-Description: Public key infrastructure support using Bouncy Castle.
 Bundle-SymbolicName: net.solarnetwork.common.pki.bc
 Automatic-Module-Name: net.solarnetwork.common.pki.bc
 Bundle-Version: 2.0.0

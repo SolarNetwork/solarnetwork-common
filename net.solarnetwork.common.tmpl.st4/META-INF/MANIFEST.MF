@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: StringTemplate 4 templating support
+Bundle-Description: String templating support using the StringTemplate 4 library.
 Bundle-SymbolicName: net.solarnetwork.common.tmpl.st4
 Bundle-Version: 2.0.0
 Automatic-Module-Name: net.solarnetwork.common.tmpl.st4
