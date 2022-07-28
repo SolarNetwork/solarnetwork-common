@@ -68,6 +68,7 @@ import net.solarnetwork.ocpp.service.ActionMessageQueue;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.ChargePointBroker;
 import net.solarnetwork.ocpp.service.SimpleActionMessageQueue;
+import net.solarnetwork.security.AuthorizationException;
 import net.solarnetwork.settings.SettingsChangeObserver;
 import ocpp.domain.Action;
 import ocpp.domain.ErrorCode;
@@ -939,6 +940,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 					if ( p.isMessageSupported(message) ) {
 						processed = true;
 						p.processActionMessage(message, handler);
+					}
+				} catch ( AuthorizationException e ) {
+					if ( handled.compareAndSet(false, true) ) {
+						sendCallError(session, clientId, messageId, errorCode(RpcError.SecurityError),
+								"Authorization error handling action.", null);
 					}
 				} catch ( Throwable t ) {
 					if ( handled.compareAndSet(false, true) ) {
