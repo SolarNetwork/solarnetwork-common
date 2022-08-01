@@ -106,6 +106,41 @@ public class OcppWebSocketHandlerV16Tests {
 	}
 
 	@Test
+	public void orderedProcessors() throws Exception {
+		// GIVEN
+		final ChargePointIdentity cpIdent = new ChargePointIdentity("foo", "user");
+		final Map<String, Object> sessionAttributes = Collections
+				.singletonMap(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR, cpIdent);
+		expect(session.getAttributes()).andReturn(sessionAttributes).anyTimes();
+		handler.addActionMessageProcessor(new HeartbeatProcessor());
+		handler.addActionMessageProcessor(new HeartbeatProcessor() {
+
+			@Override
+			public void processActionMessage(ActionMessage<HeartbeatRequest> message,
+					ActionMessageResultHandler<HeartbeatRequest, HeartbeatResponse> resultHandler) {
+				resultHandler.handleActionMessageResult(message, null, new RuntimeException("Nope!"));
+			}
+
+		});
+
+		// send HeartbeatResponse
+		Capture<TextMessage> outMessageCaptor = Capture.newInstance();
+		session.sendMessage(capture(outMessageCaptor));
+
+		// WHEN
+		replayAll();
+		handler.afterConnectionEstablished(session);
+		TextMessage msg = new TextMessage("[2,\"1603881305171\",\"Heartbeat\",{}]");
+		handler.handleMessage(session, msg);
+
+		// THEN
+		TextMessage outMsg = outMessageCaptor.getValue();
+		assertThat("Heartbeat response message sent", outMsg, notNullValue());
+		assertThat("Heartbeat response message content", outMsg.getPayload()
+				.matches("\\[3,\"1603881305171\",\\{\"currentTime\":\"[^\"]+\"\\}\\]"), equalTo(true));
+	}
+
+	@Test
 	public void authorizationException() throws Exception {
 		final ChargePointIdentity cpIdent = new ChargePointIdentity("foo", "user");
 		final Map<String, Object> sessionAttributes = Collections

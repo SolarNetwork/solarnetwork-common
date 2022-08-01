@@ -28,13 +28,13 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Deque;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -116,7 +116,7 @@ import ocpp.v16.cs.json.CentralServiceActionPayloadDecoder;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler
@@ -137,7 +137,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	private final Class<C> chargePointActionClass;
 	private final Class<S> centralSystemActionClass;
 	private final ErrorCodeResolver errorCodeResolver;
-	private final ConcurrentMap<Action, Set<ActionMessageProcessor<Object, Object>>> processors;
+	private final Map<Action, Set<ActionMessageProcessor<Object, Object>>> processors;
 	private final ConcurrentMap<ChargePointIdentity, WebSocketSession> clientSessions;
 	private final ActionMessageQueue pendingMessages;
 	private final ObjectMapper mapper;
@@ -1045,7 +1045,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			processors.compute(action, (k, v) -> {
 				Set<ActionMessageProcessor<Object, Object>> procs = v;
 				if ( procs == null ) {
-					procs = new CopyOnWriteArraySet<>();
+					procs = new LinkedHashSet<>();
 				}
 				procs.add((ActionMessageProcessor<Object, Object>) processor);
 				return procs;
