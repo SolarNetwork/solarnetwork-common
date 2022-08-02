@@ -54,7 +54,7 @@ import net.solarnetwork.service.PasswordEncoder;
  * </p>
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
@@ -166,6 +166,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 						"OCPP handshake request rejected for {}, system user {} does not allow this charge point.",
 						identifier, username);
 				response.setStatusCode(HttpStatus.FORBIDDEN);
+				didForbidChargerConnection(user, "Charge point not allowed");
 				return false;
 			}
 			if ( user.getPassword() != null ) {
@@ -175,6 +176,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 							"OCPP handshake request rejected for {}, system user {} password does not match.",
 							identifier, username);
 					response.setStatusCode(HttpStatus.FORBIDDEN);
+					didForbidChargerConnection(user, "Invalid credentials");
 					return false;
 				}
 			}
@@ -182,6 +184,19 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Extension point after a forbidden charger connection (but when the
+	 * {@link SystemUser} is known.
+	 * 
+	 * @param user
+	 *        the system user
+	 * @param reason
+	 *        the reason
+	 */
+	protected void didForbidChargerConnection(SystemUser user, String reason) {
+		// extending classes can override		
 	}
 
 	private String[] decodeBasicAuthorizationHeader(String header) {

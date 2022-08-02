@@ -116,7 +116,7 @@ import ocpp.v16.cs.json.CentralServiceActionPayloadDecoder;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler
@@ -829,31 +829,80 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			final String messageId, final ocpp.domain.Action action, final Object payload) {
 		Object[] msg = new Object[] { MessageType.Call.getNumber(), messageId, action.getName(),
 				payload };
+		String json = null;
 		try {
-			String json = mapper.writeValueAsString(msg);
+			json = mapper.writeValueAsString(msg);
 			log.trace("OCPP {} >>> {}", clientId, json);
 			session.sendMessage(new TextMessage(json));
+			didSendCall(clientId, messageId, action, payload, json, null);
 			return true;
 		} catch ( IOException e ) {
 			log.warn("OCPP {} >>> Communication error sending Call for message ID {}: {}", clientId,
 					messageId, e.getMessage());
+			didSendCall(clientId, messageId, action, payload, json, e);
 		}
 		return false;
+	}
+
+	/**
+	 * Extension point for after an OCPP call has been sent.
+	 * 
+	 * @param clientId
+	 *        the client ID
+	 * @param messageId
+	 *        the message ID
+	 * @param action
+	 *        the action
+	 * @param payload
+	 *        the payload
+	 * @param json
+	 *        the full JSON message sent
+	 * @param exception
+	 *        an exception, if an error occurred
+	 * @since 1.4
+	 */
+	protected void didSendCall(final ChargePointIdentity clientId, final String messageId,
+			final ocpp.domain.Action action, final Object payload, final String json,
+			final Throwable exception) {
+		// extending classes can override
 	}
 
 	private boolean sendCallResult(final WebSocketSession session, final ChargePointIdentity clientId,
 			final String messageId, final Object payload) {
 		Object[] msg = new Object[] { MessageType.CallResult.getNumber(), messageId, payload };
+		String json = null;
 		try {
-			String json = mapper.writeValueAsString(msg);
+			json = mapper.writeValueAsString(msg);
 			log.trace("OCPP {} >>> {}", clientId, json);
 			session.sendMessage(new TextMessage(json));
+			didSendCallResult(clientId, messageId, payload, json, null);
 			return true;
 		} catch ( IOException e ) {
 			log.warn("OCPP {} >>> Communication error sending CallResult for message ID {}: {}",
 					clientId, messageId, e.getMessage());
+			didSendCallResult(clientId, messageId, payload, json, e);
 		}
 		return false;
+	}
+
+	/**
+	 * Extension point for after an OCPP call result has been sent.
+	 * 
+	 * @param clientId
+	 *        the client ID
+	 * @param messageId
+	 *        the message ID
+	 * @param payload
+	 *        the payload
+	 * @param json
+	 *        the full JSON message sent
+	 * @param exception
+	 *        an exception, if an error occurred
+	 * @since 1.4
+	 */
+	protected void didSendCallResult(final ChargePointIdentity clientId, final String messageId,
+			final Object payload, final String json, final Throwable exception) {
+		// extending classes can override
 	}
 
 	private boolean sendCallError(final WebSocketSession session, final ChargePointIdentity clientId,
@@ -861,16 +910,44 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			final Map<String, ?> details) {
 		Object[] msg = new Object[] { MessageType.CallError.getNumber(), messageId, errorCode.getName(),
 				errorDescription, details != null ? details : Collections.emptyMap() };
+		String json = null;
 		try {
-			String json = mapper.writeValueAsString(msg);
+			json = mapper.writeValueAsString(msg);
 			log.trace("OCPP {} >>> {}", clientId, json);
 			session.sendMessage(new TextMessage(json));
+			didSendCallError(clientId, messageId, errorCode, errorDescription, details, json, null);
 			return true;
 		} catch ( IOException e ) {
 			log.warn("OCPP {} >>> Communication error sending CallError for message ID {}: {}", clientId,
 					messageId, e.getMessage());
+			didSendCallError(clientId, messageId, errorCode, errorDescription, details, json, e);
 		}
 		return false;
+	}
+
+	/**
+	 * Extension point for after an OCPP call error has been sent.
+	 * 
+	 * @param clientId
+	 *        the client ID
+	 * @param messageId
+	 *        the message ID
+	 * @param errorCode
+	 *        the error code
+	 * @param errorDescription
+	 *        the error description
+	 * @param details
+	 *        the error details
+	 * @param json
+	 *        the full JSON message sent
+	 * @param exception
+	 *        an exception, if an error occurred
+	 * @since 1.4
+	 */
+	protected void didSendCallError(final ChargePointIdentity clientId, final String messageId,
+			final ErrorCode errorCode, final String errorDescription, final Map<String, ?> details,
+			final String json, Throwable exception) {
+		// extending classes can override
 	}
 
 	/**
@@ -884,6 +961,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * </p>
 	 * 
 	 * @param msg
+	 *        the message to process
 	 */
 	private void processRequest(PendingActionMessage msg) {
 		final AtomicBoolean handled = new AtomicBoolean(false);
@@ -899,6 +977,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 				handled.set(true);
 				return;
 			}
+			willProcessRequest(msg);
 			final Set<ActionMessageProcessor<Object, Object>> procs = processors.get(action);
 			if ( procs == null ) {
 				sendCallError(session, clientId, messageId, errorCode(RpcError.ActionNotImplemented),
@@ -963,6 +1042,16 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 				removePendingMessage(msg);
 			}
 		}
+	}
+
+	/**
+	 * Extension point for before an action message is to be processed.
+	 * 
+	 * @param msg
+	 *        the message
+	 */
+	protected void willProcessRequest(PendingActionMessage msg) {
+		// extending classes can override
 	}
 
 	private void removePendingMessage(PendingActionMessage msg) {
