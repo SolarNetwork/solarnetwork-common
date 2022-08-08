@@ -279,6 +279,24 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	 *------------------ */
 
 	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder(getClass().getSimpleName());
+		builder.append("{");
+		if ( getUid() != null ) {
+			builder.append(getUid());
+			builder.append(',');
+		}
+		URI uri = getConnectionConfig().getServerUri();
+		if ( uri != null ) {
+			builder.append(uri);
+		} else {
+			builder.append("n/a");
+		}
+		builder.append("}");
+		return builder.toString();
+	}
+
+	@Override
 	public String getPingTestId() {
 		return getClass().getName() + "-" + getUid();
 	}
