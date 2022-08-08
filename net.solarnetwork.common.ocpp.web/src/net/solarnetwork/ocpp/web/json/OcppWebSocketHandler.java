@@ -116,7 +116,7 @@ import ocpp.v16.cs.json.CentralServiceActionPayloadDecoder;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler
@@ -819,6 +819,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 						"Error parsing payload: " + e.getMessage(), e);
 			}
 
+			willProcessCallResponse(msg, payload, err);
 			msg.getHandler().handleActionMessageResult(msg.getMessage(), payload, err);
 		} finally {
 			processNextPendingMessage(clientId);
@@ -1061,6 +1062,22 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			q.removeFirstOccurrence(msg);
 			processNextPendingMessage(q);
 		}
+	}
+
+	/**
+	 * Extension point for before a call response is processed.
+	 * 
+	 * @param msg
+	 *        the message
+	 * @param payload
+	 *        the payload
+	 * @param exception
+	 *        an exception, if an error occurred
+	 * @since 1.4
+	 */
+	protected void willProcessCallResponse(PendingActionMessage msg, final Object payload,
+			final Throwable exception) {
+		// extending classes can override
 	}
 
 	/**
