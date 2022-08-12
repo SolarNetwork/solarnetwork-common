@@ -137,6 +137,29 @@ public interface MqttConnectionConfig extends WireLoggingSupport {
 	int getConnectTimeoutSeconds();
 
 	/**
+	 * Get a read-specific timeout.
+	 * 
+	 * @return the seconds to use for a read-specific timeout, or {@literal 0}
+	 *         to disable or {@literal -1} to use the
+	 *         {@link #getKeepAliveSeconds()} value; defaults to {@literal -1}
+	 * @since 2.1
+	 */
+	default int getReadTimeoutSeconds() {
+		return -1;
+	}
+
+	/**
+	 * Get a write-specific timeout.
+	 * 
+	 * @return the seconds to use for a write-specific timeout, or {@literal 0}
+	 *         to disable or {@literal -1} to use the
+	 *         {@link #getKeepAliveSeconds()} value; defaults to {@literal -1}
+	 */
+	default int getWriteTimeoutSeconds() {
+		return -1;
+	}
+
+	/**
 	 * Get a "reconnect" flag.
 	 * 
 	 * @return {@literal true} to automatically reconnect

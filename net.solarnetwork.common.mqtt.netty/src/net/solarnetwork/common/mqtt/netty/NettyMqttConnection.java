@@ -350,6 +350,8 @@ public class NettyMqttConnection extends BaseMqttConnection
 		config.setReconnect(false); // only switch AFTER connect
 		config.setReconnectDelay(connConfig.getReconnectDelaySeconds());
 		config.setTimeoutSeconds(connConfig.getKeepAliveSeconds());
+		config.setReadTimeoutSeconds(connConfig.getReadTimeoutSeconds());
+		config.setWriteTimeoutSeconds(connConfig.getWriteTimeoutSeconds());
 		config.setUsername(connConfig.getUsername());
 		return config;
 	}
