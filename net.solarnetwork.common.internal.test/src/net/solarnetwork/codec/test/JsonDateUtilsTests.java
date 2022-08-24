@@ -141,7 +141,7 @@ public class JsonDateUtilsTests {
 		String json = "\"2021-08-11T11:47:00.123+12\"";
 
 		// WHEN
-		Instant result = mapper.readValue(json, Instant.class);
+		mapper.readValue(json, Instant.class);
 	}
 
 	@Test
