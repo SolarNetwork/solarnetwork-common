@@ -25,6 +25,7 @@ package net.solarnetwork.util;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -36,13 +37,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
  * Utility methods for dealing with collections.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.58
  */
 public final class CollectionUtils {
@@ -547,6 +549,46 @@ public final class CollectionUtils {
 			}
 		}
 		return (result == null ? Collections.emptySet() : result);
+	}
+
+	/**
+	 * Get a filtered subset of a "super" collection.
+	 * 
+	 * @param <C>
+	 *        the collection type
+	 * @param <T>
+	 *        the collection item type
+	 * @param superSet
+	 *        the "super" collection that defines all possible collection item
+	 *        values
+	 * @param subSet
+	 *        the "sub" collection that defines a subset of possible collection
+	 *        item values, or a {@literal null} or empty set for all values
+	 * @param supplier
+	 *        a supplier for a new result collection
+	 * @return a filtered sub-collection, or {@code superSet} if {@code subSet}
+	 *         has no values in common with {@code superSet} or {@code superSet}
+	 *         is {@literal null} or empty
+	 * @since 1.3
+	 */
+	public static <C extends Collection<T>, T> C filteredSubset(C superSet, C subSet,
+			Supplier<C> supplier) {
+		if ( subSet != null && !subSet.isEmpty() && superSet != null && !superSet.isEmpty() ) {
+			if ( superSet.containsAll(subSet) ) {
+				// given sub-set contains only items from super-set, so return it directly
+				return subSet;
+			}
+			C result = supplier.get();
+			for ( T item : subSet ) {
+				if ( superSet.contains(item) ) {
+					result.add(item);
+				}
+			}
+			if ( !result.isEmpty() ) {
+				return result;
+			}
+		}
+		return superSet;
 	}
 
 }

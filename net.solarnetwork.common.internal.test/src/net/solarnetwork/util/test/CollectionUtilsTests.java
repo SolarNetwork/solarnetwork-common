@@ -22,6 +22,8 @@
 
 package net.solarnetwork.util.test;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static net.solarnetwork.util.IntRange.rangeOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -30,13 +32,16 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.junit.Test;
@@ -48,7 +53,7 @@ import net.solarnetwork.util.IntRangeSet;
  * Test cases for the {@link CollectionUtils} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class CollectionUtilsTests {
 
@@ -186,6 +191,78 @@ public class CollectionUtilsTests {
 					CollectionUtils.sensitiveNamesToMask(new HashSet<>(Arrays.asList("foo", s))),
 					containsInAnyOrder(s));
 		}
+	}
+
+	@Test
+	public void filteredSubset_emptySubset() {
+		// GIVEN
+		Set<Integer> superSet = new HashSet<>(Arrays.asList(1, 2, 3));
+
+		// WHEN
+		Set<Integer> result = CollectionUtils.filteredSubset(superSet, emptySet(), LinkedHashSet::new);
+
+		// THEN
+		assertThat("Super set returned", result, is(sameInstance(superSet)));
+	}
+
+	@Test
+	public void filteredSubset_emptySuperset() {
+		// GIVEN
+		Set<Integer> superSet = Collections.emptySet();
+
+		// WHEN
+		Set<Integer> result = CollectionUtils.filteredSubset(superSet, emptySet(), LinkedHashSet::new);
+
+		// THEN
+		assertThat("Super set returned", result, is(sameInstance(superSet)));
+	}
+
+	@Test
+	public void filteredSubset_nullSuperset() {
+		// WHEN
+		Set<Integer> result = CollectionUtils.filteredSubset(null, emptySet(), LinkedHashSet::new);
+
+		// THEN
+		assertThat("Super set returned", result, is(nullValue()));
+	}
+
+	@Test
+	public void filteredSubset_validSubset() {
+		// GIVEN
+		Set<Integer> superSet = new HashSet<>(asList(1, 2, 3));
+
+		// WHEN
+		final Set<Integer> subSet = new HashSet<>(asList(1, 2));
+		Set<Integer> result = CollectionUtils.filteredSubset(superSet, subSet, LinkedHashSet::new);
+
+		// THEN
+		assertThat("Sub set returned", result, is(sameInstance(subSet)));
+	}
+
+	@Test
+	public void filteredSubset_restrictedSubset() {
+		// GIVEN
+		Set<Integer> superSet = new HashSet<>(asList(1, 2, 3));
+
+		// WHEN
+		final Set<Integer> subSet = new HashSet<>(asList(1, 2, 4, 8, 16));
+		Set<Integer> result = CollectionUtils.filteredSubset(superSet, subSet, LinkedHashSet::new);
+
+		// THEN
+		assertThat("Restricted sub set returned", result, containsInAnyOrder(1, 2));
+	}
+
+	@Test
+	public void filteredSubset_completelyRestrictedSubset() {
+		// GIVEN
+		Set<Integer> superSet = new HashSet<>(asList(1, 2, 3));
+
+		// WHEN
+		final Set<Integer> subSet = new HashSet<>(asList(4, 8, 16));
+		Set<Integer> result = CollectionUtils.filteredSubset(superSet, subSet, LinkedHashSet::new);
+
+		// THEN
+		assertThat("Super set returned", result, is(sameInstance(superSet)));
 	}
 
 }
