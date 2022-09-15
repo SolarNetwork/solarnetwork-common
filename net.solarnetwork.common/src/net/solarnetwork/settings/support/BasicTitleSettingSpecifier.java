@@ -114,6 +114,12 @@ public class BasicTitleSettingSpecifier extends BaseKeyedSettingSpecifier<String
 		return spec;
 	}
 
+	/**
+	 * Set the value titles.
+	 * 
+	 * @param valueTitles
+	 *        the values to set
+	 */
 	public void setValueTitles(Map<String, String> valueTitles) {
 		this.valueTitles = (valueTitles == null ? null : Collections.unmodifiableMap(valueTitles));
 	}

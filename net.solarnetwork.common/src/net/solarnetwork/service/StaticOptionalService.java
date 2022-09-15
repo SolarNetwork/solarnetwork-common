@@ -44,6 +44,12 @@ public class StaticOptionalService<T> implements OptionalService.OptionalFiltera
 	private final T service;
 	private final Map<String, Object> propertyFilters;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param service
+	 *        the static service to use
+	 */
 	public StaticOptionalService(T service) {
 		super();
 		this.service = service;

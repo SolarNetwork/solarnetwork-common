@@ -94,6 +94,12 @@ public class MutableSortDescriptor implements SortDescriptor {
 		return sortKey;
 	}
 
+	/**
+	 * Set the sort key.
+	 * 
+	 * @param sortKey
+	 *        the key to set
+	 */
 	public void setSortKey(String sortKey) {
 		this.sortKey = sortKey;
 	}
@@ -103,6 +109,12 @@ public class MutableSortDescriptor implements SortDescriptor {
 		return descending;
 	}
 
+	/**
+	 * Set the descending flag.
+	 * 
+	 * @param descending
+	 *        the flag to set
+	 */
 	public void setDescending(boolean descending) {
 		this.descending = descending;
 	}

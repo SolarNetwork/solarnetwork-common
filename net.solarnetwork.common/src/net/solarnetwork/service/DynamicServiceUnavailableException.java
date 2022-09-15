@@ -32,18 +32,41 @@ public class DynamicServiceUnavailableException extends RuntimeException {
 
 	private static final long serialVersionUID = -6082514393080966631L;
 
+	/**
+	 * Default constructor.
+	 */
 	public DynamicServiceUnavailableException() {
 		super();
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param message
+	 *        the message
+	 * @param cause
+	 *        the source exception
+	 */
 	public DynamicServiceUnavailableException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param message
+	 *        the message
+	 */
 	public DynamicServiceUnavailableException(String message) {
 		super(message);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param cause
+	 *        the source exception
+	 */
 	public DynamicServiceUnavailableException(Throwable cause) {
 		super(cause);
 	}

@@ -39,7 +39,7 @@ import java.io.ByteArrayOutputStream;
  */
 public class Base91 {
 
-	public static final byte[] ENCODING_TABLE;
+	private static final byte[] ENCODING_TABLE;
 	private static final byte[] DECODING_TABLE;
 	private static final int BASE;
 	private static final float AVERAGE_ENCODING_RATIO = 1.2297f;
@@ -57,6 +57,13 @@ public class Base91 {
 			DECODING_TABLE[ENCODING_TABLE[i]] = (byte) i;
 	}
 
+	/**
+	 * Static helper to encode bytes as Base91.
+	 * 
+	 * @param data
+	 *        the data to encode
+	 * @return the encoded bytes
+	 */
 	public static byte[] encode(byte[] data) {
 
 		int estimatedSize = (int) Math.ceil(data.length * AVERAGE_ENCODING_RATIO);
@@ -93,6 +100,13 @@ public class Base91 {
 		return output.toByteArray();
 	}
 
+	/**
+	 * Static helper to decode Base91 bytes.
+	 * 
+	 * @param data
+	 *        the bytes to decode
+	 * @return the decoded bytes
+	 */
 	public static byte[] decode(byte[] data) {
 
 		// if (data.length == 0)
@@ -129,4 +143,5 @@ public class Base91 {
 
 		return output.toByteArray();
 	}
+
 }

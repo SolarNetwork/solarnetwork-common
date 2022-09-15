@@ -42,18 +42,40 @@ public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 
 	private Location location;
 
+	/**
+	 * Get the location ID.
+	 * 
+	 * @return the location ID
+	 */
 	public Long getLocationId() {
 		return locationId;
 	}
 
+	/**
+	 * Set the location ID.
+	 * 
+	 * @param locationId
+	 *        the location ID to set
+	 */
 	public void setLocationId(Long locationId) {
 		this.locationId = locationId;
 	}
 
+	/**
+	 * Get the location.
+	 * 
+	 * @return the location
+	 */
 	public Location getLocation() {
 		return location;
 	}
 
+	/**
+	 * Set the location.
+	 * 
+	 * @param location
+	 *        the location to set
+	 */
 	@JsonDeserialize(as = SimpleLocation.class)
 	public void setLocation(Location location) {
 		this.location = location;

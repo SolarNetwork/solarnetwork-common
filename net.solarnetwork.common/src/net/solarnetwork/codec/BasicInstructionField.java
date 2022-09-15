@@ -49,16 +49,22 @@ import net.solarnetwork.domain.InstructionStatus;
  */
 public enum BasicInstructionField implements IndexedField {
 
+	/** The topic. */
 	Topic(0, "topic"),
 
+	/** The ID. */
 	Id(1, "id"),
 
+	/** The instruction date. */
 	InstructionDate(2, "instructionDate"),
 
+	/** The parameters. */
 	Params(3, "params"),
 
+	/** The parameters. */
 	Parameters(4, "parameters"),
 
+	/** The status. */
 	Status(5, "status"),
 
 	;

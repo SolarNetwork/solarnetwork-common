@@ -79,6 +79,11 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 		module.addKeySerializer(serType, serializer);
 	}
 
+	/**
+	 * Get the module name.
+	 * 
+	 * @return the name
+	 */
 	public String getModuleName() {
 		return moduleName;
 	}
@@ -93,6 +98,11 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 		this.moduleName = moduleName;
 	}
 
+	/**
+	 * Get the module version.
+	 * 
+	 * @return the version
+	 */
 	public Version getModuleVersion() {
 		return moduleVersion;
 	}
@@ -151,6 +161,11 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 		setModuleVersion(new Version(v1, v2, v3, s1, s2, s3));
 	}
 
+	/**
+	 * Get the serializers.
+	 * 
+	 * @return the serializers
+	 */
 	public List<JsonSerializer<?>> getSerializers() {
 		return serializers;
 	}

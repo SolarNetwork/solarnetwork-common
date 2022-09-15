@@ -45,26 +45,59 @@ public class GeneralSourceMetadata {
 	private Instant updated;
 	private GeneralDatumMetadata meta;
 
+	/**
+	 * Get the source ID.
+	 * 
+	 * @return the source ID
+	 */
 	public String getSourceId() {
 		return sourceId;
 	}
 
+	/**
+	 * Set the source ID.
+	 * 
+	 * @param sourceId
+	 *        the source ID to set
+	 */
 	public void setSourceId(String sourceId) {
 		this.sourceId = sourceId;
 	}
 
+	/**
+	 * Get the created date.
+	 * 
+	 * @return the created date
+	 */
 	public Instant getCreated() {
 		return created;
 	}
 
+	/**
+	 * Set the created date.
+	 * 
+	 * @param created
+	 *        the date to set
+	 */
 	public void setCreated(Instant created) {
 		this.created = created;
 	}
 
+	/**
+	 * Get the updated date.
+	 * 
+	 * @return the updated date
+	 */
 	public Instant getUpdated() {
 		return updated;
 	}
 
+	/**
+	 * Set the updated date.
+	 * 
+	 * @param updated
+	 *        the date to set
+	 */
 	public void setUpdated(Instant updated) {
 		this.updated = updated;
 	}
@@ -82,12 +115,23 @@ public class GeneralSourceMetadata {
 		return getMeta();
 	}
 
+	/**
+	 * Get the metadata.
+	 * 
+	 * @return the metadata
+	 */
 	@JsonIgnore
 	@SerializeIgnore
 	public GeneralDatumMetadata getMeta() {
 		return meta;
 	}
 
+	/**
+	 * Set the metadata.
+	 * 
+	 * @param meta
+	 *        the metadata to set
+	 */
 	@JsonProperty
 	public void setMeta(GeneralDatumMetadata meta) {
 		this.meta = meta;

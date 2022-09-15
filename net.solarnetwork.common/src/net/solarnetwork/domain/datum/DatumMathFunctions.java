@@ -464,8 +464,8 @@ public interface DatumMathFunctions {
 	 *         is {@literal null}
 	 * @since 1.1
 	 */
-	default Number narrow(Number n, Number digits) {
-		return NumberUtils.narrow(n, digits.intValue());
+	default Number narrow(Number n, Number minBytePower) {
+		return NumberUtils.narrow(n, minBytePower.intValue());
 	}
 
 	/**

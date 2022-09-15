@@ -45,6 +45,14 @@ public class BasicRegistrationReceipt implements RegistrationReceipt, Cloneable 
 		this(null, null);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param username
+	 *        the usenrame
+	 * @param confirmationCode
+	 *        the confirmation code
+	 */
 	public BasicRegistrationReceipt(String username, String confirmationCode) {
 		super();
 		this.username = username;
@@ -120,6 +128,8 @@ public class BasicRegistrationReceipt implements RegistrationReceipt, Cloneable 
 	}
 
 	/**
+	 * Set the username.
+	 * 
 	 * @param username
 	 *        the username to set
 	 */
@@ -128,6 +138,8 @@ public class BasicRegistrationReceipt implements RegistrationReceipt, Cloneable 
 	}
 
 	/**
+	 * Set the confirmation code.
+	 * 
 	 * @param confirmationCode
 	 *        the confirmationCode to set
 	 */

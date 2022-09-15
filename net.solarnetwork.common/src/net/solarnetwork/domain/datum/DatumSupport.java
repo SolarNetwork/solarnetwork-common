@@ -167,6 +167,12 @@ public abstract class DatumSupport implements Serializable {
 		return tags;
 	}
 
+	/**
+	 * Set the tags.
+	 * 
+	 * @param tags
+	 *        the tags to set
+	 */
 	public void setTags(Set<String> tags) {
 		this.tags = tags;
 	}
@@ -180,6 +186,12 @@ public abstract class DatumSupport implements Serializable {
 		return getTags();
 	}
 
+	/**
+	 * Set the tags.
+	 * 
+	 * @param set
+	 *        the tags to set
+	 */
 	public void setT(Set<String> set) {
 		setTags(set);
 	}

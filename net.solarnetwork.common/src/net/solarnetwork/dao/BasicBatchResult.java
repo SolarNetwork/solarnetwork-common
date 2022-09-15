@@ -35,6 +35,12 @@ public class BasicBatchResult implements BatchResult {
 
 	private int numProcessed = 0;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param numProcessed
+	 *        the processed count
+	 */
 	public BasicBatchResult(int numProcessed) {
 		super();
 		this.numProcessed = numProcessed;

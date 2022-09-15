@@ -65,6 +65,12 @@ public class AutowiredPropertyFactoryBean<T> implements FactoryBean<T> {
 		return object;
 	}
 
+	/**
+	 * Set the factory object.
+	 * 
+	 * @param object
+	 *        the object to set
+	 */
 	@Autowired
 	public void setObject(T object) {
 		this.object = object;

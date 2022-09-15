@@ -86,6 +86,7 @@ import org.w3c.dom.Node;
  */
 public class XmlSupport {
 
+	/** A class-level logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	private NamespaceContext nsContext = null;
@@ -392,14 +393,30 @@ public class XmlSupport {
 		}
 	}
 
+	/**
+	 * Get the namespace context.
+	 * 
+	 * @return the context
+	 */
 	public NamespaceContext getNsContext() {
 		return nsContext;
 	}
 
+	/**
+	 * Set the namespace context.
+	 * 
+	 * @param nsContext
+	 *        the context to set
+	 */
 	public void setNsContext(NamespaceContext nsContext) {
 		this.nsContext = nsContext;
 	}
 
+	/**
+	 * Get a document builder factory.
+	 * 
+	 * @return the factory
+	 */
 	public DocumentBuilderFactory getDocBuilderFactory() {
 		DocumentBuilderFactory result = this.docBuilderFactory;
 		if ( result == null ) {
@@ -410,10 +427,21 @@ public class XmlSupport {
 		return result;
 	}
 
+	/**
+	 * Set the document builder factor.
+	 * 
+	 * @param docBuilderFactory
+	 *        the factory to set
+	 */
 	public void setDocBuilderFactory(DocumentBuilderFactory docBuilderFactory) {
 		this.docBuilderFactory = docBuilderFactory;
 	}
 
+	/**
+	 * Get an XPath factory.
+	 * 
+	 * @return the factory
+	 */
 	public XPathFactory getXpathFactory() {
 		XPathFactory result = this.xpathFactory;
 		if ( result == null ) {
@@ -436,10 +464,21 @@ public class XmlSupport {
 		return result;
 	}
 
+	/**
+	 * Set the XPath factory.
+	 * 
+	 * @param xpathFactory
+	 *        the factory to set
+	 */
 	public void setXpathFactory(XPathFactory xpathFactory) {
 		this.xpathFactory = xpathFactory;
 	}
 
+	/**
+	 * Get a transformer factory.
+	 * 
+	 * @return the factory
+	 */
 	public TransformerFactory getTransformerFactory() {
 		TransformerFactory result = this.transformerFactory;
 		if ( result == null ) {
@@ -457,6 +496,12 @@ public class XmlSupport {
 		return result;
 	}
 
+	/**
+	 * Set the transformer factory.
+	 * 
+	 * @param transformerFactory
+	 *        the factory to set
+	 */
 	public void setTransformerFactory(TransformerFactory transformerFactory) {
 		this.transformerFactory = transformerFactory;
 	}

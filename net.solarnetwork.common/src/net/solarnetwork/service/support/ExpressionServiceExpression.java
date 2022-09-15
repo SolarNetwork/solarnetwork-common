@@ -55,10 +55,20 @@ public class ExpressionServiceExpression {
 		this.expression = expression;
 	}
 
+	/**
+	 * Get the expression service.
+	 * 
+	 * @return the service
+	 */
 	public ExpressionService getService() {
 		return service;
 	}
 
+	/**
+	 * Get the expression.
+	 * 
+	 * @return the expression
+	 */
 	public Expression getExpression() {
 		return expression;
 	}

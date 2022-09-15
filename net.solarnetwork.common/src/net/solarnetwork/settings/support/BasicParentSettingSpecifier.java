@@ -42,6 +42,12 @@ public class BasicParentSettingSpecifier extends BaseSettingSpecifier implements
 		return this.childSettings;
 	}
 
+	/**
+	 * Set the child settings.
+	 * 
+	 * @param childSettings
+	 *        the settings to set
+	 */
 	public void setChildSettings(List<SettingSpecifier> childSettings) {
 		this.childSettings = Collections.unmodifiableList(childSettings);
 	}

@@ -36,7 +36,7 @@ public interface CopyingIdentity<K, C extends Identity<K>> extends Identity<K> {
 	 * 
 	 * @param id
 	 *        the ID to use in the copy
-	 * @return
+	 * @return the new copy
 	 */
 	C copyWithId(K id);
 

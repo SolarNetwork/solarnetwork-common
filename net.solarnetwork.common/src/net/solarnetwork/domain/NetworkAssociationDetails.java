@@ -99,14 +99,31 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 		return username;
 	}
 
+	/**
+	 * Set the username.
+	 * 
+	 * @param username
+	 *        the username to set
+	 */
 	public void setUsername(String username) {
 		this.username = username;
 	}
 
+	/**
+	 * Get the expiration.
+	 * 
+	 * @return the expiration
+	 */
 	public Instant getExpiration() {
 		return expiration;
 	}
 
+	/**
+	 * Set the expiration.
+	 * 
+	 * @param expiration
+	 *        the expiration to set
+	 */
 	public void setExpiration(Instant expiration) {
 		this.expiration = expiration;
 	}
@@ -116,6 +133,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 		return confirmationKey;
 	}
 
+	/**
+	 * Set the confirmation key.
+	 * 
+	 * @param confirmationKey
+	 *        the confirmation key to set
+	 */
 	public void setConfirmationKey(String confirmationKey) {
 		this.confirmationKey = confirmationKey;
 	}
@@ -125,6 +148,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 		return securityPhrase;
 	}
 
+	/**
+	 * Set the security phrase.
+	 * 
+	 * @param secretPhrase
+	 *        the phrase to set
+	 */
 	public void setSecurityPhrase(String secretPhrase) {
 		this.securityPhrase = secretPhrase;
 	}
@@ -134,6 +163,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 		return networkId;
 	}
 
+	/**
+	 * Set the network ID.
+	 * 
+	 * @param networkId
+	 *        the network ID to set
+	 */
 	public void setNetworkId(Long networkId) {
 		this.networkId = networkId;
 	}
@@ -143,6 +178,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 		return networkCertificate;
 	}
 
+	/**
+	 * Set the network certificate.
+	 * 
+	 * @param networkCertificate
+	 *        the network certificate to set
+	 */
 	public void setNetworkCertificate(String networkCertificate) {
 		this.networkCertificate = networkCertificate;
 	}
@@ -152,6 +193,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 		return networkCertificateStatus;
 	}
 
+	/**
+	 * Set the network certificate status.
+	 * 
+	 * @param networkCertificateStatus
+	 *        the status to set
+	 */
 	public void setNetworkCertificateStatus(String networkCertificateStatus) {
 		this.networkCertificateStatus = networkCertificateStatus;
 	}
@@ -161,6 +208,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 		return networkCertificateSubjectDN;
 	}
 
+	/**
+	 * Set the network certificate subject DN.
+	 * 
+	 * @param networkCertificateSubjectDN
+	 *        the DN to set
+	 */
 	public void setNetworkCertificateSubjectDN(String networkCertificateSubjectDN) {
 		this.networkCertificateSubjectDN = networkCertificateSubjectDN;
 	}
@@ -170,6 +223,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 		return keystorePassword;
 	}
 
+	/**
+	 * Set the keystore password.
+	 * 
+	 * @param keystorePassword
+	 *        the password to set
+	 */
 	public void setKeystorePassword(String keystorePassword) {
 		this.keystorePassword = keystorePassword;
 	}

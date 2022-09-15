@@ -129,41 +129,95 @@ public class BasicDeviceInfo implements DeviceInfo {
 			this.deviceAddress = basicDeviceInfo.getDeviceAddress();
 		}
 
+		/**
+		 * Configure a name.
+		 * 
+		 * @param name
+		 *        the value to set
+		 * @return this instance
+		 */
 		public Builder withName(String name) {
 			this.name = name;
 			return this;
 		}
 
+		/**
+		 * Configure a manufacturer.
+		 * 
+		 * @param manufacturer
+		 *        the value to set
+		 * @return this instance
+		 */
 		public Builder withManufacturer(String manufacturer) {
 			this.manufacturer = manufacturer;
 			return this;
 		}
 
+		/**
+		 * Configure a model name.
+		 * 
+		 * @param modelName
+		 *        the value to set
+		 * @return this instance
+		 */
 		public Builder withModelName(String modelName) {
 			this.modelName = modelName;
 			return this;
 		}
 
+		/**
+		 * Configure a version.
+		 * 
+		 * @param version
+		 *        the value to set
+		 * @return this instance
+		 */
 		public Builder withVersion(String version) {
 			this.version = version;
 			return this;
 		}
 
+		/**
+		 * Configure a serial number.
+		 * 
+		 * @param serialNumber
+		 *        the value to set
+		 * @return this instance
+		 */
 		public Builder withSerialNumber(String serialNumber) {
 			this.serialNumber = serialNumber;
 			return this;
 		}
 
+		/**
+		 * Configure a manufacture date.
+		 * 
+		 * @param manufactureDate
+		 *        the value to set
+		 * @return this instance
+		 */
 		public Builder withManufactureDate(LocalDate manufactureDate) {
 			this.manufactureDate = manufactureDate;
 			return this;
 		}
 
+		/**
+		 * Configure a device address.
+		 * 
+		 * @param deviceAddress
+		 *        the value to set
+		 * @return this instance
+		 */
 		public Builder withDeviceAddress(String deviceAddress) {
 			this.deviceAddress = deviceAddress;
 			return this;
 		}
 
+		/**
+		 * Create a new instance from this builder.
+		 * 
+		 * @return the new instance
+		 */
 		public BasicDeviceInfo build() {
 			return new BasicDeviceInfo(this);
 		}

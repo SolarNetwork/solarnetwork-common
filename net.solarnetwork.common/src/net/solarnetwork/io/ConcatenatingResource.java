@@ -47,6 +47,12 @@ public class ConcatenatingResource extends AbstractResource implements Resource 
 
 	private final List<Resource> delegates;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param resources
+	 *        the resources to concatenate
+	 */
 	public ConcatenatingResource(Collection<Resource> resources) {
 		super();
 		if ( resources == null ) {
