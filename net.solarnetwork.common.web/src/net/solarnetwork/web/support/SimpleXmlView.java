@@ -458,18 +458,40 @@ public class SimpleXmlView extends AbstractView {
 		this.modelKey = modelKey;
 	}
 
+	/**
+	 * Get the root element response augementor.
+	 * 
+	 * @return the augmentor
+	 */
 	public ViewResponseAugmentor getRootElementAugmentor() {
 		return rootElementAugmentor;
 	}
 
+	/**
+	 * Set the root element response augmentor.
+	 * 
+	 * @param rootElementAugmentor
+	 *        the augmentor to set
+	 */
 	public void setRootElementAugmentor(ViewResponseAugmentor rootElementAugmentor) {
 		this.rootElementAugmentor = rootElementAugmentor;
 	}
 
+	/**
+	 * Get the class names allowed for nesting.
+	 * 
+	 * @return the class names
+	 */
 	public Set<String> getClassNamesAllowedForNesting() {
 		return classNamesAllowedForNesting;
 	}
 
+	/**
+	 * Set the class names allowed for nesting.
+	 * 
+	 * @param classNamesAllowedForNesting
+	 *        the class names
+	 */
 	public void setClassNamesAllowedForNesting(Set<String> classNamesAllowedForNesting) {
 		this.classNamesAllowedForNesting = classNamesAllowedForNesting;
 	}

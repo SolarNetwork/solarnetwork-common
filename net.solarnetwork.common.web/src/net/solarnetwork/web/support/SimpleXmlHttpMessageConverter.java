@@ -250,26 +250,59 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 		writeElement(name, props, writer, close);
 	}
 
+	/**
+	 * Get the class names allowed for nesting.
+	 * 
+	 * @return the class names
+	 */
 	public Set<String> getClassNamesAllowedForNesting() {
 		return classNamesAllowedForNesting;
 	}
 
+	/**
+	 * Set the class names allowed for nesting.
+	 * 
+	 * @param classNamesAllowedForNesting
+	 *        the class names
+	 */
 	public void setClassNamesAllowedForNesting(Set<String> classNamesAllowedForNesting) {
 		this.classNamesAllowedForNesting = classNamesAllowedForNesting;
 	}
 
+	/**
+	 * Set the XML output factory.
+	 * 
+	 * @param xmlOutputFactory
+	 *        the factory to set
+	 */
 	public void setXmlOutputFactory(XMLOutputFactory xmlOutputFactory) {
 		this.xmlOutputFactory = xmlOutputFactory;
 	}
 
+	/**
+	 * Get the XML output factory.
+	 * 
+	 * @return the factory
+	 */
 	public XMLOutputFactory getXmlOutputFactory() {
 		return xmlOutputFactory;
 	}
 
+	/**
+	 * Get the property serializer registrar.
+	 * 
+	 * @return the registrar
+	 */
 	public PropertySerializerRegistrar getPropertySerializerRegistrar() {
 		return propertySerializerRegistrar;
 	}
 
+	/**
+	 * Set the property serializer registrar.
+	 * 
+	 * @param propertySerializerRegistrar
+	 *        the registrar to set
+	 */
 	public void setPropertySerializerRegistrar(PropertySerializerRegistrar propertySerializerRegistrar) {
 		this.propertySerializerRegistrar = propertySerializerRegistrar;
 	}
