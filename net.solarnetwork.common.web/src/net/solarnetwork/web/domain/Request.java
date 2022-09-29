@@ -32,6 +32,16 @@ import java.util.Map;
  */
 public class Request extends net.solarnetwork.domain.Request {
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param username
+	 *        the username
+	 * @param password
+	 *        the password
+	 * @param data
+	 *        the data
+	 */
 	public Request(String username, String password, Map<String, Object> data) {
 		super(username, password, data);
 	}

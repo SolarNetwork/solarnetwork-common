@@ -70,27 +70,6 @@ import net.solarnetwork.domain.SerializeIgnore;
  * arbitrary size should not cause any memory-related errors.
  * </p>
  * 
- * <p>
- * The configurable properties of this class are:
- * </p>
- * 
- * <dl>
- * <dt>indentAmount</dt>
- * <dd>The number of spaces to indent (pretty print) the JSON output with. If
- * set to zero no indentation will be added (this is the default).</dd>
- * 
- * <dt>includeParentheses</dt>
- * <dd>If true, the entire response will be enclosed in parentheses, required
- * for JSON evaluation support in certain browsers. Defaults to
- * {@literal false}.</dd>
- * 
- * <dt>propertyEditorRegistrar</dt>
- * <dd>An optional registrar of PropertyEditor instances that can be used to
- * serialize specific objects into String values. This can be useful for
- * formatting Date objects into strings, for example.</dd>
- * 
- * </dl>
- * 
  * @author Matt Magoffin
  * @version 1.2
  */
@@ -323,26 +302,71 @@ public class JSONView extends AbstractView {
 		return bean;
 	}
 
+	/**
+	 * Get the number of spaces to indent (pretty print) the JSON output with.
+	 * 
+	 * <p>
+	 * If set to zero no indentation will be added (this is the default).
+	 * </p>
+	 * 
+	 * @return the indentation amount; defaults to {@literal 0}
+	 */
 	public int getIndentAmount() {
 		return indentAmount;
 	}
 
+	/**
+	 * Set the number of spaces to indent (pretty print) the JSON output with.
+	 * 
+	 * @param indentAmount
+	 *        the amount to set
+	 */
 	public void setIndentAmount(int indentAmount) {
 		this.indentAmount = indentAmount;
 	}
 
+	/**
+	 * Get the "include parentheses" option.
+	 * 
+	 * @return the option; defaults to {@literal false}
+	 */
 	public boolean isIncludeParentheses() {
 		return includeParentheses;
 	}
 
+	/**
+	 * Set the "include parentheses" option.
+	 * 
+	 * @param includeParentheses
+	 *        {@literal true} to wrap the entire response in parentheses,
+	 *        required for JSON evaluation support in certain (old school)
+	 *        browsers
+	 */
 	public void setIncludeParentheses(boolean includeParentheses) {
 		this.includeParentheses = includeParentheses;
 	}
 
+	/**
+	 * Get the optional registrar of PropertyEditor instances that can be used
+	 * to serialize specific objects into String values.
+	 * 
+	 * @return the registrar
+	 */
 	public PropertyEditorRegistrar getPropertyEditorRegistrar() {
 		return propertyEditorRegistrar;
 	}
 
+	/**
+	 * Set the optional registrar of PropertyEditor instances that can be used
+	 * to serialize specific objects into String values.
+	 * 
+	 * <p>
+	 * This can be useful for formatting Date objects into strings, for example.
+	 * </p>
+	 * 
+	 * @param propertyEditorRegistrar
+	 *        the registrar to set
+	 */
 	public void setPropertyEditorRegistrar(PropertyEditorRegistrar propertyEditorRegistrar) {
 		this.propertyEditorRegistrar = propertyEditorRegistrar;
 	}

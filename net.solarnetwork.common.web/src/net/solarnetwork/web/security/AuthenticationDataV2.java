@@ -55,8 +55,13 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 	private static final int SIGNATURE_HEX_LENGTH = 64;
 
+	/** The token component for the credential (token ID). */
 	public static final String TOKEN_COMPONENT_KEY_CREDENTIAL = "Credential";
+
+	/** The token component for the signed headers list. */
 	public static final String TOKEN_COMPONENT_KEY_SIGNED_HEADERS = "SignedHeaders";
+
+	/** The token component for the signature. */
 	public static final String TOKEN_COMPONENT_KEY_SIGNATURE = "Signature";
 
 	private final String explicitHost;

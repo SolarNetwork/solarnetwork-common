@@ -213,6 +213,13 @@ public class AuthenticationDataToken {
 		}
 	}
 
+	/**
+	 * Parse token data into a map.
+	 * 
+	 * @param cookieValue
+	 *        the token data value to parse
+	 * @return the parsed data
+	 */
 	public static final Map<String, Object> parseTokenData(final String cookieValue) {
 		final ObjectMapper mapper = new ObjectMapper();
 

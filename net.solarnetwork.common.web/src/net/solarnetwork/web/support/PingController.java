@@ -119,6 +119,8 @@ public class PingController {
 	/**
 	 * Execute all available ping tests, returning HTML.
 	 * 
+	 * @param model
+	 *        the model
 	 * @return the HTML view: {@literal ping}
 	 */
 	@RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
