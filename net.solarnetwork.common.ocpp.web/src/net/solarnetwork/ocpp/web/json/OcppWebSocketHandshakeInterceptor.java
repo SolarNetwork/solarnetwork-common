@@ -54,7 +54,7 @@ import net.solarnetwork.service.PasswordEncoder;
  * </p>
  * 
  * @author matt
- * @version 2.1
+ * @version 2.2
  */
 public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
@@ -153,20 +153,11 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			final String username = httpAuthComponents[0];
 			final String password = httpAuthComponents[1];
 
-			SystemUser user = systemUserDao.getForUsername(username);
+			SystemUser user = systemUserDao.getForUsernameAndChargePoint(username, identifier);
 			if ( user == null ) {
 				log.warn("OCPP handshake request rejected for {}, system user {} not found.", identifier,
 						username);
 				response.setStatusCode(HttpStatus.FORBIDDEN);
-				return false;
-			}
-			if ( user.getAllowedChargePoints() != null && !user.getAllowedChargePoints().isEmpty()
-					&& !user.getAllowedChargePoints().contains(identifier) ) {
-				log.warn(
-						"OCPP handshake request rejected for {}, system user {} does not allow this charge point.",
-						identifier, username);
-				response.setStatusCode(HttpStatus.FORBIDDEN);
-				didForbidChargerConnection(user, "Charge point not allowed");
 				return false;
 			}
 			if ( user.getPassword() != null ) {
