@@ -39,7 +39,7 @@ import org.springframework.security.authentication.BadCredentialsException;
  * in a HTTP authentication header.
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.11
  */
 public abstract class AuthenticationData {
@@ -154,6 +154,11 @@ public abstract class AuthenticationData {
 					hexLength = 64;
 					computedDigest = request.getContentSHA256();
 					break;
+
+				case SHA512:
+					hexLength = 128;
+					computedDigest = request.getContentSHA512();
+					break;
 			}
 		} catch ( SecurityException e ) {
 			throw new BadCredentialsException("Content too large", e);
@@ -167,11 +172,12 @@ public abstract class AuthenticationData {
 				providedDigest = Base64.decodeBase64(providedDigestString);
 			}
 		} catch ( DecoderException e ) {
-			throw new BadCredentialsException("Invalid Digest SHA-256 encoding");
+			throw new BadCredentialsException(
+					String.format("Invalid Digest %s encoding", alg.getAlgorithmName()));
 		}
 		if ( !Arrays.equals(computedDigest, providedDigest) ) {
 			throw new BadCredentialsException(
-					"Content " + alg.getAlgorithmName() + " digest value mismatch");
+					String.format("Content %s digest value mismatch", alg.getAlgorithmName()));
 		}
 	}
 
