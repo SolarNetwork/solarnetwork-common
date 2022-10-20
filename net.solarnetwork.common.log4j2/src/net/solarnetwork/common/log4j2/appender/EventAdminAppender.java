@@ -99,7 +99,7 @@ public class EventAdminAppender extends AbstractAppender {
 	 *        the layout
 	 * @param filter
 	 *        the filter
-	 * @return
+	 * @return the new appender instance
 	 */
 	@PluginFactory
 	public static EventAdminAppender createAppender(@PluginAttribute(NAME_EVENT_PROP) String name,
@@ -119,6 +119,10 @@ public class EventAdminAppender extends AbstractAppender {
 	 *        the name
 	 * @param filter
 	 *        the filter
+	 * @param layout
+	 *        the layout
+	 * @param ignoreExceptions
+	 *        {@literal true} to ignore appender exceptions
 	 */
 	protected EventAdminAppender(String name, Filter filter, Layout<? extends Serializable> layout,
 			boolean ignoreExceptions) {
