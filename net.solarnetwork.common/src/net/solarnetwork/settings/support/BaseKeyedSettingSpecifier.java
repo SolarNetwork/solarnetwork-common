@@ -101,14 +101,32 @@ public abstract class BaseKeyedSettingSpecifier<T> extends BaseSettingSpecifier
 		return builder.toString();
 	}
 
+	/**
+	 * Set the transient flag.
+	 * 
+	 * @param value
+	 *        the flag to set
+	 */
 	public void setTransient(boolean value) {
 		this.trans = value;
 	}
 
+	/**
+	 * Set the key.
+	 * 
+	 * @param key
+	 *        the key to set
+	 */
 	public void setKey(String key) {
 		this.key = key;
 	}
 
+	/**
+	 * Set the default value.
+	 * 
+	 * @param defaultValue
+	 *        the default value to set
+	 */
 	public void setDefaultValue(T defaultValue) {
 		this.defaultValue = defaultValue;
 	}

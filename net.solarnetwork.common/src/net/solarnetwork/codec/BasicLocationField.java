@@ -41,26 +41,37 @@ import net.solarnetwork.domain.BasicLocation;
  */
 public enum BasicLocationField implements IndexedField {
 
+	/** The name. */
 	Name(0, "name"),
 
+	/** The country. */
 	Country(1, "country"),
 
+	/** The region. */
 	Region(2, "region"),
 
+	/** The state or province. */
 	StateOrProvince(3, "stateOrProvince"),
 
+	/** The postal code. */
 	PostalCode(4, "postalCode"),
 
+	/** The locality. */
 	Locality(5, "locality"),
 
+	/** The street. */
 	Street(6, "street"),
 
+	/** The latitude. */
 	Latitude(7, "lat"),
 
+	/** The longitude. */
 	Longitude(8, "lon"),
 
+	/** The elevation. */
 	Elevation(9, "el"),
 
+	/** The time zone ID. */
 	TimeZoneId(10, "zone"),
 
 	;

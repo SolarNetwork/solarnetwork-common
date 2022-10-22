@@ -61,6 +61,11 @@ public class KeyedSmartQuotedTemplateMapper implements Mapper {
 		return String.format(template, quoteParam) + suffix;
 	}
 
+	/**
+	 * Get the template.
+	 * 
+	 * @return the template
+	 */
 	public String getTemplate() {
 		return template;
 	}

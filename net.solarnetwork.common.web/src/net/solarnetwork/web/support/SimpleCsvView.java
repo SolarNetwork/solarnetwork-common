@@ -63,8 +63,8 @@ import net.solarnetwork.domain.SerializeIgnore;
  * object. Defaults to {@link #DEFAULT_DATA_MODEL_KEY}.</dd>
  * 
  * <dt>fieldOrderKey</dt>
- * <dd>If not {@literal null}, then use this model key as an ordered Collection of
- * exported field names, such that the CSV columns will be exported in the
+ * <dd>If not {@literal null}, then use this model key as an ordered Collection
+ * of exported field names, such that the CSV columns will be exported in the
  * specified order. If not specified, then for Map objects the output order will
  * be determined by the natural iteration order of the Map keys, and for
  * JavaBean objects the bean properties will be exported in case-insensitive
@@ -280,18 +280,40 @@ public class SimpleCsvView extends AbstractView {
 		}
 	}
 
+	/**
+	 * Get the data model key.
+	 * 
+	 * @return the key to set
+	 */
 	public String getDataModelKey() {
 		return dataModelKey;
 	}
 
+	/**
+	 * Set the data model key.
+	 * 
+	 * @param dataModelKey
+	 *        the key to set
+	 */
 	public void setDataModelKey(String dataModelKey) {
 		this.dataModelKey = dataModelKey;
 	}
 
+	/**
+	 * Get the field order key.
+	 * 
+	 * @return the key to set
+	 */
 	public String getFieldOrderKey() {
 		return fieldOrderKey;
 	}
 
+	/**
+	 * Set the field order key.
+	 * 
+	 * @param fieldOrderKey
+	 *        the key to set
+	 */
 	public void setFieldOrderKey(String fieldOrderKey) {
 		this.fieldOrderKey = fieldOrderKey;
 	}

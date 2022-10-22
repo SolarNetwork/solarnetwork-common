@@ -60,8 +60,6 @@ public class Result<T> {
 		 * @param location
 		 *        the error location, such as a bean-style path, or
 		 *        {@literal null} for an overall error
-		 * @param code
-		 *        the code
 		 * @param rejectedValue
 		 *        the value the rejected value, if available
 		 * @param message

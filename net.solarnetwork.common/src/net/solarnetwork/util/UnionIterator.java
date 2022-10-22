@@ -63,6 +63,16 @@ public class UnionIterator<E> implements Iterator<E> {
 		return false;
 	}
 
+	/**
+	 * Callback when iteration has finished on a delegate interator.
+	 * <p>
+	 * This can be used by extending classes to clean up resources on the
+	 * delegate iterators.
+	 * </p>
+	 * 
+	 * @param itr
+	 *        the delegate iterator that has finished
+	 */
 	protected void finishedIterator(Iterator<E> itr) {
 		// extending classes can override
 	}

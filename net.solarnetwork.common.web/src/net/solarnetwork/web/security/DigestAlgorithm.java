@@ -26,16 +26,26 @@ package net.solarnetwork.web.security;
  * Supported algorithms for the HTTP {@code Digest} header.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.11
  */
 public enum DigestAlgorithm {
 
+	/** The MD5 algorithm. */
 	MD5("md5"),
 
+	/** The SHA1 algorithm. */
 	SHA1("sha"),
 
-	SHA256("sha-256");
+	/** The SHA-256 algorithm. */
+	SHA256("sha-256"),
+
+	/**
+	 * The SHA-512 algorithm.
+	 *
+	 * @since 1.1
+	 */
+	SHA512("sha-512");
 
 	private String algorithmName;
 

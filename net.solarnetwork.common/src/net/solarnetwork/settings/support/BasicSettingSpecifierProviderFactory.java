@@ -52,14 +52,32 @@ public class BasicSettingSpecifierProviderFactory implements SettingSpecifierPro
 		return messageSource;
 	}
 
+	/**
+	 * Set the factory UID.
+	 * 
+	 * @param factoryUid
+	 *        the UID to set
+	 */
 	public void setFactoryUid(String factoryUid) {
 		this.factoryUid = factoryUid;
 	}
 
+	/**
+	 * Set the display name.
+	 * 
+	 * @param displayName
+	 *        the name to set
+	 */
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
 
+	/**
+	 * Set the message source.
+	 * 
+	 * @param messageSource
+	 *        the message source to set
+	 */
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}

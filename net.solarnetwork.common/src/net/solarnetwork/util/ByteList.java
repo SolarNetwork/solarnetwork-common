@@ -128,6 +128,12 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 		this.nullValue = nullValue;
 	}
 
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param other
+	 *        the list to copy
+	 */
 	public ByteList(Collection<Byte> other) {
 		super();
 		if ( other instanceof ByteList ) {

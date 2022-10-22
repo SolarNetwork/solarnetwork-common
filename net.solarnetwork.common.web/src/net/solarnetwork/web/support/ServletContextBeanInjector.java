@@ -23,9 +23,7 @@
 package net.solarnetwork.web.support;
 
 import java.util.Map;
-
 import javax.servlet.ServletContext;
-
 import org.springframework.web.context.ServletContextAware;
 
 /**
@@ -39,15 +37,15 @@ public class ServletContextBeanInjector implements ServletContextAware {
 	private Map<String, Object> beans;
 	private ServletContext servletContext;
 	private boolean initialized = false;
-	
+
 	@Override
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
 		injectBeans();
 	}
-	
+
 	private void injectBeans() {
-		if ( this.initialized || this.beans == null  || this.servletContext == null ) {
+		if ( this.initialized || this.beans == null || this.servletContext == null ) {
 			return;
 		}
 		for ( Map.Entry<String, Object> me : beans.entrySet() ) {
@@ -55,7 +53,7 @@ public class ServletContextBeanInjector implements ServletContextAware {
 		}
 		initialized = true;
 	}
-	
+
 	/**
 	 * Initialize the ServletContext.
 	 */
@@ -66,9 +64,21 @@ public class ServletContextBeanInjector implements ServletContextAware {
 		injectBeans();
 	}
 
+	/**
+	 * Get the beans.
+	 * 
+	 * @return the beans
+	 */
 	public Map<String, Object> getBeans() {
 		return beans;
 	}
+
+	/**
+	 * Set the beans.
+	 * 
+	 * @param beans
+	 *        the beans to set
+	 */
 	public void setBeans(Map<String, Object> beans) {
 		this.beans = beans;
 	}

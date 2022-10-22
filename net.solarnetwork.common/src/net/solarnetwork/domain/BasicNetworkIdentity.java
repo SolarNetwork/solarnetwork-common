@@ -100,22 +100,52 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 		return forceTLS;
 	}
 
+	/**
+	 * Set the identity key.
+	 * 
+	 * @param identityKey
+	 *        the key to set
+	 */
 	public void setIdentityKey(String identityKey) {
 		this.identityKey = identityKey;
 	}
 
+	/**
+	 * Set the terms of service.
+	 * 
+	 * @param termsOfService
+	 *        the terms to set
+	 */
 	public void setTermsOfService(String termsOfService) {
 		this.termsOfService = termsOfService;
 	}
 
+	/**
+	 * Set the host.
+	 * 
+	 * @param host
+	 *        the host to set
+	 */
 	public void setHost(String host) {
 		this.host = host;
 	}
 
+	/**
+	 * Set the port.
+	 * 
+	 * @param port
+	 *        the port to set
+	 */
 	public void setPort(Integer port) {
 		this.port = port;
 	}
 
+	/**
+	 * Set the force TLS flag.
+	 * 
+	 * @param forceTLS
+	 *        the flag to set
+	 */
 	public void setForceTLS(boolean forceTLS) {
 		this.forceTLS = forceTLS;
 	}
@@ -125,6 +155,12 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 		return networkServiceURLs;
 	}
 
+	/**
+	 * Set the network service URLs.
+	 * 
+	 * @param networkServiceURLs
+	 *        the service URLs to set
+	 */
 	public void setNetworkServiceURLs(Map<String, String> networkServiceURLs) {
 		this.networkServiceURLs = networkServiceURLs;
 	}

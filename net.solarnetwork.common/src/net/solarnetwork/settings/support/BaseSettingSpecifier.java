@@ -39,6 +39,12 @@ public abstract class BaseSettingSpecifier implements SettingSpecifier {
 		return this.title;
 	}
 
+	/**
+	 * Set the title.
+	 * 
+	 * @param title
+	 *        the title to set
+	 */
 	public void setTitle(String title) {
 		this.title = title;
 	}

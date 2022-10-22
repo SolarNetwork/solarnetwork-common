@@ -37,10 +37,21 @@ public class GeneralNodeSourceMetadata extends GeneralSourceMetadata {
 
 	private Long nodeId;
 
+	/**
+	 * Get the node ID.
+	 * 
+	 * @return the node ID
+	 */
 	public Long getNodeId() {
 		return nodeId;
 	}
 
+	/**
+	 * Set the node ID.
+	 * 
+	 * @param nodeId
+	 *        the node ID to set
+	 */
 	public void setNodeId(Long nodeId) {
 		this.nodeId = nodeId;
 	}

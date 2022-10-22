@@ -134,7 +134,7 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		expect(req.getHeaders()).andReturn(h).anyTimes();
 
 		SystemUser user = testUser();
-		expect(systemUserDao.getForUsername("foo")).andReturn(user);
+		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
 		expect(passwordEncoder.matches("bar", "bar")).andReturn(true);
 
 		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
@@ -166,39 +166,7 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		expect(req.getHeaders()).andReturn(h).anyTimes();
 
 		SystemUser user = testUser();
-		expect(systemUserDao.getForUsername("foo")).andReturn(user);
-		expect(passwordEncoder.matches("bar", "bar")).andReturn(true);
-
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
-
-		// when
-		replayAll();
-		Map<String, Object> attributes = new LinkedHashMap<>(4);
-		boolean result = hi.beforeHandshake(req, res, handler, attributes);
-
-		assertThat("Result success", result, equalTo(true));
-		assertThat("Client ID attribute populated", attributes,
-				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR,
-						new ChargePointIdentity("foobar", ChargePointIdentity.ANY_USER)));
-	}
-
-	@Test
-	public void ok_emptyAllowedChargePoints() throws Exception {
-		// given
-		URI uri = URI.create("http://example.com/ocpp/v16/cs/json/foobar");
-		expect(req.getURI()).andReturn(uri);
-		expect(handler.getSubProtocols())
-				.andReturn(Collections.singletonList(WebSocketSubProtocol.OCPP_V16.getValue()));
-
-		HttpHeaders h = new HttpHeaders();
-		h.add(WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL, WebSocketSubProtocol.OCPP_V16.getValue());
-		addBasicAuth(h);
-		expect(req.getHeaders()).andReturn(h).anyTimes();
-
-		SystemUser user = testUser();
-		user.setAllowedChargePoints(Collections.emptySet());
-		expect(systemUserDao.getForUsername("foo")).andReturn(user);
+		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
 		expect(passwordEncoder.matches("bar", "bar")).andReturn(true);
 
 		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
@@ -229,8 +197,7 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		expect(req.getHeaders()).andReturn(h).anyTimes();
 
 		SystemUser user = testUser();
-		user.setAllowedChargePoints(Collections.singleton("foobar"));
-		expect(systemUserDao.getForUsername("foo")).andReturn(user);
+		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
 		expect(passwordEncoder.matches("bar", "bar")).andReturn(true);
 
 		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
@@ -309,7 +276,7 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		addBasicAuth(h);
 		expect(req.getHeaders()).andReturn(h).anyTimes();
 
-		expect(systemUserDao.getForUsername("foo")).andReturn(null);
+		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(null);
 
 		res.setStatusCode(HttpStatus.FORBIDDEN);
 
@@ -322,36 +289,6 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from missing user", result, equalTo(false));
-	}
-
-	@Test
-	public void identifierNotAllowed() throws Exception {
-		// given
-		URI uri = URI.create("http://example.com/ocpp/v16/cs/json/foobar");
-		expect(req.getURI()).andReturn(uri);
-		expect(handler.getSubProtocols())
-				.andReturn(Collections.singletonList(WebSocketSubProtocol.OCPP_V16.getValue()));
-
-		HttpHeaders h = new HttpHeaders();
-		h.add(WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL, WebSocketSubProtocol.OCPP_V16.getValue());
-		addBasicAuth(h);
-		expect(req.getHeaders()).andReturn(h).anyTimes();
-
-		SystemUser user = testUser();
-		user.setAllowedChargePoints(Collections.singleton("not foobar"));
-		expect(systemUserDao.getForUsername("foo")).andReturn(user);
-
-		res.setStatusCode(HttpStatus.FORBIDDEN);
-
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
-
-		// when
-		replayAll();
-		Map<String, Object> attributes = new LinkedHashMap<>(4);
-		boolean result = hi.beforeHandshake(req, res, handler, attributes);
-
-		assertThat("Result failed from charger not allowed", result, equalTo(false));
 	}
 
 	@Test
@@ -369,7 +306,7 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		SystemUser user = testUser();
 		user.setPassword("not bar");
-		expect(systemUserDao.getForUsername("foo")).andReturn(user);
+		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
 		expect(passwordEncoder.matches("bar", "not bar")).andReturn(false);
 
 		res.setStatusCode(HttpStatus.FORBIDDEN);

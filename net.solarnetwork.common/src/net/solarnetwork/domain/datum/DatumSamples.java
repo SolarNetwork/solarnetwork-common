@@ -673,6 +673,12 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 		return getInstantaneous();
 	}
 
+	/**
+	 * Set the instantaneous properties.
+	 * 
+	 * @param map
+	 *        the properties to set
+	 */
 	public void setI(Map<String, Number> map) {
 		setInstantaneous(map);
 	}
@@ -686,6 +692,12 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 		return getAccumulating();
 	}
 
+	/**
+	 * Set the accumulating properties.
+	 * 
+	 * @param map
+	 *        the properties to set
+	 */
 	public void setA(Map<String, Number> map) {
 		setAccumulating(map);
 	}
@@ -699,6 +711,12 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 		return getStatus();
 	}
 
+	/**
+	 * Set the status properties.
+	 * 
+	 * @param map
+	 *        the status properties to set
+	 */
 	public void setS(Map<String, Object> map) {
 		setStatus(map);
 	}
@@ -715,6 +733,12 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 		return instantaneous;
 	}
 
+	/**
+	 * Set the instantaneous properties.
+	 * 
+	 * @param instantaneous
+	 *        the properties to set
+	 */
 	public void setInstantaneous(Map<String, Number> instantaneous) {
 		this.instantaneous = instantaneous;
 	}
@@ -732,6 +756,12 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 		return accumulating;
 	}
 
+	/**
+	 * Set the accumulating properties.
+	 * 
+	 * @param accumulating
+	 *        the properties to set
+	 */
 	public void setAccumulating(Map<String, Number> accumulating) {
 		this.accumulating = accumulating;
 	}
@@ -747,6 +777,12 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 		return status;
 	}
 
+	/**
+	 * Set the status properties.
+	 * 
+	 * @param status
+	 *        the properties to set
+	 */
 	public void setStatus(Map<String, Object> status) {
 		this.status = status;
 	}

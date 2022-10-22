@@ -23,6 +23,7 @@
 package net.solarnetwork.ocpp.dao;
 
 import net.solarnetwork.dao.GenericDao;
+import net.solarnetwork.ocpp.domain.ChargePoint;
 import net.solarnetwork.ocpp.domain.SystemUser;
 
 /**
@@ -33,7 +34,7 @@ import net.solarnetwork.ocpp.domain.SystemUser;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface SystemUserDao extends GenericDao<SystemUser, Long> {
 
@@ -45,5 +46,25 @@ public interface SystemUserDao extends GenericDao<SystemUser, Long> {
 	 * @return the matching system user, or {@literal null} if not found
 	 */
 	SystemUser getForUsername(String username);
+
+	/**
+	 * Get a system user for a unique username that is associated with a given
+	 * charge point.
+	 * 
+	 * <p>
+	 * This method should only return the system user if it user exists
+	 * <b>and</b> has {@code chargePointIdentifier} configured in
+	 * {@link SystemUser#getAllowedChargePoints()} <b>and</b> the charge point
+	 * is not disabled ({@link ChargePoint#isEnabled()} is {@literal true}).
+	 * </p>
+	 * 
+	 * @param username
+	 *        the username to look for
+	 * @param chargePointIdentifier
+	 *        the associated charge point to restrict to
+	 * @return the matching system user, or {@literal null} if not found
+	 * @since 1.1
+	 */
+	SystemUser getForUsernameAndChargePoint(String username, String chargePointIdentifier);
 
 }

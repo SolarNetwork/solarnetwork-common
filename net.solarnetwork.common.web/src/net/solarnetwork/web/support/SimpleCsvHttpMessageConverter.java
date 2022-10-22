@@ -277,34 +277,79 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 		return val;
 	}
 
+	/**
+	 * Get the property serializer registrar.
+	 * 
+	 * @return the registrar
+	 */
 	public PropertySerializerRegistrar getPropertySerializerRegistrar() {
 		return propertySerializerRegistrar;
 	}
 
+	/**
+	 * Set the property serializer registrar.
+	 * 
+	 * @param propertySerializerRegistrar
+	 *        the registrar to set
+	 */
 	public void setPropertySerializerRegistrar(PropertySerializerRegistrar propertySerializerRegistrar) {
 		this.propertySerializerRegistrar = propertySerializerRegistrar;
 	}
 
+	/**
+	 * Get the JavaBean properties to ignore.
+	 * 
+	 * @return the properties
+	 */
 	public Set<String> getJavaBeanIgnoreProperties() {
 		return javaBeanIgnoreProperties;
 	}
 
+	/**
+	 * Set the JavaBean properties to ignore.
+	 * 
+	 * @param javaBeanIgnoreProperties
+	 *        the properties
+	 */
 	public void setJavaBeanIgnoreProperties(Set<String> javaBeanIgnoreProperties) {
 		this.javaBeanIgnoreProperties = javaBeanIgnoreProperties;
 	}
 
+	/**
+	 * Get the JavaBean classes to treat as strings.
+	 * 
+	 * @return the class set
+	 */
 	public Set<Class<?>> getJavaBeanTreatAsStringValues() {
 		return javaBeanTreatAsStringValues;
 	}
 
+	/**
+	 * Set the JavaBean classes to treat as strings.
+	 * 
+	 * @param javaBeanTreatAsStringValues
+	 *        the class set
+	 */
 	public void setJavaBeanTreatAsStringValues(Set<Class<?>> javaBeanTreatAsStringValues) {
 		this.javaBeanTreatAsStringValues = javaBeanTreatAsStringValues;
 	}
 
+	/**
+	 * Get the "include header" option.
+	 * 
+	 * @return {@literal true} to include a header row in the output; defaults
+	 *         to {@literal true}
+	 */
 	public boolean isIncludeHeader() {
 		return includeHeader;
 	}
 
+	/**
+	 * Set the "include header" option.
+	 * 
+	 * @param includeHeader
+	 *        {@literal true} to include a header row in the output
+	 */
 	public void setIncludeHeader(boolean includeHeader) {
 		this.includeHeader = includeHeader;
 	}

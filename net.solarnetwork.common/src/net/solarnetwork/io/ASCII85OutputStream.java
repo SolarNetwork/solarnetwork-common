@@ -20,11 +20,19 @@ import java.io.OutputStream;
  */
 public class ASCII85OutputStream extends FilterOutputStream {
 
+	/** The maximum number of characters per line. */
 	public final static int MAX_CHARS_PER_LINE = 80;
 
+	/** The ASCII-85 point 1 value. */
 	public static long a85p1 = 85;
+
+	/** The ASCII-85 point 2 value. */
 	public static long a85p2 = a85p1 * a85p1;
+
+	/** The ASCII-85 point 3 value. */
 	public static long a85p3 = a85p2 * a85p1;
+
+	/** The ASCII-85 point 4 value. */
 	public static long a85p4 = a85p3 * a85p1;
 
 	private boolean end;
@@ -33,6 +41,12 @@ public class ASCII85OutputStream extends FilterOutputStream {
 	private int bIndex;
 	private final int c[] = new int[5];
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param out
+	 *        the output stream to write to
+	 */
 	public ASCII85OutputStream(OutputStream out) {
 		super(out);
 		characters = MAX_CHARS_PER_LINE;
@@ -50,6 +64,12 @@ public class ASCII85OutputStream extends FilterOutputStream {
 		}
 	}
 
+	/**
+	 * Finish the stream without closing.
+	 * 
+	 * @throws IOException
+	 *         if any error occurs
+	 */
 	public void finish() throws IOException {
 		if ( !end ) {
 			end = true;

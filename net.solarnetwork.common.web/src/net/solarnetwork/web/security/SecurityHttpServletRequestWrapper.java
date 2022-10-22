@@ -49,7 +49,7 @@ import org.springframework.util.StreamUtils;
  * request content.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.11
  */
 public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper {
@@ -96,6 +96,7 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 	private byte[] cachedMD5 = null;
 	private byte[] cachedSHA1 = null;
 	private byte[] cachedSHA256 = null;
+	private byte[] cachedSHA512 = null;
 
 	/**
 	 * Construct from a request.
@@ -214,7 +215,8 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 		final MessageDigest md5 = DigestUtils.getMd5Digest();
 		final MessageDigest sha1 = DigestUtils.getSha1Digest();
 		final MessageDigest sha256 = DigestUtils.getSha256Digest();
-		final MessageDigest[] digests = new MessageDigest[] { md5, sha1, sha256 };
+		final MessageDigest sha512 = DigestUtils.getSha512Digest();
+		final MessageDigest[] digests = new MessageDigest[] { md5, sha1, sha256, sha512 };
 
 		// save the request body as gzip data to reduce RAM use and allow for larger request body sizes
 		InputStream in = super.getInputStream();
@@ -285,6 +287,7 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 			cachedMD5 = md5.digest();
 			cachedSHA1 = sha1.digest();
 			cachedSHA256 = sha256.digest();
+			cachedSHA512 = sha512.digest();
 			if ( cachedRequestFile == null ) {
 				cachedRequestBody = ramBuffer.toByteArray();
 			}
@@ -349,9 +352,9 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 	}
 
 	/**
-	 * Compute the SHA256 hash of the request body.
+	 * Compute the SHA-256 hash of the request body.
 	 * 
-	 * @return the SHA256 hash, or {@literal null} if there is no request
+	 * @return the SHA-256 hash, or {@literal null} if there is no request
 	 *         content
 	 * @throws IOException
 	 *         if an IO exception occurs
@@ -365,6 +368,26 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 		}
 		cacheRequestBody();
 		return cachedSHA256;
+	}
+
+	/**
+	 * Compute the SHA-512 hash of the request body.
+	 * 
+	 * @return the SHA-512 hash, or {@literal null} if there is no request
+	 *         content
+	 * @throws IOException
+	 *         if an IO exception occurs
+	 * @throws SecurityException
+	 *         if the request content length is larger than the configured
+	 *         {@code maximumLength}
+	 * @since 1.3
+	 */
+	public byte[] getContentSHA512() throws IOException {
+		if ( cachedSHA512 != null ) {
+			return cachedSHA512;
+		}
+		cacheRequestBody();
+		return cachedSHA512;
 	}
 
 	private InputStream cachedRequestInputStream() throws IOException {

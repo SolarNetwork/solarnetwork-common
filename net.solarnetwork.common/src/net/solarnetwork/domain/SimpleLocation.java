@@ -355,6 +355,12 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		return name;
 	}
 
+	/**
+	 * Set the name.
+	 * 
+	 * @param name
+	 *        the name to set
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -364,6 +370,12 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		return country;
 	}
 
+	/**
+	 * Set the country.
+	 * 
+	 * @param country
+	 *        the country to set
+	 */
 	public void setCountry(String country) {
 		this.country = country;
 	}
@@ -373,6 +385,12 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		return region;
 	}
 
+	/**
+	 * Set the region.
+	 * 
+	 * @param region
+	 *        the region to set
+	 */
 	public void setRegion(String region) {
 		this.region = region;
 	}
@@ -382,6 +400,12 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		return stateOrProvince;
 	}
 
+	/**
+	 * Set the state or province.
+	 * 
+	 * @param stateOrProvince
+	 *        the state to set
+	 */
 	public void setStateOrProvince(String stateOrProvince) {
 		this.stateOrProvince = stateOrProvince;
 	}
@@ -391,6 +415,12 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		return locality;
 	}
 
+	/**
+	 * Set the locality.
+	 * 
+	 * @param locality
+	 *        the locality to set
+	 */
 	public void setLocality(String locality) {
 		this.locality = locality;
 	}
@@ -400,6 +430,12 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		return postalCode;
 	}
 
+	/**
+	 * Set the postal code.
+	 * 
+	 * @param postalCode
+	 *        the postal code to set
+	 */
 	public void setPostalCode(String postalCode) {
 		this.postalCode = postalCode;
 	}
@@ -409,6 +445,12 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		return street;
 	}
 
+	/**
+	 * Set the street.
+	 * 
+	 * @param street
+	 *        the street to set
+	 */
 	public void setStreet(String street) {
 		this.street = street;
 	}
@@ -418,6 +460,12 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		return latitude;
 	}
 
+	/**
+	 * Set the latitude.
+	 * 
+	 * @param latitude
+	 *        the latitude to set
+	 */
 	public void setLatitude(BigDecimal latitude) {
 		this.latitude = latitude;
 	}
@@ -427,6 +475,12 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		return longitude;
 	}
 
+	/**
+	 * Set the longitude.
+	 * 
+	 * @param longitude
+	 *        the longitude to set
+	 */
 	public void setLongitude(BigDecimal longitude) {
 		this.longitude = longitude;
 	}
@@ -436,6 +490,12 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		return elevation;
 	}
 
+	/**
+	 * Set the elevation.
+	 * 
+	 * @param elevation
+	 *        the elevation to set
+	 */
 	public void setElevation(BigDecimal elevation) {
 		this.elevation = elevation;
 	}
@@ -445,6 +505,12 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		return timeZoneId;
 	}
 
+	/**
+	 * Set the time zone ID.
+	 * 
+	 * @param timeZoneId
+	 *        the ID to set
+	 */
 	public void setTimeZoneId(String timeZoneId) {
 		this.timeZoneId = timeZoneId;
 	}

@@ -23,8 +23,11 @@
 package net.solarnetwork.codec.test;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeThat;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -36,6 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.codec.JsonDateUtils;
 
@@ -46,6 +50,8 @@ import net.solarnetwork.codec.JsonDateUtils;
  * @version 1.0
  */
 public class JsonDateUtilsTests {
+
+	final static double JAVA_VERS = Double.parseDouble(System.getProperty("java.specification.version"));
 
 	private ObjectMapper mapper;
 
@@ -95,6 +101,62 @@ public class JsonDateUtilsTests {
 		Instant expected = LocalDateTime
 				.of(2021, 8, 11, 11, 47, 0, (int) TimeUnit.MILLISECONDS.toNanos(123))
 				.toInstant(ZoneOffset.UTC);
+		assertThat("Instant parsed", result, is(equalTo(expected)));
+	}
+
+	@Test
+	public void deser_instant_t_offset_full() throws IOException {
+		// GIVEN
+		String json = "\"2021-08-11T11:47:00.123+12:00:00\"";
+
+		// WHEN
+		Instant result = mapper.readValue(json, Instant.class);
+
+		// THEN
+		Instant expected = LocalDateTime
+				.of(2021, 8, 11, 11, 47, 0, (int) TimeUnit.MILLISECONDS.toNanos(123))
+				.toInstant(ZoneOffset.ofHours(12));
+		assertThat("Instant parsed", result, is(equalTo(expected)));
+	}
+
+	@Test
+	public void deser_instant_t_offset_hhmm() throws IOException {
+		// GIVEN
+		String json = "\"2021-08-11T11:47:00.123+12:00\"";
+
+		// WHEN
+		Instant result = mapper.readValue(json, Instant.class);
+
+		// THEN
+		Instant expected = LocalDateTime
+				.of(2021, 8, 11, 11, 47, 0, (int) TimeUnit.MILLISECONDS.toNanos(123))
+				.toInstant(ZoneOffset.ofHours(12));
+		assertThat("Instant parsed", result, is(equalTo(expected)));
+	}
+
+	@Test(expected = InvalidFormatException.class)
+	public void deser_instant_t_offset_hh_java8() throws IOException {
+		assumeThat("Behavior in Java 11", JAVA_VERS, lessThan(11.0));
+		// GIVEN
+		String json = "\"2021-08-11T11:47:00.123+12\"";
+
+		// WHEN
+		mapper.readValue(json, Instant.class);
+	}
+
+	@Test
+	public void deser_instant_t_offset_hh_java11() throws IOException {
+		assumeThat("Behavior in Java 11", JAVA_VERS, greaterThanOrEqualTo(11.0));
+		// GIVEN
+		String json = "\"2021-08-11T11:47:00.123+12\"";
+
+		// WHEN
+		Instant result = mapper.readValue(json, Instant.class);
+
+		// THEN
+		Instant expected = LocalDateTime
+				.of(2021, 8, 11, 11, 47, 0, (int) TimeUnit.MILLISECONDS.toNanos(123))
+				.toInstant(ZoneOffset.ofHours(12));
 		assertThat("Instant parsed", result, is(equalTo(expected)));
 	}
 

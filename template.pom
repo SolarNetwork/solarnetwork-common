@@ -10,7 +10,7 @@ ${ivy.pom.header}
   <version>${ivy.pom.version}</version>
   <name>${ivy.pom.name}</name>
   <description>${ivy.pom.description}</description>
-  <url>https://github.com/SolarNetwork/solarnetwork-external/tree/develop/${ivy.pom.url.path}</url>
+  <url>https://github.com/SolarNetwork/solarnetwork-common/tree/develop/${ivy.pom.url.path}</url>
   
   <licenses>
     <license>

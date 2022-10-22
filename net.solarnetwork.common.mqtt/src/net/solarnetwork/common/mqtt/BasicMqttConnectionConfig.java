@@ -33,7 +33,7 @@ import net.solarnetwork.service.StaticOptionalService;
  * Basic implementation of {@link MqttConnectionConfig}.
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
@@ -76,6 +76,8 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	private MqttMessage lastWill;
 	private int maximumMessageSize;
 	private int keepAliveSeconds;
+	private int readTimeoutSeconds = -1;
+	private int writeTimeoutSeconds = -1;
 	private MqttStats stats;
 	private boolean wireLoggingEnabled;
 	private final BasicMutableMqttProperties properties;
@@ -486,6 +488,40 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	@Override
 	public void setWireLoggingEnabled(boolean wireLoggingEnabled) {
 		this.wireLoggingEnabled = wireLoggingEnabled;
+	}
+
+	@Override
+	public int getReadTimeoutSeconds() {
+		return readTimeoutSeconds;
+	}
+
+	/**
+	 * Set the read-specific timeout.
+	 * 
+	 * @param readTimeoutSeconds
+	 *        the timeout to set, or {@literal 0} to disable or {@literal -1} to
+	 *        use the {@link #getTimeoutSeconds()} value
+	 * @since 2.1
+	 */
+	public void setReadTimeoutSeconds(int readTimeoutSeconds) {
+		this.readTimeoutSeconds = readTimeoutSeconds;
+	}
+
+	@Override
+	public int getWriteTimeoutSeconds() {
+		return writeTimeoutSeconds;
+	}
+
+	/**
+	 * Set the write-specific timeout.
+	 * 
+	 * @param writeTimeoutSeconds
+	 *        the timeout to set, or {@literal 0} to disable or {@literal -1} to
+	 *        use the {@link #getTimeoutSeconds()} value
+	 * @since 2.1
+	 */
+	public void setWriteTimeoutSeconds(int writeTimeoutSeconds) {
+		this.writeTimeoutSeconds = writeTimeoutSeconds;
 	}
 
 }

@@ -48,10 +48,21 @@ public class JSONStringPropertySerializer implements PropertySerializer {
 		return null;
 	}
 
+	/**
+	 * Get the object mapper.
+	 * 
+	 * @return the mapper
+	 */
 	public ObjectMapper getObjectMapper() {
 		return objectMapper;
 	}
 
+	/**
+	 * Set the object mapper.
+	 * 
+	 * @param objectMapper
+	 *        the mapper to set
+	 */
 	public void setObjectMapper(ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
 	}

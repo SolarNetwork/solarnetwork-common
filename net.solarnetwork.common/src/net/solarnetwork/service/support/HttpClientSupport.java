@@ -124,9 +124,9 @@ public class HttpClientSupport {
 	 * 
 	 * <p>
 	 * If the httpMethod equals {@code POST} then the connection's
-	 * {@code doOutput} property will be set to {@literal true}, otherwise it will
-	 * be set to {@literal false}. The {@code doInput} property is always set to
-	 * {@literal true}.
+	 * {@code doOutput} property will be set to {@literal true}, otherwise it
+	 * will be set to {@literal false}. The {@code doInput} property is always
+	 * set to {@literal true}.
 	 * </p>
 	 * 
 	 * <p>
@@ -235,18 +235,40 @@ public class HttpClientSupport {
 		return (s != null ? s.service() : null);
 	}
 
+	/**
+	 * Set the connection timeout.
+	 * 
+	 * @param connectionTimeout
+	 *        the timeout to set, in milliseconds
+	 */
 	public void setConnectionTimeout(int connectionTimeout) {
 		this.connectionTimeout = connectionTimeout;
 	}
 
+	/**
+	 * Get the connection timeout.
+	 * 
+	 * @return the timeout, in milliseconds
+	 */
 	public int getConnectionTimeout() {
 		return connectionTimeout;
 	}
 
+	/**
+	 * Get the SSL service.
+	 * 
+	 * @return the service
+	 */
 	public OptionalService<SSLService> getSslService() {
 		return sslService;
 	}
 
+	/**
+	 * Set the SSL service.
+	 * 
+	 * @param sslService
+	 *        the service to set
+	 */
 	public void setSslService(OptionalService<SSLService> sslService) {
 		this.sslService = sslService;
 	}

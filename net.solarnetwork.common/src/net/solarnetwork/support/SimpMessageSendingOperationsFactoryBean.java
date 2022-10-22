@@ -40,6 +40,9 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 public class SimpMessageSendingOperationsFactoryBean
 		extends AutowiredPropertyFactoryBean<SimpMessageSendingOperations> {
 
+	/**
+	 * Constructor.
+	 */
 	public SimpMessageSendingOperationsFactoryBean() {
 		super(SimpMessageSendingOperations.class);
 	}

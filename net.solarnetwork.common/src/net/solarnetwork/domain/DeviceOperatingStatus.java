@@ -132,11 +132,25 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 		private Builder() {
 		}
 
+		/**
+		 * Configure a state value.
+		 * 
+		 * @param state
+		 *        the state to set
+		 * @return this builder
+		 */
 		public Builder withState(DeviceOperatingState state) {
 			this.state = state;
 			return this;
 		}
 
+		/**
+		 * Configure a code value.
+		 * 
+		 * @param code
+		 *        the code to set
+		 * @return this builder
+		 */
 		public Builder withStateCode(int code) {
 			DeviceOperatingState state = null;
 			try {
@@ -147,11 +161,23 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 			return withState(state);
 		}
 
+		/**
+		 * Configure a device states code value.
+		 * 
+		 * @param mask
+		 *        the mask to set
+		 * @return this instance
+		 */
 		public Builder withDeviceStatesCode(int mask) {
 			this.deviceStates = Bitmaskable.setForBitmask(mask, GenericDeviceOperatingState.values());
 			return this;
 		}
 
+		/**
+		 * Create a new operating status instance based on this builder.
+		 * 
+		 * @return the new instance
+		 */
 		public GenericDeviceOperatingStatus build() {
 			return new GenericDeviceOperatingStatus(state, deviceStates);
 		}
@@ -186,11 +212,25 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 			this.clazz = clazz;
 		}
 
+		/**
+		 * Configure a state value.
+		 * 
+		 * @param state
+		 *        the state to set
+		 * @return this builder
+		 */
 		public EnumBuilder<C> withState(DeviceOperatingState state) {
 			this.state = state;
 			return this;
 		}
 
+		/**
+		 * Configure a state code.
+		 * 
+		 * @param code
+		 *        the code to set
+		 * @return this instance
+		 */
 		public EnumBuilder<C> withStateCode(int code) {
 			DeviceOperatingState state = null;
 			try {
@@ -201,11 +241,23 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 			return withState(state);
 		}
 
+		/**
+		 * Configure a states code.
+		 * 
+		 * @param mask
+		 *        the mask to set
+		 * @return this instance
+		 */
 		public EnumBuilder<C> withDeviceStatesCode(int mask) {
 			this.deviceStates = Bitmaskable.setForBitmask(mask, clazz);
 			return this;
 		}
 
+		/**
+		 * Create a new instance status instance from this builder.
+		 * 
+		 * @return the new instance
+		 */
 		public DeviceOperatingStatus<C> build() {
 			return new DeviceOperatingStatus<>(state, deviceStates);
 		}

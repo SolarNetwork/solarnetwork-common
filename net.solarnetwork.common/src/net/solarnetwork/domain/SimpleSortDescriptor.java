@@ -68,6 +68,14 @@ public class SimpleSortDescriptor implements SortDescriptor {
 		this(sortKey, false);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param sortKey
+	 *        the sort key
+	 * @param descending
+	 *        the descending flag
+	 */
 	public SimpleSortDescriptor(String sortKey, boolean descending) {
 		super();
 		this.sortKey = sortKey;

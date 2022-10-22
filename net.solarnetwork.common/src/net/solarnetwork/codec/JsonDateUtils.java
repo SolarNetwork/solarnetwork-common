@@ -24,6 +24,7 @@ package net.solarnetwork.codec;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -41,7 +42,7 @@ import net.solarnetwork.util.DateUtils;
  * JSON date handling utilities.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.72
  */
 public final class JsonDateUtils implements Serializable {
@@ -173,7 +174,13 @@ public final class JsonDateUtils implements Serializable {
 					try {
 						return DateTimeFormatter.ISO_INSTANT.parse(v.toString(), Instant::from);
 					} catch ( DateTimeParseException e2 ) {
-						// ignore this and throw original exception
+						// one last try as zoned time time
+						try {
+							return DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(v.toString(),
+									Instant::from);
+						} catch ( DateTimeException e3 ) {
+							// give up and throw original exception
+						}
 					}
 				}
 				throw e;

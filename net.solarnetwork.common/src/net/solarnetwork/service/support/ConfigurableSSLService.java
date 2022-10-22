@@ -161,6 +161,13 @@ public class ConfigurableSSLService implements SSLService {
 		}
 	}
 
+	/**
+	 * Load the key store.
+	 * 
+	 * @return the key store
+	 * @throws CertificateException
+	 *         if an IO error occurs
+	 */
 	protected synchronized KeyStore loadKeyStore() {
 		File ksFile = new File(keyStorePath);
 		InputStream in = null;
@@ -175,6 +182,13 @@ public class ConfigurableSSLService implements SSLService {
 		}
 	}
 
+	/**
+	 * Load the trust store.
+	 * 
+	 * @return the trust store
+	 * @throws CertificateException
+	 *         if an IO error occurs
+	 */
 	protected synchronized KeyStore loadTrustStore() {
 		// first load in JDK trust store
 		File jdkTrustStoreFile = new File(System.getProperty("java.home"), "lib/security/cacerts");

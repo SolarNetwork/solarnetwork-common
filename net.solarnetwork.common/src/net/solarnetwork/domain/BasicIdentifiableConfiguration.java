@@ -152,11 +152,22 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 		return getServiceProps();
 	}
 
+	/**
+	 * Get the service properties.
+	 * 
+	 * @return the properties
+	 */
 	@JsonGetter("serviceProperties")
 	public Map<String, Object> getServiceProps() {
 		return serviceProps;
 	}
 
+	/**
+	 * Set the service properties.
+	 * 
+	 * @param serviceProps
+	 *        the properties to set
+	 */
 	@JsonSetter("serviceProperties")
 	public void setServiceProps(Map<String, Object> serviceProps) {
 		this.serviceProps = serviceProps;

@@ -98,18 +98,20 @@ public class SecurityHttpServletRequestWrapperTests {
 	}
 
 	private void assertDigests(String msg, SecurityHttpServletRequestWrapper wrapper, String md5,
-			String sha1, String sha256) throws IOException {
+			String sha1, String sha256, String sha512) throws IOException {
 		String actualMd5 = Hex.encodeHexString(wrapper.getContentMD5());
 		String actualSha1 = Hex.encodeHexString(wrapper.getContentSHA1());
 		String actualSha256 = Hex.encodeHexString(wrapper.getContentSHA256());
+		String actualSha512 = Hex.encodeHexString(wrapper.getContentSHA512());
 
 		assertThat(format("%s MD5", msg), actualMd5, is(md5));
 		assertThat(format("%s SHA1", msg), actualSha1, is(sha1));
-		assertThat(format("%s SHA256", msg), actualSha256, is(sha256));
+		assertThat(format("%s SHA-256", msg), actualSha256, is(sha256));
+		assertThat(format("%s SHA-512", msg), actualSha512, is(sha512));
 
 		// now verify returned stream content actually matches
 		String streamActualSha256 = Hex.encodeHexString(DigestUtils.sha256(wrapper.getInputStream()));
-		assertThat(format("%s InputStream SHA256", msg), streamActualSha256, is(sha256));
+		assertThat(format("%s InputStream SHA-256", msg), streamActualSha256, is(sha256));
 	}
 
 	@Test
@@ -129,7 +131,8 @@ public class SecurityHttpServletRequestWrapperTests {
 			assertDigests("Digest", wrapper, 
 					"9d0ef2e3d00a0793bd4c5f31b8ad9e8a", 
 					"a0a32b159feca49e7b13b9a49ae0127ade587f8b", 
-					"35ae5091b37e8f0f306833ef57a635f9dc06738d7f4e563a610eec2adb26fe28");
+					"35ae5091b37e8f0f306833ef57a635f9dc06738d7f4e563a610eec2adb26fe28",
+					"0b9222097e0efcf1beac88426ac09170482809784a82d201946c17a522d898a52633c183a5f99f44d4eea3cfe0c222a633e0e5a46bb09ef4d9aa8d27aadc01e9");
 			// @formatter:on
 		}
 	}
@@ -151,7 +154,8 @@ public class SecurityHttpServletRequestWrapperTests {
 			assertDigests("Digest", wrapper, 
 					"c421804369c8b3777d33c46d7655abea", 
 					"bd5fdf6bf5aa7db12d8cb6a4ee066adad41dc0d6", 
-					"fc25464cfa116ccfe8bfcf9e8bc095b1e4cdcfc40e26ade2be58884bb6b648f2");
+					"fc25464cfa116ccfe8bfcf9e8bc095b1e4cdcfc40e26ade2be58884bb6b648f2",
+					"6ea807e6dbdd316882841cbddb4bbf7dc964598314da6d1e8559c797d917d6c9ffc7e04c93f58c4429829e741e6a70fc50f5ba57319c7caf4180442d524dccd5");
 			// @formatter:on
 		}
 	}
@@ -173,7 +177,8 @@ public class SecurityHttpServletRequestWrapperTests {
 			assertDigests("Digest", wrapper, 
 					"c421804369c8b3777d33c46d7655abea", 
 					"bd5fdf6bf5aa7db12d8cb6a4ee066adad41dc0d6", 
-					"fc25464cfa116ccfe8bfcf9e8bc095b1e4cdcfc40e26ade2be58884bb6b648f2");
+					"fc25464cfa116ccfe8bfcf9e8bc095b1e4cdcfc40e26ade2be58884bb6b648f2",
+					"6ea807e6dbdd316882841cbddb4bbf7dc964598314da6d1e8559c797d917d6c9ffc7e04c93f58c4429829e741e6a70fc50f5ba57319c7caf4180442d524dccd5");
 			// @formatter:on
 		}
 	}
@@ -195,7 +200,8 @@ public class SecurityHttpServletRequestWrapperTests {
 			assertDigests("Digest", wrapper, 
 					"cfb1011114536da94b4e5d36f17aa1a1", 
 					"454494d4e8b50a9e37de3fef36a37ec4d2e105de", 
-					"cd4c234eeedb5c80f4ef34ad4776b35fd3accf76f5df1d95703087a50508ff5c");
+					"cd4c234eeedb5c80f4ef34ad4776b35fd3accf76f5df1d95703087a50508ff5c",
+					"99c29c637c47f64719dcd18f8bfdc332e55149722d825b73fa9e8f7e3001c842034e30a4174c8553c1bcbd4fcac8211c57f2c9efac4a92f0c622c620ac5a5eba");
 			// @formatter:on
 		}
 	}
@@ -217,7 +223,8 @@ public class SecurityHttpServletRequestWrapperTests {
 			assertDigests("Digest", wrapper, 
 					"cfb1011114536da94b4e5d36f17aa1a1", 
 					"454494d4e8b50a9e37de3fef36a37ec4d2e105de", 
-					"cd4c234eeedb5c80f4ef34ad4776b35fd3accf76f5df1d95703087a50508ff5c");
+					"cd4c234eeedb5c80f4ef34ad4776b35fd3accf76f5df1d95703087a50508ff5c",
+					"99c29c637c47f64719dcd18f8bfdc332e55149722d825b73fa9e8f7e3001c842034e30a4174c8553c1bcbd4fcac8211c57f2c9efac4a92f0c622c620ac5a5eba");
 			// @formatter:on
 		}
 	}

@@ -33,18 +33,41 @@ public class SecurityException extends RuntimeException {
 
 	private static final long serialVersionUID = 4715317846353024503L;
 
+	/**
+	 * Constructor.
+	 */
 	public SecurityException() {
 		super();
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param msg
+	 *        the message
+	 * @param t
+	 *        the cause
+	 */
 	public SecurityException(String msg, Throwable t) {
 		super(msg, t);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param msg
+	 *        the message
+	 */
 	public SecurityException(String msg) {
 		super(msg);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param t
+	 *        the cause
+	 */
 	public SecurityException(Throwable t) {
 		super(t);
 	}

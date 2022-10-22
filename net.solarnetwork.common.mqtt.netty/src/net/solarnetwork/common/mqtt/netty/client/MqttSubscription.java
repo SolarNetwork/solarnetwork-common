@@ -17,10 +17,15 @@
 
 package net.solarnetwork.common.mqtt.netty.client;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
 
 final class MqttSubscription {
+
+	/** Pattern to match a MQTT 5-style shared subscription topic prefix. */
+	public static final Pattern SHARE_SUBSCRIPTION_PREFIX = Pattern.compile("(\\$share/[^/]+/).*",
+			Pattern.CASE_INSENSITIVE);
 
 	private final String topic;
 	private final Pattern topicRegex;
@@ -40,6 +45,10 @@ final class MqttSubscription {
 		this.topic = topic;
 		this.handler = handler;
 		this.once = once;
+		Matcher shareMatch = SHARE_SUBSCRIPTION_PREFIX.matcher(topic);
+		if ( shareMatch.matches() ) {
+			topic = topic.substring(shareMatch.end(1));
+		}
 		this.topicRegex = Pattern.compile(topic.replace("+", "[^/]+").replace("#", ".+") + "$");
 	}
 

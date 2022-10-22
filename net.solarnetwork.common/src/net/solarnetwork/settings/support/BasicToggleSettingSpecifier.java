@@ -94,10 +94,22 @@ public class BasicToggleSettingSpecifier extends BaseKeyedSettingSpecifier<Objec
 		return spec;
 	}
 
+	/**
+	 * Set the "true" value.
+	 * 
+	 * @param trueValue
+	 *        the value to set
+	 */
 	public void setTrueValue(Object trueValue) {
 		this.trueValue = trueValue;
 	}
 
+	/**
+	 * Set the "false" value.
+	 * 
+	 * @param falseValue
+	 *        the value to set
+	 */
 	public void setFalseValue(Object falseValue) {
 		this.falseValue = falseValue;
 	}

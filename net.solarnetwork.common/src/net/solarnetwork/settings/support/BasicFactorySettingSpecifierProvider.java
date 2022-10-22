@@ -40,6 +40,14 @@ public class BasicFactorySettingSpecifierProvider implements FactorySettingSpeci
 	private final String factoryInstanceUID;
 	private final SettingSpecifierProvider delegate;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param factoryInstanceUID
+	 *        the factory instance UID
+	 * @param delegate
+	 *        the delegate
+	 */
 	public BasicFactorySettingSpecifierProvider(String factoryInstanceUID,
 			SettingSpecifierProvider delegate) {
 		super();

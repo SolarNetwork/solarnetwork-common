@@ -74,6 +74,12 @@ public class BasicRadioGroupSettingSpecifier extends BasicTextFieldSettingSpecif
 		return spec;
 	}
 
+	/**
+	 * Set the footer text.
+	 * 
+	 * @param footerText
+	 *        the footer text to set
+	 */
 	public void setFooterText(String footerText) {
 		this.footerText = footerText;
 	}

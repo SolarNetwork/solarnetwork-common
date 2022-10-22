@@ -39,6 +39,7 @@ public enum AcPhase {
 	/** The third phase. */
 	PhaseC(3, 'c'),
 
+	/** An aggregate of all phases. */
 	Total(0, 't');
 
 	private final int number;

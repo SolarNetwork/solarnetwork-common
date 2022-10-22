@@ -400,6 +400,12 @@ public class GeneralDatumMetadata extends DatumSupport
 		}
 	}
 
+	/**
+	 * Set the property info.
+	 * 
+	 * @param propertyInfo
+	 *        the property info to set
+	 */
 	public void setPropertyInfo(Map<String, Map<String, Object>> propertyInfo) {
 		this.propertyInfo = propertyInfo;
 	}

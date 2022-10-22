@@ -26,7 +26,7 @@ import java.time.Instant;
 
 /**
  * API for an object that represents an aggregation of individual
- * {@link SteramDatum} within a unique stream over a specific period of time and
+ * {@link StreamDatum} within a unique stream over a specific period of time and
  * a set of property values and associated aggregate statistics.
  * 
  * @author matt

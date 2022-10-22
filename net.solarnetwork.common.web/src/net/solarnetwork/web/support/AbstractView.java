@@ -39,33 +39,6 @@ import net.solarnetwork.codec.PropertySerializerRegistrar;
  * preserves model attribute ordering and supports serializing model properties
  * with a {@link PropertySerializerRegistrar}.
  * 
- * <p>
- * The configurable properties of this class are:
- * </p>
- * 
- * <dl>
- * <dt>propertySerializerRegistrar</dt>
- * <dd>An optional registrar of PropertySerializer instances that can be used to
- * serialize specific objects into String values. This can be useful for
- * formatting Date objects into strings, for example.</dd>
- * 
- * <dt>modelObjectIgnoreTypes</dt>
- * <dd>A set of class types to ignore from the model, and never output in the
- * response. Defaults to an empty array.</dd>
- * 
- * <dt>javaBeanIgnoreProperties</dt>
- * <dd>A set of JavaBean properties to ignore for all JavaBeans. This is useful
- * for omitting things like <code>class</code> which is not usually desired.
- * Defaults to {@link #DEFAULT_JAVA_BEAN_IGNORE_PROPERTIES}.</dd>
- * 
- * <dt>javaBeanTreatAsStringValues</dt>
- * <dd>A set of JavaBean property object types to treat as Strings for all
- * JavaBeans. This is useful for omitting object values such as Class objects,
- * which is not usually desired. Defaults to
- * {@link #DEFAULT_JAVA_BEAN_STRING_VALUES}.</dd>
- * 
- * </dl>
- * 
  * @author matt
  * @version 1.1
  */
@@ -184,34 +157,98 @@ public abstract class AbstractView extends org.springframework.web.servlet.view.
 		return charset;
 	}
 
+	/**
+	 * Get an optional registrar of PropertySerializer instances that can be
+	 * used to serialize specific objects into String values.
+	 * 
+	 * @return the registrar
+	 */
 	public PropertySerializerRegistrar getPropertySerializerRegistrar() {
 		return propertySerializerRegistrar;
 	}
 
+	/**
+	 * Set an optional registrar of PropertySerializer instances that can be
+	 * used to serialize specific objects into String values.
+	 * 
+	 * <p>
+	 * This can be useful for formatting Date objects into strings, for example.
+	 * </p>
+	 * 
+	 * @param propertySerializerRegistrar
+	 *        the registrar to use
+	 */
 	public void setPropertySerializerRegistrar(PropertySerializerRegistrar propertySerializerRegistrar) {
 		this.propertySerializerRegistrar = propertySerializerRegistrar;
 	}
 
+	/**
+	 * Get a set of class types to ignore from the model, and never output in
+	 * the response.
+	 * 
+	 * @return the class set to use; defaults to an empty set
+	 */
 	public Set<Class<?>> getModelObjectIgnoreTypes() {
 		return modelObjectIgnoreTypes;
 	}
 
+	/**
+	 * Set a set of class types to ignore from the model, and never output in
+	 * the response.
+	 * 
+	 * @param modelObjectIgnoreTypes
+	 *        the class set to use
+	 */
 	public void setModelObjectIgnoreTypes(Set<Class<?>> modelObjectIgnoreTypes) {
 		this.modelObjectIgnoreTypes = modelObjectIgnoreTypes;
 	}
 
+	/**
+	 * Get a set of JavaBean properties to ignore for all JavaBeans.
+	 * 
+	 * @return the properties to ignore; Defaults to
+	 *         {@link #DEFAULT_JAVA_BEAN_IGNORE_PROPERTIES}.
+	 */
 	public Set<String> getJavaBeanIgnoreProperties() {
 		return javaBeanIgnoreProperties;
 	}
 
+	/**
+	 * Set a set of JavaBean properties to ignore for all JavaBeans.
+	 * 
+	 * <p>
+	 * This is useful for omitting things like {@code class} which is not
+	 * usually desired.
+	 * </p>
+	 * 
+	 * @param javaBeanIgnoreProperties
+	 *        the properties to ignore
+	 */
 	public void setJavaBeanIgnoreProperties(Set<String> javaBeanIgnoreProperties) {
 		this.javaBeanIgnoreProperties = javaBeanIgnoreProperties;
 	}
 
+	/**
+	 * Get the classes to treat as Strings for all JavaBeans.
+	 * 
+	 * @return the class set; defaults to
+	 *         {@link #DEFAULT_JAVA_BEAN_STRING_VALUES}
+	 */
 	public Set<Class<?>> getJavaBeanTreatAsStringValues() {
 		return javaBeanTreatAsStringValues;
 	}
 
+	/**
+	 * Set the classes to treat as Strings for all JavaBeans.
+	 * 
+	 * <p>
+	 * This is useful for omitting object values such as Class objects, which is
+	 * not usually desired.
+	 * </p>
+	 * 
+	 * @param javaBeanTreatAsStringValues
+	 *        the class set to use
+	 */
 	public void setJavaBeanTreatAsStringValues(Set<Class<?>> javaBeanTreatAsStringValues) {
 		this.javaBeanTreatAsStringValues = javaBeanTreatAsStringValues;
 	}

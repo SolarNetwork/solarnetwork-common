@@ -24,14 +24,14 @@ package net.solarnetwork.web.support;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -53,19 +53,6 @@ import net.solarnetwork.util.ClassUtils;
  * @version 1.1
  */
 public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
-
-	private static final ThreadLocal<SimpleDateFormat> SDF = new ThreadLocal<SimpleDateFormat>() {
-
-		@Override
-		protected SimpleDateFormat initialValue() {
-			TimeZone tz = TimeZone.getTimeZone("GMT");
-			SimpleDateFormat sdf = new SimpleDateFormat();
-			sdf.setTimeZone(tz);
-			sdf.applyPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-			return sdf;
-		}
-
-	};
 
 	/** Default content type. */
 	public static final String DEFAULT_XML_CONTENT_TYPE = "text/xml;charset=UTF-8";
@@ -126,7 +113,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 		} else if ( o instanceof String || o instanceof Number ) {
 			// for simple types, write as unified <value type="String" value="foo"/>
 			// this happens often in collections / maps of simple data types
-			Map<String, Object> params = new LinkedHashMap<String, Object>(2);
+			Map<String, Object> params = new LinkedHashMap<>(2);
 			params.put("type", org.springframework.util.ClassUtils.getShortName(o.getClass()));
 			params.put("value", o);
 			writeElement("value", params, writer, true);
@@ -191,18 +178,20 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 					val = Arrays.asList((Object[]) val);
 				}
 				if ( val instanceof Date ) {
-					SimpleDateFormat sdf = SDF.get();
 					Date date = (Date) val;
-					val = sdf.format(date);
+					val = DateTimeFormatter.ISO_INSTANT.format(date.toInstant());
+				} else if ( val instanceof Instant ) {
+					Instant date = (Instant) val;
+					val = DateTimeFormatter.ISO_INSTANT.format(date);
 				} else if ( val instanceof Collection ) {
 					if ( nested == null ) {
-						nested = new LinkedHashMap<String, Object>(5);
+						nested = new LinkedHashMap<>(5);
 					}
 					nested.put(key, val);
 					val = null;
 				} else if ( val instanceof Map<?, ?> ) {
 					if ( nested == null ) {
-						nested = new LinkedHashMap<String, Object>(5);
+						nested = new LinkedHashMap<>(5);
 					}
 					nested.put(key, val);
 					val = null;
@@ -210,7 +199,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 					for ( String prefix : classNamesAllowedForNesting ) {
 						if ( val.getClass().getName().startsWith(prefix) ) {
 							if ( nested == null ) {
-								nested = new LinkedHashMap<String, Object>(5);
+								nested = new LinkedHashMap<>(5);
 							}
 							nested.put(key, val);
 							val = null;
@@ -250,26 +239,59 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 		writeElement(name, props, writer, close);
 	}
 
+	/**
+	 * Get the class names allowed for nesting.
+	 * 
+	 * @return the class names
+	 */
 	public Set<String> getClassNamesAllowedForNesting() {
 		return classNamesAllowedForNesting;
 	}
 
+	/**
+	 * Set the class names allowed for nesting.
+	 * 
+	 * @param classNamesAllowedForNesting
+	 *        the class names
+	 */
 	public void setClassNamesAllowedForNesting(Set<String> classNamesAllowedForNesting) {
 		this.classNamesAllowedForNesting = classNamesAllowedForNesting;
 	}
 
+	/**
+	 * Set the XML output factory.
+	 * 
+	 * @param xmlOutputFactory
+	 *        the factory to set
+	 */
 	public void setXmlOutputFactory(XMLOutputFactory xmlOutputFactory) {
 		this.xmlOutputFactory = xmlOutputFactory;
 	}
 
+	/**
+	 * Get the XML output factory.
+	 * 
+	 * @return the factory
+	 */
 	public XMLOutputFactory getXmlOutputFactory() {
 		return xmlOutputFactory;
 	}
 
+	/**
+	 * Get the property serializer registrar.
+	 * 
+	 * @return the registrar
+	 */
 	public PropertySerializerRegistrar getPropertySerializerRegistrar() {
 		return propertySerializerRegistrar;
 	}
 
+	/**
+	 * Set the property serializer registrar.
+	 * 
+	 * @param propertySerializerRegistrar
+	 *        the registrar to set
+	 */
 	public void setPropertySerializerRegistrar(PropertySerializerRegistrar propertySerializerRegistrar) {
 		this.propertySerializerRegistrar = propertySerializerRegistrar;
 	}

@@ -56,6 +56,8 @@ import net.solarnetwork.util.IntRange;
  */
 public class DateUtilsTests {
 
+	final static double JAVA_VERS = Double.parseDouble(System.getProperty("java.specification.version"));
+
 	@Test
 	public void parseIsoDateOptTime_full() {
 		LocalDateTime ts = DateUtils.ISO_DATE_OPT_TIME_OPT_MILLIS.parse("2020-02-01T20:12:34.567",
@@ -112,8 +114,6 @@ public class DateUtilsTests {
 		LocalDate ts = DateUtils.ISO_DATE_OPT_TIME_ALT.parse("2020-02-01", LocalDate::from);
 		assertThat(ts, equalTo(LocalDate.of(2020, 2, 1)));
 	}
-
-	final static double JAVA_VERS = Double.parseDouble(System.getProperty("java.specification.version"));
 
 	@Test
 	public void parseIsoDateOptTimeAlt_utc_full_java11() {

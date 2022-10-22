@@ -43,6 +43,16 @@ public class AuthenticationDataV1 extends AuthenticationData {
 	private final String signatureDigest;
 	private final String signature;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param request
+	 *        the request
+	 * @param headerValue
+	 *        the {@code Authorization} header value
+	 * @throws IOException
+	 *         if any IO error occurs
+	 */
 	public AuthenticationDataV1(SecurityHttpServletRequestWrapper request, String headerValue)
 			throws IOException {
 		super(AuthenticationScheme.V1, request, headerValue);

@@ -41,22 +41,31 @@ import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
  */
 public enum BasicObjectDatumStreamMetadataField implements IndexedField {
 
+	/** The stream ID. */
 	StreamId(0, "streamId"),
 
+	/** The time zone ID. */
 	TimeZoneId(1, "zone"),
 
+	/** The object datum kind. */
 	ObjectDatumKind(2, "kind"),
 
+	/** The object ID. */
 	ObjectId(3, "objectId"),
 
+	/** The source ID. */
 	SourceId(4, "sourceId"),
 
+	/** The location. */
 	Location(5, "location"),
 
+	/** The instantaneous properties. */
 	Instantaneous(6, "i"),
 
+	/** The accumulating properties. */
 	Accumulating(7, "a"),
 
+	/** The status properties. */
 	Status(8, "s"),
 
 	;

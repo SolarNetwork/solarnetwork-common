@@ -283,6 +283,11 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 		return map;
 	}
 
+	/**
+	 * Get the datum types.
+	 * 
+	 * @return the datum types
+	 */
 	protected String[] datumTypes() {
 		return null;
 	}

@@ -92,14 +92,32 @@ public class BasicSliderSettingSpecifier extends BaseKeyedSettingSpecifier<Doubl
 		return spec;
 	}
 
+	/**
+	 * Set the minimum value.
+	 * 
+	 * @param minimumValue
+	 *        the minimum value to set
+	 */
 	public void setMinimumValue(Double minimumValue) {
 		this.minimumValue = minimumValue;
 	}
 
+	/**
+	 * Set the maximum value.
+	 * 
+	 * @param maximumValue
+	 *        the maximum value to set
+	 */
 	public void setMaximumValue(Double maximumValue) {
 		this.maximumValue = maximumValue;
 	}
 
+	/**
+	 * Set the increment step.
+	 * 
+	 * @param step
+	 *        the step to set
+	 */
 	public void setStep(Double step) {
 		this.step = step;
 	}

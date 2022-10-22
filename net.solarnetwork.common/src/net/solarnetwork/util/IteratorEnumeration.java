@@ -41,6 +41,12 @@ public class IteratorEnumeration<E> implements Enumeration<E> {
 
 	private final Iterator<E> iterator;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param iterator
+	 *        the iterator to delegate to
+	 */
 	public IteratorEnumeration(Iterator<E> iterator) {
 		this.iterator = iterator;
 	}

@@ -42,9 +42,18 @@ public class BasicAggregateStreamDatum extends BasicStreamDatum implements Aggre
 	private final DatumPropertiesStatistics statistics;
 
 	/**
+	 * Constructor.
+	 * 
 	 * @param streamId
+	 *        the stream ID
 	 * @param timestamp
+	 *        the timestamp
 	 * @param properties
+	 *        the properties
+	 * @param endTimestamp
+	 *        the end timestamp
+	 * @param statistics
+	 *        the statistics
 	 */
 	public BasicAggregateStreamDatum(UUID streamId, Instant timestamp, DatumProperties properties,
 			Instant endTimestamp, DatumPropertiesStatistics statistics) {

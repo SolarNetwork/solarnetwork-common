@@ -172,9 +172,18 @@ public class BasicAppEvent implements AppEvent {
 		private Instant created;
 		private Map<String, ?> eventProperties = Collections.emptyMap();
 
+		/**
+		 * Constructor.
+		 */
 		protected Builder() {
 		}
 
+		/**
+		 * Constructor.
+		 * 
+		 * @param basicAppEvent
+		 *        the event to start with
+		 */
 		protected Builder(AppEvent basicAppEvent) {
 			this.topic = basicAppEvent.getTopic();
 			this.created = basicAppEvent.getCreated();

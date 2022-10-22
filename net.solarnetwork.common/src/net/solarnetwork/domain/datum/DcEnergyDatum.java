@@ -28,10 +28,15 @@ import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
  * Standardized API for direct current related energy datum to implement.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
 public interface DcEnergyDatum extends EnergyDatum {
+
+	/**
+	 * The instantaneous sample key for {@link #getDcCurrent()} values.
+	 */
+	static final String DC_CURRENT_KEY = "dcCurrent";
 
 	/**
 	 * The instantaneous sample key for {@link #getDcPower()} values.
@@ -42,6 +47,16 @@ public interface DcEnergyDatum extends EnergyDatum {
 	 * The instantaneous sample key for {@link #getDcVoltage()} values.
 	 */
 	static final String DC_VOLTAGE_KEY = "dcVoltage";
+
+	/**
+	 * Get the instantaneous DC current, in amperes.
+	 * 
+	 * @return current, or {@literal null} if not available
+	 * @since 1.1
+	 */
+	default Float getDcCurrent() {
+		return asSampleOperations().getSampleFloat(Instantaneous, DC_CURRENT_KEY);
+	}
 
 	/**
 	 * Get the instantaneous DC power output, in watts.
