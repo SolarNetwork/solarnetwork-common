@@ -196,41 +196,95 @@ public class ChargeSessionEndInfo {
 			this.transactionData = chargeSessionEndInfo.transactionData;
 		}
 
+		/**
+		 * Configure the charge point ID.
+		 * 
+		 * @param chargePointId
+		 *        the charge point ID
+		 * @return this instance
+		 */
 		public Builder withChargePointId(ChargePointIdentity chargePointId) {
 			this.chargePointId = chargePointId;
 			return this;
 		}
 
+		/**
+		 * Configure the authorization ID.
+		 * 
+		 * @param authorizationId
+		 *        the authorization ID
+		 * @return this instance
+		 */
 		public Builder withAuthorizationId(String authorizationId) {
 			this.authorizationId = authorizationId;
 			return this;
 		}
 
+		/**
+		 * Configure the transaction ID.
+		 * 
+		 * @param transactionId
+		 *        the transaction ID
+		 * @return this instance
+		 */
 		public Builder withTransactionId(int transactionId) {
 			this.transactionId = transactionId;
 			return this;
 		}
 
+		/**
+		 * Configure the ending timestamp.
+		 * 
+		 * @param timestampEnd
+		 *        the end time
+		 * @return this instance
+		 */
 		public Builder withTimestampEnd(Instant timestampEnd) {
 			this.timestampEnd = timestampEnd;
 			return this;
 		}
 
+		/**
+		 * Configure the final meter value.
+		 * 
+		 * @param meterEnd
+		 *        the final meter value
+		 * @return this instance
+		 */
 		public Builder withMeterEnd(long meterEnd) {
 			this.meterEnd = meterEnd;
 			return this;
 		}
 
+		/**
+		 * Configure the end reason.
+		 * 
+		 * @param reason
+		 *        the reason
+		 * @return this instance
+		 */
 		public Builder withReason(ChargeSessionEndReason reason) {
 			this.reason = reason;
 			return this;
 		}
 
+		/**
+		 * Configure the transaction data.
+		 * 
+		 * @param transactionData
+		 *        the transaction data
+		 * @return this instance
+		 */
 		public Builder withTransactionData(Iterable<SampledValue> transactionData) {
 			this.transactionData = transactionData;
 			return this;
 		}
 
+		/**
+		 * Create a new instance from this builder.
+		 * 
+		 * @return the new instance
+		 */
 		public ChargeSessionEndInfo build() {
 			return new ChargeSessionEndInfo(this);
 		}

@@ -34,6 +34,7 @@ public class AuthorizationException extends RuntimeException {
 
 	private static final long serialVersionUID = -5905777727722883447L;
 
+	/** The authorization information. */
 	private final AuthorizationInfo info;
 
 	/**

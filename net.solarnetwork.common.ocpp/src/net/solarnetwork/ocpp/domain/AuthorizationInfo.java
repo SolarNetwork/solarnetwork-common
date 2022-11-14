@@ -103,18 +103,38 @@ public class AuthorizationInfo {
 		return builder.toString();
 	}
 
+	/**
+	 * Get the ID.
+	 * 
+	 * @return the ID
+	 */
 	public String getId() {
 		return id;
 	}
 
+	/**
+	 * Get the status.
+	 * 
+	 * @return the status.
+	 */
 	public AuthorizationStatus getStatus() {
 		return status;
 	}
 
+	/**
+	 * Get the expiration date.
+	 * 
+	 * @return the expiration date
+	 */
 	public Instant getExpiryDate() {
 		return expiryDate;
 	}
 
+	/**
+	 * Get the authorization parent ID.
+	 * 
+	 * @return the parent ID
+	 */
 	public String getParentId() {
 		return parentId;
 	}
@@ -159,26 +179,59 @@ public class AuthorizationInfo {
 			this.parentId = info.parentId;
 		}
 
+		/**
+		 * Configure the ID.
+		 * 
+		 * @param id
+		 *        the ID
+		 * @return this instance
+		 */
 		public Builder withId(String id) {
 			this.id = id;
 			return this;
 		}
 
+		/**
+		 * Configure a status.
+		 * 
+		 * @param status
+		 *        the status
+		 * @return this instance
+		 */
 		public Builder withStatus(AuthorizationStatus status) {
 			this.status = status;
 			return this;
 		}
 
+		/**
+		 * Configure the expiration date.
+		 * 
+		 * @param expiryDate
+		 *        the expiration date
+		 * @return this instance
+		 */
 		public Builder withExpiryDate(Instant expiryDate) {
 			this.expiryDate = expiryDate;
 			return this;
 		}
 
+		/**
+		 * Configure a parent ID.
+		 * 
+		 * @param parentId
+		 *        the parent ID
+		 * @return this instance
+		 */
 		public Builder withParentId(String parentId) {
 			this.parentId = parentId;
 			return this;
 		}
 
+		/**
+		 * Create a new instance from this builder.
+		 * 
+		 * @return the new instance
+		 */
 		public AuthorizationInfo build() {
 			return new AuthorizationInfo(this);
 		}

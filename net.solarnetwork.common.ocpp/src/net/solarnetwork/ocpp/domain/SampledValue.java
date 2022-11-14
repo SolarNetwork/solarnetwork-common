@@ -303,46 +303,107 @@ public class SampledValue implements Comparable<SampledValue> {
 			this.unit = value.unit;
 		}
 
+		/**
+		 * Configure the session ID.
+		 * 
+		 * @param sessionId
+		 *        the session ID
+		 * @return this instance
+		 */
 		public Builder withSessionId(UUID sessionId) {
 			this.sessionId = sessionId;
 			return this;
 		}
 
+		/**
+		 * Configure the timestamp.
+		 * 
+		 * @param timestamp
+		 *        the timestamp
+		 * @return this instance
+		 */
 		public Builder withTimestamp(Instant timestamp) {
 			this.timestamp = timestamp;
 			return this;
 		}
 
+		/**
+		 * Configure the value.
+		 * 
+		 * @param value
+		 *        the value
+		 * @return this instance
+		 */
 		public Builder withValue(String value) {
 			this.value = value;
 			return this;
 		}
 
+		/**
+		 * Configure the context.
+		 * 
+		 * @param context
+		 *        the context
+		 * @return this instance
+		 */
 		public Builder withContext(ReadingContext context) {
 			this.context = context;
 			return this;
 		}
 
+		/**
+		 * Configure the measurand.
+		 * 
+		 * @param measurand
+		 *        the measurand
+		 * @return this instance
+		 */
 		public Builder withMeasurand(Measurand measurand) {
 			this.measurand = measurand;
 			return this;
 		}
 
+		/**
+		 * Configure the phase.
+		 * 
+		 * @param phase
+		 *        the phase
+		 * @return this instance
+		 */
 		public Builder withPhase(Phase phase) {
 			this.phase = phase;
 			return this;
 		}
 
+		/**
+		 * Configure the location.
+		 * 
+		 * @param location
+		 *        the location
+		 * @return this instance
+		 */
 		public Builder withLocation(Location location) {
 			this.location = location;
 			return this;
 		}
 
+		/**
+		 * Configure the unit.
+		 * 
+		 * @param unit
+		 *        the unit
+		 * @return this instance
+		 */
 		public Builder withUnit(UnitOfMeasure unit) {
 			this.unit = unit;
 			return this;
 		}
 
+		/**
+		 * Build a value from this builder.
+		 * 
+		 * @return the new instance
+		 */
 		public SampledValue build() {
 			return new SampledValue(this);
 		}

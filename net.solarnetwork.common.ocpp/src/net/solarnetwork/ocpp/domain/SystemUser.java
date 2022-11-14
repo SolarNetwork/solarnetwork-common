@@ -42,8 +42,13 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	private static final long serialVersionUID = -8412183373239562934L;
 
+	/** The username. */
 	private String username;
+
+	/** The password. */
 	private String password;
+
+	/** The allowed charge point identifiers. */
 	private Set<String> allowedChargePoints;
 
 	/**

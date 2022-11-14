@@ -37,9 +37,16 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	private static final long serialVersionUID = -5780143529087352852L;
 
+	/** The charge point information. */
 	private final ChargePointInfo info;
+
+	/** The registration status. */
 	private RegistrationStatus registrationStatus;
+
+	/** The enabled status. */
 	private boolean enabled;
+
+	/** The connector count. */
 	private int connectorCount;
 
 	/**

@@ -41,9 +41,16 @@ public class Authorization extends BasicLongEntity implements Differentiable<Aut
 
 	private static final long serialVersionUID = -540993930373637753L;
 
+	/** The authorization token. */
 	private String token;
+
+	/** The enabled flag. */
 	private boolean enabled;
+
+	/** The expiration date. */
 	private Instant expiryDate;
+
+	/** An optional parent authorization ID. */
 	private String parentId;
 
 	/**

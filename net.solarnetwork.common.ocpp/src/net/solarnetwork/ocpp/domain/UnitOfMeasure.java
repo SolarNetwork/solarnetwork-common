@@ -32,44 +32,61 @@ import net.solarnetwork.domain.CodedValue;
  */
 public enum UnitOfMeasure implements CodedValue {
 
+	/** Unknonw. */
 	Unknown(0),
 
+	/** Watt hours. */
 	Wh(1),
 
+	/** Kilo-watt hours. */
 	kWh(2),
 
+	/** Volt-amps reactive hours. */
 	varh(3),
 
+	/** Kilo-volt-amps reactive hours. */
 	kvarh(4),
 
+	/** Watts. */
 	W(5),
 
+	/** Kilowatts. */
 	kW(6),
 
+	/** Volt-amps reactive. */
 	var(7),
 
+	/** Kilo-volt-amps reactive. */
 	kvar(8),
 
-	// removed in 1.6, use A
+	/** Amperes, removed in 1.6, use A. */
 	Amp(9),
 
-	// removed in 1.6, use V
+	/** Volts, removed in 1.6, use V. */
 	Volt(10),
 
+	/** Celsius. */
 	Celsius(11),
 
+	/** Amperes. */
 	A(12),
 
+	/** Fahrenheit. */
 	Fahrenheit(13),
 
+	/** Volt-amperes. */
 	VA(14),
 
+	/** Kilo-volt-amperes. */
 	kVA(15),
 
+	/** Volts. */
 	V(16),
 
+	/** Kelvin. */
 	K(17),
 
+	/** Percent. */
 	Percent(18);
 
 	private final byte code;

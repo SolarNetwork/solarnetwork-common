@@ -32,6 +32,7 @@ import net.solarnetwork.domain.CodedValue;
  */
 public enum ChargeSessionEndReason implements CodedValue {
 
+	/** Unknown. */
 	Unknown(0),
 
 	/** Emergency stop button was used. */

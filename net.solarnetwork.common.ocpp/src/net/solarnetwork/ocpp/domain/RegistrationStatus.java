@@ -32,12 +32,16 @@ import net.solarnetwork.domain.CodedValue;
  */
 public enum RegistrationStatus implements CodedValue {
 
+	/** Unknown. */
 	Unknown(0),
 
+	/** Pending. */
 	Pending(1),
 
+	/** Accepted. */
 	Accepted(2),
 
+	/** Rejected. */
 	Rejected(3);
 
 	private final byte code;

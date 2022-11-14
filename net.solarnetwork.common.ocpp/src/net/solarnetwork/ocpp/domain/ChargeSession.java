@@ -37,13 +37,28 @@ public class ChargeSession extends BasicUuidEntity {
 
 	private static final long serialVersionUID = 7816221911693319631L;
 
+	/** The authorization ID. */
 	private final String authId;
+
+	/** The charge point ID. */
 	private final long chargePointId;
+
+	/** The charge point connector ID. */
 	private final int connectorId;
+
+	/** The transaction ID. */
 	private final int transactionId;
+
+	/** The end date. */
 	private Instant ended;
+
+	/** The end authorization ID. */
 	private String endAuthId;
+
+	/** The end reason. */
 	private ChargeSessionEndReason endReason;
+
+	/** The date posted to the Central System. */
 	private Instant posted;
 
 	/**

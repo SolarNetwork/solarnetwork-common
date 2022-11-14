@@ -38,6 +38,12 @@ public class ChargePointBrokerTracker implements ChargePointRouter {
 
 	private final OptionalServiceCollection<ChargePointBroker> brokers;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param brokers
+	 *        the brokers
+	 */
 	public ChargePointBrokerTracker(OptionalServiceCollection<ChargePointBroker> brokers) {
 		super();
 		if ( brokers == null ) {

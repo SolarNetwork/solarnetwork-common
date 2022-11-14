@@ -47,6 +47,7 @@ public class ChargingProfile extends BasicUuidEntity implements Differentiable<C
 	/** The default rate unit. */
 	public static final UnitOfMeasure DEFAULT_RATE_UNIT = UnitOfMeasure.W;
 
+	/** The charging profile information. */
 	private ChargingProfileInfo info;
 
 	/**

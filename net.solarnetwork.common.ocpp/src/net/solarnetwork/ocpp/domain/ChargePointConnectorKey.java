@@ -36,7 +36,10 @@ public class ChargePointConnectorKey
 
 	private static final long serialVersionUID = 6544054010677060649L;
 
+	/** The charge point ID. */
 	private final long chargePointId;
+
+	/** The connector ID. */
 	private final int connectorId;
 
 	/**
