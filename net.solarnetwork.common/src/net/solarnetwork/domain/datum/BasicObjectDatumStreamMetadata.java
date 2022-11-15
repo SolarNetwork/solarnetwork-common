@@ -40,10 +40,19 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 
 	private static final long serialVersionUID = -4093896601567626604L;
 
+	/** The kind. */
 	private final ObjectDatumKind kind;
+
+	/** The object ID. */
 	private final Long objectId;
+
+	/** The source ID. */
 	private final String sourceId;
+
+	/** The location. */
 	private final BasicLocation location;
+
+	/** The JSON metadata. */
 	private final String metaJson;
 
 	/**

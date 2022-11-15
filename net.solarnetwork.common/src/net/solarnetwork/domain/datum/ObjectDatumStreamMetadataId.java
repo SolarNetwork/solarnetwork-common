@@ -36,8 +36,13 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable {
 
 	private static final long serialVersionUID = -5784786087066166834L;
 
+	/** The kind. */
 	private final ObjectDatumKind kind;
+
+	/** The object ID. */
 	private final Long objectId;
+
+	/** The source ID. */
 	private final String sourceId;
 
 	/**

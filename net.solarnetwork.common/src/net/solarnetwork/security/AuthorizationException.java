@@ -66,8 +66,13 @@ public class AuthorizationException extends SecurityException {
 		UNKNOWN_OBJECT,
 	}
 
+	/** The reason. */
 	private final Reason reason;
+
+	/** The email. */
 	private final String email;
+
+	/** The ID. */
 	private final Object id;
 
 	/**

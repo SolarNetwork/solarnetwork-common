@@ -36,14 +36,31 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 
 	private static final long serialVersionUID = -6264228260215100345L;
 
+	/** The confirmation key. */
 	private String confirmationKey;
+
+	/** The username. */
 	private String username;
+
+	/** The expiration. */
 	private Instant expiration;
+
+	/** The security phrase. */
 	private String securityPhrase;
+
+	/** The network ID. */
 	private Long networkId;
+
+	/** The certificate. */
 	private String networkCertificate;
+
+	/** The certificate status. */
 	private String networkCertificateStatus;
+
+	/** The certificate distinguished name. */
 	private String networkCertificateSubjectDN;
+
+	/** The keystore password. */
 	private String keystorePassword;
 
 	/**

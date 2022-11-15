@@ -43,6 +43,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	private static final long serialVersionUID = 1934830001340995747L;
 
+	/** The samples. */
 	private final DatumSamples samples;
 
 	/**

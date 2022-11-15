@@ -38,9 +38,16 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	private static final long serialVersionUID = 6891814538805568843L;
 
+	/** The object kind. */
 	private final ObjectDatumKind kind;
+
+	/** The object ID. */
 	private final Long objectId;
+
+	/** The source ID. */
 	private final String sourceId;
+
+	/** The timestamp. */
 	private final Instant timestamp;
 
 	/**

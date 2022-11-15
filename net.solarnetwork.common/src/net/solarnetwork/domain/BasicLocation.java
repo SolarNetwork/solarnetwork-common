@@ -38,16 +38,37 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 
 	private static final long serialVersionUID = -7249883372922528538L;
 
+	/** The location name. */
 	private final String name;
+
+	/** The country code. */
 	private final String country;
+
+	/** The region name. */
 	private final String region;
+
+	/** The state or province name. */
 	private final String stateOrProvince;
+
+	/** The city/locality name. */
 	private final String locality;
+
+	/** The postal code. */
 	private final String postalCode;
+
+	/** The street address. */
 	private final String street;
+
+	/** The GPS latitude. */
 	private final BigDecimal latitude;
+
+	/** The GPS longitude. */
 	private final BigDecimal longitude;
+
+	/** The elevation. */
 	private final BigDecimal elevation;
+
+	/** The time zone ID. */
 	private final String timeZoneId;
 
 	/**

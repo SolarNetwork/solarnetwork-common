@@ -38,16 +38,37 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 
 	private static final long serialVersionUID = 7734763057760648362L;
 
+	/** The name. */
 	private String name;
+
+	/** The country code. */
 	private String country;
+
+	/** The region name. */
 	private String region;
+
+	/** The state or province name. */
 	private String stateOrProvince;
+
+	/** The city/locality name. */
 	private String locality;
+
+	/** The postal code. */
 	private String postalCode;
+
+	/** The street address. */
 	private String street;
+
+	/** The GPS latitude. */
 	private BigDecimal latitude;
+
+	/** The GPS longitude. */
 	private BigDecimal longitude;
+
+	/** The elevation. */
 	private BigDecimal elevation;
+
+	/** The time zone ID. */
 	private String timeZoneId;
 
 	/**

@@ -61,22 +61,47 @@ public class PingTestResultDisplay extends PingTestResult {
 		this.end = Instant.now();
 	}
 
+	/**
+	 * Get the test ID.
+	 * 
+	 * @return the test ID
+	 */
 	public String getPingTestId() {
 		return pingTestId;
 	}
 
+	/**
+	 * Get the test name.
+	 * 
+	 * @return the name
+	 */
 	public String getPingTestName() {
 		return pingTestName;
 	}
 
+	/**
+	 * Get the start date.
+	 * 
+	 * @return the start date
+	 */
 	public Instant getStart() {
 		return start;
 	}
 
+	/**
+	 * Get the end date.
+	 * 
+	 * @return the end date
+	 */
 	public Instant getEnd() {
 		return end;
 	}
 
+	/**
+	 * Get the duration.
+	 * 
+	 * @return the duration
+	 */
 	public Duration getDuration() {
 		return Duration.between(start, end);
 	}

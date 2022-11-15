@@ -38,6 +38,7 @@ public class BasicEntity<K extends Comparable<K> & Serializable> extends BasicId
 
 	private static final long serialVersionUID = -2236221331020004471L;
 
+	/** The creation date. */
 	private final Instant created;
 
 	/**

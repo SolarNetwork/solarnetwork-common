@@ -25,9 +25,11 @@ package net.solarnetwork.util.test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -60,7 +62,7 @@ import net.solarnetwork.util.StringUtils;
  * Unit test for the StringUtils class.
  * 
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class StringUtilsTests {
 
@@ -572,6 +574,75 @@ public class StringUtilsTests {
 		Pattern p = Pattern.compile("foo/(.*)/(.*)");
 		assertThat("Match with capture groups returns array with captured group values",
 				StringUtils.match(p, "foo/bar/bam"), is(arrayContaining("foo/bar/bam", "bar", "bam")));
+	}
+
+	@Test
+	public void naturalOrder_oneNumber() {
+		assertThat(StringUtils.naturalSortCompare("test123", "test23", true), is(greaterThan(0)));
+		assertThat(StringUtils.naturalSortCompare("test23", "test123", true), is(lessThan(0)));
+		assertThat(StringUtils.naturalSortCompare("test23", "test23", true), is(equalTo(0)));
+	}
+
+	@Test
+	public void naturalOrder_leadingZeros() {
+		assertThat(StringUtils.naturalSortCompare("test004", "test004", true), is(equalTo(0)));
+		assertThat(StringUtils.naturalSortCompare("test004", "test020", true), is(lessThan(0)));
+		assertThat(StringUtils.naturalSortCompare("test020", "test004", true), is(greaterThan(0)));
+	}
+
+	@Test
+	public void naturalOrder_leadingZeros_diffLength_diffNumbers() {
+		assertThat(StringUtils.naturalSortCompare("test003", "test4", true), is(lessThan(0)));
+		assertThat(StringUtils.naturalSortCompare("test4", "test003", true), is(greaterThan(0)));
+	}
+
+	@Test
+	public void naturalOrder_leadingZeros_diffLength_sameNumbers() {
+		assertThat(StringUtils.naturalSortCompare("test03", "test3", true), is(greaterThan(0)));
+		assertThat(StringUtils.naturalSortCompare("test3", "test03", true), is(lessThan(0)));
+	}
+
+	@Test
+	public void naturalOrder_numberPrefix() {
+		assertThat(StringUtils.naturalSortCompare("123 foo", "99 foo", true), is(greaterThan(0)));
+		assertThat(StringUtils.naturalSortCompare("99 foo", "99 foo", true), is(equalTo(0)));
+		assertThat(StringUtils.naturalSortCompare("99 foo", "123 foo", true), is(lessThan(0)));
+	}
+
+	@Test
+	public void naturalOrder_softwareVersions_major() {
+		assertThat(StringUtils.naturalSortCompare("12.3.9.FOO", "9.3.9.FOO", true), is(greaterThan(0)));
+		assertThat(StringUtils.naturalSortCompare("9.3.9.FOO", "9.3.9.FOO", true), is(equalTo(0)));
+		assertThat(StringUtils.naturalSortCompare("9.3.9.FOO", "12.3.9.FOO", true), is(lessThan(0)));
+	}
+
+	@Test
+	public void naturalOrder_softwareVersions_minor() {
+		assertThat(StringUtils.naturalSortCompare("9.12.9.FOO", "9.3.9.FOO", true), is(greaterThan(0)));
+		assertThat(StringUtils.naturalSortCompare("9.3.9.FOO", "9.3.9.FOO", true), is(equalTo(0)));
+		assertThat(StringUtils.naturalSortCompare("9.3.9.FOO", "9.12.9.FOO", true), is(lessThan(0)));
+	}
+
+	@Test
+	public void naturalOrder_softwareVersions_build() {
+		assertThat(StringUtils.naturalSortCompare("12.3.154.FOO", "12.3.9.FOO", true),
+				is(greaterThan(0)));
+		assertThat(StringUtils.naturalSortCompare("12.3.9.FOO", "12.3.9.FOO", true), is(equalTo(0)));
+		assertThat(StringUtils.naturalSortCompare("12.3.9.FOO", "12.3.154.FOO", true), is(lessThan(0)));
+	}
+
+	@Test
+	public void naturalOrder_softwareVersions_qualifier() {
+		assertThat(StringUtils.naturalSortCompare("9.3.9.FOO", "9.3.9.BAR", true), is(greaterThan(0)));
+		assertThat(StringUtils.naturalSortCompare("9.3.9.FOO", "9.3.9.FOO", true), is(equalTo(0)));
+		assertThat(StringUtils.naturalSortCompare("9.3.9.BAR", "9.12.9.FOO", true), is(lessThan(0)));
+	}
+
+	@Test
+	public void naturalOrder_softwareVersions_qualifier_caseInsensitive() {
+		assertThat(StringUtils.naturalSortCompare("9.3.9.FOO", "9.3.9.bar", true), is(greaterThan(0)));
+		assertThat(StringUtils.naturalSortCompare("9.3.9.FOO", "9.3.9.foo", true), is(equalTo(0)));
+		assertThat(StringUtils.naturalSortCompare("9.3.9.bar", "9.12.9.FOO", true), is(lessThan(0)));
 	}
 
 }

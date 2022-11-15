@@ -36,6 +36,16 @@ public class Request {
 	private final String password;
 	private final Map<String, Object> data;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param username
+	 *        the username
+	 * @param password
+	 *        the password
+	 * @param data
+	 *        the message data
+	 */
 	public Request(String username, String password, Map<String, Object> data) {
 		super();
 		this.username = username;
@@ -43,14 +53,29 @@ public class Request {
 		this.data = data;
 	}
 
+	/**
+	 * Get the username.
+	 * 
+	 * @return the username
+	 */
 	public String getUsername() {
 		return username;
 	}
 
+	/**
+	 * Get the password.
+	 * 
+	 * @return the password
+	 */
 	public String getPassword() {
 		return password;
 	}
 
+	/**
+	 * Get the message data.
+	 * 
+	 * @return the data
+	 */
 	public Map<String, Object> getData() {
 		return data;
 	}

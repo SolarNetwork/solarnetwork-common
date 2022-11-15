@@ -38,9 +38,16 @@ public class BasicInstructionStatus implements InstructionStatus, Serializable {
 
 	private static final long serialVersionUID = 5423487100585905801L;
 
+	/** The instruction ID. */
 	private final Long instructionId;
+
+	/** The instruction state. */
 	private final InstructionState instructionState;
+
+	/** The status date. */
 	private final Instant statusDate;
+
+	/** The result parameters. */
 	private final Map<String, ?> resultParameters;
 
 	/**

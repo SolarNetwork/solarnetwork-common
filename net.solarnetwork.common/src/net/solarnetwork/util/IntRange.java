@@ -41,7 +41,10 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	private static final long serialVersionUID = 2815680548854317296L;
 
+	/** The minimum value. */
 	private final int min;
+
+	/** The maximum value. */
 	private final int max;
 
 	/**

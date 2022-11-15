@@ -38,10 +38,19 @@ public class BasicDatumStreamMetadata implements DatumStreamMetadata, Serializab
 
 	private static final long serialVersionUID = -6339837836211488890L;
 
+	/** The stream ID. */
 	private final UUID streamId;
+
+	/** The time zone ID. */
 	private final String timeZoneId;
+
+	/** The instantaneous property names. */
 	private final String[] instantaneousProperties;
+
+	/** The accumulating property names. */
 	private final String[] accumulatingProperties;
+
+	/** The status property names. */
 	private final String[] statusProperties;
 
 	/**

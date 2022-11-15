@@ -105,6 +105,8 @@ public class Half extends Number implements Comparable<Half> {
 	 * Positive 0 of type half-precision float.
 	 */
 	public static final short POSITIVE_ZERO = (short) 0x0000;
+
+	/** The value. */
 	private final short mValue;
 
 	/**

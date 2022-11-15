@@ -43,8 +43,13 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	private static final long serialVersionUID = 3704506858283891128L;
 
+	/** The instantaneous properties. */
 	private Map<String, Number> instantaneous;
+
+	/** The accumulating properties. */
 	private Map<String, Number> accumulating;
+
+	/** The status properties. */
 	private Map<String, Object> status;
 
 	/**

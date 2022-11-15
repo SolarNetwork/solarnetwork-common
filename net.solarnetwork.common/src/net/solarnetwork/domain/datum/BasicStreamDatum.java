@@ -40,8 +40,13 @@ public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
 
 	private static final long serialVersionUID = -8735056339943547310L;
 
+	/** The stream ID. */
 	private final UUID streamId;
+
+	/** The timestamp. */
 	private final Instant timestamp;
+
+	/** The datum properties. */
 	private final DatumProperties properties;
 
 	/**
