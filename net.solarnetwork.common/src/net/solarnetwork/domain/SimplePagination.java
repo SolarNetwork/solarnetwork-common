@@ -33,11 +33,11 @@ import java.util.Objects;
  * </p>
  * 
  * @author matt
- * @version 1.2
+ * @version 1.1
  */
 public class SimplePagination implements Cloneable {
 
-	private List<MutableSortDescriptor> sorts;
+	private List<SortDescriptor> sorts;
 	private Integer offset;
 	private Integer max;
 
@@ -94,7 +94,7 @@ public class SimplePagination implements Cloneable {
 	 * 
 	 * @return the sorts
 	 */
-	public List<MutableSortDescriptor> getSorts() {
+	public List<SortDescriptor> getSorts() {
 		return sorts;
 	}
 
@@ -104,7 +104,7 @@ public class SimplePagination implements Cloneable {
 	 * @param sorts
 	 *        the sorts to set
 	 */
-	public void setSorts(List<MutableSortDescriptor> sorts) {
+	public void setSorts(List<SortDescriptor> sorts) {
 		this.sorts = sorts;
 	}
 
