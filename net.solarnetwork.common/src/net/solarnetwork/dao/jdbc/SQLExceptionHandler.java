@@ -24,12 +24,13 @@ package net.solarnetwork.dao.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.sql.DataSource;
 
 /**
  * A handler for SQL exceptions.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface SQLExceptionHandler {
 
@@ -37,18 +38,57 @@ public interface SQLExceptionHandler {
 	 * Handle an exception triggered when a connection cannot be obtained.
 	 * 
 	 * @param e
-	 *        The exception to handle.
+	 *        the exception to handle
 	 */
 	void handleGetConnectionException(SQLException e);
 
 	/**
-	 * Handle an exception triggered on an active Connection.
+	 * Handle an exception triggered when a connection cannot be obtained from a
+	 * {@code DataSource}.
+	 * 
+	 * <p>
+	 * This default implementation simply calls
+	 * {@link #handleGetConnectionException(SQLException)}.
+	 * </p>
+	 * 
+	 * @param dataSource
+	 *        the data source
+	 * @param e
+	 *        the exception to handle
+	 * @since 1.1
+	 */
+	default void handleGetConnectionException(DataSource dataSource, SQLException e) {
+		handleGetConnectionException(e);
+	}
+
+	/**
+	 * Handle an exception triggered on an active {@code Connection}.
 	 * 
 	 * @param conn
-	 *        The {@code Connection} the exception occurred on.
+	 *        the {@code Connection} the exception occurred on
 	 * @param e
-	 *        The exception.
+	 *        the exception to handle
 	 */
 	void handleConnectionException(Connection conn, SQLException e);
+
+	/**
+	 * Handle an exception triggered on an active {@code Connection}.
+	 * 
+	 * <p>
+	 * This default implementation simply calls
+	 * {@link #handleConnectionException(Connection, SQLException)}.
+	 * </p>
+	 * 
+	 * @param dataSource
+	 *        the data source
+	 * @param conn
+	 *        the {@code Connection} the exception occurred on
+	 * @param e
+	 *        the exception to handle
+	 * @since 1.1
+	 */
+	default void handleConnectionException(DataSource dataSource, Connection conn, SQLException e) {
+		handleConnectionException(conn, e);
+	}
 
 }

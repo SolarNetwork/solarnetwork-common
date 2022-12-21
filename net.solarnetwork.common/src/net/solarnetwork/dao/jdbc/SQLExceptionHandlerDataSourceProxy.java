@@ -47,7 +47,7 @@ import net.solarnetwork.service.OptionalServiceCollection;
  * system.
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class SQLExceptionHandlerDataSourceProxy implements DataSource, ConnectionEventListener {
 
@@ -205,9 +205,9 @@ public class SQLExceptionHandlerDataSourceProxy implements DataSource, Connectio
 			@Override
 			public void doWithHandler(SQLExceptionHandler handler) throws Exception {
 				if ( conn == null ) {
-					handler.handleGetConnectionException(e);
+					handler.handleGetConnectionException(delegate, e);
 				} else {
-					handler.handleConnectionException(conn, e);
+					handler.handleConnectionException(delegate, conn, e);
 				}
 			}
 		});
