@@ -44,6 +44,8 @@ import static org.springframework.util.FileCopyUtils.copyToString;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -244,8 +246,8 @@ public class S3ResourceStorageServiceTests {
 
 	private URL s3Url(String key) {
 		try {
-			return new URL("https://some-bucket.example.com/" + key);
-		} catch ( MalformedURLException e ) {
+			return new URI("https://some-bucket.example.com/" + key).toURL();
+		} catch ( MalformedURLException | URISyntaxException e ) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -255,7 +257,7 @@ public class S3ResourceStorageServiceTests {
 		// GIVEN
 		final String path = "foo";
 
-		final URL url = new URL("http://localhost/foo");
+		final URL url = new URI("http://localhost/foo").toURL();
 		expect(s3Client.getObjectURL(path)).andReturn(url);
 
 		// WHEN
@@ -275,7 +277,7 @@ public class S3ResourceStorageServiceTests {
 		final String path = "foo";
 		final String fullPath = pathPrefix + path;
 
-		final URL url = new URL("http://localhost/foo/foo");
+		final URL url = new URI("http://localhost/foo/foo").toURL();
 		expect(s3Client.getObjectURL(fullPath)).andReturn(url);
 
 		// WHEN
