@@ -54,7 +54,7 @@ import ocpp.xml.support.XmlDateUtils;
  * Process {@link StopTransactionRequest} action messages.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class StopTransactionProcessor
 		extends BaseActionMessageProcessor<StopTransactionRequest, StopTransactionResponse> {
@@ -89,6 +89,11 @@ public class StopTransactionProcessor
 		if ( req == null || chargePointId == null ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormationViolation,
 					"Missing StopTransactionRequest message.");
+			resultHandler.handleActionMessageResult(message, null, err);
+			return;
+		} else if ( req.getTransactionId() < 1 ) {
+			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.PropertyConstraintViolation,
+					"The transaction ID must be greater than 0.");
 			resultHandler.handleActionMessageResult(message, null, err);
 			return;
 		}

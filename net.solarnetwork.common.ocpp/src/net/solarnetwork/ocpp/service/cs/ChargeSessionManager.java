@@ -38,7 +38,8 @@ import net.solarnetwork.service.Identifiable;
  * System to manage charging sessions (OCPP transactions) for Charge Point
  * clients.
  * 
- * @author matt @version2.0
+ * @author matt
+ * @version 2.1
  */
 public interface ChargeSessionManager extends Identifiable {
 
@@ -99,10 +100,14 @@ public interface ChargeSessionManager extends Identifiable {
 	/**
 	 * Add charge session readings.
 	 * 
+	 * @param chargePointId
+	 *        the charge point identifier to get sessions for, or
+	 *        {@literal null} for all sessions for all charge points
 	 * @param readings
 	 *        the readings to add
+	 * @since 2.1
 	 */
-	void addChargingSessionReadings(Iterable<SampledValue> readings);
+	void addChargingSessionReadings(ChargePointIdentity chargePointId, Iterable<SampledValue> readings);
 
 	/**
 	 * End a charging session.

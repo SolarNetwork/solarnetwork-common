@@ -177,36 +177,83 @@ public class ChargeSessionStartInfo {
 			this.reservationId = chargeSessionInfo.reservationId;
 		}
 
+		/**
+		 * Configure the charge point ID.
+		 * 
+		 * @param chargePointId
+		 *        the charge point ID
+		 * @return this instance
+		 */
 		public Builder withChargePointId(ChargePointIdentity chargePointId) {
 			this.chargePointId = chargePointId;
 			return this;
 		}
 
+		/**
+		 * Configure the authorization ID.
+		 * 
+		 * @param authorizationId
+		 *        the authorization ID
+		 * @return this instance
+		 */
 		public Builder withAuthorizationId(String authorizationId) {
 			this.authorizationId = authorizationId;
 			return this;
 		}
 
+		/**
+		 * Configure the connector ID.
+		 * 
+		 * @param connectorId
+		 *        the connector ID
+		 * @return this instance
+		 */
 		public Builder withConnectorId(int connectorId) {
 			this.connectorId = connectorId;
 			return this;
 		}
 
+		/**
+		 * Configure the start timestamp.
+		 * 
+		 * @param timestampStart
+		 *        the start timestamp
+		 * @return this instance
+		 */
 		public Builder withTimestampStart(Instant timestampStart) {
 			this.timestampStart = timestampStart;
 			return this;
 		}
 
+		/**
+		 * Configure the starting meter value.
+		 * 
+		 * @param meterStart
+		 *        the start value
+		 * @return this instance
+		 */
 		public Builder withMeterStart(long meterStart) {
 			this.meterStart = meterStart;
 			return this;
 		}
 
+		/**
+		 * Configure the reservation ID.
+		 * 
+		 * @param reservationId
+		 *        the reservation ID
+		 * @return this instance
+		 */
 		public Builder withReservationId(Integer reservationId) {
 			this.reservationId = reservationId;
 			return this;
 		}
 
+		/**
+		 * Build a new instance from this builder.
+		 * 
+		 * @return the new instance
+		 */
 		public ChargeSessionStartInfo build() {
 			return new ChargeSessionStartInfo(this);
 		}

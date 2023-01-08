@@ -50,7 +50,10 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	private static final long serialVersionUID = -2571643375746163527L;
 
+	/** The info values. */
 	private Map<String, Object> info;
+
+	/** The property info values. */
 	private Map<String, Map<String, Object>> propertyInfo;
 
 	/**

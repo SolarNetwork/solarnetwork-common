@@ -43,6 +43,7 @@ public class LimitedSizeDeque<E> extends ArrayDeque<E> implements Deque<E> {
 
 	private static final long serialVersionUID = -2004653495520273734L;
 
+	/** The maximum queue size. */
 	private final int maximumSize;
 
 	/**

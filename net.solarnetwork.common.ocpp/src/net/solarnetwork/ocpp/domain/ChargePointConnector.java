@@ -39,6 +39,7 @@ public class ChargePointConnector extends BasicEntity<ChargePointConnectorKey> {
 
 	private static final long serialVersionUID = 519157807846471742L;
 
+	/** The status notification information. */
 	private StatusNotification info;
 
 	/**

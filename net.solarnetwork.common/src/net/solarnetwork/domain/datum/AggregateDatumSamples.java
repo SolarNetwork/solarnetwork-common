@@ -39,9 +39,16 @@ public class AggregateDatumSamples extends DatumSupport {
 
 	private static final long serialVersionUID = -5462422979612352107L;
 
+	/** The count. */
 	private int count = 0;
+
+	/** The instantaneous values. */
 	private Map<String, AggregateDatumProperty> instantaneous;
+
+	/** The accumulating values. */
 	private Map<String, AggregateDatumProperty> accumulating;
+
+	/** The status values. */
 	private Map<String, Object> status;
 
 	private void addAggregatePropertyValue(Map<String, AggregateDatumProperty> m, String key, Number n) {

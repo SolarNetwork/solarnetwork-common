@@ -259,41 +259,95 @@ public class StatusNotification {
 			this.vendorErrorCode = statusNotification.vendorErrorCode;
 		}
 
+		/**
+		 * Configure a connector ID.
+		 * 
+		 * @param connectorId
+		 *        the connector ID
+		 * @return this instance
+		 */
 		public Builder withConnectorId(int connectorId) {
 			this.connectorId = connectorId;
 			return this;
 		}
 
+		/**
+		 * Configure the status.
+		 * 
+		 * @param status
+		 *        the status
+		 * @return this instance
+		 */
 		public Builder withStatus(ChargePointStatus status) {
 			this.status = status;
 			return this;
 		}
 
+		/**
+		 * Configure the error code.
+		 * 
+		 * @param errorCode
+		 *        the error code
+		 * @return this instance
+		 */
 		public Builder withErrorCode(ChargePointErrorCode errorCode) {
 			this.errorCode = errorCode;
 			return this;
 		}
 
+		/**
+		 * Configure the info.
+		 * 
+		 * @param info
+		 *        the info
+		 * @return this instance
+		 */
 		public Builder withInfo(String info) {
 			this.info = info;
 			return this;
 		}
 
+		/**
+		 * Configure the timestamp.
+		 * 
+		 * @param timestamp
+		 *        the timestamp
+		 * @return this instance
+		 */
 		public Builder withTimestamp(Instant timestamp) {
 			this.timestamp = timestamp;
 			return this;
 		}
 
+		/**
+		 * Configure the vendor ID.
+		 * 
+		 * @param vendorId
+		 *        the vendor ID
+		 * @return this instance
+		 */
 		public Builder withVendorId(String vendorId) {
 			this.vendorId = vendorId;
 			return this;
 		}
 
+		/**
+		 * Configure the vendor error code.
+		 * 
+		 * @param vendorErrorCode
+		 *        the error code
+		 * @return this instance
+		 */
 		public Builder withVendorErrorCode(String vendorErrorCode) {
 			this.vendorErrorCode = vendorErrorCode;
 			return this;
 		}
 
+		/**
+		 * Build a notification instance from this builder.
+		 * 
+		 * @return the new instance
+		 */
 		public StatusNotification build() {
 			return new StatusNotification(this);
 		}

@@ -287,4 +287,40 @@ public class StopTransactionProcessorTests {
 		assertThat("Result handler invoked", l.await(1, TimeUnit.SECONDS), equalTo(true));
 	}
 
+	@Test
+	public void stop_transactionIdInvalid() throws InterruptedException {
+		// given
+		CountDownLatch l = new CountDownLatch(1);
+		ChargePointIdentity chargePointId = createClientId();
+		String idTag = UUID.randomUUID().toString().substring(0, 20);
+		int transactionId = 0;
+
+		// when
+		replayAll();
+		StopTransactionRequest req = new StopTransactionRequest();
+		req.setIdTag(idTag);
+		req.setTransactionId(transactionId);
+		req.setTimestamp(XmlDateUtils.newXmlCalendar());
+		req.setMeterStop(12345);
+		req.setReason(Reason.LOCAL);
+
+		ActionMessage<StopTransactionRequest> message = new BasicActionMessage<StopTransactionRequest>(
+				chargePointId, CentralSystemAction.StopTransaction, req);
+		processor.processActionMessage(message, (msg, res, err) -> {
+			assertThat("Message passed", msg, sameInstance(message));
+			assertThat("Result available", res, nullValue());
+			assertThat("Error happened", err, instanceOf(ErrorHolder.class));
+
+			ErrorHolder error = (ErrorHolder) err;
+			assertThat("Is PropertyConstraintViolation error", error.getErrorCode(),
+					equalTo(ActionErrorCode.PropertyConstraintViolation));
+
+			l.countDown();
+			return true;
+		});
+
+		// then
+		assertThat("Result handler invoked", l.await(1, TimeUnit.SECONDS), equalTo(true));
+	}
+
 }

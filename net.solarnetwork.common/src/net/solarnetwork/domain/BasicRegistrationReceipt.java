@@ -35,7 +35,10 @@ public class BasicRegistrationReceipt implements RegistrationReceipt, Cloneable 
 
 	private static final long serialVersionUID = -8288922092122946581L;
 
+	/** The username. */
 	private String username;
+
+	/** The confirmation code. */
 	private String confirmationCode;
 
 	/**

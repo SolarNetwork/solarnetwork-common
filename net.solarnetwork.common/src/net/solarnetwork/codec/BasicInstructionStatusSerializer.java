@@ -49,6 +49,7 @@ public class BasicInstructionStatusSerializer extends StdScalarSerializer<Instru
 	public static final JsonSerializer<InstructionStatus> EMBEDDED_INSTANCE = new BasicInstructionStatusSerializer(
 			true);
 
+	/** The embedded flag. */
 	private final boolean embedded;
 
 	/**

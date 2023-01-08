@@ -216,6 +216,8 @@ public class Result<T> {
 	 *
 	 * @param <V>
 	 *        the result type
+	 * @param data
+	 *        the value
 	 * @return the result with {@code success} set to {@literal true}
 	 * @since 1.2
 	 */

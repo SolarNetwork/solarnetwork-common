@@ -47,6 +47,7 @@ public enum ChargingProfilePurpose implements CodedValue {
 	 */
 	TxDefaultProfile(2),
 
+	/** Transaction profile. */
 	TxProfile(3);
 
 	private final byte code;

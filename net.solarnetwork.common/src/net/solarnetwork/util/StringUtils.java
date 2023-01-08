@@ -44,7 +44,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  * 
  * @author matt
- * @version 1.11
+ * @version 1.12
  */
 public final class StringUtils {
 
@@ -797,6 +797,152 @@ public final class StringUtils {
 			return result;
 		}
 		return null;
+	}
+
+	private static final byte TokenNone = 0;
+	private static final byte TokenOther = 1;
+	private static final byte TokenDigits = 2;
+	private static final byte TokenLetters = 3;
+
+	/**
+	 * Compare two strings using "natural" sort ordering.
+	 * 
+	 * <p>
+	 * By "natural" we mean that numbers within the string are compared
+	 * numerically. See
+	 * <a href="https://en.wikipedia.org/wiki/Natural_sort_order">Natural sort
+	 * order</a> for more information.
+	 * </p>
+	 * 
+	 * <p>
+	 * Adapted from Tomáš Pažourek's
+	 * <a href="https://github.com/tompazourek/NaturalSort.Extension">C#
+	 * implementation</a>. The comparison of numbers that are padded reverses
+	 * that implementation, however, so that less-padded values sort before
+	 * more-padded values. For example {@literal 3} sorts before {@literal 003}.
+	 * </p>
+	 * 
+	 * @param a
+	 *        the first string to compare
+	 * @param b
+	 *        the second string to compare
+	 * @param ignoreCase
+	 *        {@literal true} if case should be ignored
+	 * @return a negative number, {@literal 0}, or a positive number if
+	 *         {@code a} sorts before, equal to, or after {@code b}
+	 */
+	public static int naturalSortCompare(final String a, final String b, final boolean ignoreCase) {
+		if ( a == b ) {
+			return 0;
+		} else if ( a == null ) {
+			return -1;
+		} else if ( b == null ) {
+			return 1;
+		}
+
+		final int strLength1 = a.length();
+		final int strLength2 = b.length();
+
+		int startIndex1 = 0;
+		int startIndex2 = 0;
+
+		while ( true ) {
+			// get next token from string 1
+			int endIndex1 = startIndex1;
+			byte token1 = TokenNone;
+			while ( endIndex1 < strLength1 ) {
+				byte charToken = tokenForCharacter(a.charAt(endIndex1));
+				if ( token1 == TokenNone ) {
+					token1 = charToken;
+				} else if ( token1 != charToken ) {
+					break;
+				}
+
+				endIndex1++;
+			}
+
+			// get next token from string 2
+			int endIndex2 = startIndex2;
+			byte token2 = TokenNone;
+			while ( endIndex2 < strLength2 ) {
+				byte charToken = tokenForCharacter(b.charAt(endIndex2));
+				if ( token2 == TokenNone ) {
+					token2 = charToken;
+				} else if ( token2 != charToken ) {
+					break;
+				}
+
+				endIndex2++;
+			}
+
+			// if the token kinds are different, compare just the token kind
+			int tokenCompare = Byte.compare(token1, token2);
+			if ( tokenCompare != 0 ) {
+				return tokenCompare;
+			}
+
+			// now we know that both tokens are the same kind
+
+			// didn't find any more tokens, return that they're equal
+			if ( token1 == TokenNone ) {
+				return 0;
+			}
+
+			int rangeLength1 = endIndex1 - startIndex1;
+			int rangeLength2 = endIndex2 - startIndex2;
+
+			if ( token1 == TokenDigits ) {
+				// compare both tokens as numbers
+				int maxLength = Math.max(rangeLength1, rangeLength2);
+
+				// both spans will get padded by zeroes on the left to be the same length
+				final char paddingChar = '0';
+				int paddingLength1 = maxLength - rangeLength1;
+				int paddingLength2 = maxLength - rangeLength2;
+
+				for ( int i = 0; i < maxLength; i++ ) {
+					char digit1 = i < paddingLength1 ? paddingChar
+							: a.charAt(startIndex1 + i - paddingLength1);
+					char digit2 = i < paddingLength2 ? paddingChar
+							: b.charAt(startIndex2 + i - paddingLength2);
+
+					int digitCompare = Character.compare(digit1, digit2);
+					if ( digitCompare != 0 ) {
+						return digitCompare;
+					}
+				}
+
+				// if the numbers are equal, we compare how much we padded the strings, less before more
+				int paddingCompare = Integer.compare(paddingLength2, paddingLength1);
+				if ( paddingCompare != 0 ) {
+					return paddingCompare;
+				}
+			} else {
+				// use string comparison
+				int minLength = Math.min(rangeLength1, rangeLength2);
+				String s1 = a.substring(startIndex1, startIndex1 + minLength);
+				String s2 = b.substring(startIndex2, startIndex2 + minLength);
+				int stringCompare = ignoreCase ? s1.compareToIgnoreCase(s2) : s1.compareTo(s2);
+				if ( stringCompare == 0 ) {
+					stringCompare = rangeLength1 - rangeLength2;
+				}
+
+				if ( stringCompare != 0 ) {
+					return stringCompare;
+				}
+			}
+
+			startIndex1 = endIndex1;
+			startIndex2 = endIndex2;
+		}
+	}
+
+	private static byte tokenForCharacter(char c) {
+		return c >= 'a'
+				? c <= 'z' ? TokenLetters
+						: c < 128 ? TokenOther : Character.isLetter(c) ? TokenLetters : TokenOther
+				: c >= 'A' ? c <= 'Z' ? TokenLetters : TokenOther
+						: c >= '0' && c <= '9' ? TokenDigits : TokenOther;
 	}
 
 }

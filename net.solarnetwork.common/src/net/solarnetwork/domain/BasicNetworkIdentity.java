@@ -36,11 +36,22 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 
 	private static final long serialVersionUID = 1734756599885882478L;
 
+	/** The identify key. */
 	private String identityKey;
+
+	/** The terms of service. */
 	private String termsOfService;
+
+	/** The host. */
 	private String host;
+
+	/** The port. */
 	private Integer port;
+
+	/** The "force TLS" flag. */
 	private boolean forceTLS;
+
+	/** Map of network service URLs. */
 	private Map<String, String> networkServiceURLs;
 
 	/**

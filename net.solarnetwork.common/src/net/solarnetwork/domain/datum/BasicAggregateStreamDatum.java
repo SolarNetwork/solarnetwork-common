@@ -38,7 +38,10 @@ public class BasicAggregateStreamDatum extends BasicStreamDatum implements Aggre
 
 	private static final long serialVersionUID = 2501630135742744682L;
 
+	/** The end timestamp. */
 	private final Instant endTimestamp;
+
+	/** The statistics. */
 	private final DatumPropertiesStatistics statistics;
 
 	/**

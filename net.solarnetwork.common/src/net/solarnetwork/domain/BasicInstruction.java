@@ -41,10 +41,19 @@ public class BasicInstruction implements Instruction, Serializable {
 
 	private static final long serialVersionUID = 5522509637377814131L;
 
+	/** The instruction ID. */
 	private final Long id;
+
+	/** The topic name. */
 	private final String topic;
+
+	/** The instruction date. */
 	private final Instant instructionDate;
+
+	/** The instruction status. */
 	private final InstructionStatus status;
+
+	/** The instruction parameters. */
 	private final Map<String, List<String>> parameters;
 
 	/**

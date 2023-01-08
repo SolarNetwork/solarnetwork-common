@@ -121,36 +121,83 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 			this.propertyName = info.getPropertyName();
 		}
 
+		/**
+		 * Configure a control ID.
+		 * 
+		 * @param controlId
+		 *        the control ID
+		 * @return this instance
+		 */
 		public Builder withControlId(String controlId) {
 			this.controlId = controlId;
 			return this;
 		}
 
+		/**
+		 * Configure a property type.
+		 * 
+		 * @param type
+		 *        the property type
+		 * @return this instance
+		 */
 		public Builder withType(NodeControlPropertyType type) {
 			this.type = type;
 			return this;
 		}
 
+		/**
+		 * Configure a value.
+		 * 
+		 * @param value
+		 *        the value
+		 * @return this instance
+		 */
 		public Builder withValue(String value) {
 			this.value = value;
 			return this;
 		}
 
+		/**
+		 * Configure a read-only flag.
+		 * 
+		 * @param readonly
+		 *        {@literal true} for a read-only property
+		 * @return this instance
+		 */
 		public Builder withReadonly(Boolean readonly) {
 			this.readonly = readonly;
 			return this;
 		}
 
+		/**
+		 * Configure a unit.
+		 * 
+		 * @param unit
+		 *        the unit
+		 * @return this instance
+		 */
 		public Builder withUnit(String unit) {
 			this.unit = unit;
 			return this;
 		}
 
+		/**
+		 * Configure a property name.
+		 * 
+		 * @param propertyName
+		 *        the property name
+		 * @return this instance
+		 */
 		public Builder withPropertyName(String propertyName) {
 			this.propertyName = propertyName;
 			return this;
 		}
 
+		/**
+		 * Create a new instance from this builder.
+		 * 
+		 * @return the new instance
+		 */
 		public BasicNodeControlInfo build() {
 			return new BasicNodeControlInfo(this);
 		}

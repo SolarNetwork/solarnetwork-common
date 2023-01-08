@@ -41,7 +41,10 @@ public class ResultStatusException extends RuntimeException {
 
 	private static final long serialVersionUID = 1692555466635119640L;
 
+	/** The URL. */
 	private final URL url;
+
+	/** The status code. */
 	private final int statusCode;
 
 	/**

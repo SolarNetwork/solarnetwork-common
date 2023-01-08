@@ -32,12 +32,16 @@ import net.solarnetwork.domain.CodedValue;
  */
 public enum ChargingProfileStatus implements CodedValue {
 
+	/** Unknown. */
 	Unknown(0),
 
+	/** Accepted. */
 	Accepted(1),
 
+	/** Rejected. */
 	Rejected(2),
 
+	/** Not supported. */
 	NotSupported(3);
 
 	private final byte code;

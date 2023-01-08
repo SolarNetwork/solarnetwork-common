@@ -35,7 +35,10 @@ public class KeyValuePair implements Serializable, Comparable<KeyValuePair> {
 
 	private static final long serialVersionUID = -8143671046909870551L;
 
+	/** The key. */
 	private String key;
+
+	/** The value. */
 	private String value;
 
 	/**

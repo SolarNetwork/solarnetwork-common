@@ -48,7 +48,7 @@ import ocpp.xml.support.XmlDateUtils;
  * Process {@link MeterValuesRequest} action messages.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class MeterValuesProcessor
 		extends BaseActionMessageProcessor<MeterValuesRequest, MeterValuesResponse> {
@@ -92,15 +92,10 @@ public class MeterValuesProcessor
 		}
 
 		try {
-			ChargeSession session = chargeSessionManager.getActiveChargingSession(chargePointId,
-					req.getTransactionId());
-
-			if ( session == null ) {
-				ErrorCodeException err = new ErrorCodeException(ActionErrorCode.GenericError,
-						"Charge session not found for given IDs.");
-				resultHandler.handleActionMessageResult(message, null, err);
-				return;
-			}
+			final ChargeSession session = (req.getTransactionId() != null
+					? chargeSessionManager.getActiveChargingSession(chargePointId,
+							req.getTransactionId())
+					: null);
 
 			List<MeterValue> values = req.getMeterValue();
 			List<SampledValue> newReadings = new ArrayList<>();
@@ -108,13 +103,15 @@ public class MeterValuesProcessor
 				for ( MeterValue mv : values ) {
 					Instant ts = XmlDateUtils.timestamp(mv.getTimestamp(), Instant::now);
 					mv.getSampledValue().stream().map(v -> {
-						return CentralSystemUtils.sampledValue(session.getId(), ts, v);
+						return CentralSystemUtils.sampledValue(session != null ? session.getId() : null,
+								ts, v);
 					}).forEach(newReadings::add);
 				}
 			}
 			if ( !newReadings.isEmpty() ) {
-				log.info("Saving charge readings for session {}: {}", session, newReadings);
-				chargeSessionManager.addChargingSessionReadings(newReadings);
+				log.info("Saving charge readings for session {} (txId {}): {}", session,
+						req.getTransactionId(), newReadings);
+				chargeSessionManager.addChargingSessionReadings(chargePointId, newReadings);
 			}
 
 			resultHandler.handleActionMessageResult(message, new MeterValuesResponse(), null);

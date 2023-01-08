@@ -32,22 +32,31 @@ import net.solarnetwork.domain.CodedValue;
  */
 public enum ReadingContext implements CodedValue {
 
+	/** Unknown. */
 	Unknown(0),
 
+	/** Interruption begin. */
 	InterruptionBegin(1),
 
+	/** Interruption end. */
 	InterruptionEnd(2),
 
+	/** Sample clock. */
 	SampleClock(3),
 
+	/** Sample periodic. */
 	SamplePeriodic(4),
 
+	/** Transaction begin. */
 	TransactionBegin(5),
 
+	/** Transaction end. */
 	TransactionEnd(6),
 
+	/** Other. */
 	Other(7),
 
+	/** Trigger. */
 	Trigger(8);
 
 	private final byte code;

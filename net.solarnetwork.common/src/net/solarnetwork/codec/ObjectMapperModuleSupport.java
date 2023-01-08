@@ -180,6 +180,11 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 		this.serializers = serializers;
 	}
 
+	/**
+	 * Get a list of {@link JsonSerializer} objects to configure on the module.
+	 * 
+	 * @return the deserializers
+	 */
 	public List<JsonDeserializer<?>> getDeserializers() {
 		return deserializers;
 	}
@@ -214,6 +219,11 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 		this.keyDeserializers = keyDeserializers;
 	}
 
+	/**
+	 * Get a list of {@link TypedKeyDeserializer} objects.
+	 * 
+	 * @return the serializers
+	 */
 	public List<JsonSerializer<?>> getKeySerializers() {
 		return keySerializers;
 	}

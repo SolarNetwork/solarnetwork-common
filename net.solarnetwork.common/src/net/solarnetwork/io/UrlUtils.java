@@ -29,6 +29,8 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -47,7 +49,7 @@ import net.solarnetwork.service.SSLService;
  * Utilities for supporting URL related tasks.
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.54
  */
 public final class UrlUtils {
@@ -218,7 +220,12 @@ public final class UrlUtils {
 	 */
 	public static URLConnection getURLConnection(String url, String httpMethod, String accept,
 			int timeout, SSLService sslService) throws IOException {
-		URL connUrl = new URL(url);
+		URL connUrl;
+		try {
+			connUrl = new URI(url).toURL();
+		} catch ( URISyntaxException e ) {
+			throw new IOException("Invalid URL [" + url + "]", e);
+		}
 		URLConnection conn = connUrl.openConnection();
 		if ( httpMethod != null && conn instanceof HttpURLConnection ) {
 			HttpURLConnection hConn = (HttpURLConnection) conn;

@@ -39,7 +39,7 @@ import net.solarnetwork.domain.ByteOrdering;
  * </p>
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.54
  */
 public final class ByteUtils {
@@ -155,24 +155,11 @@ public final class ByteUtils {
 	 */
 	public static String encodeHexString(final byte[] data, final int fromIndex, final int toIndex,
 			final boolean space) {
-		if ( data == null || data.length < 1 || fromIndex < 0 || fromIndex >= data.length || toIndex < 0
-				|| toIndex <= fromIndex ) {
-			return "";
-		}
-		StringBuilder hexData = new StringBuilder(
-				2 * (toIndex - fromIndex) + (space ? (toIndex - fromIndex) : 0));
-		char[] buffer = new char[2];
-		for ( int i = fromIndex; i < toIndex; i++ ) {
-			if ( space && i > fromIndex ) {
-				hexData.append(' ');
-			}
-			hexData.append(encodeHex(data[i], DIGITS_UPPER, buffer, 0));
-		}
-		return hexData.toString();
+		return encodeHexString(data, fromIndex, toIndex, space, false);
 	}
 
 	/**
-	 * Encode a byte array into a hex-encoded upper-case string.
+	 * Encode a byte array into a hex-encoded string.
 	 * 
 	 * @param data
 	 *        the data to encode as hex strings

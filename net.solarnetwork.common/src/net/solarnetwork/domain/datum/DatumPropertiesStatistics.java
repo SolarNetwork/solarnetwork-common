@@ -74,7 +74,10 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	private static final long serialVersionUID = -1933887645480711417L;
 
+	/** The instantaneous statistics. */
 	private BigDecimal[][] instantaneous;
+
+	/** The accumulating statistics. */
 	private BigDecimal[][] accumulating;
 
 	/**

@@ -32,16 +32,22 @@ import net.solarnetwork.domain.CodedValue;
  */
 public enum AuthorizationStatus implements CodedValue {
 
+	/** None. */
 	None(0),
 
+	/** Accpeted. */
 	Accepted(1),
 
+	/** Blocked. */
 	Blocked(2),
 
+	/** Expired. */
 	Expired(3),
 
+	/** Invalid. */
 	Invalid(4),
 
+	/** Concurrent transaction. */
 	ConcurrentTx(5);
 
 	private final byte code;

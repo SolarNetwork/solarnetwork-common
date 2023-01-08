@@ -41,6 +41,7 @@ public abstract class DatumSupport implements Serializable {
 
 	private static final long serialVersionUID = -4264640101068495508L;
 
+	/** The tags. */
 	private Set<String> tags;
 
 	/**

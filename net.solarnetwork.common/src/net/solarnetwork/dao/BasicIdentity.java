@@ -37,6 +37,7 @@ public class BasicIdentity<PK extends Comparable<PK>> implements Identity<PK>, S
 
 	private static final long serialVersionUID = 1468072353770355777L;
 
+	/** The primary key. */
 	private final PK id;
 
 	/**

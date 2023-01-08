@@ -39,6 +39,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -333,8 +335,8 @@ public class SdkS3ClientIntegrationTests {
 
 	private URL s3Url(String key) {
 		try {
-			return new URL(TEST_PROPS.getProperty("url") + "/" + key);
-		} catch ( MalformedURLException e ) {
+			return new URI(TEST_PROPS.getProperty("url") + "/" + key).toURL();
+		} catch ( MalformedURLException | URISyntaxException e ) {
 			throw new RuntimeException(e);
 		}
 	}

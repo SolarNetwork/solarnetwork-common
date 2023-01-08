@@ -250,6 +250,7 @@ public class SearchFilter {
 
 	}
 
+	/** The filter. */
 	protected final Map<String, ?> filter;
 	private final CompareOperator compareOp;
 	private final LogicOperator logicOp;

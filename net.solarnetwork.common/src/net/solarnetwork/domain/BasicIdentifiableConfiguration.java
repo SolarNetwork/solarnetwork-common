@@ -45,8 +45,13 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 
 	private static final long serialVersionUID = 8272531095755880837L;
 
+	/** The name. */
 	private String name;
+
+	/** The service identifier. */
 	private String serviceIdentifier;
+
+	/** The service properties. */
 	private Map<String, Object> serviceProps;
 
 	/**

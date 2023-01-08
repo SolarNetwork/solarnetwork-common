@@ -98,6 +98,11 @@ public class UnicodeReader extends Reader {
 		}
 	}
 
+	/**
+	 * Get the encoding.
+	 * 
+	 * @return the encoding name
+	 */
 	public String getEncoding() {
 		return reader.getEncoding();
 	}
