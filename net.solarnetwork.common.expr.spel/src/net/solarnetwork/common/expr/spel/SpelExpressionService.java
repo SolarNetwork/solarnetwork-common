@@ -112,7 +112,10 @@ public class SpelExpressionService implements ExpressionService {
 			return parser.parseExpression(expression);
 		} catch ( NullPointerException e ) {
 			throw new ExpressionException(
-					"NullPointerException evaluating expression `" + expression + "`");
+					"NullPointerException parsing expression `" + expression + "`");
+		} catch ( IllegalStateException e ) {
+			throw new ExpressionException(
+					"IllegalStateException parsing expression `" + expression + "`");
 		}
 	}
 
