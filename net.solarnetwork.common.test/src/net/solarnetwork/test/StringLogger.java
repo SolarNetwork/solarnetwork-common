@@ -47,11 +47,22 @@ public final class StringLogger extends MarkerIgnoringBase {
 	 * Logging level.
 	 */
 	public enum Level {
+		/** Trace level. */
 		TRACE,
+
+		/** Debug level. */
 		DEBUG,
+
+		/** Info level. */
 		INFO,
+
+		/** Warn level. */
 		WARN,
+
+		/** Error level. */
 		ERROR,
+
+		/** Off level. */
 		OFF;
 	}
 
@@ -144,8 +155,10 @@ public final class StringLogger extends MarkerIgnoringBase {
 
 	}
 
+	/** The logged entries. */
 	private final List<StringLogger.Entry> entries = Collections.synchronizedList(new ArrayList<>());
 
+	/** The level to use. */
 	private StringLogger.Level level = Level.TRACE;
 
 	/**

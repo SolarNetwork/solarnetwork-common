@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common MQTT Support
 Bundle-Description: Support for common MQTT functions.
 Bundle-SymbolicName: net.solarnetwork.common.mqtt
-Bundle-Version: 3.2.0
+Bundle-Version: 4.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.mqtt
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -21,6 +21,6 @@ Import-Package:
  net.solarnetwork.util;version="[2.1,3.0)",
  org.osgi.service.event;version="[1.3,2.0)",
  org.slf4j;version="[1.7,2.0)",
- org.springframework.context;version="[4.3,5.0)",
- org.springframework.scheduling;version="[4.3,5.0)",
- org.springframework.util;version="[4.3,5.0)"
+ org.springframework.context;version="[5.3,6.0)",
+ org.springframework.scheduling;version="[5.3,6.0)",
+ org.springframework.util;version="[5.3,6.0)"

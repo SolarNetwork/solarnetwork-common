@@ -55,13 +55,25 @@ import io.moquette.interception.InterceptHandler;
  */
 public class MqttServerSupport {
 
+	/** A class-level logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
+	/** The MQTT server. */
 	protected Server mqttServer;
+
+	/** The MQTT client. */
 	protected MqttClient mqttClient;
+
 	private Properties mqttServerProperties;
 	private TestingInterceptHandler testingHandler;
 
+	/**
+	 * Find and return an unused IP port.
+	 * 
+	 * @return the unused port
+	 * @throws RuntimeException
+	 *         if no unused port can be found
+	 */
 	protected static final int getFreePort() {
 		try (ServerSocket ss = new ServerSocket(0)) {
 			ss.setReuseAddress(true);
@@ -71,6 +83,18 @@ public class MqttServerSupport {
 		}
 	}
 
+	/**
+	 * Create basic MQTT properties.
+	 * 
+	 * <p>
+	 * The {@link BrokerConstants#PORT_PROPERTY_NAME} and
+	 * {@link BrokerConstants#HOST_PROPERTY_NAME} values will be populated.
+	 * </p>
+	 * 
+	 * @param port
+	 *        the port to use
+	 * @return the server properties
+	 */
 	protected Properties createMqttServerProperties(int port) {
 		if ( port < 1 ) {
 			port = getFreePort();
@@ -81,6 +105,18 @@ public class MqttServerSupport {
 		return p;
 	}
 
+	/**
+	 * Setup an embedded MQTT server.
+	 * 
+	 * @param handlers
+	 *        the handlers
+	 * @param authenticator
+	 *        the authenticator
+	 * @param authorizator
+	 *        the authorizator
+	 * @param port
+	 *        the listen port
+	 */
 	public void setupMqttServer(List<InterceptHandler> handlers, IAuthenticator authenticator,
 			IAuthorizatorPolicy authorizator, int port) {
 		testingHandler = null;
@@ -96,6 +132,9 @@ public class MqttServerSupport {
 		mqttServerProperties = p;
 	}
 
+	/**
+	 * Setup an embedded MQTT server.
+	 */
 	public void setupMqttServer() {
 		setupMqttServer(null, null, null, 0);
 	}
@@ -135,14 +174,32 @@ public class MqttServerSupport {
 		}
 	}
 
+	/**
+	 * Get the embedded MQTT server.
+	 * 
+	 * @return the server
+	 */
 	public Server getServer() {
 		return mqttServer;
 	}
 
+	/**
+	 * Get an MQTT client.
+	 * 
+	 * @return the client
+	 */
 	public IMqttClient getClient() {
 		return mqttClient;
 	}
 
+	/**
+	 * Setup a MQTT client.
+	 * 
+	 * @param clientId
+	 *        the client ID
+	 * @param callback
+	 *        the callback
+	 */
 	public void setupMqttClient(String clientId, MqttCallback callback) {
 		if ( mqttClient != null ) {
 			try {
@@ -166,6 +223,9 @@ public class MqttServerSupport {
 		}
 	}
 
+	/**
+	 * Perform cleanup (stop the MQTT server).
+	 */
 	@After
 	public void teardown() {
 		stopMqttServer();
