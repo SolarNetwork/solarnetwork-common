@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -112,7 +112,7 @@ public class AuthorizationV2RequestInterceptorTests {
 	        .andExpect(header(HttpHeaders.HOST, "localhost"))
 	        .andExpect(header(HttpHeaders.AUTHORIZATION, 
 	            startsWith("SNWS2 Credential=" + credentialsProvider.getAuthorizationId() + ",SignedHeaders=accept;date;host,Signature=")))
-	        .andRespond(withSuccess(responseBody, APPLICATION_JSON_UTF8).headers(respHeaders));
+	        .andRespond(withSuccess(responseBody, APPLICATION_JSON).headers(respHeaders));
 	    // @formatter:on
 
 		// when
@@ -140,7 +140,7 @@ public class AuthorizationV2RequestInterceptorTests {
 				.method(HttpMethod.POST.toString())
 				.host(TEST_HOST)
 				.path("/foo/bar")
-				.contentType(MediaType.APPLICATION_FORM_URLENCODED.toString())
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED + ";charset=UTF-8")
 				.date(Instant.ofEpochMilli(reqDate))
 				.header("Accept", "application/json, application/*+json")
 				.header("Content-Length", "9")
@@ -155,7 +155,7 @@ public class AuthorizationV2RequestInterceptorTests {
 	        .andExpect(method(HttpMethod.POST))
 	        .andExpect(header(HttpHeaders.HOST, "localhost"))
 	        .andExpect(header(HttpHeaders.AUTHORIZATION, equalTo(authHeader)))
-	        .andRespond(withSuccess(responseBody, APPLICATION_JSON_UTF8).headers(respHeaders));
+	        .andRespond(withSuccess(responseBody, APPLICATION_JSON).headers(respHeaders));
 	    // @formatter:on
 
 		// when

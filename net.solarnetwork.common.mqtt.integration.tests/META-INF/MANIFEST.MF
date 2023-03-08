@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MQTT Integration Test Support
 Bundle-SymbolicName: net.solarnetwork.common.mqtt.integration.tests
-Bundle-Version: 2.0.0
+Bundle-Version: 3.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.mqtt.integration.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -26,5 +26,5 @@ Import-Package:
  org.junit;version="[4.5,5.0)",
  org.junit.runner;version="[4.5,5.0)",
  org.slf4j;version="[1.7,2.0)",
- org.springframework.scheduling.concurrent;version="[4.3,5.0)",
- org.springframework.util;version="[4.3,5.0)"
+ org.springframework.scheduling.concurrent;version="[5.3,6.0)",
+ org.springframework.util;version="[5.3,6.0)"

@@ -500,7 +500,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 * 
 	 * @param readTimeoutSeconds
 	 *        the timeout to set, or {@literal 0} to disable or {@literal -1} to
-	 *        use the {@link #getTimeoutSeconds()} value
+	 *        use the {@link #getReadTimeoutSeconds()} value
 	 * @since 2.1
 	 */
 	public void setReadTimeoutSeconds(int readTimeoutSeconds) {
@@ -517,7 +517,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 * 
 	 * @param writeTimeoutSeconds
 	 *        the timeout to set, or {@literal 0} to disable or {@literal -1} to
-	 *        use the {@link #getTimeoutSeconds()} value
+	 *        use the {@link #getWriteTimeoutSeconds()} value
 	 * @since 2.1
 	 */
 	public void setWriteTimeoutSeconds(int writeTimeoutSeconds) {

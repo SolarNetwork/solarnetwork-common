@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: StringTemplate 4 templating support
 Bundle-Description: String templating support using the StringTemplate 4 library.
 Bundle-SymbolicName: net.solarnetwork.common.tmpl.st4
-Bundle-Version: 2.0.0
+Bundle-Version: 3.0.0
 Automatic-Module-Name: net.solarnetwork.common.tmpl.st4
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: 
@@ -13,8 +13,8 @@ Import-Package:
  net.solarnetwork.service;version="[1.0,2.0)",
  org.antlr.runtime;version="[3.5,4.0)",
  org.slf4j;version="[1.7,2.0)",
- org.springframework.context;version="[4.3,5.0)",
- org.springframework.util;version="[4.3,5.0)",
+ org.springframework.context;version="[5.3,6.0)",
+ org.springframework.util;version="[5.3,6.0)",
  org.stringtemplate.v4;version="[4.3,5.0)",
  org.stringtemplate.v4.compiler;version="[4.3,5.0)",
  org.stringtemplate.v4.misc;version="[4.3,5.0)"

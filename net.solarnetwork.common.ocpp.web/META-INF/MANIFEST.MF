@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Core OCPP Web Support
 Bundle-Description: Core OCPP web service support.
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.web
-Bundle-Version: 2.4.0
+Bundle-Version: 3.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.web
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -31,12 +31,12 @@ Import-Package:
  ocpp.v16.cp.json;version="[1.0,2.0)",
  ocpp.v16.cs.json;version="[1.0,2.0)",
  org.slf4j;version="[1.7,2.0)",
- org.springframework.core.task;version="[4.3,5.0)",
- org.springframework.http;version="[4.3,5.0)",
- org.springframework.http.server;version="[4.3,5.0)",
- org.springframework.scheduling;version="[4.3,5.0)",
- org.springframework.web.socket;version="[4.3,5.0)",
- org.springframework.web.socket.adapter;version="[4.3,5.0)",
- org.springframework.web.socket.handler;version="[4.3,5.0)",
- org.springframework.web.socket.server;version="[4.3,5.0)",
- org.springframework.web.socket.server.support;version="[4.3,5.0)"
+ org.springframework.core.task;version="[5.3,6.0)",
+ org.springframework.http;version="[5.3,6.0)",
+ org.springframework.http.server;version="[5.3,6.0)",
+ org.springframework.scheduling;version="[5.3,6.0)",
+ org.springframework.web.socket;version="[5.3,6.0)",
+ org.springframework.web.socket.adapter;version="[5.3,6.0)",
+ org.springframework.web.socket.handler;version="[5.3,6.0)",
+ org.springframework.web.socket.server;version="[5.3,6.0)",
+ org.springframework.web.socket.server.support;version="[5.3,6.0)"

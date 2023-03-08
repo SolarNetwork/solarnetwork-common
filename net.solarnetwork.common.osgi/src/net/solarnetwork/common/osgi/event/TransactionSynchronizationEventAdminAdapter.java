@@ -24,9 +24,9 @@ package net.solarnetwork.common.osgi.event;
 
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
+import org.springframework.core.Ordered;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -49,7 +49,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.36
  */
 public class TransactionSynchronizationEventAdminAdapter implements EventAdmin {
@@ -82,7 +82,7 @@ public class TransactionSynchronizationEventAdminAdapter implements EventAdmin {
 	}
 
 	private static class TransactionSynchronizationEventAdapter
-			extends TransactionSynchronizationAdapter {
+			implements TransactionSynchronization, Ordered {
 
 		private final EventAdmin eventAdmin;
 		private final Event event;
