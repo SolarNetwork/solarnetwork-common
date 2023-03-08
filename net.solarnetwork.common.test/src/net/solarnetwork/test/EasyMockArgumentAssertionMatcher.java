@@ -35,6 +35,12 @@ public class EasyMockArgumentAssertionMatcher<E> implements IArgumentMatcher {
 	private final Assertion<E> assertion;
 	private Throwable throwable;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param assertion
+	 *        the assertion to use
+	 */
 	public EasyMockArgumentAssertionMatcher(Assertion<E> assertion) {
 		this.assertion = assertion;
 	}

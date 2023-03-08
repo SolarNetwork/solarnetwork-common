@@ -650,6 +650,7 @@ public class AuthenticationDataV2Tests {
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now, contentType);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
+		request.setContent(content.getBytes("UTF-8")); // reset InputStream
 		verifyRequest(request, TEST_PASSWORD);
 
 		final Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(TEST_AUTH_TOKEN);
@@ -674,6 +675,7 @@ public class AuthenticationDataV2Tests {
 		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
 				now, contentType);
 		request.addHeader(HTTP_HEADER_AUTH, authHeader);
+		request.setContent(content.getBytes("UTF-8")); // reset InputStream
 		verifyRequest(request, TEST_PASSWORD);
 
 		final Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(TEST_AUTH_TOKEN);

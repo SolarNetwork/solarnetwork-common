@@ -39,10 +39,19 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
  */
 public class TestingMqttCallback implements MqttCallbackExtended {
 
+	/** The MQTT connection lost exceptions. */
 	public final List<Throwable> connectionLostExceptions = synchronizedList(new ArrayList<>(8));
+
+	/** The MQTT arrived exceptions. */
 	public final ConcurrentMap<String, List<MqttMessage>> arrivedMessages = new ConcurrentHashMap<>(8);
+
+	/** The MQTT delivery complete tokens. */
 	public final List<IMqttDeliveryToken> deliveryCompleteTokens = synchronizedList(new ArrayList<>(8));
+
+	/** The MQTT complete reconnect flags. */
 	public final List<Boolean> connectCompleteReconnectFlags = synchronizedList(new ArrayList<>(8));
+
+	/** The MQTT connect complete URIs. */
 	public final List<String> connectCompleteUris = synchronizedList(new ArrayList<>(8));
 
 	@Override

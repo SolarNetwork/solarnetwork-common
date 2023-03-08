@@ -67,12 +67,12 @@ public class DifferentiableTests {
 
 	@Test
 	public void differ_leftNull() {
-		assertThat("Left null object differ", differ(null, n(1)), is(equalTo(true)));
+		assertThat("Left null object differ", differ((DiffTest) null, n(1)), is(equalTo(true)));
 	}
 
 	@Test
 	public void differ_rightNull() {
-		assertThat("Left null object differ", differ(n(1), null), is(equalTo(true)));
+		assertThat("Left null object differ", differ(n(1), (DiffTest) null), is(equalTo(true)));
 	}
 
 	@Test
@@ -93,12 +93,14 @@ public class DifferentiableTests {
 
 	@Test
 	public void differ_collections_leftNull() {
-		assertThat("Left null collection differ", differ(null, emptyList()), is(equalTo(true)));
+		assertThat("Left null collection differ", differ((Collection<DiffTest>) null, emptyList()),
+				is(equalTo(true)));
 	}
 
 	@Test
 	public void differ_collections_rightNull() {
-		assertThat("Left null collection differ", differ(emptyList(), null), is(equalTo(true)));
+		assertThat("Left null collection differ", differ(emptyList(), (Collection<DiffTest>) null),
+				is(equalTo(true)));
 	}
 
 	@Test

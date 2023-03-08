@@ -76,6 +76,12 @@ public class SpelExpressionService implements ExpressionService {
 		this(new SpelParserConfiguration(null, SpelExpressionService.class.getClassLoader()));
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param configuration
+	 *        the configuration to use
+	 */
 	public SpelExpressionService(SpelParserConfiguration configuration) {
 		this.parser = new SpelExpressionParser(configuration);
 	}
@@ -106,7 +112,10 @@ public class SpelExpressionService implements ExpressionService {
 			return parser.parseExpression(expression);
 		} catch ( NullPointerException e ) {
 			throw new ExpressionException(
-					"NullPointerException evaluating expression `" + expression + "`");
+					"NullPointerException parsing expression `" + expression + "`");
+		} catch ( IllegalStateException e ) {
+			throw new ExpressionException(
+					"IllegalStateException parsing expression `" + expression + "`");
 		}
 	}
 
@@ -151,6 +160,12 @@ public class SpelExpressionService implements ExpressionService {
 		return languageReferenceLink;
 	}
 
+	/**
+	 * Set the language reference link.
+	 * 
+	 * @param languageReferenceLink
+	 *        the link to set
+	 */
 	public void setLanguageReferenceLink(URI languageReferenceLink) {
 		this.languageReferenceLink = languageReferenceLink;
 	}
@@ -170,6 +185,12 @@ public class SpelExpressionService implements ExpressionService {
 		return groupUid;
 	}
 
+	/**
+	 * Set the group UID.
+	 * 
+	 * @param groupUid
+	 *        the group UID to set
+	 */
 	public void setGroupUid(String groupUid) {
 		this.groupUid = groupUid;
 	}

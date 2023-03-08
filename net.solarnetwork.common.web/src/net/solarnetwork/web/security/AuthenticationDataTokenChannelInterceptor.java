@@ -62,7 +62,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.messaging.support.ChannelInterceptorAdapter;
+import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -84,10 +84,10 @@ import net.solarnetwork.web.support.RequestInfoHandshakeInterceptor;
  * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  * @since 1.14
  */
-public class AuthenticationDataTokenChannelInterceptor extends ChannelInterceptorAdapter {
+public class AuthenticationDataTokenChannelInterceptor implements ChannelInterceptor {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -172,11 +172,6 @@ public class AuthenticationDataTokenChannelInterceptor extends ChannelIntercepto
 		authRequest.eraseCredentials();
 		authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
 		return authRequest;
-	}
-
-	@Override
-	public boolean preReceive(MessageChannel channel) {
-		return super.preReceive(channel);
 	}
 
 	private static final class MessageHttpServletRequestAdapter implements HttpServletRequest {

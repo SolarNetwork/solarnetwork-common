@@ -369,14 +369,32 @@ public class BCCertificateService implements CertificateService, CertificationAu
 		}
 	}
 
+	/**
+	 * Set the certificate expiration, in days.
+	 * 
+	 * @param certificateExpireDays
+	 *        the expiration days
+	 */
 	public void setCertificateExpireDays(int certificateExpireDays) {
 		this.certificateExpireDays = certificateExpireDays;
 	}
 
+	/**
+	 * Set the signature algorithm.
+	 * 
+	 * @param signatureAlgorithm
+	 *        the algorithm
+	 */
 	public void setSignatureAlgorithm(String signatureAlgorithm) {
 		this.signatureAlgorithm = signatureAlgorithm;
 	}
 
+	/**
+	 * Set the authority expire days.
+	 * 
+	 * @param authorityExpireDays
+	 *        the expiration days
+	 */
 	public void setAuthorityExpireDays(int authorityExpireDays) {
 		this.authorityExpireDays = authorityExpireDays;
 	}

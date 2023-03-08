@@ -151,6 +151,17 @@ public class BCPBKDF2PasswordEncoder implements PasswordEncoder {
 		return dk;
 	}
 
+	/**
+	 * Main entry point.
+	 * 
+	 * <p>
+	 * This method expects a plain-text password argument, and will print the
+	 * PBKDF2 hashed version of that to the output stream.
+	 * </p>
+	 * 
+	 * @param arguments
+	 *        the arguments
+	 */
 	public static final void main(String[] arguments) {
 		if ( arguments.length < 1 ) {
 			System.err.println("Usage: " + BCPBKDF2PasswordEncoder.class.getName() + " <password>");

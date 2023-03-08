@@ -48,17 +48,41 @@ public class TestingInterceptHandler extends AbstractInterceptHandler {
 
 	private final String id = UUID.randomUUID().toString();
 
+	/** The MQTT connect messages. */
 	public final List<InterceptConnectMessage> connectMessages = new CopyOnWriteArrayList<>();
+
+	/** The MQTT disconnect messages. */
 	public final List<InterceptDisconnectMessage> disconnectMessages = new CopyOnWriteArrayList<>();
+
+	/** The MQTT connection lost messages. */
 	public final List<InterceptConnectionLostMessage> connectionLostMessages = new CopyOnWriteArrayList<>();
+
+	/** The MQTT publish messages. */
 	public final List<InterceptPublishMessage> publishMessages = new CopyOnWriteArrayList<>();
+
+	/** The MQTT publish payloads. */
 	public final List<ByteBuffer> publishPayloads = new CopyOnWriteArrayList<>();
+
+	/** The MQTT subscribe messages. */
 	public final List<InterceptSubscribeMessage> subscribeMessages = new CopyOnWriteArrayList<>();
+
+	/** The MQTT unsubsribe messages. */
 	public final List<InterceptUnsubscribeMessage> unsubscribeMessages = new CopyOnWriteArrayList<>();
+
+	/** The MQTT acknowledged messages. */
 	public final List<InterceptAcknowledgedMessage> acknowledgedMessages = new CopyOnWriteArrayList<>();
 
+	/**
+	 * A callback API.
+	 */
 	public static interface Callback {
 
+		/**
+		 * Handle an intercept message.
+		 * 
+		 * @param msg
+		 *        the message to handle
+		 */
 		void handleInterceptMessage(InterceptMessage msg);
 
 	}
