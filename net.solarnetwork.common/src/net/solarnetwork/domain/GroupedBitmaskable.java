@@ -61,7 +61,7 @@ public interface GroupedBitmaskable extends Bitmaskable {
 	 * Get the overall bitmask number within all groups, starting from
 	 * {@literal 0}.
 	 * 
-	 * @return the fault number
+	 * @return the overall index
 	 */
 	default int getOverallIndex() {
 		return (getGroupIndex() * getGroupSize()) + bitmaskBitOffset();
