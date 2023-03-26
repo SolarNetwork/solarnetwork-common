@@ -53,6 +53,13 @@ public class PropertySerializerRegistrar {
 	private Map<String, PropertySerializer> classSerializers = null;
 
 	/**
+	 * Constructor.
+	 */
+	public PropertySerializerRegistrar() {
+		super();
+	}
+
+	/**
 	 * Return a configured {@link PropertySerializer} for either a specific
 	 * property name or property type.
 	 * 
@@ -120,30 +127,38 @@ public class PropertySerializerRegistrar {
 	}
 
 	/**
-	 * @return the propertySerializers
+	 * Get the property serializers.
+	 * 
+	 * @return the property serializers
 	 */
 	public Map<String, PropertySerializer> getPropertySerializers() {
 		return propertySerializers;
 	}
 
 	/**
+	 * Set the property serializers.
+	 * 
 	 * @param propertySerializers
-	 *        the propertySerializers to set
+	 *        the property serializers to set
 	 */
 	public void setPropertySerializers(Map<String, PropertySerializer> propertySerializers) {
 		this.propertySerializers = propertySerializers;
 	}
 
 	/**
-	 * @return the classSerializers
+	 * Get the class serializers.
+	 * 
+	 * @return the class serializers
 	 */
 	public Map<String, PropertySerializer> getClassSerializers() {
 		return classSerializers;
 	}
 
 	/**
+	 * Set the class serializers.
+	 * 
 	 * @param classSerializers
-	 *        the classSerializers to set
+	 *        the class serializers to set
 	 */
 	public void setClassSerializers(Map<String, PropertySerializer> classSerializers) {
 		this.classSerializers = classSerializers;

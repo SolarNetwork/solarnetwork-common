@@ -25,6 +25,8 @@ package net.solarnetwork.domain;
 /**
  * A basic, immutable implementation of {@link Identity}.
  * 
+ * @param <PK>
+ *        the primary key type
  * @author matt
  * @version 1.0
  * @since 1.43

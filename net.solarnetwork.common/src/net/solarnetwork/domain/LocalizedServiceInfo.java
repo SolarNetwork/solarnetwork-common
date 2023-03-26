@@ -48,6 +48,13 @@ public interface LocalizedServiceInfo extends Identity<String> {
 	 */
 	static class LocalizedNameComparator implements Comparator<LocalizedServiceInfo> {
 
+		/**
+		 * Constructor.
+		 */
+		public LocalizedNameComparator() {
+			super();
+		}
+
 		@Override
 		public int compare(LocalizedServiceInfo o1, LocalizedServiceInfo o2) {
 			if ( o1 == o2 ) {

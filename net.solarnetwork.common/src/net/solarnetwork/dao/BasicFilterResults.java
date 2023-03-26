@@ -33,6 +33,10 @@ import net.solarnetwork.domain.Identity;
 /**
  * Basic implementation of {@link FilterResults}.
  * 
+ * @param <M>
+ *        the match type
+ * @param <K>
+ *        the primary key type
  * @author matt
  * @version 1.2
  * @since 1.59

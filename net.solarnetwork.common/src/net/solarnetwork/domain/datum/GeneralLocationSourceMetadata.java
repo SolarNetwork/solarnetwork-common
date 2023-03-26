@@ -43,6 +43,13 @@ public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 	private Location location;
 
 	/**
+	 * Constructor.
+	 */
+	public GeneralLocationSourceMetadata() {
+		super();
+	}
+
+	/**
 	 * Get the location ID.
 	 * 
 	 * @return the location ID

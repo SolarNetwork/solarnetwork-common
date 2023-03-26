@@ -38,6 +38,13 @@ public class GeneralNodeSourceMetadata extends GeneralSourceMetadata {
 	private Long nodeId;
 
 	/**
+	 * Constructor.
+	 */
+	public GeneralNodeSourceMetadata() {
+		super();
+	}
+
+	/**
 	 * Get the node ID.
 	 * 
 	 * @return the node ID

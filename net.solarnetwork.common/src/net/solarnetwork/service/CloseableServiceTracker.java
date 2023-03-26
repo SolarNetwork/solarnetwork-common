@@ -50,6 +50,13 @@ public class CloseableServiceTracker {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
+	 * Constructor.
+	 */
+	public CloseableServiceTracker() {
+		super();
+	}
+
+	/**
 	 * Call when an {@link CloseableService} is no longer available.
 	 * 
 	 * @param service

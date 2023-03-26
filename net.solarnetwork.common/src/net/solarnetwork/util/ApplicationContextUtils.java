@@ -37,6 +37,10 @@ import org.springframework.context.ApplicationContext;
  */
 public final class ApplicationContextUtils {
 
+	private ApplicationContextUtils() {
+		// not available
+	}
+
 	/**
 	 * Generate a {@literal TRACE} level log entry of the complete list of bean
 	 * names available in the given context.

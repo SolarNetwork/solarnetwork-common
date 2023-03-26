@@ -35,6 +35,8 @@ import java.util.Deque;
  * the deque.
  * </p>
  * 
+ * @param <E>
+ *        the element type
  * @author matt
  * @version 1.0
  * @since 1.51

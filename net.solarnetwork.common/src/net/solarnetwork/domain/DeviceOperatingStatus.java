@@ -36,6 +36,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * {@link DeviceOperatingState}.
  * </p>
  * 
+ * @param <C>
+ *        the status type
  * @author matt
  * @version 1.0
  * @since 1.50
@@ -200,6 +202,9 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	/**
 	 * Builder to build {@link DeviceOperatingStatus} using an enum of device
 	 * state values.
+	 * 
+	 * @param <C>
+	 *        the enum type
 	 */
 	public static final class EnumBuilder<C extends Enum<C> & Bitmaskable> {
 

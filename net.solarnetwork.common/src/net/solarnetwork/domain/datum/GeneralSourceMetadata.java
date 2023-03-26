@@ -46,6 +46,13 @@ public class GeneralSourceMetadata {
 	private GeneralDatumMetadata meta;
 
 	/**
+	 * Constructor.
+	 */
+	public GeneralSourceMetadata() {
+		super();
+	}
+
+	/**
 	 * Get the source ID.
 	 * 
 	 * @return the source ID

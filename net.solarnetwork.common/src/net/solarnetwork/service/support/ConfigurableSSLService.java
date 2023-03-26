@@ -81,6 +81,13 @@ public class ConfigurableSSLService implements SSLService {
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
+	 * Constructor.
+	 */
+	public ConfigurableSSLService() {
+		super();
+	}
+
+	/**
 	 * Load a keystore from an {@code InputStream}.
 	 * 
 	 * @param type

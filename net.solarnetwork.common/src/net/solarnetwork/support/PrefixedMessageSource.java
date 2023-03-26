@@ -49,6 +49,13 @@ import org.springframework.context.NoSuchMessageException;
  */
 public class PrefixedMessageSource implements MessageSource, HierarchicalMessageSource {
 
+	/**
+	 * Constructor.
+	 */
+	public PrefixedMessageSource() {
+		super();
+	}
+
 	private String singlePrefix = "";
 	private MessageSource singleDelegate;
 	private Map<String, MessageSource> delegates = new LinkedHashMap<String, MessageSource>(2);

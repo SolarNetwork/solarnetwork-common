@@ -35,6 +35,13 @@ import org.springframework.validation.BindingResult;
  */
 public class BindingResultSerializer implements PropertySerializer {
 
+	/**
+	 * Constructor.
+	 */
+	public BindingResultSerializer() {
+		super();
+	}
+
 	@Override
 	public Object serialize(Object data, String propertyName, Object propertyValue) {
 		if ( propertyValue == null ) {

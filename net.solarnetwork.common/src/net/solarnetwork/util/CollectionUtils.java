@@ -49,6 +49,10 @@ import java.util.regex.Pattern;
  */
 public final class CollectionUtils {
 
+	private CollectionUtils() {
+		// not available
+	}
+
 	/**
 	 * Create integer ranges from a set of integers to produce a reduced set of
 	 * ranges that cover all integers in the source set.

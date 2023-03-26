@@ -25,6 +25,10 @@ package net.solarnetwork.domain;
 /**
  * API for an identity with copying support.
  * 
+ * @param <K>
+ *        the primary key type
+ * @param <C>
+ *        the configuration type
  * @author matt
  * @version 1.0
  * @since 2.9

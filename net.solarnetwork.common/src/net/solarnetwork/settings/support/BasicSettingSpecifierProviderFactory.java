@@ -37,6 +37,13 @@ public class BasicSettingSpecifierProviderFactory implements SettingSpecifierPro
 	private String displayName;
 	private MessageSource messageSource;
 
+	/**
+	 * Constructor.
+	 */
+	public BasicSettingSpecifierProviderFactory() {
+		super();
+	}
+
 	@Override
 	public String getFactoryUid() {
 		return factoryUid;

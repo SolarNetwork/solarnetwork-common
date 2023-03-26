@@ -41,6 +41,13 @@ import net.solarnetwork.service.ObjectMapperService;
 public class ObjectMapperModuleContributor extends ObjectMapperModuleSupport {
 
 	/**
+	 * Constructor.
+	 */
+	public ObjectMapperModuleContributor() {
+		super();
+	}
+
+	/**
 	 * Setup the {@link Module} and register it with the configured
 	 * {@link ObjectMapper}.
 	 */

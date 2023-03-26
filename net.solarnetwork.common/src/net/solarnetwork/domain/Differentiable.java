@@ -36,6 +36,8 @@ import java.util.Iterator;
  * updated property values.
  * </p>
  * 
+ * @param <T>
+ *        the object type
  * @author matt
  * @version 1.1
  * @since 1.59

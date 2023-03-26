@@ -25,6 +25,8 @@ package net.solarnetwork.service;
 /**
  * API for a contextual progress listener.
  * 
+ * @param <T>
+ *        the context type
  * @author matt
  * @version 1.0
  * @since 1.43

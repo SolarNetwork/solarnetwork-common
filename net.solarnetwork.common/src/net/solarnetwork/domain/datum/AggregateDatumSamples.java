@@ -51,6 +51,13 @@ public class AggregateDatumSamples extends DatumSupport {
 	/** The status values. */
 	private Map<String, Object> status;
 
+	/**
+	 * Constructor.
+	 */
+	public AggregateDatumSamples() {
+		super();
+	}
+
 	private void addAggregatePropertyValue(Map<String, AggregateDatumProperty> m, String key, Number n) {
 		if ( n == null ) {
 			m.remove(key);
@@ -90,7 +97,7 @@ public class AggregateDatumSamples extends DatumSupport {
 				putAccumulatingSampleValue(me.getKey(), (Number) me.getValue());
 			}
 		}
-		m = sample.getSampleData(DatumSamplesType.Accumulating);
+		m = sample.getSampleData(DatumSamplesType.Status);
 		if ( m != null ) {
 			for ( Map.Entry<String, ?> me : m.entrySet() ) {
 				putStatusSampleValue(me.getKey(), me.getValue());

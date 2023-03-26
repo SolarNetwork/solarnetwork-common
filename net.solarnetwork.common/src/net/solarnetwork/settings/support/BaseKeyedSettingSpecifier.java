@@ -28,6 +28,8 @@ import net.solarnetwork.settings.SettingSpecifier;
 /**
  * Base implementation of {@link KeyedSettingSpecifier}.
  * 
+ * @param <T>
+ *        the property value type
  * @author matt
  * @version 1.0
  */

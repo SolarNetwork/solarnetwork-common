@@ -59,6 +59,10 @@ import java.util.regex.Pattern;
  */
 public final class DateUtils {
 
+	private DateUtils() {
+		// not available
+	}
+
 	/**
 	 * Date and time formatter using the ISO 8601 style but with an optional
 	 * time component and a space character for the date/time separator instead

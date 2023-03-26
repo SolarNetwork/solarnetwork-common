@@ -60,6 +60,13 @@ public class DatumProperties implements Serializable {
 	private String[] tags;
 
 	/**
+	 * Constructor.
+	 */
+	public DatumProperties() {
+		super();
+	}
+
+	/**
 	 * Create a datum properties instance.
 	 * 
 	 * @param instantaneous

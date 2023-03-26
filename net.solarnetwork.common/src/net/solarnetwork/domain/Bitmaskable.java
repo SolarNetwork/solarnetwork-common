@@ -133,6 +133,13 @@ public interface Bitmaskable {
 	 */
 	final class BitmaskableTypeSort implements Comparator<Bitmaskable> {
 
+		/**
+		 * Constructor.
+		 */
+		public BitmaskableTypeSort() {
+			super();
+		}
+
 		@Override
 		public int compare(Bitmaskable o1, Bitmaskable o2) {
 			int result = (o1.getClass().getSimpleName().compareTo(o2.getClass().getSimpleName()));
