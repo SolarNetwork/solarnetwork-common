@@ -90,7 +90,7 @@ public class AggregateDatumSamples extends DatumSupport {
 				putAccumulatingSampleValue(me.getKey(), (Number) me.getValue());
 			}
 		}
-		m = sample.getSampleData(DatumSamplesType.Accumulating);
+		m = sample.getSampleData(DatumSamplesType.Status);
 		if ( m != null ) {
 			for ( Map.Entry<String, ?> me : m.entrySet() ) {
 				putStatusSampleValue(me.getKey(), me.getValue());
