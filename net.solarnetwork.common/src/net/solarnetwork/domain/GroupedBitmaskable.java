@@ -122,6 +122,13 @@ public interface GroupedBitmaskable extends Bitmaskable {
 	 */
 	final class SortByOverallIndex implements Comparator<GroupedBitmaskable> {
 
+		/**
+		 * Constructor.
+		 */
+		public SortByOverallIndex() {
+			super();
+		}
+
 		@Override
 		public int compare(GroupedBitmaskable o1, GroupedBitmaskable o2) {
 			if ( o1 == o2 ) {

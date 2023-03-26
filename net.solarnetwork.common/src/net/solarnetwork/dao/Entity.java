@@ -28,6 +28,8 @@ import net.solarnetwork.domain.Identity;
 /**
  * Base API for a persistable domain object.
  * 
+ * @param <K>
+ *        the primary key type
  * @author matt
  * @version 1.0
  * @since 1.59

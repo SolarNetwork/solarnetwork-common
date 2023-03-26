@@ -70,6 +70,13 @@ public class CloningPropertyEditorRegistrar implements PropertyEditorRegistrar {
 	private Map<Class<?>, PropertyEditor> classEditors = null;
 	private boolean lenient = true;
 
+	/**
+	 * Constructor.
+	 */
+	public CloningPropertyEditorRegistrar() {
+		super();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -154,21 +161,27 @@ public class CloningPropertyEditorRegistrar implements PropertyEditorRegistrar {
 	}
 
 	/**
-	 * @return the propertyEditors
+	 * Get the property editors.
+	 * 
+	 * @return the property editors
 	 */
 	public Map<String, PropertyEditor> getPropertyEditors() {
 		return propertyEditors;
 	}
 
 	/**
+	 * Set the property editors.
+	 * 
 	 * @param propertyEditors
-	 *        the propertyEditors to set
+	 *        the property editors to set
 	 */
 	public void setPropertyEditors(Map<String, PropertyEditor> propertyEditors) {
 		this.propertyEditors = propertyEditors;
 	}
 
 	/**
+	 * Get the lenient flag.
+	 * 
 	 * @return the lenient
 	 */
 	public boolean isLenient() {
@@ -176,23 +189,29 @@ public class CloningPropertyEditorRegistrar implements PropertyEditorRegistrar {
 	}
 
 	/**
+	 * Set the lenient flag.
+	 * 
 	 * @param lenient
-	 *        the lenient to set
+	 *        the lenient flag to set
 	 */
 	public void setLenient(boolean lenient) {
 		this.lenient = lenient;
 	}
 
 	/**
-	 * @return the classEditors
+	 * Get the class editors.
+	 * 
+	 * @return the class editors
 	 */
 	public Map<Class<?>, PropertyEditor> getClassEditors() {
 		return classEditors;
 	}
 
 	/**
+	 * Set the class editors.
+	 * 
 	 * @param classEditors
-	 *        the classEditors to set
+	 *        the class editors to set
 	 */
 	public void setClassEditors(Map<Class<?>, PropertyEditor> classEditors) {
 		this.classEditors = classEditors;

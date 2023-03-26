@@ -32,6 +32,10 @@ import java.util.Collection;
  */
 public final class ObjectUtils {
 
+	private ObjectUtils() {
+		// not available
+	}
+
 	/**
 	 * Require a non-null method argument.
 	 * 

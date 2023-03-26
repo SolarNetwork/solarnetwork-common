@@ -51,6 +51,8 @@ import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
  * {@literal y = (m * (M * (x + B))) + b}.
  * </p>
  * 
+ * @param <V>
+ *        the property value type
  * @author matt
  * @version 2.0
  * @since 1.54

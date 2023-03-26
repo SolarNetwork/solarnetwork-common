@@ -49,6 +49,13 @@ public final class SimpleTemporalRangesTariffEvaluator extends BasicIdentifiable
 	/** A static default instance. */
 	public static final TemporalRangesTariffEvaluator DEFAULT_EVALUATOR = new SimpleTemporalRangesTariffEvaluator();
 
+	/**
+	 * Constructor.
+	 */
+	public SimpleTemporalRangesTariffEvaluator() {
+		super();
+	}
+
 	@Override
 	public boolean applies(TemporalRangesTariff rule, LocalDateTime dateTime,
 			Map<String, ?> parameters) {

@@ -37,6 +37,10 @@ import net.solarnetwork.domain.NodeControlPropertyType;
  */
 public final class NodeControlUtils {
 
+	private NodeControlUtils() {
+		//  not available
+	}
+
 	/**
 	 * Convert an arbitrary object into a string suitable for using as a control
 	 * value.

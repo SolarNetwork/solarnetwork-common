@@ -53,6 +53,13 @@ public class TemplatedMessageSource implements MessageSource, HierarchicalMessag
 	private Pattern pat;
 	private MessageSource delegate;
 
+	/**
+	 * Constructor.
+	 */
+	public TemplatedMessageSource() {
+		super();
+	}
+
 	@Override
 	public void setParentMessageSource(MessageSource parent) {
 		if ( delegate instanceof HierarchicalMessageSource ) {

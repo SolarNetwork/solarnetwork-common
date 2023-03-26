@@ -39,6 +39,10 @@ public final class StreamUtils {
 	/** The "magic bytes" to look for at the start of a GZIP stream. */
 	public static final int GZIP_MAGIC = 0x1f8b;
 
+	private StreamUtils() {
+		// not available
+	}
+
 	/**
 	 * Get an {@link InputStream} for a given stream with automatic GZIP
 	 * detection.

@@ -95,6 +95,13 @@ public class XmlSupport {
 	private TransformerFactory transformerFactory = null;
 
 	/**
+	 * Constructor.
+	 */
+	public XmlSupport() {
+		super();
+	}
+
+	/**
 	 * Compile XPathExpression mappings from String XPath expressions.
 	 * 
 	 * @param xpathMap

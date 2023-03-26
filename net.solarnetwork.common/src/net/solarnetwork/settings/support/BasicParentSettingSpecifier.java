@@ -37,6 +37,13 @@ public class BasicParentSettingSpecifier extends BaseSettingSpecifier implements
 
 	private List<SettingSpecifier> childSettings;
 
+	/**
+	 * Constructor.
+	 */
+	public BasicParentSettingSpecifier() {
+		super();
+	}
+
 	@Override
 	public List<SettingSpecifier> getChildSettings() {
 		return this.childSettings;

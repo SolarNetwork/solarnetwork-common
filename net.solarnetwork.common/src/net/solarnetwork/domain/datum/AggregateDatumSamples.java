@@ -51,6 +51,13 @@ public class AggregateDatumSamples extends DatumSupport {
 	/** The status values. */
 	private Map<String, Object> status;
 
+	/**
+	 * Constructor.
+	 */
+	public AggregateDatumSamples() {
+		super();
+	}
+
 	private void addAggregatePropertyValue(Map<String, AggregateDatumProperty> m, String key, Number n) {
 		if ( n == null ) {
 			m.remove(key);

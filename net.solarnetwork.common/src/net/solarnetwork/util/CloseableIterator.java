@@ -40,6 +40,8 @@ import java.util.Iterator;
  * </code>
  * </pre>
  * 
+ * @param <E>
+ *        the element type
  * @author matt
  * @version 1.0
  */

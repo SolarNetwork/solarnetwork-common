@@ -55,6 +55,13 @@ public class BasicIdentifiable implements Identifiable {
 	private KeyValuePair[] metadata;
 
 	/**
+	 * Constructor.
+	 */
+	public BasicIdentifiable() {
+		super();
+	}
+
+	/**
 	 * Get settings for the configurable properties of
 	 * {@link BasicIdentifiable}.
 	 * 

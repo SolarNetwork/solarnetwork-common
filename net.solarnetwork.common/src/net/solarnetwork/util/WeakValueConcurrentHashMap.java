@@ -45,6 +45,10 @@ import java.util.function.Function;
  * {@literal null}.
  * </p>
  * 
+ * @param <K>
+ *        the key type
+ * @param <V>
+ *        the value type
  * @author matt
  * @version 1.0
  */

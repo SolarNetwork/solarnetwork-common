@@ -81,6 +81,13 @@ public class DatumPropertiesStatistics implements Serializable {
 	private BigDecimal[][] accumulating;
 
 	/**
+	 * Constructor.
+	 */
+	public DatumPropertiesStatistics() {
+		super();
+	}
+
+	/**
 	 * Create a datum statistics instance.
 	 * 
 	 * @param instantaneous

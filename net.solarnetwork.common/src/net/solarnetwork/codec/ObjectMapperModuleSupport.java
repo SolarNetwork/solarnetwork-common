@@ -50,6 +50,13 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 	private List<Module> modules;
 
 	/**
+	 * Constructor.
+	 */
+	public ObjectMapperModuleSupport() {
+		super();
+	}
+
+	/**
 	 * Helper method for registering {@link JsonDeserializer} instances of
 	 * unknown types at runtime, ignoring compiler warnings.
 	 * 

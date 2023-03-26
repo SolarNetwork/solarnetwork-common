@@ -37,7 +37,7 @@ import java.io.ByteArrayOutputStream;
  * @author Joachim Henke (Original version)
  * @author Benedikt Waldvogel (Modifications)
  */
-public class Base91 {
+public final class Base91 {
 
 	private static final byte[] ENCODING_TABLE;
 	private static final byte[] DECODING_TABLE;
@@ -55,6 +55,10 @@ public class Base91 {
 
 		for ( int i = 0; i < BASE; ++i )
 			DECODING_TABLE[ENCODING_TABLE[i]] = (byte) i;
+	}
+
+	private Base91() {
+		// not available
 	}
 
 	/**

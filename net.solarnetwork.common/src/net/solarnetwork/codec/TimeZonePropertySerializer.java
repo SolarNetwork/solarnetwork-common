@@ -34,6 +34,13 @@ import java.util.TimeZone;
  */
 public class TimeZonePropertySerializer implements PropertySerializer {
 
+	/**
+	 * Constructor.
+	 */
+	public TimeZonePropertySerializer() {
+		super();
+	}
+
 	@Override
 	public Object serialize(Object data, String propertyName, Object propertyValue) {
 		if ( propertyValue == null ) {

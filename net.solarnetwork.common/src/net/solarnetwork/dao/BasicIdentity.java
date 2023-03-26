@@ -29,6 +29,8 @@ import net.solarnetwork.domain.Identity;
  * A basic, immutable implementation of {@link Identity} that is also
  * {@link Serializable}.
  * 
+ * @param <PK>
+ *        the primary key type
  * @author matt
  * @version 1.0
  * @since 1.72

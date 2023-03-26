@@ -38,6 +38,13 @@ public abstract class BaseId implements Serializable, Cloneable {
 	private static final long serialVersionUID = 2726035205282491951L;
 
 	/**
+	 * Constructor.
+	 */
+	public BaseId() {
+		super();
+	}
+
+	/**
 	 * Populate a string builder with an ID value.
 	 * 
 	 * <p>

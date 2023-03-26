@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import org.springframework.beans.factory.FactoryBean;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -34,7 +33,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
@@ -46,39 +44,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * returned {@link ObjectMapper}.
  * </p>
  * 
- * <p>
- * The configurable properties of this class are:
- * </p>
- * 
- * <dl class="class-properties">
- * <dt>moduleName</dt>
- * <dd>A {@link Module} name to use.</dd>
- * 
- * <dt>moduleVersion</dt>
- * <dd>A {@link Version} to use for the module.</dd>
- * 
- * <dt>serializers</dt>
- * <dd>A list of serializers to register with the module.</dd>
- * 
- * <dt>deserializers</dt>
- * <dd>A list of deserializers to register with the module. Note that these must
- * be subclasses of {@link StdDeserializer}.</dd>
- * 
- * <dt>mapper</dt>
- * <dd>The {@link ObjectMapper} to configure.</dd>
- * 
- * <dt>serializationInclusion</dt>
- * <dd>A serialization inclusion setting to configure.</dd>
- * 
- * <dt>featuresToEnable</dt>
- * <dd>A list of {@link SerializationFeature} or {@link DeserializationFeature}
- * flags to enable.</dd>
- * 
- * <dt>featuresToDisable</dt>
- * <dd>A list of {@link SerializationFeature} or {@link DeserializationFeature}
- * flags to disable.</dd>
- * </dl>
- * 
  * @author matt
  * @version 1.5
  */
@@ -88,6 +53,13 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 	private JsonInclude.Include serializationInclusion = JsonInclude.Include.NON_NULL;
 	private List<Object> featuresToEnable = null;
 	private List<Object> featuresToDisable = null;
+
+	/**
+	 * Constructor.
+	 */
+	public ObjectMapperFactoryBean() {
+		super();
+	}
 
 	@Override
 	public ObjectMapper getObject() throws Exception {

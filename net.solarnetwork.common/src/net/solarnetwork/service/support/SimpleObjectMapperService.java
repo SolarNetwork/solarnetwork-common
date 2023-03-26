@@ -36,6 +36,13 @@ public class SimpleObjectMapperService implements ObjectMapperService {
 
 	private ObjectMapper objectMapper = new ObjectMapper();
 
+	/**
+	 * Constructor.
+	 */
+	public SimpleObjectMapperService() {
+		super();
+	}
+
 	@Override
 	public ObjectMapper getObjectMapper() {
 		return objectMapper;

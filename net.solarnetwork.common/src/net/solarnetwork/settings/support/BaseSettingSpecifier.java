@@ -34,6 +34,13 @@ public abstract class BaseSettingSpecifier implements SettingSpecifier {
 
 	private String title;
 
+	/**
+	 * Constructor.
+	 */
+	public BaseSettingSpecifier() {
+		super();
+	}
+
 	@Override
 	public String getTitle() {
 		return this.title;

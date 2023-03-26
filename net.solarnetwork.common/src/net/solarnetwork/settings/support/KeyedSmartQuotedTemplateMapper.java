@@ -47,6 +47,13 @@ public class KeyedSmartQuotedTemplateMapper implements Mapper {
 
 	private String template = DEFAULT_TEMPLATE;
 
+	/**
+	 * Constructor.
+	 */
+	public KeyedSmartQuotedTemplateMapper() {
+		super();
+	}
+
 	@Override
 	public String mapKey(String key) {
 		String quoteParam;

@@ -33,6 +33,8 @@ import java.util.Iterator;
  * {@link Enumeration}, such as the Servlet API.
  * </p>
  * 
+ * @param <E>
+ *        the element type
  * @author matt
  * @version 1.0
  * @since 1.41

@@ -38,6 +38,13 @@ public class JSONStringPropertySerializer implements PropertySerializer {
 
 	private ObjectMapper objectMapper;
 
+	/**
+	 * Constructor.
+	 */
+	public JSONStringPropertySerializer() {
+		super();
+	}
+
 	@Override
 	public Object serialize(Object data, String propertyName, Object propertyValue) {
 		try {

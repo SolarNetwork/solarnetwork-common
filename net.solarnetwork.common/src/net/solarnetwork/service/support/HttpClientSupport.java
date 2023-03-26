@@ -64,6 +64,13 @@ public class HttpClientSupport {
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
+	 * Constructor.
+	 */
+	public HttpClientSupport() {
+		super();
+	}
+
+	/**
 	 * Get an InputStream from a URLConnection response, handling compression.
 	 * 
 	 * <p>

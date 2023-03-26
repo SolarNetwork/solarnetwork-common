@@ -55,17 +55,6 @@ import net.solarnetwork.util.ClassUtils;
  * methods exposed for generating XML from JavaBean objects.
  * </p>
  * 
- * <p>
- * The configurable properties of this class are:
- * </p>
- * 
- * <dl>
- * <dt>propertySerializerRegistrar</dt>
- * <dd>An optional registrar of PropertySerializer instances that can be used to
- * serialize specific objects into String values. This can be useful for
- * formatting Date objects into strings, for example.</dd>
- * </dl>
- * 
  * @author matt
  * @version 2.0
  */
@@ -81,6 +70,13 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 	private final PropertySerializerRegistrar propertySerializerRegistrar = null;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	/**
+	 * Constructor.
+	 */
+	public JavaBeanXmlSerializer() {
+		super();
+	}
 
 	@Override
 	public Object serialize(Object data, String propertyName, Object propertyValue) {

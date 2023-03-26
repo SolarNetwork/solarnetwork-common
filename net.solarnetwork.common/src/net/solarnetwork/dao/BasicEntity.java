@@ -29,6 +29,8 @@ import java.time.Instant;
  * Basic implementation of {@link Entity} using a comparable and serializable
  * primary key.
  * 
+ * @param <K>
+ *        the primary key type
  * @author matt
  * @version 1.1
  * @since 1.59

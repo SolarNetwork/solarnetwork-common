@@ -31,6 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * services with known bean IDs, for situations where a bean might be injected
  * into the application context with an ID generated at runtime.
  * 
+ * @param <T>
+ *        the bean type
  * @author matt
  * @version 1.0
  */

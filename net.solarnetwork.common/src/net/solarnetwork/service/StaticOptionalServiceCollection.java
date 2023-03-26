@@ -37,6 +37,8 @@ import java.util.Map;
  * required, but the service is known and available statically.
  * </p>
  * 
+ * @param <T>
+ *        the service type
  * @author matt
  * @version 1.1
  */

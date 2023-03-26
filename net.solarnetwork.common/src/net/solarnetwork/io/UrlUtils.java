@@ -93,6 +93,10 @@ public final class UrlUtils {
 	/** A class-level logger. */
 	private static final Logger log = LoggerFactory.getLogger(UrlUtils.class);
 
+	private UrlUtils() {
+		// not available
+	}
+
 	/**
 	 * Get an InputStream from a URLConnection response, handling compression.
 	 * 

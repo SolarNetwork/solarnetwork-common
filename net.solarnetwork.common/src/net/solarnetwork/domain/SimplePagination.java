@@ -42,6 +42,13 @@ public class SimplePagination implements Cloneable {
 	private Integer max;
 
 	/**
+	 * Constructor.
+	 */
+	public SimplePagination() {
+		super();
+	}
+
+	/**
 	 * Test if the arguments match the values in this instance.
 	 * 
 	 * @param sorts
