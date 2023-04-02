@@ -22,13 +22,18 @@
 
 package net.solarnetwork.common.osgi.service.test;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 import static org.easymock.EasyMock.expect;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
@@ -221,6 +226,160 @@ public class DynamicServiceTrackerTests {
 		assertThat("Service props case-insensitive", tracker.getPropertyFilters().keySet(),
 				contains("UID"));
 		assertThat("Service returned via ref", s, is(sameInstance(service)));
+	}
+
+	@Test
+	public void requireFilter_noFilter() throws Exception {
+		// GIVEN
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+		tracker.setRequirePropertyFilter(true);
+
+		// WHEN
+		replayAll();
+
+		TestService s = tracker.service();
+
+		// THEN
+		assertThat("Service not returned because no filter configured", s, is(nullValue()));
+	}
+
+	@Test
+	public void requireFilter_nullFilter() throws Exception {
+		// GIVEN
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+		tracker.setRequirePropertyFilter(true);
+
+		// WHEN
+		replayAll();
+
+		tracker.setPropertyFilter("uid", null);
+		TestService s = tracker.service();
+
+		// THEN
+		assertThat("Service not returned because filter is null", s, is(nullValue()));
+	}
+
+	@Test
+	public void requireFilter_emptyFilter() throws Exception {
+		// GIVEN
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+		tracker.setRequirePropertyFilter(true);
+
+		// WHEN
+		replayAll();
+
+		tracker.setPropertyFilter("uid", "");
+		TestService s = tracker.service();
+
+		// THEN
+		assertThat("Service not returned because filter is empty", s, is(nullValue()));
+	}
+
+	@Test
+	public void requireFilter_emptyFilter_ignoreEmptyDisabled() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref = new SerializableServiceRef(1, 1);
+		ServiceReference<?>[] services = new ServiceReference<?>[] { ref };
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(services);
+		TestService service = new TestService();
+		expect(bundleContext.<Serializable> getService(ref)).andReturn(service);
+
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+		tracker.setRequirePropertyFilter(true);
+		tracker.setIgnoreEmptyPropertyFilterValues(false);
+
+		// WHEN
+		replayAll();
+
+		tracker.setPropertyFilter("uid", "");
+		TestService s = tracker.service();
+
+		// THEN
+		assertThat("Service not returned because empty filter does not match", s, is(nullValue()));
+	}
+
+	@Test
+	public void list_requireFilter_noFilter() throws Exception {
+		// GIVEN
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+		tracker.setRequirePropertyFilter(true);
+
+		// WHEN
+		replayAll();
+
+		Iterable<TestService> s = tracker.services();
+
+		// THEN
+		List<TestService> l = stream(s.spliterator(), false).collect(toList());
+		assertThat("Service not returned because no filter configured", l, hasSize(0));
+	}
+
+	@Test
+	public void list_requireFilter_nullFilter() throws Exception {
+		// GIVEN
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+		tracker.setRequirePropertyFilter(true);
+
+		// WHEN
+		replayAll();
+
+		tracker.setPropertyFilter("uid", null);
+		Iterable<TestService> s = tracker.services();
+
+		// THEN
+		List<TestService> l = stream(s.spliterator(), false).collect(toList());
+		assertThat("Service not returned because filter is null", l, hasSize(0));
+	}
+
+	@Test
+	public void list_requireFilter_emptyFilter() throws Exception {
+		// GIVEN
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+		tracker.setRequirePropertyFilter(true);
+
+		// WHEN
+		replayAll();
+
+		tracker.setPropertyFilter("uid", "");
+		Iterable<TestService> s = tracker.services();
+
+		// THEN
+		List<TestService> l = stream(s.spliterator(), false).collect(toList());
+		assertThat("Service not returned because filter is empty", l, hasSize(0));
+	}
+
+	@Test
+	public void list_requireFilter_emptyFilter_ignoreEmptyDisabled() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref = new SerializableServiceRef(1, 1);
+		ServiceReference<?>[] services = new ServiceReference<?>[] { ref };
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(services);
+		TestService service = new TestService();
+		expect(bundleContext.<Serializable> getService(ref)).andReturn(service);
+
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+		tracker.setRequirePropertyFilter(true);
+		tracker.setIgnoreEmptyPropertyFilterValues(false);
+
+		// WHEN
+		replayAll();
+
+		tracker.setPropertyFilter("uid", "");
+		Iterable<TestService> s = tracker.services();
+
+		// THEN
+		List<TestService> l = stream(s.spliterator(), false).collect(toList());
+		assertThat("Service not returned because empty filter does not match", l, hasSize(0));
 	}
 
 }
