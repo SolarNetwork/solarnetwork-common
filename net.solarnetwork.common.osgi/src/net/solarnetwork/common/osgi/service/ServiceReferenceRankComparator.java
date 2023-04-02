@@ -46,6 +46,13 @@ import org.osgi.framework.ServiceReference;
  */
 public class ServiceReferenceRankComparator implements Comparator<ServiceReference<?>> {
 
+	/**
+	 * Constructor.
+	 */
+	public ServiceReferenceRankComparator() {
+		super();
+	}
+
 	@Override
 	public int compare(ServiceReference<?> o1, ServiceReference<?> o2) {
 		Object p1 = o1.getProperty(Constants.SERVICE_RANKING);
