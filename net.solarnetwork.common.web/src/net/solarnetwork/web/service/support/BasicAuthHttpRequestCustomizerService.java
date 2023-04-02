@@ -111,7 +111,7 @@ public class BasicAuthHttpRequestCustomizerService extends AbstractAuthHttpReque
 
 	@Override
 	public String getSettingUid() {
-		return "net.s10k.http.auth.basic";
+		return "net.s10k.http.customizer.auth.basic";
 	}
 
 	@Override

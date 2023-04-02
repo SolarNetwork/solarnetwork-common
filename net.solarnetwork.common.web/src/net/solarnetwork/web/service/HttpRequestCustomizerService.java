@@ -63,7 +63,8 @@ public interface HttpRequestCustomizerService extends Identifiable {
 	 *        optional parameters to pass to the customizer, the meaning of
 	 *        which is implementation specific
 	 * @return the request to use, which may be {@code request} if that instance
-	 *         was modified directly or unchanged
+	 *         was modified directly or unchanged, or {@literal null} to prevent
+	 *         the request from happening at all
 	 */
 	HttpRequest customize(HttpRequest request, ByteList body, Map<String, ?> parameters);
 

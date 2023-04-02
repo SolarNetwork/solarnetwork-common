@@ -1,5 +1,5 @@
 /* ==================================================================
- * AbstractAuthHttpRequestCustomizerService.java - 2/04/2023 7:11:56 am
+ * AbstractHttpRequestCustomizerService.java - 2/04/2023 11:40:29 am
  * 
  * Copyright 2023 SolarNetwork.net Dev Team
  * 
@@ -22,28 +22,37 @@
 
 package net.solarnetwork.web.service.support;
 
+import net.solarnetwork.service.ServiceLifecycleObserver;
+import net.solarnetwork.service.support.BasicIdentifiable;
+import net.solarnetwork.settings.SettingSpecifierProvider;
+import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.web.service.HttpRequestCustomizerService;
 
 /**
- * Base class for authorization HTTP request customizer implementations.
+ * Base class for HTTP request customizer implementations.
  * 
  * @author matt
  * @version 1.0
  */
-public abstract class AbstractAuthHttpRequestCustomizerService
-		extends AbstractHttpRequestCustomizerService {
+public abstract class AbstractHttpRequestCustomizerService extends BasicIdentifiable
+		implements HttpRequestCustomizerService, SettingSpecifierProvider, SettingsChangeObserver,
+		ServiceLifecycleObserver {
 
 	/**
 	 * Constructor.
-	 * 
-	 * <p>
-	 * The {@code groupUid} property will be set to
-	 * {@link HttpRequestCustomizerService#AUTHORIZATION_GROUP_UID}.
-	 * </p>
 	 */
-	public AbstractAuthHttpRequestCustomizerService() {
+	public AbstractHttpRequestCustomizerService() {
 		super();
-		setGroupUid(AUTHORIZATION_GROUP_UID);
+	}
+
+	@Override
+	public void serviceDidStartup() {
+		configurationChanged(null);
+	}
+
+	@Override
+	public void serviceDidShutdown() {
+		// nothing
 	}
 
 }
