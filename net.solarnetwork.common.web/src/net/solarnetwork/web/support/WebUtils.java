@@ -34,6 +34,10 @@ import org.springframework.web.servlet.ModelAndView;
  */
 public final class WebUtils {
 
+	private WebUtils() {
+		// not available
+	}
+
 	/**
 	 * Resolve a ModelAndView with an empty model and a view name determined by
 	 * the URL "suffix".

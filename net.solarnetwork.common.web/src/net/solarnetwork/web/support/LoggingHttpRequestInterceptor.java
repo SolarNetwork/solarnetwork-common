@@ -70,6 +70,13 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 	private static final Logger RES_LOG = LoggerFactory.getLogger("net.solarnetwork.http.RES");
 
 	/**
+	 * Constructor.
+	 */
+	public LoggingHttpRequestInterceptor() {
+		super();
+	}
+
+	/**
 	 * Get a client request factory with logging support if either request or
 	 * response logging is enabled.
 	 * 

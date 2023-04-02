@@ -42,6 +42,13 @@ public class PatternMatchingResourceBundleMessagesSource extends ReloadableResou
 
 	private ResourcePatternResolver resourceResolver = null;
 
+	/**
+	 * Default constructor.
+	 */
+	public PatternMatchingResourceBundleMessagesSource() {
+		super();
+	}
+
 	@Override
 	protected PropertiesHolder refreshProperties(String filename, PropertiesHolder propHolder) {
 		if ( resourceResolver != null ) {

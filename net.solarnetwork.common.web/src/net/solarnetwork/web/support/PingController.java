@@ -62,6 +62,13 @@ public class PingController {
 
 	private List<PingTest> tests = null;
 
+	/**
+	 * Constructor.
+	 */
+	public PingController() {
+		super();
+	}
+
 	private PingResults executeTests() {
 		final Instant now = Instant.now();
 		Map<String, PingTestResultDisplay> results = null;

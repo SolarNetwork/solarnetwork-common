@@ -53,6 +53,13 @@ public class ResponseHeaderFilter implements Filter {
 
 	private FilterConfig fc;
 
+	/**
+	 * Constructor.
+	 */
+	public ResponseHeaderFilter() {
+		super();
+	}
+
 	@Override
 	public void destroy() {
 		this.fc = null;

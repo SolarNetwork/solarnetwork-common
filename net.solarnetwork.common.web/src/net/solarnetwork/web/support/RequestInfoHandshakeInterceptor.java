@@ -53,6 +53,13 @@ public class RequestInfoHandshakeInterceptor implements HandshakeInterceptor {
 	public static final String REQUEST_HEADERS = "requestHeaders";
 
 	/**
+	 * Constructor.
+	 */
+	public RequestInfoHandshakeInterceptor() {
+		super();
+	}
+
+	/**
 	 * Populate request information as session attributes.
 	 * 
 	 * <p>

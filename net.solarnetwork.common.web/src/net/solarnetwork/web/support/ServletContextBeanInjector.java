@@ -38,6 +38,13 @@ public class ServletContextBeanInjector implements ServletContextAware {
 	private ServletContext servletContext;
 	private boolean initialized = false;
 
+	/**
+	 * Constructor.
+	 */
+	public ServletContextBeanInjector() {
+		super();
+	}
+
 	@Override
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
