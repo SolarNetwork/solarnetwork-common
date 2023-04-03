@@ -45,7 +45,7 @@ import net.solarnetwork.util.ByteList;
  * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public interface HttpRequestCustomizerService extends Identifiable {
 
@@ -145,6 +145,13 @@ public interface HttpRequestCustomizerService extends Identifiable {
 	/**
 	 * Apply this service on a new client HTTP request.
 	 * 
+	 * <p>
+	 * If {@code body} is provided, and not empty, a {@code Content-Length}
+	 * header will be added to the request for the size of the body, and the
+	 * body will be written to the request. The
+	 * {@link StreamingHttpOutputMessage} API is supported.
+	 * </p>
+	 * 
 	 * @param requestFactory
 	 *        the request factory to use
 	 * @param request
@@ -171,16 +178,16 @@ public interface HttpRequestCustomizerService extends Identifiable {
 							customizedRequest.getMethod());
 			customizedRequest.getHeaders()
 					.forEach((key, value) -> customizedClientRequest.getHeaders().addAll(key, value));
-			if ( body != null && !body.isEmpty() ) {
-				if ( customizedClientRequest instanceof StreamingHttpOutputMessage ) {
-					StreamingHttpOutputMessage streamingOutputMessage = (StreamingHttpOutputMessage) customizedClientRequest;
-					streamingOutputMessage
-							.setBody(outputStream -> outputStream.write(body.toArrayValue()));
-				} else {
-					customizedClientRequest.getBody().write(body.toArrayValue());
-				}
+			request = customizedClientRequest;
+		}
+		if ( body != null && !body.isEmpty() ) {
+			request.getHeaders().setContentLength(body.size());
+			if ( request instanceof StreamingHttpOutputMessage ) {
+				StreamingHttpOutputMessage streamingOutputMessage = (StreamingHttpOutputMessage) request;
+				streamingOutputMessage.setBody(outputStream -> outputStream.write(body.toArrayValue()));
+			} else {
+				request.getBody().write(body.toArrayValue());
 			}
-			return customizedClientRequest;
 		}
 		return request;
 	}
