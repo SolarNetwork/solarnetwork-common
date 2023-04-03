@@ -50,6 +50,13 @@ public class ReloadableResourceBundleMessagesSource extends ReloadableResourceBu
 	private String[] basenames;
 	private MessagesSource parent;
 
+	/**
+	 * Constructor.
+	 */
+	public ReloadableResourceBundleMessagesSource() {
+		super();
+	}
+
 	@Override
 	public void setBasenames(String... basenames) {
 		super.setBasenames(basenames);
@@ -85,6 +92,8 @@ public class ReloadableResourceBundleMessagesSource extends ReloadableResourceBu
 	}
 
 	/**
+	 * Get the parent message source.
+	 * 
 	 * @return the parent
 	 */
 	public MessagesSource getParent() {
@@ -92,6 +101,8 @@ public class ReloadableResourceBundleMessagesSource extends ReloadableResourceBu
 	}
 
 	/**
+	 * Set the parent message source.
+	 * 
 	 * @param parent
 	 *        the parent to set
 	 */

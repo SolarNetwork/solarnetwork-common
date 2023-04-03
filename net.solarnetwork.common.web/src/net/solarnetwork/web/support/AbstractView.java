@@ -67,6 +67,13 @@ public abstract class AbstractView extends org.springframework.web.servlet.view.
 			Arrays.asList(DEFAULT_JAVA_BEAN_STRING_VALUES));
 
 	/**
+	 * Constructor.
+	 */
+	public AbstractView() {
+		super();
+	}
+
+	/**
 	 * This method performs the same functions as
 	 * {@link AbstractView#render(Map, HttpServletRequest, HttpServletResponse)}
 	 * except that it uses a LinkedHashMap to preserve model order rather than a

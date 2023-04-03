@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -74,7 +75,7 @@ import net.solarnetwork.service.OptionalServiceCollection;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalServiceCollection<T>,
 		FilterableService, OptionalService.OptionalFilterableService<T>,
@@ -91,6 +92,7 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	private Map<String, Object> propertyFilters;
 	private T fallbackService;
 	private boolean ignoreEmptyPropertyFilterValues = true;
+	private boolean requirePropertyFilter = false;
 	private boolean sticky = false;
 	private WeakReference<T> stickyService;
 
@@ -145,6 +147,9 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	@Override
 	@SuppressWarnings("unchecked")
 	public T service() {
+		if ( !canResolveService() ) {
+			return null;
+		}
 		final boolean sticky = isSticky();
 		if ( sticky ) {
 			synchronized ( this ) {
@@ -190,9 +195,35 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 		return fallbackService;
 	}
 
+	private boolean canResolveService() {
+		if ( !requirePropertyFilter ) {
+			return true;
+		}
+		if ( propertyFilters == null || propertyFilters.isEmpty() ) {
+			return false;
+		}
+		for ( Entry<String, Object> e : propertyFilters.entrySet() ) {
+			String key = e.getKey();
+			if ( key == null || key.isEmpty() ) {
+				continue;
+			}
+			if ( !ignoreEmptyPropertyFilterValues ) {
+				return true;
+			}
+			Object f = e.getValue();
+			if ( (f != null && (!(f instanceof String) || !((String) f).isEmpty())) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Iterable<T> services() {
+		if ( !canResolveService() ) {
+			return Collections.emptyList();
+		}
 		ServiceReference<?>[] refs;
 		try {
 			refs = bundleContext.getServiceReferences(serviceClassName, serviceFilter);
@@ -434,7 +465,6 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	 * 
 	 * @return {@literal true} to maintain a reference to the first-available
 	 *         service
-	 * @since 1.4
 	 */
 	public synchronized boolean isSticky() {
 		return sticky;
@@ -452,10 +482,32 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	 * @param sticky
 	 *        {@literal true} to maintain a reference to the first-available
 	 *        service
-	 * @since 1.4
 	 */
 	public synchronized void setSticky(boolean sticky) {
 		this.sticky = sticky;
+	}
+
+	/**
+	 * Get the flag to require a property filter.
+	 * 
+	 * @return {@literal true} if a property filter is required, so without a
+	 *         property filter a service will never be resolved
+	 * @since 1.1
+	 */
+	public boolean isRequirePropertyFilter() {
+		return requirePropertyFilter;
+	}
+
+	/**
+	 * Set the flag to require a property filter.
+	 * 
+	 * @param requirePropertyFilter
+	 *        {@literal true} if a property filter is required, so without a
+	 *        property filter a service will never be resolved
+	 * @since 1.1
+	 */
+	public void setRequirePropertyFilter(boolean requirePropertyFilter) {
+		this.requirePropertyFilter = requirePropertyFilter;
 	}
 
 }

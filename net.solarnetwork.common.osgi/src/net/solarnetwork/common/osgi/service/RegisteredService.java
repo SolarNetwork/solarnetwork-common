@@ -42,6 +42,14 @@ public class RegisteredService<T> {
 	private final Map<String, ?> props;
 	private List<ServiceRegistration<?>> regList;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param config
+	 *        the configuration object
+	 * @param properties
+	 *        the service properties
+	 */
 	public RegisteredService(T config, Map<String, ?> properties) {
 		if ( config == null || properties == null ) {
 			throw new IllegalArgumentException("Config and properties must not be null");
@@ -50,6 +58,16 @@ public class RegisteredService<T> {
 		this.props = properties;
 	}
 
+	/**
+	 * Test if a configuration is the same as another.
+	 * 
+	 * @param other
+	 *        the other configuration object to compare
+	 * @param properties
+	 *        the other properties to compare
+	 * @return {@literal true} if {@code other} and {@code config} are equal,
+	 *         and {@code properties} and {@code props} are deeply equal
+	 */
 	public boolean isSameAs(T other, Map<String, ?> properties) {
 		if ( other == null || properties == null ) {
 			return false;
@@ -66,6 +84,15 @@ public class RegisteredService<T> {
 		return true;
 	}
 
+	/**
+	 * Test of two maps are deeply equal.
+	 * 
+	 * @param m1
+	 *        the first map
+	 * @param m2
+	 *        the second map
+	 * @return {@literal true} if both maps are deeply equal (including arrays)
+	 */
 	public static boolean areMapsSame(Map<String, ?> m1, Map<String, ?> m2) {
 		if ( m1 == null && m2 == null ) {
 			return true;
@@ -100,6 +127,9 @@ public class RegisteredService<T> {
 		return true;
 	}
 
+	/**
+	 * Unregister the service.
+	 */
 	public void unregister() {
 		if ( regList == null ) {
 			return;
@@ -109,10 +139,20 @@ public class RegisteredService<T> {
 		}
 	}
 
+	/**
+	 * Get the configuration.
+	 * 
+	 * @return the configuration
+	 */
 	public T getConfig() {
 		return config;
 	}
 
+	/**
+	 * Get the service properties.
+	 * 
+	 * @return the properties
+	 */
 	public Map<String, ?> getProps() {
 		return props;
 	}

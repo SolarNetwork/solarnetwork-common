@@ -40,6 +40,10 @@ import org.apache.commons.codec.binary.Hex;
  */
 public final class AuthenticationUtils {
 
+	private AuthenticationUtils() {
+		// not available
+	}
+
 	/**
 	 * Get a HTTP formatted date.
 	 * 

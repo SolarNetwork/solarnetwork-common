@@ -52,6 +52,13 @@ public final class AuthenticationDataFactory {
 	private static final String EXPLICIT_HOST = System.getProperty(EXPLICIT_HOST_PROP, null);
 
 	/**
+	 * Constructor.
+	 */
+	public AuthenticationDataFactory() {
+		super();
+	}
+
+	/**
 	 * Obtain a {@link AuthenticationData} instance from a HTTP request.
 	 * 
 	 * @param request

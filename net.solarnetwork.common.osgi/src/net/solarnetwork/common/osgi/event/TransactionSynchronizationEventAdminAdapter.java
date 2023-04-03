@@ -59,6 +59,12 @@ public class TransactionSynchronizationEventAdminAdapter implements EventAdmin {
 	private TransactionPhase phase = TransactionPhase.AFTER_COMPLETION;
 	private int order = 0;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param delegate
+	 *        the delegate
+	 */
 	public TransactionSynchronizationEventAdminAdapter(EventAdmin delegate) {
 		super();
 		assert delegate != null;
