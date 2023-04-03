@@ -147,17 +147,15 @@ public interface HttpRequestCustomizerService extends Identifiable {
 	 * 
 	 * @param requestFactory
 	 *        the request factory to use
-	 * @param uri
-	 *        the URI to request
-	 * @param method
-	 *        the HTTP method
+	 * @param request
+	 *        the request
 	 * @param body
 	 *        the HTTP body
 	 * @param parameters
 	 *        the parameters
 	 * @return the client HTTP request, ready to be executed
 	 * @throws IllegalArgumentException
-	 *         if {@code request}is {@literal null}, or the customized request
+	 *         if {@code request} is {@literal null}, or the customized request
 	 *         is changed and {@code requestFactory} is {@literal null}
 	 * @throws IOException
 	 *         if any IO error occurs
