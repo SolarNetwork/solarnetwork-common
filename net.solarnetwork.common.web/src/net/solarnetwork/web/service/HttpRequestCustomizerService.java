@@ -22,9 +22,16 @@
 
 package net.solarnetwork.web.service;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import java.io.IOException;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
+import org.springframework.http.StreamingHttpOutputMessage;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import net.solarnetwork.service.Identifiable;
 import net.solarnetwork.util.ByteList;
 
@@ -38,7 +45,7 @@ import net.solarnetwork.util.ByteList;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface HttpRequestCustomizerService extends Identifiable {
 
@@ -81,6 +88,101 @@ public interface HttpRequestCustomizerService extends Identifiable {
 	 */
 	default HttpRequest customize(HttpRequest request, ByteList body) {
 		return customize(request, body, Collections.emptyMap());
+	}
+
+	/**
+	 * Apply this service on a new client HTTP GET request.
+	 * 
+	 * @param requestFactory
+	 *        the request factory to use
+	 * @param uri
+	 *        the URI to request
+	 * @param parameters
+	 *        the parameters
+	 * @return the client HTTP request, ready to be executed
+	 * @throws IllegalArgumentException
+	 *         if {@code requestFactory}, {@code uri}, or {@code method} are
+	 *         {@literal null}
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 1.1
+	 */
+	default ClientHttpRequest applyGet(ClientHttpRequestFactory requestFactory, URI uri,
+			Map<String, ?> parameters) throws IOException {
+		return apply(requestFactory, uri, HttpMethod.GET, null, parameters);
+	}
+
+	/**
+	 * Apply this service on a new client HTTP request.
+	 * 
+	 * @param requestFactory
+	 *        the request factory to use
+	 * @param uri
+	 *        the URI to request
+	 * @param method
+	 *        the HTTP method
+	 * @param body
+	 *        the HTTP body
+	 * @param parameters
+	 *        the parameters
+	 * @return the client HTTP request, ready to be executed
+	 * @throws IllegalArgumentException
+	 *         if {@code uri} or {@code method} are {@literal null}, or the
+	 *         customized request is changed and {@code requestFactory} is
+	 *         {@literal null}
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 1.1
+	 */
+	default ClientHttpRequest apply(ClientHttpRequestFactory requestFactory, URI uri, HttpMethod method,
+			ByteList body, Map<String, ?> parameters) throws IOException {
+		final ClientHttpRequest request = requireNonNullArgument(requestFactory, "requestFactory")
+				.createRequest(requireNonNullArgument(uri, "uri"),
+						requireNonNullArgument(method, "method"));
+		return apply(requestFactory, request, body, parameters);
+	}
+
+	/**
+	 * Apply this service on a new client HTTP request.
+	 * 
+	 * @param requestFactory
+	 *        the request factory to use
+	 * @param request
+	 *        the request
+	 * @param body
+	 *        the HTTP body
+	 * @param parameters
+	 *        the parameters
+	 * @return the client HTTP request, ready to be executed
+	 * @throws IllegalArgumentException
+	 *         if {@code request} is {@literal null}, or the customized request
+	 *         is changed and {@code requestFactory} is {@literal null}
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 1.1
+	 */
+	default ClientHttpRequest apply(ClientHttpRequestFactory requestFactory, ClientHttpRequest request,
+			ByteList body, Map<String, ?> parameters) throws IOException {
+		requireNonNullArgument(request, "request");
+		final HttpRequest customizedRequest = customize(request, body, parameters);
+		if ( customizedRequest != request ) {
+			final ClientHttpRequest customizedClientRequest = requireNonNullArgument(requestFactory,
+					"requestFactory").createRequest(customizedRequest.getURI(),
+							customizedRequest.getMethod());
+			customizedRequest.getHeaders()
+					.forEach((key, value) -> customizedClientRequest.getHeaders().addAll(key, value));
+			if ( body != null && !body.isEmpty() ) {
+				if ( customizedClientRequest instanceof StreamingHttpOutputMessage ) {
+					StreamingHttpOutputMessage streamingOutputMessage = (StreamingHttpOutputMessage) customizedClientRequest;
+					streamingOutputMessage
+							.setBody(outputStream -> outputStream.write(body.toArrayValue()));
+				} else {
+					customizedClientRequest.getBody().write(body.toArrayValue());
+				}
+			}
+			return customizedClientRequest;
+		}
+		return request;
 	}
 
 }
