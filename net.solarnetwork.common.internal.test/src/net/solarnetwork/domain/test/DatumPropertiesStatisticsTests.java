@@ -47,9 +47,9 @@ public class DatumPropertiesStatisticsTests {
 					decimalArray("10", "1.2", "3.4"),
 					decimalArray("5", "0.2", "2.2") },
 				new BigDecimal[][] { 
-					decimalArray("12345", "23456"), 
-					decimalArray("9876", "8765"),
-					decimalArray("1", "2") });
+					decimalArray("123", "12345", "23456"), 
+					decimalArray("234", "9876", "8765"),
+					decimalArray("345" ,"1", "2") });
 		// @formatter:on
 
 		// THEN
@@ -64,6 +64,8 @@ public class DatumPropertiesStatisticsTests {
 				is(equalTo(new BigDecimal("2.2"))));
 
 		assertThat("Accumulating length", stats.getAccumulatingLength(), is(equalTo(3)));
+		assertThat("Accumulating 1 diff", stats.getAccumulatingDifference(1),
+				is(equalTo(new BigDecimal("234"))));
 		assertThat("Accumulating 1 start", stats.getAccumulatingStart(1),
 				is(equalTo(new BigDecimal("9876"))));
 		assertThat("Accumulating 2 end", stats.getAccumulatingEnd(2), is(equalTo(new BigDecimal("2"))));

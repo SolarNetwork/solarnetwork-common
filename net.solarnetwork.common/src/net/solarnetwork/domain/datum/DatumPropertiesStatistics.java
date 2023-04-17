@@ -30,7 +30,7 @@ import java.util.Arrays;
  * Statistic information associated with datum properties.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.7
  */
 public class DatumPropertiesStatistics implements Serializable {
@@ -64,6 +64,9 @@ public class DatumPropertiesStatistics implements Serializable {
 	 * </p>
 	 */
 	public static enum AccumulatingStatistic {
+
+		/** The accumulated change over the aggregate period. */
+		Difference,
 
 		/** The first property value seen within the aggregate period. */
 		Start,
@@ -229,6 +232,18 @@ public class DatumPropertiesStatistics implements Serializable {
 	 */
 	public BigDecimal getInstantaneousMaximum(int propertyIndex) {
 		return getStat(getInstantaneous(), propertyIndex, InstantaneousStatistic.Maximum.ordinal());
+	}
+
+	/**
+	 * Get the difference statistic for an accumulating property.
+	 * 
+	 * @param propertyIndex
+	 *        the index of the property to get the statistic for
+	 * @return the statistic value, or {@literal null} if not available
+	 * @since 1.1
+	 */
+	public BigDecimal getAccumulatingDifference(int propertyIndex) {
+		return getStat(getAccumulating(), propertyIndex, AccumulatingStatistic.Difference.ordinal());
 	}
 
 	/**
