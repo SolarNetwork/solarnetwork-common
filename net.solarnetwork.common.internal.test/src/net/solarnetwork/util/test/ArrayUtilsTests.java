@@ -144,6 +144,18 @@ public class ArrayUtilsTests {
 	}
 
 	@Test
+	public void adjustArrayLengthLongerWithFactoryFunction() {
+		FooBean[] array = new FooBean[] { new FooBean(0) };
+		FooBean[] result = ArrayUtils.arrayOfLength(array, 3, FooBean.class, FooBean::new);
+		assertThat("New array returned", result, not(sameInstance(array)));
+		assertThat("New array length", result, arrayWithSize(3));
+		assertThat("Item 0 copied", result[0], sameInstance(array[0]));
+		for ( int i = 1; i < 3; i += 1 ) {
+			assertThat("Item.index " + i, result[i].index, equalTo(-1));
+		}
+	}
+
+	@Test
 	public void filterByEnabledDisabledWithNullArgs() {
 		String[] src = new String[] { "a", "b", "c" };
 		String[] res = ArrayUtils.filterByEnabledDisabled(src, null, null);
