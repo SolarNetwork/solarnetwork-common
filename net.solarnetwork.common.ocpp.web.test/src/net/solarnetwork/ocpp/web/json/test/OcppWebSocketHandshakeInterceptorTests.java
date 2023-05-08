@@ -34,6 +34,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -56,7 +58,7 @@ import ocpp.json.WebSocketSubProtocol;
  * Test cases for the {@link OcppWebSocketHandshakeInterceptor} class.
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class OcppWebSocketHandshakeInterceptorTests {
 
@@ -145,6 +147,46 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		Map<String, Object> attributes = new LinkedHashMap<>(4);
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
+		assertThat("Result success", result, equalTo(true));
+		assertThat("Client ID attribute populated", attributes,
+				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR,
+						new ChargePointIdentity("foobar", ChargePointIdentity.ANY_USER)));
+	}
+
+	@Test
+	public void ok_alternateCredentialsFunction() throws Exception {
+		// GIVEN
+		URI uri = URI.create("http://example.com/ocpp/v16u/cs/json/foo/bar/foobar");
+		expect(req.getURI()).andReturn(uri).anyTimes();
+		expect(handler.getSubProtocols())
+				.andReturn(Collections.singletonList(WebSocketSubProtocol.OCPP_V16.getValue()));
+
+		HttpHeaders h = new HttpHeaders();
+		h.add(WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL, WebSocketSubProtocol.OCPP_V16.getValue());
+		expect(req.getHeaders()).andReturn(h).anyTimes();
+
+		SystemUser user = testUser();
+		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
+		expect(passwordEncoder.matches("bar", "bar")).andReturn(false);
+
+		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
+				passwordEncoder);
+		hi.setClientIdUriPattern(Pattern.compile("/ocpp/v16u/cs/json/.*/(.*)"));
+		hi.setClientCredentialsExtractor((request, identifier) -> {
+			String path = request.getURI().getPath();
+			Matcher m = Pattern.compile("/ocpp/v16u/cs/json/(.*)/(.*)/.*").matcher(path);
+			if ( m.matches() ) {
+				return new String[] { m.group(1), m.group(2) };
+			}
+			return null;
+		});
+
+		// WHEN
+		replayAll();
+		Map<String, Object> attributes = new LinkedHashMap<>(4);
+		boolean result = hi.beforeHandshake(req, res, handler, attributes);
+
+		// THEN
 		assertThat("Result success", result, equalTo(true));
 		assertThat("Client ID attribute populated", attributes,
 				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR,
