@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Core OCPP Web Support
 Bundle-Description: Core OCPP web service support.
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.web
-Bundle-Version: 3.0.0
+Bundle-Version: 3.1.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.web
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -25,6 +25,7 @@ Import-Package:
  net.solarnetwork.security;version="[2.0,3.0)",
  net.solarnetwork.service;version="[1.0,2.0)",
  net.solarnetwork.settings;version="[2.0,3.0)",
+ net.solarnetwork.util;version="[2.7,3.0)",
  ocpp.domain;version="[1.0,2.0)",
  ocpp.json;version="[1.0,2.0)",
  ocpp.v16;version="[1.0,2.0)",

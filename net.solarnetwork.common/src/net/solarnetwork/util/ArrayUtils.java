@@ -26,6 +26,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.ObjectFactory;
@@ -34,7 +35,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * Utilities for dealing with arrays.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.42
  */
 public final class ArrayUtils {
@@ -78,9 +79,53 @@ public final class ArrayUtils {
 	 *        {@code itemClass} instances directly
 	 * @return a copy of {@code array} with the adjusted length, or
 	 *         {@code array} if no adjustment was necessary
+	 * @see #arrayOfLength(Object[], int, Class, Supplier)
 	 */
 	public static <T> T[] arrayWithLength(T[] array, int count, Class<T> itemClass,
 			ObjectFactory<? extends T> factory) {
+		return arrayOfLength(array, count, itemClass,
+				factory != null ? (Supplier<T>) factory::getObject : null);
+	}
+
+	/**
+	 * Adjust an array to a specific length, filling in any new elements with
+	 * newly objects.
+	 * 
+	 * <p>
+	 * This method can shorten or lengthen an array of objects. After adjusting
+	 * the array length, any {@literal null} element in the array will be
+	 * initialized to an object returned from {@code factory}, or if
+	 * {@code factory} is not provided a new instance of {@code itemClass} via
+	 * {@link Class#newInstance()}. The {@link ObjectFactory#getObject()} method
+	 * (or class constructor if no {@code factory} provided) will be called for
+	 * <b>each</b> {@literal null} array index.
+	 * </p>
+	 * 
+	 * <p>
+	 * Note that if a size adjustment is made, a new array instance is returned
+	 * from this method, with elements copied from {@code array} where
+	 * appropriate. If no size adjustment is necessary, then {@code array} is
+	 * returned directly.
+	 * </p>
+	 * 
+	 * @param <T>
+	 *        the array item type
+	 * @param array
+	 *        the source array, or {@literal null}
+	 * @param count
+	 *        the desired length of the array; if less than zero will be treated
+	 *        as zero
+	 * @param itemClass
+	 *        the class of array items
+	 * @param factory
+	 *        a factory to create new array items, or {@literal null} to create
+	 *        {@code itemClass} instances directly
+	 * @return a copy of {@code array} with the adjusted length, or
+	 *         {@code array} if no adjustment was necessary
+	 * @since 1.3
+	 */
+	public static <T> T[] arrayOfLength(T[] array, int count, Class<T> itemClass,
+			Supplier<? extends T> factory) {
 		if ( count < 0 ) {
 			count = 0;
 		}
@@ -95,7 +140,7 @@ public final class ArrayUtils {
 			for ( int i = 0; i < count; i++ ) {
 				if ( newIncs[i] == null ) {
 					if ( factory != null ) {
-						newIncs[i] = factory.getObject();
+						newIncs[i] = factory.get();
 					} else {
 						try {
 							newIncs[i] = itemClass.newInstance();
