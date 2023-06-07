@@ -46,8 +46,14 @@ import ocpp.xml.support.XmlDateUtils;
 /**
  * Process {@link StartTransactionRequest} action messages.
  * 
+ * <p>
+ * If an authorization exception occurs the resulting
+ * {@link StartTransactionResponse} will have its {@code transactionId} set to
+ * {@literal 0}.
+ * </p>
+ * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class StartTransactionProcessor
 		extends BaseActionMessageProcessor<StartTransactionRequest, StartTransactionResponse> {
@@ -112,7 +118,7 @@ public class StartTransactionProcessor
 			tagInfo.setStatus(CentralSystemUtils.statusForStatus(e.getInfo().getStatus()));
 			StartTransactionResponse res = new StartTransactionResponse();
 			res.setIdTagInfo(tagInfo);
-			res.setTransactionId(-1);
+			res.setTransactionId(0);
 			resultHandler.handleActionMessageResult(message, res, null);
 		} catch ( Throwable t ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.InternalError,

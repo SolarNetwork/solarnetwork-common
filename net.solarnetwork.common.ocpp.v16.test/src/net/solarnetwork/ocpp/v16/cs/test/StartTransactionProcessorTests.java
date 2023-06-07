@@ -170,7 +170,7 @@ public class StartTransactionProcessorTests {
 			assertThat("Result info available", tagInfo, notNullValue());
 			assertThat("Result tag status", tagInfo.getStatus(),
 					equalTo(ocpp.v16.cs.AuthorizationStatus.INVALID));
-			assertThat("Result transaction ID", res.getTransactionId(), equalTo(-1));
+			assertThat("Result transaction ID", res.getTransactionId(), equalTo(0));
 
 			l.countDown();
 			return true;
