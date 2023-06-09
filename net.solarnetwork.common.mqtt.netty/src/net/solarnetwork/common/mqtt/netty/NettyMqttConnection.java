@@ -231,9 +231,6 @@ public class NettyMqttConnection extends BaseMqttConnection
 					if ( t != null ) {
 						connectFuture.completeExceptionally(t);
 					} else {
-						if ( client != null && connectionConfig.isReconnect() ) {
-							client.getClientConfig().setReconnect(true);
-						}
 						MqttConnectReturnCode code = result != null ? returnCode(result.getReturnCode())
 								: null;
 						connectFuture.complete(code);
@@ -424,6 +421,11 @@ public class NettyMqttConnection extends BaseMqttConnection
 		if ( observer != null ) {
 			// bump to another thread so MQTT processing not affected by observer execution time
 			executor.execute(new ConnectionLostTask(cause, observer));
+		}
+		if ( !isClosed() && connectionConfig.isReconnect() ) {
+			log.info("Resetting connection to MQTT server {} to schedule reconnect",
+					connectionConfig.getServerUri());
+			reconfigure();
 		}
 	}
 
