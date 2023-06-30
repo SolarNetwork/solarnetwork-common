@@ -1,6 +1,7 @@
+.DS_Store
+.moquette_uuid
 /solarnetwork-osgi-lib
 *.jpage
-*.DS_Store
 build/
 target/
 junit*.properties
