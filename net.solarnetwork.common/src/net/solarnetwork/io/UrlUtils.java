@@ -34,6 +34,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -427,7 +428,7 @@ public final class UrlUtils {
 		String body = urlEncoded(data);
 		log.trace("HTTP POST {} for {} with application/x-www-form-urlencoded data: {}", url, accept,
 				body);
-		OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream(), UTF8_CHARSET);
+		OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream(), StandardCharsets.UTF_8);
 		FileCopyUtils.copy(new StringReader(body), out);
 		if ( conn instanceof HttpURLConnection ) {
 			HttpURLConnection http = (HttpURLConnection) conn;
