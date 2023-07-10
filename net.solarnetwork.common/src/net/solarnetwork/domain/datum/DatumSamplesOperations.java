@@ -31,7 +31,7 @@ import net.solarnetwork.domain.Differentiable;
  * API for accessing general datum sample property values.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
 public interface DatumSamplesOperations extends Differentiable<DatumSamplesOperations> {
@@ -242,7 +242,11 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 			Map<String, ?> d1 = getSampleData(t);
 			Map<String, ?> d2 = other.getSampleData(t);
 			if ( d1 == null ) {
-				if ( d2 != null ) {
+				if ( d2 != null && !d2.isEmpty() ) {
+					return true;
+				}
+			} else if ( d2 == null ) {
+				if ( d1 != null && !d1.isEmpty() ) {
 					return true;
 				}
 			} else if ( !d1.equals(d2) ) {
@@ -250,7 +254,11 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 			}
 		}
 		if ( getTags() == null ) {
-			if ( other.getTags() != null ) {
+			if ( other.getTags() != null && !other.getTags().isEmpty() ) {
+				return true;
+			}
+		} else if ( other.getTags() == null ) {
+			if ( getTags() != null && !getTags().isEmpty() ) {
 				return true;
 			}
 		} else if ( !getTags().equals(other.getTags()) ) {

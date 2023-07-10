@@ -37,7 +37,7 @@ import net.solarnetwork.service.SSLService;
  * Basic support for HTTP client actions.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.35
  */
 public class HttpClientSupport {
@@ -85,7 +85,7 @@ public class HttpClientSupport {
 	 *         if any IO error occurs
 	 */
 	protected InputStream getInputStreamFromURLConnection(URLConnection conn) throws IOException {
-		return UrlUtils.getInputStreamFromURLConnection(conn);
+		return UrlUtils.getInputStreamFromURLConnection(log, conn);
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class HttpClientSupport {
 	 *         if an IO error occurs
 	 */
 	protected Reader getUnicodeReaderFromURLConnection(URLConnection conn) throws IOException {
-		return UrlUtils.getUnicodeReaderFromURLConnection(conn);
+		return UrlUtils.getUnicodeReaderFromURLConnection(log, conn);
 	}
 
 	/**
@@ -209,7 +209,8 @@ public class HttpClientSupport {
 	 */
 	protected URLConnection postXWWWFormURLEncodedData(String url, String accept, Map<String, ?> data)
 			throws IOException {
-		return UrlUtils.postXWWWFormURLEncodedData(url, accept, data, connectionTimeout, sslService());
+		return UrlUtils.postXWWWFormURLEncodedData(log, url, accept, data, connectionTimeout,
+				sslService());
 	}
 
 	/**
@@ -233,8 +234,8 @@ public class HttpClientSupport {
 	 */
 	protected String postXWWWFormURLEncodedDataForString(String url, Map<String, ?> data)
 			throws IOException {
-		return UrlUtils.postXWWWFormURLEncodedDataForString(url, UrlUtils.ACCEPT_TEXT_AND_JSON, data,
-				connectionTimeout, sslService());
+		return UrlUtils.postXWWWFormURLEncodedDataForString(log, url, UrlUtils.ACCEPT_TEXT_AND_JSON,
+				data, connectionTimeout, sslService());
 	}
 
 	private SSLService sslService() {
