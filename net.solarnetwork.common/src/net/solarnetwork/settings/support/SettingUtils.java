@@ -249,7 +249,7 @@ public final class SettingUtils {
 		List<SettingSpecifier> specs = provider.templateSettingSpecifiers();
 		List<Map<String, Object>> resultSettings = new ArrayList<>(specs.size());
 		for ( SettingSpecifier spec : specs ) {
-			populateTemplateSpecification(spec, resultSettings, null);
+			populateTemplateSpecification(spec, resultSettings, callback);
 		}
 		return resultSettings;
 	}
