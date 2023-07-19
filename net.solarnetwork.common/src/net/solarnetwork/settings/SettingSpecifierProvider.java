@@ -30,7 +30,7 @@ import org.springframework.context.MessageSource;
  * application-managed settings.
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public interface SettingSpecifierProvider {
 
@@ -71,6 +71,29 @@ public interface SettingSpecifierProvider {
 	 * @return list of {@link SettingSpecifier}
 	 */
 	List<SettingSpecifier> getSettingSpecifiers();
+
+	/**
+	 * Get a template list of {@link SettingSpecifier} instances.
+	 * 
+	 * <p>
+	 * This method differs from {@link #getSettingSpecifiers()} in that the
+	 * specifiers for dynamic nested group collections are also included, so
+	 * that the returned list serves as a "template" definition for configuring
+	 * this provider.
+	 * </p>
+	 * 
+	 * <p>
+	 * This default method simply returns {@link #getSettingSpecifiers()};
+	 * extending implementations can override this to implement more specific
+	 * behavior.
+	 * </p>
+	 * 
+	 * @return a "template" list of {@link SettingSpecifier}
+	 * @since 2.1
+	 */
+	default List<SettingSpecifier> templateSettingSpecifiers() {
+		return getSettingSpecifiers();
+	}
 
 	/**
 	 * Get the settings for a specific service.

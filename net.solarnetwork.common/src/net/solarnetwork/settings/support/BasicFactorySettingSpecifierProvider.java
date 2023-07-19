@@ -33,7 +33,7 @@ import net.solarnetwork.settings.SettingSpecifierProvider;
  * delegates all {@link SettingSpecifierProvider} methods to a delegate.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicFactorySettingSpecifierProvider implements FactorySettingSpecifierProvider {
 
@@ -73,6 +73,11 @@ public class BasicFactorySettingSpecifierProvider implements FactorySettingSpeci
 	@Override
 	public List<SettingSpecifier> getSettingSpecifiers() {
 		return delegate.getSettingSpecifiers();
+	}
+
+	@Override
+	public List<SettingSpecifier> templateSettingSpecifiers() {
+		return delegate.templateSettingSpecifiers();
 	}
 
 	@Override
