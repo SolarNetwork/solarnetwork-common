@@ -31,7 +31,7 @@ import net.solarnetwork.settings.SettingSpecifier;
  * Basic implementation of {@link ParentSettingSpecifier}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicParentSettingSpecifier extends BaseSettingSpecifier implements ParentSettingSpecifier {
 
@@ -42,6 +42,18 @@ public class BasicParentSettingSpecifier extends BaseSettingSpecifier implements
 	 */
 	public BasicParentSettingSpecifier() {
 		super();
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param childSettings
+	 *        the desired child settings
+	 * @since 1.1
+	 */
+	public BasicParentSettingSpecifier(List<SettingSpecifier> childSettings) {
+		super();
+		setChildSettings(childSettings);
 	}
 
 	@Override
