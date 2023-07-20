@@ -30,18 +30,25 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import net.solarnetwork.settings.GroupSettingSpecifier;
 import net.solarnetwork.settings.KeyedSettingSpecifier;
 import net.solarnetwork.settings.MappableSpecifier;
 import net.solarnetwork.settings.ParentSettingSpecifier;
+import net.solarnetwork.settings.RadioGroupSettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifier;
+import net.solarnetwork.settings.SettingSpecifierProvider;
+import net.solarnetwork.settings.SliderSettingSpecifier;
+import net.solarnetwork.settings.TextAreaSettingSpecifier;
 import net.solarnetwork.settings.TextFieldSettingSpecifier;
+import net.solarnetwork.settings.TitleSettingSpecifier;
+import net.solarnetwork.settings.ToggleSettingSpecifier;
 
 /**
  * Helper utilities for settings.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.43
  */
 public final class SettingUtils {
@@ -215,6 +222,167 @@ public final class SettingUtils {
 				addKeyedSettingDefaults(((ParentSettingSpecifier) setting).getChildSettings(), result);
 			}
 		}
+	}
+
+	/**
+	 * Create a simple template data structure representing all setting
+	 * specifiers of a setting specifier provider.
+	 * 
+	 * <p>
+	 * The data structure is designed to be a basic representation of all
+	 * {@link SettingSpecifier} instances returned by
+	 * {@link SettingSpecifierProvider#templateSettingSpecifiers()}.
+	 * </p>
+	 * 
+	 * @param provider
+	 *        the provider to generate the template specification for
+	 * @param callback
+	 *        an optional callback to modify the generated template
+	 *        specifications, including handling of custom specification types
+	 * @return the list of specification objects
+	 * @see #populateTemplateSpecification(SettingSpecifier, List, BiConsumer)
+	 * @since 1.2
+	 */
+	public static List<Map<String, Object>> templateSpecification(
+			final SettingSpecifierProvider provider,
+			final BiConsumer<SettingSpecifier, Map<String, Object>> callback) {
+		List<SettingSpecifier> specs = provider.templateSettingSpecifiers();
+		List<Map<String, Object>> resultSettings = new ArrayList<>(specs.size());
+		for ( SettingSpecifier spec : specs ) {
+			populateTemplateSpecification(spec, resultSettings, callback);
+		}
+		return resultSettings;
+	}
+
+	/**
+	 * Add a template specification for a given {@link SettingSpecifier} to a
+	 * result list.
+	 * 
+	 * @param spec
+	 *        the specifier to create the template specification for
+	 * @param result
+	 *        the list to add the newly created template specification to
+	 * @param callback
+	 *        an optional callback to modify the generated template
+	 *        specifications, including handling of custom specification types
+	 * @since 1.2
+	 */
+	public static void populateTemplateSpecification(final SettingSpecifier spec,
+			final List<Map<String, Object>> result,
+			final BiConsumer<SettingSpecifier, Map<String, Object>> callback) {
+		Map<String, Object> props = null;
+		if ( spec instanceof GroupSettingSpecifier ) {
+			GroupSettingSpecifier group = (GroupSettingSpecifier) spec;
+			props = createBaseTemplateSpecification(spec, 4);
+			if ( group.isDynamic() ) {
+				props.put("dynamic", group.isDynamic());
+			}
+			if ( group.getKey() != null && !group.getKey().isEmpty() ) {
+				props.put("key", group.getKey());
+			}
+			if ( group.getFooterText() != null && !group.getFooterText().isEmpty() ) {
+				props.put("footerText", group.getFooterText());
+			}
+			List<Map<String, Object>> nested = new ArrayList<>(8);
+			for ( SettingSpecifier groupSpec : group.getGroupSettings() ) {
+				populateTemplateSpecification(groupSpec, nested, callback);
+			}
+			props.put("groupSettings", nested);
+		} else if ( spec instanceof ParentSettingSpecifier ) {
+			ParentSettingSpecifier parent = (ParentSettingSpecifier) spec;
+			props = createBaseTemplateSpecification(spec, 4);
+			List<Map<String, Object>> nested = new ArrayList<>(8);
+			for ( SettingSpecifier groupSpec : parent.getChildSettings() ) {
+				populateTemplateSpecification(groupSpec, nested, callback);
+			}
+			props.put("childSettings", nested);
+		} else if ( spec instanceof KeyedSettingSpecifier<?> ) {
+			KeyedSettingSpecifier<?> keyedSpec = (KeyedSettingSpecifier<?>) spec;
+			if ( keyedSpec.isTransient() ) {
+				return;
+			}
+			props = createBaseTemplateSpecification(spec, 8);
+			props.put("key", keyedSpec.getKey());
+
+			Object defaultValue = keyedSpec.getDefaultValue();
+			if ( defaultValue != null ) {
+				if ( !((defaultValue instanceof String) && ((String) defaultValue).isEmpty()) ) {
+					props.put("defaultValue", keyedSpec.getDefaultValue());
+				}
+			}
+
+			Object[] descArgs = keyedSpec.getDescriptionArguments();
+			if ( descArgs != null && descArgs.length > 0 ) {
+				props.put("descriptionArguments", descArgs);
+			}
+
+			if ( spec instanceof SliderSettingSpecifier ) {
+				SliderSettingSpecifier slider = (SliderSettingSpecifier) spec;
+				props.put("minimumValue", slider.getMinimumValue());
+				props.put("maximumValue", slider.getMaximumValue());
+				props.put("step", slider.getStep());
+			} else if ( spec instanceof TextAreaSettingSpecifier ) {
+				TextAreaSettingSpecifier area = (TextAreaSettingSpecifier) spec;
+				if ( area.isDirect() ) {
+					props.put("direct", area.isDirect());
+				}
+			} else if ( spec instanceof TitleSettingSpecifier ) {
+				TitleSettingSpecifier title = (TitleSettingSpecifier) spec;
+				if ( title.isMarkup() ) {
+					props.put("markup", title.isMarkup());
+				}
+				if ( title.getValueTitles() != null ) {
+					props.put("valueTitles", title.getValueTitles());
+				}
+				if ( spec instanceof TextFieldSettingSpecifier ) {
+					TextFieldSettingSpecifier text = (TextFieldSettingSpecifier) spec;
+					if ( text.isSecureTextEntry() ) {
+						props.put("secureTextEntry", text.isSecureTextEntry());
+					}
+					if ( spec instanceof RadioGroupSettingSpecifier ) {
+						RadioGroupSettingSpecifier radio = (RadioGroupSettingSpecifier) spec;
+						if ( radio.getFooterText() != null && !radio.getFooterText().isEmpty() ) {
+							props.put("footerText", radio.getFooterText());
+						}
+					}
+				}
+			} else if ( spec instanceof ToggleSettingSpecifier ) {
+				ToggleSettingSpecifier toggle = (ToggleSettingSpecifier) spec;
+				props.put("falseValue", toggle.getFalseValue());
+				props.put("trueValue", toggle.getTrueValue());
+			}
+		} else {
+			props = createBaseTemplateSpecification(spec, 2);
+		}
+		if ( callback != null ) {
+			callback.accept(spec, props);
+		}
+		if ( !props.isEmpty() ) {
+			result.add(props);
+		}
+	}
+
+	/**
+	 * Create a new template specification with only the base
+	 * {@link SettingSpecifier} properties populated.
+	 * 
+	 * @param spec
+	 *        the specifier to create the specification map for
+	 * @param capacity
+	 *        the estimated number of properties that will be added to the
+	 *        specification
+	 * @return the new map, never {@literal null}
+	 * @since 1.2
+	 */
+	public static Map<String, Object> createBaseTemplateSpecification(SettingSpecifier spec,
+			int capacity) {
+		Map<String, Object> props = new LinkedHashMap<>(8);
+		props.put("type", spec.getType());
+		String title = spec.getTitle();
+		if ( title != null && !title.isEmpty() ) {
+			props.put("title", title);
+		}
+		return props;
 	}
 
 }
