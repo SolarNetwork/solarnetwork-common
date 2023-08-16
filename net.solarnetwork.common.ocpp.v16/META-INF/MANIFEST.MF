@@ -3,13 +3,13 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OCPP 1.6 Core Support
 Bundle-Description: Support for OCPP 1.6 service implementations.
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.v16
-Bundle-Version: 2.1.3
+Bundle-Version: 2.1.4
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.v16
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: 
  net.solarnetwork.ocpp.v16.cp;version="2.0.0",
- net.solarnetwork.ocpp.v16.cs;version="2.1.2"
+ net.solarnetwork.ocpp.v16.cs;version="2.1.3"
 Import-Package: 
  com.fasterxml.jackson.core;version="[2.10.1,3.0)",
  com.fasterxml.jackson.databind;version="[2.10.1,3.0)",
