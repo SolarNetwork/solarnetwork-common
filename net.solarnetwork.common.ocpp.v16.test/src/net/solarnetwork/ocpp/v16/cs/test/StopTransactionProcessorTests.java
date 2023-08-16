@@ -322,4 +322,62 @@ public class StopTransactionProcessorTests {
 		assertThat("Result handler invoked", l.await(1, TimeUnit.SECONDS), equalTo(true));
 	}
 
+	@Test
+	public void stop_noInfoResult() throws InterruptedException {
+		// given
+		CountDownLatch l = new CountDownLatch(1);
+		ChargePointIdentity clientId = createClientId();
+		ChargePoint cp = new ChargePoint(UUID.randomUUID().getMostSignificantBits(), Instant.now(),
+				new ChargePointInfo(clientId.getIdentifier()));
+		String idTag = UUID.randomUUID().toString().substring(0, 20);
+		int transactionId = 1;
+
+		Capture<ChargeSessionEndInfo> infoCaptor = Capture.newInstance();
+		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
+				2);
+		expect(chargeSessionManager.getActiveChargingSession(clientId, transactionId))
+				.andReturn(session);
+
+		expect(chargeSessionManager.endChargingSession(capture(infoCaptor))).andReturn(null);
+
+		// when
+		replayAll();
+		StopTransactionRequest req = new StopTransactionRequest();
+		req.setIdTag(idTag);
+		req.setTransactionId(transactionId);
+		req.setTimestamp(XmlDateUtils.newXmlCalendar());
+		req.setMeterStop(12345);
+		req.setReason(Reason.LOCAL);
+
+		ActionMessage<StopTransactionRequest> message = new BasicActionMessage<StopTransactionRequest>(
+				clientId, CentralSystemAction.StopTransaction, req);
+		processor.processActionMessage(message, (msg, res, err) -> {
+			assertThat("Message passed", msg, sameInstance(message));
+			assertThat("Result available", res, notNullValue());
+			assertThat("No error", err, nullValue());
+
+			IdTagInfo tagInfo = res.getIdTagInfo();
+			assertThat("Result info not available", tagInfo, nullValue());
+
+			l.countDown();
+			return true;
+		});
+
+		// then
+		assertThat("Result handler invoked", l.await(1, TimeUnit.SECONDS), equalTo(true));
+
+		ChargeSessionEndInfo info = infoCaptor.getValue();
+		assertThat("Session auth ID is ID tag", info.getAuthorizationId(), equalTo(idTag));
+		assertThat("Session Charge Point ID copied from req", info.getChargePointId(),
+				equalTo(clientId));
+		assertThat("Connector ID copied from req", info.getTransactionId(),
+				equalTo(req.getTransactionId()));
+		assertThat("Meter start copied from req", info.getMeterEnd(),
+				equalTo((long) req.getMeterStop()));
+		assertThat("Reservation ID copied from req", info.getReason(),
+				equalTo(ChargeSessionEndReason.Local));
+		assertThat("Timestamp copied from req", info.getTimestampEnd(),
+				equalTo(XmlDateUtils.timestamp(req.getTimestamp(), null)));
+	}
+
 }
