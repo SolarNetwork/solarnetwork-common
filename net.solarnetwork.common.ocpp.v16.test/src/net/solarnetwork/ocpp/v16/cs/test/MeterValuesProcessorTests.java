@@ -66,7 +66,7 @@ import ocpp.xml.support.XmlDateUtils;
  * Test cases for the {@link MeterValuesProcessor} class.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class MeterValuesProcessorTests {
 
@@ -109,7 +109,8 @@ public class MeterValuesProcessorTests {
 
 		Capture<Iterable<net.solarnetwork.ocpp.domain.SampledValue>> readingsCaptor = Capture
 				.newInstance();
-		chargeSessionManager.addChargingSessionReadings(eq(clientId), capture(readingsCaptor));
+		chargeSessionManager.addChargingSessionReadings(eq(clientId), eq(session.getConnectorId()),
+				capture(readingsCaptor));
 
 		// WHEN
 		replayAll();
@@ -182,15 +183,17 @@ public class MeterValuesProcessorTests {
 		// GIVEN
 		CountDownLatch l = new CountDownLatch(1);
 		ChargePointIdentity clientId = createClientId();
+		final int connectorId = 2;
 
 		Capture<Iterable<net.solarnetwork.ocpp.domain.SampledValue>> readingsCaptor = Capture
 				.newInstance();
-		chargeSessionManager.addChargingSessionReadings(eq(clientId), capture(readingsCaptor));
+		chargeSessionManager.addChargingSessionReadings(eq(clientId), eq(connectorId),
+				capture(readingsCaptor));
 
 		// WHEN
 		replayAll();
 		MeterValuesRequest req = new MeterValuesRequest();
-		req.setConnectorId(1);
+		req.setConnectorId(connectorId);
 		req.setTransactionId(null);
 
 		MeterValue mv = new MeterValue();

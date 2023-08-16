@@ -48,7 +48,7 @@ import ocpp.xml.support.XmlDateUtils;
  * Process {@link MeterValuesRequest} action messages.
  * 
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class MeterValuesProcessor
 		extends BaseActionMessageProcessor<MeterValuesRequest, MeterValuesResponse> {
@@ -109,9 +109,11 @@ public class MeterValuesProcessor
 				}
 			}
 			if ( !newReadings.isEmpty() ) {
-				log.info("Saving charge readings for session {} (txId {}): {}", session,
-						req.getTransactionId(), newReadings);
-				chargeSessionManager.addChargingSessionReadings(chargePointId, newReadings);
+				log.info("Saving charge point {} connector {} readings for session {} (txId {}): {}",
+						chargePointId, req.getConnectorId(), session, req.getTransactionId(),
+						newReadings);
+				chargeSessionManager.addChargingSessionReadings(chargePointId, req.getConnectorId(),
+						newReadings);
 			}
 
 			resultHandler.handleActionMessageResult(message, new MeterValuesResponse(), null);
