@@ -276,9 +276,7 @@ public class StopTransactionProcessorTests {
 			assertThat("No error", err, nullValue());
 
 			IdTagInfo tagInfo = res.getIdTagInfo();
-			assertThat("Result info available", tagInfo, notNullValue());
-			assertThat("Result tag status", tagInfo.getStatus(),
-					equalTo(ocpp.v16.cs.AuthorizationStatus.INVALID));
+			assertThat("Result info not available", tagInfo, nullValue());
 
 			l.countDown();
 			return true;
