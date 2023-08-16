@@ -123,8 +123,11 @@ public class StopTransactionProcessor
 
 			AuthorizationInfo authInfo = chargeSessionManager.endChargingSession(info);
 
-			IdTagInfo tagInfo = new IdTagInfo();
-			tagInfo.setStatus(CentralSystemUtils.statusForStatus(authInfo.getStatus()));
+			IdTagInfo tagInfo = null;
+			if ( authInfo != null ) {
+				tagInfo = new IdTagInfo();
+				tagInfo.setStatus(CentralSystemUtils.statusForStatus(authInfo.getStatus()));
+			}
 			StopTransactionResponse res = new StopTransactionResponse();
 			res.setIdTagInfo(tagInfo);
 			resultHandler.handleActionMessageResult(message, res, null);
