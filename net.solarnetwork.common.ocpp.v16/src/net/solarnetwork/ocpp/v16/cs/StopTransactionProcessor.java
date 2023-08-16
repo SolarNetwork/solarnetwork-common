@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.UUID;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
-import net.solarnetwork.ocpp.domain.AuthorizationStatus;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndInfo;
@@ -55,7 +54,7 @@ import ocpp.xml.support.XmlDateUtils;
  * Process {@link StopTransactionRequest} action messages.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class StopTransactionProcessor
 		extends BaseActionMessageProcessor<StopTransactionRequest, StopTransactionResponse> {
@@ -104,9 +103,8 @@ public class StopTransactionProcessor
 					req.getTransactionId());
 
 			if ( session == null ) {
-				// session not available
-				throw new AuthorizationException(String.format("Transaction %d not available.", req.getTransactionId()),
-						new AuthorizationInfo(null, AuthorizationStatus.Invalid, null, null));
+				resultHandler.handleActionMessageResult(message, new StopTransactionResponse(), null);
+				return;
 			}
 
 			// @formatter:off
