@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
+import net.solarnetwork.ocpp.domain.AuthorizationStatus;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndInfo;
@@ -103,11 +104,9 @@ public class StopTransactionProcessor
 					req.getTransactionId());
 
 			if ( session == null ) {
-				ErrorCodeException err = new ErrorCodeException(
-						ActionErrorCode.PropertyConstraintViolation,
-						String.format("Transaction %d not available.", req.getTransactionId()));
-				resultHandler.handleActionMessageResult(message, null, err);
-				return;
+				// session not available
+				throw new AuthorizationException(String.format("Transaction %d not available.", req.getTransactionId()),
+						new AuthorizationInfo(null, AuthorizationStatus.Invalid, null, null));
 			}
 
 			// @formatter:off

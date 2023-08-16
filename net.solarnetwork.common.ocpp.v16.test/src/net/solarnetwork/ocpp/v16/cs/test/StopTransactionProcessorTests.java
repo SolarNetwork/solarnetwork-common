@@ -272,12 +272,13 @@ public class StopTransactionProcessorTests {
 				chargePointId, CentralSystemAction.StopTransaction, req);
 		processor.processActionMessage(message, (msg, res, err) -> {
 			assertThat("Message passed", msg, sameInstance(message));
-			assertThat("Result available", res, nullValue());
-			assertThat("Error happened", err, instanceOf(ErrorHolder.class));
+			assertThat("Result available", res, notNullValue());
+			assertThat("No error", err, nullValue());
 
-			ErrorHolder error = (ErrorHolder) err;
-			assertThat("Is PropertyConstraintViolation error", error.getErrorCode(),
-					equalTo(ActionErrorCode.PropertyConstraintViolation));
+			IdTagInfo tagInfo = res.getIdTagInfo();
+			assertThat("Result info available", tagInfo, notNullValue());
+			assertThat("Result tag status", tagInfo.getStatus(),
+					equalTo(ocpp.v16.cs.AuthorizationStatus.INVALID));
 
 			l.countDown();
 			return true;
