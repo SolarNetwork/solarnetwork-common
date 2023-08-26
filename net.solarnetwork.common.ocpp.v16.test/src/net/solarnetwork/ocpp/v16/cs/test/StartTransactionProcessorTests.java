@@ -30,6 +30,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -171,6 +172,47 @@ public class StartTransactionProcessorTests {
 			assertThat("Result tag status", tagInfo.getStatus(),
 					equalTo(ocpp.v16.cs.AuthorizationStatus.INVALID));
 			assertThat("Result transaction ID", res.getTransactionId(), equalTo(0));
+
+			l.countDown();
+			return true;
+		});
+
+		// then
+		assertThat("Result handler invoked", l.await(1, TimeUnit.SECONDS), equalTo(true));
+	}
+
+	@Test
+	public void start_notAuthorized_explicitTransactionId() throws InterruptedException {
+		// given
+		CountDownLatch l = new CountDownLatch(1);
+		ChargePointIdentity chargePointId = createClientId();
+		String idTag = UUID.randomUUID().toString().substring(0, 20);
+
+		Integer txId = new SecureRandom().nextInt(60_000) + 1;
+
+		expect(chargeSessionManager.startChargingSession(anyObject()))
+				.andThrow(new AuthorizationException(
+						new AuthorizationInfo(idTag, AuthorizationStatus.Invalid, null, null), txId));
+
+		// when
+		replayAll();
+		StartTransactionRequest req = new StartTransactionRequest();
+		req.setIdTag(idTag);
+		req.setConnectorId(1);
+		req.setTimestamp(XmlDateUtils.newXmlCalendar());
+		req.setMeterStart(12345);
+		ActionMessage<StartTransactionRequest> message = new BasicActionMessage<StartTransactionRequest>(
+				chargePointId, CentralSystemAction.StartTransaction, req);
+		processor.processActionMessage(message, (msg, res, err) -> {
+			assertThat("Message passed", msg, sameInstance(message));
+			assertThat("Result available", res, notNullValue());
+			assertThat("No error", err, nullValue());
+
+			IdTagInfo tagInfo = res.getIdTagInfo();
+			assertThat("Result info available", tagInfo, notNullValue());
+			assertThat("Result tag status", tagInfo.getStatus(),
+					equalTo(ocpp.v16.cs.AuthorizationStatus.INVALID));
+			assertThat("Result transaction ID", res.getTransactionId(), equalTo(txId));
 
 			l.countDown();
 			return true;
