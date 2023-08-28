@@ -28,14 +28,17 @@ import net.solarnetwork.ocpp.domain.AuthorizationInfo;
  * Authorization related exception.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class AuthorizationException extends RuntimeException {
 
-	private static final long serialVersionUID = -5905777727722883447L;
+	private static final long serialVersionUID = -5586850023205320485L;
 
 	/** The authorization information. */
 	private final AuthorizationInfo info;
+
+	/** An optional transaction ID. */
+	private final Integer transactionId;
 
 	/**
 	 * Constructor.
@@ -44,8 +47,7 @@ public class AuthorizationException extends RuntimeException {
 	 *        the authorization info
 	 */
 	public AuthorizationException(AuthorizationInfo info) {
-		super();
-		this.info = info;
+		this(null, info, null);
 	}
 
 	/**
@@ -57,8 +59,37 @@ public class AuthorizationException extends RuntimeException {
 	 *        the authorization info
 	 */
 	public AuthorizationException(String message, AuthorizationInfo info) {
+		this(message, info, null);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param info
+	 *        the authorization info
+	 * @param transactionId
+	 *        the optional transaction ID
+	 * @since 1.1
+	 */
+	public AuthorizationException(AuthorizationInfo info, Integer transactionId) {
+		this(null, info, transactionId);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param message
+	 *        a message
+	 * @param info
+	 *        the authorization info
+	 * @param transactionId
+	 *        the optional transaction ID
+	 * @since 1.1
+	 */
+	public AuthorizationException(String message, AuthorizationInfo info, Integer transactionId) {
 		super(message);
 		this.info = info;
+		this.transactionId = transactionId;
 	}
 
 	/**
@@ -68,6 +99,16 @@ public class AuthorizationException extends RuntimeException {
 	 */
 	public AuthorizationInfo getInfo() {
 		return info;
+	}
+
+	/**
+	 * Get the optional transaction ID.
+	 * 
+	 * @return the transaction ID
+	 * @since 1.1
+	 */
+	public Integer getTransactionId() {
+		return transactionId;
 	}
 
 }

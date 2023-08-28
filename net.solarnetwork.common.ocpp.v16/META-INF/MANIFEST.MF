@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OCPP 1.6 Core Support
 Bundle-Description: Support for OCPP 1.6 service implementations.
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.v16
-Bundle-Version: 2.1.6
+Bundle-Version: 2.1.7
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.v16
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -18,7 +18,7 @@ Import-Package:
  net.solarnetwork.domain;version="[2.0,3.0)",
  net.solarnetwork.ocpp.dao;version="[2.0,3.0)",
  net.solarnetwork.ocpp.domain;version="[2.0,3.0)",
- net.solarnetwork.ocpp.service;version="[2.0,3.0)",
+ net.solarnetwork.ocpp.service;version="[2.1,3.0)",
  net.solarnetwork.ocpp.service.cs;version="[2.2,3.0)",
  net.solarnetwork.security;version="[2.0,3.0)",
  ocpp.domain;version="[1.0,2.0)",
