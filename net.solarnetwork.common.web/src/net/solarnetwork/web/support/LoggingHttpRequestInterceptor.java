@@ -41,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -62,7 +61,7 @@ import org.springframework.web.client.HttpStatusCodeException;
  * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class LoggingHttpRequestInterceptor implements ClientHttpRequestInterceptor {
 
@@ -196,8 +195,8 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 		}
 	}
 
-	private void traceResponse(HttpStatus statusCode, String statusText, HttpHeaders headers,
-			InputStream in, Throwable exception) throws IOException {
+	private void traceResponse(Object statusCode, String statusText, HttpHeaders headers, InputStream in,
+			Throwable exception) throws IOException {
 		final StringBuilder buf = new StringBuilder("Request response:\n");
 		buf.append("<<<<<<<<<< response begin <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 		if ( statusCode != null ) {
