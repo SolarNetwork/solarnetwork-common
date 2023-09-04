@@ -39,6 +39,7 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
@@ -141,7 +142,10 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 			}
 			return response;
 		} catch ( HttpStatusCodeException e ) {
-			traceResponse(e.getStatusCode(), e.getStatusText(), e.getResponseHeaders(),
+			// reflection-access to work with Spring 5 and 6, where the method signature changed
+			Object statusCode = PropertyAccessorFactory.forBeanPropertyAccess(e)
+					.getPropertyValue("statusCode");
+			traceResponse(statusCode, e.getStatusText(), e.getResponseHeaders(),
 					new ByteArrayInputStream(e.getResponseBodyAsByteArray()), null);
 			throw e;
 		} catch ( IOException e ) {
@@ -188,7 +192,7 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 
 	private void traceResponse(ClientHttpResponse response) {
 		try {
-			traceResponse(response.getStatusCode(), response.getStatusText(), response.getHeaders(),
+			traceResponse(response.getRawStatusCode(), response.getStatusText(), response.getHeaders(),
 					response.getBody(), null);
 		} catch ( Exception ex ) {
 			RES_LOG.trace("{} tracing response", ex.getClass().getName(), ex);
