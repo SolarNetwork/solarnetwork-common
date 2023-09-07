@@ -4,12 +4,12 @@ Bundle-Name: Core SolarNetwork Web Support
 Bundle-SymbolicName: net.solarnetwork.common.web
 Automatic-Module-Name: net.solarnetwork.common.web
 Bundle-Description: Common supporting infrastructure for SolarNode and SolarNet web applications.
-Bundle-Version: 3.2.3
+Bundle-Version: 3.3.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: 
  net.solarnetwork.web.domain;version="2.0.0",
- net.solarnetwork.web.security;version="2.4.0",
+ net.solarnetwork.web.security;version="2.5.0",
  net.solarnetwork.web.service;version="1.1.1",
  net.solarnetwork.web.service.support;version="1.0.0",
  net.solarnetwork.web.support;version="2.2.2"
@@ -63,6 +63,7 @@ Import-Package:
  org.springframework.security.core.context;version="[5.8,6.0)",
  org.springframework.security.core.userdetails;version="[5.8,6.0)",
  org.springframework.security.web;version="[5.8,6.0)",
+ org.springframework.security.web.access;version="[5.8,6.0)",
  org.springframework.security.web.authentication;version="[5.8,6.0)",
  org.springframework.security.web.authentication.preauth;version="[5.8,6.0)",
  org.springframework.ui;version="[5.3,6.0)",
