@@ -40,9 +40,17 @@ import net.solarnetwork.ocpp.domain.SampledValue;
  * </p>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
+
+	/**
+	 * Get the next available charge session transaction ID.
+	 * 
+	 * @return the next transaction ID
+	 * @since 1.1
+	 */
+	int nextTransactionId();
 
 	/**
 	 * Get an <em>incomplete</em> charge session for a given transaction ID. An
