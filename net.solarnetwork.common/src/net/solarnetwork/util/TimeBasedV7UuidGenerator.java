@@ -175,8 +175,8 @@ public class TimeBasedV7UuidGenerator implements UuidGenerator, UuidTimestampDec
 	 * Uses millisecond time precision.
 	 * </p>
 	 * 
-	 * @param generator
-	 *        the generator to use
+	 * @param rand
+	 *        the random number generator to use
 	 * @param clock
 	 *        the clock
 	 */
@@ -187,17 +187,17 @@ public class TimeBasedV7UuidGenerator implements UuidGenerator, UuidTimestampDec
 	/**
 	 * Constructor.
 	 * 
-	 * @param generator
-	 *        the generator to use
+	 * @param rand
+	 *        the random number generator to use
 	 * @param clock
 	 *        the clock
 	 * @param additionalPrecisionBits
 	 *        if a value between {@code 2} and {@code 12} then for version 7
 	 *        UUIDs assume that up to 12 bits starting at bit 66 represent a
 	 *        fractional milliseconds value of the timestamp; a special value of
-	 *        {@link #V7_MICRO_COUNT_PRECISION} can be passed to represent a
-	 *        10-bit microsecond counter value, e.g. 0-999; pass {@code 0} to
-	 *        assume no additional precision
+	 *        {@link UuidUtils#V7_MICRO_COUNT_PRECISION} can be passed to
+	 *        represent a 10-bit microsecond counter value, e.g. 0-999; pass
+	 *        {@code 0} to assume no additional precision
 	 */
 	public TimeBasedV7UuidGenerator(SecureRandom rand, Clock clock, int additionalPrecisionBits) {
 		super();

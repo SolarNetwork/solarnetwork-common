@@ -162,6 +162,12 @@ public class SecurityTokenAuthenticationEntryPoint
 		return false;
 	}
 
+	/**
+	 * Set the desired order.
+	 * 
+	 * @param order
+	 *        the order to set
+	 */
 	public void setOrder(int order) {
 		this.order = order;
 	}
