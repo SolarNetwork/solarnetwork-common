@@ -22,8 +22,6 @@
 
 package net.solarnetwork.util;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import static net.solarnetwork.util.UuidUtils.V7_MAX_PRECISION;
 import java.security.NoSuchAlgorithmException;
@@ -228,12 +226,9 @@ public class TimeBasedV7UuidGenerator implements UuidGenerator, UuidTimestampDec
 			int micros = ((now.getNano() / 1_000) - ((now.getNano() / 1_000_000) * 1_000));
 			upper = (upper & 0xFFFFFFFF_FFFFF003L) | (micros << 2);
 		} else if ( additionalPrecisionBits > 2 && additionalPrecisionBits <= V7_MAX_PRECISION ) {
-			// calculate fractional milliseconds from nanoseconds
-			long m = NANOSECONDS.toMillis(now.getNano());
-			double f = (now.getNano() - MILLISECONDS.toNanos(m)) / 1_000_000.0;
-
 			// map fractional milliseconds into precision bits integer
-			int i = (int) (f * (1 << additionalPrecisionBits));
+			int subms = (int) (((long) now.getNano() << additionalPrecisionBits) / 1_000_000L)
+					& ((1 << additionalPrecisionBits) - 1);
 
 			// merge fractional milliseconds onto upper bits
 			long mask = 0xFFFFFFFF_FFFFF000L;
@@ -243,7 +238,7 @@ public class TimeBasedV7UuidGenerator implements UuidGenerator, UuidTimestampDec
 				mask |= s;
 			}
 
-			upper = (upper & mask) | (i << (V7_MAX_PRECISION - additionalPrecisionBits));
+			upper = (upper & mask) | (subms << (V7_MAX_PRECISION - additionalPrecisionBits));
 		}
 		return new UUID(upper, lower);
 	}
