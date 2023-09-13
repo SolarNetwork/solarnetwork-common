@@ -132,7 +132,7 @@ public class UuidUtilsTests {
 		assertThat("Upper bits are timestamp, version, and zeros", upper,
 				is(equalTo("18264bd3e5b7000")));
 		assertThat("Lower bits are all zero, except UUID variant", lower,
-				is(equalTo("b000000000000000")));
+				is(equalTo("8000000000000000")));
 		Instant ts = UuidUtils.extractTimestamp(uuid);
 		assertThat("Timestamp ms boundary created", ts,
 				is(equalTo(testInstant().truncatedTo(ChronoUnit.MILLIS))));
