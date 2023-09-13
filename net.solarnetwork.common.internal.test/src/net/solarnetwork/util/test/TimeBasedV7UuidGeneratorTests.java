@@ -37,6 +37,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -235,6 +236,48 @@ public class TimeBasedV7UuidGeneratorTests {
 		long msFrac = 0x74; // 0.456789 * (1 << 8)
 		assertThat("Bits 4-12 of upper are fractional milliseconds truncated to 8 bit precision",
 				((uuid.getMostSignificantBits() & 0xFF0) >> 4), is(equalTo(msFrac)));
+	}
+
+	@Test
+	public void pgTest_01() {
+		// GIVEN
+		final Clock fixed = Clock.fixed(Instant.parse("2023-09-12T11:22:33.123456789Z"), ZoneOffset.UTC);
+		TimeBasedV7UuidGenerator generator = new TimeBasedV7UuidGenerator(new SecureRandom(), fixed, 12);
+
+		// WHEN
+		UUID uuid = generator.generate();
+		UUID boundary = generator.createTimestampBoundary(fixed.instant());
+
+		// THEN
+		Instant ts = UuidUtils.extractTimestampV7(uuid, 12);
+		log.debug("UUID = 0x{} 0x{}; ts = {}", Long.toUnsignedString(uuid.getMostSignificantBits(), 16),
+				Long.toUnsignedString(uuid.getLeastSignificantBits(), 16), ts);
+		assertThat("UUID version", boundary.version(), is(equalTo(7)));
+		assertThat("UUID variant", boundary.variant(), is(equalTo(2)));
+		assertThat("Boundary created", boundary.toString(),
+				is(equalTo("018a8920-f523-7000-8000-000000000000")));
+	}
+
+	@Test
+	public void pgTest_02() {
+		// GIVEN
+		final Clock fixed = Clock.fixed(Instant.parse("2023-09-12T11:22:33.123456Z"), ZoneOffset.UTC);
+		TimeBasedV7UuidGenerator generator = new TimeBasedV7UuidGenerator(new SecureRandom(), fixed, 12);
+
+		// WHEN
+		UUID uuid = generator.generate();
+		UUID boundary = generator.createTimestampBoundary(fixed.instant());
+
+		// THEN
+		Instant ts = UuidUtils.extractTimestampV7(uuid, 12);
+		log.debug("UUID = 0x{} 0x{}; ts = {}; ts.usec = {}",
+				Long.toUnsignedString(uuid.getMostSignificantBits(), 16),
+				Long.toUnsignedString(uuid.getLeastSignificantBits(), 16), ts,
+				ts.truncatedTo(ChronoUnit.MICROS));
+		assertThat("UUID version", boundary.version(), is(equalTo(7)));
+		assertThat("UUID variant", boundary.variant(), is(equalTo(2)));
+		assertThat("Boundary created", boundary.toString(),
+				is(equalTo("018a8920-f523-7000-8000-000000000000")));
 	}
 
 }
