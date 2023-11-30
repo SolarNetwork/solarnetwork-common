@@ -58,7 +58,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
+import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationModule;
 import jakarta.websocket.Session;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
@@ -117,7 +117,7 @@ import ocpp.v16.cs.json.CentralServiceActionPayloadDecoder;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler
@@ -154,7 +154,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 
 	private static ObjectMapper defaultObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JaxbAnnotationModule());
+		mapper.registerModule(new JakartaXmlBindAnnotationModule());
 		mapper.setSerializationInclusion(Include.NON_NULL);
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		return mapper;
