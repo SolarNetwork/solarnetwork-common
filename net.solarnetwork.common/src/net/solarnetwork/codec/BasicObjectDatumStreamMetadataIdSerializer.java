@@ -55,7 +55,14 @@ public class BasicObjectDatumStreamMetadataIdSerializer
 	@Override
 	public void serialize(ObjectDatumStreamMetadataId meta, JsonGenerator generator,
 			SerializerProvider provider) throws IOException, JsonGenerationException {
-		generator.writeStartObject(meta, 3);
+
+		// @formatter:off
+		final int size = (meta.getKind() != null ? 1 : 0)
+				+ (meta.getObjectId() != null ? 1 : 0)
+				+ (meta.getSourceId() != null ? 1 : 0)
+				;
+		// @formatter:on
+		generator.writeStartObject(meta, size);
 
 		BasicObjectDatumStreamMetadataField.ObjectDatumKind.writeValue(generator, provider,
 				meta.getKind());

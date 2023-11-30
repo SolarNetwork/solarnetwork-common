@@ -226,7 +226,7 @@ public class JsonDateUtilsTests {
 		// THEN
 		ZonedDateTime expected = LocalDateTime
 				.of(2021, 8, 11, 11, 47, 0, (int) TimeUnit.MILLISECONDS.toNanos(123))
-				.atZone(ZoneId.of("UTC"));
+				.atZone(ZoneOffset.UTC);
 		assertThat("Instant parsed", result, is(equalTo(expected)));
 	}
 

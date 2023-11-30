@@ -34,7 +34,7 @@ import net.solarnetwork.domain.InstructionStatus;
  * Serializer for {@link InstructionStatus} instances.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
 public class BasicInstructionStatusSerializer extends StdScalarSerializer<InstructionStatus>
@@ -86,7 +86,8 @@ public class BasicInstructionStatusSerializer extends StdScalarSerializer<Instru
 			return;
 		}
 		if ( !embedded ) {
-			gen.writeStartObject(value, 5);
+			final int size = value.getResultParameters() != null ? 4 : 3;
+			gen.writeStartObject(value, size);
 			BasicInstructionStatusField.InstructionId.writeValue(gen, provider,
 					value.getInstructionId());
 		}

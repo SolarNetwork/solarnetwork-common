@@ -24,17 +24,20 @@ package net.solarnetwork.codec;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import net.solarnetwork.domain.Instruction;
+import net.solarnetwork.domain.InstructionStatus;
 
 /**
  * Serializer for {@link Instruction} instances.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
 public class BasicInstructionSerializer extends StdScalarSerializer<Instruction>
@@ -59,11 +62,27 @@ public class BasicInstructionSerializer extends StdScalarSerializer<Instruction>
 			gen.writeNull();
 			return;
 		}
-		gen.writeStartObject(value, 5);
+
+		final Map<String, List<String>> params = value.getParameterMultiMap();
+		final InstructionStatus status = value.getStatus();
+
+		// @formatter:off
+		final int size = (value.getId() != null ? 1 : 0)
+				+ (value.getTopic() != null ? 1 : 0)
+				+ (value.getInstructionDate() != null ? 1 : 0)
+				+ (params != null && !params.isEmpty() ? 1 : 0)
+				+ (status != null ? (
+						  (status.getInstructionState() != null ? 1 : 0)
+						+ (status.getStatusDate() != null ? 1 : 0)
+						+ (status.getResultParameters() != null ? 1 : 0)
+					) : 0)
+				;
+		// @formatter:on
+		gen.writeStartObject(value, size);
 		BasicInstructionField.Id.writeValue(gen, provider, value.getId());
 		BasicInstructionField.Topic.writeValue(gen, provider, value.getTopic());
 		BasicInstructionField.InstructionDate.writeValue(gen, provider, value.getInstructionDate());
-		BasicInstructionField.Params.writeValue(gen, provider, value.getParameterMultiMap());
+		BasicInstructionField.Params.writeValue(gen, provider, params);
 		BasicInstructionField.Status.writeValue(gen, provider, value.getStatus());
 		gen.writeEndObject();
 	}

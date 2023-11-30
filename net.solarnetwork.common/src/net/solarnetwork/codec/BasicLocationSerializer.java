@@ -33,7 +33,7 @@ import net.solarnetwork.domain.Location;
  * Serializer for {@link Location} objects.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.72
  */
 public class BasicLocationSerializer extends StdScalarSerializer<Location> implements Serializable {
@@ -57,7 +57,21 @@ public class BasicLocationSerializer extends StdScalarSerializer<Location> imple
 			generator.writeNull();
 			return;
 		}
-		generator.writeStartObject(value, 11);
+		// @formatter:off
+		final int size = (value.getName() != null ? 1 : 0)
+				+ (value.getCountry() != null ? 1 : 0)
+				+ (value.getRegion() != null ? 1 : 0)
+				+ (value.getStateOrProvince() != null ? 1 : 0)
+				+ (value.getPostalCode() != null ? 1 : 0)
+				+ (value.getLocality() != null ? 1 : 0)
+				+ (value.getStreet() != null ? 1 : 0)
+				+ (value.getLatitude() != null ? 1 : 0)
+				+ (value.getLongitude() != null ? 1 : 0)
+				+ (value.getElevation() != null ? 1 : 0)
+				+ (value.getTimeZoneId() != null ? 1 : 0)
+				;
+		// @formatter:on
+		generator.writeStartObject(value, size);
 		BasicLocationField.Name.writeValue(generator, provider, value.getName());
 		BasicLocationField.Country.writeValue(generator, provider, value.getCountry());
 		BasicLocationField.Region.writeValue(generator, provider, value.getRegion());

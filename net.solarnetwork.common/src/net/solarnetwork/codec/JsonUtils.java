@@ -92,7 +92,7 @@ import net.solarnetwork.util.NumberUtils;
  * </ul>
  * 
  * @author matt
- * @version 2.1
+ * @version 2.2
  * @since 1.72
  */
 public final class JsonUtils {
@@ -1160,9 +1160,8 @@ public final class JsonUtils {
 			String f = me.getKey();
 			Object v = me.getValue();
 			if ( v == null ) {
-				continue;
-			}
-			if ( v instanceof Long ) {
+				generator.writeNullField(f);
+			} else if ( v instanceof Long ) {
 				generator.writeNumberField(f, ((Long) v).longValue());
 			} else if ( v instanceof Integer ) {
 				generator.writeNumberField(f, ((Integer) v).intValue());

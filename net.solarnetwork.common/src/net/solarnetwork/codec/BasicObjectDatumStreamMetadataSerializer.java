@@ -40,7 +40,7 @@ import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
  * </p>
  * 
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.72
  */
 public class BasicObjectDatumStreamMetadataSerializer
@@ -61,7 +61,22 @@ public class BasicObjectDatumStreamMetadataSerializer
 	@Override
 	public void serialize(ObjectDatumStreamMetadata meta, JsonGenerator generator,
 			SerializerProvider provider) throws IOException, JsonGenerationException {
-		generator.writeStartObject(meta, 9);
+
+		// @formatter:off
+		final int size = 
+				  (meta.getStreamId() != null ? 1 : 0)
+				+ (meta.getTimeZoneId() != null ? 1 : 0)
+				+ (meta.getKind() != null ? 1 : 0)
+				+ (meta.getObjectId() != null ? 1 : 0)
+				+ (meta.getSourceId() != null ? 1 : 0)
+				+ (meta.getLocation() != null ? 1 : 0)
+				+ (meta.propertyNamesForType(DatumSamplesType.Instantaneous) != null ? 1 : 0)
+				+ (meta.propertyNamesForType(DatumSamplesType.Accumulating) != null ? 1 : 0)
+				+ (meta.propertyNamesForType(DatumSamplesType.Status) != null ? 1 : 0)
+				;
+		// @formatter:on
+
+		generator.writeStartObject(meta, size);
 
 		BasicObjectDatumStreamMetadataField.StreamId.writeValue(generator, provider, meta.getStreamId());
 		BasicObjectDatumStreamMetadataField.TimeZoneId.writeValue(generator, provider,
