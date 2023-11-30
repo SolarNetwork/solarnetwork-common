@@ -44,7 +44,7 @@ import net.solarnetwork.domain.InstructionStatus;
  * Fields for {@link BasicInstruction} de/serialization.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
 public enum BasicInstructionField implements IndexedField {
@@ -241,7 +241,7 @@ public enum BasicInstructionField implements IndexedField {
 		for ( List<String> l : value.values() ) {
 			size += l.size();
 		}
-		generator.writeStartArray(size);
+		generator.writeStartArray(value, size);
 		for ( Entry<String, List<String>> me : value.entrySet() ) {
 			for ( String v : me.getValue() ) {
 				generator.writeStartObject();

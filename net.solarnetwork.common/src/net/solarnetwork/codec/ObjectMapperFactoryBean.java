@@ -104,6 +104,7 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 		return mapper;
 	}
 
+	@SuppressWarnings("deprecation")
 	private void setupFeatures(final ObjectMapper m, final Collection<?> features, final boolean state) {
 		if ( features == null ) {
 			return;

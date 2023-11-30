@@ -37,7 +37,7 @@ import net.solarnetwork.domain.datum.StreamDatum;
  * Serializer for {@link BasicStreamDatum} instance to an array.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.72
  */
 public class BasicStreamDatumArraySerializer extends StdScalarSerializer<StreamDatum>
@@ -58,7 +58,7 @@ public class BasicStreamDatumArraySerializer extends StdScalarSerializer<StreamD
 	@Override
 	public void serialize(StreamDatum datum, JsonGenerator generator, SerializerProvider provider)
 			throws IOException, JsonGenerationException {
-		generator.writeStartArray(7);
+		generator.writeStartArray(datum, 7);
 
 		// 1: timestamp
 		if ( datum.getTimestamp() != null ) {
