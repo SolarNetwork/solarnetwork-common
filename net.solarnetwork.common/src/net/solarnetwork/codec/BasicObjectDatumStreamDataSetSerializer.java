@@ -69,7 +69,7 @@ import net.solarnetwork.domain.datum.StreamDatum;
  * </pre>
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.4
  */
 public class BasicObjectDatumStreamDataSetSerializer extends
@@ -135,7 +135,7 @@ public class BasicObjectDatumStreamDataSetSerializer extends
 
 		if ( streamIds != null && !streamIds.isEmpty() ) {
 			gen.writeFieldName(META_FIELD_NAME);
-			gen.writeStartArray(streamIds.size());
+			gen.writeStartArray(streamIds, streamIds.size());
 			for ( UUID streamId : streamIds ) {
 				metaIndexMap.put(streamId, i);
 				BasicObjectDatumStreamMetadataSerializer.INSTANCE
@@ -167,7 +167,7 @@ public class BasicObjectDatumStreamDataSetSerializer extends
 				int tLen = (p != null ? p.getTagsLength() : 0);
 				int totalLen = 1 + baseLen + tLen;
 
-				gen.writeStartArray(totalLen);
+				gen.writeStartArray(d, totalLen);
 				gen.writeNumber(metaIndexMap.get(d.getStreamId()));
 				gen.writeNumber(ts);
 				if ( p != null ) {
