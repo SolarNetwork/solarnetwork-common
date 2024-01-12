@@ -44,6 +44,11 @@ public interface MqttMessage {
 	 */
 	boolean isRetained();
 
+	/**
+	 * Get the quality of service level.
+	 * 
+	 * @return the QoS level
+	 */
 	MqttQos getQosLevel();
 
 	/**

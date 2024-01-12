@@ -40,30 +40,49 @@ public class MqttStats {
 	 */
 	public interface MqttStat {
 
+		/**
+		 * Get the statistic 0-based index within a list of statistics.
+		 * 
+		 * @return the index
+		 */
 		int getIndex();
 
+		/**
+		 * Get a description of the statistic.
+		 * 
+		 * @return the description
+		 */
 		String getDescription();
 	}
 
 	/** Basic counted fields. */
 	public enum BasicCounts implements MqttStat {
 
+		/** The number of connection attempts. */
 		ConnectionAttempts(0, "connection attempts"),
 
+		/** The number of successful connection attempts. */
 		ConnectionSuccess(1, "connections made"),
 
+		/** The number of failed connection attempts. */
 		ConnectionFail(2, "connections failed"),
 
+		/** The number of connections lost. */
 		ConnectionLost(3, "connections lost"),
 
+		/** The number of messages received. */
 		MessagesReceived(4, "messages received"),
 
+		/** The number of messages delivered. */
 		MessagesDelivered(5, "messages delivered"),
 
+		/** The number of messages that failed to be delivered. */
 		MessagesDeliveredFail(6, "failed message deliveries"),
 
+		/** The number of bytes in all messages received. */
 		PayloadBytesReceived(7, "payload bytes received"),
 
+		/** The number of bytes in all messages delivered. */
 		PayloadBytesDelivered(8, "payload bytes sent");
 
 		private final int index;

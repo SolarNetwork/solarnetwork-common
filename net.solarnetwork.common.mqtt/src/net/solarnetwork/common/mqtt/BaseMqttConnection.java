@@ -58,11 +58,19 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	/** A class-level logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
+	/** The executor. */
 	protected final Executor executor;
+
+	/** The scheduler. */
 	protected final TaskScheduler scheduler;
+
+	/** The connection configuration. */
 	protected final BasicMqttConnectionConfig connectionConfig;
 
+	/** The message handler. */
 	protected volatile MqttMessageHandler messageHandler;
+
+	/** The connection observer. */
 	protected volatile MqttConnectionObserver connectionObserver;
 
 	private boolean closed;
