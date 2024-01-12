@@ -61,7 +61,7 @@ import net.solarnetwork.test.SystemPropertyMatchTestRule;
  */
 public class NettyMqtt5IntegrationTests {
 
-	/** Only run when the {@code protoc-int} system property is defined. */
+	/** Only run when the {@code mqtt5-int} system property is defined. */
 	@ClassRule
 	public static SystemPropertyMatchTestRule PROFILE_RULE = new SystemPropertyMatchTestRule(
 			"mqtt5-int");
