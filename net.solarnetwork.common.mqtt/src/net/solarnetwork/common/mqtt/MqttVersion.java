@@ -30,10 +30,13 @@ package net.solarnetwork.common.mqtt;
  */
 public enum MqttVersion {
 
+	/** MQTT version 3.1. */
 	Mqtt31,
 
+	/** MQTT version 3.1.1 */
 	Mqtt311,
 
+	/** MQTT version 5. */
 	Mqtt5;
 
 }

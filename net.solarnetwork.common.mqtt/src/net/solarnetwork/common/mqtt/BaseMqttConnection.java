@@ -24,8 +24,8 @@ package net.solarnetwork.common.mqtt;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -50,7 +50,7 @@ import net.solarnetwork.settings.SettingsChangeObserver;
  * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public abstract class BaseMqttConnection extends BasicIdentifiable
 		implements MqttConnection, ReconfigurableMqttConnection, SettingsChangeObserver, PingTest {
@@ -58,11 +58,19 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	/** A class-level logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
+	/** The executor. */
 	protected final Executor executor;
+
+	/** The scheduler. */
 	protected final TaskScheduler scheduler;
+
+	/** The connection configuration. */
 	protected final BasicMqttConnectionConfig connectionConfig;
 
+	/** The message handler. */
 	protected volatile MqttMessageHandler messageHandler;
+
+	/** The connection observer. */
 	protected volatile MqttConnectionObserver connectionObserver;
 
 	private boolean closed;
@@ -316,7 +324,15 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 		boolean healthy = isEstablished();
 		URI serverUri = connectionConfig.getServerUri();
 		String msg = (healthy ? "Connected to " + serverUri : "Not connected");
-		Map<String, Object> props = Collections.singletonMap("serverUri", serverUri);
+		MqttStats stats = connectionConfig.getStats();
+		Map<String, Object> props = new LinkedHashMap<>(
+				1 + (stats != null ? MqttStats.BasicCounts.values().length : 0));
+		props.put("serverUri", serverUri);
+		if ( stats != null ) {
+			for ( MqttStats.BasicCounts stat : MqttStats.BasicCounts.values() ) {
+				props.put(stat.name(), stats.get(stat));
+			}
+		}
 		PingTestResult result = new PingTestResult(healthy, msg, props);
 		return result;
 	}
