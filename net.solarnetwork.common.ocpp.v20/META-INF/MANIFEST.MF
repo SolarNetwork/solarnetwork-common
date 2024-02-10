@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OCPP 2.0 Core Support
+Bundle-Description: Support for OCPP 2.0 service implementations.
+Bundle-SymbolicName: net.solarnetwork.common.ocpp.v20
+Bundle-Version: 1.0.0
+Bundle-Vendor: SolarNetwork
+Automatic-Module-Name: net.solarnetwork.common.ocpp.v20
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: 
+ com.ethlo.time;version="[1.8,2.0)",
+ com.fasterxml.jackson.core;version="[2.10.1,3.0)",
+ com.fasterxml.jackson.databind;version="[2.10.1,3.0)",
+ com.fasterxml.jackson.databind.node;version="[2.10.1,3.0)",
+ com.networknt.schema;version="[1.3,2.0)",
+ com.networknt.schema.resource;version="1.3.2",
+ net.solarnetwork.codec;version="[2.3,3.0)",
+ ocpp.domain;version="[1.2,2.0)",
+ ocpp.v20;version="[1.0,2.0)",
+ org.springframework.core.io;version="5.3",
+ org.springframework.core.io.support;version="5.3"
