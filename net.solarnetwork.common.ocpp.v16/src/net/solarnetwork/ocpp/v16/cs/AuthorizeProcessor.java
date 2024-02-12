@@ -24,19 +24,19 @@ package net.solarnetwork.ocpp.v16.cs;
 
 import java.util.Collections;
 import java.util.Set;
+import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
+import net.solarnetwork.ocpp.domain.ErrorCodeException;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.AuthorizationService;
 import net.solarnetwork.ocpp.service.BaseActionMessageProcessor;
-import ocpp.domain.Action;
-import ocpp.domain.ErrorCodeException;
-import ocpp.v16.ActionErrorCode;
-import ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.v16.ActionErrorCode;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.xml.support.XmlDateUtils;
 import ocpp.v16.cs.AuthorizeRequest;
 import ocpp.v16.cs.AuthorizeResponse;
 import ocpp.v16.cs.IdTagInfo;
-import ocpp.xml.support.XmlDateUtils;
 
 /**
  * Process {@link AuthorizeRequest} action messages.

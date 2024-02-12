@@ -50,9 +50,9 @@ import org.springframework.web.socket.WebSocketHttpHeaders;
 import net.solarnetwork.ocpp.dao.SystemUserDao;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.SystemUser;
+import net.solarnetwork.ocpp.json.WebSocketSubProtocol;
 import net.solarnetwork.ocpp.web.json.OcppWebSocketHandshakeInterceptor;
 import net.solarnetwork.service.PasswordEncoder;
-import ocpp.json.WebSocketSubProtocol;
 
 /**
  * Test cases for the {@link OcppWebSocketHandshakeInterceptor} class.

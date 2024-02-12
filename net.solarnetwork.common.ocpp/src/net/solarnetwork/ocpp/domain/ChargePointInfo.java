@@ -217,96 +217,122 @@ public class ChargePointInfo {
 	}
 
 	/**
-	 * @return the chargePointVendor
+	 * Get the charge point vendor.
+	 * 
+	 * @return the vendor
 	 */
 	public String getChargePointVendor() {
 		return chargePointVendor;
 	}
 
 	/**
+	 * Set the charge point vendor.
+	 * 
 	 * @param chargePointVendor
-	 *        the chargePointVendor to set
+	 *        the vendor to set
 	 */
 	public void setChargePointVendor(String chargePointVendor) {
 		this.chargePointVendor = chargePointVendor;
 	}
 
 	/**
-	 * @return the chargePointModel
+	 * Get the charge point model.
+	 * 
+	 * @return the model
 	 */
 	public String getChargePointModel() {
 		return chargePointModel;
 	}
 
 	/**
+	 * Set the charge point model.
+	 * 
 	 * @param chargePointModel
-	 *        the chargePointModel to set
+	 *        the model to set
 	 */
 	public void setChargePointModel(String chargePointModel) {
 		this.chargePointModel = chargePointModel;
 	}
 
 	/**
-	 * @return the chargePointSerialNumber
+	 * Get the charge point serial number.
+	 * 
+	 * @return the serial number
 	 */
 	public String getChargePointSerialNumber() {
 		return chargePointSerialNumber;
 	}
 
 	/**
+	 * Set the charge point serial number.
+	 * 
 	 * @param chargePointSerialNumber
-	 *        the chargePointSerialNumber to set
+	 *        the serial number to set
 	 */
 	public void setChargePointSerialNumber(String chargePointSerialNumber) {
 		this.chargePointSerialNumber = chargePointSerialNumber;
 	}
 
 	/**
-	 * @return the chargeBoxSerialNumber
+	 * Get the charge box serial number.
+	 * 
+	 * @return the serial number
 	 */
 	public String getChargeBoxSerialNumber() {
 		return chargeBoxSerialNumber;
 	}
 
 	/**
+	 * Set the charge box serial number.
+	 * 
 	 * @param chargeBoxSerialNumber
-	 *        the chargeBoxSerialNumber to set
+	 *        the serial number to set
 	 */
 	public void setChargeBoxSerialNumber(String chargeBoxSerialNumber) {
 		this.chargeBoxSerialNumber = chargeBoxSerialNumber;
 	}
 
 	/**
-	 * @return the firmwareVersion
+	 * Get the firmware version.
+	 * 
+	 * @return the firmware version
 	 */
 	public String getFirmwareVersion() {
 		return firmwareVersion;
 	}
 
 	/**
+	 * Set the firmware version.
+	 * 
 	 * @param firmwareVersion
-	 *        the firmwareVersion to set
+	 *        the firmware version to set
 	 */
 	public void setFirmwareVersion(String firmwareVersion) {
 		this.firmwareVersion = firmwareVersion;
 	}
 
 	/**
-	 * @return the iccid
+	 * Get the ICC ID.
+	 * 
+	 * @return the ID
 	 */
 	public String getIccid() {
 		return iccid;
 	}
 
 	/**
+	 * Set the ICC ID.
+	 * 
 	 * @param iccid
-	 *        the iccid to set
+	 *        the ID to set
 	 */
 	public void setIccid(String iccid) {
 		this.iccid = iccid;
 	}
 
 	/**
+	 * Get the IMSI.
+	 * 
 	 * @return the imsi
 	 */
 	public String getImsi() {
@@ -314,6 +340,8 @@ public class ChargePointInfo {
 	}
 
 	/**
+	 * Set the IMSI.
+	 * 
 	 * @param imsi
 	 *        the imsi to set
 	 */
@@ -322,6 +350,8 @@ public class ChargePointInfo {
 	}
 
 	/**
+	 * Get the meter type.
+	 * 
 	 * @return the meterType
 	 */
 	public String getMeterType() {
@@ -329,6 +359,8 @@ public class ChargePointInfo {
 	}
 
 	/**
+	 * Set the meter type.
+	 * 
 	 * @param meterType
 	 *        the meterType to set
 	 */
@@ -337,15 +369,19 @@ public class ChargePointInfo {
 	}
 
 	/**
-	 * @return the meterSerialNumber
+	 * Get the meter serial number.
+	 * 
+	 * @return the serial number
 	 */
 	public String getMeterSerialNumber() {
 		return meterSerialNumber;
 	}
 
 	/**
+	 * Set the meter serial number.
+	 * 
 	 * @param meterSerialNumber
-	 *        the meterSerialNumber to set
+	 *        the serial number to set
 	 */
 	public void setMeterSerialNumber(String meterSerialNumber) {
 		this.meterSerialNumber = meterSerialNumber;

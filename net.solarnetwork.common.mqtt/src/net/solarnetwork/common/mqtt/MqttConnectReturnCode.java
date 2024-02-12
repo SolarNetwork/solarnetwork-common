@@ -30,16 +30,22 @@ package net.solarnetwork.common.mqtt;
  */
 public enum MqttConnectReturnCode {
 
+	/** Accepted. */
 	Accepted((byte) 0x0),
 
+	/** Unacceptable protocol version. */
 	UnacceptableProtocolVersion((byte) 0x1),
 
+	/** Client ID rejected. */
 	ClientIdRejected((byte) 0x02),
 
+	/** Server unavailable. */
 	ServerUnavailable((byte) 0x03),
 
+	/** Bad credentials. */
 	BadCredentials((byte) 0x04),
 
+	/** Not authorized. */
 	NotAuthorized((byte) 0x05);
 
 	private final byte byteValue;
@@ -48,6 +54,11 @@ public enum MqttConnectReturnCode {
 		this.byteValue = byteValue;
 	}
 
+	/**
+	 * Get the raw byte value.
+	 * 
+	 * @return the byte value
+	 */
 	public byte byteValue() {
 		return byteValue;
 	}

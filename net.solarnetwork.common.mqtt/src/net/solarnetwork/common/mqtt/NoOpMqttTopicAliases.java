@@ -33,10 +33,17 @@ import java.util.function.Consumer;
  * </p>
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.2
  */
 public final class NoOpMqttTopicAliases implements MqttTopicAliases {
+
+	/**
+	 * Constructor.
+	 */
+	public NoOpMqttTopicAliases() {
+		super();
+	}
 
 	@Override
 	public int getMaximumAliasCount() {

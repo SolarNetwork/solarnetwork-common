@@ -24,7 +24,7 @@ package net.solarnetwork.common.mqtt;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -38,7 +38,7 @@ import net.solarnetwork.service.support.BasicIdentifiable;
  * An abstract service that uses a {@link MqttConnection}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public abstract class BaseMqttConnectionService extends BasicIdentifiable implements PingTest {
 
@@ -181,7 +181,15 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 			boolean healthy = conn.isEstablished();
 			URI serverUri = mqttConfig.getServerUri();
 			String msg = (healthy ? "Connected to " + serverUri : "Not connected");
-			Map<String, Object> props = Collections.singletonMap("serverUri", serverUri);
+			MqttStats stats = mqttConfig.getStats();
+			Map<String, Object> props = new LinkedHashMap<>(
+					1 + (stats != null ? MqttStats.BasicCounts.values().length : 0));
+			props.put("serverUri", serverUri);
+			if ( stats != null ) {
+				for ( MqttStats.BasicCounts stat : MqttStats.BasicCounts.values() ) {
+					props.put(stat.name(), stats.get(stat));
+				}
+			}
 			PingTestResult result = new PingTestResult(healthy, msg, props);
 			return result;
 		}

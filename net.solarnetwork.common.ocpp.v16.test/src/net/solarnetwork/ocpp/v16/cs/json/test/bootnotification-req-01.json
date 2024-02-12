@@ -1,0 +1,10 @@
+{   "chargePointVendor":"ACME",
+    "chargePointModel":"Super Duper",
+    "chargePointSerialNumber":"1234567890",
+    "chargeBoxSerialNumber":"0987654321",
+    "firmwareVersion":"1.2.3",
+    "iccid":"ABC-123-456",
+    "imsi":"DEF-321-654",
+    "meterType":"Good One",
+    "meterSerialNumber":"ABCDEFGHIJKL"
+}

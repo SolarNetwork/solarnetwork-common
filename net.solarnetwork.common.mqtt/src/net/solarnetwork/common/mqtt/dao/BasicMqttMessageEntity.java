@@ -44,10 +44,19 @@ public class BasicMqttMessageEntity extends BasicLongEntity implements MqttMessa
 
 	private static final long serialVersionUID = 5975450598082657522L;
 
+	/** The destination. */
 	private final String destination;
+
+	/** The topic. */
 	private final String topic;
+
+	/** The retained flag. */
 	private final boolean retained;
+
+	/** The quality of service setting. */
 	private final MqttQos qos;
+
+	/** The message payload. */
 	private final byte[] payload;
 
 	/**

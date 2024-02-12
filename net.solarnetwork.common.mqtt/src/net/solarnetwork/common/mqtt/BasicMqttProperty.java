@@ -27,6 +27,8 @@ import java.util.Objects;
 /**
  * Basic implementation of {@link MqttProperty}.
  * 
+ * @param <T>
+ *        the property type
  * @author matt
  * @version 1.0
  * @since 2.2

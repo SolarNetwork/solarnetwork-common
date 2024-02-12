@@ -52,7 +52,7 @@ public interface ActionMessageResultHandler<T, R> {
 	 *        available
 	 * @param error
 	 *        the error result, or {@literal null} if no error occurred; can
-	 *        implement {@link ocpp.domain.ErrorHolder} to pass specific details
+	 *        implement {@link net.solarnetwork.ocpp.domain.ErrorHolder} to pass specific details
 	 * @return {@literal true} if the result was handled, {@literal false}
 	 *         otherwise
 	 */

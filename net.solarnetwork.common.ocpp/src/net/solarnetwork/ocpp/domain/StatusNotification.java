@@ -138,13 +138,17 @@ public class StatusNotification {
 	}
 
 	/**
-	 * @return the connectorId
+	 * Get the connector ID.
+	 * 
+	 * @return the connector ID
 	 */
 	public int getConnectorId() {
 		return connectorId;
 	}
 
 	/**
+	 * Get the status.
+	 * 
 	 * @return the status
 	 */
 	public ChargePointStatus getStatus() {
@@ -152,6 +156,8 @@ public class StatusNotification {
 	}
 
 	/**
+	 * Get the error code.
+	 * 
 	 * @return the errorCode
 	 */
 	public ChargePointErrorCode getErrorCode() {
@@ -159,6 +165,8 @@ public class StatusNotification {
 	}
 
 	/**
+	 * Get the info.
+	 * 
 	 * @return the info
 	 */
 	public String getInfo() {
@@ -166,6 +174,8 @@ public class StatusNotification {
 	}
 
 	/**
+	 * Get the timestamp.
+	 * 
 	 * @return the timestamp
 	 */
 	public Instant getTimestamp() {
@@ -173,14 +183,18 @@ public class StatusNotification {
 	}
 
 	/**
-	 * @return the vendorId
+	 * Get the vendor ID.
+	 * 
+	 * @return the vendor ID
 	 */
 	public String getVendorId() {
 		return vendorId;
 	}
 
 	/**
-	 * @return the vendorErrorCode
+	 * Get the vendor error code.
+	 * 
+	 * @return the error code
 	 */
 	public String getVendorErrorCode() {
 		return vendorErrorCode;
