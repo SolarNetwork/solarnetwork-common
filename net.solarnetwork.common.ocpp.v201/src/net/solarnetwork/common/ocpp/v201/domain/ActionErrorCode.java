@@ -27,7 +27,6 @@ package net.solarnetwork.common.ocpp.v201.domain;
  * 
  * @author matt
  * @version 1.0
- * @since 1.3
  */
 public enum ActionErrorCode implements net.solarnetwork.ocpp.domain.ErrorCode {
 

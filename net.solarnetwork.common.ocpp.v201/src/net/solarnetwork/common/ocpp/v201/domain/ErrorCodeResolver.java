@@ -30,7 +30,6 @@ import net.solarnetwork.ocpp.json.RpcError;
  * 
  * @author matt
  * @version 1.0
- * @since 1.3
  */
 public class ErrorCodeResolver implements net.solarnetwork.ocpp.service.ErrorCodeResolver {
 
