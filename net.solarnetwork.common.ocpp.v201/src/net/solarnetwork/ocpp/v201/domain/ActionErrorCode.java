@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.ocpp.v201.domain;
+package net.solarnetwork.ocpp.v201.domain;
 
 /**
  * OCPP v2.0 action error code enumeration.

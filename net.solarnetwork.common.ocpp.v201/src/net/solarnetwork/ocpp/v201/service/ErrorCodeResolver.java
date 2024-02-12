@@ -20,10 +20,11 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.ocpp.v201.domain;
+package net.solarnetwork.ocpp.v201.service;
 
 import net.solarnetwork.ocpp.domain.ErrorCode;
 import net.solarnetwork.ocpp.json.RpcError;
+import net.solarnetwork.ocpp.v201.domain.ActionErrorCode;
 
 /**
  * {@link net.solarnetwork.ocpp.service.ErrorCodeResolver} for OCPP v2.0.

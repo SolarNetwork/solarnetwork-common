@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.ocpp.v201.domain;
+package net.solarnetwork.ocpp.v201.domain;
 
 /**
  * OCPP 2 action enumeration.

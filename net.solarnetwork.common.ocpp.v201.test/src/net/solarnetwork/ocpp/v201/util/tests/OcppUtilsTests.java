@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.ocpp.v201.util.tests;
+package net.solarnetwork.ocpp.v201.util.tests;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -34,8 +34,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.FileCopyUtils;
 import com.networknt.schema.JsonSchemaFactory;
-import net.solarnetwork.common.ocpp.v201.util.OcppUtils;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
+import net.solarnetwork.ocpp.v201.util.OcppUtils;
 import ocpp.v201.ConnectorStatusEnum;
 import ocpp.v201.StatusNotificationRequest;
 

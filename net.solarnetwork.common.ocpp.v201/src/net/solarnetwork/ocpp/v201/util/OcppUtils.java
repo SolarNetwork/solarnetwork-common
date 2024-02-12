@@ -20,7 +20,7 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.ocpp.v201.util;
+package net.solarnetwork.ocpp.v201.util;
 
 import java.io.IOException;
 import java.util.Arrays;
