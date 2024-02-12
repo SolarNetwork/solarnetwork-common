@@ -51,11 +51,11 @@ import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionStartInfo;
 import net.solarnetwork.ocpp.service.AuthorizationException;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
 import net.solarnetwork.ocpp.v16.cs.StartTransactionProcessor;
-import ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.xml.support.XmlDateUtils;
 import ocpp.v16.cs.IdTagInfo;
 import ocpp.v16.cs.StartTransactionRequest;
-import ocpp.xml.support.XmlDateUtils;
 
 /**
  * Test cases for the {@link StartTransactionProcessor} class.

@@ -43,11 +43,11 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.junit.Before;
 import org.junit.Test;
+import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.PendingActionMessage;
 import net.solarnetwork.ocpp.service.SimpleActionMessageQueue;
-import ocpp.domain.Action;
 
 /**
  * Test cases for the {@link SimpleActionMessageQueue} class.

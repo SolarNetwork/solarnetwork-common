@@ -42,11 +42,11 @@ import net.solarnetwork.ocpp.domain.BasicActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.StatusNotification;
 import net.solarnetwork.ocpp.service.cs.ChargePointManager;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
 import net.solarnetwork.ocpp.v16.cs.StatusNotificationProcessor;
-import ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.xml.support.XmlDateUtils;
 import ocpp.v16.cs.ChargePointStatus;
 import ocpp.v16.cs.StatusNotificationRequest;
-import ocpp.xml.support.XmlDateUtils;
 
 /**
  * Test cases for the {@link StatusNotificationProcessor} class.

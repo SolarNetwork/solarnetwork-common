@@ -45,6 +45,13 @@ public class PurgePostedChargeSessionsTask implements Callable<Integer>, Runnabl
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	/**
+	 * Constructor.
+	 */
+	public PurgePostedChargeSessionsTask() {
+		super();
+	}
+
 	@Override
 	public void run() {
 		try {

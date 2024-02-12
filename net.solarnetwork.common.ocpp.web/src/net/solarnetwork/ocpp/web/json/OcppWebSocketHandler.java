@@ -59,32 +59,32 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
+import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
+import net.solarnetwork.ocpp.domain.ErrorCode;
+import net.solarnetwork.ocpp.domain.ErrorCodeException;
+import net.solarnetwork.ocpp.domain.ErrorHolder;
 import net.solarnetwork.ocpp.domain.PendingActionMessage;
+import net.solarnetwork.ocpp.domain.SchemaValidationException;
+import net.solarnetwork.ocpp.json.ActionPayloadDecoder;
+import net.solarnetwork.ocpp.json.CallErrorMessage;
+import net.solarnetwork.ocpp.json.CallMessage;
+import net.solarnetwork.ocpp.json.CallResultMessage;
+import net.solarnetwork.ocpp.json.MessageType;
+import net.solarnetwork.ocpp.json.RpcError;
+import net.solarnetwork.ocpp.json.WebSocketSubProtocol;
 import net.solarnetwork.ocpp.service.ActionMessageProcessor;
 import net.solarnetwork.ocpp.service.ActionMessageQueue;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.ChargePointBroker;
+import net.solarnetwork.ocpp.service.ErrorCodeResolver;
 import net.solarnetwork.ocpp.service.SimpleActionMessageQueue;
+import net.solarnetwork.ocpp.v16.cp.json.ChargePointActionPayloadDecoder;
+import net.solarnetwork.ocpp.v16.cs.json.CentralServiceActionPayloadDecoder;
 import net.solarnetwork.security.AuthorizationException;
 import net.solarnetwork.settings.SettingsChangeObserver;
-import ocpp.domain.Action;
-import ocpp.domain.ErrorCode;
-import ocpp.domain.ErrorCodeException;
-import ocpp.domain.ErrorCodeResolver;
-import ocpp.domain.ErrorHolder;
-import ocpp.domain.RpcError;
-import ocpp.domain.SchemaValidationException;
-import ocpp.json.ActionPayloadDecoder;
-import ocpp.json.CallErrorMessage;
-import ocpp.json.CallMessage;
-import ocpp.json.CallResultMessage;
-import ocpp.json.MessageType;
-import ocpp.json.WebSocketSubProtocol;
-import ocpp.v16.cp.json.ChargePointActionPayloadDecoder;
-import ocpp.v16.cs.json.CentralServiceActionPayloadDecoder;
 
 /**
  * OCPP Charge Point JSON web socket handler.
@@ -827,7 +827,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	}
 
 	private boolean sendCall(final WebSocketSession session, final ChargePointIdentity clientId,
-			final String messageId, final ocpp.domain.Action action, final Object payload) {
+			final String messageId, final net.solarnetwork.ocpp.domain.Action action, final Object payload) {
 		Object[] msg = new Object[] { MessageType.Call.getNumber(), messageId, action.getName(),
 				payload };
 		String json = null;
@@ -863,7 +863,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * @since 1.4
 	 */
 	protected void didSendCall(final ChargePointIdentity clientId, final String messageId,
-			final ocpp.domain.Action action, final Object payload, final String json,
+			final net.solarnetwork.ocpp.domain.Action action, final Object payload, final String json,
 			final Throwable exception) {
 		// extending classes can override
 	}

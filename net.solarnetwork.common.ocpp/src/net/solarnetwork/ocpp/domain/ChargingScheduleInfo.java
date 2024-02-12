@@ -291,15 +291,19 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	}
 
 	/**
-	 * @return the minRate
+	 * Get the minimum rate.
+	 * 
+	 * @return the rate
 	 */
 	public BigDecimal getMinRate() {
 		return minRate;
 	}
 
 	/**
+	 * Set the minimum rate.
+	 * 
 	 * @param minRate
-	 *        the minRate to set
+	 *        the rate to set
 	 */
 	public void setMinRate(BigDecimal minRate) {
 		if ( minRate != null && minRate.scale() != 1 ) {

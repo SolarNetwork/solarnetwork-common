@@ -36,8 +36,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
 import net.solarnetwork.ocpp.v16.cs.HeartbeatProcessor;
-import ocpp.v16.CentralSystemAction;
 import ocpp.v16.cs.HeartbeatRequest;
 
 /**

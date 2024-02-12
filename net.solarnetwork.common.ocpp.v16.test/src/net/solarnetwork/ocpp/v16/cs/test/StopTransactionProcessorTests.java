@@ -53,12 +53,13 @@ import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndInfo;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndReason;
+import net.solarnetwork.ocpp.domain.ErrorHolder;
 import net.solarnetwork.ocpp.service.AuthorizationException;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
+import net.solarnetwork.ocpp.v16.ActionErrorCode;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
 import net.solarnetwork.ocpp.v16.cs.StopTransactionProcessor;
-import ocpp.domain.ErrorHolder;
-import ocpp.v16.ActionErrorCode;
-import ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.xml.support.XmlDateUtils;
 import ocpp.v16.cs.IdTagInfo;
 import ocpp.v16.cs.Location;
 import ocpp.v16.cs.Measurand;
@@ -68,7 +69,6 @@ import ocpp.v16.cs.Reason;
 import ocpp.v16.cs.SampledValue;
 import ocpp.v16.cs.StopTransactionRequest;
 import ocpp.v16.cs.UnitOfMeasure;
-import ocpp.xml.support.XmlDateUtils;
 
 /**
  * Test cases for the {@link StopTransactionProcessor} class.

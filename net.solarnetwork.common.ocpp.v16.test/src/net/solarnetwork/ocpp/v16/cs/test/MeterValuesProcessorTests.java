@@ -51,8 +51,9 @@ import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
 import net.solarnetwork.ocpp.v16.cs.MeterValuesProcessor;
-import ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.xml.support.XmlDateUtils;
 import ocpp.v16.cs.Location;
 import ocpp.v16.cs.Measurand;
 import ocpp.v16.cs.MeterValue;
@@ -60,7 +61,6 @@ import ocpp.v16.cs.MeterValuesRequest;
 import ocpp.v16.cs.ReadingContext;
 import ocpp.v16.cs.SampledValue;
 import ocpp.v16.cs.UnitOfMeasure;
-import ocpp.xml.support.XmlDateUtils;
 
 /**
  * Test cases for the {@link MeterValuesProcessor} class.

@@ -41,14 +41,14 @@ import org.springframework.web.socket.WebSocketSession;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.v16.ChargePointAction;
+import net.solarnetwork.ocpp.v16.ErrorCodeResolver;
 import net.solarnetwork.ocpp.v16.cs.HeartbeatProcessor;
 import net.solarnetwork.ocpp.web.json.OcppWebSocketHandler;
 import net.solarnetwork.ocpp.web.json.OcppWebSocketHandshakeInterceptor;
 import net.solarnetwork.security.AuthorizationException;
 import net.solarnetwork.test.CallingThreadExecutorService;
-import ocpp.v16.CentralSystemAction;
-import ocpp.v16.ChargePointAction;
-import ocpp.v16.ErrorCodeResolver;
 import ocpp.v16.cs.HeartbeatRequest;
 import ocpp.v16.cs.HeartbeatResponse;
 
