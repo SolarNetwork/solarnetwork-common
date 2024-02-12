@@ -23,6 +23,7 @@
 package net.solarnetwork.ocpp.web.json;
 
 import static java.util.Collections.singletonList;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -53,12 +54,9 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.adapter.NativeWebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
@@ -81,8 +79,6 @@ import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.ChargePointBroker;
 import net.solarnetwork.ocpp.service.ErrorCodeResolver;
 import net.solarnetwork.ocpp.service.SimpleActionMessageQueue;
-import net.solarnetwork.ocpp.v16.cp.json.ChargePointActionPayloadDecoder;
-import net.solarnetwork.ocpp.v16.cs.json.CentralServiceActionPayloadDecoder;
 import net.solarnetwork.security.AuthorizationException;
 import net.solarnetwork.settings.SettingsChangeObserver;
 
@@ -151,22 +147,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	private ScheduledFuture<?> pendingTimeoutChore;
 	private ScheduledFuture<?> pingChore;
 
-	private static ObjectMapper defaultObjectMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JaxbAnnotationModule());
-		mapper.setSerializationInclusion(Include.NON_NULL);
-		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		return mapper;
-	}
-
 	/**
 	 * Constructor.
 	 * 
 	 * <p>
-	 * Default {@link ObjectMapper} and
-	 * {@link CentralServiceActionPayloadDecoder} and
-	 * {@link ChargePointActionPayloadDecoder} instances will be created. An
-	 * in-memory queue will be used for pending messages.
+	 * An in-memory queue will be used for pending messages.
 	 * </p>
 	 * 
 	 * @param chargePointActionClass
@@ -177,9 +162,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        the error code resolver
 	 * @param executor
 	 *        an executor for tasks
+	 * @param mapper
+	 *        the object mapper to use
 	 */
 	public OcppWebSocketHandler(Class<C> chargePointActionClass, Class<S> centralSystemActionClass,
-			ErrorCodeResolver errorCodeResolver, AsyncTaskExecutor executor) {
+			ErrorCodeResolver errorCodeResolver, AsyncTaskExecutor executor, ObjectMapper mapper) {
 		super();
 		this.chargePointActionClass = chargePointActionClass;
 		this.centralSystemActionClass = centralSystemActionClass;
@@ -188,9 +175,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		this.processors = new ConcurrentHashMap<>(16, 0.9f, 1);
 		this.clientSessions = new ConcurrentHashMap<>(8, 0.7f, 2);
 		this.pendingMessages = new SimpleActionMessageQueue();
-		this.mapper = defaultObjectMapper();
-		this.centralServiceActionPayloadDecoder = new CentralServiceActionPayloadDecoder(mapper);
-		this.chargePointActionPayloadDecoder = new ChargePointActionPayloadDecoder(mapper);
+		this.mapper = mapper;
 	}
 
 	/**
@@ -222,31 +207,14 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			ActionPayloadDecoder centralServiceActionPayloadDecoder,
 			ActionPayloadDecoder chargePointActionPayloadDecoder) {
 		super();
-		if ( chargePointActionClass == null ) {
-			throw new IllegalArgumentException("The chargePointActionClass parameter must not be null.");
-		}
-		this.chargePointActionClass = chargePointActionClass;
-		if ( centralSystemActionClass == null ) {
-			throw new IllegalArgumentException(
-					"The centralSystemActionClass parameter must not be null.");
-		}
-		this.centralSystemActionClass = centralSystemActionClass;
-		if ( errorCodeResolver == null ) {
-			throw new IllegalArgumentException("The errorCodeResolver parameter must not be null.");
-		}
-		this.errorCodeResolver = errorCodeResolver;
-		if ( executor == null ) {
-			throw new IllegalArgumentException("The executor parameter must not be null.");
-		}
-		this.executor = executor;
-		if ( mapper == null ) {
-			throw new IllegalArgumentException("The mapper parameter must not be null.");
-		}
-		this.mapper = mapper;
-		if ( pendingMessageQueue == null ) {
-			throw new IllegalArgumentException("The pendingMessageQueue parameter must not be null.");
-		}
-		this.pendingMessages = pendingMessageQueue;
+		this.chargePointActionClass = requireNonNullArgument(chargePointActionClass,
+				"chargePointActionClass");
+		this.centralSystemActionClass = requireNonNullArgument(centralSystemActionClass,
+				"centralSystemActionClass");
+		this.errorCodeResolver = requireNonNullArgument(errorCodeResolver, "errorCodeResolver");
+		this.executor = requireNonNullArgument(executor, "executor");
+		this.mapper = requireNonNullArgument(mapper, "mapper");
+		this.pendingMessages = requireNonNullArgument(pendingMessageQueue, "pendingMessageQueue");
 		this.processors = new ConcurrentHashMap<>(16, 0.9f, 1);
 		this.clientSessions = new ConcurrentHashMap<>(8, 0.7f, 2);
 		setCentralServiceActionPayloadDecoder(centralServiceActionPayloadDecoder);
@@ -827,7 +795,8 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	}
 
 	private boolean sendCall(final WebSocketSession session, final ChargePointIdentity clientId,
-			final String messageId, final net.solarnetwork.ocpp.domain.Action action, final Object payload) {
+			final String messageId, final net.solarnetwork.ocpp.domain.Action action,
+			final Object payload) {
 		Object[] msg = new Object[] { MessageType.Call.getNumber(), messageId, action.getName(),
 				payload };
 		String json = null;
@@ -1099,11 +1068,8 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 */
 	public void setCentralServiceActionPayloadDecoder(
 			ActionPayloadDecoder centralServiceActionPayloadDecoder) {
-		if ( centralServiceActionPayloadDecoder == null ) {
-			throw new IllegalArgumentException(
-					"The centralServiceActionPayloadDecoder parameter must not be null.");
-		}
-		this.centralServiceActionPayloadDecoder = centralServiceActionPayloadDecoder;
+		this.centralServiceActionPayloadDecoder = requireNonNullArgument(
+				centralServiceActionPayloadDecoder, "centralServiceActionPayloadDecoder");
 	}
 
 	/**
@@ -1125,11 +1091,8 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 */
 	public void setChargePointActionPayloadDecoder(
 			ActionPayloadDecoder chargePointActionPayloadDecoder) {
-		if ( chargePointActionPayloadDecoder == null ) {
-			throw new IllegalArgumentException(
-					"The chargePointActionPayloadDecoder parameter must not be null.");
-		}
-		this.chargePointActionPayloadDecoder = chargePointActionPayloadDecoder;
+		this.chargePointActionPayloadDecoder = requireNonNullArgument(chargePointActionPayloadDecoder,
+				"chargePointActionPayloadDecoder");
 	}
 
 	/**
@@ -1183,7 +1146,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * 
 	 * @return the object mapper, never {@literal null}
 	 */
-	protected ObjectMapper getObjectMapper() {
+	public ObjectMapper getObjectMapper() {
 		return mapper;
 	}
 
