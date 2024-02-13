@@ -8,7 +8,7 @@ Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.v16
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: 
- net.solarnetwork.ocpp.v16;version="1.0.0";uses:="net.solarnetwork.ocpp.json,net.solarnetwork.ocpp.domain",
+ net.solarnetwork.ocpp.v16;version="1.0.0";uses:="net.solarnetwork.ocpp.json,net.solarnetwork.ocpp.service,net.solarnetwork.ocpp.domain",
  net.solarnetwork.ocpp.v16.cp.json;version="1.0.0";
   uses:="ocpp.v16.cp,
    net.solarnetwork.ocpp.v16.json,
@@ -16,8 +16,8 @@ Export-Package:
    com.fasterxml.jackson.databind",
  net.solarnetwork.ocpp.v16.cs;version="2.2.0";
   uses:="ocpp.v16.cs,
-   net.solarnetwork.ocpp.service,
    net.solarnetwork.ocpp.service.cs,
+   net.solarnetwork.ocpp.service,
    net.solarnetwork.ocpp.domain",
  net.solarnetwork.ocpp.v16.cs.json;version="1.0.0";
   uses:="ocpp.v16.cs,
@@ -27,8 +27,6 @@ Export-Package:
  net.solarnetwork.ocpp.v16.json;version="1.1.0";
   uses:="net.solarnetwork.ocpp.xml.support,
    net.solarnetwork.ocpp.json,
-   net.solarnetwork.ocpp.v16,
-   net.solarnetwork.ocpp.domain,
    com.fasterxml.jackson.databind,
    javax.xml.bind",
  net.solarnetwork.ocpp.xml.support;version="1.0.0";
