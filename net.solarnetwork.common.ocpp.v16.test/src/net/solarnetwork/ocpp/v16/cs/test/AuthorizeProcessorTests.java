@@ -41,8 +41,8 @@ import net.solarnetwork.ocpp.domain.AuthorizationStatus;
 import net.solarnetwork.ocpp.domain.BasicActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.service.AuthorizationService;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
 import net.solarnetwork.ocpp.v16.cs.AuthorizeProcessor;
-import ocpp.v16.CentralSystemAction;
 import ocpp.v16.cs.AuthorizeRequest;
 import ocpp.v16.cs.IdTagInfo;
 

@@ -22,8 +22,6 @@
 
 package net.solarnetwork.ocpp.domain;
 
-import ocpp.domain.Action;
-
 /**
  * An action (verb) with a message (content).
  * 

@@ -23,11 +23,12 @@
 package net.solarnetwork.ocpp.domain;
 
 import java.util.UUID;
-import ocpp.domain.Action;
 
 /**
  * Basic implementation of {@link ActionMessage}.
  * 
+ * @param <T>
+ *        the message type
  * @author matt
  * @version 1.1
  */

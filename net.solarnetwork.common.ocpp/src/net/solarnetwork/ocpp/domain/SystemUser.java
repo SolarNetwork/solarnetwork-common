@@ -206,15 +206,19 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 	}
 
 	/**
-	 * @return the allowedChargePoints
+	 * Get the allowed charge points.
+	 * 
+	 * @return the allowed charge points
 	 */
 	public Set<String> getAllowedChargePoints() {
 		return allowedChargePoints;
 	}
 
 	/**
+	 * Set the allowed charge points.
+	 * 
 	 * @param allowedChargePoints
-	 *        the allowedChargePoints to set
+	 *        the allowed charge points to set
 	 */
 	@JsonDeserialize(as = LinkedHashSet.class)
 	public void setAllowedChargePoints(Set<String> allowedChargePoints) {

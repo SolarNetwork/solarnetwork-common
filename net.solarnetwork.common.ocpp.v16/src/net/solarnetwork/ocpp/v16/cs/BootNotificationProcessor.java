@@ -24,20 +24,20 @@ package net.solarnetwork.ocpp.v16.cs;
 
 import java.util.Collections;
 import java.util.Set;
+import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePoint;
 import net.solarnetwork.ocpp.domain.ChargePointInfo;
+import net.solarnetwork.ocpp.domain.ErrorCodeException;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.BaseActionMessageProcessor;
 import net.solarnetwork.ocpp.service.cs.ChargePointManager;
-import ocpp.domain.Action;
-import ocpp.domain.ErrorCodeException;
-import ocpp.v16.ActionErrorCode;
-import ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.v16.ActionErrorCode;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.xml.support.XmlDateUtils;
 import ocpp.v16.cs.BootNotificationRequest;
 import ocpp.v16.cs.BootNotificationResponse;
 import ocpp.v16.cs.RegistrationStatus;
-import ocpp.xml.support.XmlDateUtils;
 
 /**
  * Process {@link BootNotificationRequest} action messages.
