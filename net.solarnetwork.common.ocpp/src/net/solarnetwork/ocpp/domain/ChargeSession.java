@@ -31,17 +31,20 @@ import net.solarnetwork.dao.BasicUuidEntity;
  * charging cycle from authorization to end of charging.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class ChargeSession extends BasicUuidEntity {
 
-	private static final long serialVersionUID = 7816221911693319631L;
+	private static final long serialVersionUID = 1726642518109338069L;
 
 	/** The authorization ID. */
 	private final String authId;
 
 	/** The charge point ID. */
 	private final long chargePointId;
+
+	/** The EVSE ID. */
+	private final int evseId;
 
 	/** The charge point connector ID. */
 	private final int connectorId;
@@ -80,6 +83,26 @@ public class ChargeSession extends BasicUuidEntity {
 	/**
 	 * Constructor.
 	 * 
+	 * @param authId
+	 *        the authorization ID
+	 * @param chargePointId
+	 *        the Charge Point ID
+	 * @param evseId
+	 *        the EVSE ID
+	 * @param connectorId
+	 *        the Charge Point connector ID
+	 * @param transactionId
+	 *        the transactionID
+	 * @since 1.2
+	 */
+	public ChargeSession(String authId, long chargePointId, int evseId, int connectorId,
+			int transactionId) {
+		this(null, null, authId, chargePointId, evseId, connectorId, transactionId);
+	}
+
+	/**
+	 * Constructor.
+	 * 
 	 * @param id
 	 *        the primary key
 	 * @param created
@@ -95,9 +118,34 @@ public class ChargeSession extends BasicUuidEntity {
 	 */
 	public ChargeSession(UUID id, Instant created, String authId, long chargePointId, int connectorId,
 			int transactionId) {
+		this(id, created, authId, chargePointId, 0, connectorId, transactionId);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param id
+	 *        the primary key
+	 * @param created
+	 *        the created date
+	 * @param authId
+	 *        the authorization ID
+	 * @param chargePointId
+	 *        the Charge Point ID
+	 * @param evseId
+	 *        the EVSE ID
+	 * @param connectorId
+	 *        the Charge Point connector ID
+	 * @param transactionId
+	 *        the transactionID
+	 * @since 1.2
+	 */
+	public ChargeSession(UUID id, Instant created, String authId, long chargePointId, int evseId,
+			int connectorId, int transactionId) {
 		super(id, created);
 		this.authId = authId;
 		this.chargePointId = chargePointId;
+		this.evseId = evseId;
 		this.connectorId = connectorId;
 		this.transactionId = transactionId;
 	}
@@ -109,6 +157,8 @@ public class ChargeSession extends BasicUuidEntity {
 		builder.append(getId());
 		builder.append(", chargePointId=");
 		builder.append(chargePointId);
+		builder.append(", evseId=");
+		builder.append(evseId);
 		builder.append(", connectorId=");
 		builder.append(connectorId);
 		builder.append(", transactionId=");
@@ -138,6 +188,16 @@ public class ChargeSession extends BasicUuidEntity {
 	 */
 	public long getChargePointId() {
 		return chargePointId;
+	}
+
+	/**
+	 * Get the EVSE ID.
+	 * 
+	 * @return the EVSE ID
+	 * @since 1.2
+	 */
+	public int getEvseId() {
+		return evseId;
 	}
 
 	/**

@@ -22,8 +22,8 @@
 
 package net.solarnetwork.ocpp.domain.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import java.time.Instant;
 import org.junit.Test;
 import net.solarnetwork.ocpp.domain.ChargePointConnector;
@@ -40,7 +40,7 @@ import net.solarnetwork.ocpp.domain.StatusNotification;
 public class ChargePointConnectorTests {
 
 	@Test
-	public void foo() {
+	public void setInfo() {
 		// GIVEN
 		ChargePointConnector conn = new ChargePointConnector(new ChargePointConnectorKey(1L, 1));
 
@@ -54,6 +54,25 @@ public class ChargePointConnectorTests {
 				equalTo(conn.getId().getConnectorId()));
 		assertThat("Info properties copied", conn.getInfo(),
 				equalTo(info.toBuilder().withConnectorId(conn.getId().getConnectorId()).build()));
+	}
+
+	@Test
+	public void setInfo_withEvseId() {
+		// GIVEN
+		ChargePointConnector conn = new ChargePointConnector(new ChargePointConnectorKey(1L, 1, 1));
+
+		// WHEN
+		StatusNotification info = StatusNotification.builder().withStatus(ChargePointStatus.Available)
+				.withTimestamp(Instant.now()).build();
+		conn.setInfo(info);
+
+		// THEN
+		assertThat("Info EVSE ID set", conn.getInfo().getEvseId(), equalTo(conn.getId().getEvseId()));
+		assertThat("Info connector ID set", conn.getInfo().getConnectorId(),
+				equalTo(conn.getId().getConnectorId()));
+		assertThat("Info properties copied", conn.getInfo(),
+				equalTo(info.toBuilder().withEvseId(conn.getId().getEvseId())
+						.withConnectorId(conn.getId().getConnectorId()).build()));
 	}
 
 }

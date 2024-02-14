@@ -33,7 +33,7 @@ import net.solarnetwork.ocpp.domain.StatusNotification;
  * Data Access Object API for {@link ChargePointConnector} entities.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface ChargePointConnectorDao
 		extends GenericDao<ChargePointConnector, ChargePointConnectorKey> {
@@ -69,6 +69,26 @@ public interface ChargePointConnectorDao
 	 * @return the number of connectors updated
 	 */
 	int updateChargePointStatus(long chargePointId, int connectorId, ChargePointStatus status);
+
+	/**
+	 * Update just the status of one or more connectors for a specific Charge
+	 * Point.
+	 * 
+	 * @param chargePointId
+	 *        the Charge Point ID
+	 * @param evseId
+	 *        the EVSE ID, or {@literal 0} for all EVSEs for Charge Point
+	 * @param connectorId
+	 *        the connector ID, or {@literal 0} for all connectors for EVSE
+	 * @param status
+	 *        the desired status
+	 * @return the number of connectors updated
+	 * @since 1.1
+	 */
+	default int updateChargePointStatus(long chargePointId, int evseId, int connectorId,
+			ChargePointStatus status) {
+		return updateChargePointStatus(chargePointId, connectorId, status);
+	}
 
 	/**
 	 * Find all available connectors for a given Charge Point ID.

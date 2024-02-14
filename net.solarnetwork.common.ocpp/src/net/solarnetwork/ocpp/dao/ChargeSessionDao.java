@@ -40,7 +40,7 @@ import net.solarnetwork.ocpp.domain.SampledValue;
  * </p>
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 
@@ -76,8 +76,29 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 *        the connectorId ID to look for
 	 * @return the first available incomplete charge session, or {@literal null}
 	 *         if not found
+	 * @see #getIncompleteChargeSessionForConnector(long, int, int)
 	 */
 	ChargeSession getIncompleteChargeSessionForConnector(long chargePointId, int connectorId);
+
+	/**
+	 * Get the <b>first available</b> <em>incomplete</em> charge session for a
+	 * given connector ID. An <em>incomplete</em> session is one that has no
+	 * {@code ended} date.
+	 * 
+	 * @param chargePointId
+	 *        the charge point ID to look for
+	 * @param evseId
+	 *        the EVSE ID to look for
+	 * @param connectorId
+	 *        the connectorId ID to look for
+	 * @return the first available incomplete charge session, or {@literal null}
+	 *         if not found
+	 * @since 1.3
+	 */
+	default ChargeSession getIncompleteChargeSessionForConnector(long chargePointId, int evseId,
+			int connectorId) {
+		return getIncompleteChargeSessionForConnector(chargePointId, connectorId);
+	}
 
 	/**
 	 * Get <b>all</b> <em>incomplete</em> charge session for a given connector
@@ -89,9 +110,28 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 *        the connectorId ID to look for
 	 * @return the incomplete charge sessions, never {@literal null}
 	 * @since 1.2
+	 * @see #getIncompleteChargeSessionsForConnector(long, int, int)
 	 */
 	Collection<ChargeSession> getIncompleteChargeSessionsForConnector(long chargePointId,
 			int connectorId);
+
+	/**
+	 * Get <b>all</b> <em>incomplete</em> charge session for a given connector
+	 * ID. An <em>incomplete</em> session is one that has no {@code ended} date.
+	 * 
+	 * @param chargePointId
+	 *        the charge point ID to look for
+	 * @param evseId
+	 *        the EVSE ID to look for
+	 * @param connectorId
+	 *        the connectorId ID to look for
+	 * @return the incomplete charge sessions, never {@literal null}
+	 * @since 1.3
+	 */
+	default Collection<ChargeSession> getIncompleteChargeSessionsForConnector(long chargePointId,
+			int evseId, int connectorId) {
+		return getIncompleteChargeSessionsForConnector(chargePointId, connectorId);
+	}
 
 	/**
 	 * Get all <em>incomplete</em> charge session for a given charge point ID.

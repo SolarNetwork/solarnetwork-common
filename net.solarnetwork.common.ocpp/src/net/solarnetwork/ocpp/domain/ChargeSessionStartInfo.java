@@ -28,12 +28,13 @@ import java.time.Instant;
  * Information about a charging session, at the start of a session.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ChargeSessionStartInfo {
 
 	private final ChargePointIdentity chargePointId;
 	private final String authorizationId;
+	private final int evseId;
 	private final int connectorId;
 	private final Instant timestampStart;
 	private final long meterStart;
@@ -42,6 +43,7 @@ public class ChargeSessionStartInfo {
 	private ChargeSessionStartInfo(Builder builder) {
 		this.chargePointId = builder.chargePointId;
 		this.authorizationId = builder.authorizationId;
+		this.evseId = builder.evseId;
 		this.connectorId = builder.connectorId;
 		this.timestampStart = builder.timestampStart;
 		this.meterStart = builder.meterStart;
@@ -62,7 +64,9 @@ public class ChargeSessionStartInfo {
 			builder.append(authorizationId);
 			builder.append(", ");
 		}
-		builder.append("connectorId=");
+		builder.append("evseId=");
+		builder.append(evseId);
+		builder.append(", connectorId=");
 		builder.append(connectorId);
 		builder.append(", ");
 		if ( timestampStart != null ) {
@@ -97,6 +101,16 @@ public class ChargeSessionStartInfo {
 	 */
 	public String getAuthorizationId() {
 		return authorizationId;
+	}
+
+	/**
+	 * Get the EVSE ID.
+	 * 
+	 * @return the EVSE ID
+	 * @since 1.1
+	 */
+	public int getEvseId() {
+		return evseId;
 	}
 
 	/**
@@ -160,6 +174,7 @@ public class ChargeSessionStartInfo {
 
 		private ChargePointIdentity chargePointId;
 		private String authorizationId;
+		private int evseId;
 		private int connectorId;
 		private Instant timestampStart;
 		private long meterStart;
@@ -171,6 +186,7 @@ public class ChargeSessionStartInfo {
 		private Builder(ChargeSessionStartInfo chargeSessionInfo) {
 			this.chargePointId = chargeSessionInfo.chargePointId;
 			this.authorizationId = chargeSessionInfo.authorizationId;
+			this.evseId = chargeSessionInfo.evseId;
 			this.connectorId = chargeSessionInfo.connectorId;
 			this.timestampStart = chargeSessionInfo.timestampStart;
 			this.meterStart = chargeSessionInfo.meterStart;
@@ -198,6 +214,18 @@ public class ChargeSessionStartInfo {
 		 */
 		public Builder withAuthorizationId(String authorizationId) {
 			this.authorizationId = authorizationId;
+			return this;
+		}
+
+		/**
+		 * Configure the EVSE ID.
+		 * 
+		 * @param evseId
+		 *        the EVSE ID
+		 * @return this instance
+		 */
+		public Builder withEvseId(int evseId) {
+			this.evseId = evseId;
 			return this;
 		}
 

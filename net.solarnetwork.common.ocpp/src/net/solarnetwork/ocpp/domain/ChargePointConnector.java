@@ -122,8 +122,14 @@ public class ChargePointConnector extends BasicEntity<ChargePointConnectorKey> {
 	 */
 	public void setInfo(StatusNotification info) {
 		ChargePointConnectorKey id = getId();
-		if ( info != null && id != null && info.getConnectorId() != id.getConnectorId() ) {
-			info = info.toBuilder().withConnectorId(id.getConnectorId()).build();
+		if ( info != null && id != null && (info.getEvseId() != id.getEvseId()
+				|| info.getConnectorId() != id.getConnectorId()) ) {
+			// @formatter:off
+			info = info.toBuilder()
+					.withEvseId(id.getEvseId())
+					.withConnectorId(id.getConnectorId())
+					.build();
+			// @formatter:on
 		}
 		this.info = info;
 	}

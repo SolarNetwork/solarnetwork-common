@@ -31,13 +31,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * An OCPP status notification.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 @JsonDeserialize(builder = StatusNotification.Builder.class)
-@JsonPropertyOrder({ "connectorId", "timestamp", "status", "errorCode", "info", "vendorId",
+@JsonPropertyOrder({ "evseId", "connectorId", "timestamp", "status", "errorCode", "info", "vendorId",
 		"vendorErrorCode" })
 public class StatusNotification {
 
+	private final int evseId;
 	private final int connectorId;
 	private final ChargePointStatus status;
 	private final ChargePointErrorCode errorCode;
@@ -66,7 +67,35 @@ public class StatusNotification {
 	 */
 	public StatusNotification(int connectorId, ChargePointStatus status, ChargePointErrorCode errorCode,
 			String info, Instant timestamp, String vendorId, String vendorErrorCode) {
+		this(0, connectorId, status, errorCode, info, timestamp, vendorId, vendorErrorCode);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param evseId
+	 *        the EVSE ID
+	 * @param connectorId
+	 *        the connector ID
+	 * @param status
+	 *        the status
+	 * @param errorCode
+	 *        the error code
+	 * @param info
+	 *        the info
+	 * @param timestamp
+	 *        the timestamp
+	 * @param vendorId
+	 *        the vendor ID
+	 * @param vendorErrorCode
+	 *        the vendor error code
+	 * @since 1.1
+	 */
+	public StatusNotification(int evseId, int connectorId, ChargePointStatus status,
+			ChargePointErrorCode errorCode, String info, Instant timestamp, String vendorId,
+			String vendorErrorCode) {
 		super();
+		this.evseId = evseId;
 		this.connectorId = connectorId;
 		this.status = status;
 		this.errorCode = errorCode;
@@ -77,13 +106,14 @@ public class StatusNotification {
 	}
 
 	private StatusNotification(Builder builder) {
-		this(builder.connectorId, builder.status, builder.errorCode, builder.info, builder.timestamp,
-				builder.vendorId, builder.vendorErrorCode);
+		this(builder.evseId, builder.connectorId, builder.status, builder.errorCode, builder.info,
+				builder.timestamp, builder.vendorId, builder.vendorErrorCode);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(connectorId, errorCode, info, status, timestamp, vendorErrorCode, vendorId);
+		return Objects.hash(evseId, connectorId, errorCode, info, status, timestamp, vendorErrorCode,
+				vendorId);
 	}
 
 	@Override
@@ -100,41 +130,53 @@ public class StatusNotification {
 
 	@Override
 	public String toString() {
-		StringBuilder builder2 = new StringBuilder();
-		builder2.append("StatusNotification{connectorId=");
-		builder2.append(connectorId);
-		builder2.append(", ");
+		StringBuilder builder = new StringBuilder();
+		builder.append("StatusNotification{evseId=");
+		builder.append(evseId);
+		builder.append(", connectorId=");
+		builder.append(connectorId);
+		builder.append(", ");
 		if ( status != null ) {
-			builder2.append("status=");
-			builder2.append(status);
-			builder2.append(", ");
+			builder.append("status=");
+			builder.append(status);
+			builder.append(", ");
 		}
 		if ( errorCode != null ) {
-			builder2.append("errorCode=");
-			builder2.append(errorCode);
-			builder2.append(", ");
+			builder.append("errorCode=");
+			builder.append(errorCode);
+			builder.append(", ");
 		}
 		if ( timestamp != null ) {
-			builder2.append("timestamp=");
-			builder2.append(timestamp);
-			builder2.append(", ");
+			builder.append("timestamp=");
+			builder.append(timestamp);
+			builder.append(", ");
 		}
 		if ( info != null ) {
-			builder2.append("info=");
-			builder2.append(info);
-			builder2.append(", ");
+			builder.append("info=");
+			builder.append(info);
+			builder.append(", ");
 		}
 		if ( vendorId != null ) {
-			builder2.append("vendorId=");
-			builder2.append(vendorId);
-			builder2.append(", ");
+			builder.append("vendorId=");
+			builder.append(vendorId);
+			builder.append(", ");
 		}
 		if ( vendorErrorCode != null ) {
-			builder2.append("vendorErrorCode=");
-			builder2.append(vendorErrorCode);
+			builder.append("vendorErrorCode=");
+			builder.append(vendorErrorCode);
 		}
-		builder2.append("}");
-		return builder2.toString();
+		builder.append("}");
+		return builder.toString();
+	}
+
+	/**
+	 * Get the EVSE ID.
+	 * 
+	 * @return the EVSE ID
+	 * @since 1.1
+	 */
+	public int getEvseId() {
+		return evseId;
 	}
 
 	/**
@@ -252,6 +294,7 @@ public class StatusNotification {
 	 */
 	public static final class Builder {
 
+		private int evseId;
 		private int connectorId;
 		private ChargePointStatus status;
 		private ChargePointErrorCode errorCode;
@@ -264,6 +307,7 @@ public class StatusNotification {
 		}
 
 		private Builder(StatusNotification statusNotification) {
+			this.evseId = statusNotification.evseId;
 			this.connectorId = statusNotification.connectorId;
 			this.status = statusNotification.status;
 			this.errorCode = statusNotification.errorCode;
@@ -271,6 +315,19 @@ public class StatusNotification {
 			this.timestamp = statusNotification.timestamp;
 			this.vendorId = statusNotification.vendorId;
 			this.vendorErrorCode = statusNotification.vendorErrorCode;
+		}
+
+		/**
+		 * Configure an EVSE ID.
+		 * 
+		 * @param evseId
+		 *        the EVSE ID
+		 * @return this instance
+		 * @since 1.1
+		 */
+		public Builder withEvseId(int evseId) {
+			this.evseId = evseId;
+			return this;
 		}
 
 		/**

@@ -39,7 +39,7 @@ import net.solarnetwork.service.Identifiable;
  * clients.
  * 
  * @author matt
- * @version 2.2
+ * @version 2.3
  */
 public interface ChargeSessionManager extends Identifiable {
 
@@ -112,6 +112,27 @@ public interface ChargeSessionManager extends Identifiable {
 	 */
 	void addChargingSessionReadings(ChargePointIdentity chargePointId, Integer connectorId,
 			Iterable<SampledValue> readings);
+
+	/**
+	 * Add charge session readings.
+	 * 
+	 * @param chargePointId
+	 *        the charge point identifier to get sessions for, or
+	 *        {@literal null} for all sessions for all charge points
+	 * @param evseId
+	 *        the EVSE ID, or {@literal null} to use the active charge session's
+	 *        information
+	 * @param connectorId
+	 *        the connector ID, or {@literal null} to use the active charge
+	 *        session's information
+	 * @param readings
+	 *        the readings to add
+	 * @since 2.3
+	 */
+	default void addChargingSessionReadings(ChargePointIdentity chargePointId, Integer evseId,
+			Integer connectorId, Iterable<SampledValue> readings) {
+		addChargingSessionReadings(chargePointId, connectorId, readings);
+	}
 
 	/**
 	 * End a charging session.
