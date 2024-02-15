@@ -1,5 +1,5 @@
 /* ==================================================================
- * HeartbeatProcessor.java - 5/02/2020 9:37:10 am
+ * DataTransferProcessor.java - 16/02/2020 7:00:56 pm
  * 
  * Copyright 2020 SolarNetwork.net Dev Team
  * 
@@ -22,53 +22,49 @@
 
 package net.solarnetwork.ocpp.v201.service;
 
-import java.time.Clock;
 import java.util.Collections;
 import java.util.Set;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.BaseActionMessageProcessor;
 import net.solarnetwork.ocpp.v201.domain.Action;
-import ocpp.v201.HeartbeatRequest;
-import ocpp.v201.HeartbeatResponse;
+import ocpp.v201.DataTransferRequest;
+import ocpp.v201.DataTransferResponse;
+import ocpp.v201.DataTransferStatusEnum;
 
 /**
- * Process {@link HeartbeatRequest} action messages.
+ * Process {@link DataTransferRequest} action messages.
  * 
  * <p>
- * This very simple processor directly responds with new
- * {@link HeartbeatResponse} instances with the current system time.
+ * This handler does not perform any function itself, other than respond with a
+ * {@link DataTransferStatus#REJECTED} status.
  * </p>
  * 
  * @author matt
  * @version 1.0
  */
-public class HeartbeatProcessor extends BaseActionMessageProcessor<HeartbeatRequest, HeartbeatResponse> {
+public class DataTransferProcessor
+		extends BaseActionMessageProcessor<DataTransferRequest, DataTransferResponse> {
 
 	/** The supported actions of this processor. */
 	public static final Set<net.solarnetwork.ocpp.domain.Action> SUPPORTED_ACTIONS = Collections
-			.singleton(Action.Heartbeat);
-
-	private final Clock clock;
+			.singleton(Action.DataTransfer);
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param clock
-	 *        the clock to use
-	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
 	 */
-	public HeartbeatProcessor(Clock clock) {
-		super(HeartbeatRequest.class, HeartbeatResponse.class, SUPPORTED_ACTIONS, true);
-		this.clock = clock;
+	public DataTransferProcessor() {
+		super(DataTransferRequest.class, DataTransferResponse.class, SUPPORTED_ACTIONS);
 	}
 
 	@Override
-	public void processActionMessage(ActionMessage<HeartbeatRequest> message,
-			ActionMessageResultHandler<HeartbeatRequest, HeartbeatResponse> resultHandler) {
-		HeartbeatResponse res = new HeartbeatResponse();
-		res.setCurrentTime(clock.instant());
+	public void processActionMessage(ActionMessage<DataTransferRequest> message,
+			ActionMessageResultHandler<DataTransferRequest, DataTransferResponse> resultHandler) {
+		DataTransferRequest req = message.getMessage();
+		log.info("OCPP DataTransfer received from {}; message ID = {}; vendor ID = {}; data = {}",
+				message.getClientId(), req.getMessageId(), req.getVendorId(), req.getData());
+		DataTransferResponse res = new DataTransferResponse();
+		res.setStatus(DataTransferStatusEnum.REJECTED);
 		resultHandler.handleActionMessageResult(message, res, null);
 	}
 

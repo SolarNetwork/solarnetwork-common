@@ -1,0 +1,118 @@
+/* ==================================================================
+ * AuthorizeProcessorTests.java - 14/02/2020 11:38:11 am
+ * 
+ * Copyright 2020 SolarNetwork.net Dev Team
+ * 
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation; either version 2 of 
+ * the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program; if not, write to the Free Software 
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ * 02111-1307 USA
+ * ==================================================================
+ */
+
+package net.solarnetwork.ocpp.v201.service.tests;
+
+import static org.easymock.EasyMock.expect;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertThat;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import org.easymock.EasyMock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import net.solarnetwork.ocpp.domain.ActionMessage;
+import net.solarnetwork.ocpp.domain.AuthorizationInfo;
+import net.solarnetwork.ocpp.domain.AuthorizationStatus;
+import net.solarnetwork.ocpp.domain.BasicActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
+import net.solarnetwork.ocpp.service.AuthorizationService;
+import net.solarnetwork.ocpp.v201.domain.Action;
+import net.solarnetwork.ocpp.v201.service.AuthorizeProcessor;
+import ocpp.v201.AuthorizationStatusEnum;
+import ocpp.v201.AuthorizeRequest;
+import ocpp.v201.IdToken;
+import ocpp.v201.IdTokenEnum;
+import ocpp.v201.IdTokenInfo;
+
+/**
+ * Test cases for the {@link AuthorizeProcessor} class.
+ * 
+ * @author matt
+ * @version 1.0
+ */
+public class AuthorizeProcessorTests {
+
+	private AuthorizationService authService;
+	private AuthorizeProcessor processor;
+
+	@Before
+	public void setup() {
+		authService = EasyMock.createMock(AuthorizationService.class);
+		processor = new AuthorizeProcessor(authService);
+	}
+
+	@After
+	public void teardown() {
+		EasyMock.verify(authService);
+	}
+
+	private void replayAll() {
+		EasyMock.replay(authService);
+	}
+
+	private ChargePointIdentity createClientId() {
+		return new ChargePointIdentity(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+	}
+
+	@Test
+	public void auth_ok() throws InterruptedException {
+		// given
+		CountDownLatch l = new CountDownLatch(1);
+		ChargePointIdentity clientId = createClientId();
+		String idTag = UUID.randomUUID().toString().substring(0, 20);
+		AuthorizationInfo auth = AuthorizationInfo.builder().withId(idTag)
+				.withStatus(AuthorizationStatus.Accepted).build();
+
+		expect(authService.authorize(clientId, idTag)).andReturn(auth);
+
+		// when
+		replayAll();
+
+		AuthorizeRequest req = new AuthorizeRequest();
+		req.setIdToken(new IdToken(idTag, IdTokenEnum.LOCAL));
+		ActionMessage<AuthorizeRequest> message = new BasicActionMessage<AuthorizeRequest>(clientId,
+				Action.Authorize, req);
+		processor.processActionMessage(message, (msg, res, err) -> {
+			assertThat("Message passed", msg, sameInstance(message));
+			assertThat("Result available", res, notNullValue());
+			assertThat("No error", err, nullValue());
+
+			IdTokenInfo tagInfo = res.getIdTokenInfo();
+			assertThat("Result info available", tagInfo, notNullValue());
+			assertThat("Result tag status", tagInfo.getStatus(),
+					equalTo(AuthorizationStatusEnum.ACCEPTED));
+
+			l.countDown();
+			return true;
+		});
+
+		// then
+		assertThat("Result handler invoked", l.await(1, TimeUnit.SECONDS), equalTo(true));
+	}
+
+}

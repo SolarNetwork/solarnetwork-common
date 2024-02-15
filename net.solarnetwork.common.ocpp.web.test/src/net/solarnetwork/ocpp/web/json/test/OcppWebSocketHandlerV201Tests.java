@@ -28,6 +28,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Map;
 import org.easymock.Capture;
@@ -94,11 +97,12 @@ public class OcppWebSocketHandlerV201Tests {
 	@Test
 	public void heartbeatRequest() throws Exception {
 		// GIVEN
+		final Clock fixed = Clock.fixed(Instant.now(), ZoneOffset.UTC);
 		final ChargePointIdentity cpIdent = new ChargePointIdentity("foo", "user");
 		final Map<String, Object> sessionAttributes = Collections
 				.singletonMap(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR, cpIdent);
 		expect(session.getAttributes()).andReturn(sessionAttributes).anyTimes();
-		handler.addActionMessageProcessor(new HeartbeatProcessor());
+		handler.addActionMessageProcessor(new HeartbeatProcessor(fixed));
 
 		// send HeartbeatResponse
 		Capture<TextMessage> outMessageCaptor = Capture.newInstance();
@@ -120,12 +124,13 @@ public class OcppWebSocketHandlerV201Tests {
 	@Test
 	public void orderedProcessors() throws Exception {
 		// GIVEN
+		final Clock fixed = Clock.fixed(Instant.now(), ZoneOffset.UTC);
 		final ChargePointIdentity cpIdent = new ChargePointIdentity("foo", "user");
 		final Map<String, Object> sessionAttributes = Collections
 				.singletonMap(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR, cpIdent);
 		expect(session.getAttributes()).andReturn(sessionAttributes).anyTimes();
-		handler.addActionMessageProcessor(new HeartbeatProcessor());
-		handler.addActionMessageProcessor(new HeartbeatProcessor() {
+		handler.addActionMessageProcessor(new HeartbeatProcessor(fixed));
+		handler.addActionMessageProcessor(new HeartbeatProcessor(fixed) {
 
 			@Override
 			public void processActionMessage(ActionMessage<HeartbeatRequest> message,
@@ -154,11 +159,13 @@ public class OcppWebSocketHandlerV201Tests {
 
 	@Test
 	public void authorizationException() throws Exception {
+		// GIVEN
+		final Clock fixed = Clock.fixed(Instant.now(), ZoneOffset.UTC);
 		final ChargePointIdentity cpIdent = new ChargePointIdentity("foo", "user");
 		final Map<String, Object> sessionAttributes = Collections
 				.singletonMap(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR, cpIdent);
 		expect(session.getAttributes()).andReturn(sessionAttributes).anyTimes();
-		handler.addActionMessageProcessor(new HeartbeatProcessor() {
+		handler.addActionMessageProcessor(new HeartbeatProcessor(fixed) {
 
 			@Override
 			public void processActionMessage(ActionMessage<HeartbeatRequest> message,

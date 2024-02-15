@@ -23,11 +23,14 @@
 package net.solarnetwork.ocpp.v201.util;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.core.io.Resource;
@@ -43,7 +46,14 @@ import com.networknt.schema.NonValidationKeyword;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationMessage;
 import net.solarnetwork.codec.JsonUtils;
+import net.solarnetwork.ocpp.domain.AuthorizationStatus;
+import net.solarnetwork.ocpp.domain.Location;
+import net.solarnetwork.ocpp.domain.Measurand;
+import net.solarnetwork.ocpp.domain.Phase;
+import net.solarnetwork.ocpp.domain.ReadingContext;
+import net.solarnetwork.ocpp.domain.SampledValue;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
+import net.solarnetwork.ocpp.domain.UnitOfMeasure;
 
 /**
  * Utilities for OCPP v2.
@@ -252,6 +262,148 @@ public final class OcppUtils {
 		} catch ( IOException e ) {
 			throw new IllegalArgumentException(String.format("Invalid JSON for [%s] OCPP action: %s",
 					actionClassName, e.getMessage()));
+		}
+	}
+
+	/**
+	 * Get a {@link ocpp.v201.AuthorizationStatusEnum} for an
+	 * {@link AuthorizationStatus}.
+	 * 
+	 * @param status
+	 *        the status to translate
+	 * @return the status, never {@literal null}
+	 */
+	public static ocpp.v201.AuthorizationStatusEnum statusForStatus(AuthorizationStatus status) {
+		switch (status) {
+			case Accepted:
+				return ocpp.v201.AuthorizationStatusEnum.ACCEPTED;
+
+			case Blocked:
+				return ocpp.v201.AuthorizationStatusEnum.BLOCKED;
+
+			case ConcurrentTx:
+				return ocpp.v201.AuthorizationStatusEnum.CONCURRENT_TX;
+
+			case Expired:
+				return ocpp.v201.AuthorizationStatusEnum.EXPIRED;
+
+			case Invalid:
+				return ocpp.v201.AuthorizationStatusEnum.INVALID;
+
+			default:
+				return ocpp.v201.AuthorizationStatusEnum.UNKNOWN;
+		}
+	}
+
+	/**
+	 * Convert a {@link ocpp.v201.SampledValue} into a {@link SampledValue}.
+	 * 
+	 * @param chargeSessionId
+	 *        the charge session ID associated with the sample
+	 * @param timestamp
+	 *        the timestamp associated with the sample
+	 * @param value
+	 *        the value to translate
+	 * @return the value, never {@literal null}
+	 */
+	public static SampledValue sampledValue(UUID chargeSessionId, Instant timestamp,
+			ocpp.v201.SampledValue value) {
+		// @formatter:off
+		SampledValue.Builder result = SampledValue.builder()
+				.withSessionId(chargeSessionId)
+				.withTimestamp(timestamp)
+				.withContext(readingContext(value.getContext()))
+				.withLocation(location(value.getLocation()))
+				.withMeasurand(measurand(value.getMeasurand()))
+				.withPhase(phase(value.getPhase()))
+				.withUnit(unit(value.getUnitOfMeasure()))
+				;
+		// @formatter:on
+		if ( value.getValue() != null ) {
+			// use BigDecimal to strip trailing zeros in string form
+			BigDecimal d = BigDecimal.valueOf(value.getValue());
+			result.withValue(d.stripTrailingZeros().toPlainString());
+		}
+		return result.build();
+	}
+
+	/**
+	 * Convert a {@link ocpp.v201.UnitOfMeasure} into a {@link UnitOfMeasure}.
+	 * 
+	 * @param unit
+	 *        the unit to translate
+	 * @return the unit, never {@literal null}
+	 */
+	public static UnitOfMeasure unit(ocpp.v201.UnitOfMeasure unit) {
+		try {
+			return UnitOfMeasure.valueOf(unit.getUnit());
+		} catch ( IllegalArgumentException | NullPointerException e ) {
+			return UnitOfMeasure.Unknown;
+		}
+	}
+
+	/**
+	 * Convert a {@link ocpp.v201.PhaseEnum} into a {@link Phase}.
+	 * 
+	 * @param phase
+	 *        the phase to translate
+	 * @return the phase, never {@literal null}
+	 */
+	public static Phase phase(ocpp.v201.PhaseEnum phase) {
+		if ( phase == null ) {
+			return null;
+		}
+		try {
+			return Phase.valueOf(phase.value().replace("-", ""));
+		} catch ( IllegalArgumentException | NullPointerException e ) {
+			return Phase.Unknown;
+		}
+	}
+
+	/**
+	 * Convert a {@link ocpp.v201.MeasurandEnum} into a {@link Measurand}.
+	 * 
+	 * @param measurand
+	 *        the measurand to translate
+	 * @return the measurand, never {@literal null}
+	 */
+	public static Measurand measurand(ocpp.v201.MeasurandEnum measurand) {
+		try {
+			return Measurand.valueOf(measurand.value().replace(".", ""));
+		} catch ( IllegalArgumentException | NullPointerException e ) {
+			return Measurand.Unknown;
+		}
+	}
+
+	/**
+	 * Convert a {@link ocpp.v201.LocationEnum} into a {@link Location}.
+	 * 
+	 * @param location
+	 *        the location to translate
+	 * @return the location, never {@literal null}
+	 */
+	public static Location location(ocpp.v201.LocationEnum location) {
+		try {
+			return Location.valueOf(location.value());
+		} catch ( IllegalArgumentException | NullPointerException e ) {
+			return Location.Outlet;
+		}
+
+	}
+
+	/**
+	 * Convert a {@link ocpp.v201.ReadingContextEnum} into a
+	 * {@link ReadingContext}.
+	 * 
+	 * @param context
+	 *        the context to translate
+	 * @return the context, never {@literal null}
+	 */
+	public static ReadingContext readingContext(ocpp.v201.ReadingContextEnum context) {
+		try {
+			return ReadingContext.valueOf(context.value().replace(".", ""));
+		} catch ( IllegalArgumentException | NullPointerException e ) {
+			return ReadingContext.Unknown;
 		}
 	}
 

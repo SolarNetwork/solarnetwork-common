@@ -1,5 +1,5 @@
 /* ==================================================================
- * HeartbeatProcessor.java - 5/02/2020 9:37:10 am
+ * FirmwareStatusNotificationProcessor.java - 17/02/2020 6:41:10 am
  * 
  * Copyright 2020 SolarNetwork.net Dev Team
  * 
@@ -22,54 +22,42 @@
 
 package net.solarnetwork.ocpp.v201.service;
 
-import java.time.Clock;
 import java.util.Collections;
 import java.util.Set;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.BaseActionMessageProcessor;
 import net.solarnetwork.ocpp.v201.domain.Action;
-import ocpp.v201.HeartbeatRequest;
-import ocpp.v201.HeartbeatResponse;
+import ocpp.v201.FirmwareStatusNotificationRequest;
+import ocpp.v201.FirmwareStatusNotificationResponse;
 
 /**
- * Process {@link HeartbeatRequest} action messages.
- * 
- * <p>
- * This very simple processor directly responds with new
- * {@link HeartbeatResponse} instances with the current system time.
- * </p>
+ * Process {@link FirmwareStatusNotificationRequest} action messages.
  * 
  * @author matt
  * @version 1.0
  */
-public class HeartbeatProcessor extends BaseActionMessageProcessor<HeartbeatRequest, HeartbeatResponse> {
+public class FirmwareStatusNotificationProcessor extends
+		BaseActionMessageProcessor<FirmwareStatusNotificationRequest, FirmwareStatusNotificationResponse> {
 
 	/** The supported actions of this processor. */
 	public static final Set<net.solarnetwork.ocpp.domain.Action> SUPPORTED_ACTIONS = Collections
-			.singleton(Action.Heartbeat);
-
-	private final Clock clock;
+			.singleton(Action.FirmwareStatusNotification);
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param clock
-	 *        the clock to use
-	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
 	 */
-	public HeartbeatProcessor(Clock clock) {
-		super(HeartbeatRequest.class, HeartbeatResponse.class, SUPPORTED_ACTIONS, true);
-		this.clock = clock;
+	public FirmwareStatusNotificationProcessor() {
+		super(FirmwareStatusNotificationRequest.class, FirmwareStatusNotificationResponse.class,
+				SUPPORTED_ACTIONS);
 	}
 
 	@Override
-	public void processActionMessage(ActionMessage<HeartbeatRequest> message,
-			ActionMessageResultHandler<HeartbeatRequest, HeartbeatResponse> resultHandler) {
-		HeartbeatResponse res = new HeartbeatResponse();
-		res.setCurrentTime(clock.instant());
-		resultHandler.handleActionMessageResult(message, res, null);
+	public void processActionMessage(ActionMessage<FirmwareStatusNotificationRequest> message,
+			ActionMessageResultHandler<FirmwareStatusNotificationRequest, FirmwareStatusNotificationResponse> resultHandler) {
+		log.info("OCPP FirmwareStatusNotification received from {}: {}", message.getClientId(),
+				message.getMessage().getStatus());
+		resultHandler.handleActionMessageResult(message, new FirmwareStatusNotificationResponse(), null);
 	}
 
 }
