@@ -193,7 +193,8 @@ public class StartTransactionProcessorTests {
 
 		expect(chargeSessionManager.startChargingSession(anyObject()))
 				.andThrow(new AuthorizationException(
-						new AuthorizationInfo(idTag, AuthorizationStatus.Invalid, null, null), txId));
+						new AuthorizationInfo(idTag, AuthorizationStatus.Invalid, null, null),
+						txId.toString()));
 
 		// when
 		replayAll();

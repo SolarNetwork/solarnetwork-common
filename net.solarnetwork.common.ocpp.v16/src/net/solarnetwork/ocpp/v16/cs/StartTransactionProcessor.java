@@ -119,7 +119,15 @@ public class StartTransactionProcessor
 			tagInfo.setStatus(CentralSystemUtils.statusForStatus(e.getInfo().getStatus()));
 			StartTransactionResponse res = new StartTransactionResponse();
 			res.setIdTagInfo(tagInfo);
-			res.setTransactionId(e.getTransactionId() != null ? e.getTransactionId() : 0);
+			if ( e.getTransactionId() != null ) {
+				try {
+					res.setTransactionId(Integer.parseInt(e.getTransactionId()));
+				} catch ( NumberFormatException nfe ) {
+					res.setTransactionId(0);
+				}
+			} else {
+				res.setTransactionId(0);
+			}
 			resultHandler.handleActionMessageResult(message, res, null);
 		} catch ( Throwable t ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.InternalError,

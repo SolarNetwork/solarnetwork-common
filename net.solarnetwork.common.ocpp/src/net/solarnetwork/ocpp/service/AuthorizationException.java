@@ -28,7 +28,7 @@ import net.solarnetwork.ocpp.domain.AuthorizationInfo;
  * Authorization related exception.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class AuthorizationException extends RuntimeException {
 
@@ -38,7 +38,7 @@ public class AuthorizationException extends RuntimeException {
 	private final AuthorizationInfo info;
 
 	/** An optional transaction ID. */
-	private final Integer transactionId;
+	private final String transactionId;
 
 	/**
 	 * Constructor.
@@ -71,7 +71,7 @@ public class AuthorizationException extends RuntimeException {
 	 *        the optional transaction ID
 	 * @since 1.1
 	 */
-	public AuthorizationException(AuthorizationInfo info, Integer transactionId) {
+	public AuthorizationException(AuthorizationInfo info, String transactionId) {
 		this(null, info, transactionId);
 	}
 
@@ -84,9 +84,9 @@ public class AuthorizationException extends RuntimeException {
 	 *        the authorization info
 	 * @param transactionId
 	 *        the optional transaction ID
-	 * @since 1.1
+	 * @since 2.0
 	 */
-	public AuthorizationException(String message, AuthorizationInfo info, Integer transactionId) {
+	public AuthorizationException(String message, AuthorizationInfo info, String transactionId) {
 		super(message);
 		this.info = info;
 		this.transactionId = transactionId;
@@ -105,9 +105,9 @@ public class AuthorizationException extends RuntimeException {
 	 * Get the optional transaction ID.
 	 * 
 	 * @return the transaction ID
-	 * @since 1.1
+	 * @since 2.0
 	 */
-	public Integer getTransactionId() {
+	public String getTransactionId() {
 		return transactionId;
 	}
 
