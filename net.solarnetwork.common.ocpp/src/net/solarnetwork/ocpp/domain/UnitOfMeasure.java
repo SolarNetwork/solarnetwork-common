@@ -28,11 +28,11 @@ import net.solarnetwork.domain.CodedValue;
  * Enumeration of units of measure.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public enum UnitOfMeasure implements CodedValue {
 
-	/** Unknonw. */
+	/** Unknown. */
 	Unknown(0),
 
 	/** Watt hours. */
@@ -87,7 +87,57 @@ public enum UnitOfMeasure implements CodedValue {
 	K(17),
 
 	/** Percent. */
-	Percent(18);
+	Percent(18),
+
+	/** Arbitrary strength unit (signal strength). */
+	ASU(19),
+
+	/** Bytes. */
+	B(20),
+
+	/** Decibel. */
+	dB(21),
+
+	/** Power relative to 1mW. */
+	dBm(22),
+
+	/** Degrees (angle/rotation). */
+	Deg(23),
+
+	/** Hertz (frequency). */
+	Hz(24),
+
+	/** Lux (light intensity). */
+	lx(25),
+
+	/** Meter. */
+	m(26),
+
+	/** Meters per second-squared (acceleration). */
+	ms2(27),
+
+	/** Newtons (force). */
+	N(28),
+
+	/** Ohm (impedance). */
+	Ohm(29),
+
+	/** Kilo pascal (pressure). */
+	kPa(30),
+
+	/** Relative humidity percent. */
+	RH(31),
+
+	/** Revolutions per minute. */
+	RPM(32),
+
+	/** Seconds. */
+	s(33),
+
+	/** Kilo volt-ampere hours. */
+	kVAh(34),
+
+	;
 
 	private final byte code;
 
