@@ -54,7 +54,7 @@ import ocpp.v16.cs.StopTransactionResponse;
  * Process {@link StopTransactionRequest} action messages.
  * 
  * @author matt
- * @version 1.3
+ * @version 2.0
  */
 public class StopTransactionProcessor
 		extends BaseActionMessageProcessor<StopTransactionRequest, StopTransactionResponse> {
@@ -98,9 +98,10 @@ public class StopTransactionProcessor
 			return;
 		}
 
+		final String txId = String.valueOf(req.getTransactionId());
+
 		try {
-			ChargeSession session = chargeSessionManager.getActiveChargingSession(chargePointId,
-					req.getTransactionId());
+			ChargeSession session = chargeSessionManager.getActiveChargingSession(chargePointId, txId);
 
 			if ( session == null ) {
 				resultHandler.handleActionMessageResult(message, new StopTransactionResponse(), null);
@@ -111,7 +112,7 @@ public class StopTransactionProcessor
 			ChargeSessionEndInfo info = ChargeSessionEndInfo.builder()
 					.withChargePointId(chargePointId)
 					.withAuthorizationId(req.getIdTag())
-					.withTransactionId(req.getTransactionId())
+					.withTransactionId(txId)
 					.withMeterEnd(req.getMeterStop())
 					.withTimestampEnd(XmlDateUtils.timestamp(req.getTimestamp(), Instant::now))
 					.withReason(reason(req.getReason()))

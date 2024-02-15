@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OCPP 1.6 Core Support
 Bundle-Description: Support for OCPP 1.6 service implementations.
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.v16
-Bundle-Version: 3.0.0
+Bundle-Version: 4.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.v16
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -14,7 +14,7 @@ Export-Package:
    net.solarnetwork.ocpp.v16.json,
    net.solarnetwork.ocpp.domain,
    com.fasterxml.jackson.databind",
- net.solarnetwork.ocpp.v16.cs;version="2.2.0";
+ net.solarnetwork.ocpp.v16.cs;version="3.0.0";
   uses:="ocpp.v16.cs,
    net.solarnetwork.ocpp.service.cs,
    net.solarnetwork.ocpp.service,
@@ -45,11 +45,11 @@ Import-Package:
  net.solarnetwork.codec;version="[2.0,3.0)",
  net.solarnetwork.dao;version="[2.0,3.0)",
  net.solarnetwork.domain;version="[2.0,3.0)",
- net.solarnetwork.ocpp.dao;version="[2.0,3.0)",
- net.solarnetwork.ocpp.domain;version="[2.1,3.0)",
+ net.solarnetwork.ocpp.dao;version="[3.0,4.0)",
+ net.solarnetwork.ocpp.domain;version="[3.0,4.0)",
  net.solarnetwork.ocpp.json;version="[1.0,2.0)",
  net.solarnetwork.ocpp.service;version="[2.2,3.0)",
- net.solarnetwork.ocpp.service.cs;version="[2.2,3.0)",
+ net.solarnetwork.ocpp.service.cs;version="[3.0,4.0)",
  net.solarnetwork.ocpp.v16;version="[1.0,2.0)",
  net.solarnetwork.ocpp.xml.support;version="[1.0,2.0)",
  net.solarnetwork.security;version="[2.0,3.0)",

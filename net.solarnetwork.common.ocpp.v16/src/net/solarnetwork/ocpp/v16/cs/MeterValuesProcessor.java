@@ -48,7 +48,7 @@ import ocpp.v16.cs.MeterValuesResponse;
  * Process {@link MeterValuesRequest} action messages.
  * 
  * @author matt
- * @version 1.4
+ * @version 2.0
  */
 public class MeterValuesProcessor
 		extends BaseActionMessageProcessor<MeterValuesRequest, MeterValuesResponse> {
@@ -94,7 +94,7 @@ public class MeterValuesProcessor
 		try {
 			final ChargeSession session = (req.getTransactionId() != null
 					? chargeSessionManager.getActiveChargingSession(chargePointId,
-							req.getTransactionId())
+							req.getTransactionId().toString())
 					: null);
 
 			List<MeterValue> values = req.getMeterValue();
@@ -112,8 +112,8 @@ public class MeterValuesProcessor
 				log.info("Saving charge point {} connector {} readings for session {} (txId {}): {}",
 						chargePointId, req.getConnectorId(), session, req.getTransactionId(),
 						newReadings);
-				chargeSessionManager.addChargingSessionReadings(chargePointId, req.getConnectorId(),
-						newReadings);
+				chargeSessionManager.addChargingSessionReadings(chargePointId, null,
+						req.getConnectorId(), newReadings);
 			}
 
 			resultHandler.handleActionMessageResult(message, new MeterValuesResponse(), null);

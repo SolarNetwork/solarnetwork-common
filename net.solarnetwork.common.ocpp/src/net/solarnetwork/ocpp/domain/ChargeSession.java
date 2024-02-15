@@ -31,7 +31,7 @@ import net.solarnetwork.dao.BasicUuidEntity;
  * charging cycle from authorization to end of charging.
  * 
  * @author matt
- * @version 1.2
+ * @version 2.0
  */
 public class ChargeSession extends BasicUuidEntity {
 
@@ -50,7 +50,7 @@ public class ChargeSession extends BasicUuidEntity {
 	private final int connectorId;
 
 	/** The transaction ID. */
-	private final int transactionId;
+	private final String transactionId;
 
 	/** The end date. */
 	private Instant ended;
@@ -75,9 +75,10 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the Charge Point connector ID
 	 * @param transactionId
 	 *        the transactionID
+	 * @since 2.0
 	 */
-	public ChargeSession(String authId, long chargePointId, int connectorId, int transactionId) {
-		this(null, null, authId, chargePointId, connectorId, transactionId);
+	public ChargeSession(String authId, long chargePointId, int connectorId, String transactionId) {
+		this(null, null, authId, chargePointId, 0, connectorId, transactionId);
 	}
 
 	/**
@@ -93,10 +94,10 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the Charge Point connector ID
 	 * @param transactionId
 	 *        the transactionID
-	 * @since 1.2
+	 * @since 2.0
 	 */
 	public ChargeSession(String authId, long chargePointId, int evseId, int connectorId,
-			int transactionId) {
+			String transactionId) {
 		this(null, null, authId, chargePointId, evseId, connectorId, transactionId);
 	}
 
@@ -115,9 +116,10 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the Charge Point connector ID
 	 * @param transactionId
 	 *        the transactionID
+	 * @since 2.0
 	 */
 	public ChargeSession(UUID id, Instant created, String authId, long chargePointId, int connectorId,
-			int transactionId) {
+			String transactionId) {
 		this(id, created, authId, chargePointId, 0, connectorId, transactionId);
 	}
 
@@ -138,10 +140,10 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the Charge Point connector ID
 	 * @param transactionId
 	 *        the transactionID
-	 * @since 1.2
+	 * @since 2.0
 	 */
 	public ChargeSession(UUID id, Instant created, String authId, long chargePointId, int evseId,
-			int connectorId, int transactionId) {
+			int connectorId, String transactionId) {
 		super(id, created);
 		this.authId = authId;
 		this.chargePointId = chargePointId;
@@ -161,9 +163,11 @@ public class ChargeSession extends BasicUuidEntity {
 		builder.append(evseId);
 		builder.append(", connectorId=");
 		builder.append(connectorId);
-		builder.append(", transactionId=");
-		builder.append(transactionId);
-		builder.append(", ");
+		if ( transactionId != null ) {
+			builder.append(", transactionId=");
+			builder.append(transactionId);
+			builder.append(", ");
+		}
 		if ( ended != null ) {
 			builder.append("ended=");
 			builder.append(ended);
@@ -214,7 +218,7 @@ public class ChargeSession extends BasicUuidEntity {
 	 * 
 	 * @return the transaction ID
 	 */
-	public int getTransactionId() {
+	public String getTransactionId() {
 		return transactionId;
 	}
 

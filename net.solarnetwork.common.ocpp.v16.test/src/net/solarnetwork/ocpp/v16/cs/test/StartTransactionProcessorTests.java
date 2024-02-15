@@ -95,10 +95,12 @@ public class StartTransactionProcessorTests {
 		ChargePoint cp = new ChargePoint(UUID.randomUUID().getMostSignificantBits(), Instant.now(),
 				new ChargePointInfo(clientId.getIdentifier()));
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
+		int transactionId = 2;
+		String txId = String.valueOf(transactionId);
 
 		Capture<ChargeSessionStartInfo> infoCaptor = Capture.newInstance();
 		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
-				2);
+				txId);
 		expect(chargeSessionManager.startChargingSession(capture(infoCaptor))).andReturn(session);
 
 		// when
@@ -119,8 +121,7 @@ public class StartTransactionProcessorTests {
 			assertThat("Result info available", tagInfo, notNullValue());
 			assertThat("Result tag status", tagInfo.getStatus(),
 					equalTo(ocpp.v16.cs.AuthorizationStatus.ACCEPTED));
-			assertThat("Result transaction ID", res.getTransactionId(),
-					equalTo(session.getTransactionId()));
+			assertThat("Result transaction ID", res.getTransactionId(), equalTo(transactionId));
 
 			l.countDown();
 			return true;

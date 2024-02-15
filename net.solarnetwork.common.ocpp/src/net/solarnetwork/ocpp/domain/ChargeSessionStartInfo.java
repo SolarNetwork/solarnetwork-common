@@ -28,12 +28,13 @@ import java.time.Instant;
  * Information about a charging session, at the start of a session.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class ChargeSessionStartInfo {
 
 	private final ChargePointIdentity chargePointId;
 	private final String authorizationId;
+	private final String transactionId;
 	private final int evseId;
 	private final int connectorId;
 	private final Instant timestampStart;
@@ -43,6 +44,7 @@ public class ChargeSessionStartInfo {
 	private ChargeSessionStartInfo(Builder builder) {
 		this.chargePointId = builder.chargePointId;
 		this.authorizationId = builder.authorizationId;
+		this.transactionId = builder.transactionId;
 		this.evseId = builder.evseId;
 		this.connectorId = builder.connectorId;
 		this.timestampStart = builder.timestampStart;
@@ -62,6 +64,11 @@ public class ChargeSessionStartInfo {
 		if ( authorizationId != null ) {
 			builder.append("authorizationId=");
 			builder.append(authorizationId);
+			builder.append(", ");
+		}
+		if ( transactionId != null ) {
+			builder.append("transactionId=");
+			builder.append(transactionId);
 			builder.append(", ");
 		}
 		builder.append("evseId=");
@@ -101,6 +108,16 @@ public class ChargeSessionStartInfo {
 	 */
 	public String getAuthorizationId() {
 		return authorizationId;
+	}
+
+	/**
+	 * Get the transaction ID.
+	 * 
+	 * @return the transaction ID
+	 * @since 1.2
+	 */
+	public String getTransactionId() {
+		return transactionId;
 	}
 
 	/**
@@ -174,6 +191,7 @@ public class ChargeSessionStartInfo {
 
 		private ChargePointIdentity chargePointId;
 		private String authorizationId;
+		private String transactionId;
 		private int evseId;
 		private int connectorId;
 		private Instant timestampStart;
@@ -186,6 +204,7 @@ public class ChargeSessionStartInfo {
 		private Builder(ChargeSessionStartInfo chargeSessionInfo) {
 			this.chargePointId = chargeSessionInfo.chargePointId;
 			this.authorizationId = chargeSessionInfo.authorizationId;
+			this.transactionId = chargeSessionInfo.transactionId;
 			this.evseId = chargeSessionInfo.evseId;
 			this.connectorId = chargeSessionInfo.connectorId;
 			this.timestampStart = chargeSessionInfo.timestampStart;
@@ -214,6 +233,19 @@ public class ChargeSessionStartInfo {
 		 */
 		public Builder withAuthorizationId(String authorizationId) {
 			this.authorizationId = authorizationId;
+			return this;
+		}
+
+		/**
+		 * Configure the transaction ID.
+		 * 
+		 * @param transactionId
+		 *        the transaction ID
+		 * @return this instance
+		 * @since 1.2
+		 */
+		public Builder withTransactionId(String transactionId) {
+			this.transactionId = transactionId;
 			return this;
 		}
 

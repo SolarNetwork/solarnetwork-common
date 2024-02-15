@@ -54,7 +54,7 @@ import ocpp.v16.cs.StartTransactionResponse;
  * </p>
  * 
  * @author matt
- * @version 1.2
+ * @version 2.0
  */
 public class StartTransactionProcessor
 		extends BaseActionMessageProcessor<StartTransactionRequest, StartTransactionResponse> {
@@ -112,7 +112,7 @@ public class StartTransactionProcessor
 			tagInfo.setStatus(AuthorizationStatus.ACCEPTED);
 			StartTransactionResponse res = new StartTransactionResponse();
 			res.setIdTagInfo(tagInfo);
-			res.setTransactionId(session.getTransactionId());
+			res.setTransactionId(Integer.parseInt(session.getTransactionId()));
 			resultHandler.handleActionMessageResult(message, res, null);
 		} catch ( AuthorizationException e ) {
 			IdTagInfo tagInfo = new IdTagInfo();

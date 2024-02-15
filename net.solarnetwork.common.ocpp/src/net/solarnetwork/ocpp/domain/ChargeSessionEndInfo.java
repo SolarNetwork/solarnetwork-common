@@ -29,13 +29,13 @@ import java.util.Collections;
  * Information about a charging session, at the end of the session.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ChargeSessionEndInfo {
 
 	private final ChargePointIdentity chargePointId;
 	private final String authorizationId;
-	private final int transactionId;
+	private final String transactionId;
 	private final Instant timestampEnd;
 	private final long meterEnd;
 	private final ChargeSessionEndReason reason;
@@ -65,9 +65,11 @@ public class ChargeSessionEndInfo {
 			builder.append(authorizationId);
 			builder.append(", ");
 		}
-		builder.append("transactionId=");
-		builder.append(transactionId);
-		builder.append(", ");
+		if ( transactionId != null ) {
+			builder.append("transactionId=");
+			builder.append(transactionId);
+			builder.append(", ");
+		}
 		if ( timestampEnd != null ) {
 			builder.append("timestampEnd=");
 			builder.append(timestampEnd);
@@ -112,7 +114,7 @@ public class ChargeSessionEndInfo {
 	 * 
 	 * @return the transaction ID
 	 */
-	public int getTransactionId() {
+	public String getTransactionId() {
 		return transactionId;
 	}
 
@@ -177,7 +179,7 @@ public class ChargeSessionEndInfo {
 
 		private ChargePointIdentity chargePointId;
 		private String authorizationId;
-		private int transactionId;
+		private String transactionId;
 		private Instant timestampEnd;
 		private long meterEnd;
 		private ChargeSessionEndReason reason;
@@ -227,7 +229,7 @@ public class ChargeSessionEndInfo {
 		 *        the transaction ID
 		 * @return this instance
 		 */
-		public Builder withTransactionId(int transactionId) {
+		public Builder withTransactionId(String transactionId) {
 			this.transactionId = transactionId;
 			return this;
 		}

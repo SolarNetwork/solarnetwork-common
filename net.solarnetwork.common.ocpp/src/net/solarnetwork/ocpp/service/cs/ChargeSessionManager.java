@@ -39,12 +39,18 @@ import net.solarnetwork.service.Identifiable;
  * clients.
  * 
  * @author matt
- * @version 2.3
+ * @version 3.0
  */
 public interface ChargeSessionManager extends Identifiable {
 
 	/**
 	 * Start a charging session.
+	 * 
+	 * <p>
+	 * If no {@code transactionId} is provided, this method must generate a new
+	 * transaction ID value that is an unsigned 16-bit integer value in the
+	 * range 1-65535, returned as a base-10 string.
+	 * </p>
 	 * 
 	 * @param info
 	 *        the start charging session info
@@ -69,8 +75,9 @@ public interface ChargeSessionManager extends Identifiable {
 	 * @throws AuthorizationException
 	 *         if any no active charge session is available for the given
 	 *         criteria
+	 * @since 3.0
 	 */
-	ChargeSession getActiveChargingSession(ChargePointIdentity chargePointId, int transactionId)
+	ChargeSession getActiveChargingSession(ChargePointIdentity chargePointId, String transactionId)
 			throws AuthorizationException;
 
 	/**
@@ -103,22 +110,6 @@ public interface ChargeSessionManager extends Identifiable {
 	 * @param chargePointId
 	 *        the charge point identifier to get sessions for, or
 	 *        {@literal null} for all sessions for all charge points
-	 * @param connectorId
-	 *        the connector ID, or {@literal null} to use the active charge
-	 *        session's information
-	 * @param readings
-	 *        the readings to add
-	 * @since 2.2
-	 */
-	void addChargingSessionReadings(ChargePointIdentity chargePointId, Integer connectorId,
-			Iterable<SampledValue> readings);
-
-	/**
-	 * Add charge session readings.
-	 * 
-	 * @param chargePointId
-	 *        the charge point identifier to get sessions for, or
-	 *        {@literal null} for all sessions for all charge points
 	 * @param evseId
 	 *        the EVSE ID, or {@literal null} to use the active charge session's
 	 *        information
@@ -129,10 +120,8 @@ public interface ChargeSessionManager extends Identifiable {
 	 *        the readings to add
 	 * @since 2.3
 	 */
-	default void addChargingSessionReadings(ChargePointIdentity chargePointId, Integer evseId,
-			Integer connectorId, Iterable<SampledValue> readings) {
-		addChargingSessionReadings(chargePointId, connectorId, readings);
-	}
+	void addChargingSessionReadings(ChargePointIdentity chargePointId, Integer evseId,
+			Integer connectorId, Iterable<SampledValue> readings);
 
 	/**
 	 * End a charging session.

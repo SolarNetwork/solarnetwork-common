@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Test
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.web.test
-Bundle-Version: 3.3.0
+Bundle-Version: 3.3.1
 Bundle-Vendor: SolarNetwork
 Fragment-Host: net.solarnetwork.common.ocpp.web;bundle-version="[3.3,4.0)"
 Automatic-Module-Name: net.solarnetwork.common.ocpp.web.test
@@ -16,7 +16,7 @@ Import-Package:
  net.solarnetwork.codec;version="[2.3,3.0)",
  net.solarnetwork.ocpp.v16;version="[1.0,2.0)",
  net.solarnetwork.ocpp.v16.cp.json;version="[1.0,2.0)",
- net.solarnetwork.ocpp.v16.cs;version="[2.0,3.0)",
+ net.solarnetwork.ocpp.v16.cs;version="[2.0,4.0)",
  net.solarnetwork.ocpp.v16.cs.json;version="[1.0,2.0)",
  net.solarnetwork.ocpp.v201.domain;version="1.0.0",
  net.solarnetwork.ocpp.v201.service;version="1.0.0",
