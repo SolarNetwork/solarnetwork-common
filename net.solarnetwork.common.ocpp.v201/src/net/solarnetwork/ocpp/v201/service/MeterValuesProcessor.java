@@ -22,6 +22,7 @@
 
 package net.solarnetwork.ocpp.v201.service;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -66,10 +67,7 @@ public class MeterValuesProcessor
 	 */
 	public MeterValuesProcessor(ChargeSessionManager chargeSessionManager) {
 		super(MeterValuesRequest.class, MeterValuesResponse.class, SUPPORTED_ACTIONS);
-		if ( chargeSessionManager == null ) {
-			throw new IllegalArgumentException("The chargeSessionManager parameter must not be null.");
-		}
-		this.chargeSessionManager = chargeSessionManager;
+		this.chargeSessionManager = requireNonNullArgument(chargeSessionManager, "chargeSessionManager");
 	}
 
 	@Override
