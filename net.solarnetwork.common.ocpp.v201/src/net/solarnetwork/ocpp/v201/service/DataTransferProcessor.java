@@ -37,7 +37,7 @@ import ocpp.v201.DataTransferStatusEnum;
  * 
  * <p>
  * This handler does not perform any function itself, other than respond with a
- * {@link DataTransferStatus#REJECTED} status.
+ * {@link DataTransferStatusEnum#REJECTED} status.
  * </p>
  * 
  * @author matt
