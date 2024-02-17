@@ -47,6 +47,7 @@ import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationMessage;
 import net.solarnetwork.codec.JsonUtils;
 import net.solarnetwork.ocpp.domain.AuthorizationStatus;
+import net.solarnetwork.ocpp.domain.ChargeSessionEndReason;
 import net.solarnetwork.ocpp.domain.Location;
 import net.solarnetwork.ocpp.domain.Measurand;
 import net.solarnetwork.ocpp.domain.Phase;
@@ -54,6 +55,7 @@ import net.solarnetwork.ocpp.domain.ReadingContext;
 import net.solarnetwork.ocpp.domain.SampledValue;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
 import net.solarnetwork.ocpp.domain.UnitOfMeasure;
+import ocpp.v201.ReasonEnum;
 
 /**
  * Utilities for OCPP v2.
@@ -407,4 +409,22 @@ public final class OcppUtils {
 		}
 	}
 
+	/**
+	 * Convert a {@link ocpp.v201.ReasonEnum} into a
+	 * {@link ChargeSessionEndReason}.
+	 * 
+	 * @param reason
+	 *        the reason to translate
+	 * @return the reason, never {@literal null}
+	 */
+	public static ChargeSessionEndReason reason(ReasonEnum reason) {
+		if ( reason == null ) {
+			return ChargeSessionEndReason.Local;
+		}
+		try {
+			return ChargeSessionEndReason.valueOf(reason.value());
+		} catch ( IllegalArgumentException e ) {
+			return ChargeSessionEndReason.Unknown;
+		}
+	}
 }
