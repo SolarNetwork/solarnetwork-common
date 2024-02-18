@@ -1,21 +1,21 @@
 /* ==================================================================
  * OcppUtils.java - 9/02/2024 2:51:33 pm
- * 
+ *
  * Copyright 2024 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -35,9 +35,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.networknt.schema.AbsoluteIri;
 import com.networknt.schema.JsonMetaSchema;
 import com.networknt.schema.JsonSchema;
@@ -45,7 +49,6 @@ import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.NonValidationKeyword;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.ValidationMessage;
-import net.solarnetwork.codec.JsonUtils;
 import net.solarnetwork.ocpp.domain.AuthorizationStatus;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndReason;
 import net.solarnetwork.ocpp.domain.Location;
@@ -59,9 +62,9 @@ import ocpp.v201.ReasonEnum;
 
 /**
  * Utilities for OCPP v2.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public final class OcppUtils {
 
@@ -142,11 +145,26 @@ public final class OcppUtils {
 		OCPP_ACTION_SCHEMA_LOCATIONS = Collections.unmodifiableMap(locationMappings);
 	}
 
-	private static final ObjectMapper OBJECT_MAPPER = JsonUtils.newObjectMapper();
+	private static final ObjectMapper OBJECT_MAPPER = newObjectMapper();
+
+	/**
+	 * Create a new ObjectMapper suitable for OCPP v2.0.1 messages.
+	 *
+	 * @return the mapper
+	 * @since 1.1
+	 */
+	public static ObjectMapper newObjectMapper() {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new JavaTimeModule());
+		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+		mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
+		mapper.setSerializationInclusion(Include.NON_EMPTY);
+		return mapper;
+	}
 
 	/**
 	 * Get a JSON schema validator for OCPP 2.0.1.
-	 * 
+	 *
 	 * @return the validator
 	 */
 	public static JsonSchemaFactory ocppSchemaFactory_v201() {
@@ -173,7 +191,7 @@ public final class OcppUtils {
 
 	/**
 	 * Get the action class name for a request or response.
-	 * 
+	 *
 	 * @param action
 	 *        the action name, for example "StatusNotification"
 	 * @param request
@@ -187,7 +205,11 @@ public final class OcppUtils {
 
 	/**
 	 * Parse and optionally validate an OCPP message.
-	 * 
+	 *
+	 * <p>
+	 * A default {@link ObjectMapper} will be used.
+	 * </p>
+	 *
 	 * @param action
 	 *        the OCPP action, for example "StatusNotification"
 	 * @param request
@@ -205,10 +227,44 @@ public final class OcppUtils {
 	 *         if the action is not known
 	 * @throws SchemaValidationException
 	 *         if validation fails
+	 * @see #parseOcppMessage(String, boolean, String, JsonSchemaFactory,
+	 *      ObjectMapper)
 	 */
 	public static Object parseOcppMessage(final String action, final boolean request,
 			final String message, JsonSchemaFactory validator) throws IOException {
-		JsonNode jsonNode = OBJECT_MAPPER.readTree(message);
+		return parseOcppMessage(action, request, message, validator, OBJECT_MAPPER);
+	}
+
+	/**
+	 * Parse and optionally validate an OCPP message.
+	 *
+	 * @param action
+	 *        the OCPP action, for example "StatusNotification"
+	 * @param request
+	 *        {@literal true} if the message represents a request,
+	 *        {@literal false} for a response
+	 * @param message
+	 *        the OCPP message content
+	 * @param validator
+	 *        if provided, validate the message content using the schema
+	 *        associated with {@code action}
+	 * @param objectMapper
+	 *        the mapper to use
+	 * @return the parsed OCPP action instance
+	 * @throws IOException
+	 *         if a parsing error occurs
+	 * @throws IllegalArgumentException
+	 *         if the action is not known
+	 * @throws SchemaValidationException
+	 *         if validation fails
+	 * @see #parseOcppMessage(String, boolean, ObjectNode, JsonSchemaFactory,
+	 *      ObjectMapper)
+	 * @since 1.1
+	 */
+	public static Object parseOcppMessage(final String action, final boolean request,
+			final String message, JsonSchemaFactory validator, ObjectMapper objectMapper)
+			throws IOException {
+		JsonNode jsonNode = objectMapper.readTree(message);
 		ObjectNode jsonPayload;
 		if ( jsonNode.isNull() ) {
 			jsonPayload = null;
@@ -217,12 +273,12 @@ public final class OcppUtils {
 		} else {
 			throw new IOException("OCPP message must be a JSON object.");
 		}
-		return parseOcppMessage(action, request, jsonPayload, validator);
+		return parseOcppMessage(action, request, jsonPayload, validator, objectMapper);
 	}
 
 	/**
 	 * Parse and optionally validate an OCPP message.
-	 * 
+	 *
 	 * @param action
 	 *        the OCPP action
 	 * @param request
@@ -238,9 +294,38 @@ public final class OcppUtils {
 	 *         if the action is not known
 	 * @throws SchemaValidationException
 	 *         if validation fails
+	 * @see #parseOcppMessage(String, boolean, ObjectNode, JsonSchemaFactory,
+	 *      ObjectMapper)
 	 */
 	public static Object parseOcppMessage(final String action, final boolean request,
 			final ObjectNode message, JsonSchemaFactory validator) {
+		return parseOcppMessage(action, request, message, validator, OBJECT_MAPPER);
+	}
+
+	/**
+	 * Parse and optionally validate an OCPP message.
+	 *
+	 * @param action
+	 *        the OCPP action
+	 * @param request
+	 *        {@literal true} if the message represents a request,
+	 *        {@literal false} for a response
+	 * @param message
+	 *        the OCPP message content
+	 * @param validator
+	 *        if provided, validate the message content using the schema
+	 *        associated with {@code action}
+	 * @param objectMapper
+	 *        the mapper to use
+	 * @return the parsed OCPP action instance
+	 * @throws IllegalArgumentException
+	 *         if the action is not known
+	 * @throws SchemaValidationException
+	 *         if validation fails
+	 * @since 1.1
+	 */
+	public static Object parseOcppMessage(final String action, final boolean request,
+			final ObjectNode message, JsonSchemaFactory validator, ObjectMapper objectMapper) {
 		String actionClassName = actionClassName(action, request);
 		Class<?> actionClass = OCPP_ACTION_CLASSES.get(actionClassName);
 		if ( actionClass == null ) {
@@ -260,7 +345,7 @@ public final class OcppUtils {
 					}
 				}
 			}
-			return OBJECT_MAPPER.treeToValue(message, actionClass);
+			return objectMapper.treeToValue(message, actionClass);
 		} catch ( IOException e ) {
 			throw new IllegalArgumentException(String.format("Invalid JSON for [%s] OCPP action: %s",
 					actionClassName, e.getMessage()));
@@ -270,7 +355,7 @@ public final class OcppUtils {
 	/**
 	 * Get a {@link ocpp.v201.AuthorizationStatusEnum} for an
 	 * {@link AuthorizationStatus}.
-	 * 
+	 *
 	 * @param status
 	 *        the status to translate
 	 * @return the status, never {@literal null}
@@ -299,7 +384,7 @@ public final class OcppUtils {
 
 	/**
 	 * Convert a {@link ocpp.v201.SampledValue} into a {@link SampledValue}.
-	 * 
+	 *
 	 * @param chargeSessionId
 	 *        the charge session ID associated with the sample
 	 * @param timestamp
@@ -331,7 +416,7 @@ public final class OcppUtils {
 
 	/**
 	 * Convert a {@link ocpp.v201.UnitOfMeasure} into a {@link UnitOfMeasure}.
-	 * 
+	 *
 	 * @param unit
 	 *        the unit to translate
 	 * @return the unit, never {@literal null}
@@ -346,7 +431,7 @@ public final class OcppUtils {
 
 	/**
 	 * Convert a {@link ocpp.v201.PhaseEnum} into a {@link Phase}.
-	 * 
+	 *
 	 * @param phase
 	 *        the phase to translate
 	 * @return the phase, never {@literal null}
@@ -364,7 +449,7 @@ public final class OcppUtils {
 
 	/**
 	 * Convert a {@link ocpp.v201.MeasurandEnum} into a {@link Measurand}.
-	 * 
+	 *
 	 * @param measurand
 	 *        the measurand to translate
 	 * @return the measurand, never {@literal null}
@@ -379,7 +464,7 @@ public final class OcppUtils {
 
 	/**
 	 * Convert a {@link ocpp.v201.LocationEnum} into a {@link Location}.
-	 * 
+	 *
 	 * @param location
 	 *        the location to translate
 	 * @return the location, never {@literal null}
@@ -396,7 +481,7 @@ public final class OcppUtils {
 	/**
 	 * Convert a {@link ocpp.v201.ReadingContextEnum} into a
 	 * {@link ReadingContext}.
-	 * 
+	 *
 	 * @param context
 	 *        the context to translate
 	 * @return the context, never {@literal null}
@@ -412,7 +497,7 @@ public final class OcppUtils {
 	/**
 	 * Convert a {@link ocpp.v201.ReasonEnum} into a
 	 * {@link ChargeSessionEndReason}.
-	 * 
+	 *
 	 * @param reason
 	 *        the reason to translate
 	 * @return the reason, never {@literal null}
