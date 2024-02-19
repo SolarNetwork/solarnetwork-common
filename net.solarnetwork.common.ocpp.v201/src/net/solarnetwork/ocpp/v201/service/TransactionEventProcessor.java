@@ -1,21 +1,21 @@
 /* ==================================================================
  * TransactionEventProcessor.java - 16/02/2024 4:57:22 pm
- * 
+ *
  * Copyright 2024 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -61,7 +61,7 @@ import ocpp.v201.UnitOfMeasure;
 
 /**
  * Process {@link TransactionEventRequest} action messages.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -77,7 +77,7 @@ public class TransactionEventProcessor
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param chargeSessionManager
 	 *        the session manager
 	 * @throws IllegalArgumentException
@@ -130,7 +130,7 @@ public class TransactionEventProcessor
 
 	/**
 	 * Process the start transaction event.
-	 * 
+	 *
 	 * @param message
 	 *        the message to process, never {@literal null}
 	 * @param resultHandler
@@ -153,7 +153,7 @@ public class TransactionEventProcessor
 		// @formatter:off
 		final ChargeSessionStartInfo.Builder startInfoDetails = ChargeSessionStartInfo.builder()
 				.withChargePointId(chargePointId)
-				.withAuthorizationId(idToken.getIdToken())
+				.withAuthorizationId(idToken != null ? idToken.getIdToken() : null)
 				.withTimestampStart(request.getTimestamp())
 				.withReservationId(request.getReservationId())
 				.withMeterStart(meterStartValue)
@@ -191,7 +191,7 @@ public class TransactionEventProcessor
 
 	/**
 	 * Process the update transaction event.
-	 * 
+	 *
 	 * @param message
 	 *        the message to process, never {@literal null}
 	 * @param resultHandler
@@ -230,7 +230,7 @@ public class TransactionEventProcessor
 
 	/**
 	 * Process the end transaction event.
-	 * 
+	 *
 	 * @param message
 	 *        the message to process, never {@literal null}
 	 * @param resultHandler
@@ -262,7 +262,7 @@ public class TransactionEventProcessor
 		// @formatter:off
 		ChargeSessionEndInfo info = ChargeSessionEndInfo.builder()
 				.withChargePointId(chargePointId)
-				.withAuthorizationId(idToken.getIdToken())
+				.withAuthorizationId(idToken != null ? idToken.getIdToken() : null)
 				.withTransactionId(tx.getTransactionId())
 				.withMeterEnd(meterEndValue)
 				.withTimestampEnd(request.getTimestamp())
