@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicGeneralDatumDeserializer.java - 17/08/2021 2:34:49 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,6 +25,8 @@ package net.solarnetwork.codec;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -45,30 +47,30 @@ import net.solarnetwork.util.DateUtils;
 
 /**
  * Deserializer for {@link Datum} objects
- * 
+ *
  * <p>
  * Supports both "direct" and "nested" style of sample properties. For example a
  * direct style looks like:
  * </p>
- * 
+ *
  * <pre>
  * <code>
  * {"created":"2021-08-17 14:28:12.345Z","sourceId":"foo","i":{"watts":123}}
  * </code>
  * </pre>
- * 
+ *
  * <p>
  * while the nested style looks like:
  * </p>
- * 
+ *
  * <pre>
  * <code>
  * {"created":3801091820980,"sourceId":"foo","samples":{"i":{"watts":123}}}
  * </code>
  * </pre>
- * 
+ *
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.78
  */
 public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> implements Serializable {
@@ -119,7 +121,18 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 							if ( t.isNumeric() ) {
 								ts = Instant.ofEpochMilli(p.getValueAsLong());
 							} else {
-								ts = DateUtils.ISO_DATE_TIME_ALT_UTC.parse(p.getText(), Instant::from);
+								try {
+									ts = DateUtils.ISO_DATE_TIME_ALT_UTC.parse(p.getText(),
+											Instant::from);
+								} catch ( DateTimeParseException e2 ) {
+									ZonedDateTime zdt = DateUtils.parseIsoTimestamp(p.getText(),
+											ZoneOffset.UTC);
+									if ( zdt != null ) {
+										ts = zdt.toInstant();
+									} else {
+										throw e2;
+									}
+								}
 							}
 						} catch ( DateTimeParseException e ) {
 							throw new JsonParseException(p, "Invalid 'created' date value.",
