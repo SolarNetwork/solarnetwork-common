@@ -23,8 +23,8 @@
 package net.solarnetwork.ocpp.service;
 
 import java.util.Set;
+import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
-import ocpp.domain.Action;
 
 /**
  * API for processing {@link ActionMessage} objects.

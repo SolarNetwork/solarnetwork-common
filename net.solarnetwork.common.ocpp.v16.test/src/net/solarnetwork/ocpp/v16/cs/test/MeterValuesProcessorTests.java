@@ -25,6 +25,7 @@ package net.solarnetwork.ocpp.v16.cs.test;
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isNull;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -51,8 +52,9 @@ import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
 import net.solarnetwork.ocpp.v16.cs.MeterValuesProcessor;
-import ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.xml.support.XmlDateUtils;
 import ocpp.v16.cs.Location;
 import ocpp.v16.cs.Measurand;
 import ocpp.v16.cs.MeterValue;
@@ -60,7 +62,6 @@ import ocpp.v16.cs.MeterValuesRequest;
 import ocpp.v16.cs.ReadingContext;
 import ocpp.v16.cs.SampledValue;
 import ocpp.v16.cs.UnitOfMeasure;
-import ocpp.xml.support.XmlDateUtils;
 
 /**
  * Test cases for the {@link MeterValuesProcessor} class.
@@ -101,22 +102,22 @@ public class MeterValuesProcessorTests {
 				new ChargePointInfo(clientId.getIdentifier()));
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 		int transactionId = 1;
+		String txId = String.valueOf(transactionId);
 
 		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
-				transactionId);
-		expect(chargeSessionManager.getActiveChargingSession(clientId, transactionId))
-				.andReturn(session);
+				txId);
+		expect(chargeSessionManager.getActiveChargingSession(clientId, txId)).andReturn(session);
 
 		Capture<Iterable<net.solarnetwork.ocpp.domain.SampledValue>> readingsCaptor = Capture
 				.newInstance();
-		chargeSessionManager.addChargingSessionReadings(eq(clientId), eq(session.getConnectorId()),
-				capture(readingsCaptor));
+		chargeSessionManager.addChargingSessionReadings(eq(clientId), isNull(),
+				eq(session.getConnectorId()), capture(readingsCaptor));
 
 		// WHEN
 		replayAll();
 		MeterValuesRequest req = new MeterValuesRequest();
 		req.setConnectorId(session.getConnectorId());
-		req.setTransactionId(session.getTransactionId());
+		req.setTransactionId(transactionId);
 
 		MeterValue mv = new MeterValue();
 		mv.setTimestamp(XmlDateUtils.newXmlCalendar(2020, 02, 14, 10, 0, 0, 0));
@@ -187,7 +188,7 @@ public class MeterValuesProcessorTests {
 
 		Capture<Iterable<net.solarnetwork.ocpp.domain.SampledValue>> readingsCaptor = Capture
 				.newInstance();
-		chargeSessionManager.addChargingSessionReadings(eq(clientId), eq(connectorId),
+		chargeSessionManager.addChargingSessionReadings(eq(clientId), isNull(), eq(connectorId),
 				capture(readingsCaptor));
 
 		// WHEN

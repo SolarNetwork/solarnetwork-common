@@ -25,8 +25,8 @@ package net.solarnetwork.ocpp.service;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
-import ocpp.domain.Action;
 
 /**
  * An abstract base implementation of {@link ActionMessageProcessor}.

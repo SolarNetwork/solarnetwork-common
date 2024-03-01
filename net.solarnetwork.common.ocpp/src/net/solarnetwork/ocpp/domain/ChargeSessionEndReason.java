@@ -28,7 +28,7 @@ import net.solarnetwork.domain.CodedValue;
  * Enumeration of charging session end reasons.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public enum ChargeSessionEndReason implements CodedValue {
 
@@ -83,7 +83,54 @@ public enum ChargeSessionEndReason implements CodedValue {
 	 * The transaction was stopped because of the authorization status in a
 	 * start transaction.
 	 */
-	DeAuthorized(11);
+	DeAuthorized(11),
+
+	/**
+	 * EV charging session reached a locally enforced maximum energy transfer
+	 * limit.
+	 */
+	EnergyLimitReached(12),
+
+	/** A Ground fault has occurred. */
+	GroundFault(13),
+
+	/** A Reset (immediate) command was received. */
+	ImmediateReset(14),
+
+	/**
+	 * A local credit limit enforced through the Charging Station has been
+	 * exceeded.
+	 */
+	LocalOutOfCredit(15),
+
+	/** The transaction was stopped using a token with a MasterPassGroupId. */
+	MasterPass(16),
+
+	/** A larger than intended electric current has occurred. */
+	OvercurrentFault(17),
+
+	/**
+	 * Quality of power too low, e.g. voltage too low/high, phase imbalance,
+	 * etc.
+	 */
+	PowerQuality(18),
+
+	/**
+	 * Electric vehicle has reported reaching a locally enforced maximum battery
+	 * State of Charge (SOC).
+	 */
+	SOCLimitReached(19),
+
+	/** The transaction was stopped by the EV. */
+	StoppedByEV(20),
+
+	/** EV charging session reached a locally enforced time limit. */
+	TimeLimitReached(21),
+
+	/** EV not connected within timeout. */
+	Timeout(22),
+
+	;
 
 	private final byte code;
 

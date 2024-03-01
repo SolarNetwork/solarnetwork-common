@@ -31,7 +31,7 @@ import net.solarnetwork.domain.Differentiable;
  * A Charge Point entity.
  * 
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class ChargePoint extends BasicLongEntity implements Differentiable<ChargePoint> {
 
@@ -206,7 +206,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 *        the properties to copy
 	 */
 	public void copyInfoFrom(ChargePointInfo info) {
-		info.copyFrom(info);
+		this.info.copyFrom(info);
 	}
 
 	/**

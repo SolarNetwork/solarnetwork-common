@@ -28,33 +28,33 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndInfo;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndReason;
+import net.solarnetwork.ocpp.domain.ErrorCodeException;
 import net.solarnetwork.ocpp.domain.SampledValue;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.AuthorizationException;
 import net.solarnetwork.ocpp.service.BaseActionMessageProcessor;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
-import ocpp.domain.Action;
-import ocpp.domain.ErrorCodeException;
-import ocpp.v16.ActionErrorCode;
-import ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.v16.ActionErrorCode;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.xml.support.XmlDateUtils;
 import ocpp.v16.cs.IdTagInfo;
 import ocpp.v16.cs.MeterValue;
 import ocpp.v16.cs.Reason;
 import ocpp.v16.cs.StopTransactionRequest;
 import ocpp.v16.cs.StopTransactionResponse;
-import ocpp.xml.support.XmlDateUtils;
 
 /**
  * Process {@link StopTransactionRequest} action messages.
  * 
  * @author matt
- * @version 1.3
+ * @version 2.0
  */
 public class StopTransactionProcessor
 		extends BaseActionMessageProcessor<StopTransactionRequest, StopTransactionResponse> {
@@ -98,9 +98,10 @@ public class StopTransactionProcessor
 			return;
 		}
 
+		final String txId = String.valueOf(req.getTransactionId());
+
 		try {
-			ChargeSession session = chargeSessionManager.getActiveChargingSession(chargePointId,
-					req.getTransactionId());
+			ChargeSession session = chargeSessionManager.getActiveChargingSession(chargePointId, txId);
 
 			if ( session == null ) {
 				resultHandler.handleActionMessageResult(message, new StopTransactionResponse(), null);
@@ -111,7 +112,7 @@ public class StopTransactionProcessor
 			ChargeSessionEndInfo info = ChargeSessionEndInfo.builder()
 					.withChargePointId(chargePointId)
 					.withAuthorizationId(req.getIdTag())
-					.withTransactionId(req.getTransactionId())
+					.withTransactionId(txId)
 					.withMeterEnd(req.getMeterStop())
 					.withTimestampEnd(XmlDateUtils.timestamp(req.getTimestamp(), Instant::now))
 					.withReason(reason(req.getReason()))

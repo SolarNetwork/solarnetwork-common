@@ -28,27 +28,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import net.solarnetwork.codec.JsonUtils;
+import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargeSession;
+import net.solarnetwork.ocpp.domain.ErrorCodeException;
 import net.solarnetwork.ocpp.domain.SampledValue;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.BaseActionMessageProcessor;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
-import ocpp.domain.Action;
-import ocpp.domain.ErrorCodeException;
-import ocpp.v16.ActionErrorCode;
-import ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.v16.ActionErrorCode;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.xml.support.XmlDateUtils;
 import ocpp.v16.cs.MeterValue;
 import ocpp.v16.cs.MeterValuesRequest;
 import ocpp.v16.cs.MeterValuesResponse;
-import ocpp.xml.support.XmlDateUtils;
 
 /**
  * Process {@link MeterValuesRequest} action messages.
  * 
  * @author matt
- * @version 1.4
+ * @version 2.0
  */
 public class MeterValuesProcessor
 		extends BaseActionMessageProcessor<MeterValuesRequest, MeterValuesResponse> {
@@ -94,7 +94,7 @@ public class MeterValuesProcessor
 		try {
 			final ChargeSession session = (req.getTransactionId() != null
 					? chargeSessionManager.getActiveChargingSession(chargePointId,
-							req.getTransactionId())
+							req.getTransactionId().toString())
 					: null);
 
 			List<MeterValue> values = req.getMeterValue();
@@ -112,8 +112,8 @@ public class MeterValuesProcessor
 				log.info("Saving charge point {} connector {} readings for session {} (txId {}): {}",
 						chargePointId, req.getConnectorId(), session, req.getTransactionId(),
 						newReadings);
-				chargeSessionManager.addChargingSessionReadings(chargePointId, req.getConnectorId(),
-						newReadings);
+				chargeSessionManager.addChargingSessionReadings(chargePointId, null,
+						req.getConnectorId(), newReadings);
 			}
 
 			resultHandler.handleActionMessageResult(message, new MeterValuesResponse(), null);

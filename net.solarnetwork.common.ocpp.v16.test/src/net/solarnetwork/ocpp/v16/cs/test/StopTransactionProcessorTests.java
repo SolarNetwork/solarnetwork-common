@@ -53,12 +53,13 @@ import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndInfo;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndReason;
+import net.solarnetwork.ocpp.domain.ErrorHolder;
 import net.solarnetwork.ocpp.service.AuthorizationException;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
+import net.solarnetwork.ocpp.v16.ActionErrorCode;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
 import net.solarnetwork.ocpp.v16.cs.StopTransactionProcessor;
-import ocpp.domain.ErrorHolder;
-import ocpp.v16.ActionErrorCode;
-import ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.xml.support.XmlDateUtils;
 import ocpp.v16.cs.IdTagInfo;
 import ocpp.v16.cs.Location;
 import ocpp.v16.cs.Measurand;
@@ -68,7 +69,6 @@ import ocpp.v16.cs.Reason;
 import ocpp.v16.cs.SampledValue;
 import ocpp.v16.cs.StopTransactionRequest;
 import ocpp.v16.cs.UnitOfMeasure;
-import ocpp.xml.support.XmlDateUtils;
 
 /**
  * Test cases for the {@link StopTransactionProcessor} class.
@@ -109,12 +109,12 @@ public class StopTransactionProcessorTests {
 				new ChargePointInfo(clientId.getIdentifier()));
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 		int transactionId = 1;
+		String txId = String.valueOf(transactionId);
 
 		Capture<ChargeSessionEndInfo> infoCaptor = Capture.newInstance();
 		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
-				2);
-		expect(chargeSessionManager.getActiveChargingSession(clientId, transactionId))
-				.andReturn(session);
+				txId);
+		expect(chargeSessionManager.getActiveChargingSession(clientId, txId)).andReturn(session);
 
 		AuthorizationInfo authInfo = new AuthorizationInfo(idTag, AuthorizationStatus.Accepted, null,
 				null);
@@ -170,8 +170,7 @@ public class StopTransactionProcessorTests {
 		assertThat("Session auth ID is ID tag", info.getAuthorizationId(), equalTo(idTag));
 		assertThat("Session Charge Point ID copied from req", info.getChargePointId(),
 				equalTo(clientId));
-		assertThat("Connector ID copied from req", info.getTransactionId(),
-				equalTo(req.getTransactionId()));
+		assertThat("Connector ID copied from req", info.getTransactionId(), equalTo(txId));
 		assertThat("Meter start copied from req", info.getMeterEnd(),
 				equalTo((long) req.getMeterStop()));
 		assertThat("Reservation ID copied from req", info.getReason(),
@@ -214,8 +213,9 @@ public class StopTransactionProcessorTests {
 		ChargePointIdentity chargePointId = createClientId();
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 		int transactionId = 1;
+		String txId = String.valueOf(transactionId);
 
-		expect(chargeSessionManager.getActiveChargingSession(chargePointId, transactionId))
+		expect(chargeSessionManager.getActiveChargingSession(chargePointId, txId))
 				.andThrow(new AuthorizationException(
 						new AuthorizationInfo(idTag, AuthorizationStatus.Blocked, null, null)));
 
@@ -255,9 +255,9 @@ public class StopTransactionProcessorTests {
 		ChargePointIdentity chargePointId = createClientId();
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 		int transactionId = 1;
+		String txId = String.valueOf(transactionId);
 
-		expect(chargeSessionManager.getActiveChargingSession(chargePointId, transactionId))
-				.andReturn(null);
+		expect(chargeSessionManager.getActiveChargingSession(chargePointId, txId)).andReturn(null);
 
 		// when
 		replayAll();
@@ -331,12 +331,12 @@ public class StopTransactionProcessorTests {
 				new ChargePointInfo(clientId.getIdentifier()));
 		String idTag = UUID.randomUUID().toString().substring(0, 20);
 		int transactionId = 1;
+		String txId = String.valueOf(transactionId);
 
 		Capture<ChargeSessionEndInfo> infoCaptor = Capture.newInstance();
 		ChargeSession session = new ChargeSession(UUID.randomUUID(), Instant.now(), idTag, cp.getId(), 1,
-				2);
-		expect(chargeSessionManager.getActiveChargingSession(clientId, transactionId))
-				.andReturn(session);
+				txId);
+		expect(chargeSessionManager.getActiveChargingSession(clientId, txId)).andReturn(session);
 
 		expect(chargeSessionManager.endChargingSession(capture(infoCaptor))).andReturn(null);
 
@@ -370,8 +370,7 @@ public class StopTransactionProcessorTests {
 		assertThat("Session auth ID is ID tag", info.getAuthorizationId(), equalTo(idTag));
 		assertThat("Session Charge Point ID copied from req", info.getChargePointId(),
 				equalTo(clientId));
-		assertThat("Connector ID copied from req", info.getTransactionId(),
-				equalTo(req.getTransactionId()));
+		assertThat("Connector ID copied from req", info.getTransactionId(), equalTo(txId));
 		assertThat("Meter start copied from req", info.getMeterEnd(),
 				equalTo((long) req.getMeterStop()));
 		assertThat("Reservation ID copied from req", info.getReason(),

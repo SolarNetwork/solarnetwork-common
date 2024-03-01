@@ -25,23 +25,23 @@ package net.solarnetwork.ocpp.v16.cs;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
+import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargeSession;
 import net.solarnetwork.ocpp.domain.ChargeSessionStartInfo;
+import net.solarnetwork.ocpp.domain.ErrorCodeException;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.AuthorizationException;
 import net.solarnetwork.ocpp.service.BaseActionMessageProcessor;
 import net.solarnetwork.ocpp.service.cs.ChargeSessionManager;
-import ocpp.domain.Action;
-import ocpp.domain.ErrorCodeException;
-import ocpp.v16.ActionErrorCode;
-import ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.v16.ActionErrorCode;
+import net.solarnetwork.ocpp.v16.CentralSystemAction;
+import net.solarnetwork.ocpp.xml.support.XmlDateUtils;
 import ocpp.v16.cs.AuthorizationStatus;
 import ocpp.v16.cs.IdTagInfo;
 import ocpp.v16.cs.StartTransactionRequest;
 import ocpp.v16.cs.StartTransactionResponse;
-import ocpp.xml.support.XmlDateUtils;
 
 /**
  * Process {@link StartTransactionRequest} action messages.
@@ -54,7 +54,7 @@ import ocpp.xml.support.XmlDateUtils;
  * </p>
  * 
  * @author matt
- * @version 1.2
+ * @version 2.0
  */
 public class StartTransactionProcessor
 		extends BaseActionMessageProcessor<StartTransactionRequest, StartTransactionResponse> {
@@ -112,14 +112,22 @@ public class StartTransactionProcessor
 			tagInfo.setStatus(AuthorizationStatus.ACCEPTED);
 			StartTransactionResponse res = new StartTransactionResponse();
 			res.setIdTagInfo(tagInfo);
-			res.setTransactionId(session.getTransactionId());
+			res.setTransactionId(Integer.parseInt(session.getTransactionId()));
 			resultHandler.handleActionMessageResult(message, res, null);
 		} catch ( AuthorizationException e ) {
 			IdTagInfo tagInfo = new IdTagInfo();
 			tagInfo.setStatus(CentralSystemUtils.statusForStatus(e.getInfo().getStatus()));
 			StartTransactionResponse res = new StartTransactionResponse();
 			res.setIdTagInfo(tagInfo);
-			res.setTransactionId(e.getTransactionId() != null ? e.getTransactionId() : 0);
+			if ( e.getTransactionId() != null ) {
+				try {
+					res.setTransactionId(Integer.parseInt(e.getTransactionId()));
+				} catch ( NumberFormatException nfe ) {
+					res.setTransactionId(0);
+				}
+			} else {
+				res.setTransactionId(0);
+			}
 			resultHandler.handleActionMessageResult(message, res, null);
 		} catch ( Throwable t ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.InternalError,

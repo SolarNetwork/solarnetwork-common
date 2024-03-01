@@ -29,15 +29,18 @@ import java.util.Objects;
  * A primary key for a Charge Point connector.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ChargePointConnectorKey
 		implements Serializable, Cloneable, Comparable<ChargePointConnectorKey> {
 
-	private static final long serialVersionUID = 6544054010677060649L;
+	private static final long serialVersionUID = 1143142263454730088L;
 
 	/** The charge point ID. */
 	private final long chargePointId;
+
+	/** The EVSE ID. */
+	private final int evseId;
 
 	/** The connector ID. */
 	private final int connectorId;
@@ -45,16 +48,54 @@ public class ChargePointConnectorKey
 	/**
 	 * Create a new key instance.
 	 * 
+	 * <p>
+	 * The EVSE ID will be set to {@literal 0}.
+	 * </p>
+	 * 
 	 * @param chargePointId
 	 *        the Charge Point ID
 	 * @param connectorId
 	 *        the connector ID
 	 * @return the new key
-	 * @throws IllegalArgumentException
-	 *         if {@code chargePointId} is {@literal null}
 	 */
 	public static ChargePointConnectorKey keyFor(long chargePointId, int connectorId) {
 		return new ChargePointConnectorKey(chargePointId, connectorId);
+	}
+
+	/**
+	 * Create a new key instance.
+	 * 
+	 * <p>
+	 * The EVSE ID will be set to {@literal 0}.
+	 * </p>
+	 * 
+	 * @param chargePointId
+	 *        the Charge Point ID
+	 * @param evseId
+	 *        the EVSE ID
+	 * @param connectorId
+	 *        the connector ID
+	 * @return the new key
+	 * @since 1.1
+	 */
+	public static ChargePointConnectorKey keyFor(long chargePointId, int evseId, int connectorId) {
+		return new ChargePointConnectorKey(chargePointId, evseId, connectorId);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * <p>
+	 * The EVSE ID will be set to {@literal 0}.
+	 * </p>
+	 * 
+	 * @param chargePointId
+	 *        the Charge Point ID
+	 * @param connectorId
+	 *        the connector ID
+	 */
+	public ChargePointConnectorKey(long chargePointId, int connectorId) {
+		this(chargePointId, 0, connectorId);
 	}
 
 	/**
@@ -62,20 +103,25 @@ public class ChargePointConnectorKey
 	 * 
 	 * @param chargePointId
 	 *        the Charge Point ID
+	 * @param evseId
+	 *        the EVSE ID
 	 * @param connectorId
 	 *        the connector ID
-	 * @throws IllegalArgumentException
-	 *         if {@code chargePointId} is {@literal null}
+	 * @since 1.1
 	 */
-	public ChargePointConnectorKey(long chargePointId, int connectorId) {
+	public ChargePointConnectorKey(long chargePointId, int evseId, int connectorId) {
 		super();
 		this.chargePointId = chargePointId;
+		this.evseId = evseId;
 		this.connectorId = connectorId;
 	}
 
 	@Override
 	public int compareTo(ChargePointConnectorKey o) {
 		int result = Long.compare(chargePointId, o.chargePointId);
+		if ( result == 0 ) {
+			result = Integer.compare(evseId, o.evseId);
+		}
 		if ( result == 0 ) {
 			result = Integer.compare(connectorId, o.connectorId);
 		}
@@ -93,7 +139,7 @@ public class ChargePointConnectorKey
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(chargePointId, connectorId);
+		return Objects.hash(chargePointId, evseId, connectorId);
 	}
 
 	@Override
@@ -105,7 +151,8 @@ public class ChargePointConnectorKey
 			return false;
 		}
 		ChargePointConnectorKey other = (ChargePointConnectorKey) obj;
-		return Objects.equals(chargePointId, other.chargePointId) && connectorId == other.connectorId;
+		return Objects.equals(chargePointId, other.chargePointId) && evseId == other.evseId
+				&& connectorId == other.connectorId;
 	}
 
 	@Override
@@ -113,6 +160,8 @@ public class ChargePointConnectorKey
 		StringBuilder builder = new StringBuilder();
 		builder.append("ChargePointConnectorKey{chargePointId=");
 		builder.append(chargePointId);
+		builder.append(", evseId=");
+		builder.append(evseId);
 		builder.append(", connectorId=");
 		builder.append(connectorId);
 		builder.append("}");
@@ -122,10 +171,20 @@ public class ChargePointConnectorKey
 	/**
 	 * Get the Charge Point ID.
 	 * 
-	 * @return the chargePointId the Charge Point ID, never {@literal null}
+	 * @return the Charge Point ID
 	 */
 	public long getChargePointId() {
 		return chargePointId;
+	}
+
+	/**
+	 * Get the EVSE ID.
+	 * 
+	 * @return the EVSE ID
+	 * @since 1.1
+	 */
+	public int getEvseId() {
+		return evseId;
 	}
 
 	/**

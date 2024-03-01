@@ -31,11 +31,11 @@ import net.solarnetwork.dao.BasicUuidEntity;
  * charging cycle from authorization to end of charging.
  * 
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class ChargeSession extends BasicUuidEntity {
 
-	private static final long serialVersionUID = 7816221911693319631L;
+	private static final long serialVersionUID = 1726642518109338069L;
 
 	/** The authorization ID. */
 	private final String authId;
@@ -43,11 +43,14 @@ public class ChargeSession extends BasicUuidEntity {
 	/** The charge point ID. */
 	private final long chargePointId;
 
+	/** The EVSE ID. */
+	private final int evseId;
+
 	/** The charge point connector ID. */
 	private final int connectorId;
 
 	/** The transaction ID. */
-	private final int transactionId;
+	private final String transactionId;
 
 	/** The end date. */
 	private Instant ended;
@@ -72,9 +75,30 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the Charge Point connector ID
 	 * @param transactionId
 	 *        the transactionID
+	 * @since 2.0
 	 */
-	public ChargeSession(String authId, long chargePointId, int connectorId, int transactionId) {
-		this(null, null, authId, chargePointId, connectorId, transactionId);
+	public ChargeSession(String authId, long chargePointId, int connectorId, String transactionId) {
+		this(null, null, authId, chargePointId, 0, connectorId, transactionId);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param authId
+	 *        the authorization ID
+	 * @param chargePointId
+	 *        the Charge Point ID
+	 * @param evseId
+	 *        the EVSE ID
+	 * @param connectorId
+	 *        the Charge Point connector ID
+	 * @param transactionId
+	 *        the transactionID
+	 * @since 2.0
+	 */
+	public ChargeSession(String authId, long chargePointId, int evseId, int connectorId,
+			String transactionId) {
+		this(null, null, authId, chargePointId, evseId, connectorId, transactionId);
 	}
 
 	/**
@@ -92,12 +116,38 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the Charge Point connector ID
 	 * @param transactionId
 	 *        the transactionID
+	 * @since 2.0
 	 */
 	public ChargeSession(UUID id, Instant created, String authId, long chargePointId, int connectorId,
-			int transactionId) {
+			String transactionId) {
+		this(id, created, authId, chargePointId, 0, connectorId, transactionId);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param id
+	 *        the primary key
+	 * @param created
+	 *        the created date
+	 * @param authId
+	 *        the authorization ID
+	 * @param chargePointId
+	 *        the Charge Point ID
+	 * @param evseId
+	 *        the EVSE ID
+	 * @param connectorId
+	 *        the Charge Point connector ID
+	 * @param transactionId
+	 *        the transactionID
+	 * @since 2.0
+	 */
+	public ChargeSession(UUID id, Instant created, String authId, long chargePointId, int evseId,
+			int connectorId, String transactionId) {
 		super(id, created);
 		this.authId = authId;
 		this.chargePointId = chargePointId;
+		this.evseId = evseId;
 		this.connectorId = connectorId;
 		this.transactionId = transactionId;
 	}
@@ -109,11 +159,15 @@ public class ChargeSession extends BasicUuidEntity {
 		builder.append(getId());
 		builder.append(", chargePointId=");
 		builder.append(chargePointId);
+		builder.append(", evseId=");
+		builder.append(evseId);
 		builder.append(", connectorId=");
 		builder.append(connectorId);
-		builder.append(", transactionId=");
-		builder.append(transactionId);
-		builder.append(", ");
+		if ( transactionId != null ) {
+			builder.append(", transactionId=");
+			builder.append(transactionId);
+			builder.append(", ");
+		}
 		if ( ended != null ) {
 			builder.append("ended=");
 			builder.append(ended);
@@ -141,6 +195,16 @@ public class ChargeSession extends BasicUuidEntity {
 	}
 
 	/**
+	 * Get the EVSE ID.
+	 * 
+	 * @return the EVSE ID
+	 * @since 1.2
+	 */
+	public int getEvseId() {
+		return evseId;
+	}
+
+	/**
 	 * Get the Charge Point connection ID.
 	 * 
 	 * @return the Charge Point connection ID
@@ -154,7 +218,7 @@ public class ChargeSession extends BasicUuidEntity {
 	 * 
 	 * @return the transaction ID
 	 */
-	public int getTransactionId() {
+	public String getTransactionId() {
 		return transactionId;
 	}
 
