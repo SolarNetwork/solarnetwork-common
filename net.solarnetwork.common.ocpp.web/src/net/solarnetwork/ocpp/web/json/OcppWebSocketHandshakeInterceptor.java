@@ -1,21 +1,21 @@
 /* ==================================================================
  * OcppWebSocketHandshakeInterceptor.java - 31/01/2020 4:19:08 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -27,6 +27,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,15 +49,15 @@ import net.solarnetwork.service.PasswordEncoder;
 
 /**
  * Intercept the OCPP Charge Point web socket handshake.
- * 
+ *
  * <p>
  * This interceptor will extract the Charge Point client ID from the request and
  * save that to the session attribute {@link #CLIENT_ID_ATTR}. If the client ID
  * is not available then a {@link HttpStatus#NOT_FOUND} error will be sent.
  * </p>
- * 
+ *
  * @author matt
- * @version 2.3
+ * @version 2.4
  */
 public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
@@ -81,7 +82,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param systemUserDao
 	 *        the DAO to authenticate clients with
 	 * @param passwordEncoder
@@ -156,6 +157,18 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 				response.setStatusCode(HttpStatus.FORBIDDEN);
 				return false;
 			}
+
+			Set<String> allowedChargePoints = user.getAllowedChargePoints();
+			if ( allowedChargePoints != null && !allowedChargePoints.isEmpty()
+					&& !allowedChargePoints.contains(identifier) ) {
+				log.warn(
+						"OCPP handshake request rejected for {}, system user {} does not allow identifier.",
+						identifier, username);
+				response.setStatusCode(HttpStatus.FORBIDDEN);
+				didForbidChargerConnection(user, "Invalid credentials");
+				return false;
+			}
+
 			if ( user.getPassword() != null ) {
 				if ( !((passwordEncoder != null && passwordEncoder.matches(password, user.getPassword()))
 						|| user.getPassword().equals(password)) ) {
@@ -176,20 +189,20 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	/**
 	 * Extension point after a forbidden charger connection (but when the
 	 * {@link SystemUser} is known.
-	 * 
+	 *
 	 * @param user
 	 *        the system user
 	 * @param reason
 	 *        the reason
 	 */
 	protected void didForbidChargerConnection(SystemUser user, String reason) {
-		// extending classes can override		
+		// extending classes can override
 	}
 
 	/**
 	 * Extract the username and password from an HTTP Basic authorization
 	 * header.
-	 * 
+	 *
 	 * @param request
 	 *        the request
 	 * @param identifier
@@ -244,7 +257,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 	/**
 	 * Get the Charge Point client ID URI pattern.
-	 * 
+	 *
 	 * @return the pattern, never {@literal null}; defaults to
 	 *         {@link #DEFAULT_CLIENT_ID_URI_PATTERN}
 	 */
@@ -254,12 +267,12 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 	/**
 	 * Set the Charge Point client ID URI pattern.
-	 * 
+	 *
 	 * <p>
 	 * This pattern is applied to the handshake request URI path, and should
 	 * have a capturing group that returns the Charge Point client ID value.
 	 * </p>
-	 * 
+	 *
 	 * @param clientIdUriPattern
 	 *        the URI pattern for extracting charge point IDs from URIs
 	 */
@@ -269,7 +282,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 	/**
 	 * Get the fixed {@link ChargePointIdentity} username to use.
-	 * 
+	 *
 	 * @return the username to use; defaults to {@literal null}
 	 */
 	public String getFixedIdentityUsername() {
@@ -278,7 +291,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 	/**
 	 * Set the fixed {@link ChargePointIdentity} username to use.
-	 * 
+	 *
 	 * <p>
 	 * When this property is configured, then the
 	 * {@link ChargePointIdentity#getUserIdentifier()} value will always be
@@ -289,7 +302,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 * identify a charge point, such as in SolarNode; the
 	 * {@link ChargePointIdentity#ANY_USER} can be used for that scenario.
 	 * </p>
-	 * 
+	 *
 	 * @param fixedIdentityUsername
 	 *        the fixed identity username to set
 	 */
@@ -299,7 +312,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 	/**
 	 * Get the OCPP client credentials extractor function.
-	 * 
+	 *
 	 * @return the function, never {@literal null}; defaults to
 	 *         {@link #extractBasicAuthentication(ServerHttpRequest, String)}
 	 */
@@ -309,7 +322,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 	/**
 	 * GSt the OCPP client credentials extractor function.
-	 * 
+	 *
 	 * @param clientCredentialsExtractor
 	 *        the function to set
 	 * @throws IllegalArgumentException

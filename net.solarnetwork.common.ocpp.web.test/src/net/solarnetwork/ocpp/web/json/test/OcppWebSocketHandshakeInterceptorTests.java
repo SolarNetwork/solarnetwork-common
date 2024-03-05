@@ -1,21 +1,21 @@
 /* ==================================================================
  * OcppWebSocketHandshakeInterceptor.java - 31/01/2020 4:49:04 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -56,9 +56,9 @@ import net.solarnetwork.service.PasswordEncoder;
 
 /**
  * Test cases for the {@link OcppWebSocketHandshakeInterceptor} class.
- * 
+ *
  * @author matt
- * @version 2.1
+ * @version 2.2
  */
 public class OcppWebSocketHandshakeInterceptorTests {
 
@@ -239,6 +239,7 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		expect(req.getHeaders()).andReturn(h).anyTimes();
 
 		SystemUser user = testUser();
+		user.setAllowedChargePoints(Collections.singleton("foobar"));
 		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
 		expect(passwordEncoder.matches("bar", "bar")).andReturn(true);
 
@@ -350,6 +351,36 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		user.setPassword("not bar");
 		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
 		expect(passwordEncoder.matches("bar", "not bar")).andReturn(false);
+
+		res.setStatusCode(HttpStatus.FORBIDDEN);
+
+		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
+				passwordEncoder);
+
+		// when
+		replayAll();
+		Map<String, Object> attributes = new LinkedHashMap<>(4);
+		boolean result = hi.beforeHandshake(req, res, handler, attributes);
+
+		assertThat("Result failed from bad password", result, equalTo(false));
+	}
+
+	@Test
+	public void notAllowedChargePoint() throws Exception {
+		// given
+		URI uri = URI.create("http://example.com/ocpp/v16/cs/json/foobar");
+		expect(req.getURI()).andReturn(uri);
+		expect(handler.getSubProtocols())
+				.andReturn(Collections.singletonList(WebSocketSubProtocol.OCPP_V16.getValue()));
+
+		HttpHeaders h = new HttpHeaders();
+		h.add(WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL, WebSocketSubProtocol.OCPP_V16.getValue());
+		addBasicAuth(h);
+		expect(req.getHeaders()).andReturn(h).anyTimes();
+
+		SystemUser user = testUser();
+		user.setAllowedChargePoints(Collections.singleton("not-foobar"));
+		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
 
 		res.setStatusCode(HttpStatus.FORBIDDEN);
 
