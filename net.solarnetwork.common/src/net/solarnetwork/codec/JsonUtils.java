@@ -1,21 +1,21 @@
 /* ==================================================================
  * JsonUtils.java - 15/05/2015 11:46:24 am
- * 
+ *
  * Copyright 2007 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -77,11 +77,11 @@ import net.solarnetwork.util.NumberUtils;
 
 /**
  * Utilities for JSON data.
- * 
+ *
  * <p>
  * The {@link ObjectMapper} used internally by this class supports:
  * </p>
- * 
+ *
  * <ul>
  * <li>{@code java.time} date/time values, serialized as strings using the RFC
  * 3339 profile of ISO-8601 with a space separator between date/time sections
@@ -90,7 +90,7 @@ import net.solarnetwork.util.NumberUtils;
  * <li>Floating point numbers are deserialized as {@link java.math.BigDecimal}
  * instances.</li>
  * </ul>
- * 
+ *
  * @author matt
  * @version 2.3
  * @since 1.72
@@ -104,13 +104,13 @@ public final class JsonUtils {
 
 	/**
 	 * A module for handling Java date and time objects in The SolarNetwork Way.
-	 * 
+	 *
 	 * <p>
 	 * This field will be {@literal null} if the
 	 * {@code com.fasterxml.jackson.datatype.jsr310.JavaTimeModule} class is not
 	 * available.
 	 * </p>
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public static final com.fasterxml.jackson.databind.Module JAVA_TIME_MODULE;
@@ -137,7 +137,7 @@ public final class JsonUtils {
 	 * A module for handling Java date and time objects in The SolarNetwork Way
 	 * but instant values serialized as epoch number values instead of formatted
 	 * strings.
-	 * 
+	 *
 	 * <p>
 	 * Note for this module to work as expected, the associated
 	 * {@code ObjectMapper} should have the
@@ -148,13 +148,13 @@ public final class JsonUtils {
 	 * features (the default {@code ObjectMapper} used internally by this class
 	 * disable both those).
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * This field will be {@literal null} if the
 	 * {@code com.fasterxml.jackson.datatype.jsr310.JavaTimeModule} class is not
 	 * available.
 	 * </p>
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public static final com.fasterxml.jackson.databind.Module JAVA_TIMESTAMP_MODULE;
@@ -175,7 +175,7 @@ public final class JsonUtils {
 
 	/**
 	 * A module for handling datum objects.
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public static final com.fasterxml.jackson.databind.Module DATUM_MODULE;
@@ -216,7 +216,7 @@ public final class JsonUtils {
 
 	/**
 	 * Create an {@link ObjectMapper} instance with optional modules.
-	 * 
+	 *
 	 * @param jsonFactory
 	 *        an optional factory to use
 	 * @param modules
@@ -351,7 +351,7 @@ public final class JsonUtils {
 	 * be used, and null values will not be included in the output. All
 	 * exceptions while serializing the object are caught and ignored.
 	 * </p>
-	 * 
+	 *
 	 * @param o
 	 *        the object to serialize to JSON
 	 * @param defaultValue
@@ -373,14 +373,14 @@ public final class JsonUtils {
 
 	/**
 	 * Convert a JSON string to an object.
-	 * 
+	 *
 	 * <p>
 	 * This is designed for simple values. An internal {@link ObjectMapper} will
 	 * be used, and all floating point values will be converted to
 	 * {@link BigDecimal} values to faithfully represent the data. All
 	 * exceptions while deserializing the object are caught and ignored.
 	 * </p>
-	 * 
+	 *
 	 * @param <T>
 	 *        the desired object type
 	 * @param json
@@ -404,14 +404,14 @@ public final class JsonUtils {
 
 	/**
 	 * Convert a JSON string to a Map with string keys.
-	 * 
+	 *
 	 * <p>
 	 * This is designed for simple values. An internal {@link ObjectMapper} will
 	 * be used, and all floating point values will be converted to
 	 * {@link BigDecimal} values to faithfully represent the data. All
 	 * exceptions while deserializing the object are caught and ignored.
 	 * </p>
-	 * 
+	 *
 	 * @param json
 	 *        the JSON to convert
 	 * @return the map, or {@literal null} if {@code json} is {@literal null} or
@@ -431,14 +431,14 @@ public final class JsonUtils {
 
 	/**
 	 * Convert a JSON tree object to a Map with string keys.
-	 * 
+	 *
 	 * <p>
 	 * This is designed for simple values. An internal {@link ObjectMapper} will
 	 * be used, and all floating point values will be converted to
 	 * {@link BigDecimal} values to faithfully represent the data. All
 	 * exceptions while deserializing the object are caught and ignored.
 	 * </p>
-	 * 
+	 *
 	 * @param node
 	 *        the JSON object to convert
 	 * @return the map, or {@literal null} if {@code node} is not a JSON object,
@@ -458,7 +458,7 @@ public final class JsonUtils {
 
 	/**
 	 * Convert an object into a JSON tree.
-	 * 
+	 *
 	 * @param o
 	 *        the object to convert
 	 * @return the JSON tree, or {@literal null} if {@code o} is
@@ -479,7 +479,7 @@ public final class JsonUtils {
 
 	/**
 	 * Convert an object into a Map with string keys.
-	 * 
+	 *
 	 * @param o
 	 *        the object to convert
 	 * @return the map, or {@literal null} if {@code node} is not a JSON object,
@@ -492,7 +492,7 @@ public final class JsonUtils {
 
 	/**
 	 * Write metadata to a JSON generator.
-	 * 
+	 *
 	 * @param generator
 	 *        The generator to write to.
 	 * @param meta
@@ -527,7 +527,7 @@ public final class JsonUtils {
 
 	/**
 	 * Parse a BigDecimal from a JSON object attribute value.
-	 * 
+	 *
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
@@ -557,11 +557,11 @@ public final class JsonUtils {
 
 	/**
 	 * Parse a date from a JSON object attribute value.
-	 * 
+	 *
 	 * <p>
 	 * If the date cannot be parsed, {@literal null} will be returned.
 	 * </p>
-	 * 
+	 *
 	 * @param <T>
 	 *        the date type
 	 * @param node
@@ -603,9 +603,9 @@ public final class JsonUtils {
 
 	/**
 	 * Parse a Integer from a JSON object attribute value.
-	 * 
+	 *
 	 * If the Integer cannot be parsed, {@literal null} will be returned.
-	 * 
+	 *
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
@@ -639,9 +639,9 @@ public final class JsonUtils {
 
 	/**
 	 * Parse a Long from a JSON object attribute value.
-	 * 
+	 *
 	 * If the Long cannot be parsed, {@literal null} will be returned.
-	 * 
+	 *
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
@@ -671,9 +671,9 @@ public final class JsonUtils {
 
 	/**
 	 * Parse a String from a JSON object attribute value.
-	 * 
+	 *
 	 * If the String cannot be parsed, {@literal null} will be returned.
-	 * 
+	 *
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
@@ -695,7 +695,7 @@ public final class JsonUtils {
 	/**
 	 * Create a new {@link ObjectMapper} based on the default internal
 	 * configuration used by other methods in this class.
-	 * 
+	 *
 	 * @return a new {@link ObjectMapper}
 	 * @since 1.1
 	 */
@@ -706,7 +706,7 @@ public final class JsonUtils {
 	/**
 	 * Create a new {@link ObjectMapper} based on the default internal
 	 * configuration used by other methods in this class.
-	 * 
+	 *
 	 * @return a new {@link ObjectMapper}
 	 * @since 2.0
 	 */
@@ -719,7 +719,7 @@ public final class JsonUtils {
 	/**
 	 * Create a new {@link ObjectMapper} based on the internal configuration
 	 * used by other methods in this class.
-	 * 
+	 *
 	 * @param jsonFactory
 	 *        the JSON factory to use
 	 * @return a new {@link ObjectMapper}
@@ -732,7 +732,7 @@ public final class JsonUtils {
 	/**
 	 * Create a new {@link ObjectMapper} based on the internal configuration
 	 * used by other methods in this class.
-	 * 
+	 *
 	 * @param jsonFactory
 	 *        the JSON factory to use
 	 * @return a new {@link ObjectMapper}
@@ -746,7 +746,7 @@ public final class JsonUtils {
 
 	/**
 	 * Parse a JSON array of scalar values into a string array.
-	 * 
+	 *
 	 * @param p
 	 *        the parser
 	 * @return the parsed string array
@@ -777,7 +777,7 @@ public final class JsonUtils {
 
 	/**
 	 * Write a string array as a JSON array of strings.
-	 * 
+	 *
 	 * @param generator
 	 *        the generator to write to
 	 * @param array
@@ -807,7 +807,7 @@ public final class JsonUtils {
 
 	/**
 	 * Write a string array as a JSON object field that is an array of strings.
-	 * 
+	 *
 	 * @param generator
 	 *        the generator to write to
 	 * @param fieldName
@@ -829,14 +829,14 @@ public final class JsonUtils {
 
 	/**
 	 * Write a fixed number of string array values as JSON array numbers.
-	 * 
+	 *
 	 * <p>
 	 * This method does not write any starting or ending JSON array, it only
 	 * writes the values. It always writes {@code count} values, regardless of
 	 * the length of {@code array}. JSON {@literal null} values will be written
 	 * for any missing {@code array} values.
 	 * </p>
-	 * 
+	 *
 	 * @param generator
 	 *        the generator to write to
 	 * @param array
@@ -867,7 +867,7 @@ public final class JsonUtils {
 
 	/**
 	 * Write a string array as a JSON array of numbers.
-	 * 
+	 *
 	 * @param generator
 	 *        the generator to write to
 	 * @param array
@@ -897,14 +897,14 @@ public final class JsonUtils {
 
 	/**
 	 * Write a fixed number of decimal array values as JSON array numbers.
-	 * 
+	 *
 	 * <p>
 	 * This method does not write any starting or ending JSON array, it only
 	 * writes the values. It always writes {@code count} values, regardless of
 	 * the length of {@code array}. JSON {@literal null} values will be written
 	 * for any missing {@code array} values.
 	 * </p>
-	 * 
+	 *
 	 * @param generator
 	 *        the generator to write to
 	 * @param array
@@ -935,12 +935,12 @@ public final class JsonUtils {
 
 	/**
 	 * Write a number field value using the smallest possible number type.
-	 * 
+	 *
 	 * <p>
 	 * If {@code value} is {@literal null} then <b>nothing</b> will be
 	 * generated.
 	 * </p>
-	 * 
+	 *
 	 * @param gen
 	 *        the JSON generator
 	 * @param fieldName
@@ -980,7 +980,7 @@ public final class JsonUtils {
 
 	/**
 	 * Parse an ISO 8601 timestamp value into an {@link Instant}.
-	 * 
+	 *
 	 * @param timestamp
 	 *        the timestamp value
 	 * @return the instant, or {@literal null} if {@code timestamp} is
@@ -1001,12 +1001,12 @@ public final class JsonUtils {
 
 	/**
 	 * Write a timestamp field value in ISO 8601 form.
-	 * 
+	 *
 	 * <p>
 	 * If {@code value} is {@literal null} then <b>nothing</b> will be
 	 * generated.
 	 * </p>
-	 * 
+	 *
 	 * @param gen
 	 *        the JSON generator
 	 * @param fieldName
@@ -1027,12 +1027,12 @@ public final class JsonUtils {
 
 	/**
 	 * Write a bitmask set as a field number value.
-	 * 
+	 *
 	 * <p>
 	 * If {@code value} is {@literal null} or empty then <b>nothing</b> will be
 	 * generated.
 	 * </p>
-	 * 
+	 *
 	 * @param gen
 	 *        the JSON generator
 	 * @param fieldName
@@ -1053,7 +1053,7 @@ public final class JsonUtils {
 
 	/**
 	 * Parse a JSON numeric value into a {@link BigDecimal}.
-	 * 
+	 *
 	 * @param p
 	 *        the parser
 	 * @return the decimal array
@@ -1085,7 +1085,7 @@ public final class JsonUtils {
 
 	/**
 	 * Parse a JSON array of numeric values into a {@link BigDecimal} array.
-	 * 
+	 *
 	 * @param p
 	 *        the parser
 	 * @return the decimal array
@@ -1117,7 +1117,7 @@ public final class JsonUtils {
 
 	/**
 	 * Parse a simple Map from a JSON object.
-	 * 
+	 *
 	 * @param p
 	 *        the parser
 	 * @return the Map, or {@literal null} if no Map can be parsed
@@ -1152,11 +1152,11 @@ public final class JsonUtils {
 
 	/**
 	 * Write a simple Map as a JSON object.
-	 * 
+	 *
 	 * <p>
 	 * Only primitive object values are supported.
 	 * </p>
-	 * 
+	 *
 	 * @param generator
 	 *        the generator to write to
 	 * @param value
@@ -1196,7 +1196,7 @@ public final class JsonUtils {
 
 	/**
 	 * Parse a JSON object using a map of {@link IndexedField} values.
-	 * 
+	 *
 	 * @param p
 	 *        the parser
 	 * @param ctxt
