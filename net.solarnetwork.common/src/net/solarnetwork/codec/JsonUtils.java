@@ -92,7 +92,7 @@ import net.solarnetwork.util.NumberUtils;
  * </ul>
  * 
  * @author matt
- * @version 2.2
+ * @version 2.3
  * @since 1.72
  */
 public final class JsonUtils {
@@ -330,7 +330,22 @@ public final class JsonUtils {
 
 	/**
 	 * Convert an object to a JSON string.
-	 * 
+	 *
+	 * @param o
+	 *        the object to serialize to JSON
+	 * @return the JSON string, or {@literal null} if {@code o} is
+	 *         {@literal null} or any error occurs serializing the object to
+	 *         JSON
+	 * @see #getJSONString(Object, String)
+	 * @since 2.3
+	 */
+	public static String getJSONString(final Object o) {
+		return getJSONString(o, null);
+	}
+
+	/**
+	 * Convert an object to a JSON string.
+	 *
 	 * <p>
 	 * This is designed for simple values. An internal {@link ObjectMapper} will
 	 * be used, and null values will not be included in the output. All
