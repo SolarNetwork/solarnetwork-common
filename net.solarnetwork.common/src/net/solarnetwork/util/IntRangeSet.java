@@ -1,21 +1,21 @@
 /* ==================================================================
  * IntRangeSet.java - 15/01/2020 10:47:50 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -38,16 +38,16 @@ import java.util.function.IntConsumer;
 
 /**
  * A {@code Set} implementation based on ordered and disjoint integer ranges.
- * 
+ *
  * <p>
  * This set is optimized for integer sets where ranges of consecutive integers
  * are common. Instead of storing individual integer values, it stores an
  * ordered list of {@link IntRange} objects whose ranges do not overlap. The
  * {@link #ranges()} method can be used to get the list of ranges.
  * </p>
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.58
  */
 public class IntRangeSet extends AbstractSet<Integer>
@@ -65,7 +65,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	/**
 	 * Construct with an initial capacity.
-	 * 
+	 *
 	 * @param initialCapacity
 	 *        the initial capacity, which refers to the number of discreet
 	 *        ranges, not elements
@@ -78,7 +78,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	/**
 	 * Construct from an existing set of values.
-	 * 
+	 *
 	 * @param c
 	 *        the integer collection to copy into this set
 	 */
@@ -89,7 +89,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	/**
 	 * Construct from an existing set of ranges.
-	 * 
+	 *
 	 * @param ranges
 	 *        the ranges to copy into this set
 	 */
@@ -111,7 +111,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	/**
 	 * Get an immutable copy of this set.
-	 * 
+	 *
 	 * @return an immutable copy of this set
 	 */
 	public IntRangeSet immutableCopy() {
@@ -129,6 +129,19 @@ public class IntRangeSet extends AbstractSet<Integer>
 	@Override
 	public String toString() {
 		return ranges.toString();
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		if ( !(o instanceof Integer) ) {
+			return false;
+		}
+		for ( IntRange r : ranges ) {
+			if ( r.contains((Integer) o) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -170,9 +183,9 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	/**
 	 * Add an integer to this set.
-	 * 
+	 *
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @see #add(int)
 	 */
 	@Override
@@ -188,13 +201,13 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	/**
 	 * Add a single integer to this set.
-	 * 
+	 *
 	 * <p>
 	 * This method requires a linear search of all existing discreet ranges to
 	 * maintain ordering and possibly merge the value into an existing range or
 	 * cause two ranges to merge together.
 	 * </p>
-	 * 
+	 *
 	 * @param v
 	 *        the integer to add
 	 * @return {@literal true} if this set changed as a result
@@ -284,7 +297,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	/**
 	 * Add a range of integers, inclusive.
-	 * 
+	 *
 	 * @param min
 	 *        the starting value to add
 	 * @param max
@@ -299,13 +312,13 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	/**
 	 * Add a range of integers, inclusive.
-	 * 
+	 *
 	 * <p>
 	 * This method requires a linear search of all existing discreet ranges to
 	 * maintain ordering and possibly merge the given range into an existing
 	 * range or cause existing ranges to merge together.
 	 * </p>
-	 * 
+	 *
 	 * @param range
 	 *        the range to add
 	 * @return {@literal true} if any changes resulted from adding the given
@@ -375,7 +388,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	/**
 	 * Get the ranges of this set.
-	 * 
+	 *
 	 * <p>
 	 * This returns a "live" reference to the ranges in this set; mutations to
 	 * this set will impact the values in the returned collection.
@@ -425,7 +438,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 					// current range starts _before_ e, so can return e - 1
 					return v - 1;
 				} else if ( itr.previousIndex() > 0 ) {
-					// current range starts _on_ or _after_ e, so return previous range max 
+					// current range starts _on_ or _after_ e, so return previous range max
 					return ranges.get(itr.previousIndex() - 1).getMax();
 				} else {
 					// there is no lower value available
@@ -449,7 +462,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 				return v;
 			} else if ( r.getMin() > v ) {
 				if ( itr.previousIndex() > 0 ) {
-					// current range starts _after_ e, so return previous range max 
+					// current range starts _after_ e, so return previous range max
 					return ranges.get(itr.previousIndex() - 1).getMax();
 				} else {
 					// no lower element
@@ -474,7 +487,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 				return v;
 			} else if ( r.getMax() < v ) {
 				if ( itr.nextIndex() + 1 < len ) {
-					// current range ends _before_ e, so return next range min 
+					// current range ends _before_ e, so return next range min
 					return ranges.get(itr.nextIndex() + 1).getMin();
 				} else {
 					// no higher element
@@ -499,7 +512,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 					// current range ends _before_ e, so can return e + 1
 					return v + 1;
 				} else if ( itr.nextIndex() + 1 < len ) {
-					// current range ends _on_ or _before_ e, so return next range min 
+					// current range ends _on_ or _before_ e, so return next range min
 					return ranges.get(itr.nextIndex() + 1).getMin();
 				} else {
 					// there is no higher value available
