@@ -1,27 +1,28 @@
 /* ==================================================================
  * StringUtilsTests.java - Nov 1, 2012 2:13:33 PM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.util.test;
 
+import static net.solarnetwork.util.IntRange.rangeOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
@@ -56,13 +57,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import net.solarnetwork.domain.KeyValuePair;
 import net.solarnetwork.util.ByteUtils;
+import net.solarnetwork.util.IntRangeSet;
 import net.solarnetwork.util.StringUtils;
 
 /**
  * Unit test for the StringUtils class.
- * 
+ *
  * @author matt
- * @version 1.5
+ * @version 1.6
  */
 public class StringUtilsTests {
 
@@ -643,6 +645,55 @@ public class StringUtilsTests {
 		assertThat(StringUtils.naturalSortCompare("9.3.9.FOO", "9.3.9.bar", true), is(greaterThan(0)));
 		assertThat(StringUtils.naturalSortCompare("9.3.9.FOO", "9.3.9.foo", true), is(equalTo(0)));
 		assertThat(StringUtils.naturalSortCompare("9.3.9.bar", "9.12.9.FOO", true), is(lessThan(0)));
+	}
+
+	@Test
+	public void commaDelimitedStringFromIntRangeSet() {
+		// GIVEN
+		IntRangeSet set = new IntRangeSet(rangeOf(1), rangeOf(3), rangeOf(5, 10));
+
+		// WHEN
+		String val = StringUtils.commaDelimitedStringFromIntRangeSet(set);
+
+		// THEN
+		assertThat("Delimited string generated", val, is(equalTo("1,3,5-10")));
+	}
+
+	@Test
+	public void commaDelimitedStringFromIntRangeSet_nullInput() {
+		// GIVEN
+		IntRangeSet set = null;
+
+		// WHEN
+		String val = StringUtils.commaDelimitedStringFromIntRangeSet(set);
+
+		// THEN
+		assertThat("Null input produces null output", val, is(nullValue()));
+	}
+
+	@Test
+	public void commaDelimitedStringFromIntRangeSet_emptyInput() {
+		// GIVEN
+		IntRangeSet set = new IntRangeSet();
+
+		// WHEN
+		String val = StringUtils.commaDelimitedStringFromIntRangeSet(set);
+
+		// THEN
+		assertThat("Empty input produces null output", val, is(nullValue()));
+	}
+
+	@Test
+	public void intRangeSetFromCommaDelimitedString() {
+		// GIVEN
+		String val = "2,4,8-11,99";
+
+		// WHEN
+		IntRangeSet result = StringUtils.commaDelimitedStringToIntRangeSet(val);
+
+		// THEN
+		IntRangeSet expected = new IntRangeSet(rangeOf(2), rangeOf(4), rangeOf(8, 11), rangeOf(99));
+		assertThat("Set parsed", result, is(equalTo(expected)));
 	}
 
 }
