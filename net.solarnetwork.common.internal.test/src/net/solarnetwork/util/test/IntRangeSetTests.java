@@ -1,21 +1,21 @@
 /* ==================================================================
  * IntRangeSetTests.java - 15/01/2020 1:40:24 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,12 +26,13 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 import static net.solarnetwork.util.IntRange.rangeOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +45,7 @@ import net.solarnetwork.util.IntRangeSet;
 
 /**
  * Test cases for the {@link IntRangeSet} class.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -1540,6 +1541,41 @@ public class IntRangeSetTests {
 		List<IntRange> ranges = stream(set.ranges().spliterator(), false).collect(toList());
 		assertThat("Ranges", ranges, contains(rangeOf(3009, 3011), rangeOf(3035, 3037),
 				rangeOf(3059, 3061), rangeOf(3109, 3111), rangeOf(3203, 3211)));
+	}
+
+	@Test
+	public void containsImpl() {
+		// GIVEN
+		IntRangeSet set = new IntRangeSet(rangeOf(2), rangeOf(5, 10), rangeOf(99));
+
+		// THEN
+		assertThat("Does not contain value", set.contains(1), is(false));
+		assertThat("Contains value", set.contains(2), is(true));
+		for ( int i = 5; i <= 10; i++ ) {
+			assertThat("Contains value in range", set.contains(i), is(true));
+		}
+		assertThat("Does not contain value", set.contains(11), is(false));
+		assertThat("Contains value", set.contains(99), is(true));
+	}
+
+	@Test
+	public void containsImpl_empty() {
+		// GIVEN
+		IntRangeSet set = new IntRangeSet();
+
+		// THEN
+		assertThat("Does not contain value", set.contains(1), is(false));
+		assertThat("Does not contain value", set.contains(11), is(false));
+	}
+
+	@SuppressWarnings("unlikely-arg-type")
+	@Test
+	public void containsImpl_nonInteger() {
+		// GIVEN
+		IntRangeSet set = new IntRangeSet(rangeOf(2));
+
+		// THEN
+		assertThat("Does not contain value", set.contains("a"), is(false));
 	}
 
 }

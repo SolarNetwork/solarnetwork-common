@@ -1,21 +1,21 @@
 /* ==================================================================
  * StringUtils.java - Nov 1, 2012 1:55:45 PM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -42,9 +42,9 @@ import net.solarnetwork.domain.KeyValuePair;
 
 /**
  * Common string helper utilities.
- * 
+ *
  * @author matt
- * @version 1.12
+ * @version 1.13
  */
 public final class StringUtils {
 
@@ -60,21 +60,21 @@ public final class StringUtils {
 
 	/**
 	 * A pattern to match integer number values.
-	 * 
+	 *
 	 * @since 1.11
 	 */
 	public static Pattern INTEGER_PATTERN = Pattern.compile("[+-]?\\d+");
 
 	/**
 	 * A pattern to match decimal number values.
-	 * 
+	 *
 	 * @since 1.11
 	 */
 	public static Pattern DECIMAL_PATTERN = Pattern.compile("[+-]?\\d+(\\.\\d+)?([Ee][+-]?\\d+)?");
 
 	/**
 	 * Replace variables in a string template with corresponding values.
-	 * 
+	 *
 	 * <p>
 	 * Template variables are encoded like <code>{name:default}</code> where the
 	 * {@code :default} part is optional. The {@code name} value is treated as a
@@ -84,12 +84,12 @@ public final class StringUtils {
 	 * be used as the variable value if {@code name} is not found in
 	 * {@code variables}.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * Adapted from the {@code org.springframework.web.util.UriComponents}
 	 * class, mimicking URI path variable substitutions.
 	 * </p>
-	 * 
+	 *
 	 * @param source
 	 *        the template string to replace variables in
 	 * @param variables
@@ -163,7 +163,7 @@ public final class StringUtils {
 
 	/**
 	 * Get a comma-delimited string from a collection of objects.
-	 * 
+	 *
 	 * @param set
 	 *        the set
 	 * @return the comma-delimited string
@@ -175,13 +175,13 @@ public final class StringUtils {
 
 	/**
 	 * Get a delimited string from a collection of objects.
-	 * 
+	 *
 	 * <p>
 	 * This will call the {@link Object#toString()} method on each object in the
 	 * set, using the natural iteration ordering of the set.No attempt to escape
 	 * delimiters within the set's values is done.
 	 * </p>
-	 * 
+	 *
 	 * @param set
 	 *        the set
 	 * @param delim
@@ -209,12 +209,12 @@ public final class StringUtils {
 
 	/**
 	 * Get a delimited string from a map of objects.
-	 * 
+	 *
 	 * <p>
 	 * This will call {@link #delimitedStringFromMap(Map, String, String)} using
 	 * a {@code =} key value delimiter and a {@code ,} pair delimiter.
 	 * </p>
-	 * 
+	 *
 	 * @param map
 	 *        the map
 	 * @return the string
@@ -225,13 +225,13 @@ public final class StringUtils {
 
 	/**
 	 * Get a delimited string from a map of objects.
-	 * 
+	 *
 	 * <p>
 	 * This will call the {@link Object#toString()} method on each key and value
 	 * in the map, using the natural iteration ordering of the map. No attempt
 	 * to escape delimiters within the map's values is done.
 	 * </p>
-	 * 
+	 *
 	 * @param map
 	 *        the map
 	 * @param keyValueDelim
@@ -263,7 +263,7 @@ public final class StringUtils {
 
 	/**
 	 * Get a Set via a comma-delimited string value.
-	 * 
+	 *
 	 * @param list
 	 *        the comma-delimited string
 	 * @return the Set, or {@literal null} if {@code list} is {@literal null} or
@@ -276,7 +276,7 @@ public final class StringUtils {
 
 	/**
 	 * Get a string Set via a delimited String value.
-	 * 
+	 *
 	 * <p>
 	 * The format of the {@code list} String should be a delimited list of
 	 * values. Whitespace is permitted around the delimiter, and will be
@@ -284,7 +284,7 @@ public final class StringUtils {
 	 * end of the input string. The list order is preserved in the iteration
 	 * order of the returned Set.
 	 * </p>
-	 * 
+	 *
 	 * @param list
 	 *        the delimited text
 	 * @param delim
@@ -306,15 +306,15 @@ public final class StringUtils {
 
 	/**
 	 * Get string Map via a comma-delimited String value.
-	 * 
+	 *
 	 * <p>
 	 * The format of the {@code mapping} String should be:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * key=val[,key=val,...]
 	 * </pre>
-	 * 
+	 *
 	 * @param mapping
 	 *        the delimited text
 	 * @return the map, or {@literal null} if {@code mapping} is {@literal null}
@@ -327,22 +327,22 @@ public final class StringUtils {
 
 	/**
 	 * Get a string Map via a delimited String value.
-	 * 
+	 *
 	 * <p>
 	 * The format of the {@code mapping} String should be:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * key=val[,key=val,...]
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * The record and field delimiters are passed as parameters to this method.
 	 * Whitespace is permitted around all delimiters, and will be stripped from
 	 * the keys and values. Whitespace is also trimmed from the start and end of
 	 * the input string.
 	 * </p>
-	 * 
+	 *
 	 * @param mapping
 	 *        the delimited text
 	 * @param recordDelim
@@ -375,7 +375,7 @@ public final class StringUtils {
 	 * {@code expressions} is {@literal null} or empty, the result will be
 	 * {@literal null}. Pass {@literal 0} for {@code flags} if no special flags
 	 * are desired.
-	 * 
+	 *
 	 * @param expressions
 	 *        the array of expressions to compile into {@link Pattern} objects
 	 * @param flags
@@ -402,7 +402,7 @@ public final class StringUtils {
 	 * Create an array of expression strings from Pattern objects. If
 	 * {@code patterns} is {@literal null} or empty, the result will be
 	 * {@literal null}.
-	 * 
+	 *
 	 * @param patterns
 	 *        the array of Pattern objects to convert to strings (may be
 	 *        {@literal null})
@@ -425,7 +425,7 @@ public final class StringUtils {
 	 * {@code patterns} list will be tested one at a time, in array order. The
 	 * first result that matches will be returned. If no match is found,
 	 * {@literal null} is returned.
-	 * 
+	 *
 	 * @param patterns
 	 *        the patterns to test (may be {@literal null})
 	 * @param text
@@ -448,12 +448,12 @@ public final class StringUtils {
 
 	/**
 	 * Get a boolean value from a String.
-	 * 
+	 *
 	 * <p>
 	 * This method is more generous than {@link Boolean#parseBoolean(String)}.
 	 * The following values are considered {@literal true}, all ignoring case:
 	 * </p>
-	 * 
+	 *
 	 * <ul>
 	 * <li>{@literal 1}</li>
 	 * <li>{@literal t}</li>
@@ -461,11 +461,11 @@ public final class StringUtils {
 	 * <li>{@literal y}</li>
 	 * <li>{@literal yes}</li>
 	 * </ul>
-	 * 
+	 *
 	 * <p>
 	 * All other values (or a missing value) is considered {@literal false}.
 	 * </p>
-	 * 
+	 *
 	 * @param s
 	 *        the string to parse as a boolean
 	 * @return the parsed boolean result
@@ -491,7 +491,7 @@ public final class StringUtils {
 	/**
 	 * Compute a Base64-encoded SHA-256 digest of a string value with a random
 	 * salt.
-	 * 
+	 *
 	 * @param propertyValue
 	 *        the current property value
 	 * @return a Base64 encoded SHA-256 digest with a <code>{SSHA-256}</code>
@@ -507,7 +507,7 @@ public final class StringUtils {
 	/**
 	 * Compute a Base64-encoded SHA-256 digest of a string value with optional
 	 * salt.
-	 * 
+	 *
 	 * <p>
 	 * When salt is provided, the digest is computed from
 	 * {@literal propertyValue + salt} and then the returned Base64 value
@@ -515,7 +515,7 @@ public final class StringUtils {
 	 * determined after decoding the Base64 value, as
 	 * {@literal decodedLength - 32}.
 	 * </p>
-	 * 
+	 *
 	 * @param propertyValue
 	 *        the current property value
 	 * @param salt
@@ -556,7 +556,7 @@ public final class StringUtils {
 	/**
 	 * A pattern for matching <code>{type-len}digest</code> style digest
 	 * strings.
-	 * 
+	 *
 	 * @since 1.7
 	 */
 	public static final Pattern DIGEST_PREFIX_PATTERN = Pattern
@@ -566,13 +566,13 @@ public final class StringUtils {
 	 * Decode a digest string in the form <code>{key}value</code> into a
 	 * key-value pair composed of digest (key) and salt (value) hex-encoded
 	 * values.
-	 * 
+	 *
 	 * <p>
 	 * The returned pair's {@code value} will be {@literal null} if no salt was
 	 * included in the digest. Both values will be returned as hex-encoded
 	 * strings.
 	 * </p>
-	 * 
+	 *
 	 * @param digest
 	 *        a Base64-encoded digest string, in the form returned by
 	 *        {@link #sha256Base64Value(String)}
@@ -621,7 +621,7 @@ public final class StringUtils {
 
 	/**
 	 * "Mask" a set of map values by replacing them with SHA-256 digest values.
-	 * 
+	 *
 	 * <p>
 	 * This method will return a new map instance, unless no values need masking
 	 * in which case {@code map} itself will be returned. For any key in
@@ -629,7 +629,7 @@ public final class StringUtils {
 	 * the SHA-256 digest value computed from the string form of the value
 	 * passed to {@link #sha256Base64Value(String)}.
 	 * </p>
-	 * 
+	 *
 	 * @param <K>
 	 *        the key type
 	 * @param <V>
@@ -671,25 +671,25 @@ public final class StringUtils {
 	/**
 	 * A pattern that matches any character not allowed in
 	 * {@link #simpleIdValue(String)}.
-	 * 
+	 *
 	 * @since 1.8
 	 */
 	public static final Pattern NOT_SIMPLE_ID_CHARACTER_PATTERN = Pattern.compile("[^a-zA-Z0-9_]+");
 
 	/**
 	 * A pattern that matches any {@literal _} at the start or end of a string.
-	 * 
+	 *
 	 * @since 1.8
 	 */
 	public static final Pattern UNDERSCORE_PREFIX_OR_SUFFIX = Pattern.compile("(^_+|_+$)");
 
 	/**
 	 * Generate a "simple" ID out of a string.
-	 * 
+	 *
 	 * <p>
 	 * A simple ID is created by taking {@code text} and:
 	 * </p>
-	 * 
+	 *
 	 * <ol>
 	 * <li>leading and trailing whitespace is removed</li>
 	 * <li>change to lower case</li>
@@ -697,7 +697,7 @@ public final class StringUtils {
 	 * a {@literal _}</li>
 	 * <li>
 	 * </ol>
-	 * 
+	 *
 	 * @param text
 	 *        the text to derive the simple ID from
 	 * @return the simple ID, or {@literal null} if {@code text} is
@@ -717,12 +717,12 @@ public final class StringUtils {
 
 	/**
 	 * Calcualte the UTF-8 byte length of a given string.
-	 * 
+	 *
 	 * <p>
 	 * This is faster than converting the string to a byte array in the UTF-8
 	 * encoding.
 	 * </p>
-	 * 
+	 *
 	 * @param text
 	 *        the text to calcualte the UTF-8 length of
 	 * @return the length
@@ -735,12 +735,12 @@ public final class StringUtils {
 
 	/**
 	 * Parse a number value if possible.
-	 * 
+	 *
 	 * <p>
 	 * This method will return either a {@link BigInteger} or {@link BigDecimal}
 	 * value.
 	 * </p>
-	 * 
+	 *
 	 * @param text
 	 *        the string to parse
 	 * @return a number instance if {@code text} can be parsed as a number, or
@@ -766,12 +766,12 @@ public final class StringUtils {
 	/**
 	 * Test if a string matches a pattern, returning the text along with any
 	 * capture groups as an array if there is a match.
-	 * 
+	 *
 	 * <p>
 	 * Note that {@link Matcher#find()} is used, so the pattern matches anywhere
 	 * in {@code text} by default.
 	 * </p>
-	 * 
+	 *
 	 * @param pattern
 	 *        the pattern
 	 * @param text
@@ -806,14 +806,14 @@ public final class StringUtils {
 
 	/**
 	 * Compare two strings using "natural" sort ordering.
-	 * 
+	 *
 	 * <p>
 	 * By "natural" we mean that numbers within the string are compared
 	 * numerically. See
 	 * <a href="https://en.wikipedia.org/wiki/Natural_sort_order">Natural sort
 	 * order</a> for more information.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * Adapted from Tomáš Pažourek's
 	 * <a href="https://github.com/tompazourek/NaturalSort.Extension">C#
@@ -821,7 +821,7 @@ public final class StringUtils {
 	 * that implementation, however, so that less-padded values sort before
 	 * more-padded values. For example {@literal 3} sorts before {@literal 003}.
 	 * </p>
-	 * 
+	 *
 	 * @param a
 	 *        the first string to compare
 	 * @param b
@@ -943,6 +943,73 @@ public final class StringUtils {
 						: c < 128 ? TokenOther : Character.isLetter(c) ? TokenLetters : TokenOther
 				: c >= 'A' ? c <= 'Z' ? TokenLetters : TokenOther
 						: c >= '0' && c <= '9' ? TokenDigits : TokenOther;
+	}
+
+	/**
+	 * Parse a delimited integer range list into an {@link IntRangeSet}.
+	 *
+	 * <p>
+	 * The {@code value} format is a comma-delimited list of integer or integer
+	 * ranges. Integer ranges may be specified by using a dash delimiter. For
+	 * example {@literal 4-6,10} would result in a set including 4, 5, 6, and
+	 * 10.
+	 * </p>
+	 *
+	 * @param value
+	 *        a delimited list of integer ranges
+	 * @return the numbers as a set, or {@literal null} if {@code value} is
+	 *         {@literal null} or empty or has no valid values
+	 * @since 1.13
+	 */
+	public static IntRangeSet commaDelimitedStringToIntRangeSet(String value) {
+		if ( value == null || value.trim().isEmpty() ) {
+			return null;
+		}
+		IntRangeSet set = new IntRangeSet();
+		String[] ranges = value.trim().split("\\s*,\\s*");
+		for ( String range : ranges ) {
+			String[] components = range.split("\\s*-\\s*", 2);
+			try {
+				int a = Integer.parseInt(components[0]);
+				int b = (components.length > 1 ? Integer.parseInt(components[1]) : a);
+				if ( a > 0 && b > 0 ) {
+					set.addRange(a, b);
+				}
+			} catch ( IllegalArgumentException e ) {
+				// ignore and continue
+			}
+		}
+		return (set.isEmpty() ? null : set);
+	}
+
+	/**
+	 * Generate a comma-delimited integer range list from an
+	 * {@link IntRangeSet}.
+	 *
+	 * @param set
+	 *        the set to generate the delimited string value for
+	 * @return the delimited string, or {@literal null} if {@code set} is
+	 *         {@literal null} or empty
+	 * @since 1.13
+	 */
+	public static String commaDelimitedStringFromIntRangeSet(IntRangeSet set) {
+		if ( set == null ) {
+			return null;
+		}
+		StringBuilder buf = new StringBuilder();
+		for ( IntRange range : set.ranges() ) {
+			if ( range != null ) {
+				if ( buf.length() > 0 ) {
+					buf.append(',');
+				}
+				buf.append(range.getMin());
+				if ( !range.isSingleton() ) {
+					buf.append("-");
+					buf.append(range.getMax());
+				}
+			}
+		}
+		return (buf.length() > 0 ? buf.toString() : null);
 	}
 
 }

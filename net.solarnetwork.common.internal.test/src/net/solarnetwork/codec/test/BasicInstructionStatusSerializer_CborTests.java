@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicInstructionSerializerTests.java - 11/08/2021 4:13:17 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -43,7 +43,7 @@ import net.solarnetwork.domain.InstructionStatus;
 
 /**
  * Test cases for the {@link BasicInstructionStatusSerializer} class.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -89,10 +89,12 @@ public class BasicInstructionStatusSerializer_CborTests {
 				Collections.singletonMap("status", "404"));
 
 		// WHEN
-		Byte[] cbor = objectArray(mapper.writeValueAsBytes(status));
+		byte[] raw = mapper.writeValueAsBytes(status);
+		//String hex = org.apache.commons.codec.binary.Hex.encodeHexString(raw);
+		Byte[] cbor = objectArray(raw);
 
 		// THEN
-		assertThat("CBOR", cbor, is(arrayWithSize(98)));
+		assertThat("CBOR", cbor, is(arrayWithSize(99)));
 	}
 
 }
