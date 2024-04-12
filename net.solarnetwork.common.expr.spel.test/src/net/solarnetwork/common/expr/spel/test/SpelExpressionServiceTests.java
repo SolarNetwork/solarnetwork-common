@@ -1,21 +1,21 @@
 /* ==================================================================
  * SpelExpressionServiceTests.java - 5/02/2019 3:55:35 pm
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,6 +23,8 @@
 package net.solarnetwork.common.expr.spel.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import java.math.BigDecimal;
@@ -44,7 +46,7 @@ import net.solarnetwork.common.expr.spel.SpelExpressionService;
 
 /**
  * Test cases for the {@link SpelExpressionService} class.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -157,7 +159,7 @@ public class SpelExpressionServiceTests {
 		TestExpressionRoot root = new TestExpressionRoot(vars, 42);
 		BigDecimal result = service.evaluateExpression("data['a'] + data['b'] * foo", null, root, null,
 				BigDecimal.class);
-		assertThat("Fesult", result, equalTo(new BigDecimal("95.4")));
+		assertThat("Result", result, equalTo(new BigDecimal("95.4")));
 	}
 
 	@Test
@@ -166,7 +168,27 @@ public class SpelExpressionServiceTests {
 		vars.put("a", new BigInteger("3"));
 		vars.put("b", new BigDecimal("2.2"));
 		BigDecimal result = service.evaluateExpression("a * b", null, vars, null, BigDecimal.class);
-		assertThat("Fesult", result, equalTo(new BigDecimal("6.6")));
+		assertThat("Result", result, equalTo(new BigDecimal("6.6")));
+	}
+
+	@Test
+	public void listLiteral() {
+		Map<String, Object> vars = new HashMap<>(2);
+		vars.put("a", new BigInteger("3"));
+		vars.put("b", new BigDecimal("2.2"));
+		@SuppressWarnings("unchecked")
+		List<Number> result = service.evaluateExpression("{a,b}", null, vars, null, List.class);
+		assertThat("Result", result, contains(new BigInteger("3"), new BigDecimal("2.2")));
+	}
+
+	@Test
+	public void arrayLiteral() {
+		Map<String, Object> vars = new HashMap<>(2);
+		vars.put("a", new BigInteger("3"));
+		vars.put("b", new BigDecimal("2.2"));
+		Number[] result = service.evaluateExpression("new Number[]{a,b}", null, vars, null,
+				Number[].class);
+		assertThat("Result", result, arrayContaining(new BigInteger("3"), new BigDecimal("2.2")));
 	}
 
 }
