@@ -9,7 +9,7 @@ Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: 
  net.solarnetwork.web.domain;version="2.0.0",
- net.solarnetwork.web.security;version="2.5.0",
+ net.solarnetwork.web.security;version="2.5.1",
  net.solarnetwork.web.service;version="1.1.1",
  net.solarnetwork.web.service.support;version="1.0.0",
  net.solarnetwork.web.support;version="2.2.3"
