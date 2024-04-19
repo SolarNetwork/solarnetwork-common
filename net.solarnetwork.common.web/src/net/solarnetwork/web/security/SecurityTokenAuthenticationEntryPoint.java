@@ -1,21 +1,21 @@
 /* ==================================================================
  * SecurityTokenAuthenticationEntryPoint.java - 7/09/2023 1:11:19 pm
- * 
+ *
  * Copyright 2023 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -42,9 +42,9 @@ import net.solarnetwork.web.domain.Response;
 
 /**
  * Entry point for SolarNetworkWS authentication.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 3.3
  */
 public class SecurityTokenAuthenticationEntryPoint
@@ -61,6 +61,13 @@ public class SecurityTokenAuthenticationEntryPoint
 		headers.put("Access-Control-Allow-Headers",
 				"Authorization, Content-MD5, Content-Type, Digest, X-SN-Date");
 		return headers;
+	}
+
+	/**
+	 * Constructor.
+	 */
+	public SecurityTokenAuthenticationEntryPoint() {
+		super();
 	}
 
 	@Override
@@ -125,7 +132,7 @@ public class SecurityTokenAuthenticationEntryPoint
 	/**
 	 * Handle an exception as a transient problem based on resource usage, i.e.
 	 * "try again later".
-	 * 
+	 *
 	 * @param request
 	 *        the request
 	 * @param response
@@ -164,7 +171,7 @@ public class SecurityTokenAuthenticationEntryPoint
 
 	/**
 	 * Set the desired order.
-	 * 
+	 *
 	 * @param order
 	 *        the order to set
 	 */
@@ -175,7 +182,7 @@ public class SecurityTokenAuthenticationEntryPoint
 	/**
 	 * Get the currently configured HTTP headers that are included in each
 	 * response.
-	 * 
+	 *
 	 * @return The HTTP headers to include in each response.
 	 */
 	public Map<String, String> getHttpHeaders() {
@@ -187,7 +194,7 @@ public class SecurityTokenAuthenticationEntryPoint
 	 * {@code Access-Control-Allow-Origin} header is set to {@code *} and
 	 * {@code Access-Control-Allow-Headers} header is set to
 	 * {@code Authorization, X-SN-Date}.
-	 * 
+	 *
 	 * @param httpHeaders
 	 *        The HTTP headers to include in each response.
 	 */
@@ -198,11 +205,11 @@ public class SecurityTokenAuthenticationEntryPoint
 	/**
 	 * A {@link HandlerExceptionResolver} to resolve authentication exceptions
 	 * with.
-	 * 
+	 *
 	 * <p>
 	 * This provides a way to render the exceptions as JSON, etc.
 	 * </p>
-	 * 
+	 *
 	 * @param handlerExceptionResolver
 	 *        the resolver to delegate exceptions to
 	 */
