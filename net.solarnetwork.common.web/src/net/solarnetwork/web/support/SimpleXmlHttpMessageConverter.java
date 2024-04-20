@@ -1,21 +1,21 @@
 /* ==================================================================
  * SimpleXmlHttpMessageConverter.java - Dec 3, 2013 11:58:01 AM
- * 
+ *
  * Copyright 2007-2013 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -48,9 +48,9 @@ import net.solarnetwork.util.ClassUtils;
 
 /**
  * {@link HttpMessageConverter} that marshals objects into XML documents.
- * 
+ *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
@@ -126,7 +126,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	private void outputMap(Map<?, ?> map, String name, XMLStreamWriter writer)
 			throws IOException, XMLStreamException {
-		writeElement(name, null, writer, false);
+		writeElement(name != null ? name : "map", null, writer, false);
 
 		// for each entry, write an <entry> element
 		for ( Map.Entry<?, ?> me : map.entrySet() ) {
@@ -155,7 +155,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	private void outputCollection(Collection<?> col, String name, XMLStreamWriter writer)
 			throws IOException, XMLStreamException {
-		writeElement(name, null, writer, false);
+		writeElement(name != null ? name : "list", null, writer, false);
 		for ( Object o : col ) {
 			outputObject(o, null, writer);
 		}
@@ -241,7 +241,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Get the class names allowed for nesting.
-	 * 
+	 *
 	 * @return the class names
 	 */
 	public Set<String> getClassNamesAllowedForNesting() {
@@ -250,7 +250,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Set the class names allowed for nesting.
-	 * 
+	 *
 	 * @param classNamesAllowedForNesting
 	 *        the class names
 	 */
@@ -260,7 +260,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Set the XML output factory.
-	 * 
+	 *
 	 * @param xmlOutputFactory
 	 *        the factory to set
 	 */
@@ -270,7 +270,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Get the XML output factory.
-	 * 
+	 *
 	 * @return the factory
 	 */
 	public XMLOutputFactory getXmlOutputFactory() {
@@ -279,7 +279,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Get the property serializer registrar.
-	 * 
+	 *
 	 * @return the registrar
 	 */
 	public PropertySerializerRegistrar getPropertySerializerRegistrar() {
@@ -288,7 +288,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Set the property serializer registrar.
-	 * 
+	 *
 	 * @param propertySerializerRegistrar
 	 *        the registrar to set
 	 */

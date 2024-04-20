@@ -1,21 +1,21 @@
 /* ==================================================================
  * DateUtilsTests.java - 12/02/2020 7:17:09 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -41,8 +41,10 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import net.solarnetwork.util.DateUtils;
@@ -50,7 +52,7 @@ import net.solarnetwork.util.IntRange;
 
 /**
  * Test cases for the {@link DateUtils} class.
- * 
+ *
  * @author matt
  * @version 1.3
  */
@@ -283,6 +285,31 @@ public class DateUtilsTests {
 			IntRange r = DateUtils.parseMonthRange(inputs[i], null);
 			assertThat(format("Month range %d [%s] parsed", i + 1, inputs[i]), r,
 					equalTo(rangeOf(3, 11)));
+		}
+	}
+
+	@Test
+	public void parseMonthRange_uk_java11() {
+		assumeThat("Behavior in Java <17", JAVA_VERS, lessThan(17.0));
+		parseMonthRange_uk();
+	}
+
+	@Test(expected = DateTimeParseException.class)
+	public void parseMonthRange_uk_java17() {
+		assumeThat("Behavior in Java 17+", JAVA_VERS, greaterThanOrEqualTo(17.0));
+		parseMonthRange_uk();
+	}
+
+	// Behaviour changes from Java 11 -> 17 from bug JDK-8066982
+	// https://bugs.openjdk.java.net/browse/JDK-8251317
+	private void parseMonthRange_uk() {
+		String[] inputs = new String[] { "April-September", "Apr-Sep", "04-09", "4-9", " April  - Sep ",
+				"Sep-Apr" };
+		Locale uk = new Locale("en", "GB");
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseMonthRange(inputs[i], uk);
+			assertThat(format("Month range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(4, 9)));
 		}
 	}
 
