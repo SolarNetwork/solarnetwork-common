@@ -63,7 +63,7 @@ import ocpp.v201.UnitOfMeasure;
  * Process {@link TransactionEventRequest} action messages.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class TransactionEventProcessor
 
@@ -177,7 +177,7 @@ public class TransactionEventProcessor
 
 		final ChargeSessionStartInfo startInfo = startInfoDetails.build();
 
-		log.info("Received transaction start request: {}", startInfo);
+		log.trace("Received transaction start request: {}", startInfo);
 
 		ChargeSession session = chargeSessionManager.startChargingSession(startInfo);
 
