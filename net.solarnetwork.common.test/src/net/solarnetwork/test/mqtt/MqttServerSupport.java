@@ -1,21 +1,21 @@
 /* ==================================================================
  * MqttServerSupport.java - 8/06/2018 2:20:24 PM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -45,13 +45,13 @@ import io.moquette.interception.InterceptHandler;
 
 /**
  * Support for MQTT client integration with an embedded MQTT server.
- * 
+ *
  * <p>
  * Unit tests can extend this class directly.
  * </p>
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class MqttServerSupport {
 
@@ -69,7 +69,7 @@ public class MqttServerSupport {
 
 	/**
 	 * Find and return an unused IP port.
-	 * 
+	 *
 	 * @return the unused port
 	 * @throws RuntimeException
 	 *         if no unused port can be found
@@ -85,12 +85,12 @@ public class MqttServerSupport {
 
 	/**
 	 * Create basic MQTT properties.
-	 * 
+	 *
 	 * <p>
 	 * The {@link BrokerConstants#PORT_PROPERTY_NAME} and
 	 * {@link BrokerConstants#HOST_PROPERTY_NAME} values will be populated.
 	 * </p>
-	 * 
+	 *
 	 * @param port
 	 *        the port to use
 	 * @return the server properties
@@ -102,12 +102,13 @@ public class MqttServerSupport {
 		Properties p = new Properties();
 		p.setProperty(BrokerConstants.PORT_PROPERTY_NAME, String.valueOf(port));
 		p.setProperty(BrokerConstants.HOST_PROPERTY_NAME, "127.0.0.1");
+		p.setProperty(BrokerConstants.ENABLE_TELEMETRY_NAME, Boolean.FALSE.toString());
 		return p;
 	}
 
 	/**
 	 * Setup an embedded MQTT server.
-	 * 
+	 *
 	 * @param handlers
 	 *        the handlers
 	 * @param authenticator
@@ -141,7 +142,7 @@ public class MqttServerSupport {
 
 	/**
 	 * Get the port the MQTT server is listing on.
-	 * 
+	 *
 	 * @return the port
 	 */
 	public int getMqttServerPort() {
@@ -156,7 +157,7 @@ public class MqttServerSupport {
 	 * Get the default testing handler, if no specific handlers have been passed
 	 * to
 	 * {@link #setupMqttServer(List, IAuthenticator, IAuthorizatorPolicy, int)}.
-	 * 
+	 *
 	 * @return the testing handler
 	 */
 	public TestingInterceptHandler getTestingInterceptHandler() {
@@ -176,7 +177,7 @@ public class MqttServerSupport {
 
 	/**
 	 * Get the embedded MQTT server.
-	 * 
+	 *
 	 * @return the server
 	 */
 	public Server getServer() {
@@ -185,7 +186,7 @@ public class MqttServerSupport {
 
 	/**
 	 * Get an MQTT client.
-	 * 
+	 *
 	 * @return the client
 	 */
 	public IMqttClient getClient() {
@@ -194,7 +195,7 @@ public class MqttServerSupport {
 
 	/**
 	 * Setup a MQTT client.
-	 * 
+	 *
 	 * @param clientId
 	 *        the client ID
 	 * @param callback
