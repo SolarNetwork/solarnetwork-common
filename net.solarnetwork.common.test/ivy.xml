@@ -39,7 +39,9 @@
 		<dependency org="io.netty" name="netty-resolver" rev="4.1.109.Final"/>
 		<dependency org="io.netty" name="netty-transport" rev="4.1.109.Final"/>
 		<dependency org="io.moquette" name="moquette-broker" rev="0.16"/>
-		<dependency org="org.eclipse.paho" name="org.eclipse.paho.client.mqttv3" rev="1.2.5"/>
+		<dependency org="org.eclipse.paho" name="org.eclipse.paho.client.mqttv3" rev="1.2.5">
+			<artifact name="org.eclipse.paho.client.mqttv3" type="jar"/>
+		</dependency>
 		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.pki.bc" rev="[3.0,)"/>
 
 	</dependencies>
