@@ -4,19 +4,19 @@ Bundle-Name: SolarNetwork Common Test
 Bundle-Description: Common testing support for SolarNetwork projects.
 Bundle-SymbolicName: net.solarnetwork.common.test
 Automatic-Module-Name: net.solarnetwork.common.test
-Bundle-Version: 1.20.1
+Bundle-Version: 1.21.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: 
  net.solarnetwork.test;version="1.7.0",
  net.solarnetwork.test.mqtt;version="1.0.1"
 Import-Package: 
- io.moquette;version="[0.12,1.0)";resolution:=optional,
- io.moquette.broker;version="[0.12,1.0)";resolution:=optional,
- io.moquette.broker.config;version="[0.12,1.0)";resolution:=optional,
- io.moquette.broker.security;version="[0.12,1.0)";resolution:=optional,
- io.moquette.interception;version="[0.12,1.0)";resolution:=optional,
- io.moquette.interception.messages;version="[0.12,1.0)";resolution:=optional,
+ io.moquette;version="[0.16,1.0)";resolution:=optional,
+ io.moquette.broker;version="[0.16,1.0)";resolution:=optional,
+ io.moquette.broker.config;version="[0.16,1.0)";resolution:=optional,
+ io.moquette.broker.security;version="[0.16,1.0)";resolution:=optional,
+ io.moquette.interception;version="[0.16,1.0)";resolution:=optional,
+ io.moquette.interception.messages;version="[0.16,1.0)";resolution:=optional,
  io.netty.buffer;version="[4.1.22,5.0)";resolution:=optional,
  org.apache.commons.logging;version="[1.1,2.0)",
  org.apache.juli.logging,
