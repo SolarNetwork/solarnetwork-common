@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicMqttConnectionConfig.java - 25/11/2019 7:12:42 am
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,12 +28,13 @@ import java.util.UUID;
 import net.solarnetwork.service.OptionalService;
 import net.solarnetwork.service.SSLService;
 import net.solarnetwork.service.StaticOptionalService;
+import net.solarnetwork.util.StatTracker;
 
 /**
  * Basic implementation of {@link MqttConnectionConfig}.
- * 
+ *
  * @author matt
- * @version 2.1
+ * @version 3.0
  */
 public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
@@ -57,7 +58,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * The {@code version} property default value.
-	 * 
+	 *
 	 * @since 1.1
 	 */
 	public static final MqttVersion DEFAULT_VERSION = MqttVersion.Mqtt311;
@@ -78,7 +79,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	private int keepAliveSeconds;
 	private int readTimeoutSeconds = -1;
 	private int writeTimeoutSeconds = -1;
-	private MqttStats stats;
+	private StatTracker stats;
 	private boolean wireLoggingEnabled;
 	private final BasicMutableMqttProperties properties;
 
@@ -100,7 +101,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the configuration to copy, or {@literal null}
 	 */
@@ -133,7 +134,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the unique ID.
-	 * 
+	 *
 	 * @param uid
 	 *        the ID
 	 * @throws IllegalArgumentException
@@ -156,7 +157,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the MQTT broker URI to connect to.
-	 * 
+	 *
 	 * @param serverUri
 	 *        the server URI
 	 */
@@ -166,7 +167,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Get the MQTT broker URI to connect to, as a string.
-	 * 
+	 *
 	 * @return the URI value, or {@literal null} if one has not been set
 	 */
 	public String getServerUriValue() {
@@ -176,7 +177,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the MQTT broker URI to connect to, as a string.
-	 * 
+	 *
 	 * @param serverUri
 	 *        the URI value
 	 * @throws IllegalArgumentException
@@ -203,7 +204,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Get the MQTT broker host name to connect to.
-	 * 
+	 *
 	 * @return the host name, or {@literal null}
 	 */
 	public String getHost() {
@@ -213,7 +214,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Get the MQTT broker port to connect to.
-	 * 
+	 *
 	 * @return the port
 	 */
 	public int getPort() {
@@ -232,7 +233,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the MQTT version.
-	 * 
+	 *
 	 * @param version
 	 *        the version to set
 	 * @throws IllegalArgumentException
@@ -252,13 +253,13 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the SSL service.
-	 * 
+	 *
 	 * <p>
 	 * Internally this calls
 	 * {@link BasicMqttConnectionConfig#setOptionalSslService(OptionalService)}
 	 * with a static service reference.
 	 * </p>
-	 * 
+	 *
 	 * @param sslService
 	 *        the sslService to set
 	 */
@@ -268,7 +269,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Get the optional {@link SSLService}.
-	 * 
+	 *
 	 * @return the optional service
 	 */
 	public OptionalService<SSLService> getOptionalSslService() {
@@ -277,7 +278,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the optional {@link SSLService}.
-	 * 
+	 *
 	 * @param optionalSslService
 	 *        the optional service
 	 */
@@ -292,7 +293,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the client ID.
-	 * 
+	 *
 	 * @param clientId
 	 *        the clientId to set
 	 */
@@ -307,7 +308,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the username.
-	 * 
+	 *
 	 * @param username
 	 *        the username to set
 	 */
@@ -322,7 +323,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the password.
-	 * 
+	 *
 	 * @param password
 	 *        the password to set
 	 */
@@ -342,7 +343,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the reconnect flag.
-	 * 
+	 *
 	 * @param reconnect
 	 *        {@literal true} to automatically reconnect
 	 */
@@ -357,7 +358,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the reconnect delay, in seconds.
-	 * 
+	 *
 	 * @param reconnectDelaySeconds
 	 *        the seconds to delay before reconnecting
 	 */
@@ -367,7 +368,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the clean session flag.
-	 * 
+	 *
 	 * @param cleanSession
 	 *        the cleanSession to set
 	 */
@@ -382,7 +383,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the last will message.
-	 * 
+	 *
 	 * @param lastWill
 	 *        the lastWill to set
 	 */
@@ -397,7 +398,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the maximum message size.
-	 * 
+	 *
 	 * @param maximumMessageSize
 	 *        the maximumMessageSize to set, in bytes; must be greater than
 	 *        {@literal 0} and less than or equal to {@literal 256000000}
@@ -419,7 +420,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set a connection timeout, in seconds.
-	 * 
+	 *
 	 * @param connectTimeoutSeconds
 	 *        the timeout to set
 	 * @throws IllegalArgumentException
@@ -439,7 +440,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the keep alive seconds.
-	 * 
+	 *
 	 * @param keepAliveSeconds
 	 *        the keepAliveSeconds to set, or {@literal -1} to disable
 	 * @throws IllegalArgumentException
@@ -454,21 +455,21 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	}
 
 	@Override
-	public MqttStats getStats() {
+	public StatTracker getStats() {
 		return stats;
 	}
 
 	/**
 	 * Set the MQTT statistics object to use.
-	 * 
+	 *
 	 * <p>
 	 * The UID of {@code stats} will be set to this object's UID.
 	 * </p>
-	 * 
+	 *
 	 * @param stats
 	 *        the statistics object
 	 */
-	public void setStats(MqttStats stats) {
+	public void setStats(StatTracker stats) {
 		this.stats = stats;
 		if ( stats != null && uid != null ) {
 			stats.setUid(uid);
@@ -497,7 +498,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the read-specific timeout.
-	 * 
+	 *
 	 * @param readTimeoutSeconds
 	 *        the timeout to set, or {@literal 0} to disable or {@literal -1} to
 	 *        use the {@link #getReadTimeoutSeconds()} value
@@ -514,7 +515,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 
 	/**
 	 * Set the write-specific timeout.
-	 * 
+	 *
 	 * @param writeTimeoutSeconds
 	 *        the timeout to set, or {@literal 0} to disable or {@literal -1} to
 	 *        use the {@link #getWriteTimeoutSeconds()} value

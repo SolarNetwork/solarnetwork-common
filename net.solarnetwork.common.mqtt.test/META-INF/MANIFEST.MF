@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Common MQTT Support Tests
 Bundle-SymbolicName: net.solarnetwork.common.mqtt.test
-Bundle-Version: 4.0.0
+Bundle-Version: 5.0.0
 Bundle-Vendor: SolarNetwork
-Fragment-Host: net.solarnetwork.common.mqtt;bundle-version="[4.0,5.0)"
+Fragment-Host: net.solarnetwork.common.mqtt;bundle-version="[5.0,6.0)"
 Automatic-Module-Name: net.solartnetwork.common.mqtt.test
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: 
