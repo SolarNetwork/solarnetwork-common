@@ -4,7 +4,7 @@ Bundle-Name: SolarNetwork Common Test
 Bundle-Description: Common testing support for SolarNetwork projects.
 Bundle-SymbolicName: net.solarnetwork.common.test
 Automatic-Module-Name: net.solarnetwork.common.test
-Bundle-Version: 1.21.0
+Bundle-Version: 1.21.2
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: 
@@ -21,8 +21,8 @@ Import-Package:
  org.apache.commons.logging;version="[1.1,2.0)",
  org.apache.juli.logging,
  org.easymock;version="[3.6,4.0)",
- org.eclipse.paho.client.mqttv3;version="[1.2,2.0)";resolution:=optional,
- org.eclipse.paho.client.mqttv3.persist;version="[1.2,2.0)";resolution:=optional,
+ org.eclipse.paho.client.mqttv3;version="[1.2.2,2.0)";resolution:=optional,
+ org.eclipse.paho.client.mqttv3.persist;version="[1.2.2,2.0)";resolution:=optional,
  org.hamcrest;version="[1.1,2.0)",
  org.junit;version="[4.12,5.0)",
  org.junit.rules;version="[4.12,5.0)",
