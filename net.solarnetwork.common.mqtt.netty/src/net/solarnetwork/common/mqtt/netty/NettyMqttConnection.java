@@ -1,21 +1,21 @@
 /* ==================================================================
  * NettyMqttConnection.java - 25/11/2019 7:27:40 am
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -45,6 +45,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.solarnetwork.common.mqtt.BaseMqttConnection;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
+import net.solarnetwork.common.mqtt.MqttBasicCount;
 import net.solarnetwork.common.mqtt.MqttConnectReturnCode;
 import net.solarnetwork.common.mqtt.MqttConnection;
 import net.solarnetwork.common.mqtt.MqttConnectionConfig;
@@ -54,7 +55,6 @@ import net.solarnetwork.common.mqtt.MqttMessageHandler;
 import net.solarnetwork.common.mqtt.MqttProperty;
 import net.solarnetwork.common.mqtt.MqttPropertyType;
 import net.solarnetwork.common.mqtt.MqttQos;
-import net.solarnetwork.common.mqtt.MqttStats;
 import net.solarnetwork.common.mqtt.MqttUtils;
 import net.solarnetwork.common.mqtt.WireLoggingSupport;
 import net.solarnetwork.common.mqtt.netty.client.ChannelClosedException;
@@ -65,12 +65,13 @@ import net.solarnetwork.common.mqtt.netty.client.MqttConnectResult;
 import net.solarnetwork.common.mqtt.netty.client.MqttLastWill;
 import net.solarnetwork.service.CertificateException;
 import net.solarnetwork.service.SSLService;
+import net.solarnetwork.util.StatTracker;
 
 /**
  * Netty based implementation of {@link MqttConnection}.
- * 
+ *
  * @author matt
- * @version 2.1
+ * @version 3.0
  */
 public class NettyMqttConnection extends BaseMqttConnection
 		implements MqttMessageHandler, MqttClientCallback, WireLoggingSupport {
@@ -88,7 +89,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param executor
 	 *        the executor to use
 	 * @param scheduler
@@ -100,7 +101,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param executor
 	 *        the executor to use
 	 * @param scheduler
@@ -170,7 +171,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 			}
 			if ( config != null ) {
 				MqttClient client = null;
-				MqttStats s = connectionConfig.getStats();
+				StatTracker s = connectionConfig.getStats();
 				try {
 					client = MqttClient.create(config, NettyMqttConnection.this);
 					client.setWireLogging(wireLogging || connectionConfig.isWireLoggingEnabled());
@@ -178,7 +179,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 					client.setEventLoop(new NioEventLoopGroup(ioThreadCount,
 							new CustomizableThreadFactory("MQTT-" + getUid() + "-")));
 					if ( s != null ) {
-						s.incrementAndGet(MqttStats.BasicCounts.ConnectionAttempts);
+						s.increment(MqttBasicCount.ConnectionAttempts);
 					}
 					log.info("Connecting to MQTT server {}...", connectionConfig.getServerUri());
 					Future<MqttConnectResult> f = client.connect(connectionConfig.getHost(),
@@ -202,7 +203,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 					}
 				}
 				if ( s != null ) {
-					s.incrementAndGet(MqttStats.BasicCounts.ConnectionFail);
+					s.increment(MqttBasicCount.ConnectionFail);
 				}
 				if ( connectionConfig.isReconnect() ) {
 					log.info("Failed to connect to MQTT server {} ({}), will try again in {}s",
@@ -234,9 +235,9 @@ public class NettyMqttConnection extends BaseMqttConnection
 						MqttConnectReturnCode code = result != null ? returnCode(result.getReturnCode())
 								: null;
 						connectFuture.complete(code);
-						MqttStats s = connectionConfig.getStats();
+						StatTracker s = connectionConfig.getStats();
 						if ( s != null ) {
-							s.incrementAndGet(MqttStats.BasicCounts.ConnectionSuccess);
+							s.increment(MqttBasicCount.ConnectionSuccess);
 						}
 						MqttConnectionObserver observer = NettyMqttConnection.this.connectionObserver;
 						if ( observer != null ) {
@@ -413,9 +414,9 @@ public class NettyMqttConnection extends BaseMqttConnection
 		String msg = (cause instanceof ChannelClosedException ? "closed"
 				: cause != null ? cause.toString() : "unknown cause");
 		log.warn("Connection lost to MQTT server {}: {}", connectionConfig.getServerUri(), msg);
-		MqttStats s = connectionConfig.getStats();
+		StatTracker s = connectionConfig.getStats();
 		if ( s != null ) {
-			s.incrementAndGet(MqttStats.BasicCounts.ConnectionLost);
+			s.increment(MqttBasicCount.ConnectionLost);
 		}
 		MqttConnectionObserver observer = this.connectionObserver;
 		if ( observer != null ) {
@@ -459,9 +460,9 @@ public class NettyMqttConnection extends BaseMqttConnection
 	@Override
 	public void onSuccessfulReconnect() {
 		log.warn("Reconnected to MQTT server {}", connectionConfig.getServerUri());
-		MqttStats s = connectionConfig.getStats();
+		StatTracker s = connectionConfig.getStats();
 		if ( s != null ) {
-			s.incrementAndGet(MqttStats.BasicCounts.ConnectionSuccess);
+			s.increment(MqttBasicCount.ConnectionSuccess);
 		}
 		MqttConnectionObserver observer = this.connectionObserver;
 		if ( observer != null ) {
@@ -541,12 +542,12 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 	@Override
 	public void onMqttMessage(MqttMessage message) {
-		MqttStats s = connectionConfig.getStats();
+		StatTracker s = connectionConfig.getStats();
 		if ( s != null && message != null ) {
-			s.incrementAndGet(MqttStats.BasicCounts.MessagesReceived);
+			s.increment(MqttBasicCount.MessagesReceived);
 			byte[] payload = message.getPayload();
 			if ( payload != null && payload.length > 0 ) {
-				s.addAndGet(MqttStats.BasicCounts.PayloadBytesReceived, payload.length);
+				s.add(MqttBasicCount.PayloadBytesReceived, payload.length);
 			}
 		}
 		MqttMessageHandler handler = this.messageHandler;
@@ -580,7 +581,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 				Unpooled.wrappedBuffer(payload), NettyMqttUtils.qos(message.getQosLevel()),
 				message.isRetained(), message.getProperties());
 
-		final MqttStats s = connectionConfig.getStats();
+		final StatTracker s = connectionConfig.getStats();
 		if ( s != null ) {
 			f.addListener(new GenericFutureListener<io.netty.util.concurrent.Future<? super Void>>() {
 
@@ -588,12 +589,12 @@ public class NettyMqttConnection extends BaseMqttConnection
 				public void operationComplete(io.netty.util.concurrent.Future<? super Void> future)
 						throws Exception {
 					if ( future.isSuccess() ) {
-						s.incrementAndGet(MqttStats.BasicCounts.MessagesDelivered);
+						s.increment(MqttBasicCount.MessagesDelivered);
 						if ( payload != null && payload.length > 0 ) {
-							s.addAndGet(MqttStats.BasicCounts.PayloadBytesDelivered, payload.length);
+							s.add(MqttBasicCount.PayloadBytesDelivered, payload.length);
 						}
 					} else {
-						s.incrementAndGet(MqttStats.BasicCounts.MessagesDeliveredFail);
+						s.increment(MqttBasicCount.MessagesDeliveredFail);
 					}
 				}
 			});
@@ -613,9 +614,9 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 		@Override
 		public void onMqttMessage(MqttMessage message) {
-			MqttStats s = connectionConfig.getStats();
+			StatTracker s = connectionConfig.getStats();
 			if ( s != null ) {
-				s.incrementAndGet(MqttStats.BasicCounts.MessagesReceived);
+				s.increment(MqttBasicCount.MessagesReceived);
 			}
 			// bump to another thread so MQTT processing not affected by handler execution time
 			executor.execute(new MessageHandlerTask(message, delegate));
@@ -670,7 +671,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 	/**
 	 * Get the IO thread count.
-	 * 
+	 *
 	 * @return the number of IO threads to manage; defaults to
 	 *         {@link #DEFAULT_IO_THREAD_COUNT}
 	 */
@@ -680,7 +681,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 	/**
 	 * Set the IO thread count.
-	 * 
+	 *
 	 * @param ioThreadCount
 	 *        the count to set
 	 * @throws IllegalArgumentException

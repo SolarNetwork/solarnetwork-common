@@ -1,21 +1,21 @@
 /* ==================================================================
  * BaseMqttConnectionService.java - 27/11/2019 5:57:41 pm
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -33,12 +33,13 @@ import org.slf4j.LoggerFactory;
 import net.solarnetwork.service.PingTest;
 import net.solarnetwork.service.PingTestResult;
 import net.solarnetwork.service.support.BasicIdentifiable;
+import net.solarnetwork.util.StatTracker;
 
 /**
  * An abstract service that uses a {@link MqttConnection}.
- * 
+ *
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public abstract class BaseMqttConnectionService extends BasicIdentifiable implements PingTest {
 
@@ -60,13 +61,13 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param connectionFactory
 	 *        the factory to use for {@link MqttConnection} instances
 	 * @param mqttStats
 	 *        the optional statistics to use
 	 */
-	public BaseMqttConnectionService(MqttConnectionFactory connectionFactory, MqttStats mqttStats) {
+	public BaseMqttConnectionService(MqttConnectionFactory connectionFactory, StatTracker mqttStats) {
 		super();
 		this.connectionFactory = connectionFactory;
 		mqttConfig = new BasicMqttConnectionConfig();
@@ -75,7 +76,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Call after properties are configured.
-	 * 
+	 *
 	 * <p>
 	 * This invokes {@link #startup()} without waiting for the result.
 	 * </p>
@@ -86,7 +87,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Call after properties are configured.
-	 * 
+	 *
 	 * @return a future that completes when the connection has been established
 	 */
 	public synchronized Future<?> startup() {
@@ -111,7 +112,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Callback to configure newly created MQTT connections.
-	 * 
+	 *
 	 * <p>
 	 * Extending classes can override this to do things like register as a
 	 * message handler or connection observer. This implementation will
@@ -120,7 +121,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	 * configure this object as the message handler if it implements
 	 * {@link MqttMessageHandler}.
 	 * </p>
-	 * 
+	 *
 	 * @param conn
 	 *        the connection
 	 */
@@ -151,7 +152,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Get the MQTT connection.
-	 * 
+	 *
 	 * @return the connection
 	 */
 	protected MqttConnection connection() {
@@ -181,14 +182,13 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 			boolean healthy = conn.isEstablished();
 			URI serverUri = mqttConfig.getServerUri();
 			String msg = (healthy ? "Connected to " + serverUri : "Not connected");
-			MqttStats stats = mqttConfig.getStats();
+			StatTracker stats = mqttConfig.getStats();
+			Map<String, Long> allStats = (stats != null ? stats.allCounts() : null);
 			Map<String, Object> props = new LinkedHashMap<>(
-					1 + (stats != null ? MqttStats.BasicCounts.values().length : 0));
+					1 + (allStats != null ? allStats.size() : 0));
 			props.put("serverUri", serverUri);
-			if ( stats != null ) {
-				for ( MqttStats.BasicCounts stat : MqttStats.BasicCounts.values() ) {
-					props.put(stat.name(), stats.get(stat));
-				}
+			if ( allStats != null ) {
+				props.putAll(allStats);
 			}
 			PingTestResult result = new PingTestResult(healthy, msg, props);
 			return result;
@@ -198,7 +198,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Get the MQTT QOS to use when publishing.
-	 * 
+	 *
 	 * @return the QOS, never {@literal null}
 	 */
 	public MqttQos getPublishQos() {
@@ -207,7 +207,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Set the MQTT QOS to use when publishing.
-	 * 
+	 *
 	 * @param publishQos
 	 *        the QOS
 	 * @throws IllegalArgumentException
@@ -222,7 +222,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Get the MQTT QOS value to use when publishing.
-	 * 
+	 *
 	 * @return the QOS value
 	 */
 	public int getPublishQosValue() {
@@ -231,7 +231,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Set the MQTT QOS value to use when publishing.
-	 * 
+	 *
 	 * @param value
 	 *        the QOS value
 	 */
@@ -245,7 +245,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Get the MQTT QOS to use when subscribing.
-	 * 
+	 *
 	 * @return the QOS, never {@literal null}
 	 */
 	public MqttQos getSubscribeQos() {
@@ -254,7 +254,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Set the MQTT QOS to use when subscribing.
-	 * 
+	 *
 	 * @param subscribeQos
 	 *        the QOS
 	 * @throws IllegalArgumentException
@@ -269,7 +269,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Get the MQTT QOS value to use when subscribing.
-	 * 
+	 *
 	 * @return the QOS value
 	 */
 	public int getSubscribeQosValue() {
@@ -278,7 +278,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Set the MQTT QOS value to use when subscribing.
-	 * 
+	 *
 	 * @param value
 	 *        the QOS value
 	 */
@@ -292,16 +292,16 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	/**
 	 * Get the MQTT statistics.
-	 * 
+	 *
 	 * @return the statistics
 	 */
-	public MqttStats getMqttStats() {
+	public StatTracker getMqttStats() {
 		return mqttConfig.getStats();
 	}
 
 	/**
 	 * Get the MQTT configuration.
-	 * 
+	 *
 	 * @return the configuration, never {@literal null}
 	 */
 	public BasicMqttConnectionConfig getMqttConfig() {

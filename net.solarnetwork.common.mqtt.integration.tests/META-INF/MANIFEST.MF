@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MQTT Integration Test Support
 Bundle-SymbolicName: net.solarnetwork.common.mqtt.integration.tests
-Bundle-Version: 3.0.0
+Bundle-Version: 3.1.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.mqtt.integration.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -16,7 +16,7 @@ Import-Package:
  io.moquette.interception;version="[0.12,1.0)",
  io.moquette.interception.messages;version="[0.12,1.0)",
  io.netty.buffer;version="[4.1.22,5.0)",
- net.solarnetwork.common.mqtt;version="[2.0,3.0)",
+ net.solarnetwork.common.mqtt;version="[2.0,4.0)",
  net.solarnetwork.test;version="[1.7,2.0)",
  net.solarnetwork.test.mqtt;version="[1.0,2.0)",
  org.apache.commons.lang3;version="[3.4,4.0)",
