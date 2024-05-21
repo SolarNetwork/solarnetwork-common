@@ -19,6 +19,12 @@ package net.solarnetwork.common.mqtt.netty.client;
 
 import io.netty.handler.codec.mqtt.MqttQoS;
 
+/**
+ * A "last will" message.
+ *
+ * @author matt
+ * @version 1.0
+ */
 public final class MqttLastWill {
 
 	private final String topic;
@@ -26,6 +32,18 @@ public final class MqttLastWill {
 	private final boolean retain;
 	private final MqttQoS qos;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param topic
+	 *        the message topic
+	 * @param message
+	 *        the message
+	 * @param retain
+	 *        the retain flag
+	 * @param qos
+	 *        the QoS level
+	 */
 	public MqttLastWill(String topic, String message, boolean retain, MqttQoS qos) {
 		if ( topic == null ) {
 			throw new NullPointerException("topic");
@@ -42,26 +60,54 @@ public final class MqttLastWill {
 		this.qos = qos;
 	}
 
+	/**
+	 * Get the message topic.
+	 *
+	 * @return the message topic
+	 */
 	public String getTopic() {
 		return topic;
 	}
 
+	/**
+	 * Get the message.
+	 *
+	 * @return the message
+	 */
 	public String getMessage() {
 		return message;
 	}
 
+	/**
+	 * Get the retain flag.
+	 *
+	 * @return {@code true} to set the "retained" message flag
+	 */
 	public boolean isRetain() {
 		return retain;
 	}
 
+	/**
+	 * Get the quality of service level.
+	 *
+	 * @return the quality of service level
+	 */
 	public MqttQoS getQos() {
 		return qos;
 	}
 
+	/**
+	 * Get a builder.
+	 *
+	 * @return the builder
+	 */
 	public static MqttLastWill.Builder builder() {
 		return new MqttLastWill.Builder();
 	}
 
+	/**
+	 * A last will builder.
+	 */
 	public static final class Builder {
 
 		private String topic;
@@ -69,10 +115,29 @@ public final class MqttLastWill {
 		private boolean retain;
 		private MqttQoS qos;
 
+		/**
+		 * Constructor.
+		 */
+		public Builder() {
+			super();
+		}
+
+		/**
+		 * Get the message topic.
+		 *
+		 * @return the topic
+		 */
 		public String getTopic() {
 			return topic;
 		}
 
+		/**
+		 * Set the message topic.
+		 *
+		 * @param topic
+		 *        the topic to set
+		 * @return this object
+		 */
 		public Builder setTopic(String topic) {
 			if ( topic == null ) {
 				throw new NullPointerException("topic");
@@ -81,10 +146,22 @@ public final class MqttLastWill {
 			return this;
 		}
 
+		/**
+		 * Get the message.
+		 *
+		 * @return the message
+		 */
 		public String getMessage() {
 			return message;
 		}
 
+		/**
+		 * Set the message.
+		 *
+		 * @param message
+		 *        the message to set
+		 * @return this object
+		 */
 		public Builder setMessage(String message) {
 			if ( message == null ) {
 				throw new NullPointerException("message");
@@ -93,19 +170,43 @@ public final class MqttLastWill {
 			return this;
 		}
 
+		/**
+		 * Get the retain flag.
+		 *
+		 * @return the retain flag
+		 */
 		public boolean isRetain() {
 			return retain;
 		}
 
+		/**
+		 * Set the retain flag.
+		 *
+		 * @param retain
+		 *        {@code true} to set the "retained" message flag
+		 * @return this object
+		 */
 		public Builder setRetain(boolean retain) {
 			this.retain = retain;
 			return this;
 		}
 
+		/**
+		 * Get the quality of service level.
+		 *
+		 * @return the quality of service level
+		 */
 		public MqttQoS getQos() {
 			return qos;
 		}
 
+		/**
+		 * Set the quality of service level.
+		 *
+		 * @param qos
+		 *        the level to set
+		 * @return this object
+		 */
 		public Builder setQos(MqttQoS qos) {
 			if ( qos == null ) {
 				throw new NullPointerException("qos");
@@ -114,6 +215,11 @@ public final class MqttLastWill {
 			return this;
 		}
 
+		/**
+		 * Build the last will instance.
+		 *
+		 * @return the new instance
+		 */
 		public MqttLastWill build() {
 			return new MqttLastWill(topic, message, retain, qos);
 		}

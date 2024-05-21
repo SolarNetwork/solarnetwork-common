@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.solarnetwork.common.mqtt.netty.client;
 
 /**
@@ -21,24 +22,60 @@ package net.solarnetwork.common.mqtt.netty.client;
  */
 public class ChannelClosedException extends RuntimeException {
 
-    private static final long serialVersionUID = 6266638352424706909L;
+	private static final long serialVersionUID = 6266638352424706909L;
 
-    public ChannelClosedException() {
-    }
+	/**
+	 * Constructor.
+	 */
+	public ChannelClosedException() {
+	}
 
-    public ChannelClosedException(String message) {
-        super(message);
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param message
+	 *        the message
+	 */
+	public ChannelClosedException(String message) {
+		super(message);
+	}
 
-    public ChannelClosedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param message
+	 *        the message
+	 * @param cause
+	 *        the cause
+	 */
+	public ChannelClosedException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
-    public ChannelClosedException(Throwable cause) {
-        super(cause);
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param cause
+	 *        the cause
+	 */
+	public ChannelClosedException(Throwable cause) {
+		super(cause);
+	}
 
-    public ChannelClosedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param message
+	 *        the message
+	 * @param cause
+	 *        the cause
+	 * @param enableSuppression
+	 *        {@code true} to enable suppression
+	 * @param writableStackTrace
+	 *        {@code true} for a writable stack trace
+	 */
+	public ChannelClosedException(String message, Throwable cause, boolean enableSuppression,
+			boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+	}
 }
