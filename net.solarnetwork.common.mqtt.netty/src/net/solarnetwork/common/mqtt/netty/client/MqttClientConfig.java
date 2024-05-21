@@ -28,7 +28,7 @@ import io.netty.handler.ssl.SslContext;
 
 /**
  * MQTT client configuration.
- * 
+ *
  * @author matt
  * @version 1.2
  */
@@ -53,10 +53,19 @@ public final class MqttClientConfig {
 	private long reconnectDelay = 1L;
 	private int maxBytesInMessage = 8092;
 
+	/**
+	 * Constructor.
+	 */
 	public MqttClientConfig() {
 		this(null);
 	}
 
+	/**
+	 * Constructor.
+	 *
+	 * @param sslContext
+	 *        the optional SSL context
+	 */
 	public MqttClientConfig(SslContext sslContext) {
 		this.sslContext = sslContext;
 		Random random = new Random();
@@ -69,10 +78,21 @@ public final class MqttClientConfig {
 		this.randomClientId = id;
 	}
 
+	/**
+	 * Get the client ID.
+	 *
+	 * @return the client ID
+	 */
 	public String getClientId() {
 		return clientId;
 	}
 
+	/**
+	 * Set the client ID.
+	 *
+	 * @param clientId
+	 *        the client ID to set
+	 */
 	public void setClientId(String clientId) {
 		if ( clientId == null ) {
 			this.clientId = randomClientId;
@@ -81,10 +101,23 @@ public final class MqttClientConfig {
 		}
 	}
 
+	/**
+	 * Get the timeout seconds.
+	 *
+	 * @return the timeout
+	 */
 	public int getTimeoutSeconds() {
 		return timeoutSeconds;
 	}
 
+	/**
+	 * Set the timeout seconds.
+	 *
+	 * @param timeoutSeconds
+	 *        the timeout to set
+	 * @throws IllegalArgumentException
+	 *         if {@code timeoutSeconds} is not -1 or greater than 0
+	 */
 	public void setTimeoutSeconds(int timeoutSeconds) {
 		if ( timeoutSeconds != -1 && timeoutSeconds <= 0 ) {
 			throw new IllegalArgumentException("timeoutSeconds must be > 0 or -1");
@@ -94,7 +127,7 @@ public final class MqttClientConfig {
 
 	/**
 	 * Get a read-specific timeout.
-	 * 
+	 *
 	 * @return the seconds to use for a read-specific timeout, or {@literal 0}
 	 *         to disable or {@literal -1} to use the
 	 *         {@link #getTimeoutSeconds()} value; defaults to {@literal -1}
@@ -105,7 +138,7 @@ public final class MqttClientConfig {
 
 	/**
 	 * Set the read-specific timeout.
-	 * 
+	 *
 	 * @param readTimeoutSeconds
 	 *        the timeout to set, or {@literal 0} to disable or {@literal -1} to
 	 *        use the {@link #getTimeoutSeconds()} value
@@ -116,7 +149,7 @@ public final class MqttClientConfig {
 
 	/**
 	 * Get a write-specific timeout.
-	 * 
+	 *
 	 * @return the seconds to use for a write-specific timeout, or {@literal 0}
 	 *         to disable or {@literal -1} to use the
 	 *         {@link #getTimeoutSeconds()} value; defaults to {@literal -1}
@@ -127,7 +160,7 @@ public final class MqttClientConfig {
 
 	/**
 	 * Set the write-specific timeout.
-	 * 
+	 *
 	 * @param writeTimeoutSeconds
 	 *        the timeout to set, or {@literal 0} to disable or {@literal -1} to
 	 *        use the {@link #getTimeoutSeconds()} value
@@ -136,10 +169,21 @@ public final class MqttClientConfig {
 		this.writeTimeoutSeconds = writeTimeoutSeconds;
 	}
 
+	/**
+	 * Get the protocol version.
+	 *
+	 * @return the protocol version
+	 */
 	public MqttVersion getProtocolVersion() {
 		return protocolVersion;
 	}
 
+	/**
+	 * Set the protocol version.
+	 *
+	 * @param protocolVersion
+	 *        the protocol version to use
+	 */
 	public void setProtocolVersion(MqttVersion protocolVersion) {
 		if ( protocolVersion == null ) {
 			throw new NullPointerException("protocolVersion");
@@ -147,65 +191,141 @@ public final class MqttClientConfig {
 		this.protocolVersion = protocolVersion;
 	}
 
+	/**
+	 * Get the username.
+	 *
+	 * @return the username
+	 */
 	public String getUsername() {
 		return username;
 	}
 
+	/**
+	 * Set the username.
+	 *
+	 * @param username
+	 *        the username to set
+	 */
 	public void setUsername(String username) {
 		this.username = username;
 	}
 
+	/**
+	 * Get the password.
+	 *
+	 * @return the password
+	 */
 	public String getPassword() {
 		return password;
 	}
 
+	/**
+	 * Set the password.
+	 *
+	 * @param password
+	 *        the password to set
+	 */
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
+	/**
+	 * Get the "clean session" flag.
+	 *
+	 * @return the flag
+	 */
 	public boolean isCleanSession() {
 		return cleanSession;
 	}
 
+	/**
+	 * Set the "clean session" flag.
+	 *
+	 * @param cleanSession
+	 *        the flag to set
+	 */
 	public void setCleanSession(boolean cleanSession) {
 		this.cleanSession = cleanSession;
 	}
 
+	/**
+	 * Get the last will object.
+	 *
+	 * @return the last will
+	 */
 	public MqttLastWill getLastWill() {
 		return lastWill;
 	}
 
+	/**
+	 * Set a last will object.
+	 *
+	 * @param lastWill
+	 *        the last will object
+	 */
 	public void setLastWill(MqttLastWill lastWill) {
 		this.lastWill = lastWill;
 	}
 
+	/**
+	 * Get the channel class to use.
+	 *
+	 * @return the channel class
+	 */
 	public Class<? extends Channel> getChannelClass() {
 		return channelClass;
 	}
 
+	/**
+	 * Set the channel class to use.
+	 *
+	 * @param channelClass
+	 *        the class to use
+	 */
 	public void setChannelClass(Class<? extends Channel> channelClass) {
 		this.channelClass = channelClass;
 	}
 
+	/**
+	 * Get the SSL context.
+	 *
+	 * @return the SSL context
+	 */
 	public SslContext getSslContext() {
 		return sslContext;
 	}
 
+	/**
+	 * Get the reconnect flag.
+	 *
+	 * @return {@code true} to reconnect automatically
+	 */
 	public boolean isReconnect() {
 		return reconnect;
 	}
 
+	/**
+	 * Set the reconnect flag.
+	 *
+	 * @param reconnect
+	 *        {@code true} to reconnect automatically
+	 */
 	public void setReconnect(boolean reconnect) {
 		this.reconnect = reconnect;
 	}
 
+	/**
+	 * Get the reconnect delay.
+	 *
+	 * @return the reconnect delay, in seconds
+	 */
 	public long getReconnectDelay() {
 		return reconnectDelay;
 	}
 
 	/**
 	 * Sets the reconnect delay in seconds. Defaults to 1 second.
-	 * 
+	 *
 	 * @param reconnectDelay
 	 *        the reconnection delay, in seconds
 	 * @throws IllegalArgumentException
@@ -218,6 +338,11 @@ public final class MqttClientConfig {
 		this.reconnectDelay = reconnectDelay;
 	}
 
+	/**
+	 * Get the message maximum size.
+	 *
+	 * @return the maximum size, in bytes
+	 */
 	public int getMaxBytesInMessage() {
 		return maxBytesInMessage;
 	}
@@ -243,7 +368,7 @@ public final class MqttClientConfig {
 
 	/**
 	 * Get the MQTT connection properties.
-	 * 
+	 *
 	 * @return the propertes, never {@literal null}
 	 * @since 1.1
 	 */
@@ -254,7 +379,7 @@ public final class MqttClientConfig {
 	/**
 	 * Convenience method to set the {@code TOPIC_ALIAS_MAXIMUM} connection
 	 * property.
-	 * 
+	 *
 	 * @param max
 	 *        the maximum number of topic aliases to allow on the connection
 	 * @since 1.1
@@ -267,7 +392,7 @@ public final class MqttClientConfig {
 	/**
 	 * Convenience method to get the {@code TOPIC_ALIAS_MAXIMUM} connection
 	 * property.
-	 * 
+	 *
 	 * @return the maximum number of topic aliases to allow on the connection
 	 * @since 1.1
 	 */

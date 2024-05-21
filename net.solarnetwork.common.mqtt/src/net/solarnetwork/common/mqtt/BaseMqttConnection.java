@@ -1,21 +1,21 @@
 /* ==================================================================
  * BaseMqttConnection.java - 27/11/2019 1:45:12 pm
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -40,17 +40,18 @@ import net.solarnetwork.service.PingTest;
 import net.solarnetwork.service.PingTestResult;
 import net.solarnetwork.service.support.BasicIdentifiable;
 import net.solarnetwork.settings.SettingsChangeObserver;
+import net.solarnetwork.util.StatTracker;
 
 /**
  * Base implementation of {@link MqttConnection}.
- * 
+ *
  * <p>
  * This base class is designed to try to connect to the configured MQTT server
  * and keep trying until it is able to do so.
  * </p>
- * 
+ *
  * @author matt
- * @version 1.2
+ * @version 2.0
  */
 public abstract class BaseMqttConnection extends BasicIdentifiable
 		implements MqttConnection, ReconfigurableMqttConnection, SettingsChangeObserver, PingTest {
@@ -80,7 +81,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param executor
 	 *        the executor
 	 * @param scheduler
@@ -92,7 +93,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param executor
 	 *        the executor
 	 * @param scheduler
@@ -217,7 +218,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 
 	/**
 	 * Create a scheduled task to connect to the MQTT server.
-	 * 
+	 *
 	 * @param future
 	 *        the future to complete the connection with
 	 * @return the task
@@ -227,7 +228,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 
 	/**
 	 * Get the future for a completed connection.
-	 * 
+	 *
 	 * @return the future, or {@literal null}
 	 */
 	protected CompletableFuture<MqttConnectReturnCode> connectFuture() {
@@ -236,7 +237,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 
 	/**
 	 * Get the future for the reconfigure task.
-	 * 
+	 *
 	 * @return the future, or {@literal null}
 	 */
 	protected CompletableFuture<Void> reconfigureFuture() {
@@ -262,7 +263,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 
 	/**
 	 * Close any open connection.
-	 * 
+	 *
 	 * @return a future that completes when the connection has been closed
 	 */
 	protected abstract Future<?> closeConnection();
@@ -324,14 +325,12 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 		boolean healthy = isEstablished();
 		URI serverUri = connectionConfig.getServerUri();
 		String msg = (healthy ? "Connected to " + serverUri : "Not connected");
-		MqttStats stats = connectionConfig.getStats();
-		Map<String, Object> props = new LinkedHashMap<>(
-				1 + (stats != null ? MqttStats.BasicCounts.values().length : 0));
+		StatTracker stats = connectionConfig.getStats();
+		Map<String, Long> allStats = (stats != null ? stats.allCounts() : null);
+		Map<String, Object> props = new LinkedHashMap<>(1 + (allStats != null ? allStats.size() : 0));
 		props.put("serverUri", serverUri);
-		if ( stats != null ) {
-			for ( MqttStats.BasicCounts stat : MqttStats.BasicCounts.values() ) {
-				props.put(stat.name(), stats.get(stat));
-			}
+		if ( allStats != null ) {
+			props.putAll(allStats);
 		}
 		PingTestResult result = new PingTestResult(healthy, msg, props);
 		return result;
@@ -353,7 +352,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 
 	/**
 	 * Get the connection configuration.
-	 * 
+	 *
 	 * @return the configuration, never {@literal null}
 	 */
 	public final BasicMqttConnectionConfig getConnectionConfig() {

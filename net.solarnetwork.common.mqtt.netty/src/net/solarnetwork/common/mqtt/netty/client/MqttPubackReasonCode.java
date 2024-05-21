@@ -1,21 +1,21 @@
 /* ==================================================================
  * MqttPubackReasonCode.java - 28/05/2021 6:34:52 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -24,28 +24,37 @@ package net.solarnetwork.common.mqtt.netty.client;
 
 /**
  * MQTT {@literal PUBACK} reason codes.
- * 
+ *
  * @author matt
  * @version 1.0
  */
 public enum MqttPubackReasonCode {
 
+	/** Success. */
 	Success((byte) 0x00),
 
+	/** No subscribers. */
 	NoSubscribers((byte) 0x10),
 
+	/** Unspecified error. */
 	UnspecifiedError((byte) 0x80),
 
+	/** Implementation specific error. */
 	ImplementationSpecificError((byte) 0x83),
 
+	/** Not authorized. */
 	NotAuthorized((byte) 0x87),
 
+	/** Topic name invalid. */
 	TopicNameInvalid((byte) 0x90),
 
+	/** Packet identifier in use. */
 	PacketIdentifierInUse((byte) 0x91),
 
+	/** Quota exceeded. */
 	QuotaExceeded((byte) 0x97),
 
+	/** Payload format invalid. */
 	PayloadFormatInvalid((byte) 0x99),
 
 	;
@@ -58,7 +67,7 @@ public enum MqttPubackReasonCode {
 
 	/**
 	 * Get the code value.
-	 * 
+	 *
 	 * @return the code
 	 */
 	public byte getCode() {
@@ -67,7 +76,7 @@ public enum MqttPubackReasonCode {
 
 	/**
 	 * Get an enum value for a code.
-	 * 
+	 *
 	 * @param code
 	 *        the code value
 	 * @return the enum instance

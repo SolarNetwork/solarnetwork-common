@@ -1,21 +1,21 @@
 /* ==================================================================
  * PahoMqttConnection.java - 27/11/2019 7:12:52 am
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -48,20 +48,20 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.util.DigestUtils;
 import net.solarnetwork.common.mqtt.BaseMqttConnection;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
+import net.solarnetwork.common.mqtt.MqttBasicCount;
 import net.solarnetwork.common.mqtt.MqttConnectReturnCode;
 import net.solarnetwork.common.mqtt.MqttConnection;
 import net.solarnetwork.common.mqtt.MqttConnectionConfig;
 import net.solarnetwork.common.mqtt.MqttConnectionObserver;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
 import net.solarnetwork.common.mqtt.MqttQos;
-import net.solarnetwork.common.mqtt.MqttStats;
-import net.solarnetwork.common.mqtt.MqttStats.MqttStat;
+import net.solarnetwork.util.StatTracker;
 
 /**
  * Implementation of {@link MqttConnection} based on the Paho framework.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class PahoMqttConnection extends BaseMqttConnection
 		implements MqttCallbackExtended, IMqttMessageListener {
@@ -72,7 +72,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param executor
 	 *        the executor to use
 	 * @param scheduler
@@ -84,7 +84,7 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param executor
 	 *        the executor to use
 	 * @param scheduler
@@ -159,9 +159,9 @@ public class PahoMqttConnection extends BaseMqttConnection
 						}
 					}
 				}
-				MqttStats s = connectionConfig.getStats();
+				StatTracker s = connectionConfig.getStats();
 				if ( s != null ) {
-					s.incrementAndGet(MqttStats.BasicCounts.ConnectionFail);
+					s.increment(MqttBasicCount.ConnectionFail);
 				}
 				if ( connectionConfig.isReconnect() ) {
 					log.info("Failed to connect to MQTT server {} ({}), will try again in {}s",
@@ -224,9 +224,9 @@ public class PahoMqttConnection extends BaseMqttConnection
 						connectFuture.completeExceptionally(t);
 					} else {
 						connectFuture.complete(code);
-						MqttStats s = connectionConfig.getStats();
+						StatTracker s = connectionConfig.getStats();
 						if ( s != null ) {
-							s.incrementAndGet(MqttStats.BasicCounts.ConnectionSuccess);
+							s.increment(MqttBasicCount.ConnectionSuccess);
 						}
 						MqttConnectionObserver observer = PahoMqttConnection.this.connectionObserver;
 						if ( observer != null ) {
@@ -397,9 +397,9 @@ public class PahoMqttConnection extends BaseMqttConnection
 	public void connectionLost(Throwable cause) {
 		String msg = (cause != null ? cause.toString() : "unknown cause");
 		log.warn("Connection lost to MQTT server {}: {}", connectionConfig.getServerUri(), msg);
-		MqttStats s = connectionConfig.getStats();
+		StatTracker s = connectionConfig.getStats();
 		if ( s != null ) {
-			s.incrementAndGet(MqttStats.BasicCounts.ConnectionLost);
+			s.increment(MqttBasicCount.ConnectionLost);
 		}
 		MqttConnectionObserver observer = this.connectionObserver;
 		if ( observer != null ) {
@@ -409,12 +409,12 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 	@Override
 	public final void deliveryComplete(IMqttDeliveryToken token) {
-		MqttStats s = connectionConfig.getStats();
+		StatTracker s = connectionConfig.getStats();
 		if ( token != null && s != null ) {
 			if ( token.isComplete() ) {
-				s.incrementAndGet(MqttStats.BasicCounts.MessagesDelivered);
+				s.increment(MqttBasicCount.MessagesDelivered);
 			} else if ( token.getException() != null ) {
-				s.incrementAndGet(MqttStats.BasicCounts.MessagesDeliveredFail);
+				s.increment(MqttBasicCount.MessagesDeliveredFail);
 			}
 		}
 	}
@@ -428,9 +428,9 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 	public void onSuccessfulReconnect() {
 		log.warn("Reconnected to MQTT server {}", connectionConfig.getServerUri());
-		MqttStats s = connectionConfig.getStats();
+		StatTracker s = connectionConfig.getStats();
 		if ( s != null ) {
-			s.incrementAndGet(MqttStats.BasicCounts.ConnectionSuccess);
+			s.increment(MqttBasicCount.ConnectionSuccess);
 		}
 		MqttConnectionObserver observer = this.connectionObserver;
 		if ( observer != null ) {
@@ -458,9 +458,9 @@ public class PahoMqttConnection extends BaseMqttConnection
 	@Override
 	public final void messageArrived(String topic, MqttMessage message) throws Exception {
 		log.trace("SolarIn MQTT message arrived on {}", topic);
-		MqttStats s = connectionConfig.getStats();
+		StatTracker s = connectionConfig.getStats();
 		if ( s != null ) {
-			s.incrementAndGet(MqttStats.BasicCounts.MessagesReceived);
+			s.increment(MqttBasicCount.MessagesReceived);
 		}
 		MqttMessageHandler handler = this.messageHandler;
 		if ( handler != null ) {
@@ -479,15 +479,14 @@ public class PahoMqttConnection extends BaseMqttConnection
 			f.completeExceptionally(new IOException("Not connected to MQTT server."));
 			return f;
 		}
-		final MqttStats s = connectionConfig.getStats();
+		final StatTracker s = connectionConfig.getStats();
 		try {
 			c.publish(message.getTopic(), message.getPayload(), message.getQosLevel().getValue(),
-					message.isRetained(), null,
-					new CompletableMqttActionListener(f, MqttStats.BasicCounts.MessagesDelivered,
-							MqttStats.BasicCounts.MessagesDeliveredFail));
+					message.isRetained(), null, new CompletableMqttActionListener(f,
+							MqttBasicCount.MessagesDelivered, MqttBasicCount.MessagesDeliveredFail));
 		} catch ( Exception e ) {
 			if ( s != null ) {
-				s.incrementAndGet(MqttStats.BasicCounts.MessagesDeliveredFail);
+				s.increment(MqttBasicCount.MessagesDeliveredFail);
 			}
 			f.completeExceptionally(e);
 		}
@@ -505,9 +504,9 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 		@Override
 		public void messageArrived(String topic, MqttMessage message) throws Exception {
-			MqttStats s = connectionConfig.getStats();
+			StatTracker s = connectionConfig.getStats();
 			if ( s != null ) {
-				s.incrementAndGet(MqttStats.BasicCounts.MessagesReceived);
+				s.increment(MqttBasicCount.MessagesReceived);
 			}
 			delegate.onMqttMessage(new PahoMqttMessage(topic, message));
 		}
@@ -533,15 +532,15 @@ public class PahoMqttConnection extends BaseMqttConnection
 	private final class CompletableMqttActionListener implements IMqttActionListener {
 
 		private final CompletableFuture<Void> f;
-		private final MqttStat statSuccess;
-		private final MqttStat statFailure;
+		private final MqttBasicCount statSuccess;
+		private final MqttBasicCount statFailure;
 
 		private CompletableMqttActionListener(CompletableFuture<Void> future) {
 			this(future, null, null);
 		}
 
-		private CompletableMqttActionListener(CompletableFuture<Void> future, MqttStat statSuccess,
-				MqttStat statFailure) {
+		private CompletableMqttActionListener(CompletableFuture<Void> future, MqttBasicCount statSuccess,
+				MqttBasicCount statFailure) {
 			this.f = future;
 			this.statSuccess = statSuccess;
 			this.statFailure = statFailure;
@@ -549,18 +548,18 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 		@Override
 		public void onSuccess(IMqttToken asyncActionToken) {
-			MqttStats s = connectionConfig.getStats();
+			StatTracker s = connectionConfig.getStats();
 			if ( s != null && statSuccess != null ) {
-				s.incrementAndGet(statSuccess);
+				s.increment(statSuccess);
 			}
 			f.complete(null);
 		}
 
 		@Override
 		public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-			MqttStats s = connectionConfig.getStats();
+			StatTracker s = connectionConfig.getStats();
 			if ( s != null && statFailure != null ) {
-				s.incrementAndGet(statFailure);
+				s.increment(statFailure);
 			}
 			f.completeExceptionally(exception);
 		}
@@ -608,11 +607,11 @@ public class PahoMqttConnection extends BaseMqttConnection
 
 	/**
 	 * Set the path to store persisted MQTT data.
-	 * 
+	 *
 	 * <p>
 	 * This directory will be created if it does not already exist.
 	 * </p>
-	 * 
+	 *
 	 * @param persistencePath
 	 *        the path to set; defaults to {@literal var/mqtt}
 	 */

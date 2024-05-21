@@ -20,26 +20,57 @@ package net.solarnetwork.common.mqtt.netty.client;
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 
+/**
+ * A connection result.
+ *
+ * @author matt
+ * @version 1.0
+ */
 public final class MqttConnectResult {
 
 	private final boolean success;
 	private final MqttConnectReturnCode returnCode;
 	private final ChannelFuture closeFuture;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param success
+	 *        {@code true} on success
+	 * @param returnCode
+	 *        the return code
+	 * @param closeFuture
+	 *        the channel close future
+	 */
 	MqttConnectResult(boolean success, MqttConnectReturnCode returnCode, ChannelFuture closeFuture) {
 		this.success = success;
 		this.returnCode = returnCode;
 		this.closeFuture = closeFuture;
 	}
 
+	/**
+	 * Get the success flag
+	 *
+	 * @return {@code true} on success
+	 */
 	public boolean isSuccess() {
 		return success;
 	}
 
+	/**
+	 * Get the return code.
+	 *
+	 * @return the return code.
+	 */
 	public MqttConnectReturnCode getReturnCode() {
 		return returnCode;
 	}
 
+	/**
+	 * Get the channel close future.
+	 *
+	 * @return the channel close future
+	 */
 	public ChannelFuture getCloseFuture() {
 		return closeFuture;
 	}

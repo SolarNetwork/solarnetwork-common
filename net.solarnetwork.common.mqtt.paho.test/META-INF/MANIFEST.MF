@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork MQTT - Paho Tests
 Bundle-SymbolicName: net.solarnetwork.common.mqtt.paho.test
-Bundle-Version: 3.0.0
-Fragment-Host: net.solarnetwork.common.mqtt.paho;bundle-version="[3.0,4.0)"
+Bundle-Version: 4.0.0
+Fragment-Host: net.solarnetwork.common.mqtt.paho;bundle-version="[4.0,5.0)"
 Automatic-Module-Name: net.solarnetwork.common.mqtt.paho.test
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: 
