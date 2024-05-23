@@ -26,13 +26,18 @@ import static org.easymock.EasyMock.expect;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,6 +53,7 @@ import org.springframework.web.socket.SubProtocolCapable;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import net.solarnetwork.ocpp.dao.SystemUserDao;
+import net.solarnetwork.ocpp.domain.ChargePointAuthorizationDetails;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.SystemUser;
 import net.solarnetwork.ocpp.json.WebSocketSubProtocol;
@@ -58,7 +64,7 @@ import net.solarnetwork.service.PasswordEncoder;
  * Test cases for the {@link OcppWebSocketHandshakeInterceptor} class.
  *
  * @author matt
- * @version 2.2
+ * @version 3.0
  */
 public class OcppWebSocketHandshakeInterceptorTests {
 
@@ -91,6 +97,91 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		EasyMock.replay(req, res, handler, systemUserDao, passwordEncoder);
 	}
 
+	private static final class ForbiddenDetails {
+
+		private final ServerHttpRequest request;
+		private final String identifier;
+		private final ChargePointAuthorizationDetails user;
+		private final String reason;
+
+		private ForbiddenDetails(ServerHttpRequest request, String identifier,
+				ChargePointAuthorizationDetails user, String reason) {
+			super();
+			this.request = request;
+			this.identifier = identifier;
+			this.user = user;
+			this.reason = reason;
+		}
+
+	}
+
+	private static final class TestOcppWebSocketHandshakeInterceptor
+			extends OcppWebSocketHandshakeInterceptor {
+
+		/**
+		 * Capture calls to
+		 * {@link #didForbidChargerConnection(ServerHttpRequest, String,
+		 * ChargePointAuthorizationDetails, String).
+		 */
+		private final List<ForbiddenDetails> forbiddenDetails = new ArrayList<>(2);
+
+		private TestOcppWebSocketHandshakeInterceptor(SystemUserDao systemUserDao,
+				PasswordEncoder passwordEncoder) {
+			super(systemUserDao, passwordEncoder);
+		}
+
+		@Override
+		protected void didForbidChargerConnection(ServerHttpRequest request, String identifier,
+				ChargePointAuthorizationDetails user, String reason) {
+			forbiddenDetails.add(new ForbiddenDetails(request, identifier, user, reason));
+		}
+
+	}
+
+	private void assertNoForbiddenDetails(List<ForbiddenDetails> actualList) {
+		assertThat("No forbidden callbacks invoked", actualList, hasSize(0));
+	}
+
+	private void assertForbiddenDetails(String expectedIdentifier, String expectedUsername,
+			String expectedPassword, List<ForbiddenDetails> actualList) {
+		assertForbiddenDetails(expectedIdentifier, expectedUsername, expectedPassword, 1, actualList, 0);
+	}
+
+	private void assertForbiddenDetails(String expectedIdentifier, String expectedUsername,
+			String expectedPassword, int expectedSize, List<ForbiddenDetails> actualList, int index) {
+		assertThat(String.format("Forbidden callback invoked %d times", expectedSize), actualList,
+				hasSize(expectedSize));
+		assertForbiddenDetails(expectedIdentifier, expectedUsername, expectedPassword,
+				actualList.get(index));
+	}
+
+	private void assertForbiddenDetails(String expectedIdentifier, String expectedUsername,
+			String expectedPassword, ForbiddenDetails actual) {
+		assertThat("Forbidden callback invoked", actual, is(notNullValue()));
+		if ( expectedIdentifier == null ) {
+			assertThat("Identifier not available", actual.identifier, is(nullValue()));
+		} else {
+			assertThat("Identifier provided", actual.identifier, is(equalTo(expectedIdentifier)));
+		}
+
+		final String username = actual.user != null ? actual.user.getUsername() : null;
+		if ( expectedUsername == null ) {
+			assertThat("Username not available", username, is(nullValue()));
+		} else {
+			assertThat("Username provided", username, is(equalTo(expectedUsername)));
+		}
+
+		final String password = actual.user != null ? actual.user.getPassword() : null;
+		if ( expectedPassword == null ) {
+			assertThat("Password not available", password, is(nullValue()));
+		} else {
+			assertThat("Password provided", password, is(equalTo(expectedPassword)));
+		}
+
+		assertThat("HTTP request provided", actual.request, is(notNullValue()));
+		assertThat("Reason provided", actual.reason, is(notNullValue()));
+	}
+
 	@Test
 	public void missingClientId() throws Exception {
 		// given
@@ -98,8 +189,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		expect(req.getURI()).andReturn(uri);
 		res.setStatusCode(HttpStatus.NOT_FOUND);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -108,6 +199,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		assertThat("Result failed from lack of client ID", result, equalTo(false));
 		assertThat("No attributes populated", attributes.keySet(), hasSize(0));
+
+		assertForbiddenDetails(null, null, null, hi.forbiddenDetails);
 	}
 
 	private void addBasicAuth(HttpHeaders h) {
@@ -139,8 +232,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
 		expect(passwordEncoder.matches("bar", "bar")).andReturn(true);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -151,6 +244,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		assertThat("Client ID attribute populated", attributes,
 				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR,
 						new ChargePointIdentity("foobar", ChargePointIdentity.ANY_USER)));
+
+		assertNoForbiddenDetails(hi.forbiddenDetails);
 	}
 
 	@Test
@@ -169,14 +264,14 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
 		expect(passwordEncoder.matches("bar", "bar")).andReturn(false);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 		hi.setClientIdUriPattern(Pattern.compile("/ocpp/v16u/cs/json/.*/(.*)"));
 		hi.setClientCredentialsExtractor((request, identifier) -> {
 			String path = request.getURI().getPath();
 			Matcher m = Pattern.compile("/ocpp/v16u/cs/json/(.*)/(.*)/.*").matcher(path);
 			if ( m.matches() ) {
-				return new String[] { m.group(1), m.group(2) };
+				return new SystemUser(Instant.now(), m.group(1), m.group(2));
 			}
 			return null;
 		});
@@ -191,6 +286,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		assertThat("Client ID attribute populated", attributes,
 				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR,
 						new ChargePointIdentity("foobar", ChargePointIdentity.ANY_USER)));
+
+		assertNoForbiddenDetails(hi.forbiddenDetails);
 	}
 
 	@Test
@@ -211,8 +308,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
 		expect(passwordEncoder.matches("bar", "bar")).andReturn(true);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -223,6 +320,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		assertThat("Client ID attribute populated", attributes,
 				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR,
 						new ChargePointIdentity("foobar", ChargePointIdentity.ANY_USER)));
+
+		assertNoForbiddenDetails(hi.forbiddenDetails);
 	}
 
 	@Test
@@ -243,8 +342,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
 		expect(passwordEncoder.matches("bar", "bar")).andReturn(true);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -255,6 +354,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		assertThat("Client ID attribute populated", attributes,
 				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR,
 						new ChargePointIdentity("foobar", ChargePointIdentity.ANY_USER)));
+
+		assertNoForbiddenDetails(hi.forbiddenDetails);
 	}
 
 	@Test
@@ -270,8 +371,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		res.setStatusCode(HttpStatus.BAD_REQUEST);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -279,6 +380,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from missing sub-protocol", result, equalTo(false));
+
+		assertForbiddenDetails("foobar", null, null, hi.forbiddenDetails);
 	}
 
 	@Test
@@ -295,8 +398,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		res.setStatusCode(HttpStatus.BAD_REQUEST);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -304,6 +407,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from missing sub-protocol", result, equalTo(false));
+
+		assertForbiddenDetails("foobar", null, null, hi.forbiddenDetails);
 	}
 
 	@Test
@@ -323,8 +428,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		res.setStatusCode(HttpStatus.FORBIDDEN);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -332,6 +437,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from missing user", result, equalTo(false));
+
+		assertForbiddenDetails("foobar", "foo", "bar", hi.forbiddenDetails);
 	}
 
 	@Test
@@ -354,8 +461,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		res.setStatusCode(HttpStatus.FORBIDDEN);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -363,6 +470,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from bad password", result, equalTo(false));
+
+		assertForbiddenDetails("foobar", "foo", "bar", hi.forbiddenDetails);
 	}
 
 	@Test
@@ -384,8 +493,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		res.setStatusCode(HttpStatus.FORBIDDEN);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -393,6 +502,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from bad password", result, equalTo(false));
+
+		assertForbiddenDetails("foobar", "foo", "bar", hi.forbiddenDetails);
 	}
 
 	@Test
@@ -409,8 +520,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		res.setStatusCode(HttpStatus.FORBIDDEN);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -418,6 +529,7 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from no Authorization header", result, equalTo(false));
+		assertForbiddenDetails("foobar", null, null, hi.forbiddenDetails);
 	}
 
 	@Test
@@ -435,8 +547,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		res.setStatusCode(HttpStatus.FORBIDDEN);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -444,6 +556,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from non-Basic auth header", result, equalTo(false));
+
+		assertForbiddenDetails("foobar", null, null, hi.forbiddenDetails);
 	}
 
 	@Test
@@ -461,8 +575,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		res.setStatusCode(HttpStatus.FORBIDDEN);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -470,6 +584,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from malformed-Basic auth header", result, equalTo(false));
+
+		assertForbiddenDetails("foobar", null, null, hi.forbiddenDetails);
 	}
 
 	@Test
@@ -488,8 +604,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		res.setStatusCode(HttpStatus.FORBIDDEN);
 
-		OcppWebSocketHandshakeInterceptor hi = new OcppWebSocketHandshakeInterceptor(systemUserDao,
-				passwordEncoder);
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
 
 		// when
 		replayAll();
@@ -497,6 +613,8 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		boolean result = hi.beforeHandshake(req, res, handler, attributes);
 
 		assertThat("Result failed from malformed-Basic auth header", result, equalTo(false));
+
+		assertForbiddenDetails("foobar", null, null, hi.forbiddenDetails);
 	}
 
 }
