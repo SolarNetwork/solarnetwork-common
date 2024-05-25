@@ -23,8 +23,10 @@
 package net.solarnetwork.ocpp.web.json;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import static net.solarnetwork.util.StringUtils.commaDelimitedStringFromCollection;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +45,7 @@ import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import net.solarnetwork.ocpp.dao.SystemUserDao;
+import net.solarnetwork.ocpp.domain.ChargePointAuthorizationDetails;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.SystemUser;
 import net.solarnetwork.service.PasswordEncoder;
@@ -57,7 +60,7 @@ import net.solarnetwork.service.PasswordEncoder;
  * </p>
  *
  * @author matt
- * @version 2.4
+ * @version 3.1
  */
 public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
@@ -77,7 +80,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	private final SystemUserDao systemUserDao;
 	private final PasswordEncoder passwordEncoder;
 	private Pattern clientIdUriPattern;
-	private BiFunction<ServerHttpRequest, String, String[]> clientCredentialsExtractor = OcppWebSocketHandshakeInterceptor::extractBasicAuthentication;
+	private BiFunction<ServerHttpRequest, String, ChargePointAuthorizationDetails> clientCredentialsExtractor;
 	private String fixedIdentityUsername;
 
 	/**
@@ -94,6 +97,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 		this.systemUserDao = systemUserDao;
 		this.passwordEncoder = passwordEncoder;
 		setClientIdUriPattern(Pattern.compile(DEFAULT_CLIENT_ID_URI_PATTERN));
+		clientCredentialsExtractor = this::extractBasicAuthentication;
 
 	}
 
@@ -106,6 +110,8 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			log.debug("OCPP handshake request rejected, client ID not found in URI path: {}",
 					uri.getPath());
 			response.setStatusCode(HttpStatus.NOT_FOUND);
+			didForbidChargerConnection(request, null, null,
+					String.format("Client identifier not provided in URL path [%s].", uri.getPath()));
 			return false;
 		}
 
@@ -132,6 +138,11 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 							"OCPP handshake request rejected, supported sub-protocol(s) {}, requested: {}",
 							subProtocols, clientSubProtocols);
 					response.setStatusCode(HttpStatus.BAD_REQUEST);
+					didForbidChargerConnection(request, identifier, null,
+							String.format(
+									"WebSocket sub-protocols [%s] provided but only [%s] supported.",
+									commaDelimitedStringFromCollection(clientSubProtocols),
+									commaDelimitedStringFromCollection(subProtocols)));
 					return false;
 				}
 			}
@@ -139,21 +150,25 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 		// enforce system user authentication
 		if ( systemUserDao != null ) {
-			String[] httpAuthComponents = clientCredentialsExtractor.apply(request, identifier);
-			if ( httpAuthComponents == null || httpAuthComponents.length < 2 ) {
+			ChargePointAuthorizationDetails authDetails = clientCredentialsExtractor.apply(request,
+					identifier);
+			if ( authDetails == null ) {
 				log.warn("OCPP handshake request rejected for {}, invalid Authorization provided",
 						identifier);
 				response.setStatusCode(HttpStatus.FORBIDDEN);
 				return false;
 			}
 
-			final String username = httpAuthComponents[0];
-			final String password = httpAuthComponents[1];
+			final String username = authDetails.getUsername();
+			final String password = authDetails.getPassword();
 
 			SystemUser user = systemUserDao.getForUsernameAndChargePoint(username, identifier);
 			if ( user == null ) {
 				log.warn("OCPP handshake request rejected for {}, system user {} not found.", identifier,
 						username);
+				didForbidChargerConnection(request, identifier, authDetails,
+						String.format("System user [%s] not available, or not allowed for [%s].",
+								username, identifier));
 				response.setStatusCode(HttpStatus.FORBIDDEN);
 				return false;
 			}
@@ -165,7 +180,8 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 						"OCPP handshake request rejected for {}, system user {} does not allow identifier.",
 						identifier, username);
 				response.setStatusCode(HttpStatus.FORBIDDEN);
-				didForbidChargerConnection(user, "Invalid credentials");
+				didForbidChargerConnection(request, identifier, user, String.format(
+						"System user [%s] does not allow identifier [%s]", username, identifier));
 				return false;
 			}
 
@@ -176,7 +192,9 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 							"OCPP handshake request rejected for {}, system user {} password does not match.",
 							identifier, username);
 					response.setStatusCode(HttpStatus.FORBIDDEN);
-					didForbidChargerConnection(user, "Invalid credentials");
+					didForbidChargerConnection(request, identifier, user,
+							String.format("System user [%s] password mismatch by identifier [%s].",
+									username, identifier));
 					return false;
 				}
 			}
@@ -187,15 +205,20 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	}
 
 	/**
-	 * Extension point after a forbidden charger connection (but when the
-	 * {@link SystemUser} is known.
+	 * Extension point after a forbidden charger connection.
 	 *
+	 * @param request
+	 *        the HTTP request
+	 * @param identifier
+	 *        the charge point identifier extracted from the request URL, or
+	 *        {@literal null} if not found
 	 * @param user
-	 *        the system user
+	 *        the user, or {@literal null} if not known
 	 * @param reason
-	 *        the reason
+	 *        the failure reason
 	 */
-	protected void didForbidChargerConnection(SystemUser user, String reason) {
+	protected void didForbidChargerConnection(ServerHttpRequest request, String identifier,
+			ChargePointAuthorizationDetails user, String reason) {
 		// extending classes can override
 	}
 
@@ -209,12 +232,14 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 *        the OCPP client ID
 	 * @return the username and password, or {@literal null} if none available
 	 */
-	public static String[] extractBasicAuthentication(final ServerHttpRequest request,
+	public ChargePointAuthorizationDetails extractBasicAuthentication(final ServerHttpRequest request,
 			final String identifier) {
 		String httpAuth = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 		if ( httpAuth == null ) {
 			log.warn("OCPP handshake request rejected for {}, Authorization header not provided.",
 					identifier);
+			didForbidChargerConnection(request, identifier, null,
+					"HTTP Authorization header not provided (no credentials provided).");
 			return null;
 		}
 		String[] httpAuthComponents = decodeBasicAuthorizationHeader(httpAuth);
@@ -222,11 +247,21 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			log.warn(
 					"OCPP handshake request rejected for {}, invalid Basic Authorization header provided: [{}]",
 					identifier, httpAuth);
+			didForbidChargerConnection(request, identifier, null,
+					"Invalid HTTP Basic Authorization header provided.");
 			return null;
 		}
-		return httpAuthComponents;
+		return new SystemUser(Instant.now(), httpAuthComponents[0], httpAuthComponents[1]);
 	}
 
+	/**
+	 * Extract the username and password from an HTTP Basic Authorization header
+	 * value.
+	 *
+	 * @param header
+	 *        the HTTP Authorization header value; the Basic scheme is assumed
+	 * @return a 2-element array with the extracted username, password
+	 */
 	private static String[] decodeBasicAuthorizationHeader(String header) {
 		Charset utf8 = Charset.forName("UTF-8");
 		// help to work with buggy clients that present scheme as "Basic:"
@@ -316,12 +351,12 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 * @return the function, never {@literal null}; defaults to
 	 *         {@link #extractBasicAuthentication(ServerHttpRequest, String)}
 	 */
-	public BiFunction<ServerHttpRequest, String, String[]> getClientCredentialsExtractor() {
+	public BiFunction<ServerHttpRequest, String, ChargePointAuthorizationDetails> getClientCredentialsExtractor() {
 		return clientCredentialsExtractor;
 	}
 
 	/**
-	 * GSt the OCPP client credentials extractor function.
+	 * Set the OCPP client credentials extractor function.
 	 *
 	 * @param clientCredentialsExtractor
 	 *        the function to set
@@ -329,7 +364,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 *         if {clientCredentialsExtractor} is {@literal null}
 	 */
 	public void setClientCredentialsExtractor(
-			BiFunction<ServerHttpRequest, String, String[]> clientCredentialsExtractor) {
+			BiFunction<ServerHttpRequest, String, ChargePointAuthorizationDetails> clientCredentialsExtractor) {
 		this.clientCredentialsExtractor = requireNonNullArgument(clientCredentialsExtractor,
 				"clientCredentialsExtractor");
 	}

@@ -1,21 +1,21 @@
 /* ==================================================================
  * SystemUser.java - 20/02/2020 10:17:54 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -34,11 +34,12 @@ import net.solarnetwork.util.StringUtils;
 
 /**
  * An OCPP charge point system user.
- * 
+ *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
-public class SystemUser extends BasicLongEntity implements Differentiable<SystemUser> {
+public class SystemUser extends BasicLongEntity
+		implements Differentiable<SystemUser>, ChargePointAuthorizationDetails {
 
 	private static final long serialVersionUID = -8412183373239562934L;
 
@@ -60,7 +61,7 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the primary key
 	 * @param created
@@ -72,7 +73,7 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param created
 	 *        the creation date
 	 * @param username
@@ -88,7 +89,7 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the other system
 	 */
@@ -104,12 +105,12 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Create a charge point identity based on this system user.
-	 * 
+	 *
 	 * <p>
 	 * This implementation uses {@link ChargePointIdentity#ANY_USER} for the
 	 * resolved username.
 	 * </p>
-	 * 
+	 *
 	 * @param identifier
 	 *        the charge point identifier
 	 * @return the new identity, never {@literal null}
@@ -121,12 +122,12 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 	/**
 	 * Test if the properties of another entity are the same as in this
 	 * instance.
-	 * 
+	 *
 	 * <p>
 	 * The {@code id} and {@code created} properties are not compared by this
 	 * method.
 	 * </p>
-	 * 
+	 *
 	 * @param other
 	 *        the other entity to compare to
 	 * @return {@literal true} if the properties of this instance are equal to
@@ -169,16 +170,17 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Get the username.
-	 * 
+	 *
 	 * @return the username
 	 */
+	@Override
 	public String getUsername() {
 		return username;
 	}
 
 	/**
 	 * Set the username.
-	 * 
+	 *
 	 * @param username
 	 *        the username to set
 	 */
@@ -188,16 +190,17 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Get the password.
-	 * 
+	 *
 	 * @return the password
 	 */
+	@Override
 	public String getPassword() {
 		return password;
 	}
 
 	/**
 	 * Set the password.
-	 * 
+	 *
 	 * @param password
 	 *        the password to set
 	 */
@@ -207,7 +210,7 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Get the allowed charge points.
-	 * 
+	 *
 	 * @return the allowed charge points
 	 */
 	public Set<String> getAllowedChargePoints() {
@@ -216,7 +219,7 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Set the allowed charge points.
-	 * 
+	 *
 	 * @param allowedChargePoints
 	 *        the allowed charge points to set
 	 */
@@ -227,7 +230,7 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Get the allowed charge points as a comma-delimited list.
-	 * 
+	 *
 	 * @return the allowed charge points list value
 	 */
 	public String getAllowedChargePointsValue() {
@@ -236,7 +239,7 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Set the allowed charge points as a comma-delimited list.
-	 * 
+	 *
 	 * @param list
 	 *        the list to set
 	 */
@@ -246,7 +249,7 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Get the allowed charge points as an array.
-	 * 
+	 *
 	 * @return the allowed charge points array, or {@literal null}
 	 */
 	public String[] getAllowedChargePointsArray() {
@@ -256,7 +259,7 @@ public class SystemUser extends BasicLongEntity implements Differentiable<System
 
 	/**
 	 * Set the allowed charge points as an array.
-	 * 
+	 *
 	 * @param array
 	 *        the array to set
 	 */
