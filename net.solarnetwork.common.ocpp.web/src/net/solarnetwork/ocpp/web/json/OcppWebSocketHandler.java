@@ -113,7 +113,7 @@ import net.solarnetwork.settings.SettingsChangeObserver;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 1.6
+ * @version 1.7
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler
@@ -366,7 +366,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 					log.trace("Sending PING to charge point {}", cp);
 					s.getBasicRemote().sendPing(msg);
 				}
-			} catch ( IOException e ) {
+			} catch ( IOException | IllegalStateException e ) {
 				log.debug("Communication problem sending PING to charge point {}: {}", cp, e);
 			} catch ( Exception e ) {
 				log.info("Exception sending PING to charge point {}: {}", cp, e);
