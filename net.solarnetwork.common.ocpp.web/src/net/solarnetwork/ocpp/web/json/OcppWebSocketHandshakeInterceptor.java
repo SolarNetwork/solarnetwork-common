@@ -60,7 +60,7 @@ import net.solarnetwork.service.PasswordEncoder;
  * </p>
  *
  * @author matt
- * @version 3.0
+ * @version 3.1
  */
 public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
@@ -180,7 +180,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 						"OCPP handshake request rejected for {}, system user {} does not allow identifier.",
 						identifier, username);
 				response.setStatusCode(HttpStatus.FORBIDDEN);
-				didForbidChargerConnection(request, identifier, authDetails, String.format(
+				didForbidChargerConnection(request, identifier, user, String.format(
 						"System user [%s] does not allow identifier [%s]", username, identifier));
 				return false;
 			}
@@ -192,7 +192,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 							"OCPP handshake request rejected for {}, system user {} password does not match.",
 							identifier, username);
 					response.setStatusCode(HttpStatus.FORBIDDEN);
-					didForbidChargerConnection(request, identifier, authDetails,
+					didForbidChargerConnection(request, identifier, user,
 							String.format("System user [%s] password mismatch by identifier [%s].",
 									username, identifier));
 					return false;

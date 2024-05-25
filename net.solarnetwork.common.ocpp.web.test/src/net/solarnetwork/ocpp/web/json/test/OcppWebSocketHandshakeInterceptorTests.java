@@ -471,7 +471,7 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		assertThat("Result failed from bad password", result, equalTo(false));
 
-		assertForbiddenDetails("foobar", "foo", "bar", hi.forbiddenDetails);
+		assertForbiddenDetails("foobar", "foo", "not bar", hi.forbiddenDetails);
 	}
 
 	@Test
