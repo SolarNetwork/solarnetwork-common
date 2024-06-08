@@ -1,21 +1,21 @@
 /* ==================================================================
  * AggregateDatumSamples.java - 27/08/2020 10:38:08 AM
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU  Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU  Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  *  Public License for more details.
- * 
- * You should have received a copy of the GNU  Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU  Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,6 +23,7 @@
 package net.solarnetwork.domain.datum;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -30,17 +31,20 @@ import net.solarnetwork.util.NumberUtils;
 
 /**
  * An aggregation of datum sample values.
- * 
+ *
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.65
  */
 public class AggregateDatumSamples extends DatumSupport {
 
-	private static final long serialVersionUID = -5462422979612352107L;
+	private static final long serialVersionUID = -3856602286949867116L;
 
 	/** The count. */
 	private int count = 0;
+
+	/** A timestamp. */
+	private Instant timestamp;
 
 	/** The instantaneous values. */
 	private Map<String, AggregateDatumProperty> instantaneous;
@@ -56,6 +60,18 @@ public class AggregateDatumSamples extends DatumSupport {
 	 */
 	public AggregateDatumSamples() {
 		super();
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param timestamp
+	 *        the timestamp
+	 * @since 1.2
+	 */
+	public AggregateDatumSamples(Instant timestamp) {
+		super();
+		this.timestamp = timestamp;
 	}
 
 	private void addAggregatePropertyValue(Map<String, AggregateDatumProperty> m, String key, Number n) {
@@ -75,7 +91,7 @@ public class AggregateDatumSamples extends DatumSupport {
 
 	/**
 	 * Add all properties of a sample.
-	 * 
+	 *
 	 * @param sample
 	 *        the sample whose properties should be accumulated into this
 	 *        aggregate
@@ -113,7 +129,7 @@ public class AggregateDatumSamples extends DatumSupport {
 
 	/**
 	 * Generate a new samples instance as an average of the added samples.
-	 * 
+	 *
 	 * @param decimalScale
 	 *        the average decimal scale
 	 * @param minPropertyFormat
@@ -161,7 +177,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	/**
 	 * Get the count of samples added via
 	 * {@link #addSample(DatumSamplesOperations)}.
-	 * 
+	 *
 	 * @return the count
 	 */
 	public int addedSampleCount() {
@@ -171,7 +187,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	/**
 	 * Put a value into or remove a value from the {@link #getInstantaneous()}
 	 * map, creating the map if it doesn't exist.
-	 * 
+	 *
 	 * @param key
 	 *        the key to put
 	 * @param n
@@ -192,7 +208,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	/**
 	 * Put a value into or remove a value from the {@link #getAccumulating()}
 	 * map, creating the map if it doesn't exist.
-	 * 
+	 *
 	 * @param key
 	 *        the key to put
 	 * @param n
@@ -213,7 +229,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	/**
 	 * Put a value into or remove a value from the {@link #getStatus()} map,
 	 * creating the map if it doesn't exist.
-	 * 
+	 *
 	 * @param key
 	 *        the key to put
 	 * @param value
@@ -237,7 +253,7 @@ public class AggregateDatumSamples extends DatumSupport {
 
 	/**
 	 * Get the instantaneous properties.
-	 * 
+	 *
 	 * @return the instantaneous properties
 	 */
 	public Map<String, AggregateDatumProperty> getInstantaneous() {
@@ -246,7 +262,7 @@ public class AggregateDatumSamples extends DatumSupport {
 
 	/**
 	 * Get the accumulating properties.
-	 * 
+	 *
 	 * @return the accumulating properties
 	 */
 	public Map<String, AggregateDatumProperty> getAccumulating() {
@@ -255,11 +271,32 @@ public class AggregateDatumSamples extends DatumSupport {
 
 	/**
 	 * Get the status properties.
-	 * 
+	 *
 	 * @return the status properties
 	 */
 	public Map<String, Object> getStatus() {
 		return status;
+	}
+
+	/**
+	 * Get the timestamp.
+	 *
+	 * @return the timestamp, or {@literal null}
+	 * @since 2.1
+	 */
+	public Instant getTimestamp() {
+		return timestamp;
+	}
+
+	/**
+	 * Set the timestamp.
+	 *
+	 * @param timestamp
+	 *        the timestamp to set
+	 * @since 2.1
+	 */
+	public void setTimestamp(Instant timestamp) {
+		this.timestamp = timestamp;
 	}
 
 }
