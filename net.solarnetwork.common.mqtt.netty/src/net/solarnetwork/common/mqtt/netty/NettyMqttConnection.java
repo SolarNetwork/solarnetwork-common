@@ -71,7 +71,7 @@ import net.solarnetwork.util.StatTracker;
  * Netty based implementation of {@link MqttConnection}.
  *
  * @author matt
- * @version 3.0
+ * @version 3.1
  */
 public class NettyMqttConnection extends BaseMqttConnection
 		implements MqttMessageHandler, MqttClientCallback, WireLoggingSupport {
@@ -617,6 +617,10 @@ public class NettyMqttConnection extends BaseMqttConnection
 			StatTracker s = connectionConfig.getStats();
 			if ( s != null ) {
 				s.increment(MqttBasicCount.MessagesReceived);
+				byte[] payload = message.getPayload();
+				if ( payload != null && payload.length > 0 ) {
+					s.add(MqttBasicCount.PayloadBytesReceived, payload.length);
+				}
 			}
 			// bump to another thread so MQTT processing not affected by handler execution time
 			executor.execute(new MessageHandlerTask(message, delegate));
