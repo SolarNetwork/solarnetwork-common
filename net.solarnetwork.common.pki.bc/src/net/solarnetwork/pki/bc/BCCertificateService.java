@@ -1,21 +1,21 @@
 /* ==================================================================
  * BCCertificateService.java - Dec 5, 2012 10:42:17 AM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -46,9 +46,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.security.auth.x500.X500Principal;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -78,7 +78,7 @@ import net.solarnetwork.service.CertificationAuthorityService;
 
 /**
  * Bouncy Castle implementation of {@link CertificateService}.
- * 
+ *
  * @author matt
  * @version 2.0
  */
@@ -91,6 +91,13 @@ public class BCCertificateService implements CertificateService, CertificationAu
 	private String signatureAlgorithm = "SHA256WithRSA";
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	/**
+	 * Constructor.
+	 */
+	public BCCertificateService() {
+		super();
+	}
 
 	@Override
 	public X509Certificate generateCertificate(String dn, PublicKey publicKey, PrivateKey privateKey) {
@@ -132,12 +139,12 @@ public class BCCertificateService implements CertificateService, CertificationAu
 					.setProvider(new BouncyCastleProvider()).build();
 			JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils(
 					digestCalcProvider.get(digestAlgFinder.find("SHA-256")));
-			builder.addExtension(X509Extension.basicConstraints, true, new BasicConstraints(true));
-			builder.addExtension(X509Extension.subjectKeyIdentifier, false,
+			builder.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
+			builder.addExtension(Extension.subjectKeyIdentifier, false,
 					extUtils.createSubjectKeyIdentifier(publicKey));
-			builder.addExtension(X509Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature
+			builder.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature
 					| KeyUsage.nonRepudiation | KeyUsage.keyCertSign | KeyUsage.cRLSign));
-			builder.addExtension(X509Extension.authorityKeyIdentifier, false,
+			builder.addExtension(Extension.authorityKeyIdentifier, false,
 					extUtils.createAuthorityKeyIdentifier(publicKey));
 
 			signer = signerBuilder.build(privateKey);
@@ -198,10 +205,10 @@ public class BCCertificateService implements CertificateService, CertificationAu
 						.setProvider(new BouncyCastleProvider()).build();
 				JcaX509ExtensionUtils extUtils = new JcaX509ExtensionUtils(
 						digestCalcProvider.get(digestAlgFinder.find("SHA-256")));
-				builder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
-				builder.addExtension(X509Extension.subjectKeyIdentifier, false,
+				builder.addExtension(Extension.basicConstraints, false, new BasicConstraints(false));
+				builder.addExtension(Extension.subjectKeyIdentifier, false,
 						extUtils.createSubjectKeyIdentifier(subjectPublicKeyInfo));
-				builder.addExtension(X509Extension.authorityKeyIdentifier, false,
+				builder.addExtension(Extension.authorityKeyIdentifier, false,
 						extUtils.createAuthorityKeyIdentifier(caCert));
 
 				signer = signerBuilder.build(privateKey);
@@ -371,7 +378,7 @@ public class BCCertificateService implements CertificateService, CertificationAu
 
 	/**
 	 * Set the certificate expiration, in days.
-	 * 
+	 *
 	 * @param certificateExpireDays
 	 *        the expiration days
 	 */
@@ -381,7 +388,7 @@ public class BCCertificateService implements CertificateService, CertificationAu
 
 	/**
 	 * Set the signature algorithm.
-	 * 
+	 *
 	 * @param signatureAlgorithm
 	 *        the algorithm
 	 */
@@ -391,7 +398,7 @@ public class BCCertificateService implements CertificateService, CertificationAu
 
 	/**
 	 * Set the authority expire days.
-	 * 
+	 *
 	 * @param authorityExpireDays
 	 *        the expiration days
 	 */
