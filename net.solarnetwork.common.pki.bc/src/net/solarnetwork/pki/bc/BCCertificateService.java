@@ -92,6 +92,13 @@ public class BCCertificateService implements CertificateService, CertificationAu
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	/**
+	 * Constructor.
+	 */
+	public BCCertificateService() {
+		super();
+	}
+
 	@Override
 	public X509Certificate generateCertificate(String dn, PublicKey publicKey, PrivateKey privateKey) {
 		X500Principal issuer = new X500Principal(dn);

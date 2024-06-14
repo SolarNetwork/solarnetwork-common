@@ -1,21 +1,21 @@
 /* ==================================================================
  * BCCryptoService.java - 26/05/2017 7:12:03 AM
- * 
+ *
  * Copyright 2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -36,20 +36,20 @@ import net.solarnetwork.service.PasswordEncoder;
 /**
  * A Bouncy Castle implementation of a password encoder using the {@code PBKDF2}
  * key derivation algorithm and the SHA-256 digest.
- * 
+ *
  * <p>
  * Raw passwords are encoded into strings using the following format:
  * <code>{salt}${iterations}${digest}</code> where <em>salt</em> is the
  * hex-encoded salt used, <em>iterations</em> is the iteration count, and
  * <em>digest</em> is the hex-encoded computed digest.
  * </p>
- * 
+ *
  * <p>
  * This implementation uses the algorithm as defined by the PKCS 5 V2.0 Scheme 2
  * standard. See <a href="https://tools.ietf.org/html/rfc2898">RFC 2989</a> for
  * more information.
  * </p>
- * 
+ *
  * @author matt
  * @version 2.0
  */
@@ -72,6 +72,13 @@ public class BCPBKDF2PasswordEncoder implements PasswordEncoder {
 	private int iterations = DEFAULT_ITERATIONS;
 
 	private final SecureRandom random = new SecureRandom();
+
+	/**
+	 * Constructor.
+	 */
+	public BCPBKDF2PasswordEncoder() {
+		super();
+	}
 
 	@Override
 	public String encode(CharSequence rawPassword) {
@@ -131,7 +138,7 @@ public class BCPBKDF2PasswordEncoder implements PasswordEncoder {
 	/**
 	 * Derive a secure key from a raw password using the PBKDF2 derivation
 	 * algorithm and {@literal SHA-256} digest algorithm.
-	 * 
+	 *
 	 * @param rawPassword
 	 *        the raw password to derive the key from
 	 * @param salt
@@ -153,12 +160,12 @@ public class BCPBKDF2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Main entry point.
-	 * 
+	 *
 	 * <p>
 	 * This method expects a plain-text password argument, and will print the
 	 * PBKDF2 hashed version of that to the output stream.
 	 * </p>
-	 * 
+	 *
 	 * @param arguments
 	 *        the arguments
 	 */
@@ -173,11 +180,11 @@ public class BCPBKDF2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Set the number of bytes of random salt to use.
-	 * 
+	 *
 	 * <p>
 	 * Defaults to {@link #DEFAULT_SALT_LENGTH}.
 	 * </p>
-	 * 
+	 *
 	 * @param saltLength
 	 *        the saltLength to set, in <b>bytes</b>
 	 */
@@ -187,11 +194,11 @@ public class BCPBKDF2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Set the number of bytes to use for derived keys.
-	 * 
+	 *
 	 * <p>
 	 * Defaults to {@link #DEFAULT_KEY_LENGTH}.
 	 * </p>
-	 * 
+	 *
 	 * @param keyLength
 	 *        the keyLength to set, in <b>bytes</b>
 	 */
@@ -201,11 +208,11 @@ public class BCPBKDF2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Set the number of iterations to use when deriving keys.
-	 * 
+	 *
 	 * <p>
 	 * Defaults to {@link BCPBKDF2PasswordEncoder#DEFAULT_ITERATIONS}.
 	 * </p>
-	 * 
+	 *
 	 * @param iterations
 	 *        the iterations to set
 	 */
