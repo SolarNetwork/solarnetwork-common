@@ -6,10 +6,14 @@
     </info>
 	<dependencies defaultconfmapping="runtime->default(runtime);compile->default(runtime)">
 		<!-- Testing -->
-		<dependency org="net.solarnetwork.common.test" name="net.solarnetwork.common.test" rev="[1.20,)"/>
+		<dependency org="net.solarnetwork.common.test" name="net.solarnetwork.common.test" rev="[1.20,)">
+			<exclude module="net.solarnetwork.common.pki.bc"/>
+		</dependency>
 
 		<!-- Testing support -->
 		<dependency org="commons-codec" name="commons-codec" rev="1.11"/>
-		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common" rev="[3.0,)"/>
+		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common" rev="[3.0,)">
+			<exclude module="net.solarnetwork.common.pki.bc"/>
+		</dependency>
     </dependencies>
 </ivy-module>
