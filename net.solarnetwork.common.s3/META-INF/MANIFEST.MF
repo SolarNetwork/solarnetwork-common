@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Common AWS S3 Support
 Bundle-SymbolicName: net.solarnetwork.common.s3
 Bundle-Description: Common supporting services for AWS S3 integration.
-Bundle-Version: 3.0.0
+Bundle-Version: 3.1.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.s3
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -11,14 +11,14 @@ Export-Package:
  net.solarnetwork.common.s3;version="2.0.0",
  net.solarnetwork.common.s3.sdk;version="2.0.0"
 Import-Package: 
- com.amazonaws;version="[1.11,1.12)",
- com.amazonaws.auth;version="[1.11,1.12)",
- com.amazonaws.client.builder;version="[1.11,1.12)",
- com.amazonaws.event;version="[1.11,1.12)",
- com.amazonaws.regions;version="[1.11,1.12)",
- com.amazonaws.services.s3;version="[1.11,1.12)",
- com.amazonaws.services.s3.model;version="[1.11,1.12)",
- com.amazonaws.services.s3.transfer;version="[1.11,1.12)",
+ com.amazonaws;version="[1.11,1.13)",
+ com.amazonaws.auth;version="[1.11,1.13)",
+ com.amazonaws.client.builder;version="[1.11,1.13)",
+ com.amazonaws.event;version="[1.11,1.13)",
+ com.amazonaws.regions;version="[1.11,1.13)",
+ com.amazonaws.services.s3;version="[1.11,1.13)",
+ com.amazonaws.services.s3.model;version="[1.11,1.13)",
+ com.amazonaws.services.s3.transfer;version="[1.11,1.13)",
  net.solarnetwork.domain;version="[2.0,3.0)",
  net.solarnetwork.io;version="[2.0,3.0)",
  net.solarnetwork.service;version="[1.0,2.0)",
