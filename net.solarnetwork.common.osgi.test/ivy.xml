@@ -9,7 +9,7 @@
 		<dependency org="net.solarnetwork.common.test" name="net.solarnetwork.common.test" rev="[1.20,)"/>
 
 		<!-- Testing support -->
-		<dependency org="org.osgi" name="osgi.core" rev="7.0.0" />
+		<dependency org="org.osgi" name="osgi.core" rev="8.0.0" />
 
 		<exclude module="org.osgi.core"/>
     </dependencies>
