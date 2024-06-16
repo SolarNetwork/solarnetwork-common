@@ -1,21 +1,21 @@
 /* ==================================================================
  * S3ResourceStorageService.java - 14/10/2019 5:31:45 pm
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -48,7 +48,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.springframework.core.io.Resource;
 import org.springframework.util.MimeType;
-import net.solarnetwork.common.s3.sdk.SdkS3Client;
 import net.solarnetwork.io.ResourceMetadata;
 import net.solarnetwork.io.ResourceMetadataHolder;
 import net.solarnetwork.service.OptionalService;
@@ -64,9 +63,9 @@ import net.solarnetwork.settings.support.SettingUtils;
 /**
  * AWS S3 based implementation of {@link ResourceStorageService} using the
  * {@link S3Client} API.
- * 
+ *
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
 		implements ResourceStorageService, SettingSpecifierProvider, SettingsChangeObserver {
@@ -80,7 +79,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param executor
 	 *        the executor to use
 	 * @throws IllegalArgumentException
@@ -92,7 +91,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the settings UID to use
 	 * @param executor
@@ -102,7 +101,6 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 */
 	public S3ResourceStorageService(String id, Executor executor) {
 		super(id);
-		setS3Client(new SdkS3Client());
 		setExecutor(executor);
 	}
 
@@ -141,7 +139,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	/**
 	 * Execute a callable, setting the returned object as a completable future's
 	 * result.
-	 * 
+	 *
 	 * @param <R>
 	 *        the future result value type
 	 * @param future
@@ -297,7 +295,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	/**
 	 * Post an {@link Event} for the
 	 * {@link ResourceStorageService#EVENT_TOPIC_RESOURCE_SAVED} topic.
-	 * 
+	 *
 	 * @param resource
 	 *        the resource to create the event for
 	 * @param path
@@ -311,7 +309,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	/**
 	 * Create a new {@link ResourceStorageService#EVENT_TOPIC_RESOURCE_SAVED}
 	 * {@link Event} object out of a resource and path.
-	 * 
+	 *
 	 * @param resource
 	 *        the resource to create the event for
 	 * @param path
@@ -347,7 +345,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	/**
 	 * Post an {@link Event} for the
 	 * {@link ResourceStorageService#EVENT_TOPIC_RESOURCES_DELETED} topic.
-	 * 
+	 *
 	 * @param paths
 	 *        the paths that have been deleted
 	 */
@@ -359,7 +357,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	/**
 	 * Create a new {@link ResourceStorageService#EVENT_TOPIC_RESOURCES_DELETED}
 	 * {@link Event} object out of a set of paths.
-	 * 
+	 *
 	 * @param paths
 	 *        the paths that have been deleted
 	 * @return the new Event instance, or {@literal null} if {@code paths} is
@@ -387,13 +385,13 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Post an {@link Event}.
-	 * 
+	 *
 	 * <p>
 	 * This method only works if a {@link EventAdmin} has been configured via
 	 * {@link #setEventAdmin(OptionalService)}. Otherwise the event is silently
 	 * ignored.
 	 * </p>
-	 * 
+	 *
 	 * @param event
 	 *        the event to post
 	 */
@@ -434,7 +432,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Get the S3 client.
-	 * 
+	 *
 	 * @return the client, never {@literal null}
 	 */
 	public S3Client getS3Client() {
@@ -443,7 +441,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Set the S3 client.
-	 * 
+	 *
 	 * @param s3Client
 	 *        the client to set
 	 * @throws IllegalArgumentException
@@ -458,7 +456,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Get the executor that handles asynchronous operations.
-	 * 
+	 *
 	 * @return the executor, never {@literal null}
 	 */
 	public Executor getExecutor() {
@@ -467,7 +465,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Set the executor that handles asynchronous operations.
-	 * 
+	 *
 	 * @param executor
 	 *        the executor to set
 	 * @throws IllegalArgumentException
@@ -482,7 +480,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Get the S3 object key prefix.
-	 * 
+	 *
 	 * @return the prefix to use, or {@literal null}
 	 */
 	public String getObjectKeyPrefix() {
@@ -491,13 +489,13 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Set a S3 object key prefix to use.
-	 * 
+	 *
 	 * <p>
 	 * This can essentially be a folder path to prefix all data with. All keys
 	 * passed to all methods that do <b>not</b> already start with this prefix
 	 * will have the prefix added before passing the operation to S3.
 	 * </p>
-	 * 
+	 *
 	 * @param objectKeyPrefix
 	 *        the object key prefix to set, or {@literal null} for no prefix
 	 */
@@ -512,7 +510,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Set the UID.
-	 * 
+	 *
 	 * @param uid
 	 *        the UID to set
 	 */
@@ -527,7 +525,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Set the group UID.
-	 * 
+	 *
 	 * @param groupUid
 	 *        the group UID to set
 	 */
@@ -537,7 +535,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Alias for {@link #getUid()}.
-	 * 
+	 *
 	 * @return the UID
 	 * @deprecated since 2.0 use {@link #getUid()}
 	 */
@@ -548,11 +546,11 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Set the UID.
-	 * 
+	 *
 	 * <p>
 	 * This is an alias for {@link #setUid(String)}.
 	 * </p>
-	 * 
+	 *
 	 * @param uid
 	 *        the UID to set
 	 * @deprecated since 2.0 use {@link #setUid(String)}
@@ -564,7 +562,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Alias for {@link #getGroupUid()}.
-	 * 
+	 *
 	 * @return the group UID
 	 * @deprecated use {@link #getGroupUid()}
 	 */
@@ -575,11 +573,11 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Set the group UID.
-	 * 
+	 *
 	 * <p>
 	 * This is an alias for {@link #setGroupUid(String)}.
 	 * </p>
-	 * 
+	 *
 	 * @param groupUid
 	 *        the group UID to set
 	 * @deprecated since 2.0 use {@link #setGroupUid(String)}
@@ -591,7 +589,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Get the optional {@link EventAdmin} service.
-	 * 
+	 *
 	 * @return the eventAdmin the service
 	 */
 	public OptionalService<EventAdmin> getEventAdmin() {
@@ -600,7 +598,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	/**
 	 * Set the optional {@link EventAdmin} service.
-	 * 
+	 *
 	 * @param eventAdmin
 	 *        the service to set
 	 */
