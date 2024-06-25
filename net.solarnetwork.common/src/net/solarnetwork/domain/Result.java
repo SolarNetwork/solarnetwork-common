@@ -1,21 +1,21 @@
 /* ==================================================================
  * Result.java - Nov 20, 2012 6:55:06 AM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,14 +28,21 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * A simple service result envelope object.
- * 
+ *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @param <T>
  *        the object type
  */
 @JsonPropertyOrder({ "success", "code", "message", "errors", "data" })
 public class Result<T> {
+
+	/**
+	 * A default empty success result instance.
+	 *
+	 * @since 1.3
+	 */
+	public static final Result<Void> OK = Result.success();
 
 	private final Boolean success;
 	private final String code;
@@ -56,7 +63,7 @@ public class Result<T> {
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param location
 		 *        the error location, such as a bean-style path, or
 		 *        {@literal null} for an overall error
@@ -71,7 +78,7 @@ public class Result<T> {
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param location
 		 *        the error location, such as a bean-style path, or
 		 *        {@literal null} for an overall error
@@ -92,7 +99,7 @@ public class Result<T> {
 
 		/**
 		 * Get the error location.
-		 * 
+		 *
 		 * @return the location
 		 */
 		public String getLocation() {
@@ -101,7 +108,7 @@ public class Result<T> {
 
 		/**
 		 * Get an error code.
-		 * 
+		 *
 		 * @return the code
 		 */
 		public String getCode() {
@@ -110,7 +117,7 @@ public class Result<T> {
 
 		/**
 		 * Get the rejected value.
-		 * 
+		 *
 		 * @return the rejectedValue
 		 */
 		public String getRejectedValue() {
@@ -119,7 +126,7 @@ public class Result<T> {
 
 		/**
 		 * Get the error message.
-		 * 
+		 *
 		 * @return the message
 		 */
 		public String getMessage() {
@@ -137,7 +144,7 @@ public class Result<T> {
 
 	/**
 	 * Construct a successful response with just data.
-	 * 
+	 *
 	 * @param data
 	 *        the data
 	 */
@@ -147,7 +154,7 @@ public class Result<T> {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param success
 	 *        flag of success
 	 * @param code
@@ -163,7 +170,7 @@ public class Result<T> {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param success
 	 *        flag of success
 	 * @param code
@@ -187,13 +194,13 @@ public class Result<T> {
 
 	/**
 	 * Helper method to construct instance using generic return type inference.
-	 * 
+	 *
 	 * <p>
 	 * This is an alias for {@link #success(Object)}. If you import this static
 	 * method, then in your code you can write {@code return result(myData)}
 	 * instead of {@code new Result&lt;Object&gt;(myData)}.
 	 * </p>
-	 * 
+	 *
 	 * @param <V>
 	 *        the result type
 	 * @param data
@@ -309,7 +316,7 @@ public class Result<T> {
 
 	/**
 	 * Get the success indicator.
-	 * 
+	 *
 	 * @return the success indicator, or {@literal null} if not known
 	 */
 	public Boolean getSuccess() {
@@ -318,7 +325,7 @@ public class Result<T> {
 
 	/**
 	 * Get the code.
-	 * 
+	 *
 	 * @return the code, or {@literal null}
 	 */
 	public String getCode() {
@@ -327,7 +334,7 @@ public class Result<T> {
 
 	/**
 	 * Get the message.
-	 * 
+	 *
 	 * @return the message, or {@literal null}
 	 */
 	public String getMessage() {
@@ -336,7 +343,7 @@ public class Result<T> {
 
 	/**
 	 * Get the error details.
-	 * 
+	 *
 	 * @return the error details, or {@literal null}
 	 */
 	public List<ErrorDetail> getErrors() {
@@ -345,7 +352,7 @@ public class Result<T> {
 
 	/**
 	 * Get the data.
-	 * 
+	 *
 	 * @return the data, or {@literal null}
 	 */
 	public T getData() {
