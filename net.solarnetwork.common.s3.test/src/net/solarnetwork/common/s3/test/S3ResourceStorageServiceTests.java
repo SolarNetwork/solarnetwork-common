@@ -1,21 +1,21 @@
 /* ==================================================================
  * S3ResourceStorageServiceTests.java - 15/10/2019 7:02:58 am
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -50,6 +50,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -78,17 +79,17 @@ import net.solarnetwork.common.s3.S3ObjectMetadata;
 import net.solarnetwork.common.s3.S3ObjectRef;
 import net.solarnetwork.common.s3.S3ObjectReference;
 import net.solarnetwork.common.s3.S3ResourceStorageService;
-import net.solarnetwork.common.s3.sdk.SdkS3Client;
 import net.solarnetwork.service.ProgressListener;
 import net.solarnetwork.service.ResourceStorageService;
 import net.solarnetwork.service.StaticOptionalService;
 import net.solarnetwork.settings.SettingSpecifier;
+import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 import net.solarnetwork.settings.support.SettingUtils;
 import net.solarnetwork.test.CallingThreadExecutorService;
 
 /**
  * Test cases for the {@link S3ResourceStorageService} class.
- * 
+ *
  * @author matt
  * @version 2.0
  */
@@ -123,8 +124,9 @@ public class S3ResourceStorageServiceTests {
 	@Test
 	public void settings() {
 		// GIVEN
-		SdkS3Client sdkClient = new SdkS3Client();
-		expect(s3Client.getSettingSpecifiers()).andReturn(sdkClient.getSettingSpecifiers());
+		List<SettingSpecifier> delegateSpecifiers = Arrays
+				.asList(new BasicTextFieldSettingSpecifier("foo", ""));
+		expect(s3Client.getSettingSpecifiers()).andReturn(delegateSpecifiers);
 
 		// WHEN
 		replayAll();
@@ -133,14 +135,8 @@ public class S3ResourceStorageServiceTests {
 		// THEN
 		assertThat("Settings available", settings, notNullValue());
 		Map<String, Object> settingData = SettingUtils.keyedSettingDefaults(settings);
-		assertThat("Settings count", settingData.keySet(), hasSize(6));
-		assertThat("Settings token value", settingData, hasEntry("s3Client.accessToken", ""));
-		assertThat("Settings secret value", settingData, hasEntry("s3Client.accessSecret", ""));
-		assertThat("Settings region value", settingData,
-				hasEntry("s3Client.regionName", SdkS3Client.DEFAULT_REGION_NAME));
-		assertThat("Settings bucket value", settingData, hasEntry("s3Client.bucketName", ""));
-		assertThat("Settings pagination value", settingData, hasEntry("s3Client.maximumKeysPerRequest",
-				String.valueOf(SdkS3Client.DEFAULT_MAXIMUM_KEYS_PER_REQUEST)));
+		assertThat("Settings count", settingData.keySet(), hasSize(2));
+		assertThat("Settings token value", settingData, hasEntry("s3Client.foo", ""));
 		assertThat("Settings object path prefix", settingData, hasEntry("objectKeyPrefix", ""));
 	}
 
