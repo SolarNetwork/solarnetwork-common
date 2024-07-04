@@ -27,6 +27,8 @@ import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import java.security.SecureRandom;
 import java.util.NavigableMap;
@@ -37,6 +39,8 @@ import org.junit.Before;
 import org.junit.Test;
 import net.solarnetwork.test.StringLogger;
 import net.solarnetwork.util.StatTracker;
+import net.solarnetwork.util.StatTracker.Accumulation;
+import net.solarnetwork.util.StatTracker.AccumulationValue;
 
 /**
  * Test cases for the {@link StatTracker} class.
@@ -277,6 +281,27 @@ public class StatTrackerTests {
 		// @formatter:off
 		assertThat("String value", c.toString(), is(equalTo(String.format(
 				  "TestStats stats {\n"
+				+ "                           Foo: %d; avg %.1f/%d; min %d; max %d\n"
+				+ "}"
+				, count, (double)count, 1, count, count))));
+		// @formatter:on
+	}
+
+	@Test
+	public void stringValue_incrementOnly() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, 5);
+
+		// WHEN
+		long count = rnd.nextInt(90) + 10;
+		for ( int i = 0; i < count; i++ ) {
+			c.increment(BasicCounts.Foo);
+		}
+
+		// THEN
+		// @formatter:off
+		assertThat("String value", c.toString(), is(equalTo(String.format(
+				  "TestStats stats {\n"
 				+ "                           Foo: %d\n"
 				+ "}"
 				, count))));
@@ -301,6 +326,67 @@ public class StatTrackerTests {
 		assertThat("Bar count", m.get(BasicCounts.Bar.name()), is(equalTo(2L)));
 		assertThat("Bim count", m.get(ExtraCounts.Bim.name()), is(equalTo(3L)));
 		assertThat("Bam count", m.get(ExtraCounts.Bam.name()), is(equalTo(4L)));
+	}
+
+	private void assertAccumulationEquals(String msg, Accumulation actual, Accumulation expected) {
+		assertThat(msg + " provided", actual, is(notNullValue()));
+		assertThat(msg + " total", actual.total(), is(equalTo(expected.total())));
+		assertThat(msg + " count", actual.count(), is(equalTo(expected.count())));
+		assertThat(msg + " avg", actual.avg(), is(equalTo(expected.avg())));
+		assertThat(msg + " min", actual.min(), is(equalTo(expected.min())));
+		assertThat(msg + " max", actual.max(), is(equalTo(expected.max())));
+	}
+
+	@Test
+	public void getAccumulation_none() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, 5);
+
+		// WHEN
+		Accumulation a = c.getAccumulation(BasicCounts.Foo);
+
+		// THEN
+		assertThat("Constant instance returned", a, is(sameInstance(StatTracker.NO_ACCUMULATION)));
+	}
+
+	@Test
+	public void getAccumulation() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, 5);
+		c.add(BasicCounts.Foo, 1L);
+		c.add(BasicCounts.Foo, 2L);
+		c.add(BasicCounts.Foo, 3L);
+		c.add(BasicCounts.Foo, 4L);
+
+		// WHEN
+		Accumulation a = c.getAccumulation(BasicCounts.Foo);
+
+		// THEN
+		assertAccumulationEquals("Foo count", a, new AccumulationValue(4L, 10L, 2.5, 1L, 4L));
+	}
+
+	@Test
+	public void allAccumulations() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, 5);
+		c.add(BasicCounts.Foo, 1L);
+		c.add(BasicCounts.Bar, 2L);
+		c.add(ExtraCounts.Bim, 3L);
+		c.add(ExtraCounts.Bam, 4L);
+
+		// WHEN
+		NavigableMap<String, Accumulation> m = c.allAccumulations();
+
+		// THEN
+		assertThat("All counts present, ordered", m.keySet(), contains("Bam", "Bar", "Bim", "Foo"));
+		assertAccumulationEquals("Foo count", m.get(BasicCounts.Foo.name()),
+				new AccumulationValue(1L, 1L, 1.0, 1L, 1L));
+		assertAccumulationEquals("Bar count", m.get(BasicCounts.Bar.name()),
+				new AccumulationValue(1L, 2L, 2.0, 2L, 2L));
+		assertAccumulationEquals("Bim count", m.get(ExtraCounts.Bim.name()),
+				new AccumulationValue(1L, 3L, 3.0, 3L, 3L));
+		assertAccumulationEquals("Bam count", m.get(ExtraCounts.Bam.name()),
+				new AccumulationValue(1L, 4L, 4.0, 4L, 4L));
 	}
 
 }
