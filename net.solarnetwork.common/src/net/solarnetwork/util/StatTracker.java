@@ -44,7 +44,7 @@ import net.solarnetwork.service.Identifiable;
  * additionally track average/min/max statistics.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 3.10
  */
 public class StatTracker implements Identifiable {
@@ -542,10 +542,11 @@ public class StatTracker implements Identifiable {
 
 		final String uid = getUid();
 		if ( uid != null && !uid.isEmpty() ) {
-			log.info("{} {} {}: {}; avg {}; range {} - {}", name, uid, key, count, a.avg(), a.min(),
+			log.info("{} {} {}: {}; avg {}; range {} - {}", name, uid, key, a.total(), a.avg(), a.min(),
 					a.max());
 		} else {
-			log.info("{} {}: {}; avg {}; range {} - {}", name, key, count, a.avg(), a.min(), a.max());
+			log.info("{} {}: {}; avg {}; range {} - {}", name, key, a.total(), a.avg(), a.min(),
+					a.max());
 		}
 	}
 
