@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.BiFunction;
 import java.util.function.LongSupplier;
 import org.slf4j.Logger;
 import net.solarnetwork.service.Identifiable;
@@ -43,7 +44,7 @@ import net.solarnetwork.service.Identifiable;
  * additionally track average/min/max statistics.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 3.10
  */
 public class StatTracker implements Identifiable {
@@ -134,6 +135,28 @@ public class StatTracker implements Identifiable {
 	}
 
 	/**
+	 * An accumulation type.
+	 *
+	 * @since 1.2
+	 */
+	public enum AccumulationType {
+		/** The number of times the statistic was updated. */
+		Count,
+
+		/** The total accumulated value. */
+		Total,
+
+		/** The average (mean) accumulated value. */
+		Average,
+
+		/** The minimum seen accumulated value. */
+		Minimum,
+
+		/** The maximum seen accumulated value. */
+		Maximum,
+	}
+
+	/**
 	 * An API to accumulated statistics.
 	 *
 	 * @since 1.1
@@ -174,6 +197,31 @@ public class StatTracker implements Identifiable {
 		 * @return the maximum accumulation
 		 */
 		long max();
+
+		/**
+		 * Get the value for an accumulation type.
+		 *
+		 * @param type
+		 *        the type to get the value for
+		 * @return the value
+		 * @since 1.2
+		 */
+		default Number valueFor(AccumulationType type) {
+			switch (type) {
+				case Count:
+					return count();
+				case Total:
+					return total();
+				case Average:
+					return avg();
+				case Minimum:
+					return min();
+				case Maximum:
+					return max();
+				default:
+					return null;
+			}
+		}
 
 	}
 
@@ -296,7 +344,24 @@ public class StatTracker implements Identifiable {
 		public long max() {
 			return max.longValue();
 		}
+
 	}
+
+	/**
+	 * A function that can be used with
+	 * {@link StatTracker#allStatistics(BiFunction)} to map accumulation value
+	 * keys.
+	 *
+	 * <p>
+	 * This function simply concatenates the key and type values.
+	 * </p>
+	 *
+	 * @since 1.2
+	 */
+	public static final BiFunction<String, AccumulationType, String> DEFAULT_KEY_MAPPER = (key,
+			type) -> {
+		return key + type.name();
+	};
 
 	@Override
 	public String toString() {
@@ -322,7 +387,7 @@ public class StatTracker implements Identifiable {
 	 *         will be returned
 	 */
 	public NavigableMap<String, Long> allCounts() {
-		final TreeMap<String, Long> m = new TreeMap<>();
+		final NavigableMap<String, Long> m = new TreeMap<>();
 		for ( Map.Entry<String, LongAdder> e : counts.entrySet() ) {
 			m.put(e.getKey(), e.getValue().longValue());
 		}
@@ -335,14 +400,53 @@ public class StatTracker implements Identifiable {
 	/**
 	 * Get a sorted snapshot of all accumulations.
 	 *
-	 * @return a snapshot of counts; the returned map holds a copy of the
-	 *         current counts
+	 * @return a snapshot of accumulations; the returned map holds a copy of the
+	 *         current accumulations
 	 * @since 1.1
 	 */
 	public NavigableMap<String, Accumulation> allAccumulations() {
-		final TreeMap<String, Accumulation> m = new TreeMap<>();
+		final NavigableMap<String, Accumulation> m = new TreeMap<>();
 		for ( Map.Entry<String, AccumulativeStats> e : accums.entrySet() ) {
 			m.put(e.getKey(), e.getValue().snapshot());
+		}
+		return m;
+	}
+
+	/**
+	 * Get a sorted snapshot of all count and accumulation values.
+	 *
+	 * <p>
+	 * The {@link #DEFAULT_KEY_MAPPER} will be used.
+	 * </p>
+	 *
+	 * @return a snapshot of counts; the returned map holds a copy of the
+	 *         current counts
+	 * @since 1.2
+	 */
+	public NavigableMap<String, Number> allStatistics() {
+		return allStatistics(DEFAULT_KEY_MAPPER);
+	}
+
+	/**
+	 * Get a sorted snapshot of all count and accumulation values.
+	 *
+	 * @param keyMapper
+	 *        mapping function to transform the accumulative values into result
+	 *        map keys
+	 * @return a snapshot of counts; the returned map holds a copy of the
+	 *         current counts
+	 * @since 1.2
+	 */
+	public NavigableMap<String, Number> allStatistics(
+			BiFunction<String, AccumulationType, String> keyMapper) {
+		final NavigableMap<String, Number> m = new TreeMap<>();
+		for ( Map.Entry<String, LongAdder> e : counts.entrySet() ) {
+			m.put(e.getKey(), e.getValue().longValue());
+		}
+		for ( Map.Entry<String, AccumulativeStats> e : accums.entrySet() ) {
+			for ( AccumulationType type : AccumulationType.values() ) {
+				m.put(keyMapper.apply(e.getKey(), type), e.getValue().valueFor(type));
+			}
 		}
 		return m;
 	}
