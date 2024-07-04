@@ -85,6 +85,7 @@ import net.solarnetwork.ocpp.service.ErrorCodeResolver;
 import net.solarnetwork.ocpp.service.SimpleActionMessageQueue;
 import net.solarnetwork.security.AuthorizationException;
 import net.solarnetwork.settings.SettingsChangeObserver;
+import net.solarnetwork.util.StatTracker;
 
 /**
  * OCPP Charge Point JSON web socket handler.
@@ -116,7 +117,7 @@ import net.solarnetwork.settings.SettingsChangeObserver;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 1.8
+ * @version 1.9
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler
@@ -141,6 +142,9 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	// session(s) associated with a ChargePointIdentity via a tail-submap starting with a "boundary" key
 	// having the user and session values as empty strings, which sort before all others.
 	private final ConcurrentNavigableMap<ChargePointSessionIdentity, WebSocketSession> clientSessions;
+
+	/** A statistics instance. */
+	protected final StatTracker stats;
 
 	private final Class<C> chargePointActionClass;
 	private final Class<S> centralSystemActionClass;
@@ -180,7 +184,36 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 */
 	public OcppWebSocketHandler(Class<C> chargePointActionClass, Class<S> centralSystemActionClass,
 			ErrorCodeResolver errorCodeResolver, AsyncTaskExecutor executor, ObjectMapper mapper) {
+		this(defaultStatTracker(), chargePointActionClass, centralSystemActionClass, errorCodeResolver,
+				executor, mapper);
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * <p>
+	 * An in-memory queue will be used for pending messages.
+	 * </p>
+	 *
+	 * @param stats
+	 *        the stats instance
+	 * @param chargePointActionClass
+	 *        the charge point action class
+	 * @param centralSystemActionClass
+	 *        the central system action class
+	 * @param errorCodeResolver
+	 *        the error code resolver
+	 * @param executor
+	 *        an executor for tasks
+	 * @param mapper
+	 *        the object mapper to use
+	 * @since 1.9
+	 */
+	public OcppWebSocketHandler(StatTracker stats, Class<C> chargePointActionClass,
+			Class<S> centralSystemActionClass, ErrorCodeResolver errorCodeResolver,
+			AsyncTaskExecutor executor, ObjectMapper mapper) {
 		super();
+		this.stats = requireNonNullArgument(stats, "stats");
 		this.chargePointActionClass = chargePointActionClass;
 		this.centralSystemActionClass = centralSystemActionClass;
 		this.errorCodeResolver = errorCodeResolver;
@@ -219,7 +252,44 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			ActionMessageQueue pendingMessageQueue,
 			ActionPayloadDecoder centralServiceActionPayloadDecoder,
 			ActionPayloadDecoder chargePointActionPayloadDecoder) {
+		this(defaultStatTracker(), chargePointActionClass, centralSystemActionClass, errorCodeResolver,
+				executor, mapper, pendingMessageQueue, centralServiceActionPayloadDecoder,
+				chargePointActionPayloadDecoder);
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param stats
+	 *        the stats instance
+	 * @param chargePointActionClass
+	 *        the charge point action class
+	 * @param centralSystemActionClass
+	 *        the central system action class
+	 * @param errorCodeResolver
+	 *        the error code resolver
+	 * @param executor
+	 *        an executor for tasks
+	 * @param mapper
+	 *        the object mapper to use
+	 * @param pendingMessageQueue
+	 *        a queue to hold pending messages, for individual client IDs
+	 * @param centralServiceActionPayloadDecoder
+	 *        the action payload decoder to use
+	 * @param chargePointActionPayloadDecoder
+	 *        for Central Service message the action payload decoder to use for
+	 *        Charge Point messages
+	 * @throws IllegalArgumentException
+	 *         if any parameter is {@literal null}
+	 * @since 1.9
+	 */
+	public OcppWebSocketHandler(StatTracker stats, Class<C> chargePointActionClass,
+			Class<S> centralSystemActionClass, ErrorCodeResolver errorCodeResolver,
+			AsyncTaskExecutor executor, ObjectMapper mapper, ActionMessageQueue pendingMessageQueue,
+			ActionPayloadDecoder centralServiceActionPayloadDecoder,
+			ActionPayloadDecoder chargePointActionPayloadDecoder) {
 		super();
+		this.stats = requireNonNullArgument(stats, "stats");
 		this.chargePointActionClass = requireNonNullArgument(chargePointActionClass,
 				"chargePointActionClass");
 		this.centralSystemActionClass = requireNonNullArgument(centralSystemActionClass,
@@ -232,6 +302,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		this.clientSessions = new ConcurrentSkipListMap<>();
 		setCentralServiceActionPayloadDecoder(centralServiceActionPayloadDecoder);
 		setChargePointActionPayloadDecoder(chargePointActionPayloadDecoder);
+	}
+
+	private static final StatTracker defaultStatTracker() {
+		return new StatTracker("OcppWebSocketHandler", null,
+				LoggerFactory.getLogger(OcppWebSocketHandler.class.getName() + ".STATS"), 500);
 	}
 
 	/**
@@ -501,8 +576,34 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		return errorCodeResolver.errorCodeForRpcError(error);
 	}
 
+	/**
+	 * Processing statistics.
+	 */
+	public static enum Stats {
+		MessagesReceived,
+
+		CallMessagesReceived,
+		CallErrorMessagesReceived,
+		CallResultMessagesReceived,
+
+		CallMessageReceiveFailures,
+		CallErrorMessageReceiveFailures,
+		CallRersultMessageReceiveFailures,
+
+		MessagesSent,
+
+		CallMessagesSent,
+		CallErrorMessagesSent,
+		CallResultMessagesSent,
+
+		CallMessageSendFailures,
+		CallErrorMessageSendFailures,
+		CallResultMessageSendFailures,
+	}
+
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+		stats.increment(Stats.MessagesReceived);
 		final ChargePointIdentity clientId = clientId(session);
 		log.trace("OCPP {} <<< {}", clientId, message.getPayload());
 		JsonNode tree;
@@ -533,14 +634,17 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			}
 			switch (msgType) {
 				case Call:
+					stats.increment(Stats.CallMessagesReceived);
 					handleCallMessage(session, clientId, messageId, message, tree);
 					break;
 
 				case CallError:
+					stats.increment(Stats.CallErrorMessagesReceived);
 					handleCallErrorMessage(session, clientId, messageId, message, tree);
 					break;
 
 				case CallResult:
+					stats.increment(Stats.CallResultMessagesReceived);
 					handleCallResultMessage(session, clientId, messageId, message, tree);
 					break;
 			}
@@ -832,6 +936,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 						clientId, messageId, message.getPayload());
 				return;
 			}
+
+			// stat update
+			final long duration = System.currentTimeMillis() - msg.getDate();
+			stats.add(actionErrorStatName(msg.getMessage().getAction()), duration);
+
 			ErrorCode errorCode;
 			try {
 				errorCode = errorCodeResolver.errorCodeForName(tree.path(2).asText());
@@ -853,6 +962,28 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		} finally {
 			processNextPendingMessage(clientId);
 		}
+	}
+
+	/**
+	 * Get an action statistic name.
+	 *
+	 * @param action
+	 *        the action to get the name for
+	 * @returns the name to use
+	 */
+	protected String actionStatName(Action action) {
+		return "Action" + (action != null ? action.getName() : "");
+	}
+
+	/**
+	 * Get an action error statistic name.
+	 *
+	 * @param action
+	 *        the action to get the name for
+	 * @returns the name to use
+	 */
+	protected String actionErrorStatName(Action action) {
+		return actionStatName(action) + "Error";
 	}
 
 	/**
@@ -888,6 +1019,10 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 				return;
 			}
 
+			// stat update
+			final long duration = System.currentTimeMillis() - msg.getDate();
+			stats.add(actionStatName(msg.getMessage().getAction()), duration);
+
 			ErrorCodeException err = null;
 			Object payload = null;
 			try {
@@ -915,11 +1050,14 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			json = mapper.writeValueAsString(msg);
 			log.trace("OCPP {} >>> {}", clientId, json);
 			session.sendMessage(new TextMessage(json));
+			stats.increment(Stats.MessagesSent);
+			stats.increment(Stats.CallMessagesSent);
 			didSendCall(clientId, messageId, action, payload, json, null);
 			return true;
 		} catch ( IOException e ) {
 			log.warn("OCPP {} >>> Communication error sending Call for message ID {}: {}", clientId,
 					messageId, e.getMessage());
+			stats.increment(Stats.CallMessageSendFailures);
 			didSendCall(clientId, messageId, action, payload, json, e);
 		}
 		return false;
@@ -956,11 +1094,14 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			json = mapper.writeValueAsString(msg);
 			log.trace("OCPP {} >>> {}", clientId, json);
 			session.sendMessage(new TextMessage(json));
+			stats.increment(Stats.MessagesSent);
+			stats.increment(Stats.CallResultMessagesSent);
 			didSendCallResult(clientId, messageId, payload, json, null);
 			return true;
 		} catch ( IOException e ) {
 			log.warn("OCPP {} >>> Communication error sending CallResult for message ID {}: {}",
 					clientId, messageId, e.getMessage());
+			stats.increment(Stats.CallResultMessageSendFailures);
 			didSendCallResult(clientId, messageId, payload, json, e);
 		}
 		return false;
@@ -996,11 +1137,14 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			json = mapper.writeValueAsString(msg);
 			log.trace("OCPP {} >>> {}", clientId, json);
 			session.sendMessage(new TextMessage(json));
+			stats.increment(Stats.MessagesSent);
+			stats.increment(Stats.CallErrorMessagesSent);
 			didSendCallError(clientId, messageId, errorCode, errorDescription, details, json, null);
 			return true;
 		} catch ( IOException e ) {
 			log.warn("OCPP {} >>> Communication error sending CallError for message ID {}: {}", clientId,
 					messageId, e.getMessage());
+			stats.increment(Stats.CallErrorMessageSendFailures);
 			didSendCallError(clientId, messageId, errorCode, errorDescription, details, json, e);
 		}
 		return false;

@@ -25,6 +25,7 @@ package net.solarnetwork.util.test;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -387,6 +388,38 @@ public class StatTrackerTests {
 				new AccumulationValue(1L, 3L, 3.0, 3L, 3L));
 		assertAccumulationEquals("Bam count", m.get(ExtraCounts.Bam.name()),
 				new AccumulationValue(1L, 4L, 4.0, 4L, 4L));
+	}
+
+	@Test
+	public void allStatistics() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, 5);
+		c.increment(BasicCounts.Foo);
+		c.increment(BasicCounts.Foo);
+		c.add(BasicCounts.Bar, 1L);
+		c.add(ExtraCounts.Bim, 2L);
+		c.add(ExtraCounts.Bim, 4L);
+
+		// WHEN
+		NavigableMap<String, Number> m = c.allStatistics();
+
+		// THEN
+		assertThat("All counts present, ordered", m.keySet(),
+				contains("BarAverage", "BarCount", "BarMaximum", "BarMinimum", "BarTotal", "BimAverage",
+						"BimCount", "BimMaximum", "BimMinimum", "BimTotal", "Foo"));
+		assertThat("Bar average", m, hasEntry("BarAverage", 1.0));
+		assertThat("Bar count", m, hasEntry("BarCount", 1L));
+		assertThat("Bar maximum", m, hasEntry("BarMaximum", 1L));
+		assertThat("Bar minimum", m, hasEntry("BarMinimum", 1L));
+		assertThat("Bar total", m, hasEntry("BarTotal", 1L));
+
+		assertThat("Bim average", m, hasEntry("BimAverage", 3.0));
+		assertThat("Bim count", m, hasEntry("BimCount", 2L));
+		assertThat("Bim maximum", m, hasEntry("BimMaximum", 4L));
+		assertThat("Bim minimum", m, hasEntry("BimMinimum", 2L));
+		assertThat("Bim total", m, hasEntry("BimTotal", 6L));
+
+		assertThat("Foo", m, hasEntry("Foo", 2L));
 	}
 
 }
