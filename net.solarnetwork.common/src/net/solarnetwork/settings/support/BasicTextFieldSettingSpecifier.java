@@ -92,6 +92,7 @@ public class BasicTextFieldSettingSpecifier extends BasicTitleSettingSpecifier
 		spec.setValueTitles(getValueTitles());
 		spec.setDescriptionArguments(getDescriptionArguments());
 		spec.secureTextEntry = isSecureTextEntry();
+		spec.relatedServiceFilter = getRelatedServiceFilter();
 		return spec;
 	}
 
@@ -103,6 +104,7 @@ public class BasicTextFieldSettingSpecifier extends BasicTitleSettingSpecifier
 		spec.setValueTitles(getValueTitles());
 		spec.setDescriptionArguments(getDescriptionArguments());
 		spec.secureTextEntry = isSecureTextEntry();
+		spec.relatedServiceFilter = getRelatedServiceFilter();
 		return spec;
 	}
 
