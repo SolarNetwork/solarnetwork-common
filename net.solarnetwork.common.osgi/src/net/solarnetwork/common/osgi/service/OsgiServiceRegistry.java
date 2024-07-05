@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -57,7 +56,30 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 	}
 
 	@Override
-	public <S> Collection<S> services(Class<S> clazz, String filter, Predicate<S> predicate) {
+	public Collection<?> services(String filter) {
+		ServiceReference<?>[] refs;
+		try {
+			refs = bundleContext.getAllServiceReferences(null, filter);
+		} catch ( InvalidSyntaxException e ) {
+			throw new IllegalArgumentException("Invalid filter syntax.", e);
+		}
+		final List<Object> results = new ArrayList<>(refs.length);
+		for ( ServiceReference<?> ref : refs ) {
+			try {
+				final Object s = bundleContext.getService(ref);
+				if ( s == null ) {
+					continue;
+				}
+				results.add(s);
+			} catch ( Exception e ) {
+				// ignore and continue
+			}
+		}
+		return results;
+	}
+
+	@Override
+	public <S> Collection<S> services(Class<S> clazz, String filter) {
 		Collection<ServiceReference<S>> refs;
 		try {
 			refs = bundleContext.getServiceReferences(clazz, filter);
@@ -69,14 +91,15 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 		}
 		final List<S> results = new ArrayList<>(refs.size());
 		for ( ServiceReference<S> ref : refs ) {
-			final S p = bundleContext.getService(ref);
-			if ( p == null ) {
-				continue;
+			try {
+				final S s = bundleContext.getService(ref);
+				if ( s == null ) {
+					continue;
+				}
+				results.add(s);
+			} catch ( Exception e ) {
+				// ignore and continue
 			}
-			if ( predicate != null && !predicate.test(p) ) {
-				continue;
-			}
-			results.add(p);
 		}
 		return results;
 	}

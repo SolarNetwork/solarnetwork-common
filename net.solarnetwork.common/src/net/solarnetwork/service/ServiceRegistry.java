@@ -23,7 +23,6 @@
 package net.solarnetwork.service;
 
 import java.util.Collection;
-import java.util.function.Predicate;
 
 /**
  * API for a dynamic runtime service registry.
@@ -44,14 +43,27 @@ public interface ServiceRegistry {
 	 *        the service class
 	 * @param filter
 	 *        an optional LDAP-style search filter
-	 * @param predicate
-	 *        an optional predicate to filter resolved services by; if provided
-	 *        then only services for which this predicate returns
-	 *        {@literal true} will be returned
 	 * @return the resolved services, never {@literal null}
 	 * @throws IllegalArgumentException
 	 *         if {@code clazz} is {@literal null} or {@code filter} has an
 	 *         invalid syntax
 	 */
-	<S> Collection<S> services(Class<S> clazz, String filter, Predicate<S> predicate);
+	Collection<?> services(String filter);
+
+	/**
+	 * Get a collection of available services, optionally matching a filter or
+	 * predicate.
+	 *
+	 * @param <S>
+	 *        the desired service type
+	 * @param clazz
+	 *        the service class
+	 * @param filter
+	 *        an optional LDAP-style search filter
+	 * @return the resolved services, never {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code clazz} is {@literal null} or {@code filter} has an
+	 *         invalid syntax
+	 */
+	<S> Collection<S> services(Class<S> clazz, String filter);
 }

@@ -22,7 +22,6 @@
 
 package net.solarnetwork.settings.support;
 
-import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import net.solarnetwork.settings.SettingSpecifierProviderInfo;
 
 /**
@@ -50,15 +49,13 @@ public class BasicSettingSpecifierProviderInfo implements SettingSpecifierProvid
 	 *        the identifiable UID
 	 * @param groupUid
 	 *        the identifiable group UID
-	 * @throws IllegalAccessException
-	 *         if any argument except {@code groupUid} is {@literal null}
 	 */
 	public BasicSettingSpecifierProviderInfo(String settingUid, String displayName, String uid,
 			String groupUid) {
 		super();
-		this.settingUid = requireNonNullArgument(settingUid, "settingUid");
-		this.displayName = requireNonNullArgument(displayName, "displayName");
-		this.uid = requireNonNullArgument(uid, "uid");
+		this.settingUid = settingUid;
+		this.displayName = displayName;
+		this.uid = uid;
 		this.groupUid = groupUid;
 	}
 
