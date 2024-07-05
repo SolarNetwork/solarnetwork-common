@@ -1,7 +1,7 @@
 /* ==================================================================
- * TextFieldSettingSpecifier.java - Mar 12, 2012 9:41:06 AM
+ * SettingSpecifierProviderInfo.java - 5/07/2024 3:59:24 pm
  *
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2024 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,30 +22,27 @@
 
 package net.solarnetwork.settings;
 
+import net.solarnetwork.service.Identifiable;
+
 /**
- * A read-write string setting.
+ * Basic information about a {@link SettingSpecifierProvider}.
  *
  * @author matt
- * @version 1.1
+ * @version 1.0
+ * @since 3.15
  */
-public interface TextFieldSettingSpecifier extends TitleSettingSpecifier {
+public interface SettingSpecifierProviderInfo extends Identifiable {
 
 	/**
-	 * Flag indicating the text should be hidden when editing.
+	 * Get a unique, application-wide setting ID.
 	 *
-	 * @return {@literal true} to hide the text
-	 */
-	boolean isSecureTextEntry();
-
-	/**
-	 * Get a string representation of a service filter that is related to this
-	 * setting, for example as a list of possible values to suggest for this
-	 * field.
+	 * <p>
+	 * This ID must be unique across all setting providers registered within the
+	 * system.
+	 * </p>
 	 *
-	 * @return the related service filter, or {@literal null}
+	 * @return unique ID
 	 */
-	default String getRelatedServiceFilter() {
-		return null;
-	}
+	String getSettingUid();
 
 }
