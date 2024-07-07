@@ -37,10 +37,6 @@ public interface ServiceRegistry {
 	 * Get a collection of available services, optionally matching a filter or
 	 * predicate.
 	 *
-	 * @param <S>
-	 *        the desired service type
-	 * @param clazz
-	 *        the service class
 	 * @param filter
 	 *        an optional LDAP-style search filter
 	 * @return the resolved services, never {@literal null}

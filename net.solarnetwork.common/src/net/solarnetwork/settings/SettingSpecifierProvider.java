@@ -125,8 +125,12 @@ public interface SettingSpecifierProvider {
 	 *
 	 * @param locale
 	 *        the desired locale
+	 * @param uid
+	 *        the unique ID
+	 * @param groupUid
+	 *        the group ID
 	 * @return the provider info, never {@literal null}
-	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 *         if any argument except {@code groupUid} is {@literal null}
 	 * @since 2.2
 	 */
