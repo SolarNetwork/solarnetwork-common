@@ -63,6 +63,9 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 		} catch ( InvalidSyntaxException e ) {
 			throw new IllegalArgumentException("Invalid filter syntax.", e);
 		}
+		if ( refs == null ) {
+			return Collections.emptyList();
+		}
 		final List<Object> results = new ArrayList<>(refs.length);
 		for ( ServiceReference<?> ref : refs ) {
 			try {
