@@ -34,6 +34,8 @@ import net.solarnetwork.util.ObjectUtils;
  * OSGi implementation of [@link
  * {@link net.solarnetwork.service.ServiceRegistry.RegisteredService}}.
  *
+ * @param <S>
+ *        the service type
  * @author matt
  * @version 1.0
  * @since 1.1
