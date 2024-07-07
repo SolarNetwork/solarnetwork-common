@@ -23,6 +23,7 @@
 package net.solarnetwork.service;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * API for a dynamic runtime service registry.
@@ -62,4 +63,49 @@ public interface ServiceRegistry {
 	 *         invalid syntax
 	 */
 	<S> Collection<S> services(Class<S> clazz, String filter);
+
+	/**
+	 * A reference to a registered service.
+	 *
+	 * @param <S>
+	 *        the service type
+	 */
+	interface RegisteredService<S> {
+
+		/**
+		 * Get a copy of the properties of the service referenced by this
+		 * {@code ServiceReference} object.
+		 *
+		 * @return A copy of the properties of the service referenced by this
+		 *         {@code ServiceReference} object
+		 */
+		public Map<String, Object> properties();
+
+	}
+
+	/**
+	 * Register a service.
+	 *
+	 * @param <S>
+	 *        the service type
+	 * @param service
+	 *        the service to register
+	 * @param properties
+	 *        optional properties to associate with the service
+	 * @param classes
+	 *        optional classes to register the service as; if not provided the
+	 *        class of {@code service} will be used
+	 * @return the registered service
+	 * @throws IllegalArgumentException
+	 *         if {@code service} is {@literal null}
+	 */
+	<S> RegisteredService<S> registerService(S service, Map<String, ?> properties, Class<?>... classes);
+
+	/**
+	 * Unregister a previously registered service.
+	 *
+	 * @param registeredService
+	 *        the registered service to unregister
+	 */
+	void unregisterService(RegisteredService<?> registeredService);
 }

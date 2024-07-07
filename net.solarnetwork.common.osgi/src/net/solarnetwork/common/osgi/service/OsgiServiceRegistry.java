@@ -24,19 +24,28 @@ package net.solarnetwork.common.osgi.service;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import net.solarnetwork.service.ServiceRegistry;
+import net.solarnetwork.util.ClassUtils;
+import net.solarnetwork.util.CollectionUtils;
+import net.solarnetwork.util.ObjectUtils;
 
 /**
  * OSGi implementation of {@link ServiceRegistry}.
  *
  * @author matt
  * @version 1.0
+ * @since 1.1
  */
 public class OsgiServiceRegistry implements ServiceRegistry {
 
@@ -105,6 +114,36 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 			}
 		}
 		return results;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <S> RegisteredService<S> registerService(S service, Map<String, ?> properties,
+			Class<?>... classes) {
+		final String[] classNames;
+		if ( classes != null ) {
+			classNames = Arrays.stream(classes).map(c -> c.getName()).toArray(String[]::new);
+		} else {
+			Set<Class<?>> interfaces = ClassUtils.getAllNonJavaInterfacesForClassAsSet(
+					ObjectUtils.requireNonNullArgument(service, "service").getClass());
+			classNames = new String[] { (interfaces.isEmpty() ? service.getClass().getName()
+					: interfaces.iterator().next().getName()) };
+		}
+		Dictionary<String, ?> props = CollectionUtils.dictionaryForMap(properties);
+		ServiceRegistration<?> reg = bundleContext.registerService(classNames, service, props);
+		return new OsgiRegisteredService<S>((ServiceRegistration<S>) reg);
+	}
+
+	@Override
+	public void unregisterService(RegisteredService<?> registeredService) {
+		if ( !(registeredService instanceof OsgiRegisteredService<?>) ) {
+			return;
+		}
+		try {
+			((OsgiRegisteredService<?>) registeredService).serviceRegistration().unregister();
+		} catch ( IllegalStateException e ) {
+			// ignore
+		}
 	}
 
 }
