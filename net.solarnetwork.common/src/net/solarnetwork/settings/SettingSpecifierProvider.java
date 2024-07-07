@@ -140,4 +140,23 @@ public interface SettingSpecifierProvider {
 		return new BasicSettingSpecifierProviderInfo(settingUid, displayName, uid, groupUid);
 	}
 
+	/**
+	 * Unwrap this provider as another type, if possible.
+	 *
+	 * @param <T>
+	 *        the type to unwrap to
+	 * @param type
+	 *        the class to unwrap as
+	 * @return the given type, or {@literal null} if the provider not compatible
+	 *         with {@code type}
+	 * @since 2.2
+	 */
+	@SuppressWarnings("unchecked")
+	default <T> T unwrap(Class<T> type) {
+		if ( type.isAssignableFrom(getClass()) ) {
+			return (T) this;
+		}
+		return null;
+	}
+
 }
