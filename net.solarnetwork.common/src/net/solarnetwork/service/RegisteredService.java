@@ -1,7 +1,7 @@
 /* ==================================================================
- * TextFieldSettingSpecifier.java - Mar 12, 2012 9:41:06 AM
+ * RegisteredService.java - 6/07/2024 7:27:43 am
  *
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2024 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,32 +20,26 @@
  * ==================================================================
  */
 
-package net.solarnetwork.settings;
+package net.solarnetwork.service;
+
+import java.util.Map;
 
 /**
- * A read-write string setting.
+ * A reference to a registered service.
  *
- * @author matt
- * @version 1.1
+ * @param <S>
+ *        the service type
+ * @see ServiceRegistry
  */
-public interface TextFieldSettingSpecifier extends TitleSettingSpecifier {
+public interface RegisteredService<S> {
 
 	/**
-	 * Flag indicating the text should be hidden when editing.
+	 * Get a copy of the properties of the service referenced by this
+	 * {@code ServiceReference} object.
 	 *
-	 * @return {@literal true} to hide the text
+	 * @return A copy of the properties of the service referenced by this
+	 *         {@code ServiceReference} object
 	 */
-	boolean isSecureTextEntry();
-
-	/**
-	 * Get a string representation of a service filter that is related to this
-	 * setting, for example as a list of possible values to suggest for this
-	 * field.
-	 *
-	 * @return the related service filter, or {@literal null}
-	 */
-	default String getRelatedServiceFilter() {
-		return null;
-	}
+	public Map<String, Object> properties();
 
 }
