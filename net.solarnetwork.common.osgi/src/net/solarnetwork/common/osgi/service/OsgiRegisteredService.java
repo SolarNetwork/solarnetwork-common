@@ -26,13 +26,13 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Map;
 import org.osgi.framework.ServiceRegistration;
-import net.solarnetwork.service.ServiceRegistry;
+import net.solarnetwork.service.RegisteredService;
 import net.solarnetwork.util.CollectionUtils;
 import net.solarnetwork.util.ObjectUtils;
 
 /**
  * OSGi implementation of [@link
- * {@link net.solarnetwork.service.ServiceRegistry.RegisteredService}}.
+ * {@link net.solarnetwork.service.RegisteredService}}.
  *
  * @param <S>
  *        the service type
@@ -40,7 +40,7 @@ import net.solarnetwork.util.ObjectUtils;
  * @version 1.0
  * @since 1.1
  */
-public class OsgiRegisteredService<S> implements ServiceRegistry.RegisteredService<S> {
+public class OsgiRegisteredService<S> implements RegisteredService<S> {
 
 	private final ServiceRegistration<S> serviceRegistration;
 

@@ -65,25 +65,6 @@ public interface ServiceRegistry {
 	<S> Collection<S> services(Class<S> clazz, String filter);
 
 	/**
-	 * A reference to a registered service.
-	 *
-	 * @param <S>
-	 *        the service type
-	 */
-	interface RegisteredService<S> {
-
-		/**
-		 * Get a copy of the properties of the service referenced by this
-		 * {@code ServiceReference} object.
-		 *
-		 * @return A copy of the properties of the service referenced by this
-		 *         {@code ServiceReference} object
-		 */
-		public Map<String, Object> properties();
-
-	}
-
-	/**
 	 * Register a service.
 	 *
 	 * @param <S>

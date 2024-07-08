@@ -35,6 +35,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import net.solarnetwork.service.RegisteredService;
 import net.solarnetwork.service.ServiceRegistry;
 import net.solarnetwork.util.ClassUtils;
 import net.solarnetwork.util.CollectionUtils;
