@@ -1,21 +1,21 @@
 /* ==================================================================
  * CsvTemporalRangeTariffParserTests.java - 12/05/2021 9:36:03 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -44,9 +44,9 @@ import net.solarnetwork.domain.tariff.TemporalRangesTariff;
 
 /**
  * Test cases for the {@link CsvTemporalRangeTariffParser} class.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class CsvTemporalRangeTariffParserTests {
 
@@ -62,7 +62,7 @@ public class CsvTemporalRangeTariffParserTests {
 	/**
 	 * Create a tariff where the rates names are given "column" names like in a
 	 * spreadsheet, starting with "E".
-	 * 
+	 *
 	 * @param locale
 	 *        the locale, or {@literal null} to use the system default
 	 * @param data
@@ -80,7 +80,7 @@ public class CsvTemporalRangeTariffParserTests {
 	/**
 	 * Create a tariff where the rates names are given "column" names like in a
 	 * spreadsheet, starting with "E".
-	 * 
+	 *
 	 * @param data
 	 *        the month, day, day of week, time, rate1[, rateN...]
 	 * @return the tariff
@@ -171,6 +171,28 @@ public class CsvTemporalRangeTariffParserTests {
 		// THEN
 		String csv = w.toString();
 		assertThat("Formatted CSV", csv, equalTo(stringResource("test-tariffs-03.csv")));
+	}
+
+	@Test
+	public void parse_wholeHours() throws IOException {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser();
+
+		// WHEN
+		try (InputStreamReader r = new InputStreamReader(
+				getClass().getResourceAsStream("test-tariffs-04.csv"), "UTF-8")) {
+			List<TemporalRangesTariff> tariffs = p.parseTariffs(r);
+
+			assertThat("Tariffs parsed", tariffs, hasSize(4));
+			assertTemporalRangeTariff("Row 1", tariffs.get(0), "January-December", null, null, "0-1",
+					"10.48");
+			assertTemporalRangeTariff("Row 2", tariffs.get(1), "January-December", null, null, "1-2",
+					"11.00");
+			assertTemporalRangeTariff("Row 3", tariffs.get(2), "January-December", null, null, "22-23",
+					"9.19");
+			assertTemporalRangeTariff("Row 4", tariffs.get(3), "January-December", null, null, "23-24",
+					"11.21");
+		}
 	}
 
 }

@@ -1,21 +1,21 @@
 /* ==================================================================
  * CsvTemporalRangeTariffParser.java - 12/05/2021 8:46:19 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -46,27 +46,29 @@ import net.solarnetwork.util.StringUtils;
 
 /**
  * Parse {@link TemporalRangesTariff} rows from CSV data.
- * 
+ *
  * <p>
  * The CSV resource <b>must</b> provide a header row, and the names of the
  * tariffs will be taken from there. The first 4 columns of the CSV must be:
  * </p>
- * 
+ *
  * <ol>
  * <li>month range, as month names, abbreviations, or numbers 1 - 12</li>
  * <li>day of month range, as numbers 1 - 31</li>
  * <li>day of week range, as weekday names, abbreviations, or numbers 1-7 (1 =
  * Monday)</li>
- * <li>time of date range, as hours 0-24 or ISO local times HH:MM-HH-MM</li>
+ * <li>time of day range, as hours 0-24 or ISO local times HH:MM-HH-MM; if a
+ * singleton hour value is provided it will be converted to a range of one hour
+ * starting at that hour, for example {@code 12} becomes {@code 12-13}.</li>
  * </ol>
- * 
+ *
  * <p>
  * The remaining columns are rate values, and must be numbers that can be parsed
  * as a {@link BigDecimal}.
  * </p>
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.71
  */
 public class CsvTemporalRangeTariffParser {
@@ -75,7 +77,7 @@ public class CsvTemporalRangeTariffParser {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * The system locale will be used.
 	 * </p>
@@ -86,7 +88,7 @@ public class CsvTemporalRangeTariffParser {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param locale
 	 *        the locale to use, or {@literal null} to use the system default
 	 */
@@ -97,7 +99,7 @@ public class CsvTemporalRangeTariffParser {
 
 	/**
 	 * Parse tariff rows from a reader.
-	 * 
+	 *
 	 * @param reader
 	 *        the reader
 	 * @return the parsed rows, never {@literal null}
@@ -140,8 +142,20 @@ public class CsvTemporalRangeTariffParser {
 							rates.add(new SimpleTariffRate(ids[i], headers[j], rateValue));
 						}
 					}
+					// look for MOD singleton hour; convert to hour range if found
+					String modRange = row.get(3);
+					if ( modRange.indexOf('-') < 0 && modRange.indexOf(':') < 0 ) {
+						try {
+							int hod = Integer.parseInt(modRange);
+							if ( hod < 24 ) {
+								modRange = hod + "-" + (hod + 1);
+							}
+						} catch ( NumberFormatException e ) {
+							// ignore and continue
+						}
+					}
 					TemporalRangesTariff t = new TemporalRangesTariff(row.get(0), row.get(1), row.get(2),
-							row.get(3), rates, locale);
+							modRange, rates, locale);
 					result.add(t);
 				} catch ( NumberFormatException e ) {
 					throw new IllegalArgumentException(
@@ -164,13 +178,13 @@ public class CsvTemporalRangeTariffParser {
 
 	/**
 	 * Encode a list of tariffs as CSV data.
-	 * 
+	 *
 	 * <p>
 	 * The range columns are formatted using abbreviations if possible. The time
 	 * range column will be formatted using integer hours if possible, otherwise
 	 * {@literal HH:MM} syntax.
 	 * </p>
-	 * 
+	 *
 	 * @param tariffs
 	 *        the tariffs to encode
 	 * @param writer
