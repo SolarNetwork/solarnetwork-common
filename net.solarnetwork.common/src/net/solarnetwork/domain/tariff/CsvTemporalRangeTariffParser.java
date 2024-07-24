@@ -144,7 +144,7 @@ public class CsvTemporalRangeTariffParser {
 					}
 					// look for MOD singleton hour; convert to hour range if found
 					String modRange = row.get(3);
-					if ( modRange.indexOf('-') < 0 && modRange.indexOf(':') < 0 ) {
+					if ( modRange != null && modRange.indexOf('-') < 0 && modRange.indexOf(':') < 0 ) {
 						try {
 							int hod = Integer.parseInt(modRange);
 							if ( hod < 24 ) {
