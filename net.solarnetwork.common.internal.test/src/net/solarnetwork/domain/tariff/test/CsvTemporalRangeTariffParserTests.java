@@ -116,7 +116,7 @@ public class CsvTemporalRangeTariffParserTests {
 				equalTo(expected.getDayOfWeekRange()));
 		assertThat(msg + " minute of day range", actual.getMinuteOfDayRange(),
 				equalTo(expected.getMinuteOfDayRange()));
-		assertThat(msg + " has no rates", actual.getRates(), equalTo(expected.getRates()));
+		assertThat(msg + " has rates", actual.getRates(), equalTo(expected.getRates()));
 	}
 
 	public static void assertTemporalRangeTariff(String msg, TemporalRangesTariff actual,
