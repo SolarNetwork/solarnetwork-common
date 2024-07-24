@@ -68,12 +68,13 @@ import net.solarnetwork.util.StringUtils;
  * </p>
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.71
  */
 public class CsvTemporalRangeTariffParser {
 
 	private final Locale locale;
+	private final boolean preserveRateCase;
 
 	/**
 	 * Constructor.
@@ -93,8 +94,22 @@ public class CsvTemporalRangeTariffParser {
 	 *        the locale to use, or {@literal null} to use the system default
 	 */
 	public CsvTemporalRangeTariffParser(Locale locale) {
+		this(locale, false);
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param locale
+	 *        the locale to use, or {@literal null} to use the system default
+	 * @param preserveRateCase
+	 *        {@literal true} to preserve the case of rate names
+	 * @since 1.2
+	 */
+	public CsvTemporalRangeTariffParser(Locale locale, boolean preserveRateCase) {
 		super();
 		this.locale = (locale != null ? locale : Locale.getDefault());
+		this.preserveRateCase = preserveRateCase;
 	}
 
 	/**
@@ -119,7 +134,7 @@ public class CsvTemporalRangeTariffParser {
 			}
 			String[] ids = new String[headers.length - 4];
 			for ( int i = 0, len = ids.length; i < len; i++ ) {
-				ids[i] = StringUtils.simpleIdValue(headers[i + 4]);
+				ids[i] = StringUtils.simpleIdValue(headers[i + 4], preserveRateCase);
 			}
 			while ( true ) {
 				List<String> row = csvReader.read();
@@ -247,6 +262,26 @@ public class CsvTemporalRangeTariffParser {
 	private List<String> extractRateDescriptions(List<TemporalRangesTariff> tariffs) {
 		return new ArrayList<>(tariffs.stream().flatMap(t -> t.getRates().values().stream())
 				.map(Rate::getDescription).collect(Collectors.toCollection(LinkedHashSet::new)));
+	}
+
+	/**
+	 * Get the configured locale.
+	 *
+	 * @return the locale
+	 * @since 1.2
+	 */
+	public final Locale getLocale() {
+		return locale;
+	}
+
+	/**
+	 * Get the "preserve rate case" mode.
+	 *
+	 * @return {@literal true} to preserve the case of rate names
+	 * @since 1.2
+	 */
+	public final boolean isPreserveRateCase() {
+		return preserveRateCase;
 	}
 
 }

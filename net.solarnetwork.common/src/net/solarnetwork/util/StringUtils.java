@@ -44,7 +44,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  *
  * @author matt
- * @version 1.13
+ * @version 1.14
  */
 public final class StringUtils {
 
@@ -705,10 +705,41 @@ public final class StringUtils {
 	 * @since 1.8
 	 */
 	public static String simpleIdValue(String text) {
+		return simpleIdValue(text, false);
+	}
+
+	/**
+	 * Generate a "simple" ID out of a string.
+	 *
+	 * <p>
+	 * A simple ID is created by taking {@code text} and:
+	 * </p>
+	 *
+	 * <ol>
+	 * <li>leading and trailing whitespace is removed</li>
+	 * <li>change to lower case (if {@code lowerCase} is {@literal true}</li>
+	 * <li>replace any runs of characters other than {@literal a-zA-Z0-9_} with
+	 * a {@literal _}</li>
+	 * <li>
+	 * </ol>
+	 *
+	 * @param text
+	 *        the text to derive the simple ID from
+	 * @param preserveRateCase
+	 *        {@literal true} to lower-case the text
+	 * @return the simple ID, or {@literal null} if {@code text} is
+	 *         {@literal null}
+	 * @since 1.14
+	 */
+	public static String simpleIdValue(String text, boolean preserveRateCase) {
 		if ( text == null || text.isEmpty() ) {
 			return text;
 		}
-		String s = NOT_SIMPLE_ID_CHARACTER_PATTERN.matcher(text.trim().toLowerCase()).replaceAll("_");
+		text = text.trim();
+		if ( !preserveRateCase ) {
+			text = text.toLowerCase();
+		}
+		String s = NOT_SIMPLE_ID_CHARACTER_PATTERN.matcher(text).replaceAll("_");
 		if ( s.charAt(0) == '_' || s.charAt(s.length() - 1) == '_' ) {
 			s = UNDERSCORE_PREFIX_OR_SUFFIX.matcher(s).replaceAll("");
 		}

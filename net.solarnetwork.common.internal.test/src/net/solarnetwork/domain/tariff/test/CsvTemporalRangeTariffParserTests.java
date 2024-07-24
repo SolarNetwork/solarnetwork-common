@@ -41,12 +41,13 @@ import net.solarnetwork.domain.tariff.CsvTemporalRangeTariffParser;
 import net.solarnetwork.domain.tariff.SimpleTariffRate;
 import net.solarnetwork.domain.tariff.Tariff.Rate;
 import net.solarnetwork.domain.tariff.TemporalRangesTariff;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * Test cases for the {@link CsvTemporalRangeTariffParser} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class CsvTemporalRangeTariffParserTests {
 
@@ -69,11 +70,15 @@ public class CsvTemporalRangeTariffParserTests {
 	 *        the month, day, day of week, time, rate1[, rateN...]
 	 * @return the tariff
 	 */
-	public static TemporalRangesTariff spreadsheetColumnRates(Locale locale, String... data) {
+	public static TemporalRangesTariff spreadsheetColumnRates(Locale locale, boolean preserveCase,
+			String... data) {
 		locale = (locale != null ? locale : Locale.getDefault());
-		List<Rate> rates = IntStream.range(4, data.length).mapToObj(
-				i -> new SimpleTariffRate(Character.toString((char) ('A' + i)), new BigDecimal(data[i])))
-				.collect(toList());
+
+		List<Rate> rates = IntStream.range(4, data.length).mapToObj(i -> {
+			String name = Character.toString((char) ('A' + i));
+			String id = StringUtils.simpleIdValue(name, preserveCase);
+			return new SimpleTariffRate(id, name, new BigDecimal(data[i]));
+		}).collect(toList());
 		return new TemporalRangesTariff(data[0], data[1], data[2], data[3], rates, locale);
 	}
 
@@ -86,7 +91,19 @@ public class CsvTemporalRangeTariffParserTests {
 	 * @return the tariff
 	 */
 	public static TemporalRangesTariff spreadsheetColumnRates(String... data) {
-		return spreadsheetColumnRates(null, data);
+		return spreadsheetColumnRates(null, false, data);
+	}
+
+	/**
+	 * Create a tariff where the rates names are given "column" names like in a
+	 * spreadsheet, starting with "E".
+	 *
+	 * @param data
+	 *        the month, day, day of week, time, rate1[, rateN...]
+	 * @return the tariff
+	 */
+	public static TemporalRangesTariff spreadsheetColumnRates(boolean preserveCase, String... data) {
+		return spreadsheetColumnRates(null, preserveCase, data);
 	}
 
 	public static void assertTemporalRangeTariff(String msg, TemporalRangesTariff actual,
@@ -104,7 +121,12 @@ public class CsvTemporalRangeTariffParserTests {
 
 	public static void assertTemporalRangeTariff(String msg, TemporalRangesTariff actual,
 			String... data) {
-		assertTemporalRangeTariff(msg, actual, spreadsheetColumnRates(data));
+		assertTemporalRangeTariff(msg, false, actual, data);
+	}
+
+	public static void assertTemporalRangeTariff(String msg, boolean preserveCase,
+			TemporalRangesTariff actual, String... data) {
+		assertTemporalRangeTariff(msg, actual, spreadsheetColumnRates(preserveCase, data));
 	}
 
 	@Test
@@ -125,6 +147,28 @@ public class CsvTemporalRangeTariffParserTests {
 			assertTemporalRangeTariff("Row 3", tariffs.get(2), "January-December", null, "Sat-Sun",
 					"0-8", "9.19");
 			assertTemporalRangeTariff("Row 4", tariffs.get(3), "January-December", null, "Sat-Sun",
+					"8-24", "11.21");
+		}
+	}
+
+	@Test
+	public void parse_example_preserveCase() throws IOException {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser(Locale.getDefault(), true);
+
+		// WHEN
+		try (InputStreamReader r = new InputStreamReader(
+				getClass().getResourceAsStream("test-tariffs-01.csv"), "UTF-8")) {
+			List<TemporalRangesTariff> tariffs = p.parseTariffs(r);
+
+			assertThat("Tariffs parsed", tariffs, hasSize(4));
+			assertTemporalRangeTariff("Row 1", true, tariffs.get(0), "January-December", null, "Mon-Fri",
+					"0-8", "10.48");
+			assertTemporalRangeTariff("Row 2", true, tariffs.get(1), "January-December", null, "Mon-Fri",
+					"8-24", "11.00");
+			assertTemporalRangeTariff("Row 3", true, tariffs.get(2), "January-December", null, "Sat-Sun",
+					"0-8", "9.19");
+			assertTemporalRangeTariff("Row 4", true, tariffs.get(3), "January-December", null, "Sat-Sun",
 					"8-24", "11.21");
 		}
 	}
