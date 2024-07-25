@@ -1,21 +1,21 @@
 /* ==================================================================
  * NumberUtils.java - 15/03/2018 2:49:15 PM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -33,9 +33,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Utilities for dealing with numbers.
- * 
+ *
  * @author matt
- * @version 1.10
+ * @version 1.11
  * @since 1.42
  */
 public final class NumberUtils {
@@ -83,11 +83,11 @@ public final class NumberUtils {
 
 	/**
 	 * Convert a signed byte into an unsigned short value.
-	 * 
+	 *
 	 * <p>
 	 * The returned short will have a value between 0 and 255.
 	 * </p>
-	 * 
+	 *
 	 * @param data
 	 *        the byte
 	 * @return the unsigned value
@@ -98,11 +98,11 @@ public final class NumberUtils {
 
 	/**
 	 * Convert signed bytes into unsigned short values.
-	 * 
+	 *
 	 * <p>
 	 * The returned shorts will have values between 0 and 255.
 	 * </p>
-	 * 
+	 *
 	 * @param data
 	 *        the bytes
 	 * @return the unsigned values, or {@literal null} if {@code data} is
@@ -122,13 +122,13 @@ public final class NumberUtils {
 
 	/**
 	 * Convert a signed whole number into an unsigned equivalent.
-	 * 
+	 *
 	 * <p>
 	 * This method attempts to return the next-largest data type for the
 	 * unsigned conversion, e.g. an unsigned int will be returned for a signed
 	 * short.
 	 * </p>
-	 * 
+	 *
 	 * @param value
 	 *        the signed whole number to convert
 	 * @return the unsigned value, or {@literal null} if {@code value} is
@@ -149,13 +149,13 @@ public final class NumberUtils {
 
 	/**
 	 * Get a {@link BigDecimal} for a number.
-	 * 
+	 *
 	 * <p>
 	 * If {@code value} is already a {@link BigDecimal} it will be returned
 	 * directly. Otherwise a new {@link BigDecimal} instance will be created out
 	 * of {@code value}.
 	 * </p>
-	 * 
+	 *
 	 * @param value
 	 *        the number to get a {@code BigDecimal} version of
 	 * @return the {@code BigDecimal} version of {@code value}, or
@@ -184,13 +184,13 @@ public final class NumberUtils {
 
 	/**
 	 * Get a {@link BigInteger} for a number.
-	 * 
+	 *
 	 * <p>
 	 * If {@code value} is already a {@link BigInteger} it will be returned
 	 * directly. Otherwise a new {@link BigInteger} instance will be created out
 	 * of {@code value}.
 	 * </p>
-	 * 
+	 *
 	 * @param value
 	 *        the number to get a {@code BigInteger} version of
 	 * @return the {@code BigInteger} version of {@code value}, or
@@ -213,7 +213,7 @@ public final class NumberUtils {
 
 	/**
 	 * Get an array of {@link BigDecimal} instances from string values.
-	 * 
+	 *
 	 * @param nums
 	 *        the string numbers
 	 * @return the array
@@ -232,11 +232,11 @@ public final class NumberUtils {
 
 	/**
 	 * Calculate the CRC-16 checksum value from a set of data.
-	 * 
+	 *
 	 * <p>
 	 * Adapted from https://introcs.cs.princeton.edu/java/61data/CRC16.java.
 	 * </p>
-	 * 
+	 *
 	 * @param data
 	 *        the data to checksum
 	 * @param offset
@@ -259,12 +259,12 @@ public final class NumberUtils {
 
 	/**
 	 * Get the whole part of a {@link BigDecimal} as a {@link BigInteger}.
-	 * 
+	 *
 	 * <p>
 	 * If whole portion of the decimal is returned without any rounding from the
 	 * fractional part of the decimal.
 	 * </p>
-	 * 
+	 *
 	 * @param decimal
 	 *        the decimal
 	 * @return the whole part as an integer, or zero if {@code decimal} is
@@ -281,7 +281,7 @@ public final class NumberUtils {
 
 	/**
 	 * Get the fractional part of a {@link BigDecimal} as a {@link BigInteger}.
-	 * 
+	 *
 	 * @param decimal
 	 *        the decimal
 	 * @return the fractional part as an integer, or zero if {@code decimal} is
@@ -298,13 +298,13 @@ public final class NumberUtils {
 	/**
 	 * Get the fractional part of a {@link BigDecimal} as a {@link BigInteger}
 	 * with a maximum scale.
-	 * 
+	 *
 	 * <p>
 	 * If the fractional part must be rounded, the {@link RoundingMode#FLOOR}
 	 * method (when positive) or {@link RoundingMode#CEILING} (when negative)
 	 * will be used to truncate the value to keep it within the desired scale.
 	 * </p>
-	 * 
+	 *
 	 * @param decimal
 	 *        the decimal
 	 * @param maxScale
@@ -325,12 +325,12 @@ public final class NumberUtils {
 	/**
 	 * Get the fractional part of a {@link BigDecimal} as a {@link BigInteger},
 	 * scaled by some power of ten.
-	 * 
+	 *
 	 * <p>
 	 * For example, to convert the fractional part to "nano" scale, pass in
 	 * {@literal 9} for the scale.
 	 * </p>
-	 * 
+	 *
 	 * @param decimal
 	 *        the decimal to get the scaled fractional part from
 	 * @param scale
@@ -352,7 +352,7 @@ public final class NumberUtils {
 
 	/**
 	 * Scale a number by a power of 10.
-	 * 
+	 *
 	 * @param num
 	 *        the number to scale
 	 * @param scale
@@ -378,7 +378,7 @@ public final class NumberUtils {
 
 	/**
 	 * Apply a maximum decimal scale to a number value.
-	 * 
+	 *
 	 * @param value
 	 *        the number to apply the maximum scale to
 	 * @param maxDecimalScale
@@ -392,7 +392,7 @@ public final class NumberUtils {
 
 	/**
 	 * Apply a multiplier to a number value.
-	 * 
+	 *
 	 * @param value
 	 *        the source number
 	 * @param multiple
@@ -411,7 +411,7 @@ public final class NumberUtils {
 
 	/**
 	 * Apply an offset to a number value.
-	 * 
+	 *
 	 * @param value
 	 *        the number to apply the offset to
 	 * @param offset
@@ -430,7 +430,7 @@ public final class NumberUtils {
 
 	/**
 	 * Get an integer for a {@link BitSet}.
-	 * 
+	 *
 	 * @param bs
 	 *        the bit set to convert to an integer representation
 	 * @return the integer, never {@literal null}
@@ -451,7 +451,7 @@ public final class NumberUtils {
 
 	/**
 	 * Get a {@link BitSet} for an integer.
-	 * 
+	 *
 	 * @param value
 	 *        the integer to convert to a {@link BitSet}
 	 * @return a {@link BitSet} with all set bits of {@code value} set; never
@@ -477,7 +477,7 @@ public final class NumberUtils {
 	/**
 	 * Increment and return the value from {@code n}, wrapping to
 	 * {@code restart} after {@link Integer#MAX_VALUE}.
-	 * 
+	 *
 	 * @param n
 	 *        the atomic number
 	 * @param restart
@@ -499,7 +499,7 @@ public final class NumberUtils {
 	/**
 	 * Increment and return the value from {@code n}, wrapping to
 	 * {@code restart} after {@link Long#MAX_VALUE}.
-	 * 
+	 *
 	 * @param n
 	 *        the atomic number
 	 * @param restart
@@ -519,7 +519,7 @@ public final class NumberUtils {
 
 	/**
 	 * Parse a String into a Number of a specific type.
-	 * 
+	 *
 	 * @param numberString
 	 *        the String to parse
 	 * @param numberType
@@ -545,13 +545,13 @@ public final class NumberUtils {
 	/**
 	 * Divide two {@link Number} instances using a specific implementation of
 	 * Number.
-	 * 
+	 *
 	 * <p>
 	 * Really the {@code numberType} argument should be considered a
 	 * {@code Class<? extends Number>} but to simplify calling this method any
 	 * Class is allowed.
 	 * </p>
-	 * 
+	 *
 	 * @param dividend
 	 *        the dividend value
 	 * @param divisor
@@ -578,11 +578,11 @@ public final class NumberUtils {
 
 	/**
 	 * Subtract two Number instances.
-	 * 
+	 *
 	 * <p>
 	 * The returned Number will be an instance of the {@code start} class.
 	 * </p>
-	 * 
+	 *
 	 * @param start
 	 *        the starting number to subtract from
 	 * @param offset
@@ -607,11 +607,11 @@ public final class NumberUtils {
 
 	/**
 	 * Multiply two Number instances.
-	 * 
+	 *
 	 * <p>
 	 * The returned Number will be an instance of the {@code a} class.
 	 * </p>
-	 * 
+	 *
 	 * @param a
 	 *        first number
 	 * @param b
@@ -637,17 +637,17 @@ public final class NumberUtils {
 	/**
 	 * Format a count in a "human readable" format, with progressively larger SI
 	 * units.
-	 * 
+	 *
 	 * <p>
 	 * For example this method will return {@literal 7.1 MB} for input of
 	 * {@literal 7077888}.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * Adapted from
 	 * <a href="https://stackoverflow.com/a/3758880/3072216">@aioobe on Stack
 	 * Overflow</a>
-	 * 
+	 *
 	 * @param count
 	 *        the count to format
 	 * @return the count formatted as a string
@@ -667,7 +667,7 @@ public final class NumberUtils {
 
 	/**
 	 * Return the minimum between two number values.
-	 * 
+	 *
 	 * @param n1
 	 *        the first number
 	 * @param n2
@@ -707,7 +707,7 @@ public final class NumberUtils {
 
 	/**
 	 * Return the maximum between two number values.
-	 * 
+	 *
 	 * @param n1
 	 *        the first number
 	 * @param n2
@@ -748,11 +748,11 @@ public final class NumberUtils {
 	/**
 	 * Round a number towards zero to the nearest integer multiple of a specific
 	 * significance.
-	 * 
+	 *
 	 * <p>
 	 * This method rounds using the {@link RoundingMode#DOWN} mode.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param significance
@@ -769,11 +769,11 @@ public final class NumberUtils {
 	/**
 	 * Round a number towards zero to the nearest integer multiple of a specific
 	 * significance.
-	 * 
+	 *
 	 * <p>
 	 * This method rounds using the {@link RoundingMode#UP} mode.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param significance
@@ -790,11 +790,11 @@ public final class NumberUtils {
 	/**
 	 * Round positive numbers towards zero and negative numbers away from zero,
 	 * to the nearest integer multiple of a specific significance.
-	 * 
+	 *
 	 * <p>
 	 * This method rounds using the {@link RoundingMode#FLOOR} mode.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param significance
@@ -811,11 +811,11 @@ public final class NumberUtils {
 	/**
 	 * Round positive numbers away from zero and negative numbers towards zero,
 	 * to the nearest integer multiple of a specific significance.
-	 * 
+	 *
 	 * <p>
 	 * This method rounds using the {@link RoundingMode#CEILING} mode.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param significance
@@ -832,11 +832,11 @@ public final class NumberUtils {
 	/**
 	 * Round a number to the nearest integer multiple of a specific
 	 * significance.
-	 * 
+	 *
 	 * <p>
 	 * This method rounds using the {@link RoundingMode#HALF_UP} mode.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param significance
@@ -853,13 +853,13 @@ public final class NumberUtils {
 	/**
 	 * Round a number to the nearest integer multiple of a specific significance
 	 * using a specific rounding mode.
-	 * 
+	 *
 	 * <p>
 	 * This method supports rounding like supported by common spreadsheet
 	 * application formulas {@code CEILING}, {@code FLOOR}, and {@code MROUND},
 	 * which accept a significance factor to round to.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param significance
@@ -889,7 +889,7 @@ public final class NumberUtils {
 	/**
 	 * Round a number to a maximum number of decimal digits using the
 	 * {@link RoundingMode#HALF_UP} mode.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param digits
@@ -905,7 +905,7 @@ public final class NumberUtils {
 
 	/**
 	 * Round a number away from zero to a maximum number of decimal digits.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param digits
@@ -921,7 +921,7 @@ public final class NumberUtils {
 
 	/**
 	 * Round a number towards zero to a maximum number of decimal digits.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param digits
@@ -937,7 +937,7 @@ public final class NumberUtils {
 
 	/**
 	 * Round a number to a maximum number of decimal digits.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param digits
@@ -966,11 +966,11 @@ public final class NumberUtils {
 	/**
 	 * Narrow a number to the smallest possible number type that can exactly
 	 * represent the given number.
-	 * 
+	 *
 	 * <p>
 	 * If {@code n} cannot be narrowed then {@code n} is returned.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to narrow
 	 * @param minBytePower
@@ -1029,11 +1029,11 @@ public final class NumberUtils {
 	/**
 	 * Narrow a {@link BigInteger} to the smallest possible number type that can
 	 * exactly represent the given number.
-	 * 
+	 *
 	 * <p>
 	 * If {@code n} cannot be narrowed then {@code n} is returned.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to narrow
 	 * @param minBytePower
@@ -1083,11 +1083,11 @@ public final class NumberUtils {
 	/**
 	 * Narrow a {@link BigDecimal} to the smallest possible number type that can
 	 * exactly represent the given number.
-	 * 
+	 *
 	 * <p>
 	 * If {@code n} cannot be narrowed then {@code n} is returned.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to narrow
 	 * @param minBytePower
@@ -1148,7 +1148,7 @@ public final class NumberUtils {
 
 	/**
 	 * Attempt to convert a {@link BigDecimal} exactly to a {@code float}.
-	 * 
+	 *
 	 * @param n
 	 *        the number to convert
 	 * @return the converted value, or {@literal null} if {@code n} is
@@ -1172,7 +1172,7 @@ public final class NumberUtils {
 
 	/**
 	 * Attempt to convert a {@link BigDecimal} exactly to a {@code double}.
-	 * 
+	 *
 	 * @param n
 	 *        the number to convert
 	 * @return the converted value, or {@literal null} if {@code n} is
@@ -1192,6 +1192,76 @@ public final class NumberUtils {
 			}
 		}
 		throw new ArithmeticException("Overflow");
+	}
+
+	/**
+	 * Perform linear interpolation of a value over an input range on an output
+	 * range.
+	 *
+	 * <p>
+	 * No error checking is performed on the input values. A scale of {@code 12}
+	 * is used.
+	 * </p>
+	 *
+	 * @param x
+	 *        the value to interpolate
+	 * @param x1
+	 *        the minimum range of the {@code x} value
+	 * @param x2
+	 *        the maximum range of the {@code x} value
+	 * @param y1
+	 *        the minimum output range to interpolate on
+	 * @param y2
+	 *        the maximum output range to interpolate on
+	 * @return an interpolated value <em>y</em> in the range {@code y1} -
+	 *         {@code y2}
+	 * @since 1.11
+	 * @see #linearInterpolate(Number, Number, Number, Number, Number, int)
+	 */
+	public static Number linearInterpolate(Number x, Number x1, Number x2, Number y1, Number y2) {
+		return linearInterpolate(x, x1, x2, y1, y2, 12);
+	}
+
+	/**
+	 * Perform linear interpolation of a value over an input range on an output
+	 * range.
+	 *
+	 * <p>
+	 * No error checking is performed on the input values.
+	 * </p>
+	 *
+	 * @param x
+	 *        the value to interpolate
+	 * @param x1
+	 *        the minimum range of the {@code x} value
+	 * @param x2
+	 *        the maximum range of the {@code x} value
+	 * @param y1
+	 *        the minimum output range to interpolate on
+	 * @param y2
+	 *        the maximum output range to interpolate on
+	 * @param scale
+	 *        the decimal scale to use
+	 * @return an interpolated value <em>y</em> in the range {@code y1} -
+	 *         {@code y2}
+	 * @since 1.11
+	 */
+	public static Number linearInterpolate(Number x, Number x1, Number x2, Number y1, Number y2,
+			int scale) {
+		if ( x == null || x1 == null || x2 == null || y1 == null || y2 == null ) {
+			return null;
+		}
+		BigDecimal x1n = bigDecimalForNumber(x1);
+		BigDecimal y1n = bigDecimalForNumber(y1);
+		BigDecimal y2n = bigDecimalForNumber(y2);
+		// @formatter:off
+		return bigDecimalForNumber(x)
+				.subtract(x1n)
+				.multiply(y2n.subtract(y1n))
+				.divide(bigDecimalForNumber(x2).subtract(x1n), scale, RoundingMode.HALF_UP)
+				.add(y1n)
+				.stripTrailingZeros();
+		// @formatter:on
 	}
 
 }
