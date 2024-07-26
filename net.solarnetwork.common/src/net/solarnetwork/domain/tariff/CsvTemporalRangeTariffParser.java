@@ -123,8 +123,8 @@ public class CsvTemporalRangeTariffParser {
 	 * @throws IllegalArgumentException
 	 *         if any parsing error occurs, like invalid number or range syntax
 	 */
-	public List<TemporalRangesTariff> parseTariffs(Reader reader) throws IOException {
-		List<TemporalRangesTariff> result = new ArrayList<>();
+	public List<ChronoFieldsTariff> parseTariffs(Reader reader) throws IOException {
+		List<ChronoFieldsTariff> result = new ArrayList<>();
 		try (ICsvListReader csvReader = new CsvListReader(reader, CsvPreference.STANDARD_PREFERENCE)) {
 			String[] headers = csvReader.getHeader(true);
 			if ( headers == null || headers.length < 5 ) {
@@ -169,8 +169,8 @@ public class CsvTemporalRangeTariffParser {
 							// ignore and continue
 						}
 					}
-					TemporalRangesTariff t = new TemporalRangesTariff(row.get(0), row.get(1), row.get(2),
-							modRange, rates, locale);
+					TemporalRangeSetsTariff t = new TemporalRangeSetsTariff(row.get(0), row.get(1),
+							row.get(2), modRange, rates, locale);
 					result.add(t);
 				} catch ( NumberFormatException e ) {
 					throw new IllegalArgumentException(
@@ -209,7 +209,7 @@ public class CsvTemporalRangeTariffParser {
 	 * @throws IllegalArgumentException
 	 *         if any formatting error occurs
 	 */
-	public void formatCsv(List<TemporalRangesTariff> tariffs, Writer writer) throws IOException {
+	public void formatCsv(List<ChronoFieldsTariff> tariffs, Writer writer) throws IOException {
 		if ( tariffs == null || tariffs.isEmpty() ) {
 			return;
 		}
@@ -230,7 +230,7 @@ public class CsvTemporalRangeTariffParser {
 					headers[i] = StringUtils.simpleIdValue(headers[i]);
 				}
 
-				for ( TemporalRangesTariff tariff : tariffs ) {
+				for ( ChronoFieldsTariff tariff : tariffs ) {
 					encodeToCsv(tariff, headers, csvWriter);
 				}
 			} catch ( DateTimeException e ) {
@@ -245,13 +245,17 @@ public class CsvTemporalRangeTariffParser {
 		}
 	}
 
-	private void encodeToCsv(TemporalRangesTariff tariff, String[] headers, ICsvListWriter csvWriter)
+	private void encodeToCsv(ChronoFieldsTariff tariff, String[] headers, ICsvListWriter csvWriter)
 			throws IOException {
 		String[] row = new String[headers.length];
-		row[0] = formatRange(ChronoField.MONTH_OF_YEAR, tariff.getMonthRange(), locale, SHORT);
-		row[1] = formatRange(ChronoField.DAY_OF_MONTH, tariff.getDayOfMonthRange(), locale, SHORT);
-		row[2] = formatRange(ChronoField.DAY_OF_WEEK, tariff.getDayOfWeekRange(), locale, SHORT);
-		row[3] = formatRange(ChronoField.MINUTE_OF_DAY, tariff.getMinuteOfDayRange(), locale, SHORT);
+		row[0] = formatRange(ChronoField.MONTH_OF_YEAR,
+				tariff.rangeForChronoField(ChronoField.MONTH_OF_YEAR), locale, SHORT);
+		row[1] = formatRange(ChronoField.DAY_OF_MONTH,
+				tariff.rangeForChronoField(ChronoField.DAY_OF_MONTH), locale, SHORT);
+		row[2] = formatRange(ChronoField.DAY_OF_WEEK,
+				tariff.rangeForChronoField(ChronoField.DAY_OF_WEEK), locale, SHORT);
+		row[3] = formatRange(ChronoField.MINUTE_OF_DAY,
+				tariff.rangeForChronoField(ChronoField.MINUTE_OF_DAY), locale, SHORT);
 		for ( int i = 4; i < headers.length; i++ ) {
 			Rate r = tariff.getRates().get(headers[i]);
 			row[i] = (r != null ? r.getAmount().toPlainString() : null);
@@ -259,7 +263,7 @@ public class CsvTemporalRangeTariffParser {
 		csvWriter.write(row);
 	}
 
-	private List<String> extractRateDescriptions(List<TemporalRangesTariff> tariffs) {
+	private List<String> extractRateDescriptions(List<ChronoFieldsTariff> tariffs) {
 		return new ArrayList<>(tariffs.stream().flatMap(t -> t.getRates().values().stream())
 				.map(Rate::getDescription).collect(Collectors.toCollection(LinkedHashSet::new)));
 	}

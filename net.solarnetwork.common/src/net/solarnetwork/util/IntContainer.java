@@ -1,7 +1,7 @@
 /* ==================================================================
- * TariffSchedule.java - 12/05/2021 8:38:44 AM
+ * IntContainer.java - 26/07/2024 3:12:42 pm
  *
- * Copyright 2021 SolarNetwork.net Dev Team
+ * Copyright 2024 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,41 +20,40 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain.tariff;
-
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+package net.solarnetwork.util;
 
 /**
- * API for a tariff schedule, that can resolve a tariff based on a date.
+ * API for an object that contains some collection of ints.
  *
  * @author matt
- * @version 1.1
- * @since 1.71
+ * @version 1.0
+ * @since 3.16
  */
-public interface TariffSchedule {
+public interface IntContainer {
 
 	/**
-	 * Resolve a tariff.
+	 * Test if a value is present in this container.
 	 *
-	 * @param dateTime
-	 *        the date to resolve a tariff for
-	 * @param parameters
-	 *        optional parameters
-	 * @return the tariff, or {@literal null} if no tariff applies
+	 * @param value
+	 *        the value to test
+	 * @return {@literal true} if {@code value} is present in this instance
 	 */
-	Tariff resolveTariff(LocalDateTime dateTime, Map<String, ?> parameters);
+	boolean contains(int value);
 
 	/**
-	 * Get all available rules in the schedule.
+	 * Get the minimum value in this container.
 	 *
-	 * @return the rules, or an empty collection if none available
-	 * @since 1.1
+	 * @return the minimum value contained in this instance, or {@literal null}
+	 *         if the container is empty
 	 */
-	default Collection<? extends Tariff> rules() {
-		return Collections.emptyList();
-	}
+	Integer min();
+
+	/**
+	 * Get the maximum value in this container.
+	 *
+	 * @return the minimum value contained in this instance, or {@literal null}
+	 *         if the container is empty
+	 */
+	Integer max();
 
 }

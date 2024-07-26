@@ -77,8 +77,8 @@ public final class TariffUtils {
 	 */
 	public static TariffSchedule parseCsvTemporalRangeSchedule(final Locale locale,
 			final boolean preserveRateCase, final boolean firstMatchOnly,
-			final TemporalRangesTariffEvaluator evaluator, Object scheduleData) throws IOException {
-		List<TemporalRangesTariff> tariffs;
+			final TemporalTariffEvaluator evaluator, Object scheduleData) throws IOException {
+		List<ChronoFieldsTariff> tariffs;
 		if ( scheduleData instanceof String || scheduleData instanceof Reader ) {
 			// parse as CSV
 			tariffs = new CsvTemporalRangeTariffParser(locale, preserveRateCase)
@@ -103,7 +103,7 @@ public final class TariffUtils {
 						String id = StringUtils.simpleIdValue(name, preserveRateCase);
 						rates.add(new SimpleTariffRate(id, name, new BigDecimal(row[j])));
 					}
-					TemporalRangesTariff tariff = new TemporalRangesTariff(row[0], row[1], row[2],
+					TemporalRangeSetsTariff tariff = new TemporalRangeSetsTariff(row[0], row[1], row[2],
 							row[3], rates, locale);
 					tariffs.add(tariff);
 				}

@@ -31,14 +31,15 @@ import static org.hamcrest.Matchers.nullValue;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import org.junit.Test;
 import org.springframework.util.FileCopyUtils;
 import net.solarnetwork.domain.tariff.SimpleTemporalTariffSchedule;
+import net.solarnetwork.domain.tariff.Tariff;
 import net.solarnetwork.domain.tariff.TariffSchedule;
 import net.solarnetwork.domain.tariff.TariffUtils;
-import net.solarnetwork.domain.tariff.TemporalRangesTariff;
 
 /**
  * Test cases for the {@link TariffUtils} class.
@@ -82,8 +83,8 @@ public class TariffUtilsTests {
 		// THEN
 		assertThat("SimpleTemporalTariffSchedule provided", result,
 				is(instanceOf(SimpleTemporalTariffSchedule.class)));
-		SimpleTemporalTariffSchedule schedule = (SimpleTemporalTariffSchedule) result;
-		List<TemporalRangesTariff> tariffs = schedule.getRules();
+		List<Tariff> tariffs = new ArrayList<>();
+		tariffs.addAll(result.rules());
 		assertThat("All rules parsed", tariffs, hasSize(4));
 		assertTemporalRangeTariff("Row 1", tariffs.get(0), "January-December", null, "Mon-Fri", "0-8",
 				"10.48");
@@ -107,8 +108,8 @@ public class TariffUtilsTests {
 			// THEN
 			assertThat("SimpleTemporalTariffSchedule provided", result,
 					is(instanceOf(SimpleTemporalTariffSchedule.class)));
-			SimpleTemporalTariffSchedule schedule = (SimpleTemporalTariffSchedule) result;
-			List<TemporalRangesTariff> tariffs = schedule.getRules();
+			List<Tariff> tariffs = new ArrayList<>();
+			tariffs.addAll(result.rules());
 			assertThat("All rules parsed", tariffs, hasSize(4));
 			assertTemporalRangeTariff("Row 1", tariffs.get(0), "January-December", null, "Mon-Fri",
 					"0-8", "10.48");
@@ -136,8 +137,8 @@ public class TariffUtilsTests {
 		// THEN
 		assertThat("SimpleTemporalTariffSchedule provided", result,
 				is(instanceOf(SimpleTemporalTariffSchedule.class)));
-		SimpleTemporalTariffSchedule schedule = (SimpleTemporalTariffSchedule) result;
-		List<TemporalRangesTariff> tariffs = schedule.getRules();
+		List<Tariff> tariffs = new ArrayList<>();
+		tariffs.addAll(result.rules());
 		assertThat("All rules parsed", tariffs, hasSize(2));
 		assertTemporalRangeTariff("Row 1", tariffs.get(0), "January-December", null, "Mon-Fri", "0-8",
 				"10.48");
