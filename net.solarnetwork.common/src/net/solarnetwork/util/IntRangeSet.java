@@ -47,11 +47,11 @@ import java.util.function.IntConsumer;
  * </p>
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.58
  */
 public class IntRangeSet extends AbstractSet<Integer>
-		implements NavigableSet<Integer>, IntOrderedIterable, Cloneable {
+		implements NavigableSet<Integer>, IntRangeContainer, IntOrderedIterable, Cloneable {
 
 	private final boolean immutable;
 	private final List<IntRange> ranges;
@@ -136,8 +136,13 @@ public class IntRangeSet extends AbstractSet<Integer>
 		if ( !(o instanceof Integer) ) {
 			return false;
 		}
+		return contains(((Integer) o).intValue());
+	}
+
+	@Override
+	public boolean contains(int value) {
 		for ( IntRange r : ranges ) {
-			if ( r.contains((Integer) o) ) {
+			if ( r.contains(value) ) {
 				return true;
 			}
 		}
@@ -397,6 +402,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	 * @return the disjoint ranges in this set, ordered from least to greatest,
 	 *         never {@literal null}
 	 */
+	@Override
 	public Iterable<IntRange> ranges() {
 		return ranges;
 	}
@@ -426,6 +432,17 @@ public class IntRangeSet extends AbstractSet<Integer>
 	public Integer last() {
 		IntRange r = (ranges.isEmpty() ? null : ranges.get(ranges.size() - 1));
 		return (r != null ? r.getMax() : null);
+	}
+
+	@Override
+	public Integer min() {
+		// TODO Auto-generated method stub
+		return first();
+	}
+
+	@Override
+	public Integer max() {
+		return last();
 	}
 
 	@Override

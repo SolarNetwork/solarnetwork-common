@@ -1,21 +1,21 @@
 /* ==================================================================
  * NumberUtilsTests.java - 15/03/2018 2:54:58 PM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -41,9 +41,9 @@ import net.solarnetwork.util.NumberUtils;
 
 /**
  * Unit tests for the {@link NumberUtils} class.
- * 
+ *
  * @author matt
- * @version 1.5
+ * @version 1.6
  */
 public class NumberUtilsTests {
 
@@ -869,6 +869,16 @@ public class NumberUtilsTests {
 		assertThat("narrowed to float", NumberUtils.narrow(123.0, 0), is(123.0f));
 		Number n = 1238909809.190298093;
 		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
+	}
+
+	@Test
+	public void linearInterp() {
+		assertThat("interpolated simple", NumberUtils.linearInterpolate(20, 10, 50, 0, 4),
+				is(new BigDecimal("1")));
+		assertThat("interpolated using multiplication before division",
+				NumberUtils.linearInterpolate(11, 3, 17, 12, 47), is(new BigDecimal("32")));
+		assertThat("interpolated to fraction", NumberUtils.linearInterpolate(13, 1, 99, 0, 10),
+				is(new BigDecimal("1.224489795918")));
 	}
 
 }

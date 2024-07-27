@@ -1,7 +1,7 @@
 /* ==================================================================
- * TariffSchedule.java - 12/05/2021 8:38:44 AM
+ * IntRangeContainer.java - 26/07/2024 3:21:31 pm
  *
- * Copyright 2021 SolarNetwork.net Dev Team
+ * Copyright 2024 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,41 +20,22 @@
  * ==================================================================
  */
 
-package net.solarnetwork.domain.tariff;
-
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+package net.solarnetwork.util;
 
 /**
- * API for a tariff schedule, that can resolve a tariff based on a date.
+ * API for a container of {@link IntRange} objects.
  *
  * @author matt
- * @version 1.1
- * @since 1.71
+ * @version 1.0
+ * @since 3.16
  */
-public interface TariffSchedule {
+public interface IntRangeContainer extends IntContainer {
 
 	/**
-	 * Resolve a tariff.
+	 * Get an iterable over the ranges in this container.
 	 *
-	 * @param dateTime
-	 *        the date to resolve a tariff for
-	 * @param parameters
-	 *        optional parameters
-	 * @return the tariff, or {@literal null} if no tariff applies
+	 * @return an iterable
 	 */
-	Tariff resolveTariff(LocalDateTime dateTime, Map<String, ?> parameters);
-
-	/**
-	 * Get all available rules in the schedule.
-	 *
-	 * @return the rules, or an empty collection if none available
-	 * @since 1.1
-	 */
-	default Collection<? extends Tariff> rules() {
-		return Collections.emptyList();
-	}
+	Iterable<IntRange> ranges();
 
 }

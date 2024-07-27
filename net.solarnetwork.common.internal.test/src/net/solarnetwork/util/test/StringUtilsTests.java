@@ -64,7 +64,7 @@ import net.solarnetwork.util.StringUtils;
  * Unit test for the StringUtils class.
  *
  * @author matt
- * @version 1.6
+ * @version 1.7
  */
 public class StringUtilsTests {
 
@@ -467,49 +467,55 @@ public class StringUtilsTests {
 	@Test
 	public void simpleIdValue_basic() {
 		String id = StringUtils.simpleIdValue("This Is A Title");
-		assertThat("Empty ID generated", id, equalTo("this_is_a_title"));
+		assertThat("ID generated", id, equalTo("this_is_a_title"));
+	}
+
+	@Test
+	public void simpleIdValue_basic_preserveCase() {
+		String id = StringUtils.simpleIdValue("This Is A Title", true);
+		assertThat("ID generated", id, equalTo("This_Is_A_Title"));
 	}
 
 	@Test
 	public void simpleIdValue_noChange() {
 		String id = StringUtils.simpleIdValue("this_is_a_title");
-		assertThat("Empty ID generated", id, equalTo("this_is_a_title"));
+		assertThat("ID generated", id, equalTo("this_is_a_title"));
 	}
 
 	@Test
 	public void simpleIdValue_trim() {
 		String id = StringUtils.simpleIdValue(" This Is A Title ");
-		assertThat("Empty ID generated", id, equalTo("this_is_a_title"));
+		assertThat("ID generated", id, equalTo("this_is_a_title"));
 	}
 
 	@Test
 	public void simpleIdValue_coalesce() {
 		String id = StringUtils.simpleIdValue("Hello, world");
-		assertThat("Empty ID generated", id, equalTo("hello_world"));
+		assertThat("ID generated", id, equalTo("hello_world"));
 	}
 
 	@Test
 	public void simpleIdValue_remove_prefix() {
 		String id = StringUtils.simpleIdValue("! Hello");
-		assertThat("Empty ID generated", id, equalTo("hello"));
+		assertThat("ID generated", id, equalTo("hello"));
 	}
 
 	@Test
 	public void simpleIdValue_remove_suffix() {
 		String id = StringUtils.simpleIdValue("Hello!!");
-		assertThat("Empty ID generated", id, equalTo("hello"));
+		assertThat("ID generated", id, equalTo("hello"));
 	}
 
 	@Test
 	public void simpleIdValue_remove_prefixAndsuffix() {
 		String id = StringUtils.simpleIdValue("!!Hello!!");
-		assertThat("Empty ID generated", id, equalTo("hello"));
+		assertThat("ID generated", id, equalTo("hello"));
 	}
 
 	@Test
 	public void simpleIdValue_complex() {
 		String id = StringUtils.simpleIdValue("!! OMG, is this like, SOO **complex**, or what?!");
-		assertThat("Empty ID generated", id, equalTo("omg_is_this_like_soo_complex_or_what"));
+		assertThat("ID generated", id, equalTo("omg_is_this_like_soo_complex_or_what"));
 	}
 
 	@Test

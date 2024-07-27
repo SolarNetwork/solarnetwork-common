@@ -1,21 +1,21 @@
 /* ==================================================================
  * DatumMathFunctionsTests.java - 24/05/2022 3:17:52 pm
- * 
+ *
  * Copyright 2022 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -33,9 +33,9 @@ import net.solarnetwork.domain.datum.DatumMathFunctions;
 
 /**
  * Test cases for the {@link DatumMathFunctions} interface.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class DatumMathFunctionsTests implements DatumMathFunctions {
 
@@ -155,6 +155,17 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 				is(1024102410241024L));
 		assertThat("integer input returns integer", narrow64(integer("1024102410241024102410241024")),
 				is(new BigInteger("1024102410241024102410241024")));
+	}
+
+	@Test
+	public void interp() {
+		assertThat("interpolated", interp(20, 10, 50, 0, 4), is(new BigDecimal("1")));
+		assertThat("interpolated", interp(11, 3, 17, 12, 47), is(new BigDecimal("32")));
+	}
+
+	@Test
+	public void exp() {
+		assertThat("exp calculated", exp(2), is(Math.exp(2)));
 	}
 
 }

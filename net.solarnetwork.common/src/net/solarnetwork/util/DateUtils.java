@@ -1,21 +1,21 @@
 /* ==================================================================
  * DateUtils.java - 12/02/2020 7:04:10 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -49,12 +49,13 @@ import java.time.temporal.TemporalQueries;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.util.StringUtils;
 
 /**
  * Date and time utilities.
- * 
+ *
  * @author matt
- * @version 2.2
+ * @version 2.3
  * @since 1.59
  */
 public final class DateUtils {
@@ -67,7 +68,7 @@ public final class DateUtils {
 	 * Date and time formatter using the ISO 8601 style but with an optional
 	 * time component and a space character for the date/time separator instead
 	 * of {@literal T}.
-	 * 
+	 *
 	 * <p>
 	 * This supports patterns like:
 	 * </p>
@@ -78,12 +79,12 @@ public final class DateUtils {
 	 * <li>{@literal 2020-02-01+12:00}</li>
 	 * <li>{@literal 2020-02-01}</li>
 	 * </ul>
-	 * 
+	 *
 	 * <p>
 	 * Note that parsing the date + zone form like {@literal 2020-02-01+12:00}
 	 * requires using a {@link java.time.temporal.TemporalAccessor}, like:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>TemporalAccessor ta = DateUtils.ISO_DATE_OPT_TIME_ALT.parse("2020-02-01+12:00");
 	 * ZonedDateTime ts = LocalDate.from(ta).atStartOfDay(ZoneId.from(ta));</code>
@@ -120,7 +121,7 @@ public final class DateUtils {
 	/**
 	 * Date and time formatter using the ISO 8601 style but with an optional
 	 * time component.
-	 * 
+	 *
 	 * <p>
 	 * This supports patterns like:
 	 * </p>
@@ -131,17 +132,17 @@ public final class DateUtils {
 	 * <li>{@literal 2020-02-01+12:00}</li>
 	 * <li>{@literal 2020-02-01}</li>
 	 * </ul>
-	 * 
+	 *
 	 * <p>
 	 * Note that parsing the date + zone form like {@literal 2020-02-01+12:00}
 	 * requires using a {@link java.time.temporal.TemporalAccessor}, like:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>TemporalAccessor ta = DateUtils.ISO_DATE_OPT_TIME.parse("2020-02-01+12:00");
 	 * ZonedDateTime ts = LocalDate.from(ta).atStartOfDay(ZoneId.from(ta));</code>
 	 * </pre>
-	 * 
+	 *
 	 * @since 2.2
 	 */
 	public static final DateTimeFormatter ISO_DATE_OPT_TIME;
@@ -161,7 +162,7 @@ public final class DateUtils {
 	/**
 	 * Date and time formatter based on {@link #ISO_DATE_OPT_TIME} with a UTC
 	 * time zone offset applied.
-	 * 
+	 *
 	 * @since 2.2
 	 */
 	public static final DateTimeFormatter ISO_DATE_OPT_TIME_UTC = ISO_DATE_OPT_TIME_ALT
@@ -170,7 +171,7 @@ public final class DateUtils {
 	/**
 	 * Date and time formatter based on {@link #ISO_DATE_OPT_TIME} with the
 	 * local system default time zone applied.
-	 * 
+	 *
 	 * @since 2.2
 	 */
 	public static final DateTimeFormatter ISO_DATE_OPT_TIME_LOCAL = ISO_DATE_OPT_TIME_ALT
@@ -179,7 +180,7 @@ public final class DateUtils {
 	/**
 	 * Date and time formatter using the ISO 8601 style but with a space
 	 * character for the date/time separator instead of {@literal T}.
-	 * 
+	 *
 	 * <p>
 	 * This supports patterns like:
 	 * </p>
@@ -188,7 +189,7 @@ public final class DateUtils {
 	 * <li>{@literal 2020-02-01 20:12:34}</li>
 	 * <li>{@literal 2020-02-01 20:12}</li>
 	 * </ul>
-	 * 
+	 *
 	 * @since 1.1
 	 */
 	public static final DateTimeFormatter ISO_DATE_TIME_ALT;
@@ -208,7 +209,7 @@ public final class DateUtils {
 	/**
 	 * Date and time formatter based on {@link #ISO_DATE_TIME_ALT} with a UTC
 	 * time zone offset applied.
-	 * 
+	 *
 	 * @since 1.1
 	 */
 	public static final DateTimeFormatter ISO_DATE_TIME_ALT_UTC = ISO_DATE_TIME_ALT
@@ -217,7 +218,7 @@ public final class DateUtils {
 	/**
 	 * Local time formatted for standard local time values like
 	 * {@literal HH:mm}.
-	 * 
+	 *
 	 * @since 1.4
 	 * @see #LOCAL_TIME_FULL
 	 */
@@ -235,11 +236,11 @@ public final class DateUtils {
 	/**
 	 * Local time formatted for standard local time values like
 	 * {@literal yyyy-MM-dd}.
-	 * 
+	 *
 	 * <p>
 	 * This is just an alias for {@link DateTimeFormatter#ISO_LOCAL_DATE}.
 	 * </p>
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public static final DateTimeFormatter LOCAL_DATE = DateTimeFormatter.ISO_LOCAL_DATE;
@@ -247,11 +248,11 @@ public final class DateUtils {
 	/**
 	 * Local time formatted for standard local time values like
 	 * {@literal HH:mm:ss}.
-	 * 
+	 *
 	 * <p>
 	 * This is just an alias for {@link DateTimeFormatter#ISO_LOCAL_TIME}.
 	 * </p>
-	 * 
+	 *
 	 * @since 2.0
 	 * @see #LOCAL_TIME
 	 */
@@ -259,7 +260,7 @@ public final class DateUtils {
 
 	/**
 	 * Format for a long date and short time, for display purposes.
-	 * 
+	 *
 	 * @since 1.5
 	 */
 	public static final DateTimeFormatter DISPLAY_DATE_LONG_TIME_SHORT = DateTimeFormatter
@@ -269,7 +270,7 @@ public final class DateUtils {
 	 * Date and time formatter using the ISO 8601 style for local time with
 	 * optional seconds, but with an optional milliseconds of second fraction
 	 * component (instead of nanoseconds of second).
-	 * 
+	 *
 	 * <p>
 	 * This supports patterns like:
 	 * </p>
@@ -278,7 +279,7 @@ public final class DateUtils {
 	 * <li>{@literal 20:12:34}</li>
 	 * <li>{@literal 20:12}</li>
 	 * </ul>
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public static final DateTimeFormatter ISO_LOCAL_TIME_OPT_MILLIS;
@@ -302,7 +303,7 @@ public final class DateUtils {
 	 * Date and time formatter using the ISO 8601 style but with an optional
 	 * time component using an optional milliseconds of second component, and a
 	 * space character for the date/time separator instead of {@literal T}.
-	 * 
+	 *
 	 * <p>
 	 * This supports patterns like:
 	 * </p>
@@ -312,7 +313,7 @@ public final class DateUtils {
 	 * <li>{@literal 2020-02-01 20:12}</li>
 	 * <li>{@literal 2020-02-01}</li>
 	 * </ul>
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public static final DateTimeFormatter ISO_DATE_OPT_TIME_OPT_MILLIS_ALT;
@@ -339,7 +340,7 @@ public final class DateUtils {
 	 * Date and time formatter based on
 	 * {@link #ISO_DATE_OPT_TIME_OPT_MILLIS_ALT} with a UTC time zone offset
 	 * applied.
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public static final DateTimeFormatter ISO_DATE_OPT_TIME_OPT_MILLIS_ALT_UTC;
@@ -350,7 +351,7 @@ public final class DateUtils {
 	/**
 	 * Date and time formatter using the ISO 8601 style but with an optional
 	 * time component using an optional milliseconds of second component.
-	 * 
+	 *
 	 * <p>
 	 * This supports patterns like:
 	 * </p>
@@ -360,7 +361,7 @@ public final class DateUtils {
 	 * <li>{@literal 2020-02-01T20:12}</li>
 	 * <li>{@literal 2020-02-01}</li>
 	 * </ul>
-	 * 
+	 *
 	 * @since 2.1
 	 */
 	public static final DateTimeFormatter ISO_DATE_OPT_TIME_OPT_MILLIS;
@@ -386,7 +387,7 @@ public final class DateUtils {
 	/**
 	 * Date and time formatter based on {@link #ISO_DATE_OPT_TIME_OPT_MILLIS}
 	 * with a UTC time zone offset applied.
-	 * 
+	 *
 	 * @since 2.1
 	 */
 	public static final DateTimeFormatter ISO_DATE_OPT_TIME_OPT_MILLIS_UTC;
@@ -396,13 +397,13 @@ public final class DateUtils {
 
 	/**
 	 * Parse an ISO-8601 alternate timestamp.
-	 * 
+	 *
 	 * <p>
 	 * This method handles input values that both include or omit a time zone
 	 * offset. If a time zone offset is not provided in the input, then
 	 * {@code defaultZone} will be used to get a final result.
 	 * </p>
-	 * 
+	 *
 	 * @param value
 	 *        the date time string to parse
 	 * @param defaultZone
@@ -417,13 +418,13 @@ public final class DateUtils {
 
 	/**
 	 * Parse an ISO-8601 timestamp.
-	 * 
+	 *
 	 * <p>
 	 * This method handles input values that both include or omit a time zone
 	 * offset. If a time zone offset is not provided in the input, then
 	 * {@code defaultZone} will be used to get a final result.
 	 * </p>
-	 * 
+	 *
 	 * @param value
 	 *        the date time string to parse
 	 * @param defaultZone
@@ -439,13 +440,13 @@ public final class DateUtils {
 
 	/**
 	 * Parse an ISO-8601 alternate timestamp using a given formatter.
-	 * 
+	 *
 	 * <p>
 	 * This method handles input values that both include or omit a time zone
 	 * offset. If a time zone offset is not provided in the input, then
 	 * {@code defaultZone} will be used to get a final result.
 	 * </p>
-	 * 
+	 *
 	 * @param formatter
 	 *        the formatter, which must support {@link ZonedDateTime} parsing
 	 * @param value
@@ -489,7 +490,7 @@ public final class DateUtils {
 
 	/**
 	 * A range delimited pattern.
-	 * 
+	 *
 	 * @since 1.2
 	 */
 	public static final Pattern RANGE_DELIMITER = Pattern.compile("\\s*-\\s*");
@@ -522,12 +523,12 @@ public final class DateUtils {
 
 	/**
 	 * Parse a time range.
-	 * 
+	 *
 	 * <p>
 	 * The range can be specified using names, abbreviations, or numbers. The
 	 * range of allowed numbers varies by field.
 	 * </p>
-	 * 
+	 *
 	 * @param field
 	 *        the time field to parse
 	 * @param range
@@ -547,17 +548,82 @@ public final class DateUtils {
 		if ( locale == null ) {
 			locale = Locale.getDefault();
 		}
+		if ( ChronoField.MINUTE_OF_DAY.equals(field) ) {
+			return parseMinuteOfDayRange(range, locale);
+		}
 		return parseRange(splitRange(range), locale, field, TextStyle.FULL);
 	}
 
 	/**
+	 * Parse a time range set.
+	 *
+	 * <p>
+	 * A comma range delimiter will be used.
+	 * </p>
+	 *
+	 * @param field
+	 *        the time field to parse
+	 * @param ranges
+	 *        the range set string to parse into a time range set
+	 * @param locale
+	 *        the locale to parse the ranges as
+	 * @return the range set, or {@literal null} if {@code ranges} is
+	 *         {@literal null} or empty
+	 * @throws DateTimeException
+	 *         if any parsing error occurs
+	 * @since 2.3
+	 */
+	public static IntRangeSet parseRangeSet(TemporalField field, String ranges, Locale locale) {
+		return parseRangeSet(field, ranges, locale, ",");
+	}
+
+	/**
+	 * Parse a time range set.
+	 *
+	 * @param field
+	 *        the time field to parse
+	 * @param ranges
+	 *        the range set string to parse into a time range set
+	 * @param locale
+	 *        the locale to parse the ranges as
+	 * @param rangeDelim
+	 *        the delimiter to use between ranges
+	 * @return the range set, or {@literal null} if {@code ranges} is
+	 *         {@literal null} or empty
+	 * @throws DateTimeException
+	 *         if any parsing error occurs
+	 * @since 2.3
+	 */
+	public static IntRangeSet parseRangeSet(TemporalField field, String ranges, Locale locale,
+			String rangeDelim) {
+		if ( ranges == null ) {
+			return null;
+		}
+		if ( locale == null ) {
+			locale = Locale.getDefault();
+		}
+		String[] rangeComponents = StringUtils.delimitedListToStringArray(ranges, rangeDelim);
+		if ( rangeComponents.length < 1 ) {
+			return null;
+		}
+		IntRangeSet result = new IntRangeSet();
+		for ( String range : rangeComponents ) {
+			IntRange r = parseRange(field, range.trim(), locale);
+			if ( r != null ) {
+				result.addRange(r);
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Parse a month range.
-	 * 
+	 *
 	 * <p>
 	 * The range can be specified using month names, abbreviations, or numbers.
 	 * Months are numbered from {@literal 1-12}.
 	 * </p>
-	 * 
+	 *
 	 * @param range
 	 *        the range string to parse into a month range
 	 * @param locale
@@ -574,12 +640,12 @@ public final class DateUtils {
 
 	/**
 	 * Parse a day of month range.
-	 * 
+	 *
 	 * <p>
 	 * The range can be specified using day numbers. Days are numbered from
 	 * {@literal 1-31}.
 	 * </p>
-	 * 
+	 *
 	 * @param range
 	 *        the range string to parse into a day of month range
 	 * @param locale
@@ -596,13 +662,13 @@ public final class DateUtils {
 
 	/**
 	 * Parse a day of week range.
-	 * 
+	 *
 	 * <p>
 	 * The range can be specified using weekday names, abbreviations, or
 	 * numbers. Weekdays are numbered from {@literal 1-7} with Monday starting
 	 * at {@literal 1}.
 	 * </p>
-	 * 
+	 *
 	 * @param range
 	 *        the range string to parse into a day of week range
 	 * @param locale
@@ -619,11 +685,11 @@ public final class DateUtils {
 
 	/**
 	 * Parse a hour of day range.
-	 * 
+	 *
 	 * <p>
 	 * The range can be specified using numbers. Hours of 0 - 24 are allowed.
 	 * </p>
-	 * 
+	 *
 	 * @param range
 	 *        the range string to parse into a day of week range
 	 * @param locale
@@ -640,17 +706,17 @@ public final class DateUtils {
 
 	/**
 	 * Parse a minute of day range.
-	 * 
+	 *
 	 * <p>
 	 * The range can be specified using ISO local time strings or numbers. For
 	 * strings, the format {@literal HH:MM} is used.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * For numbers, the values are assumed to be whole hours and values between
 	 * 0 - 24 are allowed.
 	 * </p>
-	 * 
+	 *
 	 * @param range
 	 *        the range string to parse into a day of week range
 	 * @param locale
@@ -764,12 +830,12 @@ public final class DateUtils {
 
 	/**
 	 * Format a time range.
-	 * 
+	 *
 	 * <p>
 	 * The range can be specified using names, abbreviations, or numbers. The
 	 * range of allowed numbers varies by field.
 	 * </p>
-	 * 
+	 *
 	 * @param field
 	 *        the time field to format
 	 * @param range
@@ -796,32 +862,111 @@ public final class DateUtils {
 	}
 
 	/**
+	 * Format a time range set.
+	 *
+	 * <p>
+	 * The range can be specified using names, abbreviations, or numbers. The
+	 * range of allowed numbers varies by field.
+	 * </p>
+	 *
+	 * <p>
+	 * A comma will be used for the range delimiter.
+	 * </p>
+	 *
+	 * @param field
+	 *        the time field to format
+	 * @param range
+	 *        the range to format into a string
+	 * @param locale
+	 *        the locale to format the range as, or {@literal null} to use the
+	 *        system default
+	 * @param style
+	 *        the formatting style
+	 * @return the range string
+	 * @throws DateTimeException
+	 *         if any formatting error occurs
+	 * @since 2.3
+	 * @see #formatRange(ChronoField, IntRangeContainer, Locale, TextStyle,
+	 *      String)
+	 */
+	public static String formatRange(ChronoField field, IntRangeContainer range, Locale locale,
+			TextStyle style) throws DateTimeException {
+		return formatRange(field, range, locale, style, ",");
+	}
+
+	/**
+	 * Format a time range set.
+	 *
+	 * <p>
+	 * The range can be specified using names, abbreviations, or numbers. The
+	 * range of allowed numbers varies by field.
+	 * </p>
+	 *
+	 * @param field
+	 *        the time field to format
+	 * @param range
+	 *        the range to format into a string
+	 * @param locale
+	 *        the locale to format the range as, or {@literal null} to use the
+	 *        system default
+	 * @param style
+	 *        the formatting style
+	 * @param rangeDelim
+	 *        the delimiter to use between ranges
+	 * @return the range string
+	 * @throws DateTimeException
+	 *         if any formatting error occurs
+	 * @since 2.3
+	 */
+	public static String formatRange(ChronoField field, IntRangeContainer range, Locale locale,
+			TextStyle style, String rangeDelim) throws DateTimeException {
+		if ( range == null ) {
+			return null;
+		}
+		if ( locale == null ) {
+			locale = Locale.getDefault();
+		}
+
+		StringBuilder buf = new StringBuilder();
+		for ( IntRange r : range.ranges() ) {
+			if ( buf.length() > 0 ) {
+				buf.append(rangeDelim);
+			}
+			String s = formatRange(r, locale, field, style);
+			if ( s != null ) {
+				buf.append(s);
+			}
+		}
+		return buf.toString();
+	}
+
+	/**
 	 * Get a formatted "x days hh:mm:ss" style string from a millisecond
 	 * duration.
-	 * 
+	 *
 	 * <p>
 	 * The output pattern is like: {@literal Dd HH:MM:SS} where {@literal D} is
 	 * the number of whole days, {@literal HH} the number of hours,
 	 * {@literal MM} the number of minutes, and {@literal SS} the number of
 	 * seconds.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * The returned string will be shortened to exclude the day and hour
 	 * components if those values are {@literal 0}.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * Examples of output are:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * 3d 12:34:56
 	 * 23:45:43
 	 * 34:56
 	 * 00:01
 	 * </pre>
-	 * 
+	 *
 	 * @param milliseconds
 	 *        the millisecond duration
 	 * @return the formatted string
@@ -843,7 +988,7 @@ public final class DateUtils {
 
 	/**
 	 * Parse a standard local time value, in {@code HH:mm} form.
-	 * 
+	 *
 	 * @param value
 	 *        the time value
 	 * @return the LocalTime object
@@ -854,7 +999,7 @@ public final class DateUtils {
 
 	/**
 	 * Format a standard local time value, in {@code HH:mm} form.
-	 * 
+	 *
 	 * @param value
 	 *        the LocalTime to format
 	 * @return the formatted value
@@ -865,7 +1010,7 @@ public final class DateUtils {
 
 	/**
 	 * Parse a standard local date value, in {@code yyyy-MM-dd} form.
-	 * 
+	 *
 	 * @param value
 	 *        the date value
 	 * @return the LocalDate object
@@ -876,7 +1021,7 @@ public final class DateUtils {
 
 	/**
 	 * Format a standard local date value, in {@code yyyy-MM-dd} form.
-	 * 
+	 *
 	 * @param value
 	 *        the LocalDate to format
 	 * @return the formatted value
@@ -887,7 +1032,7 @@ public final class DateUtils {
 
 	/**
 	 * Format an instant for display in the local (sytem) time zone.
-	 * 
+	 *
 	 * @param timestamp
 	 *        the instant
 	 * @return the formatted date

@@ -1,21 +1,21 @@
 /* ==================================================================
  * SimpleTemporalTariffScheduleTests.java - 12/05/2021 5:32:46 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -42,9 +42,9 @@ import net.solarnetwork.domain.tariff.TemporalRangesTariff;
 
 /**
  * Test cases for the {@link SimpleTemporalTariffSchedule} class.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SimpleTemporalTariffScheduleTests {
 
@@ -148,6 +148,34 @@ public class SimpleTemporalTariffScheduleTests {
 		assertThat("B, C tariffs matched", t.getRates().keySet(), contains("b", "c"));
 		assertThat("B tariff returned", t.getRates().get("b").getId(), equalTo("b"));
 		assertThat("C tariff returned", t.getRates().get("c").getId(), equalTo("c"));
+	}
+
+	@Test
+	public void resolve_findFirst_mod_start() {
+		// GIVEN
+		schedule.setFirstMatchOnly(true);
+		LocalDateTime date = LocalDateTime.of(2024, 3, 4, 0, 0); // Monday, 4 March @ midnight
+
+		// WHEN
+		Tariff t = schedule.resolveTariff(date, null);
+
+		// THEN
+		assertThat("First match returned", t, notNullValue());
+		assertThat("B tariff matched", t.getRates().keySet(), contains("b"));
+		assertThat("B tariff returned", t.getRates().get("b").getId(), equalTo("b"));
+	}
+
+	@Test
+	public void resolve_findFirst_mod_end() {
+		// GIVEN
+		schedule.setFirstMatchOnly(true);
+		LocalDateTime date = LocalDateTime.of(2024, 3, 4, 8, 30); // Monday, 4 March @ midnight
+
+		// WHEN
+		Tariff t = schedule.resolveTariff(date, null);
+
+		// THEN
+		assertThat("No match returned because MOD matching uses exclusive end", t, nullValue());
 	}
 
 }

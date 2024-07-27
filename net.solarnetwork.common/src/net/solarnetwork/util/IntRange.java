@@ -1,21 +1,21 @@
 /* ==================================================================
  * IntRange.java - 15/01/2020 10:28:27 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,21 +23,22 @@
 package net.solarnetwork.util;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Objects;
 
 /**
  * An immutable integer range with min/max values.
- * 
+ *
  * <p>
  * Inspired and adapted from <a href="http://pcj.sourceforge.net/">PCJ's</a>
  * {@code bak.pcj.set.IntRange} class.
  * </p>
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.58
  */
-public final class IntRange implements Serializable, Comparable<IntRange> {
+public final class IntRange implements Serializable, Comparable<IntRange>, IntRangeContainer {
 
 	private static final long serialVersionUID = 2815680548854317296L;
 
@@ -49,7 +50,7 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * Note that if {@code min > max} then {@link #getMin()} will return
 	 * {@code max} and {@link #getMax()} will return {@code min}. That is, the
@@ -57,7 +58,7 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 	 * before storing in this class so that {@link #getMin()} always returns the
 	 * actual minimum value.
 	 * </p>
-	 * 
+	 *
 	 * @param min
 	 *        the minimum value
 	 * @param max
@@ -71,7 +72,7 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	/**
 	 * Create a singleton range (where the minimum and maximum are the same).
-	 * 
+	 *
 	 * @param value
 	 *        the singleton value
 	 * @return the new range
@@ -82,7 +83,7 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	/**
 	 * Create a range.
-	 * 
+	 *
 	 * @param min
 	 *        the minimum value
 	 * @param max
@@ -95,7 +96,7 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	/**
 	 * Get the minimum value.
-	 * 
+	 *
 	 * @return the minimum
 	 */
 	public int getMin() {
@@ -104,17 +105,33 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	/**
 	 * Get the maximum value.
-	 * 
+	 *
 	 * @return the maximum
 	 */
 	public int getMax() {
 		return max;
 	}
 
+	@Override
+	public Integer min() {
+		// TODO Auto-generated method stub
+		return getMin();
+	}
+
+	@Override
+	public Integer max() {
+		return getMax();
+	}
+
+	@Override
+	public Iterable<IntRange> ranges() {
+		return Collections.singleton(this);
+	}
+
 	/**
 	 * Get the number of integer values between {@code min} and {@code max},
 	 * inclusive.
-	 * 
+	 *
 	 * @return the inclusive length between {@code min} and {@code max}
 	 */
 	public int length() {
@@ -124,7 +141,7 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 	/**
 	 * Test if this range represents a singleton value, where the minimum and
 	 * maximum values in the range are equal.
-	 * 
+	 *
 	 * @return {@literal true} if {@code min == max}
 	 */
 	public boolean isSingleton() {
@@ -133,18 +150,19 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	/**
 	 * Test if a value is within this range, inclusive.
-	 * 
+	 *
 	 * @param value
 	 *        the value to test
 	 * @return {@literal true} if {@code min <= value <= max}
 	 */
+	@Override
 	public boolean contains(final int value) {
 		return (value >= min && value <= max);
 	}
 
 	/**
 	 * Test if another range is completely within this range, inclusive.
-	 * 
+	 *
 	 * @param min
 	 *        the minimum of the range to test
 	 * @param max
@@ -157,7 +175,7 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	/**
 	 * Test if another range is completely within this range, inclusive.
-	 * 
+	 *
 	 * @param o
 	 *        the range to test
 	 * @return {@literal true} if {@code this.min <= o.min <= o.max <= this.max}
@@ -168,7 +186,7 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	/**
 	 * Test if this range intersects with a given range.
-	 * 
+	 *
 	 * @param o
 	 *        the range to compare to this range
 	 * @return {@literal true} if this range intersects (overlaps) with the
@@ -195,13 +213,13 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	/**
 	 * Test if this range could be merged with another range.
-	 * 
-	 * 
+	 *
+	 *
 	 * <p>
 	 * Two ranges can be merged if they are either adjacent to or intersect with
 	 * each other.
 	 * </p>
-	 * 
+	 *
 	 * @param o
 	 *        the range to test
 	 * @return {@literal true} if this range is either adjacent to or intersects
@@ -213,7 +231,7 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	/**
 	 * Merge this range with a given range, returning the merged range.
-	 * 
+	 *
 	 * @param o
 	 *        the range to merge with this range
 	 * @return the new merged range
@@ -231,11 +249,11 @@ public final class IntRange implements Serializable, Comparable<IntRange> {
 
 	/**
 	 * Compares this object with the specified object for order.
-	 * 
+	 *
 	 * <p>
 	 * This implementation only compares the {@code min} values of each range.
 	 * </p>
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override

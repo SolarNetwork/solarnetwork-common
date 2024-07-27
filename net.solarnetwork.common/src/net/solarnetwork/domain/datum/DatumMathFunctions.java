@@ -1,21 +1,21 @@
 /* ==================================================================
  * DatumMathFunctions.java - 28/02/2022 9:51:20 AM
- * 
+ *
  * Copyright 2022 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -31,16 +31,16 @@ import net.solarnetwork.util.StringUtils;
 
 /**
  * API for datum-related math helper functions.
- * 
+ *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.1
  */
 public interface DatumMathFunctions {
 
 	/**
 	 * Apply a bitwise {@literal and} operation to an integer number.
-	 * 
+	 *
 	 * @param n
 	 *        the integer number
 	 * @param mask
@@ -58,7 +58,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Apply a bitwise {@literal not} operation to an integer number.
-	 * 
+	 *
 	 * @param n
 	 *        the integer number
 	 * @return the result of {@code (~n)}, or {@code n} as an integer or
@@ -73,7 +73,7 @@ public interface DatumMathFunctions {
 	/**
 	 * Apply a bitwise {@literal and} operation to an integer number that has
 	 * had a {@literal not} operation applied.
-	 * 
+	 *
 	 * @param n
 	 *        the integer number
 	 * @param mask
@@ -91,7 +91,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Apply a bitwise {@literal or} operation to an integer number.
-	 * 
+	 *
 	 * @param n
 	 *        the integer number
 	 * @param mask
@@ -109,7 +109,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Apply a bitwise {@literal xor} operation to an integer number.
-	 * 
+	 *
 	 * @param n
 	 *        the integer number
 	 * @param mask
@@ -127,7 +127,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Apply a bitwise right-shift operation to an integer number.
-	 * 
+	 *
 	 * @param n
 	 *        the integer number
 	 * @param count
@@ -144,7 +144,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Apply a bitwise left-shift operation to an integer number.
-	 * 
+	 *
 	 * @param n
 	 *        the integer number
 	 * @param count
@@ -161,7 +161,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Test if a bit is set on an integer number.
-	 * 
+	 *
 	 * @param n
 	 *        the integer number
 	 * @param bit
@@ -178,7 +178,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Return a {@link BigDecimal} for a given value.
-	 * 
+	 *
 	 * @param value
 	 *        the object to get as a {@link BigDecimal}
 	 * @return the decimal instance, or {@literal null} if {@code value} is
@@ -199,7 +199,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Return a {@link BigInteger} for a given value.
-	 * 
+	 *
 	 * @param value
 	 *        the object to get as a {@link BigInteger}
 	 * @return the integer instance, or {@literal null} if {@code value} is
@@ -221,7 +221,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Return the minimum between two number values.
-	 * 
+	 *
 	 * @param n1
 	 *        the first number
 	 * @param n2
@@ -235,7 +235,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Return the maximum between two number values.
-	 * 
+	 *
 	 * @param n1
 	 *        the first number
 	 * @param n2
@@ -250,7 +250,7 @@ public interface DatumMathFunctions {
 	/**
 	 * Round positive numbers away from zero and negative numbers towards zero,
 	 * to the nearest integer.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @return the rounded number, or {@literal null} if {@code n} is
@@ -263,7 +263,7 @@ public interface DatumMathFunctions {
 	/**
 	 * Round positive numbers away from zero and negative numbers towards zero,
 	 * to the nearest integer multiple of a specific significance.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param significance
@@ -278,7 +278,7 @@ public interface DatumMathFunctions {
 	/**
 	 * Round positive numbers towards zero and negative numbers away from zero,
 	 * to the nearest integer multiple of a specific significance.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @return the rounded number, or {@literal null} if {@code n} or
@@ -291,7 +291,7 @@ public interface DatumMathFunctions {
 	/**
 	 * Round positive numbers towards zero and negative numbers away from zero,
 	 * to the nearest integer multiple of a specific significance.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param significance
@@ -305,11 +305,11 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Round a number towards zero to the nearest integer.
-	 * 
+	 *
 	 * <p>
 	 * This method is a shortcut for calling {@code roundUp(n, 0)}.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @return the rounded number, or {@literal null} if {@code n} is
@@ -323,7 +323,7 @@ public interface DatumMathFunctions {
 	/**
 	 * Round a number towards zero to the nearest integer multiple of a specific
 	 * significance.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param significance
@@ -337,11 +337,11 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Round a number towards zero to the nearest integer.
-	 * 
+	 *
 	 * <p>
 	 * This method is a shortcut for calling {@code roundDown(n, 0)}.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @return the rounded number, or {@literal null} if {@code n} is
@@ -355,11 +355,11 @@ public interface DatumMathFunctions {
 	/**
 	 * Round a number towards zero to the nearest integer multiple of a specific
 	 * significance.
-	 * 
+	 *
 	 * <p>
 	 * This method rounds using the {@link RoundingMode#DOWN} mode.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param significance
@@ -374,7 +374,7 @@ public interface DatumMathFunctions {
 	/**
 	 * Round a number to the nearest integer multiple of a specific
 	 * significance.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param significance
@@ -388,11 +388,11 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Round a number to the nearest integer.
-	 * 
+	 *
 	 * <p>
 	 * This is a shortcut for calling {@code round(n, 0)}.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @return the rounded number, or {@literal null} if {@code n} is
@@ -405,7 +405,7 @@ public interface DatumMathFunctions {
 	/**
 	 * Round a number to a maximum number of decimal digits using the
 	 * {@link RoundingMode#HALF_UP} mode.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param digits
@@ -419,7 +419,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Round a number away from zero to a maximum number of decimal digits.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param digits
@@ -433,7 +433,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Round a number towards zero to a maximum number of decimal digits.
-	 * 
+	 *
 	 * @param n
 	 *        the number to round
 	 * @param digits
@@ -448,11 +448,11 @@ public interface DatumMathFunctions {
 	/**
 	 * Narrow a number to the smallest possible number type that can exactly
 	 * represent the given number.
-	 * 
+	 *
 	 * <p>
 	 * If {@code n} cannot be narrowed then {@code n} is returned.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to narrow
 	 * @param minBytePower
@@ -471,11 +471,11 @@ public interface DatumMathFunctions {
 	/**
 	 * Narrow a number to at minimum an 8-bit value that can exactly represent
 	 * the given number.
-	 * 
+	 *
 	 * <p>
 	 * If {@code n} cannot be narrowed then {@code n} is returned.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to narrow
 	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
@@ -489,11 +489,11 @@ public interface DatumMathFunctions {
 	/**
 	 * Narrow a number to at minimum a 16-bit value that can exactly represent
 	 * the given number.
-	 * 
+	 *
 	 * <p>
 	 * If {@code n} cannot be narrowed then {@code n} is returned.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to narrow
 	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
@@ -507,11 +507,11 @@ public interface DatumMathFunctions {
 	/**
 	 * Narrow a number to at minimum a 32-bit value that can exactly represent
 	 * the given number.
-	 * 
+	 *
 	 * <p>
 	 * If {@code n} cannot be narrowed then {@code n} is returned.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to narrow
 	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
@@ -525,11 +525,11 @@ public interface DatumMathFunctions {
 	/**
 	 * Narrow a number to at minimum a 64-bit value that can exactly represent
 	 * the given number.
-	 * 
+	 *
 	 * <p>
 	 * If {@code n} cannot be narrowed then {@code n} is returned.
 	 * </p>
-	 * 
+	 *
 	 * @param n
 	 *        the number to narrow
 	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
@@ -542,7 +542,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Compute the sum a group of numbers.
-	 * 
+	 *
 	 * @param set
 	 *        the numbers to sum; if {@literal null} then {@literal null} will
 	 *        be returned
@@ -564,7 +564,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Compute the average (mean) of a group of numbers.
-	 * 
+	 *
 	 * @param set
 	 *        the numbers to average; if {@literal null} or empty then
 	 *        {@literal null} will be returned
@@ -595,7 +595,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Find the maximum value in a group of numbers.
-	 * 
+	 *
 	 * @param set
 	 *        the numbers to find the maximum in; if {@literal null} or empty
 	 *        then {@literal null} will be returned
@@ -620,7 +620,7 @@ public interface DatumMathFunctions {
 
 	/**
 	 * Find the minimum value in a group of numbers.
-	 * 
+	 *
 	 * @param set
 	 *        the numbers to find the minimum in; if {@literal null} or empty
 	 *        then {@literal null} will be returned
@@ -641,6 +641,75 @@ public interface DatumMathFunctions {
 			}
 		}
 		return min;
+	}
+
+	/**
+	 * Perform linear interpolation of a value over an input range on an output
+	 * range.
+	 *
+	 * <p>
+	 * No error checking is performed on the input values.
+	 * </p>
+	 *
+	 * @param x
+	 *        the value to interpolate
+	 * @param x1
+	 *        the minimum range of the {@code x} value
+	 * @param x2
+	 *        the maximum range of the {@code x} value
+	 * @param y1
+	 *        the minimum output range to interpolate on
+	 * @param y2
+	 *        the maximum output range to interpolate on
+	 * @return an interpolated value <em>y</em> in the range {@code y1} -
+	 *         {@code y2}
+	 * @since 1.2
+	 */
+	default Number interp(Number x, Number x1, Number x2, Number y1, Number y2) {
+		return NumberUtils.linearInterpolate(x, x1, x2, y1, y2);
+	}
+
+	/**
+	 * Perform linear interpolation of a value over an input range on an output
+	 * range.
+	 *
+	 * <p>
+	 * No error checking is performed on the input values.
+	 * </p>
+	 *
+	 * @param x
+	 *        the value to interpolate
+	 * @param x1
+	 *        the minimum range of the {@code x} value
+	 * @param x2
+	 *        the maximum range of the {@code x} value
+	 * @param y1
+	 *        the minimum output range to interpolate on
+	 * @param y2
+	 *        the maximum output range to interpolate on
+	 * @param scale
+	 *        the decimal scale
+	 * @return an interpolated value <em>y</em> in the range {@code y1} -
+	 *         {@code y2}
+	 * @since 1.2
+	 */
+	default Number interp(Number x, Number x1, Number x2, Number y1, Number y2, int scale) {
+		return NumberUtils.linearInterpolate(x, x1, x2, y1, y2, scale);
+	}
+
+	/**
+	 * Returns Euler's number <i>e</i> raised to the power of {@code n}.
+	 *
+	 * @param n
+	 *        the value to raise <i>e</i> to
+	 * @return the calculated value
+	 * @since 1.2
+	 */
+	default Number exp(Number n) {
+		if ( n == null ) {
+			return null;
+		}
+		return Math.exp(n.doubleValue());
 	}
 
 }
