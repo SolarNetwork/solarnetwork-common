@@ -23,6 +23,7 @@
 package net.solarnetwork.util;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import static net.solarnetwork.util.StringNaturalSortComparator.CASE_INSENSITIVE_NATURAL_SORT;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
@@ -44,7 +45,7 @@ import net.solarnetwork.service.Identifiable;
  * additionally track average/min/max statistics.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 3.10
  */
 public class StatTracker implements Identifiable {
@@ -387,7 +388,7 @@ public class StatTracker implements Identifiable {
 	 *         will be returned
 	 */
 	public NavigableMap<String, Long> allCounts() {
-		final NavigableMap<String, Long> m = new TreeMap<>();
+		final NavigableMap<String, Long> m = new TreeMap<>(CASE_INSENSITIVE_NATURAL_SORT);
 		for ( Map.Entry<String, LongAdder> e : counts.entrySet() ) {
 			m.put(e.getKey(), e.getValue().longValue());
 		}
@@ -405,7 +406,7 @@ public class StatTracker implements Identifiable {
 	 * @since 1.1
 	 */
 	public NavigableMap<String, Accumulation> allAccumulations() {
-		final NavigableMap<String, Accumulation> m = new TreeMap<>();
+		final NavigableMap<String, Accumulation> m = new TreeMap<>(CASE_INSENSITIVE_NATURAL_SORT);
 		for ( Map.Entry<String, AccumulativeStats> e : accums.entrySet() ) {
 			m.put(e.getKey(), e.getValue().snapshot());
 		}
@@ -439,7 +440,7 @@ public class StatTracker implements Identifiable {
 	 */
 	public NavigableMap<String, Number> allStatistics(
 			BiFunction<String, AccumulationType, String> keyMapper) {
-		final NavigableMap<String, Number> m = new TreeMap<>();
+		final NavigableMap<String, Number> m = new TreeMap<>(CASE_INSENSITIVE_NATURAL_SORT);
 		for ( Map.Entry<String, LongAdder> e : counts.entrySet() ) {
 			m.put(e.getKey(), e.getValue().longValue());
 		}
