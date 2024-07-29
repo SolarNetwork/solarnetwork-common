@@ -25,8 +25,10 @@ package net.solarnetwork.domain.tariff.test;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
+import net.solarnetwork.domain.tariff.ChronoFieldsTariff;
 import net.solarnetwork.domain.tariff.SimpleTariffRate;
 import net.solarnetwork.domain.tariff.SimpleTemporalTariffSchedule;
 import net.solarnetwork.domain.tariff.Tariff;
@@ -48,6 +51,7 @@ import net.solarnetwork.domain.tariff.TemporalRangesTariff;
  */
 public class SimpleTemporalTariffScheduleTests {
 
+	private List<TemporalRangesTariff> rules;
 	private SimpleTemporalTariffSchedule schedule;
 
 	@Before
@@ -56,7 +60,7 @@ public class SimpleTemporalTariffScheduleTests {
 	}
 
 	private List<TemporalRangesTariff> createTestRules() {
-		List<TemporalRangesTariff> rules = new ArrayList<>(4);
+		rules = new ArrayList<>(4);
 		rules.add(new TemporalRangesTariff("Jan-Feb", null, null, null,
 				asList(new SimpleTariffRate("a", BigDecimal.ONE)), Locale.getDefault()));
 		rules.add(new TemporalRangesTariff("Mar-Nov", null, "Mon-Fri", "00:00-08:30",
@@ -90,6 +94,18 @@ public class SimpleTemporalTariffScheduleTests {
 		assertThat("First match returned", t, notNullValue());
 		assertThat("B tariff matched", t.getRates().keySet(), contains("b"));
 		assertThat("B tariff returned", t.getRates().get("b").getId(), equalTo("b"));
+	}
+
+	@Test
+	public void resolve_unwrapChrono() {
+		// GIVEN
+		LocalDateTime date = LocalDateTime.of(2021, 5, 12, 6, 0);
+
+		// WHEN
+		ChronoFieldsTariff t = schedule.resolveTariff(date, null).unwrap(ChronoFieldsTariff.class);
+
+		// THEN
+		assertThat("B tariff unwrapped", t, is(sameInstance(rules.get(1))));
 	}
 
 	@Test
