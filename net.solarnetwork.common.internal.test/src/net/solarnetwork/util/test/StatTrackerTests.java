@@ -47,7 +47,7 @@ import net.solarnetwork.util.StatTracker.AccumulationValue;
  * Test cases for the {@link StatTracker} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class StatTrackerTests {
 
@@ -329,6 +329,24 @@ public class StatTrackerTests {
 		assertThat("Bam count", m.get(ExtraCounts.Bam.name()), is(equalTo(4L)));
 	}
 
+	@Test
+	public void allCounts_naturalOrder() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, 5);
+		c.increment("foo");
+		c.increment("Foo 10");
+		c.increment("Foo 5");
+		c.increment("Foo 100");
+		c.increment("bim");
+
+		// WHEN
+		NavigableMap<String, Long> m = c.allCounts();
+
+		// THEN
+		assertThat("All counts present, ordered", m.keySet(),
+				contains("bim", "foo", "Foo 5", "Foo 10", "Foo 100"));
+	}
+
 	private void assertAccumulationEquals(String msg, Accumulation actual, Accumulation expected) {
 		assertThat(msg + " provided", actual, is(notNullValue()));
 		assertThat(msg + " total", actual.total(), is(equalTo(expected.total())));
@@ -391,6 +409,24 @@ public class StatTrackerTests {
 	}
 
 	@Test
+	public void allAccumulations_naturalOrder() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, 5);
+		c.add("foo", 1L);
+		c.add("Foo 10", 2L);
+		c.add("Foo 5", 3L);
+		c.add("Foo 100", 4L);
+		c.add("bim", 5L);
+
+		// WHEN
+		NavigableMap<String, Accumulation> m = c.allAccumulations();
+
+		// THEN
+		assertThat("All accumulations present, ordered", m.keySet(),
+				contains("bim", "foo", "Foo 5", "Foo 10", "Foo 100"));
+	}
+
+	@Test
 	public void allStatistics() {
 		// GIVEN
 		StatTracker c = new StatTracker("TestStats", "test", log, 5);
@@ -420,6 +456,51 @@ public class StatTrackerTests {
 		assertThat("Bim total", m, hasEntry("BimTotal", 6L));
 
 		assertThat("Foo", m, hasEntry("Foo", 2L));
+	}
+
+	@Test
+	public void allStatistics_naturalOrder() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, 5);
+		c.increment("foo");
+		c.add("Foo 10", 2L);
+		c.add("Foo 5", 3L);
+		c.add("Foo 100", 4L);
+		c.add("bim", 5L);
+
+		// WHEN
+		NavigableMap<String, Number> m = c.allStatistics();
+
+		// THEN
+		// @formatter:off
+		assertThat("All statistics present, ordered", m.keySet(), contains(
+				"bimAverage",
+				"bimCount",
+				"bimMaximum",
+				"bimMinimum",
+				"bimTotal",
+
+				"foo",
+
+				"Foo 5Average",
+				"Foo 5Count",
+				"Foo 5Maximum",
+				"Foo 5Minimum",
+				"Foo 5Total",
+
+				"Foo 10Average",
+				"Foo 10Count",
+				"Foo 10Maximum",
+				"Foo 10Minimum",
+				"Foo 10Total",
+
+				"Foo 100Average",
+				"Foo 100Count",
+				"Foo 100Maximum",
+				"Foo 100Minimum",
+				"Foo 100Total"
+				));
+		// @formatter:on
 	}
 
 }

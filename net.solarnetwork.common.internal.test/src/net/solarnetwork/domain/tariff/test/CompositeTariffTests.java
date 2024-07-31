@@ -1,21 +1,21 @@
 /* ==================================================================
  * CompositeTariffTests.java - 12/05/2021 5:24:17 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,20 +25,24 @@ package net.solarnetwork.domain.tariff.test;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
+import net.solarnetwork.domain.tariff.ChronoFieldsTariff;
 import net.solarnetwork.domain.tariff.CompositeTariff;
 import net.solarnetwork.domain.tariff.SimpleTariff;
 import net.solarnetwork.domain.tariff.SimpleTariffRate;
 import net.solarnetwork.domain.tariff.Tariff.Rate;
+import net.solarnetwork.domain.tariff.TemporalRangesTariff;
 
 /**
  * Test cases for the {@link CompositeTariff} class.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -75,4 +79,31 @@ public class CompositeTariffTests {
 		assertThat("Rate 0_1", rates, hasEntry("0_1", rateList.get(4)));
 	}
 
+	@Test
+	public void unwrapChrono() {
+		// GIVEN
+		// @formatter:off
+		List<Rate> rateList = asList(
+				new SimpleTariffRate("zero", BigDecimal.ZERO),
+				new SimpleTariffRate("one", BigDecimal.ONE),
+				new SimpleTariffRate("ten", BigDecimal.TEN)
+				);
+		// @formatter:on
+
+		SimpleTariff t1 = new SimpleTariff(asList(rateList.get(0)));
+		TemporalRangesTariff t2 = new TemporalRangesTariff(null, null, null, null,
+				asList(rateList.get(1)));
+		TemporalRangesTariff t3 = new TemporalRangesTariff(null, null, null, null,
+				asList(rateList.get(2)));
+
+		// WHEN
+		CompositeTariff t = new CompositeTariff(asList(t1, t2, t3));
+
+		// WHEN
+		ChronoFieldsTariff cft = t.unwrap(ChronoFieldsTariff.class);
+
+		// THEN
+		assertThat("ChronoFieldsTariff unwrapped as first TemporalRangesTariff", cft,
+				is(sameInstance(t2)));
+	}
 }

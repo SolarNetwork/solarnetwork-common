@@ -1,21 +1,21 @@
 /* ==================================================================
  * CompositeTariff.java - 12/05/2021 3:55:36 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -29,15 +29,15 @@ import java.util.Map;
 
 /**
  * A composite collection of tariffs that act like a single {@link Tariff}.
- * 
+ *
  * <p>
  * The {@link #getRates()} will return a composite map out of all configured
  * tariff rate maps. The tariffs and their rate maps are iterated over in their
  * natural order, and duplicate keys are skipped.
  * </p>
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.71
  */
 public class CompositeTariff implements Tariff {
@@ -46,7 +46,7 @@ public class CompositeTariff implements Tariff {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param tariffs
 	 *        the tariffs
 	 */
@@ -72,6 +72,20 @@ public class CompositeTariff implements Tariff {
 			}
 		}
 		return r;
+	}
+
+	@Override
+	public <T extends Tariff> T unwrap(Class<T> tariffType) {
+		T result = Tariff.super.unwrap(tariffType);
+		if ( result == null ) {
+			for ( Tariff t : tariffs ) {
+				result = t.unwrap(tariffType);
+				if ( result != null ) {
+					break;
+				}
+			}
+		}
+		return result;
 	}
 
 }
