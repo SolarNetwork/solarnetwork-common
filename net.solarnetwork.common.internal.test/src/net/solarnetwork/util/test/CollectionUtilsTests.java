@@ -1,21 +1,21 @@
 /* ==================================================================
  * CollectionUtilsTests.java - 17/01/2020 10:41:39 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -34,6 +34,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -45,15 +46,16 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.junit.Test;
+import net.solarnetwork.domain.KeyValuePair;
 import net.solarnetwork.util.CollectionUtils;
 import net.solarnetwork.util.IntRange;
 import net.solarnetwork.util.IntRangeSet;
 
 /**
  * Test cases for the {@link CollectionUtils} class.
- * 
+ *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class CollectionUtilsTests {
 
@@ -263,6 +265,151 @@ public class CollectionUtilsTests {
 
 		// THEN
 		assertThat("Super set returned", result, is(sameInstance(superSet)));
+	}
+
+	@Test
+	public void sort_null() {
+		// WHEN
+		Collection<String> result = CollectionUtils.sort(null);
+
+		// THEN
+		assertThat("Null result returned for null input collection", result, is(nullValue()));
+	}
+
+	@Test
+	public void sort_empty() {
+		// GIVEN
+		List<String> input = Collections.emptyList();
+
+		// WHEN
+		Collection<String> result = CollectionUtils.sort(input);
+
+		// THEN
+		assertThat("Input returned for empty input collection", result, is(sameInstance(input)));
+	}
+
+	@Test
+	public void sort_singleton() {
+		// GIVEN
+		List<String> input = Collections.singletonList("a");
+
+		// WHEN
+		Collection<String> result = CollectionUtils.sort(input);
+
+		// THEN
+		assertThat("Input returned for singleton input collection", result, is(sameInstance(input)));
+	}
+
+	@Test
+	public void sort_natural() {
+		// GIVEN
+		List<String> input = Arrays.asList("b", "d", "c", "a");
+
+		// WHEN
+		Collection<String> result = CollectionUtils.sort(input);
+
+		// THEN
+		assertThat("Natural sorted result for input collection", result, contains("a", "b", "c", "d"));
+	}
+
+	@Test
+	public void sort_natural_reverse() {
+		// GIVEN
+		List<String> input = Arrays.asList("b", "d", "c", "a");
+
+		// WHEN
+		Collection<String> result = CollectionUtils.sort(input, true);
+
+		// THEN
+		assertThat("Natural sorted result for input collection", result, contains("d", "c", "b", "a"));
+	}
+
+	@Test
+	public void sort_natural_notComparable() {
+		// GIVEN
+		List<Object> input = Arrays.asList(new Object(), new Object());
+
+		// WHEN
+		Collection<Object> result = CollectionUtils.sort(input, true);
+
+		// THEN
+		assertThat("Input returned for non-Comparable input collection", result,
+				is(sameInstance(input)));
+	}
+
+	@Test
+	public void sort_prop() {
+		// GIVEN
+		// @formatter:off
+		List<KeyValuePair> input = Arrays.asList(
+				new KeyValuePair("b", "3"),
+				new KeyValuePair("d", "1"),
+				new KeyValuePair("c", "2"),
+				new KeyValuePair("a", "4")
+				);
+		// @formatter:on
+
+		// WHEN
+		Collection<KeyValuePair> result = CollectionUtils.sort(input, "key");
+
+		// THEN
+		// @formatter:off
+		assertThat("Sorted result for input collection", result, contains(
+				new KeyValuePair("a", "4"),
+				new KeyValuePair("b", "3"),
+				new KeyValuePair("c", "2"),
+				new KeyValuePair("d", "1")));
+		// @formatter:on
+	}
+
+	@Test
+	public void sort_prop_reverse() {
+		// GIVEN
+		// @formatter:off
+		List<KeyValuePair> input = Arrays.asList(
+				new KeyValuePair("b", "3"),
+				new KeyValuePair("d", "1"),
+				new KeyValuePair("c", "2"),
+				new KeyValuePair("a", "4")
+				);
+		// @formatter:on
+
+		// WHEN
+		Collection<KeyValuePair> result = CollectionUtils.sort(input, true, "value");
+
+		// THEN
+		// @formatter:off
+		assertThat("Sorted result for input collection", result, contains(
+				new KeyValuePair("a", "4"),
+				new KeyValuePair("b", "3"),
+				new KeyValuePair("c", "2"),
+				new KeyValuePair("d", "1")));
+		// @formatter:on
+	}
+
+	@Test
+	public void sort_props() {
+		// GIVEN
+		// @formatter:off
+		List<KeyValuePair> input = Arrays.asList(
+				new KeyValuePair("a", "3"),
+				new KeyValuePair("a", "1"),
+				new KeyValuePair("b", "9"),
+				new KeyValuePair("b", "5")
+				);
+		// @formatter:on
+
+		// WHEN
+		Collection<KeyValuePair> result = CollectionUtils.sort(input, "key", "value");
+
+		// THEN
+		// @formatter:off
+		assertThat("Sorted result for input collection", result, contains(
+				new KeyValuePair("a", "1"),
+				new KeyValuePair("a", "3"),
+				new KeyValuePair("b", "5"),
+				new KeyValuePair("b", "9")));
+		// @formatter:on
 	}
 
 }

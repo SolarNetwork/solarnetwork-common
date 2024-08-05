@@ -1,21 +1,21 @@
 /* ==================================================================
  * CollectionUtils.java - 17/01/2020 10:20:16 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -27,6 +27,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -39,12 +40,14 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import org.springframework.beans.PropertyAccessor;
+import org.springframework.beans.PropertyAccessorFactory;
 
 /**
  * Utility methods for dealing with collections.
- * 
+ *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.58
  */
 public final class CollectionUtils {
@@ -56,7 +59,7 @@ public final class CollectionUtils {
 	/**
 	 * Create integer ranges from a set of integers to produce a reduced set of
 	 * ranges that cover all integers in the source set.
-	 * 
+	 *
 	 * <p>
 	 * The resulting ranges are guaranteed to be equal to, <b>or a super set
 	 * of</b>, the given source set. Thus the resulting ranges could include
@@ -64,7 +67,7 @@ public final class CollectionUtils {
 	 * intersect any other but could be adjacent. They will also be ordered in
 	 * ascending order.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * This can be useful when you want to coalesce many discreet ranges into a
 	 * smaller number of larger ranges, such as when querying a device for data
@@ -74,7 +77,7 @@ public final class CollectionUtils {
 	 * For example, if the a set {@code s} passed to this method contained these
 	 * ranges:
 	 * </p>
-	 * 
+	 *
 	 * <ul>
 	 * <li>0-1</li>
 	 * <li>3-5</li>
@@ -82,17 +85,17 @@ public final class CollectionUtils {
 	 * <li>404-406</li>
 	 * <li>412-418</li>
 	 * </ul>
-	 * 
+	 *
 	 * <p>
 	 * then calling this method like {@code minimizeIntRanges(s, 32)} would
 	 * return a new set with these ranges:
 	 * </p>
-	 * 
+	 *
 	 * <ul>
 	 * <li>0-28</li>
 	 * <li>404-418</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param set
 	 *        the set of integers to reduce
 	 * @param maxRangeLength
@@ -155,12 +158,12 @@ public final class CollectionUtils {
 
 	/**
 	 * Convert a dictionary to a map.
-	 * 
+	 *
 	 * <p>
 	 * This creates a new {@link Map} and copies all the key-value pairs from
 	 * the given {@link Dictionary} into it.
 	 * </p>
-	 * 
+	 *
 	 * @param <K>
 	 *        the key type
 	 * @param <V>
@@ -187,12 +190,12 @@ public final class CollectionUtils {
 
 	/**
 	 * Convert a map to a dictionary.
-	 * 
+	 *
 	 * <p>
 	 * This creates a new {@link Dictionary} and copies all the key-value pairs
 	 * from the given {@link Map} into it.
 	 * </p>
-	 * 
+	 *
 	 * @param <K>
 	 *        the key type
 	 * @param <V>
@@ -211,12 +214,12 @@ public final class CollectionUtils {
 
 	/**
 	 * Get a String value out of a Map.
-	 * 
+	 *
 	 * <p>
 	 * If the key exists but is not a String, {@link Object#toString()} will be
 	 * called on that object.
 	 * </p>
-	 * 
+	 *
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
@@ -240,12 +243,12 @@ public final class CollectionUtils {
 
 	/**
 	 * Get a Short value out of a Map.
-	 * 
+	 *
 	 * <p>
 	 * If the key exists, is not an Short, but is a Number,
 	 * {@link Number#shortValue()} will be called on that object.
 	 * </p>
-	 * 
+	 *
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
@@ -277,12 +280,12 @@ public final class CollectionUtils {
 
 	/**
 	 * Get an Integer value out of a Map.
-	 * 
+	 *
 	 * <p>
 	 * If the key exists, is not an Integer, but is a Number,
 	 * {@link Number#intValue()} will be called on that object.
 	 * </p>
-	 * 
+	 *
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
@@ -314,12 +317,12 @@ public final class CollectionUtils {
 
 	/**
 	 * Get a Long value out of a Map.
-	 * 
+	 *
 	 * <p>
 	 * If the key exists, is not a Long, but is a Number,
 	 * {@link Number#longValue()} will be called on that object.
 	 * </p>
-	 * 
+	 *
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
@@ -351,12 +354,12 @@ public final class CollectionUtils {
 
 	/**
 	 * Get a Float value out of a Map.
-	 * 
+	 *
 	 * <p>
 	 * If the key exists, is not a Float, but is a Number,
 	 * {@link Number#floatValue()} will be called on that object.
 	 * </p>
-	 * 
+	 *
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
@@ -388,12 +391,12 @@ public final class CollectionUtils {
 
 	/**
 	 * Get a Double value out of a Map
-	 * 
+	 *
 	 * <p>
 	 * If the key exists, is not a Double, but is a Number,
 	 * {@link Number#doubleValue()} will be called on that object.
 	 * </p>
-	 * 
+	 *
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
@@ -425,13 +428,13 @@ public final class CollectionUtils {
 
 	/**
 	 * Get a BigDecimal value out of a Map.
-	 * 
+	 *
 	 * <p>
 	 * If the key exists but is not a BigDecimal, {@link Object#toString()} will
 	 * be called on that object and {@link BigDecimal#BigDecimal(String)} will
 	 * be returned.
 	 * </p>
-	 * 
+	 *
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
@@ -460,13 +463,13 @@ public final class CollectionUtils {
 
 	/**
 	 * Get a BigDecimal value out of a Map.
-	 * 
+	 *
 	 * <p>
 	 * If the key exists but is not a BigDecimal, {@link Object#toString()} will
 	 * be called on that object and {@link BigDecimal#BigDecimal(String)} will
 	 * be returned.
 	 * </p>
-	 * 
+	 *
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
@@ -495,7 +498,7 @@ public final class CollectionUtils {
 
 	/**
 	 * A regular expression to match sensitive key names.
-	 * 
+	 *
 	 * @since 1.2
 	 * @see #sensitiveNamesToMask(Set)
 	 */
@@ -504,18 +507,18 @@ public final class CollectionUtils {
 
 	/**
 	 * Extract a set of values from a set that have sensitive-sounding names.
-	 * 
+	 *
 	 * <p>
 	 * The point of this method is to identify keys from a map that appear to
 	 * have associated "sensitive" values, such as passwords, with the aim of
 	 * then not printing those values somewhere, such as the application log.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * This method calls {@link #valuesMatching(Set, Pattern)}, passing in the
 	 * {@link #SENSITIVE_NAME_PATTERN} pattern.
 	 * </p>
-	 * 
+	 *
 	 * @param set
 	 *        the names to examine, {@literal null} is allowed
 	 * @return the sensitive looking names, never {@literal null}
@@ -528,7 +531,7 @@ public final class CollectionUtils {
 
 	/**
 	 * Extract a set of values from a set that match a regular expression.
-	 * 
+	 *
 	 * @param set
 	 *        the names to examine, {@literal null} is allowed
 	 * @param pattern
@@ -557,7 +560,7 @@ public final class CollectionUtils {
 
 	/**
 	 * Get a filtered subset of a "super" collection.
-	 * 
+	 *
 	 * @param <C>
 	 *        the collection type
 	 * @param <T>
@@ -593,6 +596,96 @@ public final class CollectionUtils {
 			}
 		}
 		return superSet;
+	}
+
+	/**
+	 * Sort a collection.
+	 *
+	 * <p>
+	 * If the collection fails to sort in any way, the {@code collection} value
+	 * will be returned as-is.
+	 * </p>
+	 *
+	 * @param <T>
+	 *        the collection type
+	 * @param collection
+	 *        the collection
+	 * @param propNames
+	 *        an optional list of element property names to sort by; if not
+	 *        provided then the elements themselves will be compared
+	 * @return the sorted list
+	 * @since 1.4
+	 */
+	public static <T> Collection<T> sort(Collection<T> collection, String... propNames) {
+		return sort(collection, false, propNames);
+	}
+
+	/**
+	 * Sort a collection.
+	 *
+	 * <p>
+	 * If the collection fails to sort in any way, the {@code collection} value
+	 * will be returned as-is.
+	 * </p>
+	 *
+	 * @param <T>
+	 *        the collection type
+	 * @param collection
+	 *        the collection
+	 * @param reverse
+	 *        {@literal true} to sort in reverse ordering
+	 * @param propNames
+	 *        an optional list of element property names to sort by; if not
+	 *        provided then the elements themselves will be compared
+	 * @return the sorted list
+	 * @since 1.4
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <T> Collection<T> sort(Collection<T> collection, boolean reverse,
+			String... propNames) {
+		if ( collection == null || collection.size() < 2 ) {
+			return collection;
+		}
+		List<T> result = new ArrayList<>(collection);
+		try {
+			Comparator<T> cmp = null;
+			if ( propNames == null || propNames.length < 1 ) {
+				// natural order
+				if ( reverse ) {
+					cmp = Collections.reverseOrder();
+				}
+			} else {
+				cmp = (l, r) -> {
+					PropertyAccessor la = PropertyAccessorFactory.forBeanPropertyAccess(l);
+					PropertyAccessor ra = PropertyAccessorFactory.forBeanPropertyAccess(r);
+					for ( String propName : propNames ) {
+						Object lp = la.getPropertyValue(propName);
+						Object rp = ra.getPropertyValue(propName);
+						if ( lp != rp ) {
+							if ( lp == null ) {
+								return -1;
+							} else if ( rp == null ) {
+								return 1;
+							}
+							Comparable lc = (Comparable) lp;
+							int order = lc.compareTo(rp);
+							if ( order != 0 ) {
+								return order;
+							}
+						}
+					}
+					return 0;
+				};
+				if ( reverse ) {
+					cmp = Collections.reverseOrder(cmp);
+				}
+			}
+			Collections.sort(result, cmp);
+		} catch ( Exception e ) {
+			// ignore and abort
+			return collection;
+		}
+		return result;
 	}
 
 }
