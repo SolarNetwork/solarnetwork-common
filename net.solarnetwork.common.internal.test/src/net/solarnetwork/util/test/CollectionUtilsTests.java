@@ -412,4 +412,31 @@ public class CollectionUtilsTests {
 		// @formatter:on
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void sort_maps() {
+		// GIVEN
+		// @formatter:off
+		List<Map<String, String>> input = Arrays.asList(
+				Collections.singletonMap("a", "3"),
+				Collections.singletonMap("a", "1"),
+				Collections.singletonMap("a", "9"),
+				Collections.singletonMap("a", "5")
+				);
+		// @formatter:on
+
+		// WHEN
+		Collection<Map<String, String>> result = CollectionUtils.sort(input, "a");
+
+		// THEN
+		// @formatter:off
+		assertThat("Sorted result for input collection", result, contains(
+				Collections.singletonMap("a", "1"),
+				Collections.singletonMap("a", "3"),
+				Collections.singletonMap("a", "5"),
+				Collections.singletonMap("a", "9")
+				));
+		// @formatter:on
+	}
+
 }
