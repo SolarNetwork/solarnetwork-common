@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import org.springframework.beans.PropertyAccessor;
@@ -601,11 +602,6 @@ public final class CollectionUtils {
 	/**
 	 * Sort a collection.
 	 *
-	 * <p>
-	 * If the collection fails to sort in any way, the {@code collection} value
-	 * will be returned as-is.
-	 * </p>
-	 *
 	 * @param <T>
 	 *        the collection type
 	 * @param collection
@@ -613,7 +609,9 @@ public final class CollectionUtils {
 	 * @param propNames
 	 *        an optional list of element property names to sort by; if not
 	 *        provided then the elements themselves will be compared
-	 * @return the sorted list
+	 * @return the sorted list; if {@code collection} has less than 2 elements,
+	 *         it will be returned directly
+	 * @see #sort(Collection, boolean, String...)
 	 * @since 1.4
 	 */
 	public static <T> Collection<T> sort(Collection<T> collection, String... propNames) {
@@ -622,6 +620,16 @@ public final class CollectionUtils {
 
 	/**
 	 * Sort a collection.
+	 *
+	 * <p>
+	 * If {@code propNames} are not provided, the elements of the collection
+	 * must implement {@code Comparable} and they will be sorted accordingly.
+	 * Otherwise each {@code propNames} value will be extracted from each
+	 * element and they must implement {@code Comparable}. The elements can be
+	 * either a {@code Map<String, ?>}, in which case {@code propNames} are
+	 * treated as map keys, or arbitrary {@code Object} instances, in which case
+	 * {@code propNames} are treated as JavaBean "getter" names.
+	 * </p>
 	 *
 	 * <p>
 	 * If the collection fails to sort in any way, the {@code collection} value
@@ -637,7 +645,8 @@ public final class CollectionUtils {
 	 * @param propNames
 	 *        an optional list of element property names to sort by; if not
 	 *        provided then the elements themselves will be compared
-	 * @return the sorted list
+	 * @return the sorted list; if {@code collection} has less than 2 elements,
+	 *         it will be returned directly
 	 * @since 1.4
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -656,11 +665,23 @@ public final class CollectionUtils {
 				}
 			} else {
 				cmp = (l, r) -> {
-					PropertyAccessor la = PropertyAccessorFactory.forBeanPropertyAccess(l);
-					PropertyAccessor ra = PropertyAccessorFactory.forBeanPropertyAccess(r);
+					Function<String, Object> lGetter;
+					Function<String, Object> rGetter;
+					if ( l instanceof Map ) {
+						lGetter = ((Map) l)::get;
+					} else {
+						PropertyAccessor la = PropertyAccessorFactory.forBeanPropertyAccess(l);
+						lGetter = la::getPropertyValue;
+					}
+					if ( r instanceof Map ) {
+						rGetter = ((Map) r)::get;
+					} else {
+						PropertyAccessor ra = PropertyAccessorFactory.forBeanPropertyAccess(r);
+						rGetter = ra::getPropertyValue;
+					}
 					for ( String propName : propNames ) {
-						Object lp = la.getPropertyValue(propName);
-						Object rp = ra.getPropertyValue(propName);
+						Object lp = lGetter.apply(propName);
+						Object rp = rGetter.apply(propName);
 						if ( lp != rp ) {
 							if ( lp == null ) {
 								return -1;
