@@ -224,6 +224,18 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 	}
 
 	@Test
+	public void parseZoneOffset() {
+		// GIVEN
+		final String zoneId = "-10:00";
+
+		// WHEN
+		ZoneId zone = tz(zoneId);
+
+		// THEN
+		assertThat("ZoneId parsed", zone, is(equalTo(ZoneId.of(zoneId))));
+	}
+
+	@Test
 	public void parseZone_null() {
 		// WHEN
 		ZoneId zone = tz(null);
