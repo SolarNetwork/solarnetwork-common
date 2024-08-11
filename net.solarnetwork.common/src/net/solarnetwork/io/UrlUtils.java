@@ -1,21 +1,21 @@
 /* ==================================================================
  * UrlUtils.java - 20/10/2019 3:55:43 pm
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -48,9 +48,9 @@ import net.solarnetwork.service.SSLService;
 
 /**
  * Utilities for supporting URL related tasks.
- * 
+ *
  * @author matt
- * @version 2.1
+ * @version 2.2
  * @since 1.54
  */
 public final class UrlUtils {
@@ -100,12 +100,12 @@ public final class UrlUtils {
 
 	/**
 	 * Get an InputStream from a URLConnection response, handling compression.
-	 * 
+	 *
 	 * <p>
 	 * This method handles decompressing the response if the encoding is set to
 	 * {@code gzip} or {@code deflate}.
 	 * </p>
-	 * 
+	 *
 	 * @param conn
 	 *        the URLConnection
 	 * @return the InputStream
@@ -118,12 +118,12 @@ public final class UrlUtils {
 
 	/**
 	 * Get an InputStream from a URLConnection response, handling compression.
-	 * 
+	 *
 	 * <p>
 	 * This method handles decompressing the response if the encoding is set to
 	 * {@code gzip} or {@code deflate}.
 	 * </p>
-	 * 
+	 *
 	 * @param log
 	 *        the logger to use
 	 * @param conn
@@ -149,23 +149,44 @@ public final class UrlUtils {
 		}
 
 		log.trace("RESP content type [{}] encoded as [{}]", type, enc);
-		InputStream is = conn.getInputStream();
-		if ( "gzip".equalsIgnoreCase(enc) ) {
-			is = new GZIPInputStream(is);
-		} else if ( "deflate".equalsIgnoreCase(enc) ) {
-			is = new InflaterInputStream(is);
+		return getInputStreamFromUrlResponseStream(conn.getInputStream(), enc);
+	}
+
+	/**
+	 * Get an InputStream from an HTTP response stream, handling compression.
+	 *
+	 * <p>
+	 * This method handles decompressing the response if {@code encoding} is set
+	 * to {@code gzip} or {@code deflate}.
+	 * </p>
+	 *
+	 * @param in
+	 *        the input stream
+	 * @param encoding
+	 *        the content encoding (may be {@literal null}
+	 * @return the InputStream
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 2.2
+	 */
+	public static InputStream getInputStreamFromUrlResponseStream(final InputStream in,
+			final String encoding) throws IOException {
+		if ( "gzip".equalsIgnoreCase(encoding) ) {
+			return new GZIPInputStream(in);
+		} else if ( "deflate".equalsIgnoreCase(encoding) ) {
+			return new InflaterInputStream(in);
 		}
-		return is;
+		return in;
 	}
 
 	/**
 	 * Get a Reader for a Unicode encoded URL connection response.
-	 * 
+	 *
 	 * <p>
 	 * This calls {@link #getInputStreamFromURLConnection(URLConnection)} so
 	 * compressed responses are handled appropriately.
 	 * </p>
-	 * 
+	 *
 	 * @param conn
 	 *        the URLConnection
 	 * @return the Reader
@@ -178,12 +199,12 @@ public final class UrlUtils {
 
 	/**
 	 * Get a Reader for a Unicode encoded URL connection response.
-	 * 
+	 *
 	 * <p>
 	 * This calls {@link #getInputStreamFromURLConnection(URLConnection)} so
 	 * compressed responses are handled appropriately.
 	 * </p>
-	 * 
+	 *
 	 * @param log
 	 *        the logger to use
 	 * @param conn
@@ -200,11 +221,11 @@ public final class UrlUtils {
 
 	/**
 	 * Get a URLConnection for a specific URL and HTTP method.
-	 * 
+	 *
 	 * <p>
 	 * This defaults to the {@link #ACCEPT_TEXT} accept value.
 	 * </p>
-	 * 
+	 *
 	 * @param url
 	 *        the URL to connect to
 	 * @param httpMethod
@@ -228,27 +249,27 @@ public final class UrlUtils {
 
 	/**
 	 * Get a {@link URLConnection} for a URL and HTTP method.
-	 * 
+	 *
 	 * <p>
 	 * This method is geared towards HTTP (and HTTPS) connections, but can be
 	 * used for arbitrary URLs by passing {@literal null} for the HTTP-specific
 	 * arguments.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * If {@code httpMethod} equals {@literal PATCH}, {@literal POST}, or
 	 * {@literal PUT} then the connection's {@code doOutput} property will be
 	 * set to {@literal true}, otherwise it will be set to {@literal false}. The
 	 * {@code doInput} property is always set to {@literal true}.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * This method also sets up the request property
 	 * {@code Accept-Encoding: gzip,deflate} so the response can be compressed.
 	 * The {@link #getInputStreamFromURLConnection(URLConnection)} automatically
 	 * handles compressed responses.
 	 * </p>
-	 * 
+	 *
 	 * @param url
 	 *        the URL to connect to
 	 * @param httpMethod
@@ -304,7 +325,7 @@ public final class UrlUtils {
 
 	/**
 	 * Append a URL-escaped key/value pair to a character buffer.
-	 * 
+	 *
 	 * @param <T>
 	 *        the buffer type
 	 * @param buf
@@ -334,11 +355,11 @@ public final class UrlUtils {
 	/**
 	 * Encode a map of data into a string suitable for posting to a web server
 	 * as the content type {@code application/x-www-form-urlencoded}.
-	 * 
+	 *
 	 * <p>
 	 * Arrays and collections of values are supported as well.
 	 * </p>
-	 * 
+	 *
 	 * @param data
 	 *        the map of data to encode
 	 * @return the encoded data, or an empty string if nothing to encode
@@ -368,7 +389,7 @@ public final class UrlUtils {
 	/**
 	 * HTTP POST data as {@code application/x-www-form-urlencoded} (e.g. a web
 	 * form) to a URL.
-	 * 
+	 *
 	 * @param url
 	 *        the URL to post to
 	 * @param accept
@@ -397,7 +418,7 @@ public final class UrlUtils {
 	/**
 	 * HTTP POST data as {@code application/x-www-form-urlencoded} (e.g. a web
 	 * form) to a URL.
-	 * 
+	 *
 	 * @param log
 	 *        the logger to use
 	 * @param url
@@ -445,7 +466,7 @@ public final class UrlUtils {
 	/**
 	 * HTTP POST data as {@code application/x-www-form-urlencoded} (e.g. a web
 	 * form) to a URL and return the response body as a string.
-	 * 
+	 *
 	 * @param url
 	 *        the URL to post to
 	 * @param accept
@@ -475,7 +496,7 @@ public final class UrlUtils {
 	/**
 	 * HTTP POST data as {@code application/x-www-form-urlencoded} (e.g. a web
 	 * form) to a URL and return the response body as a string.
-	 * 
+	 *
 	 * @param log
 	 *        the logger to use
 	 * @param url
@@ -508,7 +529,7 @@ public final class UrlUtils {
 
 	/**
 	 * HTTP GET a URL.
-	 * 
+	 *
 	 * @param url
 	 *        the URL to post to
 	 * @param accept
@@ -536,7 +557,7 @@ public final class UrlUtils {
 
 	/**
 	 * HTTP GET a URL.
-	 * 
+	 *
 	 * @param log
 	 *        the logger to use
 	 * @param url
@@ -583,7 +604,7 @@ public final class UrlUtils {
 
 	/**
 	 * HTTP GET a URL and return the response as a string.
-	 * 
+	 *
 	 * @param url
 	 *        the URL to post to
 	 * @param accept
@@ -611,7 +632,7 @@ public final class UrlUtils {
 
 	/**
 	 * HTTP GET a URL and return the response as a string.
-	 * 
+	 *
 	 * @param log
 	 *        the logger to use
 	 * @param url
