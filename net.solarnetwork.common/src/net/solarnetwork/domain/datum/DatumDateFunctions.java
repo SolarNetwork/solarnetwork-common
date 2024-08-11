@@ -28,18 +28,14 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.Period;
-import java.time.Year;
-import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
-import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
+import net.solarnetwork.util.DateUtils;
 
 /**
  * API for datum-related date helper functions.
@@ -61,15 +57,7 @@ public interface DatumDateFunctions {
 	 *         if {@code zoneId} cannot be parsed
 	 */
 	default ZoneId tz(String zoneId) {
-		if ( zoneId == null ) {
-			return ZoneId.systemDefault();
-		}
-		try {
-			return ZoneId.of(zoneId);
-		} catch ( DateTimeException e ) {
-			throw new IllegalArgumentException(
-					format("Invalid time zone [%s]: %s", zoneId, e.getMessage()));
-		}
+		return DateUtils.tz(zoneId);
 	}
 
 	/**
@@ -201,7 +189,7 @@ public interface DatumDateFunctions {
 	 *         if the temporal type is not supported
 	 */
 	default Instant timestamp(Temporal date) {
-		return timestamp(date, ZoneId.systemDefault());
+		return DateUtils.timestamp(date);
 	}
 
 	/**
@@ -219,7 +207,7 @@ public interface DatumDateFunctions {
 	 *         valid
 	 */
 	default Instant timestamp(Temporal date, String zoneId) {
-		return timestamp(date, tz(zoneId));
+		return DateUtils.timestamp(date, zoneId);
 	}
 
 	/**
@@ -235,29 +223,7 @@ public interface DatumDateFunctions {
 	 *         if the temporal type is not supported
 	 */
 	default Instant timestamp(Temporal date, ZoneId zone) {
-		if ( date == null ) {
-			return null;
-		}
-		if ( zone == null ) {
-			zone = ZoneId.systemDefault();
-		}
-		if ( date instanceof Instant ) {
-			return (Instant) date;
-		}
-		if ( date instanceof LocalDate ) {
-			return ((LocalDate) date).atStartOfDay().atZone(zone).toInstant();
-		} else if ( date instanceof LocalDateTime ) {
-			return ((LocalDateTime) date).atZone(zone).toInstant();
-		} else if ( date instanceof ZonedDateTime ) {
-			return ((ZonedDateTime) date).toInstant();
-		} else if ( date instanceof OffsetDateTime ) {
-			return ((OffsetDateTime) date).toInstant();
-		} else if ( date instanceof YearMonth ) {
-			return ((YearMonth) date).atDay(1).atStartOfDay().atZone(zone).toInstant();
-		} else if ( date instanceof Year ) {
-			return ((Year) date).atMonth(1).atDay(1).atStartOfDay().atZone(zone).toInstant();
-		}
-		throw new IllegalArgumentException("Unsupported temporal type [" + date.getClass() + "]");
+		return DateUtils.timestamp(date, zone);
 	}
 
 	/**
@@ -352,14 +318,7 @@ public interface DatumDateFunctions {
 	 *         is {@literal null}
 	 */
 	default TemporalUnit chronoUnit(String name) {
-		if ( name == null ) {
-			return null;
-		}
-		try {
-			return ChronoUnit.valueOf(name.toUpperCase());
-		} catch ( IllegalArgumentException e ) {
-			throw new IllegalArgumentException(format("Invalid chrono unit [%s].", name));
-		}
+		return DateUtils.chronoUnit(name);
 	}
 
 	/**
@@ -374,19 +333,7 @@ public interface DatumDateFunctions {
 	 *         if {@code amount} cannot be parsed as a {@link TemporalAmount}
 	 */
 	default TemporalAmount duration(String amount) {
-		TemporalAmount amt = null;
-		try {
-			amt = Period.parse(amount);
-		} catch ( DateTimeParseException e ) {
-			// ignore, try duration
-			try {
-				amt = Duration.parse(amount);
-			} catch ( DateTimeParseException e2 ) {
-				throw new IllegalArgumentException(
-						"Unable to parse [" + amount + "] as a ISO 8601 period or duration value.");
-			}
-		}
-		return amt;
+		return DateUtils.duration(amount);
 	}
 
 	/**
@@ -404,7 +351,7 @@ public interface DatumDateFunctions {
 	 * @see #dateTruncate(Temporal, TemporalUnit)
 	 */
 	default Temporal dateTruncate(Temporal date, String unit) {
-		return dateTruncate(date, chronoUnit(unit));
+		return DateUtils.dateTruncate(date, unit);
 	}
 
 	/**
@@ -419,31 +366,7 @@ public interface DatumDateFunctions {
 	 *         if the date cannot be truncated to the given unit
 	 */
 	default Temporal dateTruncate(Temporal date, TemporalUnit unit) {
-		if ( date == null || unit == null ) {
-			return date;
-		}
-		try {
-			if ( date instanceof ZonedDateTime ) {
-				return ((ZonedDateTime) date).truncatedTo(unit);
-			} else if ( date instanceof Instant ) {
-				return ((Instant) date).truncatedTo(unit);
-			} else if ( date instanceof OffsetDateTime ) {
-				return ((OffsetDateTime) date).truncatedTo(unit);
-			} else if ( date instanceof LocalDateTime ) {
-				return ((LocalDateTime) date).truncatedTo(unit);
-			} else if ( date instanceof LocalDate ) {
-				if ( unit.equals(ChronoUnit.MONTHS) ) {
-					return ((LocalDate) date).with(TemporalAdjusters.firstDayOfMonth());
-				} else if ( unit.equals(ChronoUnit.YEARS) ) {
-					return ((LocalDate) date).with(TemporalAdjusters.firstDayOfYear());
-				}
-			}
-		} catch ( DateTimeException e ) {
-			throw new IllegalArgumentException(
-					format("Cannot truncate date %s to %s: %s", date, unit, e.getMessage()));
-		}
-		throw new IllegalArgumentException(
-				format("Cannot trundate date type %s to %s: unsupported type.", date.getClass(), unit));
+		return DateUtils.dateTruncate(date, unit);
 	}
 
 	/**
@@ -564,7 +487,7 @@ public interface DatumDateFunctions {
 	 * @see #duration(String)
 	 */
 	default Temporal datePlus(Temporal date, String amount) {
-		return datePlus(date, duration(amount));
+		return DateUtils.datePlus(date, amount);
 	}
 
 	/**
@@ -580,15 +503,7 @@ public interface DatumDateFunctions {
 	 * @see #duration(String)
 	 */
 	default Temporal datePlus(Temporal date, TemporalAmount amount) {
-		if ( date == null || amount == null ) {
-			return date;
-		}
-		try {
-			return date.plus(amount);
-		} catch ( DateTimeException e ) {
-			throw new IllegalArgumentException(
-					format("Unable to add [%s] to [%s]: %s", amount, date, e.getMessage()));
-		}
+		return DateUtils.datePlus(date, amount);
 	}
 
 	/**
@@ -605,7 +520,7 @@ public interface DatumDateFunctions {
 	 *         if {@code unit} cannot be parsed as a {@link ChronoUnit}
 	 */
 	default Temporal datePlus(Temporal date, long amount, String unit) {
-		return datePlus(date, amount, chronoUnit(unit));
+		return DateUtils.datePlus(date, amount, unit);
 	}
 
 	/**
@@ -623,15 +538,7 @@ public interface DatumDateFunctions {
 	 *         if {@code unit} cannot be added to {@code date}
 	 */
 	default Temporal datePlus(Temporal date, long amount, TemporalUnit unit) {
-		if ( date == null || unit == null || amount == 0 ) {
-			return date;
-		}
-		try {
-			return date.plus(amount, unit);
-		} catch ( DateTimeException e ) {
-			throw new IllegalArgumentException(
-					format("Unable to add %d %s to [%s]: %s", unit, date, e.getMessage()));
-		}
+		return DateUtils.datePlus(date, amount, unit);
 	}
 
 }

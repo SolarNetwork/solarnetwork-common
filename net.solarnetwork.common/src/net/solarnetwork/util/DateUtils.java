@@ -28,10 +28,15 @@ import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.Period;
+import java.time.Year;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -42,10 +47,14 @@ import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalQueries;
+import java.time.temporal.TemporalUnit;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,7 +64,7 @@ import org.springframework.util.StringUtils;
  * Date and time utilities.
  *
  * @author matt
- * @version 2.3
+ * @version 2.4
  * @since 1.59
  */
 public final class DateUtils {
@@ -1040,6 +1049,302 @@ public final class DateUtils {
 	 */
 	public static String formatForLocalDisplay(Instant timestamp) {
 		return DISPLAY_DATE_LONG_TIME_SHORT.format(timestamp.atZone(ZoneId.systemDefault()));
+	}
+
+	/**
+	 * Parse a time zone ID into a zone instance.
+	 *
+	 * @param zoneId
+	 *        the zone ID to parse, or {@literal null} to resolve the system
+	 *        time zone
+	 * @return the zone, never {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code zoneId} cannot be parsed
+	 * @since 2.4
+	 */
+	public static ZoneId tz(String zoneId) {
+		if ( zoneId == null ) {
+			return ZoneId.systemDefault();
+		}
+		try {
+			return ZoneId.of(zoneId);
+		} catch ( DateTimeException e ) {
+			throw new IllegalArgumentException(
+					String.format("Invalid time zone [%s]: %s", zoneId, e.getMessage()));
+		}
+	}
+
+	/**
+	 * Convert a {@link Temporal} into an {@link Instant} in the system time
+	 * zone.
+	 *
+	 * @param date
+	 *        the temporal to convert
+	 * @return the converted instant, or {@literal null} if {code temporal} or
+	 *         {@code zone} are {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if the temporal type is not supported
+	 * @since 2.4
+	 */
+	public static Instant timestamp(Temporal date) {
+		return timestamp(date, ZoneId.systemDefault());
+	}
+
+	/**
+	 * Convert a {@link Temporal} into an {@link Instant} in the system time
+	 * zone.
+	 *
+	 * @param date
+	 *        the temporal to convert
+	 * @param zoneId
+	 *        the zone ID to use
+	 * @return the converted instant, or {@literal null} if {code temporal} or
+	 *         {@code zone} are {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if the temporal type is not supported or {@code zoneId} is not
+	 *         valid
+	 * @since 2.4
+	 */
+	public static Instant timestamp(Temporal date, String zoneId) {
+		return timestamp(date, tz(zoneId));
+	}
+
+	/**
+	 * Convert a {@link Temporal} into an {@link Instant} in a given time zone.
+	 *
+	 * @param date
+	 *        the temporal to convert
+	 * @param zone
+	 *        the time zone, or {@literal null} to use the system time zone
+	 * @return the converted instant, or {@literal null} if {code temporal} or
+	 *         {@code zone} are {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if the temporal type is not supported
+	 * @since 2.4
+	 */
+	public static Instant timestamp(Temporal date, ZoneId zone) {
+		if ( date == null ) {
+			return null;
+		}
+		if ( zone == null ) {
+			zone = ZoneId.systemDefault();
+		}
+		if ( date instanceof Instant ) {
+			return (Instant) date;
+		}
+		if ( date instanceof LocalDate ) {
+			return ((LocalDate) date).atStartOfDay().atZone(zone).toInstant();
+		} else if ( date instanceof LocalDateTime ) {
+			return ((LocalDateTime) date).atZone(zone).toInstant();
+		} else if ( date instanceof ZonedDateTime ) {
+			return ((ZonedDateTime) date).toInstant();
+		} else if ( date instanceof OffsetDateTime ) {
+			return ((OffsetDateTime) date).toInstant();
+		} else if ( date instanceof YearMonth ) {
+			return ((YearMonth) date).atDay(1).atStartOfDay().atZone(zone).toInstant();
+		} else if ( date instanceof Year ) {
+			return ((Year) date).atMonth(1).atDay(1).atStartOfDay().atZone(zone).toInstant();
+		}
+		throw new IllegalArgumentException("Unsupported temporal type [" + date.getClass() + "]");
+	}
+
+	/**
+	 * Parse a {@link ChronoUnit} value.
+	 *
+	 * @param name
+	 *        the value to case insensitively parse as a {@link ChronoUnit}
+	 * @return the enum value
+	 * @throws IllegalArgumentException
+	 *         if {@code name} is not value, or {@literal null} if {@code name}
+	 *         is {@literal null}
+	 * @since 2.4
+	 */
+	public static TemporalUnit chronoUnit(String name) {
+		if ( name == null ) {
+			return null;
+		}
+		try {
+			return ChronoUnit.valueOf(name.toUpperCase());
+		} catch ( IllegalArgumentException e ) {
+			throw new IllegalArgumentException(String.format("Invalid chrono unit [%s].", name));
+		}
+	}
+
+	/**
+	 * Parse a temporal amount (period or duration).
+	 *
+	 * @param amount
+	 *        the amount to add, in a form suitable for
+	 *        {@link Period#parse(CharSequence)} or
+	 *        {@link Duration#parse(CharSequence)}
+	 * @return the parsed amount
+	 * @throws IllegalArgumentException
+	 *         if {@code amount} cannot be parsed as a {@link TemporalAmount}
+	 * @since 2.4
+	 */
+	public static TemporalAmount duration(String amount) {
+		TemporalAmount amt = null;
+		try {
+			amt = Period.parse(amount);
+		} catch ( DateTimeParseException e ) {
+			// ignore, try duration
+			try {
+				amt = Duration.parse(amount);
+			} catch ( DateTimeParseException e2 ) {
+				throw new IllegalArgumentException(
+						"Unable to parse [" + amount + "] as a ISO 8601 period or duration value.");
+			}
+		}
+		return amt;
+	}
+
+	/**
+	 * Truncate a date to a given unit.
+	 *
+	 * @param date
+	 *        the date to truncate
+	 * @param unit
+	 *        the unit to truncate to
+	 * @return the truncated date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be truncated to the given unit, or the unit
+	 *         cannot be parsed
+	 * @see #chronoUnit(String)
+	 * @see #dateTruncate(Temporal, TemporalUnit)
+	 * @since 2.4
+	 */
+	public static Temporal dateTruncate(Temporal date, String unit) {
+		return dateTruncate(date, chronoUnit(unit));
+	}
+
+	/**
+	 * Truncate a date to a given unit.
+	 *
+	 * @param date
+	 *        the date to truncate
+	 * @param unit
+	 *        the unit to truncate to
+	 * @return the truncated date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be truncated to the given unit
+	 * @since 2.4
+	 */
+	public static Temporal dateTruncate(Temporal date, TemporalUnit unit) {
+		if ( date == null || unit == null ) {
+			return date;
+		}
+		try {
+			if ( date instanceof ZonedDateTime ) {
+				return ((ZonedDateTime) date).truncatedTo(unit);
+			} else if ( date instanceof Instant ) {
+				return ((Instant) date).truncatedTo(unit);
+			} else if ( date instanceof OffsetDateTime ) {
+				return ((OffsetDateTime) date).truncatedTo(unit);
+			} else if ( date instanceof LocalDateTime ) {
+				return ((LocalDateTime) date).truncatedTo(unit);
+			} else if ( date instanceof LocalDate ) {
+				if ( unit.equals(ChronoUnit.MONTHS) ) {
+					return ((LocalDate) date).with(TemporalAdjusters.firstDayOfMonth());
+				} else if ( unit.equals(ChronoUnit.YEARS) ) {
+					return ((LocalDate) date).with(TemporalAdjusters.firstDayOfYear());
+				}
+			}
+		} catch ( DateTimeException e ) {
+			throw new IllegalArgumentException(
+					String.format("Cannot truncate date %s to %s: %s", date, unit, e.getMessage()));
+		}
+		throw new IllegalArgumentException(String
+				.format("Cannot trundate date type %s to %s: unsupported type.", date.getClass(), unit));
+	}
+
+	/**
+	 * Add an ISO 8601 period or duration to a date.
+	 *
+	 * @param date
+	 *        the date to add to
+	 * @param amount
+	 *        the amount to add, in a form suitable for
+	 *        {@link Period#parse(CharSequence)} or
+	 *        {@link Duration#parse(CharSequence)}
+	 * @return the new adjusted date
+	 * @throws IllegalArgumentException
+	 *         if {@code amount} cannot be parsed as a {@link TemporalAmount} or
+	 *         {@code amount} cannot be added to {@code date}
+	 * @see #duration(String)
+	 * @since 2.4
+	 */
+	public static Temporal datePlus(Temporal date, String amount) {
+		return datePlus(date, duration(amount));
+	}
+
+	/**
+	 * Add an ISO 8601 period or duration to a date.
+	 *
+	 * @param date
+	 *        the date to add to
+	 * @param amount
+	 *        the amount to add
+	 * @return the new adjusted date
+	 * @throws IllegalArgumentException
+	 *         if {@code amount} cannot be added to {@code date}
+	 * @see #duration(String)
+	 * @since 2.4
+	 */
+	public static Temporal datePlus(Temporal date, TemporalAmount amount) {
+		if ( date == null || amount == null ) {
+			return date;
+		}
+		try {
+			return date.plus(amount);
+		} catch ( DateTimeException e ) {
+			throw new IllegalArgumentException(
+					String.format("Unable to add [%s] to [%s]: %s", amount, date, e.getMessage()));
+		}
+	}
+
+	/**
+	 * Add a chronological unit to a date.
+	 *
+	 * @param date
+	 *        the date to add to
+	 * @param amount
+	 *        the amount to add
+	 * @param unit
+	 *        a {@link ChronoUnit} value for the time unit (case insensitive)
+	 * @return the new adjusted date
+	 * @throws IllegalArgumentException
+	 *         if {@code unit} cannot be parsed as a {@link ChronoUnit}
+	 * @since 2.4
+	 */
+	public static Temporal datePlus(Temporal date, long amount, String unit) {
+		return datePlus(date, amount, chronoUnit(unit));
+	}
+
+	/**
+	 * Add a chronological unit to a date.
+	 *
+	 * @param date
+	 *        the date to add to
+	 * @param amount
+	 *        the amount to add
+	 * @param unit
+	 *        the unit
+	 * @return the new adjusted date, or {@literal null} if {@code date} or
+	 *         {@code unit} are {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code unit} cannot be added to {@code date}
+	 * @since 2.4
+	 */
+	public static Temporal datePlus(Temporal date, long amount, TemporalUnit unit) {
+		if ( date == null || unit == null || amount == 0 ) {
+			return date;
+		}
+		try {
+			return date.plus(amount, unit);
+		} catch ( DateTimeException e ) {
+			throw new IllegalArgumentException(
+					String.format("Unable to add %d %s to [%s]: %s", unit, date, e.getMessage()));
+		}
 	}
 
 }
