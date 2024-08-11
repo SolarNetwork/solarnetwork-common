@@ -1031,7 +1031,7 @@ public final class DateUtils {
 	}
 
 	/**
-	 * Format an instant for display in the local (sytem) time zone.
+	 * Format an instant for display in the local (system) time zone.
 	 *
 	 * @param timestamp
 	 *        the instant
