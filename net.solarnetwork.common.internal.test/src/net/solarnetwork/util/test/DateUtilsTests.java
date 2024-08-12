@@ -1124,4 +1124,50 @@ public class DateUtilsTests {
 		}
 	}
 
+	@Test
+	public void dateTruncate_localDateTime_week() {
+		for ( int i = 12; i < 19; i++ ) {
+			// GIVEN
+			LocalDateTime d = LocalDateTime.of(2024, 8, i, 12, 30);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.WEEKS);
+
+			// THEN
+			assertThat("LocalDateTime returned for start of week", result,
+					is(equalTo(LocalDateTime.of(2024, 8, 12, 0, 0))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDateTime_month() {
+		for ( int i = 1; i < 31; i++ ) {
+			// GIVEN
+			LocalDateTime d = LocalDateTime.of(2024, 8, i, 12, 30);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.MONTHS);
+
+			// THEN
+			assertThat("LocalDateTime returned for start of month", result,
+					is(equalTo(LocalDateTime.of(2024, 8, 1, 0, 0))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDateTime_year() {
+		LocalDateTime startOfYear = LocalDateTime.of(2024, 1, 1, 12, 30);
+		for ( int i = 1; i < 365; i++ ) {
+			// GIVEN
+			LocalDateTime d = startOfYear.plusDays(i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.YEARS);
+
+			// THEN
+			assertThat("LocalDateTime returned for start of year", result,
+					is(equalTo(LocalDateTime.of(2024, 1, 1, 0, 0))));
+		}
+	}
+
 }

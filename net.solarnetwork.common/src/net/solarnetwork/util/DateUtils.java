@@ -1234,6 +1234,23 @@ public final class DateUtils {
 			return date;
 		}
 		try {
+			Temporal result = null;
+			if ( unit.equals(ChronoUnit.WEEKS) ) {
+				result = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+			} else if ( unit.equals(ChronoUnit.MONTHS) ) {
+				result = date.with(TemporalAdjusters.firstDayOfMonth());
+			} else if ( unit.equals(ChronoUnit.YEARS) ) {
+				result = date.with(TemporalAdjusters.firstDayOfYear());
+			}
+
+			if ( result != null ) {
+				// if date supports time, truncate that to start of day
+				if ( result.isSupported(ChronoField.NANO_OF_DAY) ) {
+					return result.with(ChronoField.NANO_OF_DAY, 0);
+				}
+				return result;
+			}
+
 			if ( date instanceof ZonedDateTime ) {
 				return ((ZonedDateTime) date).truncatedTo(unit);
 			} else if ( date instanceof Instant ) {
@@ -1242,14 +1259,6 @@ public final class DateUtils {
 				return ((OffsetDateTime) date).truncatedTo(unit);
 			} else if ( date instanceof LocalDateTime ) {
 				return ((LocalDateTime) date).truncatedTo(unit);
-			} else if ( date instanceof LocalDate ) {
-				if ( unit.equals(ChronoUnit.WEEKS) ) {
-					return ((LocalDate) date).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-				} else if ( unit.equals(ChronoUnit.MONTHS) ) {
-					return ((LocalDate) date).with(TemporalAdjusters.firstDayOfMonth());
-				} else if ( unit.equals(ChronoUnit.YEARS) ) {
-					return ((LocalDate) date).with(TemporalAdjusters.firstDayOfYear());
-				}
 			}
 		} catch ( DateTimeException e ) {
 			throw new IllegalArgumentException(
