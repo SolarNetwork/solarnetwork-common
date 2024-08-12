@@ -44,6 +44,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
@@ -1075,6 +1076,52 @@ public class DateUtilsTests {
 		// THEN
 		assertThat("Instant returned for start of day in given time zone", result,
 				is(equalTo(d.atStartOfDay().atZone(zone).toInstant())));
+	}
+
+	@Test
+	public void dateTruncate_localDate_week() {
+		for ( int i = 12; i < 19; i++ ) {
+			// GIVEN
+			LocalDate d = LocalDate.of(2024, 8, i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.WEEKS);
+
+			// THEN
+			assertThat("LocalDate returned for start of week", result,
+					is(equalTo(LocalDate.of(2024, 8, 12))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDate_month() {
+		for ( int i = 1; i < 31; i++ ) {
+			// GIVEN
+			LocalDate d = LocalDate.of(2024, 8, i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.MONTHS);
+
+			// THEN
+			assertThat("LocalDate returned for start of month", result,
+					is(equalTo(LocalDate.of(2024, 8, 1))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDate_year() {
+		LocalDate startOfYear = LocalDate.of(2024, 1, 1);
+		for ( int i = 1; i < 365; i++ ) {
+			// GIVEN
+			LocalDate d = startOfYear.plusDays(i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.YEARS);
+
+			// THEN
+			assertThat("LocalDate returned for start of year", result,
+					is(equalTo(LocalDate.of(2024, 1, 1))));
+		}
 	}
 
 }

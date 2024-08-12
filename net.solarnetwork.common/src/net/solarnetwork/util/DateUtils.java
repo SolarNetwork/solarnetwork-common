@@ -1243,7 +1243,9 @@ public final class DateUtils {
 			} else if ( date instanceof LocalDateTime ) {
 				return ((LocalDateTime) date).truncatedTo(unit);
 			} else if ( date instanceof LocalDate ) {
-				if ( unit.equals(ChronoUnit.MONTHS) ) {
+				if ( unit.equals(ChronoUnit.WEEKS) ) {
+					return ((LocalDate) date).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+				} else if ( unit.equals(ChronoUnit.MONTHS) ) {
 					return ((LocalDate) date).with(TemporalAdjusters.firstDayOfMonth());
 				} else if ( unit.equals(ChronoUnit.YEARS) ) {
 					return ((LocalDate) date).with(TemporalAdjusters.firstDayOfYear());
