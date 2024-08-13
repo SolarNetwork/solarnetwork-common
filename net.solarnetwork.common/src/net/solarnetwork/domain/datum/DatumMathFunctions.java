@@ -33,7 +33,7 @@ import net.solarnetwork.util.StringUtils;
  * API for datum-related math helper functions.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 2.1
  */
 public interface DatumMathFunctions {
@@ -710,6 +710,79 @@ public interface DatumMathFunctions {
 			return null;
 		}
 		return Math.exp(n.doubleValue());
+	}
+
+	/**
+	 * Scale a number by a power of 10.
+	 *
+	 * @param num
+	 *        the number to scale
+	 * @param scale
+	 *        the power of 10 to scale by; a negative value shifts the decimal
+	 *        point left this many places; a positive value shifts the decimal
+	 *        point right this many places
+	 * @return the scaled value
+	 * @since 1.3
+	 */
+	default BigDecimal scaled(Number n, int scale) {
+		return NumberUtils.scaled(n, scale);
+	}
+
+	/**
+	 * Get the whole part of a number as a {@link BigInteger}.
+	 *
+	 * <p>
+	 * The whole portion of the number is returned without any rounding from the
+	 * fractional part of the number.
+	 * </p>
+	 *
+	 * @param n
+	 *        the number to extract the whole part from
+	 * @return the whole part as an integer, or zero if {@code n} is
+	 *         {@literal null}
+	 * @since 1.3
+	 */
+	default BigInteger wholePart(Number n) {
+		return NumberUtils.wholePartToInteger(decimal(n));
+	}
+
+	/**
+	 * Get the fractional part of a numberas a {@link BigInteger}.
+	 *
+	 * <p>
+	 * The maximum scale of the number is preserved in the returned value.
+	 * </p>
+	 *
+	 * @param n
+	 *        the number to extract the fractional part from
+	 * @return the fractional part as an integer, or zero if {@code n} is
+	 *         {@literal null}
+	 * @since 1.3
+	 */
+	default BigInteger fracPart(Number n) {
+		return NumberUtils.fractionalPartToInteger(decimal(n));
+	}
+
+	/**
+	 * Get the fractional part of a number as a {@link BigInteger} with a
+	 * maximum scale.
+	 *
+	 * <p>
+	 * If the fractional part must be rounded, the {@link RoundingMode#FLOOR}
+	 * method (when positive) or {@link RoundingMode#CEILING} (when negative)
+	 * will be used to truncate the value to keep it within the desired scale.
+	 * </p>
+	 *
+	 * @param decimal
+	 *        the decimal
+	 * @param scale
+	 *        the maximum power-of-10 scale
+	 * @return the fractional part as an integer, or zero if {@code n} is
+	 *         {@literal null}
+	 * @since 1.3
+	 */
+	default BigInteger fracPart(Number n, int scale) {
+		return NumberUtils.fractionalPartToInteger(decimal(n), scale);
 	}
 
 }
