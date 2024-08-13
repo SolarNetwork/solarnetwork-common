@@ -747,7 +747,7 @@ public interface DatumMathFunctions {
 	}
 
 	/**
-	 * Get the fractional part of a numberas a {@link BigInteger}.
+	 * Get the fractional part of a number as a {@link BigInteger}.
 	 *
 	 * <p>
 	 * The maximum scale of the number is preserved in the returned value.
@@ -768,9 +768,9 @@ public interface DatumMathFunctions {
 	 * maximum scale.
 	 *
 	 * <p>
-	 * If the fractional part must be rounded, the {@link RoundingMode#FLOOR}
-	 * method (when positive) or {@link RoundingMode#CEILING} (when negative)
-	 * will be used to truncate the value to keep it within the desired scale.
+	 * If the fractional part must be rounded, the {@link RoundingMode#DOWN}
+	 * method will be used to truncate the value to keep it within the desired
+	 * scale.
 	 * </p>
 	 *
 	 * @param decimal
