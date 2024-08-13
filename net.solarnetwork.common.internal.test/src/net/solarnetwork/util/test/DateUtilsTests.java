@@ -27,14 +27,15 @@ import static java.time.format.TextStyle.FULL;
 import static java.time.format.TextStyle.SHORT;
 import static java.util.Locale.US;
 import static net.solarnetwork.util.IntRange.rangeOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -43,6 +44,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +58,7 @@ import net.solarnetwork.util.IntRangeSet;
  * Test cases for the {@link DateUtils} class.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class DateUtilsTests {
 
@@ -947,6 +950,224 @@ public class DateUtilsTests {
 	@Test(expected = DateTimeException.class)
 	public void parseMinuteOfDayRangeSet_invalid_iso() {
 		DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, "01:00 - 25:00", null);
+	}
+
+	@Test
+	public void datePlus_period() {
+		// GIVEN
+		LocalDate d = LocalDate.of(2024, 8, 6);
+
+		// WHEN
+		String p = "-P2Y";
+		Temporal result = DateUtils.datePlus(d, p);
+
+		// THEN
+		assertThat("LocalDate returned with period added", result,
+				is(equalTo(LocalDate.of(2022, 8, 6))));
+	}
+
+	@Test
+	public void dateTimePlus_duration() {
+		// GIVEN
+		LocalDateTime d = LocalDateTime.of(2024, 8, 6, 14, 15);
+
+		// WHEN
+		String p = "-PT2H";
+		Temporal result = DateUtils.datePlus(d, p);
+
+		// THEN
+		assertThat("LocalDateTime returned with period added", result,
+				is(equalTo(LocalDateTime.of(2024, 8, 6, 12, 15))));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void dateTimePlus_invalid() {
+		// GIVEN
+		LocalDateTime d = LocalDateTime.of(2024, 8, 6, 14, 15);
+
+		// WHEN
+		String p = "foobar";
+		DateUtils.datePlus(d, p);
+	}
+
+	@Test
+	public void datePlus_units() {
+		// GIVEN
+		LocalDate d = LocalDate.of(2024, 8, 6);
+
+		// WHEN
+		Temporal result = DateUtils.datePlus(d, 1, "months");
+
+		// THEN
+		assertThat("LocalDate returned with period added", result,
+				is(equalTo(LocalDate.of(2024, 9, 6))));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void datePlus_units_invalid() {
+		// GIVEN
+		LocalDate d = LocalDate.of(2024, 8, 6);
+
+		// WHEN
+		DateUtils.datePlus(d, 1, "foobar");
+	}
+
+	@Test
+	public void parseZone() {
+		// GIVEN
+		final String zoneId = "Pacific/Auckland";
+
+		// WHEN
+		ZoneId zone = DateUtils.tz(zoneId);
+
+		// THEN
+		assertThat("ZoneId parsed", zone, is(equalTo(ZoneId.of(zoneId))));
+	}
+
+	@Test
+	public void parseZoneOffset() {
+		// GIVEN
+		final String zoneId = "-10:00";
+
+		// WHEN
+		ZoneId zone = DateUtils.tz(zoneId);
+
+		// THEN
+		assertThat("ZoneId parsed", zone, is(equalTo(ZoneId.of(zoneId))));
+	}
+
+	@Test
+	public void parseZone_null() {
+		// WHEN
+		ZoneId zone = DateUtils.tz(null);
+
+		// THEN
+		assertThat("System time zone returned", zone, is(equalTo(ZoneId.systemDefault())));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void parseZone_invalid() {
+		// WHEN
+		DateUtils.tz("Not/Azone");
+	}
+
+	@Test
+	public void toInstant_date() {
+		// GIVEN
+		LocalDate d = LocalDate.of(2024, 8, 6);
+
+		// WHEN
+		Instant result = DateUtils.timestamp(d);
+
+		// THEN
+		assertThat("Instant returned for start of day in system time zone", result,
+				is(equalTo(d.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())));
+	}
+
+	@Test
+	public void toInstant_date_zone() {
+		// GIVEN
+		LocalDate d = LocalDate.of(2024, 8, 6);
+		ZoneId zone = ZoneId.of("Pacific/Honolulu");
+
+		// WHEN
+		Instant result = DateUtils.timestamp(d, zone);
+
+		// THEN
+		assertThat("Instant returned for start of day in given time zone", result,
+				is(equalTo(d.atStartOfDay().atZone(zone).toInstant())));
+	}
+
+	@Test
+	public void dateTruncate_localDate_week() {
+		for ( int i = 12; i < 19; i++ ) {
+			// GIVEN
+			LocalDate d = LocalDate.of(2024, 8, i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.WEEKS);
+
+			// THEN
+			assertThat("LocalDate returned for start of week", result,
+					is(equalTo(LocalDate.of(2024, 8, 12))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDate_month() {
+		for ( int i = 1; i < 31; i++ ) {
+			// GIVEN
+			LocalDate d = LocalDate.of(2024, 8, i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.MONTHS);
+
+			// THEN
+			assertThat("LocalDate returned for start of month", result,
+					is(equalTo(LocalDate.of(2024, 8, 1))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDate_year() {
+		LocalDate startOfYear = LocalDate.of(2024, 1, 1);
+		for ( int i = 1; i < 365; i++ ) {
+			// GIVEN
+			LocalDate d = startOfYear.plusDays(i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.YEARS);
+
+			// THEN
+			assertThat("LocalDate returned for start of year", result,
+					is(equalTo(LocalDate.of(2024, 1, 1))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDateTime_week() {
+		for ( int i = 12; i < 19; i++ ) {
+			// GIVEN
+			LocalDateTime d = LocalDateTime.of(2024, 8, i, 12, 30);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.WEEKS);
+
+			// THEN
+			assertThat("LocalDateTime returned for start of week", result,
+					is(equalTo(LocalDateTime.of(2024, 8, 12, 0, 0))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDateTime_month() {
+		for ( int i = 1; i < 31; i++ ) {
+			// GIVEN
+			LocalDateTime d = LocalDateTime.of(2024, 8, i, 12, 30);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.MONTHS);
+
+			// THEN
+			assertThat("LocalDateTime returned for start of month", result,
+					is(equalTo(LocalDateTime.of(2024, 8, 1, 0, 0))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDateTime_year() {
+		LocalDateTime startOfYear = LocalDateTime.of(2024, 1, 1, 12, 30);
+		for ( int i = 1; i < 365; i++ ) {
+			// GIVEN
+			LocalDateTime d = startOfYear.plusDays(i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.YEARS);
+
+			// THEN
+			assertThat("LocalDateTime returned for start of year", result,
+					is(equalTo(LocalDateTime.of(2024, 1, 1, 0, 0))));
+		}
 	}
 
 }

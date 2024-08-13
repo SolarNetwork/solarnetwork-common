@@ -45,7 +45,7 @@ import net.solarnetwork.service.Identifiable;
  * additionally track average/min/max statistics.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  * @since 3.10
  */
 public class StatTracker implements Identifiable {
@@ -595,6 +595,64 @@ public class StatTracker implements Identifiable {
 	 */
 	public final void increment(Enum<?> key, boolean quiet) {
 		increment(key.name(), quiet);
+	}
+
+	/**
+	 * Increment the current count value by an arbitrary amount.
+	 *
+	 * @param key
+	 *        the count to increment (the {@code name} value will be used)
+	 * @param amount
+	 *        the amount to increment the count by
+	 * @since 1.5
+	 */
+	public final void increment(Enum<?> key, long amount) {
+		increment(key.name(), amount, false);
+	}
+
+	/**
+	 * Increment the current count value by an arbitrary amount.
+	 *
+	 * @param key
+	 *        the count to increment
+	 * @param amount
+	 *        the amount to increment the count by
+	 * @since 1.5
+	 */
+	public final void increment(String key, long amount) {
+		increment(key, amount, false);
+	}
+
+	/**
+	 * Increment the current count value by an arbitrary amount.
+	 *
+	 * @param key
+	 *        the count to increment (the {@code name} value will be used)
+	 * @param amount
+	 *        the amount to increment the count by
+	 * @param quiet
+	 *        {@literal true} to ignore logging
+	 * @since 1.5
+	 */
+	public final void increment(Enum<?> key, long amount, boolean quiet) {
+		increment(key.name(), amount, quiet);
+	}
+
+	/**
+	 * Increment the current count value by an arbitrary amount.
+	 *
+	 * @param key
+	 *        the count to increment
+	 * @param amount
+	 *        the amount to increment the count by
+	 * @param quiet
+	 *        {@literal true} to ignore logging
+	 * @since 1.5
+	 */
+	public final void increment(String key, long amount, boolean quiet) {
+		final LongAdder c = counts.computeIfAbsent(key, k -> new LongAdder());
+		c.add(amount);
+		log(key, c::longValue, quiet);
 	}
 
 	/**
