@@ -715,7 +715,7 @@ public interface DatumMathFunctions {
 	/**
 	 * Scale a number by a power of 10.
 	 *
-	 * @param num
+	 * @param n
 	 *        the number to scale
 	 * @param scale
 	 *        the power of 10 to scale by; a negative value shifts the decimal
@@ -773,8 +773,8 @@ public interface DatumMathFunctions {
 	 * scale.
 	 * </p>
 	 *
-	 * @param decimal
-	 *        the decimal
+	 * @param n
+	 *        the number to extract the fractional part from
 	 * @param scale
 	 *        the maximum power-of-10 scale
 	 * @return the fractional part as an integer, or zero if {@code n} is
