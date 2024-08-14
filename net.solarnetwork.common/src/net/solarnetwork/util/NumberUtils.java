@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Utilities for dealing with numbers.
  *
  * @author matt
- * @version 1.11
+ * @version 1.12
  * @since 1.42
  */
 public final class NumberUtils {
@@ -261,8 +261,8 @@ public final class NumberUtils {
 	 * Get the whole part of a {@link BigDecimal} as a {@link BigInteger}.
 	 *
 	 * <p>
-	 * If whole portion of the decimal is returned without any rounding from the
-	 * fractional part of the decimal.
+	 * The whole portion of the decimal is returned without any rounding from
+	 * the fractional part of the decimal.
 	 * </p>
 	 *
 	 * @param decimal
@@ -282,6 +282,10 @@ public final class NumberUtils {
 	/**
 	 * Get the fractional part of a {@link BigDecimal} as a {@link BigInteger}.
 	 *
+	 * <p>
+	 * The scale of the number is preserved in the returned value.
+	 * </p>
+	 *
 	 * @param decimal
 	 *        the decimal
 	 * @return the fractional part as an integer, or zero if {@code decimal} is
@@ -300,9 +304,9 @@ public final class NumberUtils {
 	 * with a maximum scale.
 	 *
 	 * <p>
-	 * If the fractional part must be rounded, the {@link RoundingMode#FLOOR}
-	 * method (when positive) or {@link RoundingMode#CEILING} (when negative)
-	 * will be used to truncate the value to keep it within the desired scale.
+	 * If the fractional part must be rounded, the {@link RoundingMode#DOWN}
+	 * method will be used to truncate the value to keep it within the desired
+	 * scale.
 	 * </p>
 	 *
 	 * @param decimal
@@ -318,8 +322,7 @@ public final class NumberUtils {
 			return BigInteger.ZERO;
 		}
 		return decimal.remainder(BigDecimal.ONE).movePointRight(Math.min(decimal.scale(), maxScale))
-				.setScale(maxScale, decimal.signum() < 0 ? RoundingMode.CEILING : RoundingMode.FLOOR)
-				.toBigInteger();
+				.setScale(maxScale, RoundingMode.DOWN).toBigInteger();
 	}
 
 	/**
@@ -346,8 +349,7 @@ public final class NumberUtils {
 			return BigInteger.ZERO;
 		}
 		return decimal.subtract(new BigDecimal(wholePartToInteger(decimal))).movePointRight(scale)
-				.setScale(0, decimal.signum() < 0 ? RoundingMode.CEILING : RoundingMode.FLOOR)
-				.toBigInteger();
+				.setScale(0, RoundingMode.DOWN).toBigInteger();
 	}
 
 	/**

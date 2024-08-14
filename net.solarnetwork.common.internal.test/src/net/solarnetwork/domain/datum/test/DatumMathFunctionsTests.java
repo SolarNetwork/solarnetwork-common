@@ -35,7 +35,7 @@ import net.solarnetwork.domain.datum.DatumMathFunctions;
  * Test cases for the {@link DatumMathFunctions} interface.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class DatumMathFunctionsTests implements DatumMathFunctions {
 
@@ -166,6 +166,42 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	@Test
 	public void exp() {
 		assertThat("exp calculated", exp(2), is(Math.exp(2)));
+	}
+
+	@Test
+	public void scaled_negative() {
+		BigDecimal s = scaled(1, -4);
+		assertThat("Scaled negative", s, equalTo(new BigDecimal("0.0001")));
+	}
+
+	@Test
+	public void scaled_positive() {
+		BigDecimal s = scaled(1, 4);
+		assertThat("Scaled positive", s, equalTo(new BigDecimal("10000")));
+	}
+
+	@Test
+	public void wholePart() {
+		BigInteger bi = wholePart(new BigDecimal("123.12345"));
+		assertThat("Result", bi, equalTo(new BigInteger("123")));
+	}
+
+	@Test
+	public void wholePart_negative() {
+		BigInteger bi = wholePart(new BigDecimal("-123.12345"));
+		assertThat("Result", bi, equalTo(new BigInteger("-123")));
+	}
+
+	@Test
+	public void fracPart() {
+		BigInteger bi = fracPart(new BigDecimal("123.12345"), 9);
+		assertThat("Result", bi, equalTo(new BigInteger("12345")));
+	}
+
+	@Test
+	public void fracPart_negative() {
+		BigInteger bi = fracPart(new BigDecimal("-123.12345"), 9);
+		assertThat("Result", bi, equalTo(new BigInteger("-12345")));
 	}
 
 }
