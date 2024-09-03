@@ -1,21 +1,21 @@
 /* ==================================================================
  * AuthenticationData.java - 1/03/2017 5:23:56 PM
- * 
+ *
  * Copyright 2007-2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,23 +23,22 @@
 package net.solarnetwork.web.security;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.security.authentication.BadCredentialsException;
+import net.solarnetwork.security.AuthorizationUtils;
 
 /**
  * Abstract base class for parsing and exposing the authentication data included
  * in a HTTP authentication header.
- * 
+ *
  * @author matt
- * @version 2.1
+ * @version 2.2
  * @since 1.11
  */
 public abstract class AuthenticationData {
@@ -53,7 +52,7 @@ public abstract class AuthenticationData {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param scheme
 	 *        The scheme associated with the data.
 	 * @param request
@@ -89,7 +88,7 @@ public abstract class AuthenticationData {
 	/**
 	 * Validate a digest header value presented in a request against the request
 	 * body content.
-	 * 
+	 *
 	 * @param request
 	 *        The request.
 	 * @throws IOException
@@ -184,7 +183,7 @@ public abstract class AuthenticationData {
 	/**
 	 * Get a string value of a specific HTTP header, returning an empty string
 	 * if not available.
-	 * 
+	 *
 	 * @param request
 	 *        The request.
 	 * @param headerName
@@ -198,20 +197,18 @@ public abstract class AuthenticationData {
 
 	/**
 	 * Get a HTTP formatted date.
-	 * 
+	 *
 	 * @param date
 	 *        The date to format.
 	 * @return The formatted date.
 	 */
 	public static String httpDate(Date date) {
-		SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-		return sdf.format(date);
+		return AuthorizationUtils.AUTHORIZATION_DATE_HEADER_FORMATTER.format(date.toInstant());
 	}
 
 	/**
 	 * Get the date associated with the request.
-	 * 
+	 *
 	 * @return The date.
 	 */
 	public Instant getDate() {
@@ -221,7 +218,7 @@ public abstract class AuthenticationData {
 	/**
 	 * Get the date skew (in milliseconds) associated with the request (from the
 	 * system date).
-	 * 
+	 *
 	 * @return The date skew.
 	 */
 	public long getDateSkew() {
@@ -230,7 +227,7 @@ public abstract class AuthenticationData {
 
 	/**
 	 * The scheme of the authentication data.
-	 * 
+	 *
 	 * @return The scheme.
 	 */
 	public AuthenticationScheme getScheme() {
@@ -239,7 +236,7 @@ public abstract class AuthenticationData {
 
 	/**
 	 * Test if the date skew is less than a maximum date skew.
-	 * 
+	 *
 	 * @param maxDateSkew
 	 *        The maximum allowed date skew.
 	 * @return {@code true} if the date skew is within the allowed skew
@@ -250,7 +247,7 @@ public abstract class AuthenticationData {
 
 	/**
 	 * Compute a Base64 MAC digest from the signature data.
-	 * 
+	 *
 	 * @param secretKey
 	 *        the secret key
 	 * @param macAlgorithm
@@ -266,7 +263,7 @@ public abstract class AuthenticationData {
 	/**
 	 * Compute the signature digest from the request data and a given secret
 	 * key.
-	 * 
+	 *
 	 * @param secretKey
 	 *        The secret key.
 	 * @return The computed digest, as a Base64 encoded string.
@@ -275,21 +272,21 @@ public abstract class AuthenticationData {
 
 	/**
 	 * Get the authentication token ID.
-	 * 
+	 *
 	 * @return The authentication token ID.
 	 */
 	public abstract String getAuthTokenId();
 
 	/**
 	 * Get the signature digest as presented in the HTTP header value.
-	 * 
+	 *
 	 * @return The presented signature digest.
 	 */
 	public abstract String getSignatureDigest();
 
 	/**
 	 * Get the extracted signature data from this request.
-	 * 
+	 *
 	 * @return The raw signature data.
 	 */
 	public abstract String getSignatureData();
