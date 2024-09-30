@@ -1,21 +1,21 @@
 /* ==================================================================
  * BaseSettingsSpecifierLocalizedServiceInfoProvider.java - 11/04/2018 5:06:39 PM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -38,11 +38,11 @@ import net.solarnetwork.settings.SettingSpecifierProvider;
 /**
  * Convenient abstract class that is both a {@link SettingSpecifierProvider} and
  * a {@link LocalizedServiceInfoProvider}.
- * 
+ *
  * @param <PK>
  *        the primary key type
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.43
  */
 public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK extends Comparable<PK>>
@@ -50,7 +50,7 @@ public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK exten
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the identity of this provider
 	 */
@@ -66,18 +66,29 @@ public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK exten
 
 	@Override
 	public LocalizedServiceInfo getLocalizedServiceInfo(Locale locale) {
-		return new BasicConfigurableLocalizedServiceInfo(super.getLocalizedServiceInfo(locale),
+		return new BasicConfigurableLocalizedServiceInfo(
+				super.getLocalizedServiceInfo(locale != null ? locale : Locale.getDefault()),
 				getSettingSpecifiers());
 	}
 
 	@Override
 	protected Map<String, String> resolveInfoMessages(Locale locale) {
+		locale = (locale != null ? locale : Locale.getDefault());
 		List<SettingSpecifier> specs = getSettingSpecifiers();
 		MessageSource ms = getMessageSource();
-		if ( specs == null || specs.isEmpty() || ms == null ) {
+		String title = (ms != null ? ms.getMessage("title", null, null, locale) : null);
+		String desc = (ms != null ? ms.getMessage("desc", null, null, locale) : null);
+		if ( ms == null || ((specs == null || specs.isEmpty()) && (title == null || title.isEmpty())
+				&& (desc == null || desc.isEmpty())) ) {
 			return Collections.emptyMap();
 		}
-		Map<String, String> msgs = new LinkedHashMap<String, String>(specs.size() * 2);
+		Map<String, String> msgs = new LinkedHashMap<>(specs.size() * 2 + 2);
+		if ( title != null ) {
+			msgs.put("title", title);
+		}
+		if ( desc != null ) {
+			msgs.put("desc", desc);
+		}
 		for ( SettingSpecifier spec : specs ) {
 			populateInfoMessages(locale, spec, msgs, ms);
 		}
@@ -86,14 +97,14 @@ public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK exten
 
 	/**
 	 * Populate the info messages for a single {@link SettingSpecifier}.
-	 * 
+	 *
 	 * <p>
 	 * This implementation looks for message codes based on
 	 * {@link KeyedSettingSpecifier#getKey()} values with {@code .key} and
 	 * {@code .desc} appended, for "title" and "description" messages for that
 	 * setting.
 	 * </p>
-	 * 
+	 *
 	 * @param locale
 	 *        the desired locale
 	 * @param spec
