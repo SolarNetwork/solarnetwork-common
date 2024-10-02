@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Utilities for dealing with numbers.
  *
  * @author matt
- * @version 1.12
+ * @version 1.13
  * @since 1.42
  */
 public final class NumberUtils {
@@ -542,6 +542,43 @@ public final class NumberUtils {
 			return new BigInteger(numberString);
 		}
 		return Double.valueOf(numberString);
+	}
+
+	/**
+	 * Convert a Number into a Number of a specific type.
+	 *
+	 * @param <T>
+	 *        the type of number to return
+	 * @param number
+	 *        the number to convert
+	 * @param numberType
+	 *        the class of Number to return
+	 * @return the converted Number instance
+	 * @since 1.13
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends Number> T convertNumber(Number number, Class<T> numberType) {
+		if ( number == null ) {
+			return null;
+		}
+		if ( Integer.class.isAssignableFrom(numberType) ) {
+			return (T) (Integer) (number instanceof Integer ? number : number.intValue());
+		} else if ( Long.class.isAssignableFrom(numberType) ) {
+			return (T) (Long) (number instanceof Long ? number : number.longValue());
+		} else if ( Double.class.isAssignableFrom(numberType) ) {
+			return (T) (Double) (number instanceof Double ? number : number.doubleValue());
+		} else if ( Float.class.isAssignableFrom(numberType) ) {
+			return (T) (Float) (number instanceof Float ? number : number.floatValue());
+		} else if ( BigDecimal.class.isAssignableFrom(numberType) ) {
+			return (T) (BigDecimal) (number instanceof BigDecimal ? number
+					: new BigDecimal(number.toString()));
+		} else if ( BigInteger.class.isAssignableFrom(numberType) ) {
+			if ( number instanceof BigInteger ) {
+				return (T) number;
+			}
+			return (T) BigInteger.valueOf(number.longValue());
+		}
+		throw new IllegalArgumentException("Cannot convert to type " + numberType);
 	}
 
 	/**
