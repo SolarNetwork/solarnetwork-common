@@ -43,7 +43,7 @@ import net.solarnetwork.util.NumberUtils;
  * Unit tests for the {@link NumberUtils} class.
  *
  * @author matt
- * @version 1.6
+ * @version 1.7
  */
 public class NumberUtilsTests {
 
@@ -879,6 +879,69 @@ public class NumberUtilsTests {
 				NumberUtils.linearInterpolate(11, 3, 17, 12, 47), is(new BigDecimal("32")));
 		assertThat("interpolated to fraction", NumberUtils.linearInterpolate(13, 1, 99, 0, 10),
 				is(new BigDecimal("1.224489795918")));
+	}
+
+	@Test
+	public void convertNumber_int() {
+		final Integer n = 123;
+		assertThat("Integer converts as-is", NumberUtils.convertNumber(n, Integer.class),
+				is(sameInstance(n)));
+		assertThat("Long converts", NumberUtils.convertNumber(234L, Integer.class), is(equalTo(234)));
+		assertThat("Double converts", NumberUtils.convertNumber(34.5, Integer.class), is(equalTo(34)));
+		assertThat("Float converts", NumberUtils.convertNumber(45.6f, Integer.class), is(equalTo(45)));
+		assertThat("BigDecimal converts",
+				NumberUtils.convertNumber(new BigDecimal("56.7"), Integer.class), is(equalTo(56)));
+		assertThat("BigInteger converts", NumberUtils.convertNumber(new BigInteger("67"), Integer.class),
+				is(equalTo(67)));
+	}
+
+	@Test
+	public void convertNumber_long() {
+		final Long n = 123L;
+		assertThat("Long converts as-is", NumberUtils.convertNumber(n, Long.class), is(sameInstance(n)));
+		assertThat("Integer converts", NumberUtils.convertNumber(234, Long.class), is(equalTo(234L)));
+		assertThat("Double converts", NumberUtils.convertNumber(34.5, Long.class), is(equalTo(34L)));
+		assertThat("Float converts", NumberUtils.convertNumber(45.6f, Long.class), is(equalTo(45L)));
+		assertThat("BigDecimal converts", NumberUtils.convertNumber(new BigDecimal("56.7"), Long.class),
+				is(equalTo(56L)));
+		assertThat("BigInteger converts", NumberUtils.convertNumber(new BigInteger("67"), Long.class),
+				is(equalTo(67L)));
+	}
+
+	@Test
+	public void convertNumber_bigDecimal() {
+		final BigDecimal n = new BigDecimal("123");
+		assertThat("BigDecimal converts as-is", NumberUtils.convertNumber(n, BigDecimal.class),
+				is(sameInstance(n)));
+		assertThat("Integer converts", NumberUtils.convertNumber(234, BigDecimal.class),
+				is(equalTo(new BigDecimal("234"))));
+		assertThat("Long converts", NumberUtils.convertNumber(123L, BigDecimal.class),
+				is(equalTo(new BigDecimal("123"))));
+		assertThat("Double converts", NumberUtils.convertNumber(34.5, BigDecimal.class),
+				is(equalTo(new BigDecimal("34.5"))));
+		assertThat("Float converts", NumberUtils.convertNumber(45.6f, BigDecimal.class),
+				is(equalTo(new BigDecimal("45.6"))));
+		assertThat("BigDecimal converts",
+				NumberUtils.convertNumber(new BigDecimal("56.7"), BigDecimal.class),
+				is(equalTo(new BigDecimal("56.7"))));
+	}
+
+	@Test
+	public void convertNumber_bigInteger() {
+		final BigInteger n = new BigInteger("123");
+		assertThat("BigInteger converts as-is", NumberUtils.convertNumber(n, BigInteger.class),
+				is(sameInstance(n)));
+		assertThat("Integer converts", NumberUtils.convertNumber(234, BigInteger.class),
+				is(equalTo(new BigInteger("234"))));
+		assertThat("Long converts", NumberUtils.convertNumber(123L, BigInteger.class),
+				is(equalTo(new BigInteger("123"))));
+		assertThat("Double converts", NumberUtils.convertNumber(34.5, BigInteger.class),
+				is(equalTo(new BigInteger("34"))));
+		assertThat("Float converts", NumberUtils.convertNumber(45.6f, BigInteger.class),
+				is(equalTo(new BigInteger("45"))));
+		assertThat("BigDecimal converts",
+				NumberUtils.convertNumber(new BigDecimal("56.7"), BigInteger.class),
+				is(equalTo(new BigInteger("56"))));
 	}
 
 }
