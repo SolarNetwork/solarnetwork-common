@@ -191,4 +191,26 @@ public class SpelExpressionServiceTests {
 		assertThat("Result", result, arrayContaining(new BigInteger("3"), new BigDecimal("2.2")));
 	}
 
+	@Test
+	public void reuseContext() {
+		// GIVEN
+		EvaluationContext ctx = service.createEvaluationContext(null, null);
+		Map<String, Object> vars = new HashMap<>(2);
+		vars.put("a", new BigInteger("3"));
+		vars.put("b", new BigDecimal("2.2"));
+
+		// WHEN
+		BigDecimal result1 = service.evaluateExpression("data['a'] + data['b'] * foo", null,
+				new TestExpressionRoot(vars, 42), ctx, BigDecimal.class);
+
+		vars.put("a", new BigInteger("30"));
+		BigDecimal result2 = service.evaluateExpression("data['a'] + data['b'] * foo", null,
+				new TestExpressionRoot(vars, 420), ctx, BigDecimal.class);
+
+		// THEN
+		assertThat("Result 1", result1, equalTo(new BigDecimal("95.4")));
+
+		assertThat("Result 2", result2, equalTo(new BigDecimal("954.0")));
+	}
+
 }
