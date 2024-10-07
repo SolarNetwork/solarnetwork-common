@@ -28,6 +28,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.DatumMathFunctions;
 
@@ -35,7 +37,7 @@ import net.solarnetwork.domain.datum.DatumMathFunctions;
  * Test cases for the {@link DatumMathFunctions} interface.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class DatumMathFunctionsTests implements DatumMathFunctions {
 
@@ -202,6 +204,67 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	public void fracPart_negative() {
 		BigInteger bi = fracPart(new BigDecimal("-123.12345"), 9);
 		assertThat("Result", bi, equalTo(new BigInteger("-12345")));
+	}
+
+	@Test
+	public void sqrt_double() {
+		Number result = sqrt(4.0);
+		assertThat("Square root of double value calcualted", result, is(equalTo(2.0)));
+	}
+
+	@Test
+	public void sqrt_float() {
+		Number result = sqrt(4.0f);
+		assertThat("Square root of float value calcualted", result, is(equalTo(2.0)));
+	}
+
+	@Test
+	public void sqrt_decimal() {
+		Number result = sqrt(new BigDecimal("4"));
+		assertThat("Square root of decimal value calcualted", result, is(equalTo(2.0)));
+	}
+
+	@Test
+	public void cbrt_double() {
+		Number result = cbrt(27.0);
+		assertThat("Cube root of double value calcualted", result, is(equalTo(3.0)));
+	}
+
+	@Test
+	public void cbrt_float() {
+		Number result = cbrt(27.0f);
+		assertThat("Cube root of float value calcualted", result, is(equalTo(3.0)));
+	}
+
+	@Test
+	public void cbrt_decimal() {
+		Number result = cbrt(new BigDecimal("27"));
+		assertThat("Cube root of decimal value calcualted", result, is(equalTo(3.0)));
+	}
+
+	@Test
+	public void pow_double() {
+		Number result = pow(2.0, 3.0);
+		assertThat("Power of double value calcualted", result, is(equalTo(8.0)));
+	}
+
+	@Test
+	public void pow_float() {
+		Number result = pow(2f, 3f);
+		assertThat("Power of float value calcualted", result, is(equalTo(8.0)));
+	}
+
+	@Test
+	public void pow_decimal() {
+		Number result = pow(new BigDecimal("2.0"), 3);
+		assertThat("Power of decimal value calcualted", result, is(equalTo(new BigDecimal("8.000"))));
+	}
+
+	@Test
+	public void rms() {
+		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
+		Number result = round(rms(values), 5);
+		assertThat("RMS calcualted", result, is(equalTo(new BigDecimal("2.16025"))));
 	}
 
 }

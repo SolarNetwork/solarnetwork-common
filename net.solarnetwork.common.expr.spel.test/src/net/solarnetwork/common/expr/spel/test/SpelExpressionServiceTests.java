@@ -22,10 +22,10 @@
 
 package net.solarnetwork.common.expr.spel.test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.fail;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -189,6 +189,28 @@ public class SpelExpressionServiceTests {
 		Number[] result = service.evaluateExpression("new Number[]{a,b}", null, vars, null,
 				Number[].class);
 		assertThat("Result", result, arrayContaining(new BigInteger("3"), new BigDecimal("2.2")));
+	}
+
+	@Test
+	public void reuseContext() {
+		// GIVEN
+		EvaluationContext ctx = service.createEvaluationContext(null, null);
+		Map<String, Object> vars = new HashMap<>(2);
+		vars.put("a", new BigInteger("3"));
+		vars.put("b", new BigDecimal("2.2"));
+
+		// WHEN
+		BigDecimal result1 = service.evaluateExpression("data['a'] + data['b'] * foo", null,
+				new TestExpressionRoot(vars, 42), ctx, BigDecimal.class);
+
+		vars.put("a", new BigInteger("30"));
+		BigDecimal result2 = service.evaluateExpression("data['a'] + data['b'] * foo", null,
+				new TestExpressionRoot(vars, 420), ctx, BigDecimal.class);
+
+		// THEN
+		assertThat("Result 1", result1, equalTo(new BigDecimal("95.4")));
+
+		assertThat("Result 2", result2, equalTo(new BigDecimal("954.0")));
 	}
 
 }
