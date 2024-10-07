@@ -24,8 +24,11 @@ package net.solarnetwork.domain.datum;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.solarnetwork.util.NumberUtils;
 import net.solarnetwork.util.StringUtils;
 
@@ -33,7 +36,7 @@ import net.solarnetwork.util.StringUtils;
  * API for datum-related math helper functions.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 2.1
  */
 public interface DatumMathFunctions {
@@ -702,7 +705,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the value to raise <i>e</i> to
-	 * @return the calculated value
+	 * @return the calculated value, or {@literal null} if {@code n} is
+	 *         {@literal null}
 	 * @since 1.2
 	 */
 	default Number exp(Number n) {
@@ -710,6 +714,62 @@ public interface DatumMathFunctions {
 			return null;
 		}
 		return Math.exp(n.doubleValue());
+	}
+
+	/**
+	 * Calculate the square root of a number.
+	 *
+	 * @param n
+	 *        the number to calculate the square root of
+	 * @return the square root of {@code n}, or {@literal null} if {@code n} is
+	 *         {@literal null}
+	 * @since 1.4
+	 */
+	default Number sqrt(Number n) {
+		if ( n == null ) {
+			return null;
+		}
+		// NOTE: when jump to Java 11 minimum can test for BigDecimal
+		//       and then use BigDecimal.sqrt(MathContext.DECIMAL64)
+		return Math.sqrt(n.doubleValue());
+	}
+
+	/**
+	 * Calculate the cube root of a number.
+	 *
+	 * @param n
+	 *        the number to calculate the cube root of
+	 * @return the cube root of {@code n}, or {@literal null} if {@code n} is
+	 *         {@literal null}
+	 * @since 1.4
+	 */
+	default Number cbrt(Number n) {
+		if ( n == null ) {
+			return null;
+		}
+		return Math.cbrt(n.doubleValue());
+	}
+
+	/**
+	 * Returns the value of {@code n} raised to the power of {@code p}.
+	 *
+	 * @param n
+	 *        the number to raise
+	 * @param e
+	 *        the power to raise to
+	 * @return {@code n} raised to the power of {@code p}, or {@literal null} if
+	 *         any argument is {@literal null}
+	 * @since 1.4
+	 */
+	default Number pow(Number n, Number e) {
+		if ( n == null || e == null ) {
+			return n;
+		}
+		if ( n instanceof Double || n instanceof Float ) {
+			return Math.pow(n.doubleValue(), e.doubleValue());
+		}
+		BigDecimal d = NumberUtils.bigDecimalForNumber(n);
+		return d.pow(e.intValue(), MathContext.DECIMAL64);
 	}
 
 	/**
@@ -783,6 +843,24 @@ public interface DatumMathFunctions {
 	 */
 	default BigInteger fracPart(Number n, int scale) {
 		return NumberUtils.fractionalPartToInteger(decimal(n), scale);
+	}
+
+	/**
+	 * Compute the root-mean-squared a group of numbers.
+	 *
+	 * @param set
+	 *        the numbers to calculate the RMS for; if {@literal null} then
+	 *        {@literal null} will be returned
+	 * @return the RMS of {@code set}
+	 */
+	default Number rms(Collection<? extends Number> set) {
+		if ( set == null || set.isEmpty() ) {
+			return null;
+		}
+		List<Number> squares = set.stream().map(n -> pow(n, 2)).collect(Collectors.toList());
+		Number sum = sum(squares);
+		return sqrt(NumberUtils.bigDecimalForNumber(sum).divide(new BigDecimal(squares.size()),
+				MathContext.DECIMAL64));
 	}
 
 }
