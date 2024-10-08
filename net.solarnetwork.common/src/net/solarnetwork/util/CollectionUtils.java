@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +49,7 @@ import org.springframework.beans.PropertyAccessorFactory;
  * Utility methods for dealing with collections.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  * @since 1.58
  */
 public final class CollectionUtils {
@@ -707,6 +708,55 @@ public final class CollectionUtils {
 			return collection;
 		}
 		return result;
+	}
+
+	/**
+	 * Transform a set of map values associated with a set of key values.
+	 *
+	 * <p>
+	 * This method will return a new map instance, unless no values need
+	 * transforming in which case {@code map} itself will be returned. For any
+	 * key in {@code transformKeys} found in {@code map}, the returned map's
+	 * value will be transformed by applying the given {@code transformer}
+	 * function.
+	 * </p>
+	 *
+	 * @param <K>
+	 *        the key type
+	 * @param <V>
+	 *        the value type
+	 * @param map
+	 *        the map with values to transform
+	 * @param transformKeys
+	 *        the set of map keys whose values should be transformed
+	 * @return either a new map instance with one or more values transformed, or
+	 *         {@code map} when no values need transforming
+	 * @since 1.5
+	 */
+	public static <K, V> Map<K, V> transformMap(Map<K, V> map, Set<K> transformKeys,
+			Function<V, V> transformer) {
+		assert transformer != null;
+		Map<K, V> res = map;
+		if ( map != null && transformKeys != null && !map.isEmpty() && !transformKeys.isEmpty() ) {
+			for ( K propName : transformKeys ) {
+				if ( map.containsKey(propName) ) {
+					Map<K, V> maskedMap = new LinkedHashMap<K, V>(map.size());
+					for ( Map.Entry<K, V> me : map.entrySet() ) {
+						K key = me.getKey();
+						V val = me.getValue();
+						if ( val != null && transformKeys.contains(key.toString()) ) {
+							V encVal = transformer.apply(val);
+							maskedMap.put(key, encVal);
+						} else {
+							maskedMap.put(key, val);
+						}
+					}
+					res = maskedMap;
+					break;
+				}
+			}
+		}
+		return res;
 	}
 
 }
