@@ -729,6 +729,8 @@ public final class CollectionUtils {
 	 *        the map with values to transform
 	 * @param transformKeys
 	 *        the set of map keys whose values should be transformed
+	 * @param transformer
+	 *        the function to transform map values
 	 * @return either a new map instance with one or more values transformed, or
 	 *         {@code map} when no values need transforming
 	 * @since 1.5
