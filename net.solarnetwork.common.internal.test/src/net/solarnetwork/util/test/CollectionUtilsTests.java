@@ -31,6 +31,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import java.util.Arrays;
@@ -38,6 +40,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +58,7 @@ import net.solarnetwork.util.IntRangeSet;
  * Test cases for the {@link CollectionUtils} class.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class CollectionUtilsTests {
 
@@ -437,6 +440,57 @@ public class CollectionUtilsTests {
 				Collections.singletonMap("a", "9")
 				));
 		// @formatter:on
+	}
+
+	@Test
+	public void transformMap() {
+		// GIVEN
+		Map<String, String> input = new LinkedHashMap<>(8);
+		input.put("a", "1");
+		input.put("b", "2");
+		input.put("c", "3");
+		input.put("d", "4");
+
+		Set<String> transformKeys = new LinkedHashSet<>(Arrays.asList("a", "c"));
+
+		// WHEN
+		Map<String, String> result = CollectionUtils.transformMap(input, transformKeys, (s) -> {
+			return s + "-xformed";
+		});
+
+		// THEN
+		assertThat("Map returned", result, is(notNullValue()));
+		assertThat("Map is different instance from input", result, is(not(sameInstance(input))));
+		assertThat("Map returned with same size as input", result.keySet(), hasSize(input.size()));
+		assertThat("Map returned with same keys as input", result.keySet(),
+				contains(input.keySet().toArray(new String[input.size()])));
+		assertThat("Key a transfomed becacuse in transformKeys", result, hasEntry("a", "1-xformed"));
+		assertThat("Key b not transfomed becacuse not in transformKeys", result,
+				hasEntry("b", input.get("b")));
+		assertThat("Key c transfomed becacuse in transformKeys", result, hasEntry("c", "3-xformed"));
+		assertThat("Key d not transfomed becacuse not in transformKeys", result,
+				hasEntry("d", input.get("d")));
+	}
+
+	@Test
+	public void transformMap_noTransforms() {
+		// GIVEN
+		Map<String, String> input = new LinkedHashMap<>(8);
+		input.put("a", "1");
+		input.put("b", "2");
+		input.put("c", "3");
+		input.put("d", "4");
+
+		Set<String> transformKeys = new LinkedHashSet<>(Arrays.asList("other"));
+
+		// WHEN
+		Map<String, String> result = CollectionUtils.transformMap(input, transformKeys, (s) -> {
+			return s + "-xformed";
+		});
+
+		// THEN
+		assertThat("Map returned is same as input because no keys needed transforming", result,
+				is(sameInstance(input)));
 	}
 
 }
