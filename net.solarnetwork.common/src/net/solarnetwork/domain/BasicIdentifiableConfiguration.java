@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicIdentifiableConfiguration.java - 21/03/2018 11:32:38 AM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -35,9 +35,9 @@ import net.solarnetwork.util.StringUtils;
 
 /**
  * Basic implementation of {@link IdentifiableConfiguration}.
- * 
+ *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.42
  */
 @JsonPropertyOrder({ "name", "serviceIdentifier", "serviceProperties" })
@@ -62,8 +62,27 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 	}
 
 	/**
+	 * Constructor.
+	 *
+	 * @param name
+	 *        the name
+	 * @param serviceIdentifier
+	 *        the service identifier
+	 * @param serviceProps
+	 *        the service properties
+	 * @since 1.3
+	 */
+	public BasicIdentifiableConfiguration(String name, String serviceIdentifier,
+			Map<String, Object> serviceProps) {
+		super();
+		this.name = name;
+		this.serviceIdentifier = serviceIdentifier;
+		this.serviceProps = serviceProps;
+	}
+
+	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the configuration to copy
 	 */
@@ -107,11 +126,11 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 
 	/**
 	 * Get a name for this configuration
-	 * 
+	 *
 	 * <p>
 	 * This is meant to be configurable by end users.
 	 * </p>
-	 * 
+	 *
 	 * @return the configuration name
 	 */
 	@Override
@@ -121,7 +140,7 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 
 	/**
 	 * Set the configuration name.
-	 * 
+	 *
 	 * @param name
 	 *        the name to use
 	 */
@@ -132,7 +151,7 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 	/**
 	 * Get the unique identifier for the service this configuration is
 	 * associated with.
-	 * 
+	 *
 	 * @return the identifier of the service
 	 */
 	@Override
@@ -143,7 +162,7 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 	/**
 	 * Set the unique identifier for the service this configuration is
 	 * associated with.
-	 * 
+	 *
 	 * @param serviceIdentifier
 	 *        the identifier of the service to use
 	 */
@@ -159,7 +178,7 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 
 	/**
 	 * Get the service properties.
-	 * 
+	 *
 	 * @return the properties
 	 */
 	@JsonGetter("serviceProperties")
@@ -169,7 +188,7 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 
 	/**
 	 * Set the service properties.
-	 * 
+	 *
 	 * @param serviceProps
 	 *        the properties to set
 	 */
