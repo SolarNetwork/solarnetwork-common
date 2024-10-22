@@ -31,14 +31,17 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.Test;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import net.solarnetwork.domain.LocalizedServiceInfo;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.support.BaseSettingsSpecifierLocalizedServiceInfoProvider;
+import net.solarnetwork.settings.support.BasicMultiValueSettingSpecifier;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 
 /**
@@ -78,6 +81,16 @@ public class BaseSettingsSpecifierLocalizedServiceInfoProviderTests {
 		public List<SettingSpecifier> getSettingSpecifiers() {
 			List<SettingSpecifier> result = new ArrayList<>(1);
 			result.add(new BasicTextFieldSettingSpecifier("prop1", null));
+
+			// menu option
+			BasicMultiValueSettingSpecifier menuSpec = new BasicMultiValueSettingSpecifier("menu",
+					"item1");
+			Map<String, String> menuTitles = new LinkedHashMap<>(2);
+			menuTitles.put("item1", "Not localized item 1.");
+			menuTitles.put("item2", "Not localized item 2.");
+			menuSpec.setValueTitles(menuTitles);
+			result.add(menuSpec);
+
 			return result;
 		}
 
@@ -111,9 +124,12 @@ public class BaseSettingsSpecifierLocalizedServiceInfoProviderTests {
 				is(notNullValue()));
 		assertThat("Localized service properties includes title, description, and settings keys",
 				info.getLocalizedInfoMessages().keySet(),
-				containsInAnyOrder("title", "desc", "prop1.key", "prop1.desc"));
+				containsInAnyOrder("title", "desc", "prop1.key", "prop1.desc", "menu.key", "menu.desc",
+						"menu.item1.key", "menu.item2.key"));
 		assertThat("Localized service properties extracted from resource bundle",
 				info.getLocalizedInfoMessages(), hasEntry("title", "The Title"));
+		assertThat("Localized service properties from menu setting extracted from resource bundle",
+				info.getLocalizedInfoMessages(), hasEntry("menu.item1.key", "Item 1"));
 	}
 
 	@Test
@@ -130,7 +146,8 @@ public class BaseSettingsSpecifierLocalizedServiceInfoProviderTests {
 		assertThat("Localized service properties provided", info.getLocalizedInfoMessages(),
 				is(notNullValue()));
 		assertThat("Localized service properties includes settings keys",
-				info.getLocalizedInfoMessages().keySet(), containsInAnyOrder("prop1.key", "prop1.desc"));
+				info.getLocalizedInfoMessages().keySet(),
+				containsInAnyOrder("prop1.key", "prop1.desc", "menu.key", "menu.desc"));
 		assertThat("Localized service properties extracted from resource bundle",
 				info.getLocalizedInfoMessages(), hasEntry("prop1.key", "Property 1"));
 	}
