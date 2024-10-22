@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.springframework.context.MessageSource;
 import net.solarnetwork.domain.LocalizedServiceInfo;
 import net.solarnetwork.service.LocalizedServiceInfoProvider;
@@ -34,6 +35,7 @@ import net.solarnetwork.service.support.BaseLocalizedServiceInfoProvider;
 import net.solarnetwork.settings.KeyedSettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
+import net.solarnetwork.settings.TitleSettingSpecifier;
 
 /**
  * Convenient abstract class that is both a {@link SettingSpecifierProvider} and
@@ -42,7 +44,7 @@ import net.solarnetwork.settings.SettingSpecifierProvider;
  * @param <PK>
  *        the primary key type
  * @author matt
- * @version 2.1
+ * @version 2.2
  * @since 1.43
  */
 public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK extends Comparable<PK>>
@@ -126,6 +128,20 @@ public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK exten
 			code = key + ".desc";
 			value = ms.getMessage(code, null, "", locale);
 			msgs.put(code, value);
+
+			if ( spec instanceof TitleSettingSpecifier ) {
+				TitleSettingSpecifier ts = (TitleSettingSpecifier) spec;
+				Map<String, String> titles = ts.getValueTitles();
+				if ( titles != null ) {
+					for ( Entry<String, String> e : titles.entrySet() ) {
+						String titleCode = key + "." + e.getKey() + ".key";
+						value = ms.getMessage(titleCode, null, null, locale);
+						if ( value != null ) {
+							msgs.put(titleCode, value);
+						}
+					}
+				}
+			}
 		}
 	}
 

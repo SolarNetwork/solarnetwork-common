@@ -375,24 +375,24 @@ public class NettyMqttConnection extends BaseMqttConnection
 	}
 
 	private Future<?> closeClient(final MqttClient c) {
-		CompletableFuture<Void> result = new CompletableFuture<>();
-		executor.execute(new Runnable() {
-
-			@Override
-			public void run() {
+		final CompletableFuture<Void> result = new CompletableFuture<>();
+		final EventLoopGroup g = c.getEventLoop();
+		if ( g != null ) {
+			g.execute(() -> {
 				try {
 					c.disconnect().get(connectionConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS);
 					result.complete(null);
 				} catch ( Exception e ) {
 					result.completeExceptionally(e);
 				} finally {
-					EventLoopGroup g = c.getEventLoop();
 					if ( g != null ) {
 						g.shutdownGracefully();
 					}
 				}
-			}
-		});
+			});
+		} else {
+			result.complete(null);
+		}
 		return result;
 	}
 

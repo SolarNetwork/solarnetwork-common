@@ -33,7 +33,6 @@ import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
 import net.solarnetwork.settings.support.SettingUtils;
 import net.solarnetwork.util.ClassUtils;
-import net.solarnetwork.util.NumberUtils;
 import net.solarnetwork.util.StringUtils;
 
 /**
@@ -41,10 +40,10 @@ import net.solarnetwork.util.StringUtils;
  * {@link Identifiable} service.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.42
  */
-public interface IdentifiableConfiguration {
+public interface IdentifiableConfiguration extends ServiceConfiguration {
 
 	/**
 	 * Get a name for this configuration.
@@ -68,57 +67,6 @@ public interface IdentifiableConfiguration {
 	 * @return the service type identifier
 	 */
 	String getServiceIdentifier();
-
-	/**
-	 * Get a map of properties to pass to the service in order to perform
-	 * actions.
-	 *
-	 * <p>
-	 * It is expected this map would contain user-supplied runtime configuration
-	 * such as credentials to use, host name, etc.
-	 * </p>
-	 *
-	 * @return the runtime properties to pass to the service
-	 */
-	Map<String, ?> getServiceProperties();
-
-	/**
-	 * Get a service property value.
-	 *
-	 * @param <T>
-	 *        the expected type of the value
-	 * @param key
-	 *        the service property key to get the value for
-	 * @param type
-	 *        the type of the value
-	 * @return the service property value, or {@literal null} if not available
-	 *         or cannot be converted to the given type
-	 * @since 1.2
-	 */
-	@SuppressWarnings("unchecked")
-	default <T> T serviceProperty(String key, Class<T> type) {
-		assert key != null && type != null;
-		Map<String, ?> props = getServiceProperties();
-		Object val = (props != null ? props.get(key) : null);
-		if ( val == null ) {
-			return null;
-		}
-		if ( type.isAssignableFrom(val.getClass()) ) {
-			return (T) val;
-		} else if ( String.class.isAssignableFrom(type) ) {
-			return (T) val.toString();
-		} else if ( Number.class.isAssignableFrom(type) ) {
-			try {
-				if ( val instanceof Number ) {
-					return (T) NumberUtils.convertNumber((Number) val, (Class<? extends Number>) type);
-				}
-				return (T) NumberUtils.parseNumber(val.toString(), (Class<? extends Number>) type);
-			} catch ( IllegalArgumentException e ) {
-				// ignore and return null
-			}
-		}
-		return null;
-	}
 
 	/**
 	 * Mask sensitive information in a set of configurations.
