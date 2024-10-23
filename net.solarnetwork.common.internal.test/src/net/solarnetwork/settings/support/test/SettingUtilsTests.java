@@ -1,21 +1,21 @@
 /* ==================================================================
  * SettingUtilsTests.java - 16/04/2018 9:31:54 AM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -76,12 +76,13 @@ import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 import net.solarnetwork.settings.support.BasicTitleSettingSpecifier;
 import net.solarnetwork.settings.support.BasicToggleSettingSpecifier;
 import net.solarnetwork.settings.support.SettingUtils;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * Test cases for the {@link SettingUtils} class.
- * 
+ *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class SettingUtilsTests {
 
@@ -979,6 +980,33 @@ public class SettingUtilsTests {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		List<Map<String, Object>> resultChildren = (List) result.get("groupSettings");
 		assertCallback(callback, 0, groupSettings.get(0), resultChildren.get(0));
+	}
+
+	@Test
+	public void nonEmptyString_null() {
+		assertThat("Null resolves to null", StringUtils.nonEmptyString(null), is(nullValue()));
+		assertThat("Null resolves to null default", StringUtils.nonEmptyString(null, null),
+				is(nullValue()));
+		assertThat("Null resolves to non-null default", StringUtils.nonEmptyString(null, "foo"),
+				is(equalTo("foo")));
+	}
+
+	@Test
+	public void nonEmptyString_empty() {
+		assertThat("Empty resolves to null", StringUtils.nonEmptyString(""), is(nullValue()));
+		assertThat("Empty resolves to null default", StringUtils.nonEmptyString("", null),
+				is(nullValue()));
+		assertThat("Empty resolves to non-null default", StringUtils.nonEmptyString("", "foo"),
+				is(equalTo("foo")));
+	}
+
+	@Test
+	public void nonEmptyString_blank() {
+		assertThat("Blank resolves to input", StringUtils.nonEmptyString(" "), is(equalTo(" ")));
+		assertThat("Empty resolves to input not null default", StringUtils.nonEmptyString(" ", null),
+				is(equalTo(" ")));
+		assertThat("Empty resolves to input not non-null default",
+				StringUtils.nonEmptyString(" ", "foo"), is(equalTo(" ")));
 	}
 
 }

@@ -44,7 +44,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  *
  * @author matt
- * @version 1.14
+ * @version 1.15
  */
 public final class StringUtils {
 
@@ -1041,6 +1041,34 @@ public final class StringUtils {
 			}
 		}
 		return (buf.length() > 0 ? buf.toString() : null);
+	}
+
+	/**
+	 * Resolve a string unless it is {@code null} or empty.
+	 *
+	 * @param s
+	 *        the string to test
+	 * @return {@code s} unless it is {@code null} or empty, in which case
+	 *         {@code null}
+	 * @since 1.15
+	 */
+	public static String nonEmptyString(String s) {
+		return nonEmptyString(s, null);
+	}
+
+	/**
+	 * Resolve a string unless it is {@code null} or empty.
+	 *
+	 * @param s
+	 *        the string to test
+	 * @param defaultValue
+	 *        the value to return if {@code s} is {@code null} or empty
+	 * @return {@code s} unless it is {@code null} or empty, in which case
+	 *         {@code defaultValue}
+	 * @since 1.15
+	 */
+	public static String nonEmptyString(String s, String defaultValue) {
+		return (s == null || s.isEmpty() ? defaultValue : s);
 	}
 
 }
