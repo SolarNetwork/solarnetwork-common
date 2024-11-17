@@ -1,21 +1,21 @@
 /* ==================================================================
  * MapSampleOperations.java - 5/03/2022 12:33:51 PM
- * 
+ *
  * Copyright 2022 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,6 +23,7 @@
 package net.solarnetwork.domain.datum;
 
 import java.math.BigDecimal;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import net.solarnetwork.util.CollectionUtils;
@@ -31,7 +32,7 @@ import net.solarnetwork.util.ObjectUtils;
 /**
  * {@link MutableDatumSamplesOperations} that delegates all operations to a
  * simple Map.
- * 
+ *
  * <p>
  * All the methods of this API ignore any {@link DatumSamplesType} argument, and
  * simply get/set values in a single {@link Map} passed to the constructor. A
@@ -39,9 +40,9 @@ import net.solarnetwork.util.ObjectUtils;
  * all get methods will delegate to that instance, falling back to the internal
  * {@link Map} if the value is not found.
  * </p>
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.3
  */
 public class MapSampleOperations implements MutableDatumSamplesOperations {
@@ -51,7 +52,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param parameters
 	 *        the parameters
 	 * @throws IllegalArgumentException
@@ -63,7 +64,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param parameters
 	 *        the parameters
 	 * @param datum
@@ -79,7 +80,13 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 
 	@Override
 	public Map<String, ?> getSampleData(DatumSamplesType type) {
-		return (datum != null ? datum.getSampleData(type) : parameters);
+		Map<String, Object> result = parameters;
+		Map<String, ?> datumProps = datum.getSampleData(type);
+		if ( datumProps != null ) {
+			result = new LinkedHashMap<>(result);
+			result.putAll(datumProps);
+		}
+		return result;
 	}
 
 	@Override
@@ -179,7 +186,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 
 	/**
 	 * Set the sample data map.
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> this method does <b>not</b> set {@code data} as the map used
 	 * internally by this class. Instead the internal map is cleared and all
@@ -187,7 +194,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	 * of {@link MutableDatumSamplesOperations} but is by design and simply a
 	 * compromise required by this class.
 	 * </p>
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -201,12 +208,12 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 
 	/**
 	 * Set the tags.
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> this method will always return {@literal null} as tags are
 	 * not supported.
 	 * </p>
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -216,11 +223,11 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 
 	/**
 	 * Set the tags.
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> this method does nothing as tags are not supported.
 	 * </p>
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
