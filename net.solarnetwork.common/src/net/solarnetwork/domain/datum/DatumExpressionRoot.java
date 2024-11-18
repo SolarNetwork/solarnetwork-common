@@ -22,13 +22,14 @@
 
 package net.solarnetwork.domain.datum;
 
+import java.time.Instant;
 import java.util.Map;
 
 /**
  * API for a datum-based expression root.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.0
  */
 public interface DatumExpressionRoot
@@ -54,5 +55,54 @@ public interface DatumExpressionRoot
 	 * @return the data
 	 */
 	Map<String, ?> getData();
+
+	/**
+	 * Get a location datum's object ID.
+	 *
+	 * @return the datum object ID, or {@literal null} if the datum is not a
+	 *         location kind or does not have a location ID
+	 * @since 1.2
+	 */
+	default Long getLocId() {
+		Datum datum = getDatum();
+		return (datum != null && datum.getKind() == ObjectDatumKind.Location ? datum.getObjectId()
+				: null);
+	}
+
+	/**
+	 * Get a node datum's object ID.
+	 *
+	 * @return the datum object ID, or {@literal null} if the datum is not a
+	 *         node kind or does not have a node ID
+	 * @since 1.2
+	 */
+	default Long getNodeId() {
+		Datum datum = getDatum();
+		return (datum != null && datum.getKind() == ObjectDatumKind.Node ? datum.getObjectId() : null);
+	}
+
+	/**
+	 * Get a datum's source ID.
+	 *
+	 * @return the datum source ID, or {@literal null} if the datum does not
+	 *         have a source ID
+	 * @since 1.2
+	 */
+	default String getSourceId() {
+		Datum datum = getDatum();
+		return (datum != null ? datum.getSourceId() : null);
+	}
+
+	/**
+	 * Get a datum's timestamp.
+	 *
+	 * @return the datum timestamp, or {@literal null} if the datum does not
+	 *         have a timestamp
+	 * @since 1.2
+	 */
+	default Instant getTimestamp() {
+		Datum datum = getDatum();
+		return (datum != null ? datum.getTimestamp() : null);
+	}
 
 }

@@ -74,6 +74,7 @@ import net.solarnetwork.domain.datum.ObjectDatumStreamMetadataId;
 import net.solarnetwork.domain.datum.StreamDatum;
 import net.solarnetwork.util.Half;
 import net.solarnetwork.util.NumberUtils;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * Utilities for JSON data.
@@ -92,7 +93,7 @@ import net.solarnetwork.util.NumberUtils;
  * </ul>
  *
  * @author matt
- * @version 2.3
+ * @version 2.4
  * @since 1.72
  */
 public final class JsonUtils {
@@ -690,6 +691,23 @@ public final class JsonUtils {
 			}
 		}
 		return s;
+	}
+
+	/**
+	 * Parse a String from a JSON object attribute value.
+	 *
+	 * If the String cannot be parsed, {@literal null} will be returned.
+	 *
+	 * @param node
+	 *        the JSON node (e.g. object)
+	 * @param key
+	 *        the attribute key to obtain from {@code node} node
+	 * @return the parsed {@link String}, or {@literal null} if an error occurs
+	 *         or the specified attribute {@code key} is not available
+	 * @since 2.4
+	 */
+	public static String parseNonEmptyStringAttribute(JsonNode node, String key) {
+		return StringUtils.nonEmptyString(parseStringAttribute(node, key));
 	}
 
 	/**

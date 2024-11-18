@@ -28,6 +28,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -41,7 +42,7 @@ import net.solarnetwork.util.DateUtils;
  * API for datum-related date helper functions.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 3.17
  */
 public interface DatumDateFunctions {
@@ -166,6 +167,51 @@ public interface DatumDateFunctions {
 			return nowTz();
 		}
 		return ZonedDateTime.now(zone);
+	}
+
+	/**
+	 * Get the local date and time from a zoned date and time.
+	 *
+	 * @param date
+	 *        the zoned date and time to extract from
+	 * @return the local date and time
+	 * @since 1.1
+	 */
+	default LocalDateTime local(ZonedDateTime date) {
+		if ( date == null ) {
+			return null;
+		}
+		return date.toLocalDateTime();
+	}
+
+	/**
+	 * Get the local date from a zoned date and time.
+	 *
+	 * @param date
+	 *        the zoned date and time to extract from
+	 * @return the local date
+	 * @since 1.1
+	 */
+	default LocalDate localDate(ZonedDateTime date) {
+		if ( date == null ) {
+			return null;
+		}
+		return date.toLocalDate();
+	}
+
+	/**
+	 * Get the local time from a zoned date and time.
+	 *
+	 * @param date
+	 *        the zoned date and time to extract from
+	 * @return the local time
+	 * @since 1.1
+	 */
+	default LocalTime localTime(ZonedDateTime date) {
+		if ( date == null ) {
+			return null;
+		}
+		return date.toLocalTime();
 	}
 
 	/**

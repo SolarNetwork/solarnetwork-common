@@ -1,21 +1,21 @@
 /* ==================================================================
  * JsonUtilsTests.java - 16/06/2020 9:35:25 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import net.solarnetwork.codec.JsonUtils;
@@ -47,9 +48,9 @@ import net.solarnetwork.domain.BasicDeviceInfo;
 
 /**
  * Test cases for the {@link JsonUtils} class.
- * 
+ *
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class JsonUtilsTests {
 
@@ -248,6 +249,56 @@ public class JsonUtilsTests {
 		// THEN
 		assertThat("ZonedDateTime parsed from epoch timestamp", ts.withZoneSameInstant(zone),
 				is(expected));
+	}
+
+	@Test
+	public void parseNonEmptyStringAttribute_null() throws IOException {
+		// GIVEN
+		JsonNode n = JsonUtils.newObjectMapper().readTree("{\"a\":null}");
+
+		// THEN
+		assertThat("Null value resolves as null", JsonUtils.parseNonEmptyStringAttribute(n, "a"),
+				is(nullValue()));
+	}
+
+	@Test
+	public void parseNonEmptyStringAttribute_empty() throws IOException {
+		// GIVEN
+		JsonNode n = JsonUtils.newObjectMapper().readTree("{\"a\":\"\"}");
+
+		// THEN
+		assertThat("Empty value resolves as null", JsonUtils.parseNonEmptyStringAttribute(n, "a"),
+				is(nullValue()));
+	}
+
+	@Test
+	public void parseNonEmptyStringAttribute_blank() throws IOException {
+		// GIVEN
+		JsonNode n = JsonUtils.newObjectMapper().readTree("{\"a\":\" \"}");
+
+		// THEN
+		assertThat("Blank value resolves as-is", JsonUtils.parseNonEmptyStringAttribute(n, "a"),
+				is(equalTo(" ")));
+	}
+
+	@Test
+	public void parseNonEmptyStringAttribute() throws IOException {
+		// GIVEN
+		JsonNode n = JsonUtils.newObjectMapper().readTree("{\"a\":\"b\"}");
+
+		// THEN
+		assertThat("Non-empty value resolves as-is", JsonUtils.parseNonEmptyStringAttribute(n, "a"),
+				is(equalTo("b")));
+	}
+
+	@Test
+	public void parseNonEmptyStringAttribute_number() throws IOException {
+		// GIVEN
+		JsonNode n = JsonUtils.newObjectMapper().readTree("{\"a\":123}");
+
+		// THEN
+		assertThat("Number value resolves as string", JsonUtils.parseNonEmptyStringAttribute(n, "a"),
+				is(equalTo("123")));
 	}
 
 }
