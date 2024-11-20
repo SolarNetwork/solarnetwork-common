@@ -34,6 +34,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import net.solarnetwork.util.DateUtils;
@@ -796,6 +797,124 @@ public interface DatumDateFunctions {
 	 */
 	default long daysBetween(Temporal date1, Temporal date2) {
 		return between(ChronoUnit.DAYS, date1, date2);
+	}
+
+	/**
+	 * Calculate the fractional number of months between two dates, with second
+	 * resolution.
+	 *
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @return the number of months between the two dates, or {@code 0} if
+	 *         either argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated
+	 * @since 1.2
+	 */
+	@SuppressWarnings("unchecked")
+	default double monthsBetween(Temporal date1, Temporal date2) {
+		if ( date1 == null || date2 == null ) {
+			return 0.0;
+		}
+
+		long sign = 1;
+		double f1 = 0.0;
+		long wholeMonths = 0;
+		double f2 = 0.0;
+
+		if ( ((Comparable<Temporal>) date1).compareTo(date2) > 0 ) {
+			// swap date order and negate result
+			Temporal t = date1;
+			date1 = date2;
+			date2 = t;
+			sign = -1;
+		}
+
+		// calculate starting fraction of first start month
+		Temporal date1NextMonthStart = date1.with(TemporalAdjusters.firstDayOfNextMonth());
+
+		if ( ((Comparable<Temporal>) date1NextMonthStart).compareTo(date2) > 0 ) {
+			// within a single month
+			f1 = (double) between(ChronoUnit.SECONDS, date1, date2)
+					/ (double) between(ChronoUnit.SECONDS,
+							date1.with(TemporalAdjusters.firstDayOfMonth()), date1NextMonthStart);
+		} else {
+			f1 = (double) between(ChronoUnit.SECONDS, date1, date1NextMonthStart)
+					/ (double) between(ChronoUnit.SECONDS,
+							date1.with(TemporalAdjusters.firstDayOfMonth()), date1NextMonthStart);
+
+			Temporal date2MonthStart = date2.with(TemporalAdjusters.firstDayOfMonth());
+
+			// calculate whole months between month boundaries
+			wholeMonths = Math.max(date1NextMonthStart.until(date2MonthStart, ChronoUnit.MONTHS), 0);
+
+			f2 = (double) between(ChronoUnit.SECONDS, date2MonthStart, date2)
+					/ (double) between(ChronoUnit.SECONDS, date2MonthStart,
+							date2MonthStart.with(TemporalAdjusters.firstDayOfNextMonth()));
+		}
+
+		return sign * (f1 + wholeMonths + f2);
+	}
+
+	/**
+	 * Calculate the fractional number of months between two dates, with second
+	 * resolution.
+	 *
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @return the number of months between the two dates, or {@code 0} if
+	 *         either argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated
+	 * @since 1.2
+	 */
+	@SuppressWarnings("unchecked")
+	default double yearsBetween(Temporal date1, Temporal date2) {
+		if ( date1 == null || date2 == null ) {
+			return 0.0;
+		}
+
+		long sign = 1;
+		double f1 = 0.0;
+		long wholeYears = 0;
+		double f2 = 0.0;
+
+		if ( ((Comparable<Temporal>) date1).compareTo(date2) > 0 ) {
+			// swap date order and negate result
+			Temporal t = date1;
+			date1 = date2;
+			date2 = t;
+			sign = -1;
+		}
+
+		// calculate starting fraction of first start month
+		Temporal date1NextYearStart = date1.with(TemporalAdjusters.firstDayOfNextYear());
+
+		if ( ((Comparable<Temporal>) date1NextYearStart).compareTo(date2) > 0 ) {
+			// within a single month
+			f1 = (double) between(ChronoUnit.SECONDS, date1, date2)
+					/ (double) between(ChronoUnit.SECONDS,
+							date1.with(TemporalAdjusters.firstDayOfYear()), date1NextYearStart);
+		} else {
+			f1 = (double) between(ChronoUnit.SECONDS, date1, date1NextYearStart)
+					/ (double) between(ChronoUnit.SECONDS,
+							date1.with(TemporalAdjusters.firstDayOfYear()), date1NextYearStart);
+
+			Temporal date2YearStart = date2.with(TemporalAdjusters.firstDayOfYear());
+
+			// calculate whole months between month boundaries
+			wholeYears = Math.max(date1NextYearStart.until(date2YearStart, ChronoUnit.YEARS), 0);
+
+			f2 = (double) between(ChronoUnit.SECONDS, date2YearStart, date2)
+					/ (double) between(ChronoUnit.SECONDS, date2YearStart,
+							date2YearStart.with(TemporalAdjusters.firstDayOfNextYear()));
+		}
+
+		return sign * (f1 + wholeYears + f2);
 	}
 
 }

@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -42,6 +43,7 @@ import java.time.temporal.Temporal;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.DatumDateFunctions;
+import net.solarnetwork.util.NumberUtils;
 
 /**
  * Test cases for the {@link DatumDateFunctions} interface.
@@ -526,6 +528,142 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 
 		// THEN
 		assertThat("Hours between two LocalTime returned", result, is(equalTo(1L)));
+	}
+
+	@Test
+	public void monthsBetween_LocalDate_withinMonth() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 9, 4);
+		LocalDate d2 = LocalDate.of(2024, 9, 10);
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+
+		// THEN
+		assertThat("Months between two LocalDate returned", result, is(equalTo(0.2)));
+	}
+
+	@Test
+	public void monthsBetween_LocalDate_withinMonth_reverse() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 9, 4);
+		LocalDate d2 = LocalDate.of(2024, 9, 10);
+
+		// WHEN
+		double result = monthsBetween(d2, d1);
+
+		// THEN
+		assertThat("Months between two LocalDate returned", result, is(equalTo(-0.2)));
+	}
+
+	@Test
+	public void monthsBetween_LocalDate_onBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 8, 1);
+		LocalDate d2 = LocalDate.of(2024, 9, 1);
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+
+		// THEN
+		assertThat("Months between two LocalDate returned", result, is(equalTo(1.0)));
+	}
+
+	@Test
+	public void monthsBetween_LocalDate_onStartBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 8, 1);
+		LocalDate d2 = LocalDate.of(2024, 9, 15);
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+
+		// THEN
+		assertThat("Months between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("1.47"))));
+	}
+
+	@Test
+	public void monthsBetween_LocalDate_onEndBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 8, 15);
+		LocalDate d2 = LocalDate.of(2024, 10, 1);
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+
+		// THEN
+		assertThat("Months between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("1.55"))));
+	}
+
+	@Test
+	public void yearsBetween_LocalDate_withinYear() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 2, 1);
+		LocalDate d2 = LocalDate.of(2024, 10, 1);
+
+		// WHEN
+		double result = yearsBetween(d1, d2);
+
+		// THEN
+		assertThat("Years between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("0.66"))));
+	}
+
+	@Test
+	public void yearsBetween_LocalDate_withinYear_reverse() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 2, 1);
+		LocalDate d2 = LocalDate.of(2024, 10, 1);
+
+		// WHEN
+		double result = yearsBetween(d2, d1);
+
+		// THEN
+		assertThat("Years between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("-0.66"))));
+	}
+
+	@Test
+	public void yearsBetween_LocalDate_onBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 1, 1);
+		LocalDate d2 = LocalDate.of(2025, 1, 1);
+
+		// WHEN
+		double result = yearsBetween(d1, d2);
+
+		// THEN
+		assertThat("Years between two LocalDate returned", result, is(equalTo(1.0)));
+	}
+
+	@Test
+	public void yearsBetween_LocalDate_onStartBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 1, 1);
+		LocalDate d2 = LocalDate.of(2025, 6, 15);
+
+		// WHEN
+		double result = yearsBetween(d1, d2);
+
+		// THEN
+		assertThat("Years between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("1.45"))));
+	}
+
+	@Test
+	public void yearsBetween_LocalDate_onEndBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 6, 15);
+		LocalDate d2 = LocalDate.of(2026, 1, 1);
+
+		// WHEN
+		double result = yearsBetween(d1, d2);
+
+		// THEN
+		assertThat("Years between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("1.55"))));
 	}
 
 }
