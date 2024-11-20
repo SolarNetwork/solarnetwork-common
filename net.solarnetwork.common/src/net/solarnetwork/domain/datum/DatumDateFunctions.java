@@ -34,6 +34,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import net.solarnetwork.util.DateUtils;
@@ -42,7 +43,7 @@ import net.solarnetwork.util.DateUtils;
  * API for datum-related date helper functions.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 3.17
  */
 public interface DatumDateFunctions {
@@ -585,6 +586,335 @@ public interface DatumDateFunctions {
 	 */
 	default Temporal datePlus(Temporal date, long amount, TemporalUnit unit) {
 		return DateUtils.datePlus(date, amount, unit);
+	}
+
+	/**
+	 * Parse a {@code YYYY-MM-DD} string into a local date object.
+	 *
+	 * @param value
+	 *        the date string to parse, in {@code YYYY-MM-DD} form
+	 * @return the parsed date, or {@literal null} if {@code value} is
+	 *         {@code null} or empty
+	 * @throws IllegalArgumentException
+	 *         if {@code value} cannot be parsed
+	 * @since 1.2
+	 */
+	default LocalDate date(String value) {
+		if ( value == null || value.isEmpty() ) {
+			return null;
+		}
+		try {
+			return DateUtils.parseLocalDate(value);
+		} catch ( DateTimeException e ) {
+			throw new IllegalArgumentException(
+					format("Cannot parse date from [%s], should be in YYYY-MM-DD form: %s", value,
+							e.getMessage()));
+		}
+	}
+
+	/**
+	 * Parse a {@code HH:mm} string into a local time object.
+	 *
+	 * @param value
+	 *        the time string to parse, in {@code HH:mm} form
+	 * @return the parsed time, or {@literal null} if {@code value} is
+	 *         {@code null} or empty
+	 * @throws IllegalArgumentException
+	 *         if {@code value} cannot be parsed
+	 * @since 1.2
+	 */
+	default LocalTime time(String value) {
+		if ( value == null || value.isEmpty() ) {
+			return null;
+		}
+		try {
+			return DateUtils.parseLocalTime(value);
+		} catch ( DateTimeException e ) {
+			throw new IllegalArgumentException(format(
+					"Cannot parse time from [%s], should be in HH:mm form: %s", value, e.getMessage()));
+		}
+	}
+
+	/**
+	 * Parse an ISO-8601 timestamp.
+	 *
+	 * <p>
+	 * This method handles input values that both include or omit a time zone
+	 * offset. If a time zone offset is not provided in the input, then
+	 * {@code defaultZone} will be used to get a final result.
+	 * </p>
+	 *
+	 * @param value
+	 *        the timestamp string to parse, in ISO-8601 form
+	 * @return the parsed time, or {@literal null} if {@code value} is
+	 *         {@code null} or empty
+	 * @throws IllegalArgumentException
+	 *         if {@code value} cannot be parsed
+	 * @since 1.2
+	 */
+	default Instant timestamp(String value) {
+		if ( value == null || value.isEmpty() ) {
+			return null;
+		}
+		try {
+			ZonedDateTime dt = DateUtils.parseIsoTimestamp(value, ZoneId.systemDefault());
+			if ( dt == null ) {
+				throw new DateTimeException("Failed to parse timestamp.");
+			}
+			return dt.toInstant();
+		} catch ( DateTimeException e ) {
+			throw new IllegalArgumentException(
+					format("Cannot parse timestamp from [%s], should be in YYYY-MM-DDTHH:mm:ss form: %s",
+							value, e.getMessage()));
+		}
+	}
+
+	/**
+	 * Calculate the duration between two dates.
+	 *
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @return the duration between the two dates, or {@code null} if either
+	 *         argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated
+	 * @since 1.2
+	 */
+	default Duration durationBetween(Temporal date1, Temporal date2) {
+		if ( date1 == null || date2 == null ) {
+			return null;
+		}
+		try {
+			return Duration.between(date1, date2);
+		} catch ( DateTimeException e ) {
+			throw new IllegalArgumentException(
+					format("Cannot calculate the duration between [%s] and [%s]: %s", date1, date2,
+							e.getMessage()));
+		}
+	}
+
+	/**
+	 * Calculate an amount of a given {@code ChronoUnit} between two dates.
+	 *
+	 * @param unit
+	 *        the desired unit
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @return the number of {@code unit} units between the two dates, or
+	 *         {@code 0} if either argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated
+	 * @since 1.2
+	 */
+	static long between(ChronoUnit unit, Temporal date1, Temporal date2) {
+		if ( date1 == null || date2 == null ) {
+			return 0;
+		}
+		if ( unit.isTimeBased() && date1 instanceof LocalDate ) {
+			// try converting to something with time, at start of day
+			date1 = ((LocalDate) date1).atStartOfDay();
+		}
+		if ( unit.isTimeBased() && date2 instanceof LocalDate ) {
+			// try converting to something with time, at start of day
+			date2 = ((LocalDate) date2).atStartOfDay();
+		}
+		try {
+			return unit.between(date1, date2);
+		} catch ( DateTimeException e ) {
+			throw new IllegalArgumentException(
+					format("Cannot calculate number of %s between [%s] and [%s]: %s", unit, date1, date2,
+							e.getMessage()));
+		}
+	}
+
+	/**
+	 * Calculate the number of seconds between two dates.
+	 *
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @return the number of seconds between the two dates, or {@code 0} if
+	 *         either argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated
+	 * @since 1.2
+	 */
+	default long secondsBetween(Temporal date1, Temporal date2) {
+		return between(ChronoUnit.SECONDS, date1, date2);
+	}
+
+	/**
+	 * Calculate the number of minutes between two dates.
+	 *
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @return the number of minutes between the two dates, or {@code 0} if
+	 *         either argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated
+	 * @since 1.2
+	 */
+	default long minutesBetween(Temporal date1, Temporal date2) {
+		return between(ChronoUnit.MINUTES, date1, date2);
+	}
+
+	/**
+	 * Calculate the number of hours between two dates.
+	 *
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @return the number of hours between the two dates, or {@code 0} if either
+	 *         argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated
+	 * @since 1.2
+	 */
+	default long hoursBetween(Temporal date1, Temporal date2) {
+		return between(ChronoUnit.HOURS, date1, date2);
+	}
+
+	/**
+	 * Calculate the number of days between two dates.
+	 *
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @return the number of days between the two dates, or {@code 0} if either
+	 *         argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated
+	 * @since 1.2
+	 */
+	default long daysBetween(Temporal date1, Temporal date2) {
+		return between(ChronoUnit.DAYS, date1, date2);
+	}
+
+	/**
+	 * Calculate the fractional number of months between two dates, with second
+	 * resolution.
+	 *
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @return the number of months between the two dates, or {@code 0} if
+	 *         either argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated
+	 * @since 1.2
+	 */
+	@SuppressWarnings("unchecked")
+	default double monthsBetween(Temporal date1, Temporal date2) {
+		if ( date1 == null || date2 == null ) {
+			return 0.0;
+		}
+
+		long sign = 1;
+		double f1 = 0.0;
+		long wholeMonths = 0;
+		double f2 = 0.0;
+
+		if ( ((Comparable<Temporal>) date1).compareTo(date2) > 0 ) {
+			// swap date order and negate result
+			Temporal t = date1;
+			date1 = date2;
+			date2 = t;
+			sign = -1;
+		}
+
+		// calculate starting fraction of first start month
+		Temporal date1NextMonthStart = date1.with(TemporalAdjusters.firstDayOfNextMonth());
+
+		if ( ((Comparable<Temporal>) date1NextMonthStart).compareTo(date2) > 0 ) {
+			// within a single month
+			f1 = (double) between(ChronoUnit.SECONDS, date1, date2)
+					/ (double) between(ChronoUnit.SECONDS,
+							date1.with(TemporalAdjusters.firstDayOfMonth()), date1NextMonthStart);
+		} else {
+			f1 = (double) between(ChronoUnit.SECONDS, date1, date1NextMonthStart)
+					/ (double) between(ChronoUnit.SECONDS,
+							date1.with(TemporalAdjusters.firstDayOfMonth()), date1NextMonthStart);
+
+			Temporal date2MonthStart = date2.with(TemporalAdjusters.firstDayOfMonth());
+
+			// calculate whole months between month boundaries
+			wholeMonths = Math.max(date1NextMonthStart.until(date2MonthStart, ChronoUnit.MONTHS), 0);
+
+			f2 = (double) between(ChronoUnit.SECONDS, date2MonthStart, date2)
+					/ (double) between(ChronoUnit.SECONDS, date2MonthStart,
+							date2MonthStart.with(TemporalAdjusters.firstDayOfNextMonth()));
+		}
+
+		return sign * (f1 + wholeMonths + f2);
+	}
+
+	/**
+	 * Calculate the fractional number of months between two dates, with second
+	 * resolution.
+	 *
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @return the number of months between the two dates, or {@code 0} if
+	 *         either argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated
+	 * @since 1.2
+	 */
+	@SuppressWarnings("unchecked")
+	default double yearsBetween(Temporal date1, Temporal date2) {
+		if ( date1 == null || date2 == null ) {
+			return 0.0;
+		}
+
+		long sign = 1;
+		double f1 = 0.0;
+		long wholeYears = 0;
+		double f2 = 0.0;
+
+		if ( ((Comparable<Temporal>) date1).compareTo(date2) > 0 ) {
+			// swap date order and negate result
+			Temporal t = date1;
+			date1 = date2;
+			date2 = t;
+			sign = -1;
+		}
+
+		// calculate starting fraction of first start month
+		Temporal date1NextYearStart = date1.with(TemporalAdjusters.firstDayOfNextYear());
+
+		if ( ((Comparable<Temporal>) date1NextYearStart).compareTo(date2) > 0 ) {
+			// within a single month
+			f1 = (double) between(ChronoUnit.SECONDS, date1, date2)
+					/ (double) between(ChronoUnit.SECONDS,
+							date1.with(TemporalAdjusters.firstDayOfYear()), date1NextYearStart);
+		} else {
+			f1 = (double) between(ChronoUnit.SECONDS, date1, date1NextYearStart)
+					/ (double) between(ChronoUnit.SECONDS,
+							date1.with(TemporalAdjusters.firstDayOfYear()), date1NextYearStart);
+
+			Temporal date2YearStart = date2.with(TemporalAdjusters.firstDayOfYear());
+
+			// calculate whole months between month boundaries
+			wholeYears = Math.max(date1NextYearStart.until(date2YearStart, ChronoUnit.YEARS), 0);
+
+			f2 = (double) between(ChronoUnit.SECONDS, date2YearStart, date2)
+					/ (double) between(ChronoUnit.SECONDS, date2YearStart,
+							date2YearStart.with(TemporalAdjusters.firstDayOfNextYear()));
+		}
+
+		return sign * (f1 + wholeYears + f2);
 	}
 
 }

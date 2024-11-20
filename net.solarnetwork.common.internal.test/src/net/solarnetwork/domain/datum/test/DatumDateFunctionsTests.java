@@ -29,21 +29,27 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
+import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.DatumDateFunctions;
+import net.solarnetwork.util.NumberUtils;
 
 /**
  * Test cases for the {@link DatumDateFunctions} interface.
  *
  * @author matt
- * @version 1.0
+ * @version 1.2
  */
 public class DatumDateFunctionsTests implements DatumDateFunctions {
 
@@ -310,6 +316,7 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 		// WHEN
 		LocalDateTime result = now();
 
+		// THEN
 		assertThat("LocalDateTime returned", result, is(notNullValue()));
 		assertThat("Result around 'now'", ChronoUnit.SECONDS.between(now, result),
 				is(allOf(greaterThanOrEqualTo(0L), lessThanOrEqualTo(1L))));
@@ -323,9 +330,340 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 		// WHEN
 		ZonedDateTime result = nowTz();
 
+		// THEN
 		assertThat("ZonedDateTime returned", result, is(notNullValue()));
 		assertThat("Result around 'now'", ChronoUnit.SECONDS.between(now, result),
 				is(allOf(greaterThanOrEqualTo(0L), lessThanOrEqualTo(1L))));
+	}
+
+	@Test
+	public void parseLocalDate() {
+		// WHEN
+		LocalDate result = date("2024-11-20");
+
+		// THEN
+		assertThat("Local date string parsed", result, is(equalTo(LocalDate.of(2024, 11, 20))));
+	}
+
+	@Test
+	public void parseLocalTime() {
+		// WHEN
+		LocalTime result = time("15:09");
+
+		// THEN
+		assertThat("Local time string parsed", result, is(equalTo(LocalTime.of(15, 9))));
+	}
+
+	@Test
+	public void parseLocalTime_withSecs() {
+		// WHEN
+		LocalTime result = time("15:09:45");
+
+		// THEN
+		assertThat("Local time string with seconds parsed", result,
+				is(equalTo(LocalTime.of(15, 9, 45))));
+	}
+
+	@Test
+	public void parseTimestamp_date() {
+		// WHEN
+		Instant result = timestamp("2024-11-20");
+
+		// THEN
+		assertThat("Date timestamp parsed", result, is(equalTo(
+				LocalDateTime.of(2024, 11, 20, 0, 0).atZone(ZoneId.systemDefault()).toInstant())));
+	}
+
+	@Test
+	public void parseTimestamp_dateTime() {
+		// WHEN
+		Instant result = timestamp("2024-11-20T12:34:56.789");
+
+		// THEN
+		assertThat("Date timestamp parsed", result,
+				is(equalTo(LocalDateTime
+						.of(2024, 11, 20, 12, 34, 56, (int) TimeUnit.MILLISECONDS.toNanos(789))
+						.atZone(ZoneId.systemDefault()).toInstant())));
+	}
+
+	@Test
+	public void parseTimestamp_dateTimeZone() {
+		// WHEN
+		Instant result = timestamp("2024-11-20T12:34:56.789+12:00");
+
+		// THEN
+		assertThat("Date timestamp parsed", result,
+				is(equalTo(LocalDateTime
+						.of(2024, 11, 20, 12, 34, 56, (int) TimeUnit.MILLISECONDS.toNanos(789))
+						.atZone(ZoneOffset.ofHours(12)).toInstant())));
+	}
+
+	@Test
+	public void parseTimestamp_dateAndZone() {
+		// WHEN
+		Instant result = timestamp("2024-11-20Z");
+
+		// THEN
+		assertThat("Date timestamp parsed", result,
+				is(equalTo(LocalDateTime.of(2024, 11, 20, 0, 0).atZone(ZoneOffset.UTC).toInstant())));
+	}
+
+	@Test
+	public void durBetween_LocalDateTime() {
+		// GIVEN
+		LocalDateTime d1 = LocalDateTime.of(2024, 8, 6, 14, 15);
+		LocalDateTime d2 = LocalDateTime.of(2024, 8, 6, 14, 20);
+
+		// WHEN
+		Duration result = durationBetween(d1, d2);
+
+		// THEN
+		assertThat("Duration between two LocalDateTime returned", result,
+				is(equalTo(Duration.ofMinutes(5))));
+	}
+
+	@Test
+	public void secsBetween_LocalDateTime() {
+		// GIVEN
+		LocalDateTime d1 = LocalDateTime.of(2024, 8, 6, 14, 15);
+		LocalDateTime d2 = LocalDateTime.of(2024, 8, 6, 14, 20);
+
+		// WHEN
+		long result = secondsBetween(d1, d2);
+
+		// THEN
+		assertThat("Seconds between two LocalDateTime returned", result,
+				is(equalTo(Duration.between(d1, d2).getSeconds())));
+	}
+
+	@Test
+	public void minsBetween_LocalDateTime() {
+		// GIVEN
+		LocalDateTime d1 = LocalDateTime.of(2024, 8, 6, 14, 15);
+		LocalDateTime d2 = LocalDateTime.of(2024, 8, 6, 14, 20);
+
+		// WHEN
+		long result = minutesBetween(d1, d2);
+
+		// THEN
+		assertThat("Minutes between two LocalDateTime returned", result,
+				is(equalTo(Duration.between(d1, d2).toMinutes())));
+	}
+
+	@Test
+	public void hoursBetween_LocalDateTime() {
+		// GIVEN
+		LocalDateTime d1 = LocalDateTime.of(2024, 8, 6, 14, 15);
+		LocalDateTime d2 = LocalDateTime.of(2024, 8, 6, 16, 15);
+
+		// WHEN
+		long result = hoursBetween(d1, d2);
+
+		// THEN
+		assertThat("Hours between two LocalDateTime returned", result,
+				is(equalTo(Duration.between(d1, d2).toHours())));
+	}
+
+	@Test
+	public void daysBetween_LocalDateTime() {
+		// GIVEN
+		LocalDateTime d1 = LocalDateTime.of(2024, 8, 6, 14, 15);
+		LocalDateTime d2 = LocalDateTime.of(2024, 8, 8, 14, 15);
+
+		// WHEN
+		long result = daysBetween(d1, d2);
+
+		// THEN
+		assertThat("Days between two LocalDateTime returned", result,
+				is(equalTo(Duration.between(d1, d2).toDays())));
+	}
+
+	@Test
+	public void hoursBetween_LocalDate() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 8, 6);
+		LocalDate d2 = LocalDate.of(2024, 8, 8);
+
+		// WHEN
+		long result = hoursBetween(d1, d2);
+
+		// THEN
+		assertThat("Hours between two LocalDate returned", result, is(equalTo(48L)));
+	}
+
+	@Test
+	public void daysBetween_LocalDate() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 8, 6);
+		LocalDate d2 = LocalDate.of(2024, 8, 8);
+
+		// WHEN
+		long result = daysBetween(d1, d2);
+
+		// THEN
+		assertThat("Days between two LocalDate returned", result, is(equalTo(2L)));
+	}
+
+	@Test
+	public void minutesBetween_LocalTime() {
+		// GIVEN
+		LocalTime d1 = LocalTime.of(10, 10);
+		LocalTime d2 = LocalTime.of(11, 11);
+
+		// WHEN
+		long result = minutesBetween(d1, d2);
+
+		// THEN
+		assertThat("Minutes between two LocalTime returned", result, is(equalTo(61L)));
+	}
+
+	@Test
+	public void hoursBetween_LocalTime() {
+		// GIVEN
+		LocalTime d1 = LocalTime.of(10, 10);
+		LocalTime d2 = LocalTime.of(11, 11);
+
+		// WHEN
+		long result = hoursBetween(d1, d2);
+
+		// THEN
+		assertThat("Hours between two LocalTime returned", result, is(equalTo(1L)));
+	}
+
+	@Test
+	public void monthsBetween_LocalDate_withinMonth() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 9, 4);
+		LocalDate d2 = LocalDate.of(2024, 9, 10);
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+
+		// THEN
+		assertThat("Months between two LocalDate returned", result, is(equalTo(0.2)));
+	}
+
+	@Test
+	public void monthsBetween_LocalDate_withinMonth_reverse() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 9, 4);
+		LocalDate d2 = LocalDate.of(2024, 9, 10);
+
+		// WHEN
+		double result = monthsBetween(d2, d1);
+
+		// THEN
+		assertThat("Months between two LocalDate returned", result, is(equalTo(-0.2)));
+	}
+
+	@Test
+	public void monthsBetween_LocalDate_onBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 8, 1);
+		LocalDate d2 = LocalDate.of(2024, 9, 1);
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+
+		// THEN
+		assertThat("Months between two LocalDate returned", result, is(equalTo(1.0)));
+	}
+
+	@Test
+	public void monthsBetween_LocalDate_onStartBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 8, 1);
+		LocalDate d2 = LocalDate.of(2024, 9, 15);
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+
+		// THEN
+		assertThat("Months between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("1.47"))));
+	}
+
+	@Test
+	public void monthsBetween_LocalDate_onEndBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 8, 15);
+		LocalDate d2 = LocalDate.of(2024, 10, 1);
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+
+		// THEN
+		assertThat("Months between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("1.55"))));
+	}
+
+	@Test
+	public void yearsBetween_LocalDate_withinYear() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 2, 1);
+		LocalDate d2 = LocalDate.of(2024, 10, 1);
+
+		// WHEN
+		double result = yearsBetween(d1, d2);
+
+		// THEN
+		assertThat("Years between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("0.66"))));
+	}
+
+	@Test
+	public void yearsBetween_LocalDate_withinYear_reverse() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 2, 1);
+		LocalDate d2 = LocalDate.of(2024, 10, 1);
+
+		// WHEN
+		double result = yearsBetween(d2, d1);
+
+		// THEN
+		assertThat("Years between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("-0.66"))));
+	}
+
+	@Test
+	public void yearsBetween_LocalDate_onBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 1, 1);
+		LocalDate d2 = LocalDate.of(2025, 1, 1);
+
+		// WHEN
+		double result = yearsBetween(d1, d2);
+
+		// THEN
+		assertThat("Years between two LocalDate returned", result, is(equalTo(1.0)));
+	}
+
+	@Test
+	public void yearsBetween_LocalDate_onStartBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 1, 1);
+		LocalDate d2 = LocalDate.of(2025, 6, 15);
+
+		// WHEN
+		double result = yearsBetween(d1, d2);
+
+		// THEN
+		assertThat("Years between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("1.45"))));
+	}
+
+	@Test
+	public void yearsBetween_LocalDate_onEndBoundaries() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 6, 15);
+		LocalDate d2 = LocalDate.of(2026, 1, 1);
+
+		// WHEN
+		double result = yearsBetween(d1, d2);
+
+		// THEN
+		assertThat("Years between two LocalDate returned", NumberUtils.round(result, 2),
+				is(equalTo(new BigDecimal("1.55"))));
 	}
 
 }
