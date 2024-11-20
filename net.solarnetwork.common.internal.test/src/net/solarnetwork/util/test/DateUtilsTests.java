@@ -58,7 +58,7 @@ import net.solarnetwork.util.IntRangeSet;
  * Test cases for the {@link DateUtils} class.
  *
  * @author matt
- * @version 1.5
+ * @version 1.6
  */
 public class DateUtilsTests {
 
@@ -665,6 +665,19 @@ public class DateUtilsTests {
 	public void formatLocalTime_24hhmm() {
 		String s = DateUtils.format(LocalTime.of(19, 30));
 		assertThat("Time formatted", s, is("19:30"));
+	}
+
+	@Test
+	public void parseLocalTime_24hhmmss() {
+		LocalTime d = DateUtils.parseLocalTime("19:30:12");
+		assertThat("Time parsed with seconds", d, is(LocalTime.of(19, 30, 12)));
+	}
+
+	@Test
+	public void parseLocalTime_24hhmmssSSS() {
+		LocalTime d = DateUtils.parseLocalTime("19:30:12.123");
+		assertThat("Time parsed with seconds", d,
+				is(LocalTime.of(19, 30, 12, (int) TimeUnit.MILLISECONDS.toNanos(123))));
 	}
 
 	@Test

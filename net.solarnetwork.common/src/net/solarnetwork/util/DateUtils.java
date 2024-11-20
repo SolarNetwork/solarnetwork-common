@@ -64,7 +64,7 @@ import org.springframework.util.StringUtils;
  * Date and time utilities.
  *
  * @author matt
- * @version 2.4
+ * @version 2.5
  * @since 1.59
  */
 public final class DateUtils {
@@ -1003,7 +1003,7 @@ public final class DateUtils {
 	 * @return the LocalTime object
 	 */
 	public static LocalTime parseLocalTime(String value) {
-		return LOCAL_TIME.parse(value, LocalTime::from);
+		return LOCAL_TIME_FULL.parse(value, LocalTime::from);
 	}
 
 	/**
