@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain.datum.test;
 
+import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -37,7 +38,7 @@ import net.solarnetwork.domain.datum.DatumMathFunctions;
  * Test cases for the {@link DatumMathFunctions} interface.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class DatumMathFunctionsTests implements DatumMathFunctions {
 
@@ -265,6 +266,102 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
 		Number result = round(rms(values), 5);
 		assertThat("RMS calcualted", result, is(equalTo(new BigDecimal("2.16025"))));
+	}
+
+	@Test
+	public void rms_null() {
+		Number result = round(rms(null), 5);
+		assertThat("RMS is null for null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void rms_empty() {
+		Number result = round(rms(emptyList()), 5);
+		assertThat("RMS is null for empty input", result, is(nullValue()));
+	}
+
+	@Test
+	public void sum() {
+		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
+		Number result = sum(values);
+		assertThat("Sum calcualted", result, is(equalTo(new BigDecimal("6.0"))));
+	}
+
+	@Test
+	public void sum_null() {
+		Number result = sum(null);
+		assertThat("Sum is null for null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void sum_empty() {
+		Number result = sum(emptyList());
+		assertThat("Sum is null for empty input", result, is(nullValue()));
+	}
+
+	@Test
+	public void avg() {
+		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
+		Number result = avg(values);
+		assertThat("Average calcualted", result, is(equalTo(new BigDecimal("2.0"))));
+	}
+
+	@Test
+	public void avg_overflow() {
+		List<Double> values = Arrays.asList(2.0, 2.0, 3.0);
+		Number result = avg(values);
+		assertThat("Average calcualted with rounding to 12 places", result,
+				is(equalTo(new BigDecimal("2.333333333333"))));
+	}
+
+	@Test
+	public void avg_null() {
+		Number result = avg(null);
+		assertThat("Average is null for null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void avg_empty() {
+		Number result = avg(emptyList());
+		assertThat("Average is null for empty input", result, is(nullValue()));
+	}
+
+	@Test
+	public void min() {
+		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
+		Number result = min(values);
+		assertThat("Sum calcualted", result, is(equalTo(new BigDecimal("1.0"))));
+	}
+
+	@Test
+	public void min_null() {
+		Number result = min(null);
+		assertThat("Minimum is null for null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void min_empty() {
+		Number result = min(emptyList());
+		assertThat("Minimum is null for empty input", result, is(nullValue()));
+	}
+
+	@Test
+	public void max() {
+		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
+		Number result = max(values);
+		assertThat("Sum calcualted", result, is(equalTo(new BigDecimal("3.0"))));
+	}
+
+	@Test
+	public void max_null() {
+		Number result = max(null);
+		assertThat("Maximum is null for null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void max_empty() {
+		Number result = max(emptyList());
+		assertThat("Maximum is null for empty input", result, is(nullValue()));
 	}
 
 }
