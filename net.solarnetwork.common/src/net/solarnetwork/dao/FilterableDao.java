@@ -1,21 +1,21 @@
 /* ==================================================================
  * FilterableDao.java - 7/02/2020 9:05:06 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,7 +28,7 @@ import net.solarnetwork.domain.SortDescriptor;
 
 /**
  * API for a Data Access Object that supports filtered queries.
- * 
+ *
  * @param <M>
  *        the filtered result type
  * @param <K>
@@ -36,14 +36,14 @@ import net.solarnetwork.domain.SortDescriptor;
  * @param <F>
  *        the filter type
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.59
  */
 public interface FilterableDao<M extends Identity<K>, K, F> {
 
 	/**
 	 * API for querying for a filtered set of results from all possible results.
-	 * 
+	 *
 	 * @param filter
 	 *        the query filter
 	 * @param sorts
@@ -54,18 +54,18 @@ public interface FilterableDao<M extends Identity<K>, K, F> {
 	 *        an optional maximum number of returned results
 	 * @return the results, never {@literal null}
 	 */
-	FilterResults<M, K> findFiltered(F filter, List<SortDescriptor> sorts, Integer offset, Integer max);
+	FilterResults<M, K> findFiltered(F filter, List<SortDescriptor> sorts, Long offset, Integer max);
 
 	/**
 	 * Short cut to query for all available results with a given filter.
-	 * 
+	 *
 	 * <p>
 	 * This short cut method calls
-	 * {@link #findFiltered(Object, List, Integer, Integer)} with
-	 * {@literal null} sorting and pagination arguments, so all results are
-	 * returned in their default order.
+	 * {@link #findFiltered(Object, List, Long, Integer)} with {@literal null}
+	 * sorting and pagination arguments, so all results are returned in their
+	 * default order.
 	 * </p>
-	 * 
+	 *
 	 * @param filter
 	 *        the query filter
 	 * @return the results
