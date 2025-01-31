@@ -36,7 +36,7 @@ import net.solarnetwork.util.StringUtils;
  * API for datum-related math helper functions.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  * @since 2.1
  */
 public interface DatumMathFunctions {
@@ -547,13 +547,13 @@ public interface DatumMathFunctions {
 	 * Compute the sum a group of numbers.
 	 *
 	 * @param set
-	 *        the numbers to sum; if {@literal null} then {@literal null} will
-	 *        be returned
+	 *        the numbers to sum; if {@literal null} or empty then
+	 *        {@literal null} will be returned
 	 * @return the sum of {@code set}
 	 */
 	default Number sum(Collection<? extends Number> set) {
 		BigDecimal result = null;
-		if ( set != null ) {
+		if ( set != null && !set.isEmpty() ) {
 			result = BigDecimal.ZERO;
 			for ( Number n : set ) {
 				if ( n == null ) {
