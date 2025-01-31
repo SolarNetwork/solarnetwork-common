@@ -64,7 +64,7 @@ import org.springframework.util.StringUtils;
  * Date and time utilities.
  *
  * @author matt
- * @version 2.5
+ * @version 2.6
  * @since 1.59
  */
 public final class DateUtils {
@@ -815,7 +815,7 @@ public final class DateUtils {
 		} else {
 			DateTimeFormatter f = new DateTimeFormatterBuilder().appendText(field, style)
 					.toFormatter(locale);
-			LocalDateTime t = LocalDateTime.now();
+			LocalDateTime t = LocalDateTime.of(2024, 1, 1, 0, 0); // Jan 1 on Mon, leap year
 			if ( field == ChronoField.DAY_OF_WEEK ) {
 				t = t.with(TemporalAdjusters.nextOrSame(DayOfWeek.of(range.getMin())));
 			} else {
