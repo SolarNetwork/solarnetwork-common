@@ -27,14 +27,15 @@ import static java.time.format.TextStyle.FULL;
 import static java.time.format.TextStyle.SHORT;
 import static java.util.Locale.US;
 import static net.solarnetwork.util.IntRange.rangeOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeThat;
 import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -43,18 +44,21 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import net.solarnetwork.util.DateUtils;
 import net.solarnetwork.util.IntRange;
+import net.solarnetwork.util.IntRangeSet;
 
 /**
  * Test cases for the {@link DateUtils} class.
  *
  * @author matt
- * @version 1.3
+ * @version 1.6
  */
 public class DateUtilsTests {
 
@@ -664,6 +668,19 @@ public class DateUtilsTests {
 	}
 
 	@Test
+	public void parseLocalTime_24hhmmss() {
+		LocalTime d = DateUtils.parseLocalTime("19:30:12");
+		assertThat("Time parsed with seconds", d, is(LocalTime.of(19, 30, 12)));
+	}
+
+	@Test
+	public void parseLocalTime_24hhmmssSSS() {
+		LocalTime d = DateUtils.parseLocalTime("19:30:12.123");
+		assertThat("Time parsed with seconds", d,
+				is(LocalTime.of(19, 30, 12, (int) TimeUnit.MILLISECONDS.toNanos(123))));
+	}
+
+	@Test
 	public void parseLocalDate() {
 		LocalDate d = DateUtils.parseLocalDate("2021-08-26");
 		assertThat("Date parsed", d, is(LocalDate.of(2021, 8, 26)));
@@ -673,6 +690,497 @@ public class DateUtilsTests {
 	public void formatLocalDate() {
 		String s = DateUtils.format(LocalDate.of(2021, 8, 26));
 		assertThat("Time formatted", s, is("2021-08-26"));
+	}
+
+	@Test
+	public void formatMonthRangeSet() {
+		final String range = DateUtils.formatRange(ChronoField.MONTH_OF_YEAR,
+				new IntRangeSet(rangeOf(2, 3), rangeOf(9, 12)), US, SHORT);
+		assertThat("Formatted range", range, equalTo("Feb-Mar,Sep-Dec"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatMonthRangeSet_invalid() {
+		DateUtils.formatRange(ChronoField.MONTH_OF_YEAR, new IntRangeSet(rangeOf(2, 15)), US, SHORT);
+	}
+
+	@Test
+	public void formatDayOfMonthRangeSet() {
+		final String range = DateUtils.formatRange(ChronoField.DAY_OF_MONTH,
+				new IntRangeSet(rangeOf(2, 11), rangeOf(20, 30)), US, SHORT);
+		assertThat("Formatted range", range, equalTo("2-11,20-30"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatDayOfMonthRangeSet_invalid() {
+		DateUtils.formatRange(ChronoField.DAY_OF_MONTH, new IntRangeSet(rangeOf(2, 55)), US, SHORT);
+	}
+
+	@Test
+	public void formatDayOfWeekRangeSet() {
+		final String range = DateUtils.formatRange(ChronoField.DAY_OF_WEEK,
+				new IntRangeSet(rangeOf(2, 3), rangeOf(5, 7)), US, SHORT);
+		assertThat("Formatted range", range, equalTo("Tue-Wed,Fri-Sun"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatDayOfWeekRangeSet_invalid() {
+		DateUtils.formatRange(ChronoField.DAY_OF_WEEK, new IntRangeSet(rangeOf(2, 55)), US, SHORT);
+	}
+
+	@Test
+	public void formatMinuteOfDayRangeSet_hours() {
+		final String range = DateUtils.formatRange(ChronoField.MINUTE_OF_DAY,
+				new IntRangeSet(rangeOf(2 * 60, 18 * 60), rangeOf(20 * 60, 24 * 60)), US, SHORT);
+		assertThat("Formatted range", range, equalTo("2-18,20-24"));
+	}
+
+	@Test
+	public void formatMinuteOfDayRangeSet_hours_full() {
+		final String range = DateUtils.formatRange(ChronoField.MINUTE_OF_DAY,
+				new IntRangeSet(rangeOf(2 * 60, 18 * 60), rangeOf(20 * 60, 24 * 60)), US, FULL);
+		assertThat("Formatted range", range, equalTo("02:00-18:00,20:00-24:00"));
+	}
+
+	@Test
+	public void formatMinuteOfDayRangeSet_minutes() {
+		final String range = DateUtils.formatRange(ChronoField.MINUTE_OF_DAY,
+				new IntRangeSet(rangeOf(30, 18 * 60), rangeOf(22 * 60 + 15, 23 * 60 + 45)), US, SHORT);
+		assertThat("Formatted range", range, equalTo("00:30-18:00,22:15-23:45"));
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void formatMinuteOfDayRangeSet_invalid() {
+		DateUtils.formatRange(ChronoField.MINUTE_OF_DAY, new IntRangeSet(rangeOf(0, 99 * 60)), US,
+				SHORT);
+	}
+
+	@Test
+	public void parseDateRangeSet_missingStart() {
+		final String[] inputs = new String[] { " - 3", "-3" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			try {
+				DateUtils.parseRangeSet(ChronoField.MONTH_OF_YEAR, inputs[i], null);
+				fail(format("Missing start %d [%s] should fail to parse", i + 1, inputs[i]));
+			} catch ( DateTimeException e ) {
+				// expected
+			}
+		}
+	}
+
+	@Test
+	public void parseDateRangeSet_missingEnd() {
+		final String[] inputs = new String[] { "3 -", "3-" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			try {
+				DateUtils.parseRangeSet(ChronoField.MONTH_OF_YEAR, inputs[i], null);
+				fail(format("Missing end %d [%s] should fail to parse", i + 1, inputs[i]));
+			} catch ( DateTimeException e ) {
+				// expected
+			}
+		}
+	}
+
+	@Test
+	public void parseMonthRangeSet() {
+		final String[] inputs = new String[] { "March-July,October-November", "Mar-Jul,Oct-Nov",
+				"03-07,10-11", "3-7,10-11", " March  - July  ,   Oct- Nov ", "Nov-Oct,Jul-Mar" };
+
+		final IntRangeSet expected = new IntRangeSet(rangeOf(3, 7), rangeOf(10, 11));
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.MONTH_OF_YEAR, inputs[i], Locale.US);
+			assertThat(format("Month range set %d [%s] parsed", i + 1, inputs[i]), r, equalTo(expected));
+		}
+	}
+
+	@Test
+	public void parseMonthRangeSet_uk_java11() {
+		assumeThat("Behavior in Java <17", JAVA_VERS, lessThan(17.0));
+		parseMonthRangeSet_uk();
+	}
+
+	@Test(expected = DateTimeParseException.class)
+	public void parseMonthRangeSet_uk_java17() {
+		assumeThat("Behavior in Java 17+", JAVA_VERS, greaterThanOrEqualTo(17.0));
+		parseMonthRangeSet_uk();
+	}
+
+	// Behaviour changes from Java 11 -> 17 from bug JDK-8066982
+	// https://bugs.openjdk.java.net/browse/JDK-8251317
+	private void parseMonthRangeSet_uk() {
+		final String[] inputs = new String[] { "April-September", "Apr-Sep", "04-09", "4-9",
+				" April  - Sep ", "Sep-Apr" };
+		final Locale uk = new Locale("en", "GB");
+		final IntRangeSet expected = new IntRangeSet(rangeOf(4, 9));
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.MONTH_OF_YEAR, inputs[i], uk);
+			assertThat(format("Month range set %d [%s] parsed", i + 1, inputs[i]), r, equalTo(expected));
+		}
+	}
+
+	@Test
+	public void parseMonthRangeSet_singleton() {
+		final String[] inputs = new String[] { "March", "Mar", "03", "3", " March  ", "Mar-Mar" };
+		final IntRangeSet expected = new IntRangeSet(rangeOf(3));
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.MONTH_OF_YEAR, inputs[i], null);
+			assertThat(format("Month singleton set %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(expected));
+		}
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void parseMonthRangeSet_invalid() {
+		DateUtils.parseRangeSet(ChronoField.MONTH_OF_YEAR, "March - Howdy", null);
+	}
+
+	@Test
+	public void parseDayOfMonthRangeSet() {
+		final String[] inputs = new String[] { "2-5,7-21", "2 - 5, 7 - 21", "02-05,07-21",
+				"02 - 05, 07 - 21", " 2 -  5 ,  7 - 21 ", " 02 - 5, 07  - 21 ", "21-7,5-2" };
+		final IntRangeSet expected = new IntRangeSet(rangeOf(2, 5), rangeOf(7, 21));
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.DAY_OF_MONTH, inputs[i], null);
+			assertThat(format("DayOfMonth range set %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(expected));
+		}
+	}
+
+	@Test
+	public void parseDayOfMonthRangeSet_singleton() {
+		final String[] inputs = new String[] { "07", "7", " 7", " 07", " 7 ", " 07 ", "07-07" };
+		final IntRangeSet expected = new IntRangeSet(rangeOf(7));
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.DAY_OF_MONTH, inputs[i], null);
+			assertThat(format("DayOfMonth singleton set %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(expected));
+		}
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void parseDayOfMonthRangeSet_invalid() {
+		DateUtils.parseRangeSet(ChronoField.DAY_OF_MONTH, "1-100", null);
+	}
+
+	@Test
+	public void parseDayOfWeekRangeSet() {
+		final String[] inputs = new String[] { "Tuesday - Wednesday,Friday - Saturday",
+				"Tue - Wed, Fri - Sat", "2-3,5-6", "02 - 03, 05 - 06", " Tue - 3 , Fri - 6 ",
+				" Tue  - Wed , Fri - Sat ", "Sat-Fri, Wed-Tue" };
+		final IntRangeSet expected = new IntRangeSet(rangeOf(2, 3), rangeOf(5, 6));
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.DAY_OF_WEEK, inputs[i], Locale.US);
+			assertThat(format("DayOfWeek range %d [%s] parsed", i + 1, inputs[i]), r, equalTo(expected));
+		}
+	}
+
+	@Test
+	public void parseDayOfWeekRangeSet_singleton() {
+		String[] inputs = new String[] { "Tuesday", "Tue", "02", "2", " 2 ", " 02 ", "2 ", "Tue-Tue" };
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRange r = DateUtils.parseDayOfWeekRange(inputs[i], null);
+			assertThat(format("DayOfWeek singleton %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(rangeOf(2)));
+		}
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void parseDayOfWeekRangeSet_invalid() {
+		DateUtils.parseRangeSet(ChronoField.DAY_OF_WEEK, "1-10", null);
+	}
+
+	@Test
+	public void parseMinuteOfDayRangeSet() {
+		final String[] inputs = new String[] { "00 - 08, 14 - 24", "0 - 8, 14 - 24", "0-8,14-24",
+				" 0 - 8, 14 - 24 ", "24-14,8-0" };
+		IntRangeSet expected = new IntRangeSet(rangeOf(0, 8 * 60), rangeOf(14 * 60, 24 * 60));
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, inputs[i], null);
+			assertThat(format("MinuteOfDay range set %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(expected));
+		}
+		final String[] inputs2 = new String[] { "0-1,3-4", "4-8", "8-24", " 2 - 22 ", "23-0" };
+		IntRangeSet[] expected2 = new IntRangeSet[] {
+				new IntRangeSet(rangeOf(0, 1 * 60), rangeOf(3 * 60, 4 * 60)),
+				new IntRangeSet(rangeOf(4 * 60, 8 * 60)), new IntRangeSet(rangeOf(8 * 60, 24 * 60)),
+				new IntRangeSet(rangeOf(2 * 60, 22 * 60)), new IntRangeSet(rangeOf(0 * 60, 23 * 60)) };
+		for ( int i = 0, len = inputs2.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, inputs2[i], null);
+			assertThat(format("MinuteOfDay range set %d [%s] parsed", i + 1, inputs2[i]), r,
+					equalTo(expected2[i]));
+		}
+	}
+
+	@Test
+	public void parseMinuteOfDayRangeSet_singleton() {
+		final String[] inputs = new String[] { "24", " 24 ", "24-24" };
+		IntRangeSet expected = new IntRangeSet(rangeOf(24 * 60));
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, inputs[i], null);
+			assertThat(format("MinuteOfDay singleton %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(expected));
+		}
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void parseMinuteOfDayRangeSet_invalid() {
+		DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, "1 - 25", null);
+	}
+
+	@Test
+	public void parseMinuteOfDayRangeSet_iso() {
+		final String[] inputs = new String[] { "00:30-14:00,23:30-24:00", "00:30 - 14:00, 23:30 - 24:00",
+				"24:00 - 23:30, 14:00 - 00:30" };
+		final IntRangeSet expected = new IntRangeSet(rangeOf(30, 14 * 60),
+				rangeOf(23 * 60 + 30, 24 * 60));
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, inputs[i], null);
+			assertThat(format("MinuteOfDay range %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(expected));
+		}
+		final String[] inputs2 = new String[] { "0-1", "4-8", "8-24", " 2 - 22 ", "23-0" };
+		IntRangeSet[] expected2 = new IntRangeSet[] { new IntRangeSet(rangeOf(0, 60)),
+				new IntRangeSet(rangeOf(4 * 60, 8 * 60)), new IntRangeSet(rangeOf(8 * 60, 24 * 60)),
+				new IntRangeSet(rangeOf(2 * 60, 22 * 60)), new IntRangeSet(rangeOf(0, 23 * 60)) };
+		for ( int i = 0, len = inputs2.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, inputs2[i], null);
+			assertThat(format("MinuteOfDay range %d [%s] parsed", i + 1, inputs2[i]), r,
+					equalTo(expected2[i]));
+		}
+	}
+
+	@Test
+	public void parseMinuteOfDayRangeSet_singleton_iso() {
+		final String[] inputs = new String[] { "24:00", " 24:00 ", "24:00-24:00" };
+		final IntRangeSet expected = new IntRangeSet(rangeOf(1440, 1440));
+		for ( int i = 0, len = inputs.length; i < len; i++ ) {
+			IntRangeSet r = DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, inputs[i], null);
+			assertThat(format("MinuteOfDay singleton %d [%s] parsed", i + 1, inputs[i]), r,
+					equalTo(expected));
+		}
+	}
+
+	@Test(expected = DateTimeException.class)
+	public void parseMinuteOfDayRangeSet_invalid_iso() {
+		DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, "01:00 - 25:00", null);
+	}
+
+	@Test
+	public void datePlus_period() {
+		// GIVEN
+		LocalDate d = LocalDate.of(2024, 8, 6);
+
+		// WHEN
+		String p = "-P2Y";
+		Temporal result = DateUtils.datePlus(d, p);
+
+		// THEN
+		assertThat("LocalDate returned with period added", result,
+				is(equalTo(LocalDate.of(2022, 8, 6))));
+	}
+
+	@Test
+	public void dateTimePlus_duration() {
+		// GIVEN
+		LocalDateTime d = LocalDateTime.of(2024, 8, 6, 14, 15);
+
+		// WHEN
+		String p = "-PT2H";
+		Temporal result = DateUtils.datePlus(d, p);
+
+		// THEN
+		assertThat("LocalDateTime returned with period added", result,
+				is(equalTo(LocalDateTime.of(2024, 8, 6, 12, 15))));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void dateTimePlus_invalid() {
+		// GIVEN
+		LocalDateTime d = LocalDateTime.of(2024, 8, 6, 14, 15);
+
+		// WHEN
+		String p = "foobar";
+		DateUtils.datePlus(d, p);
+	}
+
+	@Test
+	public void datePlus_units() {
+		// GIVEN
+		LocalDate d = LocalDate.of(2024, 8, 6);
+
+		// WHEN
+		Temporal result = DateUtils.datePlus(d, 1, "months");
+
+		// THEN
+		assertThat("LocalDate returned with period added", result,
+				is(equalTo(LocalDate.of(2024, 9, 6))));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void datePlus_units_invalid() {
+		// GIVEN
+		LocalDate d = LocalDate.of(2024, 8, 6);
+
+		// WHEN
+		DateUtils.datePlus(d, 1, "foobar");
+	}
+
+	@Test
+	public void parseZone() {
+		// GIVEN
+		final String zoneId = "Pacific/Auckland";
+
+		// WHEN
+		ZoneId zone = DateUtils.tz(zoneId);
+
+		// THEN
+		assertThat("ZoneId parsed", zone, is(equalTo(ZoneId.of(zoneId))));
+	}
+
+	@Test
+	public void parseZoneOffset() {
+		// GIVEN
+		final String zoneId = "-10:00";
+
+		// WHEN
+		ZoneId zone = DateUtils.tz(zoneId);
+
+		// THEN
+		assertThat("ZoneId parsed", zone, is(equalTo(ZoneId.of(zoneId))));
+	}
+
+	@Test
+	public void parseZone_null() {
+		// WHEN
+		ZoneId zone = DateUtils.tz(null);
+
+		// THEN
+		assertThat("System time zone returned", zone, is(equalTo(ZoneId.systemDefault())));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void parseZone_invalid() {
+		// WHEN
+		DateUtils.tz("Not/Azone");
+	}
+
+	@Test
+	public void toInstant_date() {
+		// GIVEN
+		LocalDate d = LocalDate.of(2024, 8, 6);
+
+		// WHEN
+		Instant result = DateUtils.timestamp(d);
+
+		// THEN
+		assertThat("Instant returned for start of day in system time zone", result,
+				is(equalTo(d.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())));
+	}
+
+	@Test
+	public void toInstant_date_zone() {
+		// GIVEN
+		LocalDate d = LocalDate.of(2024, 8, 6);
+		ZoneId zone = ZoneId.of("Pacific/Honolulu");
+
+		// WHEN
+		Instant result = DateUtils.timestamp(d, zone);
+
+		// THEN
+		assertThat("Instant returned for start of day in given time zone", result,
+				is(equalTo(d.atStartOfDay().atZone(zone).toInstant())));
+	}
+
+	@Test
+	public void dateTruncate_localDate_week() {
+		for ( int i = 12; i < 19; i++ ) {
+			// GIVEN
+			LocalDate d = LocalDate.of(2024, 8, i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.WEEKS);
+
+			// THEN
+			assertThat("LocalDate returned for start of week", result,
+					is(equalTo(LocalDate.of(2024, 8, 12))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDate_month() {
+		for ( int i = 1; i < 31; i++ ) {
+			// GIVEN
+			LocalDate d = LocalDate.of(2024, 8, i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.MONTHS);
+
+			// THEN
+			assertThat("LocalDate returned for start of month", result,
+					is(equalTo(LocalDate.of(2024, 8, 1))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDate_year() {
+		LocalDate startOfYear = LocalDate.of(2024, 1, 1);
+		for ( int i = 1; i < 365; i++ ) {
+			// GIVEN
+			LocalDate d = startOfYear.plusDays(i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.YEARS);
+
+			// THEN
+			assertThat("LocalDate returned for start of year", result,
+					is(equalTo(LocalDate.of(2024, 1, 1))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDateTime_week() {
+		for ( int i = 12; i < 19; i++ ) {
+			// GIVEN
+			LocalDateTime d = LocalDateTime.of(2024, 8, i, 12, 30);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.WEEKS);
+
+			// THEN
+			assertThat("LocalDateTime returned for start of week", result,
+					is(equalTo(LocalDateTime.of(2024, 8, 12, 0, 0))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDateTime_month() {
+		for ( int i = 1; i < 31; i++ ) {
+			// GIVEN
+			LocalDateTime d = LocalDateTime.of(2024, 8, i, 12, 30);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.MONTHS);
+
+			// THEN
+			assertThat("LocalDateTime returned for start of month", result,
+					is(equalTo(LocalDateTime.of(2024, 8, 1, 0, 0))));
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDateTime_year() {
+		LocalDateTime startOfYear = LocalDateTime.of(2024, 1, 1, 12, 30);
+		for ( int i = 1; i < 365; i++ ) {
+			// GIVEN
+			LocalDateTime d = startOfYear.plusDays(i);
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, ChronoUnit.YEARS);
+
+			// THEN
+			assertThat("LocalDateTime returned for start of year", result,
+					is(equalTo(LocalDateTime.of(2024, 1, 1, 0, 0))));
+		}
 	}
 
 }

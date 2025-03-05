@@ -1,21 +1,21 @@
 /* ==================================================================
  * AuthenticationUtils.java - 31/10/2017 1:23:52 PM
- * 
+ *
  * Copyright 2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,18 +25,17 @@ package net.solarnetwork.web.security;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Hex;
+import net.solarnetwork.security.AuthorizationUtils;
 
 /**
  * Utility methods for authentication support.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public final class AuthenticationUtils {
 
@@ -46,33 +45,29 @@ public final class AuthenticationUtils {
 
 	/**
 	 * Get a HTTP formatted date.
-	 * 
+	 *
 	 * @param date
 	 *        The date to format.
 	 * @return The formatted date.
 	 */
 	public static String httpDate(Date date) {
-		SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-		return sdf.format(date);
+		return AuthorizationUtils.AUTHORIZATION_DATE_HEADER_FORMATTER.format(date.toInstant());
 	}
 
 	/**
 	 * Get an ISO8601 formatted date.
-	 * 
+	 *
 	 * @param date
 	 *        The date to format.
 	 * @return The formatted date.
 	 */
 	public static String iso8601Date(Date date) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
-		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-		return sdf.format(date);
+		return AuthorizationUtils.AUTHORIZATION_TIMESTAMP_FORMATTER.format(date.toInstant());
 	}
 
 	/**
 	 * AWS style implementation of "uri encoding" using UTF-8 encoding.
-	 * 
+	 *
 	 * @param input
 	 *        The text input to encode.
 	 * @return The URI escaped string.
@@ -102,7 +97,7 @@ public final class AuthenticationUtils {
 
 	/**
 	 * Compute a Base64 MAC digest from signature data.
-	 * 
+	 *
 	 * @param secretKey
 	 *        the secret key
 	 * @param data
@@ -124,7 +119,7 @@ public final class AuthenticationUtils {
 
 	/**
 	 * Compute a Base64 MAC digest from signature data.
-	 * 
+	 *
 	 * @param secretKey
 	 *        the secret key
 	 * @param data
@@ -146,7 +141,7 @@ public final class AuthenticationUtils {
 
 	/**
 	 * Compute a Base64 MAC digest from signature data.
-	 * 
+	 *
 	 * @param secretKey
 	 *        the secret key
 	 * @param data

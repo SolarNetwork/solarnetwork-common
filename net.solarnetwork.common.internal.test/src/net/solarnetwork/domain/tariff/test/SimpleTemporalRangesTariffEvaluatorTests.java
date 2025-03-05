@@ -1,21 +1,21 @@
 /* ==================================================================
  * SimpleTemporalRangesTariffEvaluatorTests.java - 12/05/2021 6:06:18 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -31,13 +31,14 @@ import java.util.Locale;
 import org.junit.Test;
 import net.solarnetwork.domain.tariff.SimpleTariffRate;
 import net.solarnetwork.domain.tariff.SimpleTemporalRangesTariffEvaluator;
+import net.solarnetwork.domain.tariff.TemporalRangeSetsTariff;
 import net.solarnetwork.domain.tariff.TemporalRangesTariff;
 
 /**
  * Test cases for the {@link SimpleTemporalRangesTariffEvaluator} class.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class SimpleTemporalRangesTariffEvaluatorTests {
 
@@ -45,6 +46,12 @@ public class SimpleTemporalRangesTariffEvaluatorTests {
 		SimpleTariffRate r = new SimpleTariffRate("rate", BigDecimal.ONE);
 		return new TemporalRangesTariff("Mar-Nov", null, "Mon-Fri", "00:00-20:30", asList(r),
 				Locale.getDefault());
+	}
+
+	private TemporalRangeSetsTariff createTestMultiRangeTariff() {
+		SimpleTariffRate r = new SimpleTariffRate("rate", BigDecimal.ONE);
+		return new TemporalRangeSetsTariff("Jan-Mar,Oct-Dec", null, "Tue-Thu,Sat-Sun",
+				"00:00-08:00,16:00-20:30", asList(r), Locale.getDefault());
 	}
 
 	@Test
@@ -115,6 +122,20 @@ public class SimpleTemporalRangesTariffEvaluatorTests {
 
 		// THEN
 		assertThat("Rule does not match", result, equalTo(false));
+	}
+
+	@Test
+	public void multiRangeRule_match() {
+		// GIVEN
+		SimpleTemporalRangesTariffEvaluator e = new SimpleTemporalRangesTariffEvaluator();
+		TemporalRangeSetsTariff t = createTestMultiRangeTariff();
+		LocalDateTime date = LocalDateTime.of(2024, 3, 2, 18, 0); // Sat
+
+		// WHEN
+		boolean result = e.applies(t, date, null);
+
+		// THEN
+		assertThat("Rule matches", result, equalTo(true));
 	}
 
 }

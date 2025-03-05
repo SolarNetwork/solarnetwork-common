@@ -1,21 +1,21 @@
 /* ==================================================================
  * AuthorizationV2BuilderTests.java - 25/04/2017 2:33:33 PM
- * 
+ *
  * Copyright 2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,8 +23,9 @@
 package net.solarnetwork.security.test;
 
 import static net.solarnetwork.security.AuthorizationUtils.EMPTY_STRING_SHA256_HEX;
+import static net.solarnetwork.security.AuthorizationUtils.computeHmacSha256;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -39,9 +40,9 @@ import net.solarnetwork.security.Snws2AuthorizationBuilder;
 
 /**
  * Test cases for the {@link Snws2AuthorizationBuilder} class.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class Snws2AuthorizationBuilderTests {
 
@@ -185,7 +186,7 @@ public class Snws2AuthorizationBuilderTests {
 		final Instant reqDate = getTestDate();                   // usually this should just be current date (e.g. `new Date()`)
 		final byte[] reqBodySha256 = DigestUtils.sha256(json);   // calculate SHA-256 of POST body
 		final String digestHeaderValue = "sha-256="              // the Digest header value we'll sign
-				+ Base64.encodeBase64String(reqBodySha256); 
+				+ Base64.encodeBase64String(reqBodySha256);
 
 		Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(TEST_TOKEN_ID);
 
@@ -212,6 +213,33 @@ public class Snws2AuthorizationBuilderTests {
 		final String result = builder.build();
 		assertThat("Signature", result, is(
 				"SNWS2 Credential=test-token-id,SignedHeaders=content-type;digest;host;x-sn-date,Signature=17b50462a9db77e569bd74676c550c447be07f605f191a39ca481efaa15e9879"));
+	}
+
+	@Test
+	public void wikiExampleSigningKey() {
+		// GIVEN
+		final LocalDateTime date = LocalDateTime.of(2017, 1, 1, 0, 0, 0);
+		final String secret = "ABC123";
+
+		// @formatter:off
+		Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(TEST_TOKEN_ID)
+				.date(date.toInstant(ZoneOffset.UTC))
+				.saveSigningKey(secret)
+				;
+		// @formatter:on
+
+		// WHEN
+		String signKeyHex = builder.signingKeyHex();
+
+		// THEN
+		String day = AuthorizationUtils.AUTHORIZATION_DATE_FORMATTER.format(date);
+		assertThat("Sign date is formatted as YYYYMMDD", day, is("20170101"));
+		String expected = Hex.encodeHexString(
+				computeHmacSha256(computeHmacSha256("SNWS2" + secret, day), "snws2_request"));
+		assertThat("Signing key is HMAC_SHA256(HMAC_SHA256('SNWS2ABC123', '20170101'), 'snws2_request')",
+				signKeyHex, is(expected));
+		assertThat("Expected is wiki example value", expected,
+				is("1f96b28b651285e49d06989aebaee169fa67a5f6a07fb72a8325fce83b425ad6"));
 	}
 
 }

@@ -1,21 +1,21 @@
 /* ==================================================================
  * TemporalRangesTariff.java - 12/05/2021 8:39:25 AM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,6 +26,7 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -35,17 +36,21 @@ import java.util.Map;
 import java.util.function.Function;
 import net.solarnetwork.util.DateUtils;
 import net.solarnetwork.util.IntRange;
+import net.solarnetwork.util.IntRangeContainer;
 
 /**
  * A tariff with time-based range rules.
- * 
+ *
  * <p>
  * The rules associated with this tariff are represented by a set of date ranges
  * that serve as the constraints that must be satisfied by a given date for the
  * rule to apply.
  * </p>
+ *
+ * @author matt
+ * @version 1.1
  */
-public class TemporalRangesTariff implements Tariff {
+public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 
 	private final IntRange monthRange;
 	private final IntRange dayOfMonthRange;
@@ -55,7 +60,7 @@ public class TemporalRangesTariff implements Tariff {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param monthRange
 	 *        the month range (months are 1-12)
 	 * @param dayOfMonthRange
@@ -81,7 +86,7 @@ public class TemporalRangesTariff implements Tariff {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param monthRange
 	 *        the month range (months are 1-12)
 	 * @param dayOfMonthRange
@@ -113,7 +118,7 @@ public class TemporalRangesTariff implements Tariff {
 
 	/**
 	 * Get a range for a given temporal field.
-	 * 
+	 *
 	 * @param field
 	 *        the field to get the range for
 	 * @return the associated range, or {@literal null} if the field is not
@@ -138,10 +143,15 @@ public class TemporalRangesTariff implements Tariff {
 		}
 	}
 
+	@Override
+	public IntRangeContainer rangeForChronoField(ChronoField field) {
+		return rangeForField(field);
+	}
+
 	/**
 	 * Test if this rule applies according to a given
 	 * {@code TemporalRangesTariffEvaluator}.
-	 * 
+	 *
 	 * @param evaluator
 	 *        the evaluator to use
 	 * @param dateTime
@@ -155,6 +165,11 @@ public class TemporalRangesTariff implements Tariff {
 	public boolean applies(TemporalRangesTariffEvaluator evaluator, LocalDateTime dateTime,
 			Map<String, ?> parameters) {
 		return evaluator.applies(this, dateTime, parameters);
+	}
+
+	@Override
+	public String formatChronoField(ChronoField field, Locale locale, TextStyle style) {
+		return DateUtils.formatRange(field, rangeForField(field), locale, style);
 	}
 
 	@Override
@@ -193,7 +208,7 @@ public class TemporalRangesTariff implements Tariff {
 
 	/**
 	 * Get the month-of-year range.
-	 * 
+	 *
 	 * @return the month range, from 1 - 12
 	 */
 	public IntRange getMonthRange() {
@@ -202,7 +217,7 @@ public class TemporalRangesTariff implements Tariff {
 
 	/**
 	 * Get the day of month range.
-	 * 
+	 *
 	 * @return the day range, from 1 - 31
 	 */
 	public IntRange getDayOfMonthRange() {
@@ -211,7 +226,7 @@ public class TemporalRangesTariff implements Tariff {
 
 	/**
 	 * Get the day-of-week range.
-	 * 
+	 *
 	 * @return the weekday range, from 1-7 with Monday being 1
 	 */
 	public IntRange getDayOfWeekRange() {
@@ -220,7 +235,7 @@ public class TemporalRangesTariff implements Tariff {
 
 	/**
 	 * Get the minute-of-day range.
-	 * 
+	 *
 	 * @return the range, from 0 - 1440
 	 */
 	public IntRange getMinuteOfDayRange() {

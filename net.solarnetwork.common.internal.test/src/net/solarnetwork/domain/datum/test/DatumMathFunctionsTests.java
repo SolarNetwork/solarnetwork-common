@@ -1,41 +1,44 @@
 /* ==================================================================
  * DatumMathFunctionsTests.java - 24/05/2022 3:17:52 pm
- * 
+ *
  * Copyright 2022 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.domain.datum.test;
 
+import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.DatumMathFunctions;
 
 /**
  * Test cases for the {@link DatumMathFunctions} interface.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.4
  */
 public class DatumMathFunctionsTests implements DatumMathFunctions {
 
@@ -155,6 +158,210 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 				is(1024102410241024L));
 		assertThat("integer input returns integer", narrow64(integer("1024102410241024102410241024")),
 				is(new BigInteger("1024102410241024102410241024")));
+	}
+
+	@Test
+	public void interp() {
+		assertThat("interpolated", interp(20, 10, 50, 0, 4), is(new BigDecimal("1")));
+		assertThat("interpolated", interp(11, 3, 17, 12, 47), is(new BigDecimal("32")));
+	}
+
+	@Test
+	public void exp() {
+		assertThat("exp calculated", exp(2), is(Math.exp(2)));
+	}
+
+	@Test
+	public void scaled_negative() {
+		BigDecimal s = scaled(1, -4);
+		assertThat("Scaled negative", s, equalTo(new BigDecimal("0.0001")));
+	}
+
+	@Test
+	public void scaled_positive() {
+		BigDecimal s = scaled(1, 4);
+		assertThat("Scaled positive", s, equalTo(new BigDecimal("10000")));
+	}
+
+	@Test
+	public void wholePart() {
+		BigInteger bi = wholePart(new BigDecimal("123.12345"));
+		assertThat("Result", bi, equalTo(new BigInteger("123")));
+	}
+
+	@Test
+	public void wholePart_negative() {
+		BigInteger bi = wholePart(new BigDecimal("-123.12345"));
+		assertThat("Result", bi, equalTo(new BigInteger("-123")));
+	}
+
+	@Test
+	public void fracPart() {
+		BigInteger bi = fracPart(new BigDecimal("123.12345"), 9);
+		assertThat("Result", bi, equalTo(new BigInteger("12345")));
+	}
+
+	@Test
+	public void fracPart_negative() {
+		BigInteger bi = fracPart(new BigDecimal("-123.12345"), 9);
+		assertThat("Result", bi, equalTo(new BigInteger("-12345")));
+	}
+
+	@Test
+	public void sqrt_double() {
+		Number result = sqrt(4.0);
+		assertThat("Square root of double value calcualted", result, is(equalTo(2.0)));
+	}
+
+	@Test
+	public void sqrt_float() {
+		Number result = sqrt(4.0f);
+		assertThat("Square root of float value calcualted", result, is(equalTo(2.0)));
+	}
+
+	@Test
+	public void sqrt_decimal() {
+		Number result = sqrt(new BigDecimal("4"));
+		assertThat("Square root of decimal value calcualted", result, is(equalTo(2.0)));
+	}
+
+	@Test
+	public void cbrt_double() {
+		Number result = cbrt(27.0);
+		assertThat("Cube root of double value calcualted", result, is(equalTo(3.0)));
+	}
+
+	@Test
+	public void cbrt_float() {
+		Number result = cbrt(27.0f);
+		assertThat("Cube root of float value calcualted", result, is(equalTo(3.0)));
+	}
+
+	@Test
+	public void cbrt_decimal() {
+		Number result = cbrt(new BigDecimal("27"));
+		assertThat("Cube root of decimal value calcualted", result, is(equalTo(3.0)));
+	}
+
+	@Test
+	public void pow_double() {
+		Number result = pow(2.0, 3.0);
+		assertThat("Power of double value calcualted", result, is(equalTo(8.0)));
+	}
+
+	@Test
+	public void pow_float() {
+		Number result = pow(2f, 3f);
+		assertThat("Power of float value calcualted", result, is(equalTo(8.0)));
+	}
+
+	@Test
+	public void pow_decimal() {
+		Number result = pow(new BigDecimal("2.0"), 3);
+		assertThat("Power of decimal value calcualted", result, is(equalTo(new BigDecimal("8.000"))));
+	}
+
+	@Test
+	public void rms() {
+		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
+		Number result = round(rms(values), 5);
+		assertThat("RMS calcualted", result, is(equalTo(new BigDecimal("2.16025"))));
+	}
+
+	@Test
+	public void rms_null() {
+		Number result = round(rms(null), 5);
+		assertThat("RMS is null for null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void rms_empty() {
+		Number result = round(rms(emptyList()), 5);
+		assertThat("RMS is null for empty input", result, is(nullValue()));
+	}
+
+	@Test
+	public void sum() {
+		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
+		Number result = sum(values);
+		assertThat("Sum calcualted", result, is(equalTo(new BigDecimal("6.0"))));
+	}
+
+	@Test
+	public void sum_null() {
+		Number result = sum(null);
+		assertThat("Sum is null for null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void sum_empty() {
+		Number result = sum(emptyList());
+		assertThat("Sum is null for empty input", result, is(nullValue()));
+	}
+
+	@Test
+	public void avg() {
+		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
+		Number result = avg(values);
+		assertThat("Average calcualted", result, is(equalTo(new BigDecimal("2.0"))));
+	}
+
+	@Test
+	public void avg_overflow() {
+		List<Double> values = Arrays.asList(2.0, 2.0, 3.0);
+		Number result = avg(values);
+		assertThat("Average calcualted with rounding to 12 places", result,
+				is(equalTo(new BigDecimal("2.333333333333"))));
+	}
+
+	@Test
+	public void avg_null() {
+		Number result = avg(null);
+		assertThat("Average is null for null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void avg_empty() {
+		Number result = avg(emptyList());
+		assertThat("Average is null for empty input", result, is(nullValue()));
+	}
+
+	@Test
+	public void min() {
+		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
+		Number result = min(values);
+		assertThat("Sum calcualted", result, is(equalTo(new BigDecimal("1.0"))));
+	}
+
+	@Test
+	public void min_null() {
+		Number result = min(null);
+		assertThat("Minimum is null for null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void min_empty() {
+		Number result = min(emptyList());
+		assertThat("Minimum is null for empty input", result, is(nullValue()));
+	}
+
+	@Test
+	public void max() {
+		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
+		Number result = max(values);
+		assertThat("Sum calcualted", result, is(equalTo(new BigDecimal("3.0"))));
+	}
+
+	@Test
+	public void max_null() {
+		Number result = max(null);
+		assertThat("Maximum is null for null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void max_empty() {
+		Number result = max(emptyList());
+		assertThat("Maximum is null for empty input", result, is(nullValue()));
 	}
 
 }
