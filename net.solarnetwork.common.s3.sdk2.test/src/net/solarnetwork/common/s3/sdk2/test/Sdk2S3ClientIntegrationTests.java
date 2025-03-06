@@ -207,7 +207,7 @@ public class Sdk2S3ClientIntegrationTests {
 
 	private String objectAsString(S3Client client, String key) {
 		try (ResponseInputStream<GetObjectResponse> in = client
-				.getObject(r -> r.bucket(s3Uri.bucket().get()))) {
+				.getObject(r -> r.bucket(s3Uri.bucket().get()).key(key))) {
 			return FileCopyUtils.copyToString(new InputStreamReader(in, StandardCharsets.UTF_8));
 		} catch ( IOException e ) {
 			throw new RuntimeException(e);

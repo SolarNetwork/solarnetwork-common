@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +37,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,19 +59,27 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.async.AsyncRequestBody;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
+import software.amazon.awssdk.core.client.config.SdkAdvancedAsyncClientOption;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.http.nio.netty.NettySdkAsyncHttpService;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.transfer.s3.S3TransferManager;
 import software.amazon.awssdk.transfer.s3.model.Download;
 import software.amazon.awssdk.transfer.s3.model.DownloadRequest;
+import software.amazon.awssdk.transfer.s3.model.Upload;
+import software.amazon.awssdk.transfer.s3.model.UploadRequest;
 
 /**
  * {@link S3Client} using the AWS SDK V2.
@@ -86,6 +96,9 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	/** The default value for the {@code maximumKeysPerRequest} property. */
 	public static final int DEFAULT_MAXIMUM_KEYS_PER_REQUEST = 500;
 
+	/** The metadata map key for a content disposition value. */
+	public static final String CONTENT_DISPOSITION_KEY = "Content-Disposition";
+
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final ExecutorService executorService;
@@ -99,6 +112,7 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 
 	private AwsCredentialsProvider tokenCredentialsProvider;
 	private S3AsyncClient s3Client;
+	private S3TransferManager s3TransferManager;
 
 	/**
 	 * Default constructor.
@@ -124,9 +138,25 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 			tokenCredentialsProvider = StaticCredentialsProvider
 					.create(AwsBasicCredentials.create(accessToken, accessSecret));
 		}
+		if ( s3TransferManager != null ) {
+			try {
+				s3TransferManager.close();
+			} catch ( Exception e ) {
+				log.warn("Error closing S3TransferManager for {}/{} token {}", regionName, bucketName,
+						accessToken, e);
+			} finally {
+				s3TransferManager = null;
+			}
+		}
 		if ( s3Client != null ) {
-			s3Client.close();
-			s3Client = null;
+			try {
+				s3Client.close();
+			} catch ( Exception e ) {
+				log.warn("Error closing S3Client for {}/{} token {}", regionName, bucketName,
+						accessToken, e);
+			} finally {
+				s3Client = null;
+			}
 		}
 	}
 
@@ -148,11 +178,17 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 				&& (credentialsProvider != null || tokenCredentialsProvider != null));
 	}
 
-	private <T> T performAction(String description, Function<S3AsyncClient, CompletableFuture<T>> action)
+	private <T> T performAction(String description,
+			BiFunction<S3AsyncClient, S3TransferManager, CompletableFuture<T>> action)
 			throws IOException {
-		final S3AsyncClient client = getClient();
+		final S3AsyncClient client;
+		final S3TransferManager mgr;
+		synchronized ( this ) {
+			client = getClient();
+			mgr = s3TransferManager;
+		}
 		try {
-			return action.apply(client).get();
+			return action.apply(client, mgr).get();
 		} catch ( ExecutionException | CancellationException | InterruptedException e ) {
 			Throwable cause = e.getCause();
 			if ( cause instanceof SdkClientException ) {
@@ -174,7 +210,7 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	@Override
 	public Set<S3ObjectReference> listObjects(String prefix) throws IOException {
 		Set<S3ObjectReference> result = new LinkedHashSet<>(100);
-		return performAction("listing S3 objects at " + prefix, client -> {
+		return performAction("listing S3 objects at " + prefix, (client, xfer) -> {
 			final ListObjectsV2Request.Builder req = ListObjectsV2Request.builder().bucket(bucketName)
 					.maxKeys(maximumKeysPerRequest).prefix(prefix);
 			CompletableFuture<Set<S3ObjectReference>> f = new CompletableFuture<>();
@@ -207,7 +243,7 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 
 	@Override
 	public String getObjectAsString(String key) throws IOException {
-		return performAction("getting S3 object at " + key, client -> {
+		return performAction("getting S3 object at " + key, (client, xfer) -> {
 			return client
 					.getObject(r -> r.bucket(bucketName).key(key), AsyncResponseTransformer.toBytes())
 					.thenApplyAsync(res -> {
@@ -221,7 +257,7 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	@Override
 	public URL getObjectURL(String key) {
 		try {
-			return performAction("get object URL", client -> {
+			return performAction("get object URL", (client, xfer) -> {
 				return CompletableFuture
 						.completedFuture(client.utilities().getUrl(r -> r.bucket(bucketName).key(key)));
 			});
@@ -233,10 +269,8 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	@Override
 	public <P> S3Object getObject(String key, ProgressListener<P> progressListener, P progressContext)
 			throws IOException {
-		return performAction("getting S3 object (with progress) at " + key, client -> {
+		return performAction("getting S3 object at " + key, (client, xfer) -> {
 			final URL url = client.utilities().getUrl(r -> r.bucket(bucketName).key(key));
-
-			S3TransferManager xferMgr = S3TransferManager.builder().s3Client(client).build();
 
 			DownloadRequest.TypedBuilder<ResponseInputStream<GetObjectResponse>> builder = DownloadRequest
 					.builder().getObjectRequest(r -> r.bucket(bucketName).key(key))
@@ -248,8 +282,7 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 
 			DownloadRequest<ResponseInputStream<GetObjectResponse>> downloadRequest = builder.build();
 
-			Download<ResponseInputStream<GetObjectResponse>> download = xferMgr
-					.download(downloadRequest);
+			Download<ResponseInputStream<GetObjectResponse>> download = xfer.download(downloadRequest);
 
 			return download.completionFuture().thenApplyAsync(result -> {
 				log.debug("Got S3 object {}/{}", bucketName, key);
@@ -261,14 +294,77 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	@Override
 	public <P> S3ObjectReference putObject(String key, InputStream in, S3ObjectMetadata objectMetadata,
 			ProgressListener<P> progressListener, P progressContext) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return performAction("putting S3 object at " + key, (client, xfer) -> {
+			final URL url = client.utilities().getUrl(r -> r.bucket(bucketName).key(key));
+
+			UploadRequest.Builder builder = UploadRequest.builder().putObjectRequest(r -> {
+				r.bucket(bucketName).key(key);
+
+				Map<String, ?> customMap = objectMetadata.asCustomMap();
+				if ( !customMap.isEmpty() ) {
+					Map<String, String> meta = new LinkedHashMap<>(customMap.size());
+					for ( Map.Entry<String, ?> me : customMap.entrySet() ) {
+						// Content-Disposition handled directly
+						if ( CONTENT_DISPOSITION_KEY.equalsIgnoreCase(me.getKey()) ) {
+							r.contentDisposition(me.getValue().toString());
+						} else {
+							meta.put(me.getKey(), me.getValue().toString());
+						}
+					}
+					if ( !meta.isEmpty() ) {
+						r.metadata(meta);
+					}
+				}
+
+				if ( objectMetadata.getContentType() != null ) {
+					r.contentType(objectMetadata.getContentType().toString());
+				}
+				if ( objectMetadata.getStorageClass() != null ) {
+					r.storageClass(objectMetadata.getStorageClass());
+				}
+			}).requestBody(
+					AsyncRequestBody.fromInputStream(in, objectMetadata.getSize(), executorService));
+
+			if ( progressListener != null ) {
+				builder = builder.addTransferListener(
+						new Sdk2TransferListenerAdapter<P>(progressListener, progressContext));
+			}
+
+			UploadRequest uploadRequest = builder.build();
+
+			Upload upload = xfer.upload(uploadRequest);
+
+			return upload.completionFuture().thenApplyAsync(result -> {
+				log.debug("Put S3 object {}/{}", bucketName, key);
+				return new S3ObjectRef(key, objectMetadata.getSize(), objectMetadata.getModified(), url);
+			});
+		});
 	}
 
 	@Override
 	public Set<String> deleteObjects(Iterable<String> keys) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return performAction("deleting S3 objects " + keys, (client, xfer) -> {
+			List<ObjectIdentifier> idents = new ArrayList<>(8);
+			for ( String key : keys ) {
+				idents.add(ObjectIdentifier.builder().key(key).build());
+			}
+			if ( idents.isEmpty() ) {
+				return CompletableFuture.completedFuture(Collections.emptySet());
+			}
+
+			Delete del = Delete.builder().objects(idents).build();
+
+			DeleteObjectsRequest r = DeleteObjectsRequest.builder().bucket(bucketName).delete(del)
+					.build();
+
+			CompletableFuture<DeleteObjectsResponse> f = client.deleteObjects(r);
+
+			return f.thenApplyAsync(result -> {
+				log.debug("Delete S3 objects {}/{}", bucketName, keys);
+				return result.deleted().stream().map(o -> o.key())
+						.collect(Collectors.toCollection(LinkedHashSet::new));
+			});
+		});
 	}
 
 	private synchronized S3AsyncClient getClient() {
@@ -279,6 +375,10 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 				builder.region(Region.of(regionName));
 			}
 			builder.httpClient(new NettySdkAsyncHttpService().createAsyncHttpClientFactory().build());
+			builder.asyncConfiguration(async -> {
+				async.advancedOption(SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR,
+						executorService);
+			});
 			AwsCredentialsProvider provider = null;
 			if ( credentialsProvider != null && tokenCredentialsProvider != null ) {
 				provider = AwsCredentialsProviderChain.of(tokenCredentialsProvider, credentialsProvider);
@@ -293,6 +393,8 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 
 			client = builder.build();
 			this.s3Client = client;
+
+			this.s3TransferManager = S3TransferManager.builder().s3Client(client).build();
 		}
 		return client;
 	}

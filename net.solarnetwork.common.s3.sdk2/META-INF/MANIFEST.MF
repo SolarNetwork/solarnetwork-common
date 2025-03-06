@@ -34,6 +34,7 @@ Import-Package:
  software.amazon.awssdk.core;version="[2.26,3.0)",
  software.amazon.awssdk.core.async;version="[2.26,3.0)",
  software.amazon.awssdk.core.client.builder;version="[2.26,3.0)",
+ software.amazon.awssdk.core.client.config;version="[2.26,3.0)",
  software.amazon.awssdk.core.exception;version="[2.26,3.0)",
  software.amazon.awssdk.http;version="[2.26,3.0)",
  software.amazon.awssdk.http.async;version="[2.26,3.0)",
