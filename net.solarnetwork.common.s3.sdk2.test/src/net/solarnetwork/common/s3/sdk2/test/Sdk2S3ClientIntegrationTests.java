@@ -42,7 +42,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -251,7 +250,7 @@ public class Sdk2S3ClientIntegrationTests {
 		s3 = getS3();
 		final String uniqueKey = objectKey(UUID.randomUUID().toString());
 		final String data = "Hello, world.";
-		final ByteArrayResource r = new ByteArrayResource(data.getBytes(Charset.forName("UTF-8")));
+		final ByteArrayResource r = new ByteArrayResource(data.getBytes(UTF_8));
 		final S3ObjectMeta meta = new S3ObjectMeta(r.contentLength(), new Date());
 
 		// WHEN
@@ -268,7 +267,7 @@ public class Sdk2S3ClientIntegrationTests {
 		s3 = getS3();
 		final String uniqueKey = objectKey(UUID.randomUUID().toString());
 		final String data = "Hello, world.";
-		final ByteArrayResource r = new ByteArrayResource(data.getBytes(Charset.forName("UTF-8")));
+		final ByteArrayResource r = new ByteArrayResource(data.getBytes(UTF_8));
 		final S3ObjectMeta meta = new S3ObjectMeta(r.contentLength(), new Date(),
 				MimeType.valueOf("text/plain; charset=utf-8"));
 
@@ -294,7 +293,7 @@ public class Sdk2S3ClientIntegrationTests {
 		s3 = getS3();
 		final String uniqueKey = objectKey(UUID.randomUUID().toString());
 		final String data = "Hello, world.";
-		final ByteArrayResource r = new ByteArrayResource(data.getBytes(Charset.forName("UTF-8")));
+		final ByteArrayResource r = new ByteArrayResource(data.getBytes(UTF_8));
 		final String contentDisposition = "attachment; filename=\"foo.txt\"";
 		final S3ObjectMeta meta = new S3ObjectMeta(r.contentLength(), new Date(),
 				MimeType.valueOf("text/plain; charset=utf-8"),
@@ -321,8 +320,7 @@ public class Sdk2S3ClientIntegrationTests {
 
 	private Path createTempFile(String data, int count) throws IOException {
 		final Path tmpFile = Files.createTempFile("s3-client-test-", ".txt");
-		try (PrintWriter out = new PrintWriter(
-				Files.newBufferedWriter(tmpFile, Charset.forName("UTF-8")))) {
+		try (PrintWriter out = new PrintWriter(Files.newBufferedWriter(tmpFile, UTF_8))) {
 			for ( int i = 0; i < 1000; i++ ) {
 				out.println(data);
 			}
@@ -382,8 +380,7 @@ public class Sdk2S3ClientIntegrationTests {
 		// THEN
 		assertThat("Object returned", obj, notNullValue());
 		assertThat("Object content",
-				FileCopyUtils.copyToString(
-						new InputStreamReader(obj.getInputStream(), Charset.forName("UTF-8"))),
+				FileCopyUtils.copyToString(new InputStreamReader(obj.getInputStream(), UTF_8)),
 				equalTo(data));
 		assertThat("Object URL", obj.getURL(), equalTo(s3Url(uniqueKey)));
 
@@ -392,9 +389,9 @@ public class Sdk2S3ClientIntegrationTests {
 		assertThat("Metadata modified date returned", meta.getModified(), notNullValue());
 		assertThat("Metadata mod date", meta.getModified().getTime(), greaterThanOrEqualTo(start));
 		assertThat("Metadata content length", meta.getSize(),
-				equalTo((long) data.getBytes(Charset.forName("UTF-8")).length));
+				equalTo((long) data.getBytes(UTF_8).length));
 		assertThat("Metadata content type", meta.getContentType(),
-				equalTo(MimeType.valueOf("text/plain")));
+				equalTo(MimeType.valueOf("text/plain; charset=utf-8")));
 	}
 
 	@Test
@@ -418,8 +415,7 @@ public class Sdk2S3ClientIntegrationTests {
 		// THEN
 		assertThat("Object returned", obj, notNullValue());
 		assertThat("Object content",
-				FileCopyUtils.copyToString(
-						new InputStreamReader(obj.getInputStream(), Charset.forName("UTF-8"))),
+				FileCopyUtils.copyToString(new InputStreamReader(obj.getInputStream(), UTF_8)),
 				equalTo(data));
 		assertThat("Object URL", obj.getURL(), equalTo(s3Url(uniqueKey)));
 
@@ -428,7 +424,7 @@ public class Sdk2S3ClientIntegrationTests {
 		assertThat("Metadata modified date returned", meta.getModified(), notNullValue());
 		assertThat("Metadata mod date", meta.getModified().getTime(), greaterThanOrEqualTo(start));
 		assertThat("Metadata content length", meta.getSize(),
-				equalTo((long) data.getBytes(Charset.forName("UTF-8")).length));
+				equalTo((long) data.getBytes(UTF_8).length));
 		assertThat("Metadata content type", meta.getContentType(), equalTo(contentType));
 
 		Map<String, ?> mm = meta.asMap();

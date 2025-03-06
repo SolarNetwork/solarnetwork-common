@@ -56,15 +56,20 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.http.nio.netty.NettySdkAsyncHttpService;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.transfer.s3.S3TransferManager;
+import software.amazon.awssdk.transfer.s3.model.Download;
+import software.amazon.awssdk.transfer.s3.model.DownloadRequest;
 
 /**
  * {@link S3Client} using the AWS SDK V2.
@@ -228,8 +233,29 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	@Override
 	public <P> S3Object getObject(String key, ProgressListener<P> progressListener, P progressContext)
 			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return performAction("getting S3 object (with progress) at " + key, client -> {
+			final URL url = client.utilities().getUrl(r -> r.bucket(bucketName).key(key));
+
+			S3TransferManager xferMgr = S3TransferManager.builder().s3Client(client).build();
+
+			DownloadRequest.TypedBuilder<ResponseInputStream<GetObjectResponse>> builder = DownloadRequest
+					.builder().getObjectRequest(r -> r.bucket(bucketName).key(key))
+					.responseTransformer(AsyncResponseTransformer.toBlockingInputStream());
+			if ( progressListener != null ) {
+				builder = builder.addTransferListener(
+						new Sdk2TransferListenerAdapter<P>(progressListener, progressContext));
+			}
+
+			DownloadRequest<ResponseInputStream<GetObjectResponse>> downloadRequest = builder.build();
+
+			Download<ResponseInputStream<GetObjectResponse>> download = xferMgr
+					.download(downloadRequest);
+
+			return download.completionFuture().thenApplyAsync(result -> {
+				log.debug("Got S3 object {}/{}", bucketName, key);
+				return new Sdk2S3Object(result.result(), url);
+			});
+		});
 	}
 
 	@Override
