@@ -58,6 +58,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
 import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.http.nio.netty.NettySdkAsyncHttpService;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
@@ -150,11 +151,11 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 		} catch ( ExecutionException | CancellationException | InterruptedException e ) {
 			Throwable cause = e.getCause();
 			if ( cause instanceof SdkClientException ) {
-				SdkClientException ex = (SdkClientException) e;
+				SdkClientException ex = (SdkClientException) cause;
 				log.debug("Error communicating with AWS: {}", ex.getMessage());
 				throw new IOException("Error communicating with AWS", e);
 			} else if ( cause instanceof AwsServiceException ) {
-				AwsServiceException ex = (AwsServiceException) e;
+				AwsServiceException ex = (AwsServiceException) cause;
 				log.warn("AWS error: {}; HTTP code {}; AWS code {}; service {}", ex.getMessage(),
 						ex.statusCode(), ex.awsErrorDetails().errorCode(),
 						ex.awsErrorDetails().serviceName());
@@ -251,6 +252,7 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 			if ( regionName != null && !regionName.isEmpty() ) {
 				builder.region(Region.of(regionName));
 			}
+			builder.httpClient(new NettySdkAsyncHttpService().createAsyncHttpClientFactory().build());
 			AwsCredentialsProvider provider = null;
 			if ( credentialsProvider != null && tokenCredentialsProvider != null ) {
 				provider = AwsCredentialsProviderChain.of(tokenCredentialsProvider, credentialsProvider);

@@ -58,6 +58,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.After;
@@ -83,6 +85,8 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.http.apache.ApacheSdkHttpService;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.S3Uri;
@@ -131,17 +135,33 @@ public class Sdk2S3ClientIntegrationTests {
 		TEST_PROPS = p;
 	}
 
+	private String region() {
+		String region = TEST_PROPS.getProperty("region", null);
+		if ( region == null ) {
+			String path = TEST_PROPS.getProperty("path");
+			Matcher m = Pattern.compile("://s3\\.([^.]+)\\.").matcher(path);
+			if ( m.find() ) {
+				region = m.group(1);
+			} else {
+				throw new IllegalStateException("region property not defined");
+			}
+		}
+		return region;
+	}
+
 	@Before
 	public void setup() {
 		executor = Executors.newCachedThreadPool();
+
+		s3Uri = S3Utilities.builder().region(Region.of(region())).build()
+				.parseUri(URI.create(TEST_PROPS.getProperty("path")));
+
 		client = new Sdk2S3Client(executor);
 		client.setBucketName(getBucketName());
 		client.setRegionName(getRegionName());
 		client.setAccessToken(TEST_PROPS.getProperty("accessKey"));
 		client.setAccessSecret(TEST_PROPS.getProperty("secretKey"));
 		client.configurationChanged(null);
-
-		s3Uri = S3Utilities.builder().build().parseUri(URI.create(TEST_PROPS.getProperty("path")));
 	}
 
 	@After
@@ -176,7 +196,9 @@ public class Sdk2S3ClientIntegrationTests {
 	}
 
 	private S3Client getS3() {
-		S3ClientBuilder builder = S3Client.builder().region(s3Uri.region().get());
+		S3ClientBuilder builder = S3Client.builder()
+				.httpClient(new ApacheSdkHttpService().createHttpClientBuilder().build())
+				.region(s3Uri.region().get());
 		String accessKey = TEST_PROPS.getProperty("accessKey");
 		String secretKey = TEST_PROPS.getProperty("secretKey");
 		builder = builder.credentialsProvider(
