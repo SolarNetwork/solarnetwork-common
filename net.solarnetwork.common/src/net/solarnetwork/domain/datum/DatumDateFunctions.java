@@ -32,6 +32,9 @@ import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.chrono.IsoChronology;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjusters;
@@ -43,7 +46,7 @@ import net.solarnetwork.util.DateUtils;
  * API for datum-related date helper functions.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 3.17
  */
 public interface DatumDateFunctions {
@@ -915,6 +918,56 @@ public interface DatumDateFunctions {
 		}
 
 		return sign * (f1 + wholeYears + f2);
+	}
+
+	/**
+	 * Format a date using a pattern and the default system time zone.
+	 *
+	 * @param date
+	 *        the date to format
+	 * @param pattern
+	 *        the pattern, as supported by
+	 *        {@link DateTimeFormatterBuilder#appendPattern(String)}
+	 * @return the formatted date
+	 * @throws IllegalArgumentException
+	 *         if any error occurs formatting the date
+	 * @since 1.3
+	 * @see #formatDate(Temporal, String, ZoneId)
+	 */
+	default String formatDate(Temporal date, String pattern) {
+		return formatDate(date, pattern, null);
+	}
+
+	/**
+	 * Format a date using a pattern and optional time zone.
+	 *
+	 * @param date
+	 *        the date to format
+	 * @param pattern
+	 *        the pattern, as supported by
+	 *        {@link DateTimeFormatterBuilder#appendPattern(String)}
+	 * @param zone
+	 *        the time zone to use, or {@code null} to use the default system
+	 *        time zone
+	 * @return the formatted date
+	 * @throws IllegalArgumentException
+	 *         if any error occurs formatting the date
+	 * @since 1.3
+	 */
+	default String formatDate(Temporal date, String pattern, ZoneId zone) {
+		if ( date == null || pattern == null || pattern.isEmpty() ) {
+			return null;
+		}
+		DateTimeFormatter fmt = DateTimeFormatter.ofPattern(pattern)
+				.withChronology(IsoChronology.INSTANCE);
+		fmt = fmt.withZone(zone != null ? zone : ZoneId.systemDefault());
+		try {
+			return fmt.format(date);
+		} catch ( DateTimeException e ) {
+			throw new IllegalArgumentException(
+					format("Cannot format date [%s] with pattern [%s] and zone [%s]: %s", date, pattern,
+							zone, e.getMessage()));
+		}
 	}
 
 }
