@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain.datum.test;
 
+import static java.time.ZoneOffset.UTC;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -38,6 +39,8 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.chrono.IsoChronology;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +52,7 @@ import net.solarnetwork.util.NumberUtils;
  * Test cases for the {@link DatumDateFunctions} interface.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class DatumDateFunctionsTests implements DatumDateFunctions {
 
@@ -664,6 +667,183 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 		// THEN
 		assertThat("Years between two LocalDate returned", NumberUtils.round(result, 2),
 				is(equalTo(new BigDecimal("1.55"))));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void formatDate_localDate_invalidPattern() {
+		// WHEN
+		formatDate(LocalDate.of(2025, 3, 14), "wtf");
+	}
+
+	@Test
+	public void formatDate_localDate_yyyyMMdd() {
+		// WHEN
+		String result = formatDate(LocalDate.of(2025, 3, 14), "yyyy-MM-dd");
+
+		// THEN
+		assertThat("Date formatted", result, is(equalTo("2025-03-14")));
+	}
+
+	@Test
+	public void formatDate_localDate_yyyyMMdd_zone() {
+		// WHEN
+		String result = formatDate(LocalDate.of(2025, 3, 14), "yyyy-MM-dd",
+				ZoneId.of("America/Los_Angeles"));
+
+		// THEN
+		assertThat("Date formatted", result, is(equalTo("2025-03-14")));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void formatDate_localTime_invalidPattern() {
+		// WHEN
+		formatDate(LocalTime.of(15, 13, 22, 123456789), "wtf");
+	}
+
+	@Test
+	public void formatDate_localTime_HHmmss() {
+		// WHEN
+		String result = formatDate(LocalTime.of(15, 13, 22, 123456789), "HH:mm:ss");
+
+		// THEN
+		assertThat("Date formatted", result, is(equalTo("15:13:22")));
+	}
+
+	@Test
+	public void formatDate_localTime_HHmmssSSS() {
+		// WHEN
+		String result = formatDate(LocalTime.of(15, 13, 22, 123456789), "HH:mm:ss.SSS");
+
+		// THEN
+		assertThat("Date formatted", result, is(equalTo("15:13:22.123")));
+	}
+
+	@Test
+	public void formatDate_localTime_HHmmssn() {
+		// WHEN
+		String result = formatDate(LocalTime.of(15, 13, 22, 123456789), "HH:mm:ss.n");
+
+		// THEN
+		assertThat("Date formatted", result, is(equalTo("15:13:22.123456789")));
+	}
+
+	@Test
+	public void formatDate_localTime_HHmmssS_trailingZeros() {
+		// WHEN
+		String result = formatDate(LocalTime.of(15, 13, 22, 123000000), "HH:mm:ss.SSSSSSSSS");
+
+		// THEN
+		assertThat("Date formatted", result, is(equalTo("15:13:22.123000000")));
+	}
+
+	@Test
+	public void formatDate_localTime_HHmmss_zone() {
+		// WHEN
+		String result = formatDate(LocalTime.of(15, 13, 22, 123456789), "HH:mm:ss",
+				ZoneId.of("America/Los_Angeles"));
+
+		// THEN
+		assertThat("Date formatted", result, is(equalTo("15:13:22")));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void formatDate_localDateTime_invalidPattern() {
+		// WHEN
+		formatDate(LocalDateTime.of(2025, 3, 14, 15, 13, 22, 123456789), "wtf");
+	}
+
+	@Test
+	public void formatDate_localDateTime_yyyyMMddHHmmss() {
+		// WHEN
+		String result = formatDate(LocalDateTime.of(2025, 3, 14, 15, 13, 22, 123456789),
+				"yyyy-MM-dd'T'HH:mm:ss");
+
+		// THEN
+		assertThat("Date time formatted", result, is(equalTo("2025-03-14T15:13:22")));
+	}
+
+	@Test
+	public void formatDate_localDateTime_yyyyMMddHHmmss_zone() {
+		// WHEN
+		String result = formatDate(LocalDateTime.of(2025, 3, 14, 15, 13, 22, 123456789),
+				"yyyy-MM-dd'T'HH:mm:ss", ZoneId.of("America/Los_Angeles"));
+
+		// THEN
+		assertThat("Date time formatted", result, is(equalTo("2025-03-14T15:13:22")));
+	}
+
+	@Test
+	public void formatDate_offsetDateTime_yyyyMMddHHmmss() {
+		// GIVEN
+		Temporal date = LocalDateTime.of(2025, 3, 14, 15, 13, 22, 123456789).atOffset(UTC);
+
+		// WHEN
+		String result = formatDate(date, "yyyy-MM-dd'T'HH:mm:ss");
+
+		// THEN
+		assertThat("Date time formatted", result,
+				is(equalTo(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+						.withChronology(IsoChronology.INSTANCE).withZone(ZoneId.systemDefault())
+						.format(date))));
+	}
+
+	@Test
+	public void formatDate_offsetDateTime_yyyyMMddHHmmss_zone() {
+		// GIVEN
+		Temporal date = LocalDateTime.of(2025, 3, 14, 15, 13, 22, 123456789).atOffset(UTC);
+
+		// WHEN
+		String result = formatDate(date, "yyyy-MM-dd'T'HH:mm:ss", ZoneId.of("America/Los_Angeles"));
+
+		// THEN
+		assertThat("Date time formatted", result,
+				is(equalTo(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+						.withChronology(IsoChronology.INSTANCE)
+						.withZone(ZoneId.of("America/Los_Angeles")).format(date))));
+	}
+
+	@Test
+	public void formatDate_offsetDateTime_yyyyMMddHHmmss_zone_sameZone() {
+		// GIVEN
+		Temporal date = LocalDateTime.of(2025, 3, 14, 15, 13, 22, 123456789).atOffset(UTC);
+
+		// WHEN
+		String result = formatDate(date, "yyyy-MM-dd'T'HH:mm:ss", UTC);
+
+		// THEN
+		assertThat("Date time formatted", result, is(equalTo("2025-03-14T15:13:22")));
+	}
+
+	@Test
+	public void formatDate_zonedDateTime_yyyyMMddHHmmss() {
+		// GIVEN
+		Temporal date = LocalDateTime.of(2025, 3, 14, 15, 13, 22, 123456789)
+				.atZone(ZoneId.of("Pacific/Auckland"));
+
+		// WHEN
+		String result = formatDate(date, "yyyy-MM-dd'T'HH:mm:ss");
+
+		// THEN
+		assertThat("Date time formatted", result,
+				is(equalTo(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+						.withChronology(IsoChronology.INSTANCE).withZone(ZoneId.systemDefault())
+						.format(date))));
+	}
+
+	@Test
+	public void formatDate_zonedDateTime_yyyyMMddHHmmss_zone() {
+		// GIVEN
+		Temporal date = LocalDateTime.of(2025, 3, 14, 15, 13, 22, 123456789)
+				.atZone(ZoneId.of("Pacific/Auckland"));
+
+		// WHEN
+		String result = formatDate(date, "yyyy-MM-dd'T'HH:mm:ss", ZoneId.of("America/Los_Angeles"));
+
+		// THEN
+		assertThat("Date time formatted", result,
+				is(equalTo(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+						.withChronology(IsoChronology.INSTANCE)
+						.withZone(ZoneId.of("America/Los_Angeles")).format(date))));
 	}
 
 }

@@ -228,7 +228,8 @@ public class Sdk2S3ClientIntegrationTests {
 		if ( result.keyCount() > 0 ) {
 			List<ObjectIdentifier> keys = new ArrayList<>();
 			for ( S3Object obj : result.contents() ) {
-				if ( s3Uri.key() != null && s3Uri.key().equals(obj.key()) ) {
+				if ( s3Uri.key() != null && s3Uri.key().isPresent()
+						&& s3Uri.key().get().equals(obj.key()) ) {
 					continue;
 				}
 				keys.add(ObjectIdentifier.builder().key(obj.key()).build());
