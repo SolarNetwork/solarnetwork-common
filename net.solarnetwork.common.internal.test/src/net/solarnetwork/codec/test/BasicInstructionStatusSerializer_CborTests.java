@@ -22,6 +22,7 @@
 
 package net.solarnetwork.codec.test;
 
+import static java.util.Collections.singletonMap;
 import static net.solarnetwork.util.ByteUtils.objectArray;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.is;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
@@ -95,6 +97,26 @@ public class BasicInstructionStatusSerializer_CborTests {
 
 		// THEN
 		assertThat("CBOR", cbor, is(arrayWithSize(99)));
+	}
+
+	@Test
+	public void serialize_nestedResultParams() throws IOException {
+		// GIVEN
+		BasicInstructionStatus status = new BasicInstructionStatus(1L,
+				InstructionStatus.InstructionState.Completed, TEST_STATUS_DATE,
+				Collections.singletonMap("status", Arrays.asList(
+						new BasicInstructionStatus(null, InstructionStatus.InstructionState.Completed,
+								TEST_STATUS_DATE, singletonMap("message", "Instr 1")),
+						new BasicInstructionStatus(null, InstructionStatus.InstructionState.Declined,
+								TEST_STATUS_DATE, singletonMap("message", "Instr 2")))));
+
+		// WHEN
+		byte[] raw = mapper.writeValueAsBytes(status);
+		//String hex = org.apache.commons.codec.binary.Hex.encodeHexString(raw);
+		Byte[] cbor = objectArray(raw);
+
+		// THEN
+		assertThat("CBOR", cbor, is(arrayWithSize(273)));
 	}
 
 }
