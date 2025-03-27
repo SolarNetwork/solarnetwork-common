@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicInstructionStatusSerializer.java - 5/09/2021 5:01:26 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -32,9 +32,9 @@ import net.solarnetwork.domain.InstructionStatus;
 
 /**
  * Serializer for {@link InstructionStatus} instances.
- * 
+ *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.0
  */
 public class BasicInstructionStatusSerializer extends StdScalarSerializer<InstructionStatus>
@@ -54,7 +54,7 @@ public class BasicInstructionStatusSerializer extends StdScalarSerializer<Instru
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * The {@code embedded} property will be set to {@literal false}.
 	 * </p>
@@ -65,7 +65,7 @@ public class BasicInstructionStatusSerializer extends StdScalarSerializer<Instru
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param embedded
 	 *        {@literal true} to generate fields directly without any outer
 	 *        object, to embed within an instruction; {@literal false} to
@@ -86,16 +86,27 @@ public class BasicInstructionStatusSerializer extends StdScalarSerializer<Instru
 			return;
 		}
 		if ( !embedded ) {
-			final int size = value.getResultParameters() != null ? 4 : 3;
+			final int size = (value.getInstructionId() != null ? 1 : 0)
+					+ (value.getInstructionState() != null ? 1 : 0)
+					+ (value.getStatusDate() != null ? 1 : 0)
+					+ (value.getResultParameters() != null ? 1 : 0);
 			gen.writeStartObject(value, size);
-			BasicInstructionStatusField.InstructionId.writeValue(gen, provider,
-					value.getInstructionId());
+			if ( value.getInstructionId() != null ) {
+				BasicInstructionStatusField.InstructionId.writeValue(gen, provider,
+						value.getInstructionId());
+			}
 		}
-		BasicInstructionStatusField.InstructionState.writeValue(gen, provider,
-				value.getInstructionState());
-		BasicInstructionStatusField.StatusDate.writeValue(gen, provider, value.getStatusDate());
-		BasicInstructionStatusField.ResultParameters.writeValue(gen, provider,
-				value.getResultParameters());
+		if ( value.getInstructionState() != null ) {
+			BasicInstructionStatusField.InstructionState.writeValue(gen, provider,
+					value.getInstructionState());
+		}
+		if ( value.getStatusDate() != null ) {
+			BasicInstructionStatusField.StatusDate.writeValue(gen, provider, value.getStatusDate());
+		}
+		if ( value.getResultParameters() != null ) {
+			BasicInstructionStatusField.ResultParameters.writeValue(gen, provider,
+					value.getResultParameters());
+		}
 		if ( !embedded ) {
 			gen.writeEndObject();
 		}
