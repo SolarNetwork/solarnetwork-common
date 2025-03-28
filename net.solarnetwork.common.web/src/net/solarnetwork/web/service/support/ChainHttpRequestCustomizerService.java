@@ -1,21 +1,21 @@
 /* ==================================================================
  * ChainHttpRequestCustomizerService.java - 2/04/2023 11:42:19 am
- * 
+ *
  * Copyright 2023 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -36,7 +36,6 @@ import net.solarnetwork.service.DatumFilterService;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.support.BasicGroupSettingSpecifier;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
-import net.solarnetwork.settings.support.BasicTitleSettingSpecifier;
 import net.solarnetwork.settings.support.SettingUtils;
 import net.solarnetwork.util.ArrayUtils;
 import net.solarnetwork.util.ByteList;
@@ -46,7 +45,7 @@ import net.solarnetwork.web.service.HttpRequestCustomizerService;
 
 /**
  * A configurable chain of HTTP request customizer services.
- * 
+ *
  * <p>
  * This class is configured with a list of possible services, and then a list of
  * service UIDs that should be applied when
@@ -56,9 +55,9 @@ import net.solarnetwork.web.service.HttpRequestCustomizerService;
  * then iteration over the service UIDs will cease and {@literal null} will be
  * returned.
  * </p>
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustomizerService {
 
@@ -72,7 +71,7 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param services
 	 *        the list of possible services to choose from
 	 * @throws IllegalArgumentException
@@ -119,8 +118,6 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 	public List<SettingSpecifier> getSettingSpecifiers() {
 		List<SettingSpecifier> result = new ArrayList<>(8);
 
-		result.add(new BasicTitleSettingSpecifier("availableUids", availableUidsStatus(), true, true));
-
 		result.addAll(basicIdentifiableSettings(""));
 
 		// list of UIDs
@@ -138,26 +135,6 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 		result.add(uidsGroup);
 
 		return result;
-	}
-
-	private String availableUidsStatus() {
-		List<String> uids = new ArrayList<>();
-		for ( HttpRequestCustomizerService s : services ) {
-			String uid = s.getUid();
-			if ( uid != null && !uid.isEmpty() && !uid.equals(getUid()) ) {
-				uids.add(uid);
-			}
-		}
-		if ( uids.isEmpty() ) {
-			return "N/A";
-		}
-		Collections.sort(uids, String::compareToIgnoreCase);
-		StringBuilder buf = new StringBuilder("<ol>");
-		for ( String uid : uids ) {
-			buf.append("<li>").append(uid).append("</li>");
-		}
-		buf.append("</ol>");
-		return buf.toString();
 	}
 
 	private HttpRequestCustomizerService findService(final String uid) {
@@ -182,7 +159,7 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 
 	/**
 	 * Get the service UIDs to use.
-	 * 
+	 *
 	 * @return the service UIDs.
 	 */
 	public String[] getServiceUids() {
@@ -191,12 +168,12 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 
 	/**
 	 * Set the service UIDs to use.
-	 * 
+	 *
 	 * <p>
 	 * This list defines the {@link DatumFilterService} instances to apply, from
 	 * the list of available services.
 	 * </p>
-	 * 
+	 *
 	 * @param serviceUids
 	 *        the UIDs to set
 	 */
@@ -206,7 +183,7 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 
 	/**
 	 * Get the service UIDs count.
-	 * 
+	 *
 	 * @return the number of UIDs to support
 	 */
 	public int getServiceUidsCount() {
@@ -216,7 +193,7 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 
 	/**
 	 * Set the service UIDs count.
-	 * 
+	 *
 	 * @param count
 	 *        the number of UIDs to support
 	 */
