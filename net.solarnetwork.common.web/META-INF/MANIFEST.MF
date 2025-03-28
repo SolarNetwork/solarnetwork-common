@@ -11,7 +11,7 @@ Export-Package:
  net.solarnetwork.web.domain;version="2.0.0",
  net.solarnetwork.web.security;version="2.5.1",
  net.solarnetwork.web.service;version="1.1.1",
- net.solarnetwork.web.service.support;version="1.0.0",
+ net.solarnetwork.web.service.support;version="1.0.1",
  net.solarnetwork.web.support;version="2.2.3"
 Import-Package: 
  com.fasterxml.jackson.annotation;version="[2.4,3.0)",
