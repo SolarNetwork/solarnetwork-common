@@ -46,7 +46,7 @@ import net.solarnetwork.util.DateUtils;
  * API for datum-related date helper functions.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 3.17
  */
 public interface DatumDateFunctions {
@@ -225,6 +225,22 @@ public interface DatumDateFunctions {
 	 */
 	default Instant timestamp() {
 		return Instant.now();
+	}
+
+	/**
+	 * Get an {@link Instance} from a millisecond epoch date.
+	 *
+	 * @param date
+	 *        the millisecond epoch date
+	 * @return the instant, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @since 1.4
+	 */
+	default Instant timestamp(Long date) {
+		if ( date == null ) {
+			return null;
+		}
+		return Instant.ofEpochMilli(date);
 	}
 
 	/**
@@ -420,7 +436,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Create an {@link ZonedDateTime} from a date in the system time zone.
+	 * Create a {@link ZonedDateTime} from a date in the system time zone.
 	 *
 	 * @param date
 	 *        the date
@@ -428,14 +444,11 @@ public interface DatumDateFunctions {
 	 *         {@literal null}
 	 */
 	default ZonedDateTime dateTz(LocalDate date) {
-		if ( date == null ) {
-			return null;
-		}
-		return date.atStartOfDay(ZoneId.systemDefault());
+		return dateTz(date, ZoneId.systemDefault());
 	}
 
 	/**
-	 * Create an {@link Instant} from a date.
+	 * Create a {@link ZonedDateTime} from a date.
 	 *
 	 * @param date
 	 *        the date
@@ -451,7 +464,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Create an {@link Instant} from a date.
+	 * Create a {@link ZonedDateTime} from a date.
 	 *
 	 * @param date
 	 *        the date
@@ -471,7 +484,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Create an {@link Instant} from a date in the system time zone.
+	 * Create a {@link ZonedDateTime} from a date in the system time zone.
 	 *
 	 * @param date
 	 *        the date
@@ -486,7 +499,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Create an {@link Instant} from a date.
+	 * Create a {@link ZonedDateTime} from a date.
 	 *
 	 * @param date
 	 *        the date
@@ -502,7 +515,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Create an {@link Instant} from a date.
+	 * Create a {@link ZonedDateTime} from a date.
 	 *
 	 * @param date
 	 *        the date
@@ -512,6 +525,108 @@ public interface DatumDateFunctions {
 	 *         {@literal null}
 	 */
 	default ZonedDateTime dateTz(LocalDateTime date, ZoneId zone) {
+		if ( date == null ) {
+			return null;
+		}
+		if ( zone == null ) {
+			zone = ZoneId.systemDefault();
+		}
+		return date.atZone(zone);
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} from a millisecond epoch date for the
+	 * system time zone.
+	 *
+	 * @param date
+	 *        the date
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code zoneId} is not valid
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Long date) {
+		return dateTz(timestamp(date), ZoneId.systemDefault());
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} from a millisecond epoch date.
+	 *
+	 * @param date
+	 *        the date
+	 * @param zoneId
+	 *        the time zone
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code zoneId} is not valid
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Long date, String zoneId) {
+		return dateTz(timestamp(date), tz(zoneId));
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} from a millisecond epoch date.
+	 *
+	 * @param date
+	 *        the date
+	 * @param zone
+	 *        the time zone, or {@literal null} to use the system time zone
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Long date, ZoneId zone) {
+		return dateTz(timestamp(date), zone);
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} in the system time zone from an
+	 * {@link Instant}.
+	 *
+	 * @param date
+	 *        the date
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code zoneId} is not valid
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Instant date) {
+		return dateTz(date, ZoneId.systemDefault());
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} from an {@link Instant}.
+	 *
+	 * @param date
+	 *        the date
+	 * @param zoneId
+	 *        the time zone
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code zoneId} is not valid
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Instant date, String zoneId) {
+		return dateTz(date, tz(zoneId));
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} from an {@link Instant}.
+	 *
+	 * @param date
+	 *        the date
+	 * @param zone
+	 *        the time zone, or {@literal null} to use the system time zone
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Instant date, ZoneId zone) {
 		if ( date == null ) {
 			return null;
 		}
