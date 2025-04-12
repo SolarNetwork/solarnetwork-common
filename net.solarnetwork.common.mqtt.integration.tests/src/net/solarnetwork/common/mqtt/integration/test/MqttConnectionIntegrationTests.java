@@ -1,21 +1,21 @@
 /* ==================================================================
  * MqttConnectionIntegrationTests.java - 27/11/2019 11:39:02 am
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -60,12 +60,12 @@ import net.solarnetwork.test.mqtt.TestingInterceptHandler;
 
 /**
  * Common integration tests for {@link MqttConnection} implementations.
- * 
+ *
  * <p>
  * Extending classes must call {@link #setService(MqttConnection)} before the
  * tests start.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -125,7 +125,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 	/**
 	 * Call to configure the {@link MqttConnection} to test.
-	 * 
+	 *
 	 * @param conn
 	 *        the connection
 	 */
@@ -403,6 +403,35 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 					.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 		} catch ( ExecutionException e ) {
 			assertThat("Invalid topic results in IllegalArgumentException", e.getCause(),
+					instanceOf(IllegalArgumentException.class));
+		}
+
+		stopMqttServer(); // to flush messages
+
+		// then
+		TestingInterceptHandler session = getTestingInterceptHandler();
+		assertThat("Published no message", session.publishMessages, hasSize(0));
+	}
+
+	@Test
+	public void publish_maxMessageSizeExceeded() throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(false);
+		config.setMaximumMessageSize(16);
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final String msg = "Hello, world. This message is too long.";
+		try {
+			service.publish(new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce, msg.getBytes(UTF8)))
+					.get(TIMEOUT_SECS, TimeUnit.SECONDS);
+		} catch ( ExecutionException e ) {
+			assertThat("Maximum message size exceeded results in IllegalArgumentException", e.getCause(),
 					instanceOf(IllegalArgumentException.class));
 		}
 
