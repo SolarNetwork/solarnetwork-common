@@ -23,6 +23,7 @@
 package net.solarnetwork.domain.datum.test;
 
 import static java.time.ZoneOffset.UTC;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -966,6 +967,116 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 		// THEN
 		assertThat("ZonedDateTime created from Instant in given time zone ID", result,
 				is(equalTo(ts.atZone(ZoneId.of(zoneId)))));
+	}
+
+	@Test
+	public void startOfDay_default() {
+		// WHEN
+		ZonedDateTime result = startOfDay();
+
+		// THEN
+		assertThat("ZonedDateTime at midnight today in system time zone", result,
+				is(equalTo(ZonedDateTime.now().truncatedTo(DAYS))));
+	}
+
+	@Test
+	public void startOfDay_zoneId() {
+		// GIVEN
+		final String zoneId = "America/Los_Angeles";
+
+		// WHEN
+		ZonedDateTime result = startOfDay(zoneId);
+
+		// THEN
+		assertThat("ZonedDateTime at midnight today in given time zone", result,
+				is(equalTo(ZonedDateTime.now(ZoneId.of(zoneId)).truncatedTo(DAYS))));
+	}
+
+	@Test
+	public void startOfDay_zone() {
+		// GIVEN
+		final ZoneId zone = ZoneId.of("America/Los_Angeles");
+
+		// WHEN
+		ZonedDateTime result = startOfDay(zone);
+
+		// THEN
+		assertThat("ZonedDateTime at midnight today in given time zone", result,
+				is(equalTo(ZonedDateTime.now(zone).truncatedTo(DAYS))));
+	}
+
+	@Test
+	public void epoch_Instant() {
+		//GIVEN
+		final Instant date = Instant.now();
+
+		// WHEN
+		Long result = epoch(date);
+
+		// THEN
+		assertThat("Epoch for Instant", result, is(equalTo(date.toEpochMilli())));
+	}
+
+	@Test
+	public void epochSecs_Instant() {
+		//GIVEN
+		final Instant date = Instant.now();
+
+		// WHEN
+		Long result = epochSecs(date);
+
+		// THEN
+		assertThat("Epoch for Instant", result, is(equalTo(date.getEpochSecond())));
+	}
+
+	@Test
+	public void epoch_ZonedDateTime() {
+		//GIVEN
+		final ZonedDateTime date = ZonedDateTime.now(ZoneId.of("America/Los_Angeles"));
+
+		// WHEN
+		Long result = epoch(date);
+
+		// THEN
+		assertThat("Epoch for ZonedDateTime", result, is(equalTo(date.toInstant().toEpochMilli())));
+	}
+
+	@Test
+	public void epochSecs_ZonedDateTime() {
+		//GIVEN
+		final ZonedDateTime date = ZonedDateTime.now(ZoneId.of("America/Los_Angeles"));
+
+		// WHEN
+		Long result = epochSecs(date);
+
+		// THEN
+		assertThat("Epoch for ZonedDateTime", result, is(equalTo(date.toInstant().getEpochSecond())));
+	}
+
+	@Test
+	public void epoch_LocalDate() {
+		//GIVEN
+		final LocalDate date = LocalDate.now();
+
+		// WHEN
+		Long result = epoch(date);
+
+		// THEN
+		assertThat("Epoch for LocalDate is midnight in system time zone", result,
+				is(equalTo(date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())));
+	}
+
+	@Test
+	public void epochSecs_LocalDate() {
+		//GIVEN
+		final LocalDate date = LocalDate.now();
+
+		// WHEN
+		Long result = epochSecs(date);
+
+		// THEN
+		assertThat("Epoch for LocalDate is midnight in system time zone", result,
+				is(equalTo(date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond())));
 	}
 
 }

@@ -102,6 +102,45 @@ public interface DatumDateFunctions {
 	}
 
 	/**
+	 * Get the start of the current day in the system time zone.
+	 *
+	 * @return the date and time
+	 * @since 1.4
+	 */
+	default ZonedDateTime startOfDay() {
+		return startOfDay((ZoneId) null);
+	}
+
+	/**
+	 * Get the start of the current day in a given time zone.
+	 *
+	 * @param zoneId
+	 *        the time zone, or {@literal null} to use the system time zone
+	 * @return the date and time
+	 * @throws IllegalArgumentException
+	 *         if {@code zoneId} cannot be parsed
+	 * @since 1.4
+	 */
+	default ZonedDateTime startOfDay(String zoneId) {
+		return startOfDay(ZoneId.of(zoneId));
+	}
+
+	/**
+	 * Get the start of the current day in a given time zone.
+	 *
+	 * @param zone
+	 *        the time zone, or {@literal null} to use the system time zone
+	 * @return the date and time
+	 * @since 1.4
+	 */
+	default ZonedDateTime startOfDay(ZoneId zone) {
+		if ( zone == null ) {
+			zone = ZoneId.systemDefault();
+		}
+		return ZonedDateTime.now(zone).truncatedTo(ChronoUnit.DAYS);
+	}
+
+	/**
 	 * Get the local date and time right now, in the system time zone.
 	 *
 	 * @return the local date and time
@@ -290,6 +329,38 @@ public interface DatumDateFunctions {
 	 */
 	default Instant timestamp(Temporal date, ZoneId zone) {
 		return DateUtils.timestamp(date, zone);
+	}
+
+	/**
+	 * Convert a {@link Temporal} into a Unix epoch milliseconds value.
+	 *
+	 * @param date
+	 *        the date to get the epoch milliseconds for
+	 * @return the epoch milliseconds, or {@code null} if {@code date} is
+	 *         {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the temporal type is not supported
+	 * @since 1.4
+	 */
+	default Long epoch(Temporal date) {
+		Instant ts = timestamp(date);
+		return (ts != null ? ts.toEpochMilli() : null);
+	}
+
+	/**
+	 * Convert a {@link Temporal} into a Unix epoch seconds value.
+	 *
+	 * @param date
+	 *        the date to get the epoch seconds for
+	 * @return the epoch seconds, or {@code null} if {@code date} is
+	 *         {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the temporal type is not supported
+	 * @since 1.4
+	 */
+	default Long epochSecs(Temporal date) {
+		Instant ts = timestamp(date);
+		return (ts != null ? ts.getEpochSecond() : null);
 	}
 
 	/**
