@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Utilities for dealing with numbers.
  *
  * @author matt
- * @version 1.13
+ * @version 1.14
  * @since 1.42
  */
 public final class NumberUtils {
@@ -542,6 +542,40 @@ public final class NumberUtils {
 			return new BigInteger(numberString);
 		}
 		return Double.valueOf(numberString);
+	}
+
+	/**
+	 * Parse a String into a Number.
+	 *
+	 * <p>
+	 * The resulting number will be narrowed to 32-bit types if possible,
+	 * otherwise a {@link BigDecimal} or {@link BigInteger} will be returned.
+	 * </p>
+	 *
+	 * @param numberString
+	 *        the String to parse
+	 * @return the new Number instance, or {@code null} if the number cannot be
+	 *         parsed
+	 * @since 1.14
+	 */
+	public static Number parseNumber(String numberString) {
+		if ( numberString == null || numberString.isEmpty() ) {
+			return null;
+		}
+		BigDecimal d;
+		Number n = null;
+		try {
+			d = new BigDecimal(numberString);
+			try {
+				n = d.toBigIntegerExact();
+			} catch ( ArithmeticException e ) {
+				// keep decimal
+				n = d;
+			}
+		} catch ( Exception e ) {
+			// ignore
+		}
+		return narrow(n, 2);
 	}
 
 	/**

@@ -43,7 +43,7 @@ import net.solarnetwork.util.NumberUtils;
  * Unit tests for the {@link NumberUtils} class.
  *
  * @author matt
- * @version 1.7
+ * @version 1.8
  */
 public class NumberUtilsTests {
 
@@ -942,6 +942,69 @@ public class NumberUtilsTests {
 		assertThat("BigDecimal converts",
 				NumberUtils.convertNumber(new BigDecimal("56.7"), BigInteger.class),
 				is(equalTo(new BigInteger("56"))));
+	}
+
+	@Test
+	public void parseNumber_int() {
+		assertThat("Int parsed", NumberUtils.parseNumber("123"), is(equalTo(123)));
+		assertThat("Negative int parsed", NumberUtils.parseNumber("-123"), is(equalTo(-123)));
+
+		assertThat("Long parsed", NumberUtils.parseNumber("1234567890123456789"),
+				is(equalTo(1234567890123456789L)));
+		assertThat("Negative long parsed", NumberUtils.parseNumber("-1234567890123456789"),
+				is(equalTo(-1234567890123456789L)));
+
+		assertThat("Float parsed", NumberUtils.parseNumber("12.3"), is(equalTo(12.3f)));
+		assertThat("Negative float parsed", NumberUtils.parseNumber("-12.3"), is(equalTo(-12.3f)));
+
+		assertThat("Double parsed", NumberUtils.parseNumber("12.34567890123"),
+				is(equalTo(12.34567890123)));
+		assertThat("Negative double parsed", NumberUtils.parseNumber("-12.34567890123"),
+				is(equalTo(-12.34567890123)));
+	}
+
+	@Test
+	public void parseNumber_long() {
+		assertThat("Long parsed", NumberUtils.parseNumber("1234567890123456789"),
+				is(equalTo(1234567890123456789L)));
+		assertThat("Negative long parsed", NumberUtils.parseNumber("-1234567890123456789"),
+				is(equalTo(-1234567890123456789L)));
+	}
+
+	@Test
+	public void parseNumber_float() {
+		assertThat("Float parsed", NumberUtils.parseNumber("12.3"), is(equalTo(12.3f)));
+		assertThat("Negative float parsed", NumberUtils.parseNumber("-12.3"), is(equalTo(-12.3f)));
+	}
+
+	@Test
+	public void parseNumber_double() {
+		assertThat("Double parsed", NumberUtils.parseNumber("12.34567890123"),
+				is(equalTo(12.34567890123)));
+		assertThat("Negative double parsed", NumberUtils.parseNumber("-12.34567890123"),
+				is(equalTo(-12.34567890123)));
+	}
+
+	@Test
+	public void parseNumber_BigInteger() {
+		assertThat("BigInteger parsed",
+				NumberUtils.parseNumber("123456789012345678901234567890123456789"),
+				is(equalTo(new BigInteger("123456789012345678901234567890123456789"))));
+		assertThat("Negative BigInteger parsed",
+				NumberUtils.parseNumber("-123456789012345678901234567890123456789"),
+				is(equalTo(new BigInteger("-123456789012345678901234567890123456789"))));
+	}
+
+	@Test
+	public void parseNumber_BigDecimal() {
+		assertThat("BigDecimal parsed", NumberUtils.parseNumber(
+				"123456789012345678901234567890123456789.123456789012345678901234567890123456789"),
+				is(equalTo(new BigDecimal(
+						"123456789012345678901234567890123456789.123456789012345678901234567890123456789"))));
+		assertThat("Negative BigDecimal parsed", NumberUtils.parseNumber(
+				"-123456789012345678901234567890123456789.123456789012345678901234567890123456789"),
+				is(equalTo(new BigDecimal(
+						"-123456789012345678901234567890123456789.123456789012345678901234567890123456789"))));
 	}
 
 }
