@@ -26,6 +26,7 @@ import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MILLI_OF_SECOND;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
+import java.time.Clock;
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -50,6 +51,7 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalField;
@@ -64,7 +66,7 @@ import org.springframework.util.StringUtils;
  * Date and time utilities.
  *
  * @author matt
- * @version 2.6
+ * @version 2.7
  * @since 1.59
  */
 public final class DateUtils {
@@ -1356,6 +1358,117 @@ public final class DateUtils {
 			throw new IllegalArgumentException(
 					String.format("Unable to add %d %s to [%s]: %s", unit, date, e.getMessage()));
 		}
+	}
+
+	/**
+	 * Convert an {@link Instant} to the same type a given {@link Temporal}.
+	 *
+	 * @param date
+	 *        the date to convert
+	 * @param type
+	 *        the type to convert the date to
+	 * @param zone
+	 *        the time zone to use for zoned conversions
+	 * @return the converted date, or {@code date} if {@code type} is not
+	 *         supported
+	 * @since 2.7
+	 */
+	public static Temporal convert(Instant date, Temporal type, ZoneId zone) {
+		if ( type instanceof ZonedDateTime ) {
+			return date.atZone(zone);
+		} else if ( type instanceof OffsetDateTime ) {
+			return date.atOffset(((OffsetDateTime) type).getOffset());
+		} else if ( type instanceof LocalDateTime ) {
+			return date.atZone(zone).toLocalDateTime();
+		} else if ( type instanceof LocalDate ) {
+			return date.atZone(zone).toLocalDate();
+		} else if ( type instanceof LocalTime ) {
+			return date.atZone(zone).toLocalTime();
+		}
+		return date;
+	}
+
+	/**
+	 * Round a date down by a given duration.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param amount
+	 *        the amount to floor the date within
+	 * @param zone
+	 *        the time zone to use for {@link Period} based amounts
+	 * @return the floored date, or {@code date} if {@code amount} is not a
+	 *         supported amount type ({@link Period} or {@link Duration})
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration
+	 * @since 2.7
+	 */
+	public static Temporal dateFloor(Temporal date, TemporalAmount amount, ZoneId zone) {
+		if ( amount instanceof Period ) {
+			return dateFloor(date, (Period) amount, zone);
+		} else if ( amount instanceof Duration ) {
+			return dateFloor(date, (Duration) amount, zone);
+		}
+		return date;
+	}
+
+	/**
+	 * Round a date down by a given duration.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param amount
+	 *        the amount to floor the date within
+	 * @param zone
+	 *        the time zone to use for {@link Period} based amounts
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration
+	 * @since 2.7
+	 */
+	public static Temporal dateFloor(Temporal date, Duration amount, ZoneId zone) {
+		Instant ts = timestamp(date, zone);
+		Instant floored = Clock.tick(Clock.fixed(ts, zone), amount).instant();
+		return convert(floored, date, zone);
+	}
+
+	/**
+	 * Round a date down by a given period.
+	 *
+	 * <p>
+	 * Only the following periods are supported:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>1 year</li>
+	 * <li>1 month</li>
+	 * <li>1 week</li>
+	 * <li>1 day</li>
+	 * </ul>
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param amount
+	 *        the amount to floor the date within
+	 * @param zone
+	 *        the time zone to use for {@link Period} based amounts
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration
+	 * @since 2.7
+	 */
+	public static Temporal dateFloor(Temporal date, Period amount, ZoneId zone) {
+		Instant ts = timestamp(date, zone);
+		TemporalAdjuster adj = amount.getYears() > 0 ? TemporalAdjusters.firstDayOfYear()
+				: amount.getMonths() > 0 ? TemporalAdjusters.firstDayOfMonth()
+						: amount.getDays() > 6 ? TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
+								: null;
+		ZonedDateTime d = ts.atZone(zone);
+		if ( adj != null ) {
+			d = d.with(adj);
+		}
+		Instant floored = d.toInstant().truncatedTo(ChronoUnit.DAYS);
+		return convert(floored, date, zone);
 	}
 
 }

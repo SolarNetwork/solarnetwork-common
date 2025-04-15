@@ -507,6 +507,130 @@ public interface DatumDateFunctions {
 	}
 
 	/**
+	 * Round a date down by a given duration in the system default time zone.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the period to floor the date within; must be a value supported by
+	 *        {@link #duration(String)}
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration, or the
+	 *         duration cannot be parsed
+	 * @see #duration(String)
+	 * @see #dateFloor(Temporal, TemporalAmount, ZoneId)
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, String duration) {
+		return dateFloor(date, duration(duration), ZoneId.systemDefault());
+	}
+
+	/**
+	 * Round a date down by a given duration in the system default time zone.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the amount to floor the date within
+	 * @param zone
+	 *        the zone to use for {@link Period} amounts
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, TemporalAmount duration) {
+		return DateUtils.dateFloor(date, duration, ZoneId.systemDefault());
+	}
+
+	/**
+	 * Round a date down by a given duration.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the period to floor the date within; must be a value supported by
+	 *        {@link #duration(String)}
+	 * @param zoneId
+	 *        the zone IDto use for {@link Period} amounts; must be supported by
+	 *        {@link #tz(String)}
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration, or the
+	 *         duration cannot be parsed
+	 * @see #tz(String)
+	 * @see #duration(String)
+	 * @see #dateFloor(Temporal, TemporalAmount ZoneId)
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, String duration, String zoneId) {
+		return dateFloor(date, duration(duration), tz(zoneId));
+	}
+
+	/**
+	 * Round a date down by a given duration.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the period to floor the date within; must be a value supported by
+	 *        {@link #duration(String)}
+	 * @param zone
+	 *        the zone to use for {@link Period} amounts
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration, or the
+	 *         duration cannot be parsed
+	 * @see #duration(String)
+	 * @see #dateFloor(Temporal, TemporalAmount, ZoneId)
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, String duration, ZoneId zone) {
+		return dateFloor(date, duration(duration), zone);
+	}
+
+	/**
+	 * Round a date down by a given duration.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the period to floor the date within
+	 * @param zoneId
+	 *        the zone IDto use for {@link Period} amounts; must be supported by
+	 *        {@link #tz(String)}
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration, or the
+	 *         duration cannot be parsed
+	 * @see #tz(String)
+	 * @see #dateFloor(Temporal, TemporalAmount, ZoneId)
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, TemporalAmount duration, String zoneId) {
+		return dateFloor(date, duration, tz(zoneId));
+	}
+
+	/**
+	 * Round a date down by a given duration.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the amount to floor the date within
+	 * @param zone
+	 *        the zone to use for {@link Period} amounts
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, TemporalAmount duration, ZoneId zone) {
+		return DateUtils.dateFloor(date, duration, zone);
+	}
+
+	/**
 	 * Create a {@link ZonedDateTime} from a date in the system time zone.
 	 *
 	 * @param date

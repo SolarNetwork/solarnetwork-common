@@ -24,6 +24,7 @@ package net.solarnetwork.domain.datum.test;
 
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -1077,6 +1078,19 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 		// THEN
 		assertThat("Epoch for LocalDate is midnight in system time zone", result,
 				is(equalTo(date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond())));
+	}
+
+	@Test
+	public void dateFloor_Instant() {
+		// GIVEN
+		Instant date = Instant.now();
+
+		// WHEN
+		Temporal result = dateFloor(date, Duration.ofMinutes(15));
+
+		// THEN
+		assertThat("Floored Instant in system time zone", result, is(equalTo(date.truncatedTo(MINUTES)
+				.minus(date.atZone(ZoneId.systemDefault()).getMinute() % 15, MINUTES))));
 	}
 
 }
