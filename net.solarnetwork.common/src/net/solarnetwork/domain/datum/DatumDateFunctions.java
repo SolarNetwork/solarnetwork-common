@@ -267,7 +267,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Get an {@link Instance} from a millisecond epoch date.
+	 * Get an {@link Instant} from a millisecond epoch date.
 	 *
 	 * @param date
 	 *        the millisecond epoch date
@@ -533,8 +533,6 @@ public interface DatumDateFunctions {
 	 *        the date to round down (backwards)
 	 * @param duration
 	 *        the amount to floor the date within
-	 * @param zone
-	 *        the zone to use for {@link Period} amounts
 	 * @return the floored date
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be floored to the given duration
