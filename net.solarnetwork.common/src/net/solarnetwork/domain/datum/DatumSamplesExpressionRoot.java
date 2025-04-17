@@ -1,21 +1,21 @@
 /* ==================================================================
  * DatumSamplesExpressionRoot.java - 14/05/2021 9:51:52 AM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU  Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU  Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  *  Public License for more details.
- * 
- * You should have received a copy of the GNU  Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU  Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -34,16 +34,16 @@ import java.util.regex.Pattern;
 /**
  * An expression root object implementation that acts like a composite map of
  * parameters, sample data, and datum properties.
- * 
+ *
  * <p>
  * The {@code Map} implementation treats the given {@code Datum},
  * {@link DatumSamplesOperations}, and parameter {@code Map} as a single
  * {@code Map}, where keys are handled by returning the first found
  * non-{@literal null} value in the following order:
  * </p>
- * 
+ *
  * <ol>
- * <li>parameter {@code Map}</li>
+ * <li>parameter {@code Map} (excluding keys starting with <code>__</code>)</li>
  * <li>the {@code DatumSamplesOperations} sample, following the
  * {@code Instantaneous}, {@code Accumulating}, and {@code Status} priority
  * defined in {@link DatumSamplesOperations#findSampleValue(String)}</li>
@@ -52,13 +52,20 @@ import java.util.regex.Pattern;
  * {@link DatumSamplesOperations#findSampleValue(String)} rules again on
  * that</li>
  * </ol>
- * 
+ *
  * @author matt
- * @version 2.1
+ * @version 2.2
  * @since 1.71
  */
 public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 		implements DatumExpressionRoot, DatumMathFunctions {
+
+	/**
+	 * A special parameter prefix that will be ignored by {@link #get(Object)}.
+	 *
+	 * @since 2.2
+	 */
+	public static final String INTERNAL_PARAM_PREFIX = "__";
 
 	private final Datum datum;
 	private final DatumSamplesOperations datumOps;
@@ -67,7 +74,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param datum
 	 *        the datum currently being populated
 	 * @param sample
@@ -91,13 +98,13 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 
 	/**
 	 * Get the samples.
-	 * 
+	 *
 	 * <p>
 	 * This may or may not be the same samples as returned by
 	 * {@link Datum#asSampleOperations()} on the {@code Datum} returned by
 	 * {@link #getDatum()}.
 	 * </p>
-	 * 
+	 *
 	 * @return the datum samples; may be {@literal null}
 	 */
 	public DatumSamplesOperations getSamples() {
@@ -106,7 +113,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 
 	/**
 	 * Get optional additional parameters.
-	 * 
+	 *
 	 * @return the parameters; may be {@literal null}
 	 */
 	public Map<String, ?> getParameters() {
@@ -115,11 +122,11 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 
 	/**
 	 * Get the data map.
-	 * 
+	 *
 	 * <p>
 	 * This method returns this object.
 	 * </p>
-	 * 
+	 *
 	 * @return this object
 	 */
 	@Override
@@ -129,11 +136,11 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 
 	/**
 	 * Get the property map.
-	 * 
+	 *
 	 * <p>
 	 * This method returns this object.
 	 * </p>
-	 * 
+	 *
 	 * @return this object
 	 */
 	@Override
@@ -148,7 +155,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 
 	/**
 	 * An alias for {@link #containsKey(Object)}
-	 * 
+	 *
 	 * @param key
 	 *        the key to search for
 	 * @return {@literal true} if a property with the given key exists
@@ -164,8 +171,8 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 		}
 		String k = key.toString();
 		Object o = null;
-		if ( parameters != null ) {
-			o = parameters.get(key);
+		if ( parameters != null && !k.startsWith(INTERNAL_PARAM_PREFIX) ) {
+			o = parameters.get(k);
 			if ( o != null ) {
 				return o;
 			}
@@ -221,7 +228,12 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 				}
 			}
 			if ( parameters != null ) {
-				delegate.putAll(parameters);
+				for ( Entry<String, ?> e : parameters.entrySet() ) {
+					String k = e.getKey();
+					if ( k != null && !k.startsWith(INTERNAL_PARAM_PREFIX) ) {
+						delegate.put(k, e.getValue());
+					}
+				}
 			}
 		}
 
@@ -254,7 +266,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 
 	/**
 	 * Group a set of properties matching a pattern into a collection.
-	 * 
+	 *
 	 * @param pattern
 	 *        the property name pattern to group
 	 * @return the group of matching properties, never {@literal null}
@@ -271,8 +283,12 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 		}
 		if ( parameters != null ) {
 			for ( Entry<String, ?> e : parameters.entrySet() ) {
-				if ( pat.matcher(e.getKey()).find() && (e.getValue() instanceof Number) ) {
-					values.put(e.getKey(), (Number) e.getValue());
+				String k = e.getKey();
+				if ( k == null || k.startsWith(INTERNAL_PARAM_PREFIX) ) {
+					continue;
+				}
+				if ( pat.matcher(k).find() && (e.getValue() instanceof Number) ) {
+					values.put(k, (Number) e.getValue());
 				}
 			}
 		}

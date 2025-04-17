@@ -31,6 +31,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
@@ -296,6 +298,24 @@ public class DatumSamplesExpressionRootTests {
 		BigDecimal expected = new BigDecimal("21.37756");
 		assertThat("RMS manually calcualted", result, is(equalTo(expected)));
 		assertThat("RMS calcualted", result2, is(equalTo(expected)));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void parametersIgnoreInternalProps() {
+		// GIVEN
+		final String internalProp = DatumSamplesExpressionRoot.INTERNAL_PARAM_PREFIX + "IgnoreMe";
+		DatumSamplesExpressionRoot root = createTestRoot();
+		((Map) root.getParameters()).put(internalProp, 1);
+
+		// THEN
+		assertThat("Non-internal parameter returned", root.get("d"), is(equalTo(31)));
+		assertThat("Internal parameter not returned", root.get(internalProp), is(nullValue()));
+
+		for ( Entry<String, ?> e : root.entrySet() ) {
+			assertThat("Internal parameter not provided in entry set", e.getKey(),
+					is(not(equalTo(internalProp))));
+		}
 	}
 
 }
