@@ -46,7 +46,7 @@ import net.solarnetwork.util.DateUtils;
  * API for datum-related date helper functions.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 3.17
  */
 public interface DatumDateFunctions {
@@ -99,6 +99,45 @@ public interface DatumDateFunctions {
 			return today();
 		}
 		return LocalDate.now(zone);
+	}
+
+	/**
+	 * Get the start of the current day in the system time zone.
+	 *
+	 * @return the date and time
+	 * @since 1.4
+	 */
+	default ZonedDateTime startOfDay() {
+		return startOfDay((ZoneId) null);
+	}
+
+	/**
+	 * Get the start of the current day in a given time zone.
+	 *
+	 * @param zoneId
+	 *        the time zone, or {@literal null} to use the system time zone
+	 * @return the date and time
+	 * @throws IllegalArgumentException
+	 *         if {@code zoneId} cannot be parsed
+	 * @since 1.4
+	 */
+	default ZonedDateTime startOfDay(String zoneId) {
+		return startOfDay(ZoneId.of(zoneId));
+	}
+
+	/**
+	 * Get the start of the current day in a given time zone.
+	 *
+	 * @param zone
+	 *        the time zone, or {@literal null} to use the system time zone
+	 * @return the date and time
+	 * @since 1.4
+	 */
+	default ZonedDateTime startOfDay(ZoneId zone) {
+		if ( zone == null ) {
+			zone = ZoneId.systemDefault();
+		}
+		return ZonedDateTime.now(zone).truncatedTo(ChronoUnit.DAYS);
 	}
 
 	/**
@@ -228,6 +267,22 @@ public interface DatumDateFunctions {
 	}
 
 	/**
+	 * Get an {@link Instant} from a millisecond epoch date.
+	 *
+	 * @param date
+	 *        the millisecond epoch date
+	 * @return the instant, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @since 1.4
+	 */
+	default Instant timestamp(Long date) {
+		if ( date == null ) {
+			return null;
+		}
+		return Instant.ofEpochMilli(date);
+	}
+
+	/**
 	 * Convert a {@link Temporal} into an {@link Instant} in the system time
 	 * zone.
 	 *
@@ -274,6 +329,38 @@ public interface DatumDateFunctions {
 	 */
 	default Instant timestamp(Temporal date, ZoneId zone) {
 		return DateUtils.timestamp(date, zone);
+	}
+
+	/**
+	 * Convert a {@link Temporal} into a Unix epoch milliseconds value.
+	 *
+	 * @param date
+	 *        the date to get the epoch milliseconds for
+	 * @return the epoch milliseconds, or {@code null} if {@code date} is
+	 *         {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the temporal type is not supported
+	 * @since 1.4
+	 */
+	default Long epoch(Temporal date) {
+		Instant ts = timestamp(date);
+		return (ts != null ? ts.toEpochMilli() : null);
+	}
+
+	/**
+	 * Convert a {@link Temporal} into a Unix epoch seconds value.
+	 *
+	 * @param date
+	 *        the date to get the epoch seconds for
+	 * @return the epoch seconds, or {@code null} if {@code date} is
+	 *         {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the temporal type is not supported
+	 * @since 1.4
+	 */
+	default Long epochSecs(Temporal date) {
+		Instant ts = timestamp(date);
+		return (ts != null ? ts.getEpochSecond() : null);
 	}
 
 	/**
@@ -420,7 +507,129 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Create an {@link ZonedDateTime} from a date in the system time zone.
+	 * Round a date down by a given duration in the system default time zone.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the period to floor the date within; must be a value supported by
+	 *        {@link #duration(String)}
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration, or the
+	 *         duration cannot be parsed
+	 * @see #duration(String)
+	 * @see #dateFloor(Temporal, TemporalAmount, ZoneId)
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, String duration) {
+		return dateFloor(date, duration(duration), ZoneId.systemDefault());
+	}
+
+	/**
+	 * Round a date down by a given duration in the system default time zone.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the amount to floor the date within
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, TemporalAmount duration) {
+		return DateUtils.dateFloor(date, duration, ZoneId.systemDefault());
+	}
+
+	/**
+	 * Round a date down by a given duration.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the period to floor the date within; must be a value supported by
+	 *        {@link #duration(String)}
+	 * @param zoneId
+	 *        the zone IDto use for {@link Period} amounts; must be supported by
+	 *        {@link #tz(String)}
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration, or the
+	 *         duration cannot be parsed
+	 * @see #tz(String)
+	 * @see #duration(String)
+	 * @see #dateFloor(Temporal, TemporalAmount ZoneId)
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, String duration, String zoneId) {
+		return dateFloor(date, duration(duration), tz(zoneId));
+	}
+
+	/**
+	 * Round a date down by a given duration.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the period to floor the date within; must be a value supported by
+	 *        {@link #duration(String)}
+	 * @param zone
+	 *        the zone to use for {@link Period} amounts
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration, or the
+	 *         duration cannot be parsed
+	 * @see #duration(String)
+	 * @see #dateFloor(Temporal, TemporalAmount, ZoneId)
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, String duration, ZoneId zone) {
+		return dateFloor(date, duration(duration), zone);
+	}
+
+	/**
+	 * Round a date down by a given duration.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the period to floor the date within
+	 * @param zoneId
+	 *        the zone IDto use for {@link Period} amounts; must be supported by
+	 *        {@link #tz(String)}
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration, or the
+	 *         duration cannot be parsed
+	 * @see #tz(String)
+	 * @see #dateFloor(Temporal, TemporalAmount, ZoneId)
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, TemporalAmount duration, String zoneId) {
+		return dateFloor(date, duration, tz(zoneId));
+	}
+
+	/**
+	 * Round a date down by a given duration.
+	 *
+	 * @param date
+	 *        the date to round down (backwards)
+	 * @param duration
+	 *        the amount to floor the date within
+	 * @param zone
+	 *        the zone to use for {@link Period} amounts
+	 * @return the floored date
+	 * @throws IllegalArgumentException
+	 *         if the date cannot be floored to the given duration
+	 * @since 1.4
+	 */
+	default Temporal dateFloor(Temporal date, TemporalAmount duration, ZoneId zone) {
+		return DateUtils.dateFloor(date, duration, zone);
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} from a date in the system time zone.
 	 *
 	 * @param date
 	 *        the date
@@ -428,14 +637,11 @@ public interface DatumDateFunctions {
 	 *         {@literal null}
 	 */
 	default ZonedDateTime dateTz(LocalDate date) {
-		if ( date == null ) {
-			return null;
-		}
-		return date.atStartOfDay(ZoneId.systemDefault());
+		return dateTz(date, ZoneId.systemDefault());
 	}
 
 	/**
-	 * Create an {@link Instant} from a date.
+	 * Create a {@link ZonedDateTime} from a date.
 	 *
 	 * @param date
 	 *        the date
@@ -451,7 +657,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Create an {@link Instant} from a date.
+	 * Create a {@link ZonedDateTime} from a date.
 	 *
 	 * @param date
 	 *        the date
@@ -471,7 +677,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Create an {@link Instant} from a date in the system time zone.
+	 * Create a {@link ZonedDateTime} from a date in the system time zone.
 	 *
 	 * @param date
 	 *        the date
@@ -486,7 +692,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Create an {@link Instant} from a date.
+	 * Create a {@link ZonedDateTime} from a date.
 	 *
 	 * @param date
 	 *        the date
@@ -502,7 +708,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Create an {@link Instant} from a date.
+	 * Create a {@link ZonedDateTime} from a date.
 	 *
 	 * @param date
 	 *        the date
@@ -512,6 +718,108 @@ public interface DatumDateFunctions {
 	 *         {@literal null}
 	 */
 	default ZonedDateTime dateTz(LocalDateTime date, ZoneId zone) {
+		if ( date == null ) {
+			return null;
+		}
+		if ( zone == null ) {
+			zone = ZoneId.systemDefault();
+		}
+		return date.atZone(zone);
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} from a millisecond epoch date for the
+	 * system time zone.
+	 *
+	 * @param date
+	 *        the date
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code zoneId} is not valid
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Long date) {
+		return dateTz(timestamp(date), ZoneId.systemDefault());
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} from a millisecond epoch date.
+	 *
+	 * @param date
+	 *        the date
+	 * @param zoneId
+	 *        the time zone
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code zoneId} is not valid
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Long date, String zoneId) {
+		return dateTz(timestamp(date), tz(zoneId));
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} from a millisecond epoch date.
+	 *
+	 * @param date
+	 *        the date
+	 * @param zone
+	 *        the time zone, or {@literal null} to use the system time zone
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Long date, ZoneId zone) {
+		return dateTz(timestamp(date), zone);
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} in the system time zone from an
+	 * {@link Instant}.
+	 *
+	 * @param date
+	 *        the date
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code zoneId} is not valid
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Instant date) {
+		return dateTz(date, ZoneId.systemDefault());
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} from an {@link Instant}.
+	 *
+	 * @param date
+	 *        the date
+	 * @param zoneId
+	 *        the time zone
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @throws IllegalArgumentException
+	 *         if {@code zoneId} is not valid
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Instant date, String zoneId) {
+		return dateTz(date, tz(zoneId));
+	}
+
+	/**
+	 * Create a {@link ZonedDateTime} from an {@link Instant}.
+	 *
+	 * @param date
+	 *        the date
+	 * @param zone
+	 *        the time zone, or {@literal null} to use the system time zone
+	 * @return the zoned date, or {@literal null} if {@code date} is
+	 *         {@literal null}
+	 * @since 1.4
+	 */
+	default ZonedDateTime dateTz(Instant date, ZoneId zone) {
 		if ( date == null ) {
 			return null;
 		}

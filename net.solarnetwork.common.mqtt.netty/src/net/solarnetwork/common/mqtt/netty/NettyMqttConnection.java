@@ -577,6 +577,14 @@ public class NettyMqttConnection extends BaseMqttConnection
 			return f;
 		}
 		final byte[] payload = message.getPayload();
+		if ( getConnectionConfig().getMaximumMessageSize() > 0 && payload != null
+				&& payload.length > getConnectionConfig().getMaximumMessageSize() ) {
+			CompletableFuture<Void> f = new CompletableFuture<>();
+			f.completeExceptionally(
+					new IllegalArgumentException(String.format("Maximum message size %d exceeded: %d",
+							getConnectionConfig().getMaximumMessageSize(), payload.length)));
+			return f;
+		}
 		io.netty.util.concurrent.Future<Void> f = c.publish(message.getTopic(),
 				Unpooled.wrappedBuffer(payload), NettyMqttUtils.qos(message.getQosLevel()),
 				message.isRetained(), message.getProperties());
