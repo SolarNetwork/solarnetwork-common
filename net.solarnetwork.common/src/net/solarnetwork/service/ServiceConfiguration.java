@@ -22,14 +22,18 @@
 
 package net.solarnetwork.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import net.solarnetwork.util.NumberUtils;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * API for a user-supplied set of configuration to use with some service.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 3.24
  */
 public interface ServiceConfiguration {
@@ -124,6 +128,122 @@ public interface ServiceConfiguration {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Resolve a string map from a service property value.
+	 *
+	 * @param key
+	 *        the service property key to extract
+	 * @return the mapping, or {@literal null}
+	 * @since 1.1
+	 */
+	@SuppressWarnings("unchecked")
+	default Map<String, String> servicePropertyStringMap(String key) {
+		if ( key == null ) {
+			return null;
+		}
+		final Object propVal = serviceProperty(key, Object.class);
+		final Map<String, String> result;
+		if ( propVal instanceof Map<?, ?> ) {
+			result = (Map<String, String>) propVal;
+		} else if ( propVal != null ) {
+			result = StringUtils.commaDelimitedStringToMap(propVal.toString());
+		} else {
+			result = null;
+		}
+		return result;
+	}
+
+	/**
+	 * Resolve a string map from a service property value on a configuration.
+	 *
+	 * @param configuration
+	 *        the configuration to extract the mapping from
+	 * @param key
+	 *        the service property key to extract
+	 * @return the mapping, or {@literal null}
+	 * @since 1.1
+	 */
+	static Map<String, String> servicePropertyStringMap(ServiceConfiguration configuration, String key) {
+		if ( configuration == null || key == null ) {
+			return null;
+		}
+		return configuration.servicePropertyStringMap(key);
+	}
+
+	/**
+	 * Resolve a list from a service property value.
+	 *
+	 * <p>
+	 * The property value can be a {@code List}, array, or a comma-delimited
+	 * single value.
+	 * </p>
+	 *
+	 * @param key
+	 *        the service property key to extract
+	 * @return the list, or {@literal null}
+	 * @since 1.1
+	 */
+	@SuppressWarnings("unchecked")
+	default List<String> servicePropertyStringList(String key) {
+		if ( key == null ) {
+			return null;
+		}
+		final Object propVal = serviceProperty(key, Object.class);
+		if ( propVal == null ) {
+			return null;
+		}
+		final List<String> result;
+		if ( propVal instanceof List<?> && !((List<?>) propVal).isEmpty() ) {
+			List<?> l = (List<?>) propVal;
+			if ( l.get(0) instanceof String ) {
+				// assume all values are strings
+				result = (List<String>) l;
+			} else {
+				result = new ArrayList<>(l.size());
+				for ( Object o : l ) {
+					if ( o != null ) {
+						result.add(o.toString());
+					}
+				}
+			}
+		} else if ( propVal instanceof String[] ) {
+			result = Arrays.asList((String[]) propVal);
+		} else if ( propVal instanceof Object[] ) {
+			Object[] a = (Object[]) propVal;
+			result = new ArrayList<>(a.length);
+			for ( Object o : a ) {
+				if ( o != null ) {
+					result.add(o.toString());
+				}
+			}
+		} else {
+			result = StringUtils.commaDelimitedStringToList(propVal.toString());
+		}
+		return result;
+	}
+
+	/**
+	 * Resolve a list from a service property value on a configuration.
+	 *
+	 * <p>
+	 * The property value can be a {@code List}, array, or a comma-delimited
+	 * single value.
+	 * </p>
+	 *
+	 * @param configuration
+	 *        the configuration to extract the mapping from
+	 * @param key
+	 *        the service property key to extract
+	 * @return the list, or {@literal null}
+	 * @since 1.1
+	 */
+	static List<String> servicePropertyStringList(ServiceConfiguration configuration, String key) {
+		if ( configuration == null || key == null ) {
+			return null;
+		}
+		return configuration.servicePropertyStringList(key);
 	}
 
 }
