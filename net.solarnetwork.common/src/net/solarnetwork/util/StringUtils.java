@@ -26,10 +26,12 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -44,7 +46,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  *
  * @author matt
- * @version 1.15
+ * @version 1.16
  */
 public final class StringUtils {
 
@@ -297,7 +299,51 @@ public final class StringUtils {
 			return null;
 		}
 		String[] data = list.trim().split("\\s*" + Pattern.quote(delim) + "\\s*");
-		Set<String> s = new LinkedHashSet<String>(data.length);
+		Set<String> s = new LinkedHashSet<>(data.length);
+		for ( String d : data ) {
+			s.add(d);
+		}
+		return s;
+	}
+
+	/**
+	 * Get a List via a comma-delimited string value.
+	 *
+	 * @param list
+	 *        the comma-delimited string
+	 * @return the List, or {@literal null} if {@code list} is {@literal null}
+	 *         or an empty string
+	 * @see #delimitedStringToList(String, String)
+	 * @since 1.16
+	 */
+	public static List<String> commaDelimitedStringToList(final String list) {
+		return delimitedStringToList(list, ",");
+	}
+
+	/**
+	 * Get a string List via a delimited String value.
+	 *
+	 * <p>
+	 * The format of the {@code list} String should be a delimited list of
+	 * values. Whitespace is permitted around the delimiter, and will be
+	 * stripped from the values. Whitespace is also trimmed from the start and
+	 * end of the input string.
+	 * </p>
+	 *
+	 * @param list
+	 *        the delimited text
+	 * @param delim
+	 *        the delimiter to split the list with
+	 * @return the List, or {@literal null} if {@code list} is {@literal null}
+	 *         or an empty string
+	 * @since 1.16
+	 */
+	public static List<String> delimitedStringToList(final String list, final String delim) {
+		if ( list == null || list.length() < 1 ) {
+			return null;
+		}
+		String[] data = list.trim().split("\\s*" + Pattern.quote(delim) + "\\s*");
+		List<String> s = new ArrayList<>(data.length);
 		for ( String d : data ) {
 			s.add(d);
 		}
