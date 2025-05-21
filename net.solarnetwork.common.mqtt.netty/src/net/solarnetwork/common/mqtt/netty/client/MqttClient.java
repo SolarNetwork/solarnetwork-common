@@ -21,7 +21,6 @@ import java.net.URI;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.Future;
@@ -31,13 +30,13 @@ import net.solarnetwork.common.mqtt.MqttTopicAliases;
 
 /**
  * API for a MQTT client.
- * 
+ *
  * <p>
  * Unless otherwise noted, all methods should be implemented in a thread-safe
  * manner. Callback implementations for asynchronous methods must not make any
  * assumptions on which thread invokes the callback.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.1
  */
@@ -45,13 +44,13 @@ public interface MqttClient {
 
 	/**
 	 * Toggle wire-level logging support.
-	 * 
+	 *
 	 * <p>
 	 * If enabled, then when connections are opened they will include logging
 	 * support under a logger prefix {@literal net.solarnetwork.mqtt.} followed
 	 * by {@literal host:port}.
 	 * </p>
-	 * 
+	 *
 	 * @param wireLogging
 	 *        {@literal true} to add a {@link LoggingHandler} to the channel
 	 *        pipeline when it is initialized
@@ -60,7 +59,7 @@ public interface MqttClient {
 
 	/**
 	 * Connect to the specified hostname or IP address.
-	 * 
+	 *
 	 * <p>
 	 * By default uses port 1883. If you want to change the port number, see
 	 * {@link #connect(String, int)}/
@@ -87,14 +86,14 @@ public interface MqttClient {
 
 	/**
 	 * Test if the connection is available.
-	 * 
+	 *
 	 * @return boolean value indicating if channel is active
 	 */
 	boolean isConnected();
 
 	/**
 	 * Get the URI for the connected MQTT server, if available.
-	 * 
+	 *
 	 * @return the server URI, or {@literal null} if
 	 *         {@link #connect(String, int)} has not previously been called
 	 */
@@ -112,15 +111,15 @@ public interface MqttClient {
 	Future<MqttConnectResult> reconnect();
 
 	/**
-	 * Retrieve the netty {@link EventLoopGroup} we are using.
-	 * 
-	 * @return The netty {@link EventLoopGroup} we use for the connection
+	 * Retrieve the Netty {@link EventLoopGroup} we are using.
+	 *
+	 * @return The Netty {@link EventLoopGroup} we use for the connection
 	 */
 	EventLoopGroup getEventLoop();
 
 	/**
-	 * By default we use the Netty {@link NioEventLoopGroup}.
-	 * 
+	 * Set a custom {@link EventLoopGroup}.
+	 *
 	 * <p>
 	 * If you change the EventLoopGroup to another type, make sure to change the
 	 * {@link Channel} class using
@@ -136,7 +135,7 @@ public interface MqttClient {
 
 	/**
 	 * Subscribe on the given topic.
-	 * 
+	 *
 	 * <p>
 	 * When a message is received, MqttClient will invoke the
 	 * {@link MqttMessageHandler#onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage)}
@@ -154,7 +153,7 @@ public interface MqttClient {
 
 	/**
 	 * Subscribe on the given topic, with the given QOS.
-	 * 
+	 *
 	 * <p>
 	 * When a message is received, MqttClient will invoke the
 	 * {@link MqttMessageHandler#onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage)}
@@ -174,7 +173,7 @@ public interface MqttClient {
 
 	/**
 	 * Subscribe on the given topic.
-	 * 
+	 *
 	 * <p>
 	 * When a message is received, MqttClient will invoke the
 	 * {@link MqttMessageHandler#onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage)}
@@ -193,7 +192,7 @@ public interface MqttClient {
 
 	/**
 	 * Subscribe on the given topic, with the given QOS.
-	 * 
+	 *
 	 * <p>
 	 * When a message is received, MqttClient will invoke the
 	 * {@link MqttMessageHandler#onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage)}
@@ -214,7 +213,7 @@ public interface MqttClient {
 
 	/**
 	 * Remove the subscription for the given topic and handler.
-	 * 
+	 *
 	 * <p>
 	 * If you want to unsubscribe from all handlers known for this topic, use
 	 * {@link #off(String)}.
@@ -231,7 +230,7 @@ public interface MqttClient {
 
 	/**
 	 * Remove all subscriptions for the given topic.
-	 * 
+	 *
 	 * <p>
 	 * If you want to specify which handler to unsubscribe, use
 	 * {@link #off(String, MqttMessageHandler)}.
@@ -246,7 +245,7 @@ public interface MqttClient {
 
 	/**
 	 * Publish a message to the given payload.
-	 * 
+	 *
 	 * @param topic
 	 *        The topic to publish to
 	 * @param payload
@@ -258,7 +257,7 @@ public interface MqttClient {
 
 	/**
 	 * Publish a message to the given payload, using the given QOS.
-	 * 
+	 *
 	 * @param topic
 	 *        The topic to publish to
 	 * @param payload
@@ -272,7 +271,7 @@ public interface MqttClient {
 
 	/**
 	 * Publish a message to the given payload, using optional retain flag.
-	 * 
+	 *
 	 * @param topic
 	 *        The topic to publish to
 	 * @param payload
@@ -288,7 +287,7 @@ public interface MqttClient {
 	/**
 	 * Publish a message to the given payload, using the given QOS and optional
 	 * retain flag.
-	 * 
+	 *
 	 * @param topic
 	 *        The topic to publish to
 	 * @param payload
@@ -306,7 +305,7 @@ public interface MqttClient {
 	/**
 	 * Publish a message to the given payload, using the given QOS and optional
 	 * retain flag.
-	 * 
+	 *
 	 * @param topic
 	 *        The topic to publish to
 	 * @param payload
@@ -326,14 +325,14 @@ public interface MqttClient {
 
 	/**
 	 * Retrieve the MqttClient configuration.
-	 * 
+	 *
 	 * @return The {@link MqttClientConfig} instance we use
 	 */
 	MqttClientConfig getClientConfig();
 
 	/**
 	 * Construct the MqttClientImpl with additional config.
-	 * 
+	 *
 	 * <p>
 	 * This config can also be changed using the {@link #getClientConfig()}
 	 * function.
@@ -360,7 +359,7 @@ public interface MqttClient {
 
 	/**
 	 * Get disconnected flag.
-	 * 
+	 *
 	 * @return {@literal true} if {@link #disconnect()} has been called to close
 	 *         the connection
 	 * @since 1.1
@@ -369,7 +368,7 @@ public interface MqttClient {
 
 	/**
 	 * Sets the {@link MqttClientCallback} object for this MqttClient.
-	 * 
+	 *
 	 * @param callback
 	 *        The callback to be set
 	 */
@@ -377,7 +376,7 @@ public interface MqttClient {
 
 	/**
 	 * Get the topic aliases.
-	 * 
+	 *
 	 * @return the topic aliases, never {@literal null}
 	 * @since 1.1
 	 */
