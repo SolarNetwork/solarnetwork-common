@@ -37,7 +37,8 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.codec.mqtt.MqttVersion;
 import io.netty.handler.ssl.SslContext;
@@ -71,7 +72,7 @@ import net.solarnetwork.util.StatTracker;
  * Netty based implementation of {@link MqttConnection}.
  *
  * @author matt
- * @version 3.1
+ * @version 3.2
  */
 public class NettyMqttConnection extends BaseMqttConnection
 		implements MqttMessageHandler, MqttClientCallback, WireLoggingSupport {
@@ -176,8 +177,9 @@ public class NettyMqttConnection extends BaseMqttConnection
 					client = MqttClient.create(config, NettyMqttConnection.this);
 					client.setWireLogging(wireLogging || connectionConfig.isWireLoggingEnabled());
 					client.setCallback(NettyMqttConnection.this);
-					client.setEventLoop(new NioEventLoopGroup(ioThreadCount,
-							new CustomizableThreadFactory("MQTT-" + getUid() + "-")));
+					client.setEventLoop(new MultiThreadIoEventLoopGroup(ioThreadCount,
+							new CustomizableThreadFactory("MQTT-" + getUid() + "-"),
+							NioIoHandler.newFactory()));
 					if ( s != null ) {
 						s.increment(MqttBasicCount.ConnectionAttempts);
 					}

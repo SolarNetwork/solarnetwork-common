@@ -46,7 +46,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.mqtt.MqttDecoder;
 import io.netty.handler.codec.mqtt.MqttEncoder;
@@ -81,8 +82,8 @@ import net.solarnetwork.domain.KeyValuePair;
 /**
  * Represents an MqttClientImpl connected to a single MQTT server. Will try to
  * keep the connection going at all times.
- * 
- * @version 1.2
+ *
+ * @version 1.3
  */
 final class MqttClientImpl implements MqttClient {
 
@@ -90,7 +91,7 @@ final class MqttClientImpl implements MqttClient {
 	 * A multiplication factor applied to the configured
 	 * {@code IdleStateHandler} read timeout, in relation to its configured
 	 * write timeout.
-	 * 
+	 *
 	 * @since 1.2
 	 */
 	public static final int READ_TIMEOUT_FACTOR = 2;
@@ -177,7 +178,7 @@ final class MqttClientImpl implements MqttClient {
 
 	private Future<MqttConnectResult> connect(String host, int port, boolean reconnect) {
 		if ( this.eventLoop == null ) {
-			NioEventLoopGroup el = new NioEventLoopGroup();
+			EventLoopGroup el = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
 			setEventLoop(el);
 		}
 		this.host = host;
@@ -690,7 +691,7 @@ final class MqttClientImpl implements MqttClient {
 
 	/**
 	 * Get the "publish retransmit" toggle.
-	 * 
+	 *
 	 * @return {@literal true} if published messages should automatically get
 	 *         re-published on failure; defaults to {@literal false}
 	 * @since 1.1
@@ -701,7 +702,7 @@ final class MqttClientImpl implements MqttClient {
 
 	/**
 	 * Set the "publish retransmit" toggle.
-	 * 
+	 *
 	 * @param {@literal true} if published messages should automatically get
 	 * re-published on failure
 	 * @since 1.1
@@ -712,7 +713,7 @@ final class MqttClientImpl implements MqttClient {
 
 	/**
 	 * Get the minimum timeout to hold on to pending messages.
-	 * 
+	 *
 	 * @return the pending abort timeout, in minutes; defaults to {@literal 60}
 	 * @since 1.1
 	 */
@@ -722,7 +723,7 @@ final class MqttClientImpl implements MqttClient {
 
 	/**
 	 * Set the minimum timeout to hold on to pending messages.
-	 * 
+	 *
 	 * @param the
 	 *        pending abort timeout, in minutes
 	 * @since 1.1
