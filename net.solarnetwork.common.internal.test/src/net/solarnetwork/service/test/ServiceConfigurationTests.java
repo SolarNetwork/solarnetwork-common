@@ -27,7 +27,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import net.solarnetwork.domain.BasicIdentifiableConfiguration;
@@ -37,7 +41,7 @@ import net.solarnetwork.service.ServiceConfiguration;
  * Test cases for the {@link ServiceConfiguration} API.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ServiceConfigurationTests {
 
@@ -98,6 +102,65 @@ public class ServiceConfigurationTests {
 				is(false));
 		assertThat("NaN string results in null", conf.serviceProperty("foo", Long.class),
 				is(nullValue()));
+	}
+
+	@Test
+	public void serviceProperty_stringMap_map() {
+		// GIVEN
+		final Map<String, String> map = Collections.singletonMap("the", "map");
+		final Map<String, Object> props = testProps();
+		props.put("m", map);
+		ServiceConfiguration conf = new BasicIdentifiableConfiguration(null, null, props);
+
+		// THEN
+		assertThat("Map returned directly", conf.servicePropertyStringMap("m"), is(sameInstance(map)));
+		assertThat("Null returned for non-existing property",
+				conf.servicePropertyStringMap("does.not.exist"), is(nullValue()));
+		assertThat("Empty map returned for not-a-map property", conf.servicePropertyStringMap("long"),
+				is(equalTo(Collections.emptyMap())));
+	}
+
+	@Test
+	public void serviceProperty_stringMap_stringEncoding() {
+		// GIVEN
+		final Map<String, Object> props = testProps();
+		props.put("m", "the=map, see=how");
+		ServiceConfiguration conf = new BasicIdentifiableConfiguration(null, null, props);
+
+		// THEN
+		Map<String, String> expected = new HashMap<>(2);
+		expected.put("the", "map");
+		expected.put("see", "how");
+		assertThat("Map derived from string", conf.servicePropertyStringMap("m"), is(equalTo(expected)));
+	}
+
+	@Test
+	public void serviceProperty_stringList_list() {
+		// GIVEN
+		final List<String> list = Arrays.asList("the", "list");
+		final Map<String, Object> props = testProps();
+		props.put("l", list);
+		ServiceConfiguration conf = new BasicIdentifiableConfiguration(null, null, props);
+
+		// THEN
+		assertThat("List returned directly", conf.servicePropertyStringList("l"),
+				is(sameInstance(list)));
+		assertThat("Null returned for non-existing property",
+				conf.servicePropertyStringList("does.not.exist"), is(nullValue()));
+		assertThat("List returned for not-a-list property", conf.servicePropertyStringList("long"),
+				is(equalTo(Arrays.asList("123"))));
+	}
+
+	@Test
+	public void serviceProperty_stringList_stringEncoding() {
+		// GIVEN
+		final Map<String, Object> props = testProps();
+		props.put("l", "the, list");
+		ServiceConfiguration conf = new BasicIdentifiableConfiguration(null, null, props);
+
+		// THEN
+		assertThat("List derived from string", conf.servicePropertyStringList("l"),
+				is(equalTo(Arrays.asList("the", "list"))));
 	}
 
 }

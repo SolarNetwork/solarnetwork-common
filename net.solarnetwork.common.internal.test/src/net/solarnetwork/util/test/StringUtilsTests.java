@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -64,7 +65,7 @@ import net.solarnetwork.util.StringUtils;
  * Unit test for the StringUtils class.
  *
  * @author matt
- * @version 1.7
+ * @version 1.8
  */
 public class StringUtilsTests {
 
@@ -127,6 +128,66 @@ public class StringUtilsTests {
 	public void commaDelimitedStringToSetOneDelimiterWithWhitespaceEverywhere() {
 		Set<String> result = StringUtils.commaDelimitedStringToSet(" a , b ");
 		verifySetAB(result);
+	}
+
+	@Test
+	public void commaDelimitedStringToListNullInput() {
+		assertNull(StringUtils.commaDelimitedStringToList(null));
+	}
+
+	@Test
+	public void commaDelimitedStringToListEmptyInput() {
+		assertNull(StringUtils.commaDelimitedStringToList(""));
+	}
+
+	@Test
+	public void commaDelimitedStringToListBlankInput() {
+		List<String> result = StringUtils.commaDelimitedStringToList("   ");
+		assertNotNull(result);
+		assertEquals(1, result.size());
+		assertEquals("", result.iterator().next()); // empty because of trim
+	}
+
+	private void verifyListAB(List<String> result) {
+		assertNotNull(result);
+		assertEquals(2, result.size());
+		assertEquals(Arrays.asList("a", "b"), result);
+	}
+
+	@Test
+	public void commaDelimitedStringToListOneDelimiter() {
+		List<String> result = StringUtils.commaDelimitedStringToList("a,b");
+		verifyListAB(result);
+	}
+
+	@Test
+	public void commaDelimitedStringToListOneDelimiterWithWhitespace() {
+		List<String> result = StringUtils.commaDelimitedStringToList("a, b");
+		verifyListAB(result);
+	}
+
+	@Test
+	public void commaDelimitedStringToListOneDelimiterWithWhitespaceAround() {
+		List<String> result = StringUtils.commaDelimitedStringToList("a , b");
+		verifyListAB(result);
+	}
+
+	@Test
+	public void commaDelimitedStringToListOneDelimiterWithWhitespaceBefore() {
+		List<String> result = StringUtils.commaDelimitedStringToList(" a , b");
+		verifyListAB(result);
+	}
+
+	@Test
+	public void commaDelimitedStringToListOneDelimiterWithWhitespaceAfter() {
+		List<String> result = StringUtils.commaDelimitedStringToList("a , b ");
+		verifyListAB(result);
+	}
+
+	@Test
+	public void commaDelimitedStringToListOneDelimiterWithWhitespaceEverywhere() {
+		List<String> result = StringUtils.commaDelimitedStringToList(" a , b ");
+		verifyListAB(result);
 	}
 
 	@Test
