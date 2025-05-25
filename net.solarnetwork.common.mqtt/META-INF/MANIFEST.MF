@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common MQTT Support
 Bundle-Description: Support for common MQTT functions.
 Bundle-SymbolicName: net.solarnetwork.common.mqtt
-Bundle-Version: 5.0.0
+Bundle-Version: 5.0.1
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.mqtt
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -13,8 +13,8 @@ Export-Package:
 Import-Package: 
  javax.net,
  javax.net.ssl,
- net.solarnetwork.dao;version="[2.0,3.0)",
- net.solarnetwork.domain;version="[2.0,3.0)",
+ net.solarnetwork.dao;version="[2.0,4.0)",
+ net.solarnetwork.domain;version="[2.0,4.0)",
  net.solarnetwork.service;version="[1.0,2.0)",
  net.solarnetwork.service.support;version="[1.0,2.0)",
  net.solarnetwork.settings;version="[2.0,3.0)",
