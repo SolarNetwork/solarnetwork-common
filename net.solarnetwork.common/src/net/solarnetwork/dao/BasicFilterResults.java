@@ -38,11 +38,12 @@ import net.solarnetwork.domain.Identity;
  * @param <K>
  *        the primary key type
  * @author matt
- * @version 1.3
+ * @version 2.0
  * @since 1.59
  */
 @JsonPropertyOrder({ "totalResults", "startingOffset", "returnedResultCount", "results" })
-public class BasicFilterResults<M extends Identity<K>, K> implements FilterResults<M, K> {
+public class BasicFilterResults<M extends Identity<K>, K extends Comparable<K>>
+		implements FilterResults<M, K> {
 
 	private final Iterable<M> results;
 	private final Long totalResults;
@@ -122,8 +123,8 @@ public class BasicFilterResults<M extends Identity<K>, K> implements FilterResul
 	 * @return the results instance
 	 * @since 1.1
 	 */
-	public static <M extends Identity<K>, K> FilterResults<M, K> filterResults(Iterable<M> data,
-			PaginationCriteria criteria, Long totalResults, int returnedResults) {
+	public static <M extends Identity<K>, K extends Comparable<K>> FilterResults<M, K> filterResults(
+			Iterable<M> data, PaginationCriteria criteria, Long totalResults, int returnedResults) {
 		long offset = 0;
 		if ( criteria != null && criteria.getMax() != null ) {
 			offset = criteria.getOffset() != null ? criteria.getOffset() : 0;

@@ -40,7 +40,7 @@ import net.solarnetwork.domain.Location;
  * Test cases for the {@link BasicLocationSerializer} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicLocationSerializerTests {
 
@@ -66,18 +66,6 @@ public class BasicLocationSerializerTests {
 		public IdentityBasicLocation(Long id, Location loc) {
 			super(loc);
 			this.id = id;
-		}
-
-		@Override
-		public int compareTo(Long o) {
-			if ( o == null && id == null ) {
-				return 0;
-			} else if ( o == null ) {
-				return -1;
-			} else if ( id == null ) {
-				return 1;
-			}
-			return o.compareTo(id);
 		}
 
 		@Override

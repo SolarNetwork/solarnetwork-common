@@ -36,10 +36,10 @@ import net.solarnetwork.domain.SortDescriptor;
  * @param <F>
  *        the filter type
  * @author matt
- * @version 1.2
+ * @version 2.0
  * @since 1.59
  */
-public interface FilterableDao<M extends Identity<K>, K, F> {
+public interface FilterableDao<M extends Identity<K>, K extends Comparable<K>, F> {
 
 	/**
 	 * API for querying for a filtered set of results from all possible results.

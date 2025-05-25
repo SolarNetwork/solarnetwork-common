@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicIdentity.java - 11/04/2018 6:59:05 AM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -24,11 +24,11 @@ package net.solarnetwork.domain;
 
 /**
  * A basic, immutable implementation of {@link Identity}.
- * 
+ *
  * @param <PK>
  *        the primary key type
  * @author matt
- * @version 1.0
+ * @version 2.0
  * @since 1.43
  */
 public class BasicIdentity<PK extends Comparable<PK>> implements Identity<PK> {
@@ -37,7 +37,7 @@ public class BasicIdentity<PK extends Comparable<PK>> implements Identity<PK> {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the ID to use
 	 */
@@ -89,24 +89,6 @@ public class BasicIdentity<PK extends Comparable<PK>> implements Identity<PK> {
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Compare based on the {@code id}, with {@literal null} values ordered
-	 * before non-{@literal null} values.
-	 */
-	@Override
-	public int compareTo(PK o) {
-		if ( id == null && o == null ) {
-			return 0;
-		}
-		if ( id == null ) {
-			return -1;
-		}
-		if ( o == null ) {
-			return 1;
-		}
-		return id.compareTo(o);
 	}
 
 	@Override

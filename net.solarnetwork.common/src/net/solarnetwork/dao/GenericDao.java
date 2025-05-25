@@ -40,10 +40,10 @@ import net.solarnetwork.domain.SortDescriptor;
  * @param <K>
  *        the entity primary key type
  * @author matt
- * @version 2.1
+ * @version 3.0
  * @since 1.59
  */
-public interface GenericDao<T extends Entity<K>, K> {
+public interface GenericDao<T extends Entity<K>, K extends Comparable<K>> {
 
 	/**
 	 * Enumeration of a set of standard sort keys.
@@ -175,7 +175,7 @@ public interface GenericDao<T extends Entity<K>, K> {
 	 *
 	 * @param <E>
 	 *        the entity type
-	 * @param <I>
+	 * @param <PK>
 	 *        the primary key type
 	 * @param id
 	 *        the primary key
@@ -183,7 +183,8 @@ public interface GenericDao<T extends Entity<K>, K> {
 	 *        the optional entity
 	 * @return the new event instance
 	 */
-	static <E extends Entity<I>, I> Map<String, Object> createEntityEventProperties(I id, E entity) {
+	static <E extends Entity<PK>, PK extends Comparable<PK>> Map<String, Object> createEntityEventProperties(
+			PK id, E entity) {
 		if ( id == null ) {
 			return null;
 		}

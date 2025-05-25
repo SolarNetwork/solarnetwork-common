@@ -38,10 +38,10 @@ import net.solarnetwork.domain.Identity;
  * @param <K>
  *        the filtered result identity type
  * @author matt
- * @version 1.1
+ * @version 2.0
  * @since 1.59
  */
-public interface FilterResults<M extends Identity<K>, K> extends Iterable<M> {
+public interface FilterResults<M extends Identity<K>, K extends Comparable<K>> extends Iterable<M> {
 
 	/**
 	 * Get the actual results.
