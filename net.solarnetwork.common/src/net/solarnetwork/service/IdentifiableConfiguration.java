@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
 import net.solarnetwork.settings.support.SettingUtils;
@@ -40,7 +40,7 @@ import net.solarnetwork.util.StringUtils;
  * {@link Identifiable} service.
  *
  * @author matt
- * @version 1.3
+ * @version 2.0
  * @since 1.42
  */
 public interface IdentifiableConfiguration extends ServiceConfiguration {
@@ -84,7 +84,7 @@ public interface IdentifiableConfiguration extends ServiceConfiguration {
 	 */
 	static <T extends IdentifiableConfiguration> List<T> maskConfigurations(List<T> configurations,
 			ConcurrentMap<String, List<SettingSpecifier>> serviceSettings,
-			Function<Void, Iterable<? extends SettingSpecifierProvider>> settingProviderFunction) {
+			Supplier<Iterable<? extends SettingSpecifierProvider>> settingProviderFunction) {
 		if ( configurations == null || configurations.isEmpty() ) {
 			return Collections.emptyList();
 		}
@@ -115,14 +115,14 @@ public interface IdentifiableConfiguration extends ServiceConfiguration {
 	@SuppressWarnings("unchecked")
 	static <T extends IdentifiableConfiguration> T maskConfiguration(T config,
 			ConcurrentMap<String, List<SettingSpecifier>> serviceSettings,
-			Function<Void, Iterable<? extends SettingSpecifierProvider>> settingProviderFunction) {
+			Supplier<Iterable<? extends SettingSpecifierProvider>> settingProviderFunction) {
 		String id = config.getServiceIdentifier();
 		if ( id == null ) {
 			return null;
 		}
 		List<SettingSpecifier> settings = serviceSettings.get(id);
 		if ( settings == null ) {
-			settings = settingsForService(id, settingProviderFunction.apply(null));
+			settings = settingsForService(id, settingProviderFunction.get());
 			if ( settings != null ) {
 				serviceSettings.put(id, settings);
 			}
