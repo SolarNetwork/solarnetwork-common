@@ -35,11 +35,13 @@ import java.util.Objects;
  * support APIs that can localize objects based on a requested locale.
  * </p>
  *
+ * @param <T>
+ *        the identity type
  * @author matt
- * @version 1.3
+ * @version 2.0
  * @since 1.43
  */
-public interface LocalizedServiceInfo extends Identity<String> {
+public interface LocalizedServiceInfo extends Unique<String>, Comparable<LocalizedServiceInfo> {
 
 	/**
 	 * Comparator for a case-insensitive order based on localized names.
@@ -118,5 +120,10 @@ public interface LocalizedServiceInfo extends Identity<String> {
 	 * @return a map of messages, never {@literal null}
 	 */
 	Map<String, String> getLocalizedInfoMessages();
+
+	@Override
+	default int compareTo(LocalizedServiceInfo o) {
+		return SORT_BY_NAME.compare(this, o);
+	}
 
 }

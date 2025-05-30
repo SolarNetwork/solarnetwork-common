@@ -1,7 +1,7 @@
 /* ==================================================================
- * Identity.java - Aug 8, 2010 7:42:21 PM
+ * Unique.java - 30/05/2025 11:27:21 am
  *
- * Copyright 2007-2010 SolarNetwork.net Dev Team
+ * Copyright 2025 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,46 +18,47 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
- * $Revision$
- * ==================================================================
  */
 
 package net.solarnetwork.domain;
 
 /**
- * Common API for identity information in SolarNetwork participating services.
+ * Common API for uniquely identifiable information.
  *
- * @param <T>
- *        the identity type
  * @param <K>
- *        the primary data type that uniquely identifies the object
- * @version 2.0
+ *        the unique identifier type
  * @author matt
- * @since 1.43
+ * @version 1.0
+ * @since 4.0
  */
-public interface Identity<T extends Identity<T, K>, K extends Comparable<K>>
-		extends Unique<K>, Comparable<T>, Cloneable {
+public interface Unique<K> {
 
 	/**
-	 * Compare based on the {@code getId()} value only, with {@literal null}
-	 * values ordered before non-{@literal null} values.
+	 * Get the primary identifier of the object.
 	 *
-	 * {@inheritDoc}
+	 * @return the primary identifier
 	 */
-	@Override
-	default int compareTo(T o) {
-		final K id = getId();
-		final K otherId = (o != null ? o.getId() : null);
-		if ( id == null && otherId == null ) {
-			return 0;
-		}
-		if ( id == null ) {
-			return -1;
-		}
-		if ( otherId == null ) {
-			return 1;
-		}
-		return id.compareTo(otherId);
+	K getId();
+
+	/**
+	 * Test if this object has a valid identifier.
+	 *
+	 * <p>
+	 * This method must only return {@literal true} if the object returned from
+	 * {@link #getId()} is a valid identifier for objects of this type.
+	 * </p>
+	 *
+	 * <p>
+	 * This implementation simply tests if {@link #getId()} is not
+	 * {@literal null}. Extending classes, such as those with composite keys
+	 * where nested properties must be defined for the key to be valid, can
+	 * override this implementation as needed.
+	 * </p>
+	 *
+	 * @return {@code true} if this object has a valid identifier
+	 */
+	default boolean hasId() {
+		return getId() != null;
 	}
 
 }

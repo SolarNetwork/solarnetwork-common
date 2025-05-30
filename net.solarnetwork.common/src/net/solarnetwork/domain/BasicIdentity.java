@@ -1,5 +1,5 @@
 /* ==================================================================
- * BasicIdentity.java - 11/04/2018 6:59:05 AM
+ * BasicSerializableIdentity.java - 11/04/2018 6:59:05 AM
  *
  * Copyright 2018 SolarNetwork.net Dev Team
  *
@@ -25,15 +25,16 @@ package net.solarnetwork.domain;
 /**
  * A basic, immutable implementation of {@link Identity}.
  *
- * @param <PK>
+ * @param <T>
+ *        the identity type
+ * @param <K>
  *        the primary key type
  * @author matt
  * @version 2.0
  * @since 1.43
  */
-public class BasicIdentity<PK extends Comparable<PK>> implements Identity<PK> {
-
-	private final PK id;
+public abstract class BasicIdentity<T extends BasicIdentity<T, K>, K extends Comparable<K>>
+		extends BasicUnique<K> implements Identity<T, K> {
 
 	/**
 	 * Constructor.
@@ -41,59 +42,19 @@ public class BasicIdentity<PK extends Comparable<PK>> implements Identity<PK> {
 	 * @param id
 	 *        the ID to use
 	 */
-	public BasicIdentity(PK id) {
-		super();
-		this.id = id;
+	public BasicIdentity(K id) {
+		super(id);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Object clone() {
+	public T clone() {
 		try {
-			return super.clone();
+			return (T) super.clone();
 		} catch ( CloneNotSupportedException e ) {
 			// should never get here
-			throw new RuntimeException(e);
+			throw new IllegalStateException(e);
 		}
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	/**
-	 * Test if two {@code BasicIdentity} objects have the same {@link #getId()}
-	 * value.
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if ( this == obj ) {
-			return true;
-		}
-		if ( obj == null ) {
-			return false;
-		}
-		if ( getClass() != obj.getClass() ) {
-			return false;
-		}
-		@SuppressWarnings("unchecked")
-		BasicIdentity<PK> other = (BasicIdentity<PK>) obj;
-		if ( id == null ) {
-			if ( other.id != null ) {
-				return false;
-			}
-		} else if ( !id.equals(other.id) ) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public PK getId() {
-		return id;
 	}
 
 }

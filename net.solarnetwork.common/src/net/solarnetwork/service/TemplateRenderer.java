@@ -1,21 +1,21 @@
 /* ==================================================================
  * TemplateRenderer.java - 25/07/2020 3:44:32 PM
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -33,16 +33,16 @@ import net.solarnetwork.domain.Identity;
 /**
  * API for a service that can execute a template against some input data to
  * produce formatted output.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 2.0
  * @since 1.64
  */
-public interface TemplateRenderer extends Identity<String> {
+public interface TemplateRenderer<T extends TemplateRenderer<T>> extends Identity<T, String> {
 
 	/**
 	 * Test if this service supports a given MIME type.
-	 * 
+	 *
 	 * @param mimeType
 	 *        the type to check if this service supports
 	 * @return {@literal true} if this service can render to the given MIME type
@@ -51,14 +51,14 @@ public interface TemplateRenderer extends Identity<String> {
 
 	/**
 	 * Get the MIME types this service is capable of rendering output as.
-	 * 
+	 *
 	 * @return the supported MIME type, never {@literal null}
 	 */
 	List<MimeType> supportedMimeTypes();
 
 	/**
 	 * Render the template.
-	 * 
+	 *
 	 * @param parameters
 	 *        the input parameters
 	 * @param mimeType

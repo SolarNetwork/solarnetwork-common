@@ -1,21 +1,21 @@
 /* ==================================================================
  * GeneralDatum.java - 14/05/2021 10:21:26 AM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU  Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU  Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  *  Public License for more details.
- * 
- * You should have received a copy of the GNU  Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU  Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,18 +28,19 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import net.solarnetwork.domain.BasicIdentity;
-import net.solarnetwork.domain.Identity;
+import net.solarnetwork.domain.BasicSerializableIdentity;
+import net.solarnetwork.domain.CopyingIdentity;
 
 /**
  * A basic implementation of {@link MutableDatum}.
- * 
+ *
  * @author matt
- * @version 2.0
+ * @version 3.0
  * @since 1.71
  */
-public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, DatumSamplesContainer,
-		MutableDatum, MutableDatumSamplesOperations, Identity<DatumId>, Serializable, Cloneable {
+public class GeneralDatum extends BasicSerializableIdentity<GeneralDatum, DatumId>
+		implements Datum, DatumSamplesContainer, MutableDatum, MutableDatumSamplesOperations,
+		CopyingIdentity<GeneralDatum, DatumId>, Serializable, Cloneable {
 
 	private static final long serialVersionUID = 1934830001340995747L;
 
@@ -48,7 +49,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the ID
 	 * @param samples
@@ -61,12 +62,12 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * This creates a {@literal null} {@code kind} and {@code objectId} and sets
 	 * the timestamp to the system time.
 	 * </p>
-	 * 
+	 *
 	 * @param sourceId
 	 *        the source ID
 	 */
@@ -76,11 +77,11 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * This creates a {@literal null} {@code kind} and {@code objectId}.
 	 * </p>
-	 * 
+	 *
 	 * @param sourceId
 	 *        the source ID
 	 * @param timestamp
@@ -92,11 +93,11 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * This creates a {@literal null} {@code kind} and {@code objectId}.
 	 * </p>
-	 * 
+	 *
 	 * @param sourceId
 	 *        the source ID
 	 * @param timestamp
@@ -110,11 +111,11 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * This creates a {@literal null} {@code kind}.
 	 * </p>
-	 * 
+	 *
 	 * @param objectId
 	 *        the object ID
 	 * @param sourceId
@@ -130,7 +131,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Create a node datum.
-	 * 
+	 *
 	 * @param nodeId
 	 *        the node ID
 	 * @param sourceId
@@ -148,7 +149,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Create a location datum.
-	 * 
+	 *
 	 * @param locationId
 	 *        the location ID
 	 * @param sourceId
@@ -188,11 +189,6 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 	}
 
 	@Override
-	public GeneralDatum clone() {
-		return (GeneralDatum) super.clone();
-	}
-
-	@Override
 	public GeneralDatum copyWithSamples(DatumSamplesOperations samples) {
 		GeneralDatum copy = new GeneralDatum(getId(), new DatumSamples());
 		copy.samples.copyFrom(samples);
@@ -204,9 +200,17 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 		return new GeneralDatum(id, samples);
 	}
 
+	@Override
+	public void copyTo(GeneralDatum other) {
+		if ( other == null ) {
+			return;
+		}
+		other.samples.copyFrom(this.samples);
+	}
+
 	/**
 	 * Get the object kind.
-	 * 
+	 *
 	 * @return the kind
 	 */
 	@Override
@@ -217,7 +221,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Get the object ID.
-	 * 
+	 *
 	 * @return the object ID
 	 */
 	@Override
@@ -251,7 +255,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Create a map of simple property data out of this object.
-	 * 
+	 *
 	 * <p>
 	 * This method will populate the properties of this class and the
 	 * {@link Datum#DATUM_TYPE_PROPERTY} and {@link Datum#DATUM_TYPES_PROPERTY}
@@ -259,7 +263,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 	 * then call {@link #getSampleData()} and add all those values to the
 	 * returned result.
 	 * </p>
-	 * 
+	 *
 	 * @return a map of simple property data
 	 */
 	protected Map<String, Object> createSimpleMap() {
@@ -286,7 +290,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Get the datum types.
-	 * 
+	 *
 	 * @return the datum types
 	 */
 	protected String[] datumTypes() {
@@ -305,7 +309,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Test if this datum has any sample property values.
-	 * 
+	 *
 	 * @return {@literal true} if the samples is not empty
 	 * @see net.solarnetwork.domain.datum.DatumSamples#isEmpty()
 	 */
@@ -371,7 +375,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Set the sample tags.
-	 * 
+	 *
 	 * @param tags
 	 *        the tags to set
 	 * @see net.solarnetwork.domain.datum.DatumSupport#setTags(java.util.Set)
@@ -388,7 +392,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Test if a sample tag exists.
-	 * 
+	 *
 	 * @param tag
 	 *        the tag to test
 	 * @return {@literal true} if the sample tag exists
@@ -401,7 +405,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Add a sample tag.
-	 * 
+	 *
 	 * @param tag
 	 *        the tag to add
 	 * @see net.solarnetwork.domain.datum.DatumSupport#addTag(java.lang.String)
@@ -423,7 +427,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Remove a sample tag.
-	 * 
+	 *
 	 * @param tag
 	 *        the tag to remove.
 	 * @see net.solarnetwork.domain.datum.DatumSupport#removeTag(java.lang.String)
@@ -439,7 +443,7 @@ public class GeneralDatum extends BasicIdentity<DatumId> implements Datum, Datum
 
 	/**
 	 * Get the samples instance.
-	 * 
+	 *
 	 * @return the samples, never {@literal null}
 	 */
 	@Override

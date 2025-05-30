@@ -33,7 +33,7 @@ import net.solarnetwork.domain.Identity;
  * other forms.
  * </p>
  *
- * @param <M>
+ * @param <T>
  *        the filtered result type
  * @param <K>
  *        the filtered result identity type
@@ -41,7 +41,7 @@ import net.solarnetwork.domain.Identity;
  * @version 2.0
  * @since 1.59
  */
-public interface FilterResults<M extends Identity<K>, K extends Comparable<K>> extends Iterable<M> {
+public interface FilterResults<T extends Identity<T, K>, K extends Comparable<K>> extends Iterable<T> {
 
 	/**
 	 * Get the actual results.
@@ -52,7 +52,7 @@ public interface FilterResults<M extends Identity<K>, K extends Comparable<K>> e
 	 *
 	 * @return the results, never {@literal null}
 	 */
-	Iterable<M> getResults();
+	Iterable<T> getResults();
 
 	/**
 	 * Get a total number of available results, if known.

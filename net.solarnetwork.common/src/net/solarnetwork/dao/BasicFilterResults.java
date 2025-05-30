@@ -33,7 +33,7 @@ import net.solarnetwork.domain.Identity;
 /**
  * Basic implementation of {@link FilterResults}.
  *
- * @param <M>
+ * @param <T>
  *        the match type
  * @param <K>
  *        the primary key type
@@ -42,10 +42,10 @@ import net.solarnetwork.domain.Identity;
  * @since 1.59
  */
 @JsonPropertyOrder({ "totalResults", "startingOffset", "returnedResultCount", "results" })
-public class BasicFilterResults<M extends Identity<K>, K extends Comparable<K>>
-		implements FilterResults<M, K> {
+public class BasicFilterResults<T extends Identity<T, K>, K extends Comparable<K>>
+		implements FilterResults<T, K> {
 
-	private final Iterable<M> results;
+	private final Iterable<T> results;
 	private final Long totalResults;
 	private final long startingOffset;
 	private final int returnedResultCount;
@@ -62,7 +62,7 @@ public class BasicFilterResults<M extends Identity<K>, K extends Comparable<K>>
 	 * @param returnedResultCount
 	 *        the count of objects in {@code results}
 	 */
-	public BasicFilterResults(Iterable<M> results, Long totalResults, int startingOffset,
+	public BasicFilterResults(Iterable<T> results, Long totalResults, int startingOffset,
 			int returnedResultCount) {
 		this(results, totalResults, (long) startingOffset, returnedResultCount);
 	}
@@ -80,7 +80,7 @@ public class BasicFilterResults<M extends Identity<K>, K extends Comparable<K>>
 	 *        the count of objects in {@code results}
 	 * @since 1.3
 	 */
-	public BasicFilterResults(Iterable<M> results, Long totalResults, long startingOffset,
+	public BasicFilterResults(Iterable<T> results, Long totalResults, long startingOffset,
 			int returnedResultCount) {
 		super();
 		this.results = results;
@@ -101,14 +101,14 @@ public class BasicFilterResults<M extends Identity<K>, K extends Comparable<K>>
 	 * @param results
 	 *        the results iterable
 	 */
-	public BasicFilterResults(Iterable<M> results) {
+	public BasicFilterResults(Iterable<T> results) {
 		this(results, null, 0, iterableCount(results));
 	}
 
 	/**
 	 * Create a {@link FilterResults} instance.
 	 *
-	 * @param <M>
+	 * @param <T>
 	 *        the result type
 	 * @param <K>
 	 *        the result key type
@@ -123,8 +123,8 @@ public class BasicFilterResults<M extends Identity<K>, K extends Comparable<K>>
 	 * @return the results instance
 	 * @since 1.1
 	 */
-	public static <M extends Identity<K>, K extends Comparable<K>> FilterResults<M, K> filterResults(
-			Iterable<M> data, PaginationCriteria criteria, Long totalResults, int returnedResults) {
+	public static <T extends Identity<T, K>, K extends Comparable<K>> FilterResults<T, K> filterResults(
+			Iterable<T> data, PaginationCriteria criteria, Long totalResults, int returnedResults) {
 		long offset = 0;
 		if ( criteria != null && criteria.getMax() != null ) {
 			offset = criteria.getOffset() != null ? criteria.getOffset() : 0;
@@ -140,9 +140,9 @@ public class BasicFilterResults<M extends Identity<K>, K extends Comparable<K>>
 	}
 
 	@Override
-	public Iterator<M> iterator() {
+	public Iterator<T> iterator() {
 		if ( results == null ) {
-			Set<M> emptyResult = Collections.emptySet();
+			Set<T> emptyResult = Collections.emptySet();
 			return emptyResult.iterator();
 		}
 		return results.iterator();
@@ -166,7 +166,7 @@ public class BasicFilterResults<M extends Identity<K>, K extends Comparable<K>>
 	}
 
 	@Override
-	public Iterable<M> getResults() {
+	public Iterable<T> getResults() {
 		return results;
 	}
 

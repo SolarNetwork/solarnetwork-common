@@ -40,7 +40,7 @@ import net.solarnetwork.domain.Location;
  * Test cases for the {@link BasicLocationSerializer} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class BasicLocationSerializerTests {
 
@@ -57,7 +57,8 @@ public class BasicLocationSerializerTests {
 	/**
 	 * Test location that is also an identity.
 	 */
-	public static class IdentityBasicLocation extends BasicLocation implements Identity<Long> {
+	public static class IdentityBasicLocation extends BasicLocation
+			implements Identity<IdentityBasicLocation, Long> {
 
 		private static final long serialVersionUID = -6977678277913241969L;
 

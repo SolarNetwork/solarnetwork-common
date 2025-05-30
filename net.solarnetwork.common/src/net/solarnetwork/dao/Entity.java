@@ -34,7 +34,7 @@ import net.solarnetwork.domain.Identity;
  * @version 2.0
  * @since 1.59
  */
-public interface Entity<K extends Comparable<K>> extends Identity<K> {
+public interface Entity<T extends Entity<T, K>, K extends Comparable<K>> extends Identity<T, K> {
 
 	/**
 	 * Get the date this entity was created.

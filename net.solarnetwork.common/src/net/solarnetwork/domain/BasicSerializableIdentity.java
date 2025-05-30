@@ -1,7 +1,7 @@
 /* ==================================================================
- * BasicEntity.java - 7/02/2020 8:30:47 am
+ * BasicPK.java - 5/06/2021 3:04:42 PM
  *
- * Copyright 2020 SolarNetwork.net Dev Team
+ * Copyright 2021 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,55 +20,46 @@
  * ==================================================================
  */
 
-package net.solarnetwork.dao;
+package net.solarnetwork.domain;
 
 import java.io.Serializable;
-import java.time.Instant;
-import net.solarnetwork.domain.BasicSerializableIdentity;
 
 /**
- * Basic implementation of {@link Entity} using a comparable and serializable
- * primary key.
+ * A basic, immutable implementation of {@link Identity} that is also
+ * {@link Serializable}.
  *
  * @param <T>
- *        the entity type
+ *        the identity type
  * @param <K>
  *        the primary key type
  * @author matt
- * @version 1.1
- * @since 1.59
+ * @version 1.0
+ * @since 4.0
  */
-public abstract class BasicEntity<T extends BasicEntity<T, K>, K extends Comparable<K> & Serializable>
-		extends BasicSerializableIdentity<T, K> implements Entity<T, K>, Serializable {
+public abstract class BasicSerializableIdentity<T extends BasicSerializableIdentity<T, K>, K extends Comparable<K> & Serializable>
+		extends BasicSerializableUnique<K> implements Identity<T, K>, Serializable {
 
-	private static final long serialVersionUID = -2236221331020004471L;
-
-	/** The creation date. */
-	private final Instant created;
-
-	/**
-	 * Constructor.
-	 */
-	public BasicEntity() {
-		this(null, Instant.now());
-	}
+	private static final long serialVersionUID = 1468072353770355777L;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param id
-	 *        the primary key
-	 * @param created
-	 *        the created date
+	 *        the ID to use
 	 */
-	public BasicEntity(K id, Instant created) {
+	public BasicSerializableIdentity(K id) {
 		super(id);
-		this.created = created;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Instant getCreated() {
-		return created;
+	public T clone() {
+		try {
+			return (T) super.clone();
+		} catch ( CloneNotSupportedException e ) {
+			// should never get here
+			throw new IllegalStateException(e);
+		}
 	}
 
 }

@@ -34,7 +34,7 @@ import net.solarnetwork.domain.Location;
  * Serializer for {@link Location} objects.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.72
  */
 public class BasicLocationSerializer extends StdScalarSerializer<Location> implements Serializable {
@@ -59,7 +59,7 @@ public class BasicLocationSerializer extends StdScalarSerializer<Location> imple
 			return;
 		}
 
-		Object id = (value instanceof Identity<?> ? ((Identity<?>) value).getId() : null);
+		Object id = (value instanceof Identity<?, ?> ? ((Identity<?, ?>) value).getId() : null);
 
 		// @formatter:off
 		final int size =

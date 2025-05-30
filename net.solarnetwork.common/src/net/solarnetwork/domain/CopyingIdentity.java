@@ -25,31 +25,32 @@ package net.solarnetwork.domain;
 /**
  * API for an identity with copying support.
  *
+ * @param <T>
+ *        the identity type
  * @param <K>
  *        the primary key type
- * @param <C>
- *        the configuration type
  * @author matt
  * @version 2.0
  * @since 2.9
  */
-public interface CopyingIdentity<K extends Comparable<K>, C extends Identity<K>> extends Identity<K> {
+public interface CopyingIdentity<T extends Identity<T, K>, K extends Comparable<K>>
+		extends Identity<T, K> {
 
 	/**
-	 * Create a new copy of this entity with a given ID.
+	 * Create a new copy of this identity with a given ID.
 	 *
 	 * @param id
 	 *        the ID to use in the copy
 	 * @return the new copy
 	 */
-	C copyWithId(K id);
+	T copyWithId(K id);
 
 	/**
-	 * Copy the properties of this entity into another entity.
+	 * Copy the properties of this identity into another entity.
 	 *
-	 * @param entity
-	 *        the entity to copy the properties from this instance
+	 * @param other
+	 *        the identity to copy the properties from this instance
 	 */
-	void copyTo(C entity);
+	void copyTo(T other);
 
 }

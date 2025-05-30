@@ -1,7 +1,7 @@
 /* ==================================================================
- * BasicPK.java - 5/06/2021 3:04:42 PM
+ * BasicUnique.java - 30/05/2025 11:34:40 am
  *
- * Copyright 2021 SolarNetwork.net Dev Team
+ * Copyright 2025 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,27 +20,19 @@
  * ==================================================================
  */
 
-package net.solarnetwork.dao;
+package net.solarnetwork.domain;
 
-import java.io.Serializable;
-import net.solarnetwork.domain.Identity;
+import java.util.Objects;
 
 /**
- * A basic, immutable implementation of {@link Identity} that is also
- * {@link Serializable}.
+ * Basic immuntable implementation of {@link Unique}.
  *
- * @param <PK>
- *        the primary key type
  * @author matt
- * @version 2.0
- * @since 1.72
+ * @version 1.0
  */
-public class BasicIdentity<PK extends Comparable<PK>> implements Identity<PK>, Serializable {
+public class BasicUnique<K> implements Unique<K> {
 
-	private static final long serialVersionUID = 1468072353770355777L;
-
-	/** The primary key. */
-	private final PK id;
+	private final K id;
 
 	/**
 	 * Constructor.
@@ -48,22 +40,21 @@ public class BasicIdentity<PK extends Comparable<PK>> implements Identity<PK>, S
 	 * @param id
 	 *        the ID to use
 	 */
-	public BasicIdentity(PK id) {
+	public BasicUnique(K id) {
 		super();
 		this.id = id;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public BasicIdentity<PK> clone() {
-		try {
-			return (BasicIdentity<PK>) super.clone();
-		} catch ( CloneNotSupportedException e ) {
-			// should never get here
-			throw new RuntimeException(e);
-		}
+	public final K getId() {
+		return id;
 	}
 
+	/**
+	 * Compute a hash code based on the {@link #getId()} value.
+	 *
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -73,8 +64,10 @@ public class BasicIdentity<PK extends Comparable<PK>> implements Identity<PK>, S
 	}
 
 	/**
-	 * Test if two {@code BasicIdentity} objects have the same {@link #getId()}
+	 * Test if two {@code BasicUnique} objects have the same {@link #getId()}
 	 * value.
+	 *
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -88,20 +81,8 @@ public class BasicIdentity<PK extends Comparable<PK>> implements Identity<PK>, S
 			return false;
 		}
 		@SuppressWarnings("unchecked")
-		BasicIdentity<PK> other = (BasicIdentity<PK>) obj;
-		if ( id == null ) {
-			if ( other.id != null ) {
-				return false;
-			}
-		} else if ( !id.equals(other.id) ) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public PK getId() {
-		return id;
+		Unique<K> other = (Unique<K>) obj;
+		return Objects.equals(id, other.getId());
 	}
 
 }

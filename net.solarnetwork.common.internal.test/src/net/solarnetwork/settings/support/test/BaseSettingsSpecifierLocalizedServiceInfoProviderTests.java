@@ -49,12 +49,12 @@ import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
  * class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BaseSettingsSpecifierLocalizedServiceInfoProviderTests {
 
 	private static class TestSettingsSpecifierLocalizedServiceInfoProvider
-			extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String> {
+			extends BaseSettingsSpecifierLocalizedServiceInfoProvider {
 
 		private TestSettingsSpecifierLocalizedServiceInfoProvider() {
 			this("net.solarnetwork.settings.support.test.TestSettingsSpecifierLocalizedServiceInfoProvider");

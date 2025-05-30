@@ -29,7 +29,7 @@ import net.solarnetwork.domain.SortDescriptor;
 /**
  * API for a Data Access Object that supports filtered queries.
  *
- * @param <M>
+ * @param <T>
  *        the filtered result type
  * @param <K>
  *        the entity primary key type
@@ -39,7 +39,7 @@ import net.solarnetwork.domain.SortDescriptor;
  * @version 2.0
  * @since 1.59
  */
-public interface FilterableDao<M extends Identity<K>, K extends Comparable<K>, F> {
+public interface FilterableDao<T extends Identity<T, K>, K extends Comparable<K>, F> {
 
 	/**
 	 * API for querying for a filtered set of results from all possible results.
@@ -54,7 +54,7 @@ public interface FilterableDao<M extends Identity<K>, K extends Comparable<K>, F
 	 *        an optional maximum number of returned results
 	 * @return the results, never {@literal null}
 	 */
-	FilterResults<M, K> findFiltered(F filter, List<SortDescriptor> sorts, Long offset, Integer max);
+	FilterResults<T, K> findFiltered(F filter, List<SortDescriptor> sorts, Long offset, Integer max);
 
 	/**
 	 * Short cut to query for all available results with a given filter.
@@ -71,7 +71,7 @@ public interface FilterableDao<M extends Identity<K>, K extends Comparable<K>, F
 	 * @return the results
 	 * @since 1.1
 	 */
-	default FilterResults<M, K> findFiltered(F filter) {
+	default FilterResults<T, K> findFiltered(F filter) {
 		return findFiltered(filter, null, null, null);
 	}
 
