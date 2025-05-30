@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import net.solarnetwork.domain.Identity;
+import net.solarnetwork.domain.Unique;
 
 /**
  * Basic implementation of {@link FilterResults}.
@@ -42,7 +42,7 @@ import net.solarnetwork.domain.Identity;
  * @since 1.59
  */
 @JsonPropertyOrder({ "totalResults", "startingOffset", "returnedResultCount", "results" })
-public class BasicFilterResults<T extends Identity<T, K>, K extends Comparable<K>>
+public class BasicFilterResults<T extends Unique<K>, K extends Comparable<K>>
 		implements FilterResults<T, K> {
 
 	private final Iterable<T> results;
@@ -123,7 +123,7 @@ public class BasicFilterResults<T extends Identity<T, K>, K extends Comparable<K
 	 * @return the results instance
 	 * @since 1.1
 	 */
-	public static <T extends Identity<T, K>, K extends Comparable<K>> FilterResults<T, K> filterResults(
+	public static <T extends Unique<K>, K extends Comparable<K>> FilterResults<T, K> filterResults(
 			Iterable<T> data, PaginationCriteria criteria, Long totalResults, int returnedResults) {
 		long offset = 0;
 		if ( criteria != null && criteria.getMax() != null ) {

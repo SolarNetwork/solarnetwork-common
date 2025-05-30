@@ -23,8 +23,8 @@
 package net.solarnetwork.dao;
 
 import java.util.List;
-import net.solarnetwork.domain.Identity;
 import net.solarnetwork.domain.SortDescriptor;
+import net.solarnetwork.domain.Unique;
 
 /**
  * API for a Data Access Object that supports filtered queries.
@@ -39,7 +39,7 @@ import net.solarnetwork.domain.SortDescriptor;
  * @version 2.0
  * @since 1.59
  */
-public interface FilterableDao<T extends Identity<T, K>, K extends Comparable<K>, F> {
+public interface FilterableDao<T extends Unique<K>, K extends Comparable<K>, F> {
 
 	/**
 	 * API for querying for a filtered set of results from all possible results.

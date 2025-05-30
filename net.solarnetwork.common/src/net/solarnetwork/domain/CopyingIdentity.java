@@ -33,7 +33,7 @@ package net.solarnetwork.domain;
  * @version 2.0
  * @since 2.9
  */
-public interface CopyingIdentity<T extends Identity<T, K>, K extends Comparable<K>>
+public interface CopyingIdentity<T extends CopyingIdentity<T, K>, K extends Comparable<K>>
 		extends Identity<T, K> {
 
 	/**

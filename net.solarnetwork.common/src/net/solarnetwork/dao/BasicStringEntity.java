@@ -33,7 +33,7 @@ import java.time.Instant;
  * @version 2.0
  * @since 1.59
  */
-public class BasicStringEntity<T extends BasicStringEntity<T>> extends BasicEntity<T, String> {
+public abstract class BasicStringEntity<T extends BasicStringEntity<T>> extends BasicEntity<T, String> {
 
 	private static final long serialVersionUID = -8170743004788998114L;
 

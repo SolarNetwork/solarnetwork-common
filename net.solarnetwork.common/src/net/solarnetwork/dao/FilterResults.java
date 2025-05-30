@@ -22,7 +22,7 @@
 
 package net.solarnetwork.dao;
 
-import net.solarnetwork.domain.Identity;
+import net.solarnetwork.domain.Unique;
 
 /**
  * A filtered query results object.
@@ -41,7 +41,7 @@ import net.solarnetwork.domain.Identity;
  * @version 2.0
  * @since 1.59
  */
-public interface FilterResults<T extends Identity<T, K>, K extends Comparable<K>> extends Iterable<T> {
+public interface FilterResults<T extends Unique<K>, K extends Comparable<K>> extends Iterable<T> {
 
 	/**
 	 * Get the actual results.

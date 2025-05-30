@@ -34,7 +34,7 @@ import java.util.UUID;
  * @version 2.0
  * @since 1.59
  */
-public class BasicUuidEntity<T extends BasicUuidEntity<T>> extends BasicEntity<T, UUID> {
+public abstract class BasicUuidEntity<T extends BasicUuidEntity<T>> extends BasicEntity<T, UUID> {
 
 	private static final long serialVersionUID = -8798995107804432989L;
 
