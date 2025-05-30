@@ -34,7 +34,7 @@ package net.solarnetwork.domain;
  * @since 2.9
  */
 public interface CopyingIdentity<T extends CopyingIdentity<T, K>, K extends Comparable<K>>
-		extends Identity<T, K> {
+		extends Identity<K> {
 
 	/**
 	 * Create a new copy of this identity with a given ID.

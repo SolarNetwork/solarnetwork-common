@@ -25,8 +25,10 @@ package net.solarnetwork.domain;
 import java.util.Objects;
 
 /**
- * Basic immuntable implementation of {@link Unique}.
+ * Basic immutable implementation of {@link Unique}.
  *
+ * @param <K>
+ *        the primary key type
  * @author matt
  * @version 1.0
  */

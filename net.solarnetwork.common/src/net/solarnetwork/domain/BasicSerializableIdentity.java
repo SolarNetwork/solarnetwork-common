@@ -28,16 +28,14 @@ import java.io.Serializable;
  * A basic, immutable implementation of {@link Identity} that is also
  * {@link Serializable}.
  *
- * @param <T>
- *        the identity type
  * @param <K>
  *        the primary key type
  * @author matt
  * @version 1.0
  * @since 4.0
  */
-public abstract class BasicSerializableIdentity<T extends BasicSerializableIdentity<T, K>, K extends Comparable<K> & Serializable>
-		extends BasicSerializableUnique<K> implements Identity<T, K>, Serializable {
+public abstract class BasicSerializableIdentity<K extends Comparable<K> & Serializable>
+		extends BasicSerializableUnique<K> implements Identity<K>, Serializable {
 
 	private static final long serialVersionUID = 1468072353770355777L;
 
@@ -53,9 +51,9 @@ public abstract class BasicSerializableIdentity<T extends BasicSerializableIdent
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T clone() {
+	public BasicSerializableIdentity<K> clone() {
 		try {
-			return (T) super.clone();
+			return (BasicSerializableIdentity<K>) super.clone();
 		} catch ( CloneNotSupportedException e ) {
 			// should never get here
 			throw new IllegalStateException(e);

@@ -26,14 +26,12 @@ import java.time.Instant;
 
 /**
  * Basic implementation of {@link Entity} with string primary key type.
- *
- * @param <T>
- *        the entity type
+ * 
  * @author matt
- * @version 2.0
+ * @version 1.1
  * @since 1.59
  */
-public abstract class BasicStringEntity<T extends BasicStringEntity<T>> extends BasicEntity<T, String> {
+public class BasicStringEntity extends BasicEntity<String> {
 
 	private static final long serialVersionUID = -8170743004788998114L;
 
@@ -54,6 +52,11 @@ public abstract class BasicStringEntity<T extends BasicStringEntity<T>> extends 
 	 */
 	public BasicStringEntity(String id, Instant created) {
 		super(id, created);
+	}
+
+	@Override
+	public BasicStringEntity clone() {
+		return (BasicStringEntity) super.clone();
 	}
 
 }

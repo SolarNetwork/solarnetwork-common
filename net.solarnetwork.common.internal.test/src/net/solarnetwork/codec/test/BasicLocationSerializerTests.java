@@ -57,8 +57,7 @@ public class BasicLocationSerializerTests {
 	/**
 	 * Test location that is also an identity.
 	 */
-	public static class IdentityBasicLocation extends BasicLocation
-			implements Identity<IdentityBasicLocation, Long> {
+	public static class IdentityBasicLocation extends BasicLocation implements Identity<Long> {
 
 		private static final long serialVersionUID = -6977678277913241969L;
 

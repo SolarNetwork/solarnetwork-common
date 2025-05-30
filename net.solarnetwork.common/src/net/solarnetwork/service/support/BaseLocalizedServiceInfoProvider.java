@@ -37,8 +37,6 @@ import net.solarnetwork.service.LocalizedServiceInfoProvider;
  * A base implementation of {@link LocalizedServiceInfoProvider} that also
  * implements {@link net.solarnetwork.domain.Identity}.
  *
- * @param <K>
- *        the primary key type
  * @author matt
  * @version 2.0
  * @since 1.43

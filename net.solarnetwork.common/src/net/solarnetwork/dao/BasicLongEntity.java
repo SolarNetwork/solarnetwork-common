@@ -27,13 +27,11 @@ import java.time.Instant;
 /**
  * Basic implementation of {@link Entity} with long primary key type.
  *
- * @param <T>
- *        the entity type
  * @author matt
- * @version 2.0
+ * @version 1.1
  * @since 1.59
  */
-public abstract class BasicLongEntity<T extends BasicLongEntity<T>> extends BasicEntity<T, Long> {
+public abstract class BasicLongEntity extends BasicEntity<Long> {
 
 	private static final long serialVersionUID = 307950311993178478L;
 
@@ -54,6 +52,11 @@ public abstract class BasicLongEntity<T extends BasicLongEntity<T>> extends Basi
 	 */
 	public BasicLongEntity(Long id, Instant created) {
 		super(id, created);
+	}
+
+	@Override
+	public BasicLongEntity clone() {
+		return (BasicLongEntity) super.clone();
 	}
 
 }

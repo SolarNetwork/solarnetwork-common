@@ -30,16 +30,14 @@ import net.solarnetwork.domain.BasicSerializableIdentity;
  * Basic implementation of {@link Entity} using a comparable and serializable
  * primary key.
  *
- * @param <T>
- *        the entity type
  * @param <K>
  *        the primary key type
  * @author matt
  * @version 1.1
  * @since 1.59
  */
-public abstract class BasicEntity<T extends BasicEntity<T, K>, K extends Comparable<K> & Serializable>
-		extends BasicSerializableIdentity<T, K> implements Entity<T, K>, Serializable {
+public abstract class BasicEntity<K extends Comparable<K> & Serializable>
+		extends BasicSerializableIdentity<K> implements Entity<K>, Serializable {
 
 	private static final long serialVersionUID = -2236221331020004471L;
 
@@ -64,6 +62,11 @@ public abstract class BasicEntity<T extends BasicEntity<T, K>, K extends Compara
 	public BasicEntity(K id, Instant created) {
 		super(id);
 		this.created = created;
+	}
+
+	@Override
+	public BasicEntity<K> clone() {
+		return (BasicEntity<K>) super.clone();
 	}
 
 	@Override

@@ -27,16 +27,14 @@ package net.solarnetwork.domain;
 /**
  * Common API for identity information in SolarNetwork participating services.
  *
- * @param <T>
- *        the identity type
  * @param <K>
  *        the primary data type that uniquely identifies the object
  * @version 2.0
  * @author matt
  * @since 1.43
  */
-public interface Identity<T extends Identity<T, K>, K extends Comparable<K>>
-		extends Unique<K>, Comparable<T>, Cloneable {
+public interface Identity<K extends Comparable<K>>
+		extends Unique<K>, Comparable<Identity<K>>, Cloneable {
 
 	/**
 	 * Compare based on the {@code getId()} value only, with {@literal null}
@@ -45,7 +43,7 @@ public interface Identity<T extends Identity<T, K>, K extends Comparable<K>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	default int compareTo(T o) {
+	default int compareTo(Identity<K> o) {
 		final K id = getId();
 		final K otherId = (o != null ? o.getId() : null);
 		if ( id == null && otherId == null ) {

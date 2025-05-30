@@ -35,8 +35,6 @@ import java.util.Objects;
  * support APIs that can localize objects based on a requested locale.
  * </p>
  *
- * @param <T>
- *        the identity type
  * @author matt
  * @version 2.0
  * @since 1.43

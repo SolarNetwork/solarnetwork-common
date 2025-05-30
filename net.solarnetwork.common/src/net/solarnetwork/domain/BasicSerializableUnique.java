@@ -28,6 +28,8 @@ import java.util.Objects;
 /**
  * Basic immuntable implementation of {@link Unique}.
  *
+ * @param <K>
+ *        the primary key type
  * @author matt
  * @version 1.0
  */
@@ -35,6 +37,7 @@ public class BasicSerializableUnique<K> implements Unique<K>, Serializable {
 
 	private static final long serialVersionUID = -3308792199560978726L;
 
+	/** The primary key. */
 	private final K id;
 
 	/**

@@ -38,7 +38,7 @@ import net.solarnetwork.domain.CopyingIdentity;
  * @version 3.0
  * @since 1.71
  */
-public class GeneralDatum extends BasicSerializableIdentity<GeneralDatum, DatumId>
+public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 		implements Datum, DatumSamplesContainer, MutableDatum, MutableDatumSamplesOperations,
 		CopyingIdentity<GeneralDatum, DatumId>, Serializable, Cloneable {
 
@@ -186,6 +186,11 @@ public class GeneralDatum extends BasicSerializableIdentity<GeneralDatum, DatumI
 		}
 		buf.append("}");
 		return buf.toString();
+	}
+
+	@Override
+	public GeneralDatum clone() {
+		return (GeneralDatum) super.clone();
 	}
 
 	@Override

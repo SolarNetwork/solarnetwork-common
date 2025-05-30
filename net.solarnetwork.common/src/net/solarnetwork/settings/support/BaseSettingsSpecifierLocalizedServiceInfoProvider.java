@@ -41,8 +41,6 @@ import net.solarnetwork.settings.TitleSettingSpecifier;
  * Convenient abstract class that is both a {@link SettingSpecifierProvider} and
  * a {@link LocalizedServiceInfoProvider}.
  *
- * @param <PK>
- *        the primary key type
  * @author matt
  * @version 2.0
  * @since 1.43

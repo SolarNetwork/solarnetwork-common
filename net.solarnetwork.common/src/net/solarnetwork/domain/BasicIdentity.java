@@ -25,16 +25,14 @@ package net.solarnetwork.domain;
 /**
  * A basic, immutable implementation of {@link Identity}.
  *
- * @param <T>
- *        the identity type
  * @param <K>
  *        the primary key type
  * @author matt
  * @version 2.0
  * @since 1.43
  */
-public abstract class BasicIdentity<T extends BasicIdentity<T, K>, K extends Comparable<K>>
-		extends BasicUnique<K> implements Identity<T, K> {
+public abstract class BasicIdentity<K extends Comparable<K>> extends BasicUnique<K>
+		implements Identity<K> {
 
 	/**
 	 * Constructor.
@@ -48,9 +46,9 @@ public abstract class BasicIdentity<T extends BasicIdentity<T, K>, K extends Com
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T clone() {
+	public BasicIdentity<K> clone() {
 		try {
-			return (T) super.clone();
+			return (BasicIdentity<K>) super.clone();
 		} catch ( CloneNotSupportedException e ) {
 			// should never get here
 			throw new IllegalStateException(e);

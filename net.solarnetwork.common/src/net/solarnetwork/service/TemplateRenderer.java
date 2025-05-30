@@ -35,10 +35,10 @@ import net.solarnetwork.domain.Identity;
  * produce formatted output.
  *
  * @author matt
- * @version 2.0
+ * @version 1.0
  * @since 1.64
  */
-public interface TemplateRenderer<T extends TemplateRenderer<T>> extends Identity<T, String> {
+public interface TemplateRenderer extends Identity<String> {
 
 	/**
 	 * Test if this service supports a given MIME type.

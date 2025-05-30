@@ -28,13 +28,11 @@ import java.util.UUID;
 /**
  * Basic implementation of {@link Entity} with {@link UUID} primary key type.
  *
- * @param <T>
- *        the entity type
  * @author matt
- * @version 2.0
+ * @version 1.1
  * @since 1.59
  */
-public abstract class BasicUuidEntity<T extends BasicUuidEntity<T>> extends BasicEntity<T, UUID> {
+public class BasicUuidEntity extends BasicEntity<UUID> {
 
 	private static final long serialVersionUID = -8798995107804432989L;
 
@@ -55,6 +53,11 @@ public abstract class BasicUuidEntity<T extends BasicUuidEntity<T>> extends Basi
 	 */
 	public BasicUuidEntity(UUID id, Instant created) {
 		super(id, created);
+	}
+
+	@Override
+	public BasicUuidEntity clone() {
+		return (BasicUuidEntity) super.clone();
 	}
 
 }
