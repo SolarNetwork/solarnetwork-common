@@ -1,21 +1,21 @@
 /* ==================================================================
  * SdkS3Client.java - 3/10/2017 2:11:41 PM
- * 
+ *
  * Copyright 2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -68,11 +68,11 @@ import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 
 /**
  * {@link S3Client} using the AWS SDK.
- * 
+ *
  * @author matt
- * @version 1.3
+ * @version 2.0
  */
-public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
+public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvider
 		implements S3Client, SettingsChangeObserver {
 
 	/** The default value for the {@code regionName} property. */
@@ -102,7 +102,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the settings UID to use
 	 */
@@ -331,7 +331,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	/**
 	 * Set the bucket name to connect to.
-	 * 
+	 *
 	 * @param bucketName
 	 *        the bucketName to set
 	 */
@@ -341,7 +341,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	/**
 	 * Set the AWS region to use.
-	 * 
+	 *
 	 * @param regionName
 	 *        the region name to set; defaults to us-west-2
 	 */
@@ -351,7 +351,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	/**
 	 * Set the maximum number of S3 object keys to request in one request.
-	 * 
+	 *
 	 * @param maximumKeysPerRequest
 	 *        the maximum to set
 	 */
@@ -361,12 +361,12 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	/**
 	 * Set the credentials provider to authenticate with.
-	 * 
+	 *
 	 * <p>
 	 * If this is configured, it takes precedence over any configured
 	 * {@code accessToken}/{@code accessSecret}.
 	 * </p>
-	 * 
+	 *
 	 * @param credentialsProvider
 	 *        the provider to set
 	 */
@@ -376,7 +376,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	/**
 	 * Set the AWS access token to use.
-	 * 
+	 *
 	 * @param accessToken
 	 *        the access token to set
 	 */
@@ -386,7 +386,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	/**
 	 * Set the AWS access token secret to use.
-	 * 
+	 *
 	 * @param accessSecret
 	 *        the access secret to set
 	 */

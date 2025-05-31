@@ -85,9 +85,9 @@ import software.amazon.awssdk.transfer.s3.model.UploadRequest;
  * {@link S3Client} using the AWS SDK V2.
  *
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
-public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
+public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvider
 		implements S3Client, SettingsChangeObserver {
 
 	/** The default value for the {@code regionName} property. */
