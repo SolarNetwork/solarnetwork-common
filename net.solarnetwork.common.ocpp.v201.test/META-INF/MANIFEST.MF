@@ -6,7 +6,7 @@ Bundle-Version: 1.1.0
 Bundle-Vendor: SolarNetwork
 Fragment-Host: net.solarnetwork.common.ocpp.v201;bundle-version="[1.1,2.0)"
 Automatic-Module-Name: net.solarnetwork.common.ocpp.v20.tests
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: 
  net.solarnetwork.test;version="[1.7,2.0)",
  org.easymock;version="[3.6,4.0)",

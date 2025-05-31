@@ -6,7 +6,7 @@ Bundle-SymbolicName: net.solarnetwork.common.ocpp.v16
 Bundle-Version: 4.0.4
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.v16
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: 
  net.solarnetwork.ocpp.v16;version="1.0.0";uses:="net.solarnetwork.ocpp.json,net.solarnetwork.ocpp.service,net.solarnetwork.ocpp.domain",
  net.solarnetwork.ocpp.v16.cp.json;version="1.0.0";
