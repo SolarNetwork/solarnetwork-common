@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Common AWS S3 Support Tests
 Bundle-SymbolicName: net.solarnetwork.common.s3.test
-Bundle-Version: 3.2.0
-Fragment-Host: net.solarnetwork.common.s3;bundle-version="[3.2,4.0)"
+Bundle-Version: 4.0.0
+Fragment-Host: net.solarnetwork.common.s3;bundle-version="[4.0,5.0)"
 Automatic-Module-Name: net.solarnetwork.common.s3.test
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: 
