@@ -25,6 +25,7 @@ package net.solarnetwork.codec;
 import static java.util.Arrays.asList;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
@@ -93,7 +94,7 @@ import net.solarnetwork.util.StringUtils;
  * </ul>
  *
  * @author matt
- * @version 2.4
+ * @version 2.5
  * @since 1.72
  */
 public final class JsonUtils {
@@ -267,12 +268,13 @@ public final class JsonUtils {
 		try {
 			Class<? extends SimpleModule> clazz = JsonUtils.class.getClassLoader().loadClass(className)
 					.asSubclass(SimpleModule.class);
-			SimpleModule m = clazz.newInstance();
+			SimpleModule m = clazz.getDeclaredConstructor().newInstance();
 			if ( configuror != null ) {
 				configuror.accept(m);
 			}
 			return m;
-		} catch ( ClassNotFoundException | InstantiationException | IllegalAccessException e ) {
+		} catch ( ClassNotFoundException | InstantiationException | IllegalAccessException
+				| InvocationTargetException | NoSuchMethodException e ) {
 			LOG.info("Optional JSON module {} not available ({})", className, e.toString());
 			return null;
 		}
