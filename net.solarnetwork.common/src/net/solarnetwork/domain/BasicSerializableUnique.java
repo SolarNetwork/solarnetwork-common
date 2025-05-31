@@ -33,7 +33,7 @@ import java.util.Objects;
  * @author matt
  * @version 1.0
  */
-public class BasicSerializableUnique<K> implements Unique<K>, Serializable {
+public class BasicSerializableUnique<K extends Serializable> implements Unique<K>, Serializable {
 
 	private static final long serialVersionUID = -3308792199560978726L;
 
