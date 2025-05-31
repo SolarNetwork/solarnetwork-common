@@ -6,7 +6,7 @@ Automatic-Module-Name: net.solarnetwork.common.web
 Bundle-Description: Common supporting infrastructure for SolarNode and SolarNet web applications.
 Bundle-Version: 3.3.4
 Bundle-Vendor: SolarNetwork
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: 
  net.solarnetwork.web.domain;version="2.0.0",
  net.solarnetwork.web.security;version="2.5.1",

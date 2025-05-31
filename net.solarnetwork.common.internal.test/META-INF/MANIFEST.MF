@@ -6,7 +6,7 @@ Bundle-Version: 2.41.0
 Bundle-Vendor: SolarNetwork
 Fragment-Host: net.solarnetwork.common;bundle-version="[4.0,5.0)"
 Automatic-Module-Name: net.solarnetwork.common.internal.test
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: 
  com.fasterxml.jackson.dataformat.cbor;version="[2.10,3.0)",
  javax.servlet;version="3.0.0",

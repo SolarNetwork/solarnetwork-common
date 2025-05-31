@@ -6,7 +6,7 @@ Bundle-Version: 4.0.1
 Bundle-Vendor: SolarNetwork
 Fragment-Host: net.solarnetwork.common.mqtt.netty;bundle-version="[4.0.3,5.0)"
 Automatic-Module-Name: net.solarnetwork.common.mqtt.netty.test
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: 
  io.moquette;version="[0.12,1.0)",
  io.moquette.interception;version="[0.12,1.0)",

@@ -1,21 +1,21 @@
 /* ===================================================================
  * ClassUtils.java
- * 
+ *
  * Created Jul 15, 2008 8:20:38 AM
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ===================================================================
  */
@@ -50,18 +50,18 @@ import net.solarnetwork.domain.SerializeIgnore;
  * Utility methods for dealing with classes at runtime.
  *
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public final class ClassUtils {
 
 	/**
 	 * A set of package name prefix values representing built-in Java classes.
-	 * 
+	 *
 	 * <p>
 	 * This can be useful as an exclusion set in the
 	 * {@link #getAllInterfacesForClassAsSet(Class, Set)} method.
 	 * </p>
-	 * 
+	 *
 	 * @since 1.3
 	 */
 	public static final Set<String> JAVA_PACKAGE_PREFIXES = Collections
@@ -77,7 +77,7 @@ public final class ClassUtils {
 
 	/**
 	 * Instantiate a class of a specific interface type.
-	 * 
+	 *
 	 * @param <T>
 	 *        the desired interface type
 	 * @param className
@@ -89,7 +89,7 @@ public final class ClassUtils {
 	public static <T> T instantiateClass(String className, Class<T> type) {
 		Class<? extends T> clazz = loadClass(className, type);
 		try {
-			T o = clazz.newInstance();
+			T o = clazz.getDeclaredConstructor().newInstance();
 			return o;
 		} catch ( Exception e ) {
 			throw new RuntimeException("Unable to instantiate class [" + className + ']', e);
@@ -98,12 +98,12 @@ public final class ClassUtils {
 
 	/**
 	 * Load a class of a particular type.
-	 * 
+	 *
 	 * <p>
 	 * This uses the {@code type}'s ClassLoader to load the class. If that is
 	 * not available, it will use the current thread's context class loader.
 	 * </p>
-	 * 
+	 *
 	 * @param <T>
 	 *        the desired interface type
 	 * @param className
@@ -130,7 +130,7 @@ public final class ClassUtils {
 
 	/**
 	 * Set bean property values on an object from a Map.
-	 * 
+	 *
 	 * @param o
 	 *        the bean to set JavaBean properties on
 	 * @param values
@@ -145,7 +145,7 @@ public final class ClassUtils {
 
 	/**
 	 * Set bean property values on an object from a Map.
-	 * 
+	 *
 	 * @param o
 	 *        The bean to set JavaBean properties on.
 	 * @param values
@@ -173,7 +173,7 @@ public final class ClassUtils {
 
 	/**
 	 * Get a Map of non-null bean properties for an object.
-	 * 
+	 *
 	 * @param o
 	 *        the object to inspect
 	 * @param ignore
@@ -206,7 +206,7 @@ public final class ClassUtils {
 
 	/**
 	 * Get a Map of non-null <em>simple</em> bean properties for an object.
-	 * 
+	 *
 	 * @param o
 	 *        the object to inspect
 	 * @param ignore
@@ -253,7 +253,7 @@ public final class ClassUtils {
 
 	/**
 	 * Copy non-null bean properties from one object to another.
-	 * 
+	 *
 	 * @param src
 	 *        the object to copy values from
 	 * @param dest
@@ -267,7 +267,7 @@ public final class ClassUtils {
 
 	/**
 	 * Copy non-null bean properties from one object to another.
-	 * 
+	 *
 	 * @param src
 	 *        the object to copy values from
 	 * @param dest
@@ -275,8 +275,8 @@ public final class ClassUtils {
 	 * @param ignore
 	 *        a set of property names to ignore (optional)
 	 * @param emptyStringToNull
-	 *        if {@literal true} then String values that are empty or contain only
-	 *        whitespace will be treated as if they where {@literal null}
+	 *        if {@literal true} then String values that are empty or contain
+	 *        only whitespace will be treated as if they where {@literal null}
 	 */
 	public static void copyBeanProperties(Object src, Object dest, Set<String> ignore,
 			boolean emptyStringToNull) {
@@ -307,7 +307,7 @@ public final class ClassUtils {
 
 	/**
 	 * Get a Map of non-null bean properties for an object.
-	 * 
+	 *
 	 * @param o
 	 *        the object to inspect
 	 * @param ignore
@@ -353,7 +353,7 @@ public final class ClassUtils {
 
 	/**
 	 * Load a textual classpath resource into a String.
-	 * 
+	 *
 	 * @param resourceName
 	 *        the resource to load
 	 * @param clazz
@@ -366,7 +366,7 @@ public final class ClassUtils {
 
 	/**
 	 * Load a textual classpath resource into a String.
-	 * 
+	 *
 	 * @param resourceName
 	 *        the resource to load
 	 * @param clazz
@@ -430,7 +430,7 @@ public final class ClassUtils {
 	/**
 	 * Get all interfaces implemented by a class, excluding those in the
 	 * {@link #JAVA_PACKAGE_PREFIXES} package set.
-	 * 
+	 *
 	 * @param clazz
 	 *        the class to get all implemented interfaces for
 	 * @return the set of interfaces
@@ -444,13 +444,13 @@ public final class ClassUtils {
 	 * Get a set of interfaces implemented by a class and any superclasses or
 	 * extended interfaces, optionally excluding based on a set of name prefix
 	 * values.
-	 * 
+	 *
 	 * <p>
 	 * The iteration order of the returned set will be equal to the order
 	 * returned by {@link Class#getInterfaces()} method, in reverse class
 	 * hierarchy order.
 	 * </p>
-	 * 
+	 *
 	 * @param clazz
 	 *        the class to get all implemented interfaces for
 	 * @param excluding

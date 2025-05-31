@@ -6,7 +6,7 @@ Bundle-SymbolicName: net.solarnetwork.common.ocpp.web
 Bundle-Version: 4.1.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.web
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: 
  net.solarnetwork.ocpp.web.json;version="3.0.2"
 Import-Package: 

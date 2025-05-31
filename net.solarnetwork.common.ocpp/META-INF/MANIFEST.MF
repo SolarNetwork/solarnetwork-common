@@ -6,7 +6,7 @@ Bundle-SymbolicName: net.solarnetwork.common.ocpp
 Bundle-Version: 5.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: 
  net.solarnetwork.ocpp.dao;version="3.0.0",
  net.solarnetwork.ocpp.domain;version="3.3.0",
