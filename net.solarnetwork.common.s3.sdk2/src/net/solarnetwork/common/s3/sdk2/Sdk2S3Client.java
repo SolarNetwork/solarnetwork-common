@@ -115,7 +115,10 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	private S3TransferManager s3TransferManager;
 
 	/**
-	 * Default constructor.
+	 * Constructor.
+	 *
+	 * @param executorService
+	 *        the executor service to use
 	 */
 	public Sdk2S3Client(ExecutorService executorService) {
 		this(executorService, Sdk2S3Client.class.getName());
@@ -124,6 +127,8 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	/**
 	 * Constructor.
 	 *
+	 * @param executorService
+	 *        the executor service to use
 	 * @param id
 	 *        the settings UID to use
 	 */
