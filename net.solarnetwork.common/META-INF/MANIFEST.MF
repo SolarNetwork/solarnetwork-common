@@ -15,7 +15,7 @@ Export-Package:
  net.solarnetwork.domain.datum;version="3.0.0",
  net.solarnetwork.domain.tariff;version="1.1.0",
  net.solarnetwork.event;version="1.0.0",
- net.solarnetwork.io;version="2.4.0",
+ net.solarnetwork.io;version="3.0.0",
  net.solarnetwork.security;version="2.0.0",
  net.solarnetwork.service;version="1.4.0",
  net.solarnetwork.service.support;version="1.1.1",
