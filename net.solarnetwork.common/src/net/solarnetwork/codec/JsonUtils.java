@@ -94,7 +94,7 @@ import net.solarnetwork.util.StringUtils;
  * </ul>
  *
  * @author matt
- * @version 2.5
+ * @version 2.6
  * @since 1.72
  */
 public final class JsonUtils {
@@ -1076,7 +1076,7 @@ public final class JsonUtils {
 	 *
 	 * @param p
 	 *        the parser
-	 * @return the decimal array
+	 * @return the decimal
 	 * @throws IOException
 	 *         if any IO error occurs
 	 * @throws JsonProcessingException
@@ -1097,6 +1097,39 @@ public final class JsonUtils {
 						msg = "Invalid number value: " + p.getValueAsString();
 					}
 					throw new InvalidFormatException(p, msg, p.getValueAsString(), BigDecimal.class);
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Parse a JSON numeric value into a {@link Long}.
+	 *
+	 * @param p
+	 *        the parser
+	 * @return the long
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 * @since 2.6
+	 */
+	public static Long parseLong(JsonParser p) throws IOException, JsonProcessingException {
+		JsonToken t = p.nextToken();
+		if ( t != null ) {
+			if ( t.isNumeric() ) {
+				return p.getLongValue();
+			} else if ( t == JsonToken.VALUE_STRING ) {
+				// try to parse number string
+				try {
+					return Long.valueOf(p.getValueAsString());
+				} catch ( NumberFormatException | ArithmeticException e ) {
+					String msg = e.getMessage();
+					if ( msg == null || msg.isEmpty() ) {
+						msg = "Invalid number value: " + p.getValueAsString();
+					}
+					throw new InvalidFormatException(p, msg, p.getValueAsString(), Long.class);
 				}
 			}
 		}
