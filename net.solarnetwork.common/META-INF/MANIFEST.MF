@@ -45,7 +45,7 @@ Import-Package:
  javax.net.ssl,
  javax.sql,
  javax.xml.stream,
- org.apache.commons.beanutils;version="[1.8.0,2.0.0)",
+ org.apache.commons.beanutils;version="[1.8,2.0)",
  org.apache.commons.codec.binary;version="[1.7,2.0)",
  org.apache.commons.codec.digest;version="[1.7,2.0)",
  org.apache.commons.compress.compressors;version="[1.18,2.0)";resolution:=optional,
