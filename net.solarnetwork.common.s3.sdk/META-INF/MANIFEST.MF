@@ -20,7 +20,7 @@ Import-Package:
  com.amazonaws.services.s3.transfer;version="[1.11,1.13)",
  net.solarnetwork.common.s3;version="[3.0,4.0)",
  net.solarnetwork.domain;version="[2.0,4.0)",
- net.solarnetwork.io;version="[2.0,3.0)",
+ net.solarnetwork.io;version="[2.0,4.0)",
  net.solarnetwork.service;version="[1.0,2.0)",
  net.solarnetwork.service.support;version="[1.0,2.0)",
  net.solarnetwork.settings;version="[2.0,3.0)",
