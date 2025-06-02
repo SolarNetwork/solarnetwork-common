@@ -30,14 +30,14 @@
 
 		<!-- Testing support -->
 		<dependency org="commons-codec" name="commons-codec" rev="1.11"/>
-		<dependency org="io.netty" name="netty-buffer" rev="4.1.109.Final"/>
-		<dependency org="io.netty" name="netty-codec" rev="4.1.109.Final"/>
-		<dependency org="io.netty" name="netty-codec-http" rev="4.1.109.Final"/>
-		<dependency org="io.netty" name="netty-codec-mqtt" rev="4.1.109.Final"/>
-		<dependency org="io.netty" name="netty-common" rev="4.1.109.Final"/>
-		<dependency org="io.netty" name="netty-handler" rev="4.1.109.Final"/>
-		<dependency org="io.netty" name="netty-resolver" rev="4.1.109.Final"/>
-		<dependency org="io.netty" name="netty-transport" rev="4.1.109.Final"/>
+		<dependency org="io.netty" name="netty-buffer" rev="4.2.1.Final"/>
+		<dependency org="io.netty" name="netty-codec" rev="4.2.1.Final"/>
+		<dependency org="io.netty" name="netty-codec-http" rev="4.2.1.Final"/>
+		<dependency org="io.netty" name="netty-codec-mqtt" rev="4.2.1.Final"/>
+		<dependency org="io.netty" name="netty-common" rev="4.2.1.Final"/>
+		<dependency org="io.netty" name="netty-handler" rev="4.2.1.Final"/>
+		<dependency org="io.netty" name="netty-resolver" rev="4.2.1.Final"/>
+		<dependency org="io.netty" name="netty-transport" rev="4.2.1.Final"/>
 		<dependency org="io.moquette" name="moquette-broker" rev="0.16"/>
 		<dependency org="org.eclipse.paho" name="org.eclipse.paho.client.mqttv3" rev="1.2.5">
 			<artifact name="org.eclipse.paho.client.mqttv3" type="jar"/>
