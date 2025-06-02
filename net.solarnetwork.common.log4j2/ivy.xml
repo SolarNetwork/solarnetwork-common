@@ -13,7 +13,7 @@
 		<artifact type="sources" ext="jar" conf="sources" m:classifier="sources"/>
 	</publications>
 	<dependencies defaultconfmapping="runtime->default(runtime);compile->default(runtime)">
-		<dependency org="org.osgi" name="org.osgi.compendium" rev="5.0.0"/>
+		<dependency org="org.osgi" name="org.osgi.service.event" rev="1.4.1" conf="compile"/>
 		<dependency org="org.eclipse.platform" name="org.eclipse.osgi" rev="3.14.0" conf="compile"/>
 		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.17.2" conf="compile"/>
 		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.17.2" conf="compile"/>
