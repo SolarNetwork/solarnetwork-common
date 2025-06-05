@@ -35,6 +35,7 @@ Export-Package:
    javax.xml.datatype,
    javax.xml.bind"
 Import-Package: 
+ javax.activation,
  javax.xml.bind,
  javax.xml.bind.annotation,
  javax.xml.soap;resolution:=optional,
