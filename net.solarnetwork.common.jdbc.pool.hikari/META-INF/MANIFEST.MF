@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hikari JDBC Connection Pool
 Bundle-Description: JDBC DataSource backed by a HikariCP connection pool.
 Bundle-SymbolicName: net.solarnetwork.common.jdbc.pool.hikari
-Bundle-Version: 2.0.5
+Bundle-Version: 2.0.6
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.jdbc.pool.hikari
 Bundle-RequiredExecutionEnvironment: JavaSE-11

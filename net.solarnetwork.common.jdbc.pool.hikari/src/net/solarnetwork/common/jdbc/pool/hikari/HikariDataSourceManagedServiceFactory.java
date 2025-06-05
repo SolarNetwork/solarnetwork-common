@@ -1,21 +1,21 @@
 /* ==================================================================
  * HikariDataSourceManagedServiceFactory.java - 26/07/2019 11:35:12 am
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -73,9 +73,9 @@ import net.solarnetwork.util.StringUtils;
 
 /**
  * Managed service factory for {@link HikariDataSource} instances.
- * 
+ *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class HikariDataSourceManagedServiceFactory implements ManagedServiceFactory {
 
@@ -99,7 +99,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	/**
 	 * Configuration property for the data source to use a
 	 * {@link net.solarnetwork.dao.jdbc.SQLExceptionHandlerDataSourceProxy}.
-	 * 
+	 *
 	 * @since 1.1
 	 */
 	public static final String EXCEPTION_HANDLER_SUPPORT_PROPERTY = "factory.exceptionHandlerSupport";
@@ -119,11 +119,11 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * The {@link ForkJoinPool#commonPool()} will be used as the executor.
 	 * </p>
-	 * 
+	 *
 	 * @param bundleContext
 	 *        the bundle context
 	 */
@@ -133,7 +133,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param bundleContext
 	 *        the bundle context
 	 * @param executor
@@ -265,7 +265,9 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 						} else if ( key.equals(DATA_SOURCE_PING_TEST_QUERY_PROPERTY) ) {
 							// TODO: handle change?
 						} else if ( key.startsWith(SERVICE_PROPERTY_PREFIX) ) {
-							serviceProps.put(key.substring(SERVICE_PROPERTY_PREFIX.length()), val);
+							String propKey = key.substring(SERVICE_PROPERTY_PREFIX.length());
+							Object propVal = servicePropertyValue(propKey, val);
+							serviceProps.put(propKey, propVal);
 						} else if ( key.startsWith(DATA_SOURCE_PROPERTY_PREFIX) ) {
 							// TODO: handle change?
 						} else if ( ignoredPropertyPrefixes != null
@@ -289,7 +291,12 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	/**
 	 * Map well-known service keys to appropriate instance values, such as
 	 * {@code Integer}.
-	 * 
+	 *
+	 * <p>
+	 * Property values will be treated as a comma-delimited set, and
+	 * multi-valued instances will be returned as string arrays.
+	 * </p>
+	 *
 	 * @param propKey
 	 *        the service property key; must not be {@literal null}
 	 * @param object
@@ -307,7 +314,15 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				// ignore and continue
 			}
 		}
-		return object;
+		Set<String> set = StringUtils.commaDelimitedStringToSet(object.toString());
+		if ( set == null || set.isEmpty() ) {
+			return null;
+		}
+		String[] array = set.toArray(String[]::new);
+		if ( array.length == 1 ) {
+			return array[0];
+		}
+		return array;
 	}
 
 	private void doDelete(String pid) {
@@ -393,7 +408,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 		/**
 		 * Create the pooled DataSource and register it with the OSGi runtime.
-		 * 
+		 *
 		 * <p>
 		 * If {@code dataSourceFactoryFilter} is configured, this will obtain a
 		 * DataSource from the available factory to use with the registered
@@ -545,7 +560,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 	/**
 	 * Configure a set of configuration property prefixes to ignore.
-	 * 
+	 *
 	 * @param ignoredPropertyPrefixes
 	 *        the prefixes to ignore
 	 */
