@@ -1,21 +1,21 @@
 /* ==================================================================
  * HikariDataSourceManagedServiceFactoryTests.java - 31/07/2019 10:59:33 am
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,9 +26,11 @@ import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isNull;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -62,9 +64,9 @@ import net.solarnetwork.test.CallingThreadExecutorService;
 
 /**
  * Test cases for the {@link HikariDataSourceManagedServiceFactory} class.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class HikariDataSourceManagedServiceFactoryTests {
 
@@ -407,6 +409,72 @@ public class HikariDataSourceManagedServiceFactoryTests {
 		factory.deleted(factoryPid);
 
 		// then
+	}
+
+	@Test
+	public void configurationUpdated_regisgerServiceWithMultiValuedProperty() throws Exception {
+		// given
+		final String uuid = UUID.randomUUID().toString();
+		final String pid = net.solarnetwork.common.jdbc.pool.hikari.Activator.SERVICE_PID + "-" + uuid;
+		final String dsFactoryFilter = "(osgi.jdbc.driver.class=org.apache.derby.jdbc.EmbeddedDriver)";
+		final String jdbcUrlAttributes = "create=true";
+		final String jdbcUrl = "jdbc:derby:memory:" + uuid + ";" + jdbcUrlAttributes;
+
+		Map<String, Object> props = new LinkedHashMap<>(8);
+		props.put(HikariDataSourceManagedServiceFactory.DATA_SOURCE_FACTORY_FILTER_PROPERTY,
+				dsFactoryFilter);
+		props.put("dataSource.url", jdbcUrl);
+		props.put("dataSource.user", "user");
+		props.put("dataSource.password", "password");
+		props.put("serviceProperty.db", "test, foo, bar");
+		props.put("serviceProperty.foo", "bar");
+
+		Capture<Properties> dataSourcePropCaptor = Capture.newInstance();
+		Capture<DataSource> dataSourceCaptor = Capture.newInstance();
+		Capture<Dictionary<String, ?>> servicePropCaptor = Capture.newInstance();
+
+		expect(bundleContext.getServiceReferences(DataSourceFactory.class, dsFactoryFilter))
+				.andReturn(Collections.singleton(dataSourceFactoryRef));
+
+		expect(bundleContext.getService(dataSourceFactoryRef)).andReturn(dataSourceFactory);
+
+		EmbeddedDataSource ds = new EmbeddedDataSource();
+		ds.setDatabaseName("memory:" + uuid);
+		ds.setConnectionAttributes(jdbcUrlAttributes);
+		expect(dataSourceFactory.createDataSource(capture(dataSourcePropCaptor))).andReturn(ds);
+
+		expect(bundleContext.registerService(eq(DataSource.class), capture(dataSourceCaptor),
+				capture(servicePropCaptor))).andReturn(dataSourceReg);
+
+		// when
+		replayAll();
+		factory.updated(pid, new Hashtable<String, Object>(props));
+
+		// then
+		Properties dataSourceProps = dataSourcePropCaptor.getValue();
+		assertThat("DataSource URL", dataSourceProps, hasEntry("url", jdbcUrl));
+		assertThat("DataSource user", dataSourceProps, hasEntry("user", "user"));
+		assertThat("DataSource password", dataSourceProps, hasEntry("password", "password"));
+
+		DataSource dataSource = dataSourceCaptor.getValue();
+		assertThat("Registered DataSource is Hikari pool", dataSource,
+				is(instanceOf(HikariDataSource.class)));
+		assertThat("Hikari DataSource is from DataSourceFactory",
+				((HikariDataSource) dataSource).getDataSource(), is(sameInstance(ds)));
+
+		Dictionary<String, ?> serviceProps = servicePropCaptor.getValue();
+		assertThat("Service propery value db is array", serviceProps.get("db"),
+				is(instanceOf(String[].class)));
+		assertThat("Service propery value db", (String[]) serviceProps.get("db"),
+				is(arrayContaining("test", "foo", "bar")));
+		assertThat("Service propery value foo", serviceProps.get("foo"), is(equalTo("bar")));
+
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		java.sql.Date result = jdbcTemplate.queryForObject("VALUES CURRENT_DATE", java.sql.Date.class);
+		assertThat("Date returned from JDBC", result, is(notNullValue()));
+
+		// save PID for other tests
+		factoryPid = pid;
 	}
 
 }

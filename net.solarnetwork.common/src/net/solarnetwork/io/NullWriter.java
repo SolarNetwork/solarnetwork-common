@@ -38,7 +38,7 @@ import java.io.Writer;
  */
 public class NullWriter extends Writer {
 
-	/** A defaeult instance. */
+	/** A default instance. */
 	public static final NullWriter INSTANCE = new NullWriter();
 
 	/**
