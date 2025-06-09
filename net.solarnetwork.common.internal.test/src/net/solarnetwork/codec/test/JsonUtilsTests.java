@@ -40,9 +40,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import net.solarnetwork.codec.JsonUtils;
 import net.solarnetwork.domain.BasicDeviceInfo;
 
@@ -50,7 +52,7 @@ import net.solarnetwork.domain.BasicDeviceInfo;
  * Test cases for the {@link JsonUtils} class.
  *
  * @author matt
- * @version 2.1
+ * @version 2.2
  */
 public class JsonUtilsTests {
 
@@ -299,6 +301,36 @@ public class JsonUtilsTests {
 		// THEN
 		assertThat("Number value resolves as string", JsonUtils.parseNonEmptyStringAttribute(n, "a"),
 				is(equalTo("123")));
+	}
+
+	@Test
+	public void parseLong() throws IOException {
+		// GIVEN
+		try (JsonParser p = JsonUtils.newObjectMapper().createParser("12345")) {
+
+			// THEN
+			assertThat("Long value parsed", JsonUtils.parseLong(p), is(equalTo(12345L)));
+		}
+	}
+
+	@Test
+	public void parseLong_stringValue() throws IOException {
+		// GIVEN
+		try (JsonParser p = JsonUtils.newObjectMapper().createParser("\"12345\"")) {
+
+			// THEN
+			assertThat("Long value parsed", JsonUtils.parseLong(p), is(equalTo(12345L)));
+		}
+	}
+
+	@Test(expected = InvalidFormatException.class)
+	public void parseLong_floatValue() throws IOException {
+		// GIVEN
+		try (JsonParser p = JsonUtils.newObjectMapper().createParser("\"12345.6789\"")) {
+
+			// WHEN
+			JsonUtils.parseLong(p);
+		}
 	}
 
 }

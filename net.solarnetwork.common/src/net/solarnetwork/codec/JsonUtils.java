@@ -25,6 +25,7 @@ package net.solarnetwork.codec;
 import static java.util.Arrays.asList;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
@@ -93,7 +94,7 @@ import net.solarnetwork.util.StringUtils;
  * </ul>
  *
  * @author matt
- * @version 2.4
+ * @version 2.6
  * @since 1.72
  */
 public final class JsonUtils {
@@ -267,12 +268,13 @@ public final class JsonUtils {
 		try {
 			Class<? extends SimpleModule> clazz = JsonUtils.class.getClassLoader().loadClass(className)
 					.asSubclass(SimpleModule.class);
-			SimpleModule m = clazz.newInstance();
+			SimpleModule m = clazz.getDeclaredConstructor().newInstance();
 			if ( configuror != null ) {
 				configuror.accept(m);
 			}
 			return m;
-		} catch ( ClassNotFoundException | InstantiationException | IllegalAccessException e ) {
+		} catch ( ClassNotFoundException | InstantiationException | IllegalAccessException
+				| InvocationTargetException | NoSuchMethodException e ) {
 			LOG.info("Optional JSON module {} not available ({})", className, e.toString());
 			return null;
 		}
@@ -1074,7 +1076,7 @@ public final class JsonUtils {
 	 *
 	 * @param p
 	 *        the parser
-	 * @return the decimal array
+	 * @return the decimal
 	 * @throws IOException
 	 *         if any IO error occurs
 	 * @throws JsonProcessingException
@@ -1095,6 +1097,39 @@ public final class JsonUtils {
 						msg = "Invalid number value: " + p.getValueAsString();
 					}
 					throw new InvalidFormatException(p, msg, p.getValueAsString(), BigDecimal.class);
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Parse a JSON numeric value into a {@link Long}.
+	 *
+	 * @param p
+	 *        the parser
+	 * @return the long
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 * @since 2.6
+	 */
+	public static Long parseLong(JsonParser p) throws IOException, JsonProcessingException {
+		JsonToken t = p.nextToken();
+		if ( t != null ) {
+			if ( t.isNumeric() ) {
+				return p.getLongValue();
+			} else if ( t == JsonToken.VALUE_STRING ) {
+				// try to parse number string
+				try {
+					return Long.valueOf(p.getValueAsString());
+				} catch ( NumberFormatException | ArithmeticException e ) {
+					String msg = e.getMessage();
+					if ( msg == null || msg.isEmpty() ) {
+						msg = "Invalid number value: " + p.getValueAsString();
+					}
+					throw new InvalidFormatException(p, msg, p.getValueAsString(), Long.class);
 				}
 			}
 		}

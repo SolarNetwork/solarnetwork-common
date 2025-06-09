@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.solarnetwork.common.s3.sdk2.test
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: net.solarnetwork.common.s3.sdk2;bundle-version="[1.0.0,2.0.0)"
 Automatic-Module-Name: net.solarnetwork.common.s3.sdk2.test
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: 
  net.solarnetwork.test;version="1.5",
  org.apache.commons.codec;version="[1.11,2.0)",

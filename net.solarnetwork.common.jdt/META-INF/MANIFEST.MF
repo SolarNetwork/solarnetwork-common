@@ -6,7 +6,7 @@ Bundle-Description: Java complier using Eclipse JDT.
 Bundle-Version: 3.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.jdt
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Activator: net.solarnetwork.common.jdt.Activator
 Export-Package: 
  net.solarnetwork.common.jdt;version="2.0.0"

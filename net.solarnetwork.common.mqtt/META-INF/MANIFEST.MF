@@ -6,7 +6,7 @@ Bundle-SymbolicName: net.solarnetwork.common.mqtt
 Bundle-Version: 5.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.mqtt
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: 
  net.solarnetwork.common.mqtt;version="3.0.0",
  net.solarnetwork.common.mqtt.dao;version="2.0.0"

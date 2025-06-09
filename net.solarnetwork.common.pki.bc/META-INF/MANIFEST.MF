@@ -6,7 +6,7 @@ Bundle-SymbolicName: net.solarnetwork.common.pki.bc
 Automatic-Module-Name: net.solarnetwork.common.pki.bc
 Bundle-Version: 3.1.0
 Bundle-Vendor: SolarNetwork
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: 
  net.solarnetwork.pki.bc;version="2.1.0"
 Import-Package: 
