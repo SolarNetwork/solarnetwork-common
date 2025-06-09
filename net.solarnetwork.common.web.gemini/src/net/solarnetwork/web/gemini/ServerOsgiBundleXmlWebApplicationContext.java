@@ -13,8 +13,8 @@ package net.solarnetwork.web.gemini;
 
 import java.io.IOException;
 import java.util.Map;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import org.eclipse.gemini.blueprint.context.ConfigurableOsgiBundleApplicationContext;
 import org.eclipse.gemini.blueprint.context.support.OsgiBundleXmlApplicationContext;
 import org.eclipse.gemini.blueprint.extender.OsgiBeanFactoryPostProcessor;
