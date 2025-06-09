@@ -6,7 +6,7 @@ Bundle-SymbolicName: net.solarnetwork.common.jdbc.pool.hikari
 Bundle-Version: 2.0.6
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.jdbc.pool.hikari
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Activator: net.solarnetwork.common.jdbc.pool.hikari.Activator
 Import-Package: 
  com.zaxxer.hikari;version="[5.1,7.0)",

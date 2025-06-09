@@ -6,7 +6,7 @@ Bundle-SymbolicName: net.solarnetwork.common.osgi
 Bundle-Version: 2.2.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.osgi
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
  net.solarnetwork.common.osgi.event;version="1.1.0",
  net.solarnetwork.common.osgi.service;version="1.2.0"
@@ -18,10 +18,10 @@ Import-Package:
  org.osgi.service.event;version="[1.2,2.0)",
  org.osgi.service.jdbc;version="[1.0,2.0)",
  org.slf4j;version="[1.7,2.0)",
- org.springframework.beans;version="[5.3,6.0)",
- org.springframework.beans.factory;version="[5.3,6.0)",
- org.springframework.beans.factory.config;version="[5.3,6.0)",
+ org.springframework.beans;version="[6.2,7.0)",
+ org.springframework.beans.factory;version="[6.2,7.0)",
+ org.springframework.beans.factory.config;version="[6.2,7.0)",
  org.springframework.core;version="5.3.24",
- org.springframework.transaction.event;version="[5.3,6.0)",
- org.springframework.transaction.support;version="[5.3,6.0)",
- org.springframework.util;version="[5.3,6.0)"
+ org.springframework.transaction.event;version="[6.2,7.0)",
+ org.springframework.transaction.support;version="[6.2,7.0)",
+ org.springframework.util;version="[6.2,7.0)"

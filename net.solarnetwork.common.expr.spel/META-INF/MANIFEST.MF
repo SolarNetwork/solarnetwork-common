@@ -6,13 +6,13 @@ Bundle-SymbolicName: net.solarnetwork.common.expr.spel
 Bundle-Version: 3.1.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.expr.spel
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: net.solarnetwork.common.expr.spel;version="2.1.0"
 Import-Package: 
  net.solarnetwork.service;version="[1.0,2.0)",
- org.springframework.context.expression;version="[5.3,6.0)",
- org.springframework.expression;version="[5.3,6.0)",
- org.springframework.expression.common;version="[5.3,6.0)",
- org.springframework.expression.spel;version="[5.3,6.0)",
- org.springframework.expression.spel.standard;version="[5.3,6.0)",
- org.springframework.expression.spel.support;version="[5.3,6.0)"
+ org.springframework.context.expression;version="[6.2,7.0)",
+ org.springframework.expression;version="[6.2,7.0)",
+ org.springframework.expression.common;version="[6.2,7.0)",
+ org.springframework.expression.spel;version="[6.2,7.0)",
+ org.springframework.expression.spel.standard;version="[6.2,7.0)",
+ org.springframework.expression.spel.support;version="[6.2,7.0)"

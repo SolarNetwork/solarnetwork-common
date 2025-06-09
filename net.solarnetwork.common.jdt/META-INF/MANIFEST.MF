@@ -6,7 +6,7 @@ Bundle-Description: Java complier using Eclipse JDT.
 Bundle-Version: 3.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.jdt
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Activator: net.solarnetwork.common.jdt.Activator
 Export-Package: 
  net.solarnetwork.common.jdt;version="2.0.0"
@@ -21,6 +21,6 @@ Import-Package:
  org.eclipse.jdt.internal.compiler.tool,
  org.osgi.framework;version="[1.5,2.0)",
  org.slf4j;version="[1.7,2.0)",
- org.springframework.context;version="[5.3,6.0)",
- org.springframework.core.io;version="[5.3,6.0)",
- org.springframework.util;version="[5.3,6.0)"
+ org.springframework.context;version="[6.2,7.0)",
+ org.springframework.core.io;version="[6.2,7.0)",
+ org.springframework.util;version="[6.2,7.0)"

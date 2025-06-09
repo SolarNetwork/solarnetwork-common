@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.solarnetwork.common.mqtt.paho.test
 Bundle-Version: 4.0.0
 Fragment-Host: net.solarnetwork.common.mqtt.paho;bundle-version="[4.0,5.0)"
 Automatic-Module-Name: net.solarnetwork.common.mqtt.paho.test
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: 
  io.moquette;version="[0.12,1.0)",
  io.moquette.interception;version="[0.12,1.0)",
@@ -24,6 +24,6 @@ Import-Package:
  org.junit;version="[4.5,5.0)",
  org.junit.runner;version="[4.5,5.0)",
  org.slf4j;version="[1.7,2.0)",
- org.springframework.scheduling;version="[5.3,6.0)",
- org.springframework.scheduling.concurrent;version="[5.3,6.0)",
- org.springframework.util;version="[5.3,6.0)"
+ org.springframework.scheduling;version="[6.2,7.0)",
+ org.springframework.scheduling.concurrent;version="[6.2,7.0)",
+ org.springframework.util;version="[6.2,7.0)"
