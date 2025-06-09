@@ -24,7 +24,7 @@ package net.solarnetwork.common.mqtt.netty;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Date;
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
@@ -72,7 +72,7 @@ import net.solarnetwork.util.StatTracker;
  * Netty based implementation of {@link MqttConnection}.
  *
  * @author matt
- * @version 3.2
+ * @version 3.3
  */
 public class NettyMqttConnection extends BaseMqttConnection
 		implements MqttMessageHandler, MqttClientCallback, WireLoggingSupport {
@@ -221,7 +221,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 				log.info("{} MQTT configuration incomplete, will not connect.", getUid());
 			}
 			if ( connectionConfig.isReconnect() && config != null ) {
-				scheduler.schedule(scheduledTask, new Date(System.currentTimeMillis() + reconnectDelay));
+				scheduler.schedule(scheduledTask, Instant.now().plusMillis(reconnectDelay));
 			} else {
 				connectComplete(null, r, t);
 			}

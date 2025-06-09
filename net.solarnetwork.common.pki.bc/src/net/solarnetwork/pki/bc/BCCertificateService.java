@@ -80,7 +80,7 @@ import net.solarnetwork.service.CertificationAuthorityService;
  * Bouncy Castle implementation of {@link CertificateService}.
  *
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class BCCertificateService implements CertificateService, CertificationAuthorityService {
 
@@ -287,7 +287,7 @@ public class BCCertificateService implements CertificateService, CertificationAu
 		// find parent in results, or else add to end
 		for ( ListIterator<X509Certificate> itr = results.listIterator(); itr.hasNext(); ) {
 			X509Certificate p = itr.next();
-			if ( p.getSubjectDN().equals(c.getIssuerDN()) ) {
+			if ( p.getSubjectX500Principal().equals(c.getIssuerX500Principal()) ) {
 				itr.previous();
 				itr.add(c);
 				break;
@@ -324,7 +324,7 @@ public class BCCertificateService implements CertificateService, CertificationAu
 			Map<X500Principal, X509Certificate> map = new LinkedHashMap<X500Principal, X509Certificate>();
 			for ( Certificate c : certs ) {
 				X509Certificate x509 = (X509Certificate) c;
-				if ( x509.getIssuerDN().equals(x509.getSubjectDN()) ) {
+				if ( x509.getIssuerX500Principal().equals(x509.getSubjectX500Principal()) ) {
 					// root CA
 					results.add(x509);
 				} else {
