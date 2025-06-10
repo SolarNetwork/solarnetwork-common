@@ -23,9 +23,9 @@
 package net.solarnetwork.ocpp.v16.jakarta.cs.json.test;
 
 import static net.solarnetwork.ocpp.xml.jakarta.support.XmlDateUtils.newXmlCalendar;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;

@@ -22,8 +22,8 @@
 
 package net.solarnetwork.service.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import net.solarnetwork.service.OptionalService;
 import net.solarnetwork.service.OptionalServiceNotAvailableException;

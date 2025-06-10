@@ -22,8 +22,8 @@
 
 package net.solarnetwork.support.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;

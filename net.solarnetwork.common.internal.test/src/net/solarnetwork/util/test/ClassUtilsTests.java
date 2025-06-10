@@ -22,7 +22,7 @@
 
 package net.solarnetwork.util.test;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;

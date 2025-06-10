@@ -23,7 +23,7 @@
 package net.solarnetwork.common.tmpl.st4.test;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedHashMap;

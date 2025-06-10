@@ -23,7 +23,7 @@
 package net.solarnetwork.web.jakarta.support.test;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Test;
 import net.solarnetwork.web.jakarta.support.StaticAuthorizationCredentialsProvider;
 

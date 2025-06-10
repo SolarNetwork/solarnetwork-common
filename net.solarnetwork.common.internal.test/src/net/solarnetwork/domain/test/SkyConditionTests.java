@@ -22,10 +22,10 @@
 
 package net.solarnetwork.domain.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;

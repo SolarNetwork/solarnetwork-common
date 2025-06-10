@@ -22,8 +22,8 @@
 
 package net.solarnetwork.codec.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import java.math.BigDecimal;
 import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
