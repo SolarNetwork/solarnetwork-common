@@ -269,6 +269,24 @@ public abstract class TestHttpHandler extends Handler.Abstract {
 	}
 
 	/**
+	 * Respond with an XML resource.
+	 *
+	 * @param request
+	 *        the HTTP request
+	 * @param response
+	 *        the HTTP response
+	 * @param resource
+	 *        the resource name
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @see #respondWithResource(Request, Response, String, String)
+	 */
+	protected void respondWithXmlResource(Request request, Response response, String resource)
+			throws IOException {
+		respondWithResource(request, response, resource, "text/xml; charset=utf-8");
+	}
+
+	/**
 	 * Respond with a resource.
 	 *
 	 * <p>
