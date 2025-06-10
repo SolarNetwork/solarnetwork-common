@@ -39,6 +39,7 @@
 		<dependency org="io.netty" name="netty-resolver" rev="4.2.2.Final"/>
 		<dependency org="io.netty" name="netty-transport" rev="4.2.2.Final"/>
 		<dependency org="io.moquette" name="moquette-broker" rev="0.16"/>
+		<dependency org="org.eclipse.jetty" name="jetty-server" rev="12.0.22"/>
 		<dependency org="org.eclipse.paho" name="org.eclipse.paho.client.mqttv3" rev="1.2.5">
 			<artifact name="org.eclipse.paho.client.mqttv3" type="jar"/>
 		</dependency>
