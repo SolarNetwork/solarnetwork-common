@@ -14,10 +14,10 @@ Export-Package:
  net.solarnetwork.web.jakarta.service.support;version="1.0.1",
  net.solarnetwork.web.jakarta.support;version="1.0.1"
 Import-Package: 
- com.fasterxml.jackson.annotation;version="[2.15,3.0)",
- com.fasterxml.jackson.core;version="[2.15,3.0)",
- com.fasterxml.jackson.core.type;version="[2.15,3.0)",
- com.fasterxml.jackson.databind;version="[2.15,3.0)",
+ com.fasterxml.jackson.annotation;version="[2.19,3.0)",
+ com.fasterxml.jackson.core;version="[2.19,3.0)",
+ com.fasterxml.jackson.core.type;version="[2.19,3.0)",
+ com.fasterxml.jackson.databind;version="[2.19,3.0)",
  jakarta.servlet;version="6.0.0",
  jakarta.servlet.http;version="6.0.0",
  javax.crypto,

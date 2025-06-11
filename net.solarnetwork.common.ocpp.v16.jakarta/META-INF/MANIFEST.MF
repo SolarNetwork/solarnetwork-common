@@ -14,7 +14,7 @@ Export-Package:
    net.solarnetwork.ocpp.domain,
    com.fasterxml.jackson.databind,
    net.solarnetwork.ocpp.v16.jakarta.json",
- net.solarnetwork.ocpp.v16.jakarta.cs;version="1.0.2";
+ net.solarnetwork.ocpp.v16.jakarta.cs;version="[2.19,3.0)";
   uses:="net.solarnetwork.ocpp.service,
    net.solarnetwork.ocpp.service.cs,
    ocpp.v16.jakarta.cs,
@@ -24,22 +24,22 @@ Export-Package:
    net.solarnetwork.ocpp.domain,
    com.fasterxml.jackson.databind,
    net.solarnetwork.ocpp.v16.jakarta.json",
- net.solarnetwork.ocpp.v16.jakarta.json;version="1.0.0";
+ net.solarnetwork.ocpp.v16.jakarta.json;version="[2.19,3.0)";
   uses:="jakarta.xml.bind,
    net.solarnetwork.ocpp.json,
    net.solarnetwork.ocpp.xml.jakarta.support,
    com.fasterxml.jackson.databind",
- net.solarnetwork.ocpp.xml.jakarta.support;version="2.0.0";
+ net.solarnetwork.ocpp.xml.jakarta.support;version="[2.19,3.0)";
   uses:="javax.xml.validation,
    jakarta.xml.bind,
    javax.xml.namespace,
    javax.xml.datatype"
 Import-Package: 
- com.fasterxml.jackson.annotation;version="[2.15,3.0)",
- com.fasterxml.jackson.core;version="[2.15,3.0)",
- com.fasterxml.jackson.databind;version="[2.15,3.0)",
- com.fasterxml.jackson.databind.util;version="[2.15,3.0)",
- com.fasterxml.jackson.module.jakarta.xmlbind;version="[2.15,3.0)",
+ com.fasterxml.jackson.annotation;version="[2.19,3.0)",
+ com.fasterxml.jackson.core;version="[2.19,3.0)",
+ com.fasterxml.jackson.databind;version="[2.19,3.0)",
+ com.fasterxml.jackson.databind.util;version="[2.19,3.0)",
+ com.fasterxml.jackson.module.jakarta.xmlbind;version="[2.19,3.0)",
  jakarta.activation,
  jakarta.xml.bind,
  jakarta.xml.bind.annotation,

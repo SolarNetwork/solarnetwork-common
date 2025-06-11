@@ -9,7 +9,7 @@
 		<dependency org="net.solarnetwork.common.test" name="net.solarnetwork.common.test" rev="[1.22,)"/>
 
 		<!-- Testing support -->
-		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.15.3" />
+		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-cbor" rev="2.19.0" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.11"/>
 		<dependency org="org.eclipse.jetty" name="jetty-server" rev="12.0.22"/>
 		<dependency org="org.osgi" name="osgi.core" rev="8.0.0" />
