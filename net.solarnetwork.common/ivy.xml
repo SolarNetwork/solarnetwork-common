@@ -16,7 +16,7 @@
 		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.19.0" />
 		<dependency org="com.fasterxml.jackson.datatype" name="jackson-datatype-jsr310" rev="2.19.0"/>
 		<dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.3"/>
-		<dependency org="commons-codec" name="commons-codec" rev="1.11"/>
+		<dependency org="commons-codec" name="commons-codec" rev="1.17.0"/>
 		<dependency org="net.sf.supercsv" name="super-csv" rev="2.4.0"/>
 		<dependency org="org.apache.commons" name="commons-compress" rev="1.18" />
 		<dependency org="org.slf4j" name="slf4j-api" rev="2.0.17"/>

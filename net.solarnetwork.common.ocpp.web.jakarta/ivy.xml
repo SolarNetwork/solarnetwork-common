@@ -16,8 +16,8 @@
 		<dependency org="jakarta.servlet" name="jakarta.servlet-api" rev="6.0.0" />
 		<dependency org="jakarta.websocket" name="jakarta.websocket-api" rev="2.1.1" />
 		<dependency org="jakarta.websocket" name="jakarta.websocket-client-api" rev="2.1.1" />
-    	<dependency org="net.solarnetwork.common" name="net.solarnetwork.common" rev="[3.14,)"/>
-    	<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.ocpp" rev="[4.3,)"/>
+    	<dependency org="net.solarnetwork.common" name="net.solarnetwork.common" rev="4.0.0"/>
+    	<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.ocpp" rev="5.0.0"/>
 		<dependency org="org.osgi" name="org.osgi.core" rev="5.0.0"/>
     	<dependency org="org.slf4j" name="slf4j-api" rev="2.0.17"/>
 		<dependency org="org.springframework" name="spring-beans" rev="6.2.6"/>
