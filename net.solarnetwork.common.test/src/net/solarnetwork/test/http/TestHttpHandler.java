@@ -147,6 +147,24 @@ public abstract class TestHttpHandler extends Handler.Abstract {
 	}
 
 	/**
+	 * Respond with HTML content.
+	 *
+	 * @param request
+	 *        the HTTP request
+	 * @param response
+	 *        the HTTP response
+	 * @param html
+	 *        the HTML to respond with
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @see #respondWithContent(Request, Response, String, byte[])
+	 */
+	protected final void respondWithHtml(Request request, Response response, String html)
+			throws IOException {
+		respondWithContent(request, response, "text/html; charset=utf-8", html.getBytes(UTF_8));
+	}
+
+	/**
 	 * Respond with plain text content.
 	 *
 	 * @param request
