@@ -1,21 +1,21 @@
 /* ==================================================================
  * AuthorizationV2RequestInterceptor.java - 13/08/2019 10:11:07 am
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Map;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -48,15 +49,15 @@ import net.solarnetwork.web.jakarta.security.AuthorizationCredentialsProvider;
 /**
  * Interceptor to add an {@literal Authorization} HTTP header using the SNWS2
  * scheme.
- * 
+ *
  * <p>
  * This class is initialized with an {@link AuthorizationCredentialsProvider}
  * instance that must provide the credentials used to authorize and sign each
  * request.
  * </p>
- * 
+ *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.16
  */
 public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInterceptor {
@@ -66,7 +67,7 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param credentialsProvider
 	 *        the API token credentials provider
 	 */
@@ -108,7 +109,7 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 		MediaType contentType = headers.getContentType();
 		Charset charset = (contentType != null && contentType.getCharset() != null
 				? contentType.getCharset()
-				: Charset.forName("UTF-8"));
+				: StandardCharsets.UTF_8);
 		if ( uri.getRawQuery() != null ) {
 			builder.queryParams(queryParams(uri.getRawQuery(), charset));
 		} else if ( body != null && body.length > 0 && HttpMethod.POST.equals(request.getMethod())
