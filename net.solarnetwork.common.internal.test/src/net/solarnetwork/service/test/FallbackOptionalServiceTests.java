@@ -24,9 +24,9 @@ package net.solarnetwork.service.test;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import net.solarnetwork.service.FallbackOptionalService;
 import net.solarnetwork.service.StaticOptionalService;

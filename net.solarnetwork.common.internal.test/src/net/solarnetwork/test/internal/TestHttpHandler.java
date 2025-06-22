@@ -1,50 +1,53 @@
 /* ==================================================================
  * TestHttpHandler.java - 19/05/2017 4:09:05 PM
- * 
+ *
  * Copyright 2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.test.internal;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Enumeration;
+import java.util.concurrent.CompletableFuture;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.handler.AbstractHandler;
+import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StreamUtils;
 
 /**
  * Extension of {@link AbstractHandler} to aid with unit tests.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
-public abstract class TestHttpHandler extends AbstractHandler {
+public abstract class TestHttpHandler extends Handler.Abstract {
 
 	private boolean handled = false;
 	private Throwable exception;
@@ -53,34 +56,28 @@ public abstract class TestHttpHandler extends AbstractHandler {
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Override
-	public final void handle(String target, HttpServletRequest request, HttpServletResponse response,
-			int dispatch) throws IOException, ServletException {
-		log.trace("HTTP target {} request {}", target, request.getRequestURI());
-		Enumeration<String> headerNames = request.getHeaderNames();
-		while ( headerNames.hasMoreElements() ) {
-			String headerName = headerNames.nextElement();
-			log.trace("HTTP header {} = {}", headerName, request.getHeader(headerName));
+	public boolean handle(Request request, Response response, Callback callback) throws Exception {
+		log.trace("HTTP request {}", request.getHttpURI());
+		HttpFields headers = request.getHeaders();
+		for ( HttpField field : headers ) {
+			log.trace("HTTP header {} = {}", field.getName(), field.getValue());
 		}
 		try {
-			handled = handleInternal(request, response);
-			((Request) request).setHandled(handled);
+			handled = handleInternal(request, response, callback);
+			if ( handled ) {
+				callback.completeWith(CompletableFuture.completedFuture(null));
+			}
+			return handled;
 		} catch ( Throwable e ) {
 			exception = e;
-			if ( e instanceof IOException ) {
-				throw (IOException) e;
-			} else if ( e instanceof ServletException ) {
-				throw (ServletException) e;
-			} else if ( e instanceof Error ) {
-				throw (Error) e;
-			} else {
-				throw new RuntimeException(e);
-			}
+			callback.completeWith(CompletableFuture.failedFuture(e));
+			return true;
 		}
 	}
 
 	/**
 	 * HTTP invocation.
-	 * 
+	 *
 	 * @param request
 	 *        the request
 	 * @param response
@@ -90,7 +87,7 @@ public abstract class TestHttpHandler extends AbstractHandler {
 	 * @throws Exception
 	 *         If any problem occurs.
 	 */
-	protected abstract boolean handleInternal(HttpServletRequest request, HttpServletResponse response)
+	protected abstract boolean handleInternal(Request request, Response response, Callback callback)
 			throws Exception;
 
 	/**
@@ -100,7 +97,8 @@ public abstract class TestHttpHandler extends AbstractHandler {
 	 * {@code deflate} or {@code gzip} then the resource data will be compressed
 	 * accordingly.
 	 * </p>
-	 * 
+	 *
+	 * @oaran request the HTTP request
 	 * @param response
 	 *        the HTTP response
 	 * @param json
@@ -108,19 +106,20 @@ public abstract class TestHttpHandler extends AbstractHandler {
 	 * @throws IOException
 	 *         if any IO error occurs
 	 */
-	protected void respondWithJson(HttpServletResponse response, String json) throws IOException {
-		respondWithContent(response, "application/json; charset=utf-8", json.getBytes("UTF-8"));
+	protected void respondWithJson(Request request, Response response, String json) throws IOException {
+		respondWithContent(request, response, "application/json", json.getBytes(UTF_8));
 	}
 
 	/**
 	 * Respond with a JSON resource.
-	 * 
+	 *
 	 * <p>
 	 * If a {@code Content-Encoding} response header has been set to either
 	 * {@code deflate} or {@code gzip} then the resource data will be compressed
 	 * accordingly.
 	 * </p>
-	 * 
+	 *
+	 * @oaran request the HTTP request
 	 * @param response
 	 *        the HTTP response
 	 * @param resource
@@ -128,20 +127,21 @@ public abstract class TestHttpHandler extends AbstractHandler {
 	 * @throws IOException
 	 *         if any IO error occurs
 	 */
-	protected void respondWithJsonResource(HttpServletResponse response, String resource)
+	protected void respondWithJsonResource(Request request, Response response, String resource)
 			throws IOException {
-		respondWithResource(response, resource, "application/json; charset=utf-8");
+		respondWithResource(request, response, resource, "application/json");
 	}
 
 	/**
 	 * Respond with content.
-	 * 
+	 *
 	 * <p>
 	 * If a {@code Content-Encoding} response header has been set to either
 	 * {@code deflate} or {@code gzip} then the resource data will be compressed
 	 * accordingly.
 	 * </p>
-	 * 
+	 *
+	 * @oaran request the HTTP request
 	 * @param response
 	 *        the HTTP response
 	 * @param contentType
@@ -151,21 +151,24 @@ public abstract class TestHttpHandler extends AbstractHandler {
 	 * @throws IOException
 	 *         if any IO error occurs
 	 */
-	protected void respondWithContent(HttpServletResponse response, String contentType, byte[] data)
-			throws IOException {
-		response.setContentType(contentType);
-		FileCopyUtils.copy(data, outputStream(response));
+	protected void respondWithContent(Request request, Response response, String contentType,
+			byte[] data) throws IOException {
+		response.getHeaders().put("Content-Type", contentType);
+		try (OutputStream out = outputStream(request, response)) {
+			StreamUtils.copy(data, out);
+		}
 	}
 
 	/**
 	 * Respond with a resource.
-	 * 
+	 *
 	 * <p>
 	 * If a {@code Content-Encoding} response header has been set to either
 	 * {@code deflate} or {@code gzip} then the resource data will be compressed
 	 * accordingly.
 	 * </p>
-	 * 
+	 *
+	 * @oaran request the HTTP request
 	 * @param response
 	 *        the HTTP response
 	 * @param resource
@@ -175,20 +178,23 @@ public abstract class TestHttpHandler extends AbstractHandler {
 	 * @throws IOException
 	 *         if any IO error occurs
 	 */
-	protected void respondWithResource(HttpServletResponse response, String resource, String contentType)
-			throws IOException {
-		response.setContentType(contentType);
-		InputStream in = getClass().getResourceAsStream(resource);
-		if ( in == null ) {
-			throw new FileNotFoundException(
-					"Resource [" + resource + "] not found from class " + getClass().getName());
+	protected void respondWithResource(Request request, Response response, String resource,
+			String contentType) throws IOException {
+		response.getHeaders().put("Content-Type", contentType);
+		try (InputStream in = getClass().getResourceAsStream(resource)) {
+			if ( in == null ) {
+				throw new FileNotFoundException(
+						"Resource [" + resource + "] not found from class " + getClass().getName());
+			}
+			try (OutputStream out = outputStream(request, response)) {
+				StreamUtils.copy(in, out);
+			}
 		}
-		FileCopyUtils.copy(in, outputStream(response));
 	}
 
-	private OutputStream outputStream(HttpServletResponse response) throws IOException {
-		OutputStream out = response.getOutputStream();
-		String enc = response.getHeader("Content-Encoding");
+	private OutputStream outputStream(Request request, Response response) throws IOException {
+		OutputStream out = Response.asBufferedOutputStream(request, response);
+		String enc = response.getHeaders().get("Content-Encoding");
 		if ( "gzip".equals(enc) ) {
 			out = new GZIPOutputStream(out);
 		} else if ( "deflate".equals(enc) ) {
@@ -199,7 +205,7 @@ public abstract class TestHttpHandler extends AbstractHandler {
 
 	/**
 	 * Test if the handler was called.
-	 * 
+	 *
 	 * @return boolean
 	 * @throws Throwable
 	 *         if the handler threw an exception or JUnit assertion

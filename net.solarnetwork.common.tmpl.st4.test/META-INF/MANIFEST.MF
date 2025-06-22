@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: StringTemplate 4 templating support Tests
 Bundle-SymbolicName: net.solarnetwork.common.tmpl.st4.test
-Bundle-Version: 3.0.0
-Fragment-Host: net.solarnetwork.common.tmpl.st4;bundle-version="[3.0,4.0)"
+Bundle-Version: 4.0.0
+Fragment-Host: net.solarnetwork.common.tmpl.st4;bundle-version="[4.0,5.0)"
 Automatic-Module-Name: net.solarnetwork.common.tmpl.st4.test
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: 
  net.solarnetwork.test;version="[1.7,2.0)",
  org.easymock;version="[3.6,4.0)",
@@ -13,5 +13,5 @@ Import-Package:
  org.junit;version="[4.5,5.0)",
  org.junit.runner;version="[4.5,5.0)",
  org.junit.runners;version="[4.5,5.0)",
- org.springframework.context.support;version="[5.3,6.0)",
- org.springframework.test.util;version="[5.3,6.0)"
+ org.springframework.context.support;version="[6.2,7.0)",
+ org.springframework.test.util;version="[6.2,7.0)"

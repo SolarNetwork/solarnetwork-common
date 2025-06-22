@@ -23,8 +23,8 @@
 package net.solarnetwork.util.test;
 
 import static net.solarnetwork.util.MapPathMatcher.matches;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

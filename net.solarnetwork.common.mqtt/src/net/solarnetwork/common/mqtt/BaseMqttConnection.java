@@ -24,7 +24,7 @@ package net.solarnetwork.common.mqtt;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -51,7 +51,7 @@ import net.solarnetwork.util.StatTracker;
  * </p>
  *
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public abstract class BaseMqttConnection extends BasicIdentifiable
 		implements MqttConnection, ReconfigurableMqttConnection, SettingsChangeObserver, PingTest {
@@ -208,7 +208,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 		closed = false;
 		final long connectDelay = Math.max(200L,
 				(connectionConfig.getReconnectDelaySeconds() * 1000L) / 4);
-		final Date connectDate = new Date(System.currentTimeMillis() + connectDelay);
+		final Instant connectDate = Instant.now().plusMillis(connectDelay);
 		final CompletableFuture<MqttConnectReturnCode> f = new CompletableFuture<>();
 		this.connectFuture = f;
 		log.info("Scheduling connection to {} MQTT server in {}ms", getUid(), connectDelay);

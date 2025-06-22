@@ -23,10 +23,10 @@
 package net.solarnetwork.domain.tariff.test;
 
 import static java.util.stream.Collectors.toList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;

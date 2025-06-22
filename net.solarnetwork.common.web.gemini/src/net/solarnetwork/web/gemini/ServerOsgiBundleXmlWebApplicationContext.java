@@ -13,8 +13,6 @@ package net.solarnetwork.web.gemini;
 
 import java.io.IOException;
 import java.util.Map;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import org.eclipse.gemini.blueprint.context.ConfigurableOsgiBundleApplicationContext;
 import org.eclipse.gemini.blueprint.context.support.OsgiBundleXmlApplicationContext;
 import org.eclipse.gemini.blueprint.extender.OsgiBeanFactoryPostProcessor;
@@ -28,9 +26,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.Resource;
-import org.springframework.ui.context.Theme;
-import org.springframework.ui.context.ThemeSource;
-import org.springframework.ui.context.support.UiApplicationContextUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -43,6 +38,8 @@ import org.springframework.web.context.support.ServletContextResourcePatternReso
 import org.springframework.web.context.support.StandardServletEnvironment;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 
 /**
  * <code>ServerOsgiBundleXmlWebApplicationContext</code> is a custom extension
@@ -50,19 +47,20 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
  * application contexts backed by an OSGi {@link Bundle bundle} in Spring MVC
  * based web applications by implementing
  * {@link ConfigurableWebApplicationContext}.
- * 
+ *
  * Since Java does not support multiple inheritance, the implementation details
  * specific to <code>ConfigurableWebApplicationContext</code> have been copied
  * directly from {@link XmlWebApplicationContext} and
  * {@link AbstractRefreshableWebApplicationContext}.
- * 
+ *
  * <strong>Concurrent Semantics</strong><br>
- * 
+ *
  * This class is not thread-safe.
- * 
+ *
+ * @version 2.0
  */
 public class ServerOsgiBundleXmlWebApplicationContext extends OsgiBundleXmlApplicationContext
-		implements ConfigurableWebApplicationContext, ThemeSource {
+		implements ConfigurableWebApplicationContext {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -96,9 +94,6 @@ public class ServerOsgiBundleXmlWebApplicationContext extends OsgiBundleXmlAppli
 	/** Namespace of this context, or <code>null</code> if root */
 	private String namespace;
 
-	/** the ThemeSource for this ApplicationContext */
-	private ThemeSource themeSource;
-
 	/**
 	 * Creates a <code>ServerOsgiBundleXmlWebApplicationContext</code> with no
 	 * parent.
@@ -111,7 +106,7 @@ public class ServerOsgiBundleXmlWebApplicationContext extends OsgiBundleXmlAppli
 	/**
 	 * Creates a <code>ServerOsgiBundleXmlWebApplicationContext</code> with the
 	 * supplied config locations.
-	 * 
+	 *
 	 * @param configLocations
 	 *        the config locations.
 	 */
@@ -125,7 +120,7 @@ public class ServerOsgiBundleXmlWebApplicationContext extends OsgiBundleXmlAppli
 	/**
 	 * Creates a <code>ServerOsgiBundleXmlWebApplicationContext</code> with the
 	 * supplied parent.
-	 * 
+	 *
 	 * @param parent
 	 *        the parent {@link ApplicationContext}.
 	 */
@@ -138,7 +133,7 @@ public class ServerOsgiBundleXmlWebApplicationContext extends OsgiBundleXmlAppli
 	/**
 	 * Creates a <code>ServerOsgiBundleXmlWebApplicationContext</code> with the
 	 * supplied parent and config locations.
-	 * 
+	 *
 	 * @param configLocations
 	 *        the config locations.
 	 * @param parent
@@ -155,7 +150,7 @@ public class ServerOsgiBundleXmlWebApplicationContext extends OsgiBundleXmlAppli
 
 	/**
 	 * Determines if the supplied <code>location</code> does not have a prefix.
-	 * 
+	 *
 	 * @param location
 	 *        the location to check
 	 * @return {@literal true} if the location has no prefix
@@ -299,7 +294,7 @@ public class ServerOsgiBundleXmlWebApplicationContext extends OsgiBundleXmlAppli
 	/**
 	 * Register request/session scopes, a {@link ServletContextAwareProcessor},
 	 * etc.
-	 * 
+	 *
 	 * @see WebApplicationContextUtils#registerWebApplicationScopes(ConfigurableListableBeanFactory)
 	 */
 	@Override
@@ -336,7 +331,7 @@ public class ServerOsgiBundleXmlWebApplicationContext extends OsgiBundleXmlAppli
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * Additionally, this implementation publishes the context namespace under
 	 * the <code>org.springframework.web.context.namespace</code> property.
 	 */
@@ -355,7 +350,7 @@ public class ServerOsgiBundleXmlWebApplicationContext extends OsgiBundleXmlAppli
 	 * ServletContextResource} if the supplied <code>location</code> does not
 	 * have a prefix and otherwise delegates to the parent implementation for
 	 * standard Spring DM resource loading semantics.
-	 * 
+	 *
 	 * This override is necessary to return a suitable {@link Resource} type for
 	 * flow-relative views. See DMS-2310.
 	 */
@@ -373,7 +368,7 @@ public class ServerOsgiBundleXmlWebApplicationContext extends OsgiBundleXmlAppli
 	 * ServletContextResource}s if the supplied <code>locationPattern</code>
 	 * does not have a prefix and otherwise delegates to the parent
 	 * implementation for standard Spring DM resource loading semantics.
-	 * 
+	 *
 	 * This override is necessary to return a suitable {@link Resource} type for
 	 * flow-relative views. See DMS-2310.
 	 */
@@ -383,22 +378,6 @@ public class ServerOsgiBundleXmlWebApplicationContext extends OsgiBundleXmlAppli
 			return this.servletContextResourcePatternResolver.getResources(locationPattern);
 		}
 		return super.getResources(locationPattern);
-	}
-
-	/**
-	 * Initialize the theme capability.
-	 */
-	@Override
-	protected void onRefresh() {
-		this.themeSource = UiApplicationContextUtils.initThemeSource(this);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Theme getTheme(String themeName) {
-		return this.themeSource.getTheme(themeName);
 	}
 
 	/**

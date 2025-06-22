@@ -5,7 +5,7 @@ Bundle-SymbolicName: net.solarnetwork.common.s3.sdk2.test
 Bundle-Version: 2.0.0
 Fragment-Host: net.solarnetwork.common.s3.sdk2;bundle-version="[2.0,3.0)"
 Automatic-Module-Name: net.solarnetwork.common.s3.sdk2.test
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: 
  net.solarnetwork.test;version="1.5",
  org.apache.commons.codec;version="[1.11,2.0)",
@@ -20,6 +20,6 @@ Import-Package:
  org.joda.time.format;version="[2.4,3.0)",
  org.junit;version="[4.5,5.0)",
  org.junit.runner;version="[4.5,5.0)",
- org.springframework.util;version="[5.3,6.0)",
+ org.springframework.util;version="[6.2,7.0)",
  software.amazon.awssdk.core.sync;version="[2.26,3.0)",
  software.amazon.awssdk.http.apache;version="[2.26,3.0)"
