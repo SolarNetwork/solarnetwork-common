@@ -70,7 +70,7 @@ import net.solarnetwork.util.DateUtils;
  * </pre>
  *
  * @author matt
- * @version 2.1
+ * @version 2.2
  * @since 1.78
  */
 public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> implements Serializable {
@@ -113,7 +113,7 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 				if ( t != JsonToken.FIELD_NAME ) {
 					continue;
 				}
-				String field = p.getCurrentName();
+				String field = p.currentName();
 				switch (field) {
 					case "created":
 						try {
@@ -136,7 +136,7 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 							}
 						} catch ( DateTimeParseException e ) {
 							throw new JsonParseException(p, "Invalid 'created' date value.",
-									p.getCurrentLocation(), e);
+									p.currentLocation(), e);
 						}
 						break;
 
