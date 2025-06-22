@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Core OSGi Support
 Bundle-Description: Common supporting OSGi infrastructure for SolarNode and SolarNet applications.
 Bundle-SymbolicName: net.solarnetwork.common.osgi
-Bundle-Version: 2.2.0
+Bundle-Version: 3.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.osgi
 Bundle-RequiredExecutionEnvironment: JavaSE-17

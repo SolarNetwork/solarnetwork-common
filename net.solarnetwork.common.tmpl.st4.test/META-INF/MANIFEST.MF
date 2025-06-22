@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: StringTemplate 4 templating support Tests
 Bundle-SymbolicName: net.solarnetwork.common.tmpl.st4.test
-Bundle-Version: 3.0.0
-Fragment-Host: net.solarnetwork.common.tmpl.st4;bundle-version="[3.0,4.0)"
+Bundle-Version: 4.0.0
+Fragment-Host: net.solarnetwork.common.tmpl.st4;bundle-version="[4.0,5.0)"
 Automatic-Module-Name: net.solarnetwork.common.tmpl.st4.test
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: 

@@ -4,7 +4,7 @@ Bundle-Name: Bouncy Castle PKI
 Bundle-Description: Public key infrastructure support using Bouncy Castle.
 Bundle-SymbolicName: net.solarnetwork.common.pki.bc
 Automatic-Module-Name: net.solarnetwork.common.pki.bc
-Bundle-Version: 3.1.0
+Bundle-Version: 4.0.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OCPP 2.0 Core Support
 Bundle-Description: Support for OCPP 2.0 service implementations.
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.v201
-Bundle-Version: 1.2.3
+Bundle-Version: 2.0.0
 Export-Package: 
  net.solarnetwork.ocpp.v201.domain;version="1.0.0",
  net.solarnetwork.ocpp.v201.service;version="1.1.2",

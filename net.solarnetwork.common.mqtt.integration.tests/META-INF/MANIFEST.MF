@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MQTT Integration Test Support
 Bundle-SymbolicName: net.solarnetwork.common.mqtt.integration.tests
-Bundle-Version: 3.1.0
+Bundle-Version: 4.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.mqtt.integration.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-17
