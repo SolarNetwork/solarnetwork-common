@@ -12,7 +12,7 @@ Import-Package:
  javax.net,
  javax.net.ssl,
  net.solarnetwork.common.mqtt;version="[3.0,4.0)",
- net.solarnetwork.domain;version="[2.0,3.0)",
+ net.solarnetwork.domain;version="[3.0,4.0)",
  net.solarnetwork.service;version="[1.0,2.0)",
  net.solarnetwork.settings;version="[2.0,3.0)",
  net.solarnetwork.util;version="[2.10,3.0)",
