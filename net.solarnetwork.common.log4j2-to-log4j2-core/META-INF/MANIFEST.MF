@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Log4j2-to-log4j2-core
+Bundle-SymbolicName: net.solarnetwork.common.log4j2-to-log4j2-core
+Bundle-Version: 1.0.0
+Bundle-Vendor: SolarNetwork
+Fragment-Host: org.apache.logging.log4j.api;bundle-version="[2.24,3.0)"
+Automatic-Module-Name: net.solarnetwork.common.log4j2.to.log4j2.core
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Import-Package: org.apache.logging.log4j.core.impl;version="2.24.0"
