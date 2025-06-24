@@ -10,6 +10,6 @@
 
 		<!-- Testing support -->
 		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common" rev="4.0.0"/>
-		<dependency org="org.eclipse.jdt" name="ecj" rev="3.12.3" />
+		<dependency org="org.eclipse.jdt" name="ecj" rev="3.41.0" />
 	</dependencies>
 </ivy-module>
