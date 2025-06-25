@@ -1,7 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Log4j2-to-log4j2-core
+Bundle-Name: Log4j2 Core for Log4j2
 Bundle-SymbolicName: net.solarnetwork.common.log4j2-to-log4j2-core
+Bundle-Description: Support using Log4j2 Core as the logging backend in Log4j2.
 Bundle-Version: 1.0.0
 Bundle-Vendor: SolarNetwork
 Fragment-Host: org.apache.logging.log4j.api;bundle-version="[2.24,3.0)"

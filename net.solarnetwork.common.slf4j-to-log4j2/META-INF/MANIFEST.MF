@@ -1,7 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Slf4j-to-log4j2
+Bundle-Name: Log4j2 for slf4j2
 Bundle-SymbolicName: net.solarnetwork.common.slf4j-to-log4j2
+Bundle-Description: Support using Log4j2 as the logging backend in slf4j2.
 Bundle-Version: 1.0.0
 Bundle-Vendor: SolarNetwork
 Fragment-Host: slf4j.api;bundle-version="[2.0,3.0)"
