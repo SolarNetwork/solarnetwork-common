@@ -1,21 +1,21 @@
 /* ==================================================================
  * ChargePointActionPayloadDecoderTests.java - 3/02/2020 9:20:32 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,8 +25,11 @@ package net.solarnetwork.ocpp.v16.jakarta.cp.json.test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import java.io.IOException;
+import java.math.BigDecimal;
 import org.junit.Before;
 import org.junit.Test;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,14 +41,21 @@ import net.solarnetwork.ocpp.v16.jakarta.json.BaseActionPayloadDecoder;
 import ocpp.v16.jakarta.cp.CancelReservationRequest;
 import ocpp.v16.jakarta.cp.CancelReservationResponse;
 import ocpp.v16.jakarta.cp.CancelReservationStatus;
+import ocpp.v16.jakarta.cp.ChargingProfile;
+import ocpp.v16.jakarta.cp.ChargingProfileKindType;
+import ocpp.v16.jakarta.cp.ChargingProfilePurposeType;
+import ocpp.v16.jakarta.cp.ChargingRateUnitType;
+import ocpp.v16.jakarta.cp.ChargingSchedule;
+import ocpp.v16.jakarta.cp.ChargingSchedulePeriod;
 import ocpp.v16.jakarta.cp.GetConfigurationRequest;
 import ocpp.v16.jakarta.cp.GetConfigurationResponse;
+import ocpp.v16.jakarta.cp.SetChargingProfileRequest;
 
 /**
  * Test cases for the {@link ChargePointActionPayloadDecoder} class.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ChargePointActionPayloadDecoderTests {
 
@@ -125,6 +135,36 @@ public class ChargePointActionPayloadDecoderTests {
 				equalTo("bar"));
 		assertThat("Configuration 1 readonly", result.getConfigurationKey().get(0).isReadonly(),
 				equalTo(true));
+	}
+
+	@Test
+	public void decodeSetChargingProfileRequest() throws Exception {
+		JsonNode json = treeForResource("setchargingprofile-req-01.json");
+		SetChargingProfileRequest result = decoder
+				.decodeActionPayload(ChargePointAction.SetChargingProfile, false, json);
+		assertThat("Result decoded", result, notNullValue());
+
+		assertThat("Connector ID decoded", result.getConnectorId(), is(equalTo(1)));
+		assertThat("CsChargingProfiles decoded", result.getCsChargingProfiles(), is(notNullValue()));
+
+		ChargingProfile cp = result.getCsChargingProfiles();
+		assertThat("Charging profile ID value", cp.getChargingProfileId(), is(equalTo(11)));
+		assertThat("Transaction ID value", cp.getTransactionId(), is(equalTo(224296)));
+		assertThat("Charging profile purpose value", cp.getChargingProfilePurpose(),
+				is(equalTo(ChargingProfilePurposeType.TX_PROFILE)));
+		assertThat("Charging profile kind value", cp.getChargingProfileKind(),
+				is(equalTo(ChargingProfileKindType.RELATIVE)));
+		assertThat("Charging schedule decoded", cp.getChargingSchedule(), is(notNullValue()));
+
+		ChargingSchedule sched = cp.getChargingSchedule();
+		assertThat("Charging rate unit value", sched.getChargingRateUnit(),
+				is(equalTo(ChargingRateUnitType.W)));
+		assertThat("Charging schedule period decoded", sched.getChargingSchedulePeriod(), hasSize(1));
+		assertThat("No duration", sched.getDuration(), is(nullValue()));
+
+		ChargingSchedulePeriod per = sched.getChargingSchedulePeriod().get(0);
+		assertThat("Start period value", per.getStartPeriod(), is(equalTo(0)));
+		assertThat("Limit value", per.getLimit().compareTo(new BigDecimal("4000")), is(equalTo(0)));
 	}
 
 	// TODO: other actions
