@@ -120,7 +120,7 @@ import net.solarnetwork.util.StatTracker;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 2.8
+ * @version 2.9
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler implements WebSocketHandler, SubProtocolCapable,
@@ -1013,6 +1013,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			}
 			ErrorCodeException err = new ErrorCodeException(errorCode, details, tree.path(3).asText(),
 					null);
+			willProcessCallResponse(msg, null, err);
 			msg.getHandler().handleActionMessageResult(msg.getMessage(), null, err);
 		} finally {
 			processNextPendingMessage(clientId);
