@@ -23,10 +23,10 @@
 package net.solarnetwork.settings.support.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;

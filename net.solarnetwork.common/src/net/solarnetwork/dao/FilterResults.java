@@ -22,7 +22,7 @@
 
 package net.solarnetwork.dao;
 
-import net.solarnetwork.domain.Identity;
+import net.solarnetwork.domain.Unique;
 
 /**
  * A filtered query results object.
@@ -33,15 +33,15 @@ import net.solarnetwork.domain.Identity;
  * other forms.
  * </p>
  *
- * @param <M>
+ * @param <T>
  *        the filtered result type
  * @param <K>
  *        the filtered result identity type
  * @author matt
- * @version 1.1
+ * @version 2.0
  * @since 1.59
  */
-public interface FilterResults<M extends Identity<K>, K> extends Iterable<M> {
+public interface FilterResults<T extends Unique<K>, K extends Comparable<K>> extends Iterable<T> {
 
 	/**
 	 * Get the actual results.
@@ -52,7 +52,7 @@ public interface FilterResults<M extends Identity<K>, K> extends Iterable<M> {
 	 *
 	 * @return the results, never {@literal null}
 	 */
-	Iterable<M> getResults();
+	Iterable<T> getResults();
 
 	/**
 	 * Get a total number of available results, if known.

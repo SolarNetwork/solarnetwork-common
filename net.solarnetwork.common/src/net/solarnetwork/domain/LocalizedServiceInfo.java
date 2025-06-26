@@ -36,10 +36,10 @@ import java.util.Objects;
  * </p>
  *
  * @author matt
- * @version 1.2
+ * @version 2.0
  * @since 1.43
  */
-public interface LocalizedServiceInfo extends Identity<String> {
+public interface LocalizedServiceInfo extends Unique<String>, Comparable<LocalizedServiceInfo> {
 
 	/**
 	 * Comparator for a case-insensitive order based on localized names.
@@ -70,7 +70,7 @@ public interface LocalizedServiceInfo extends Identity<String> {
 			String n2 = o2.getLocalizedName();
 			int result = Objects.compare(n1, n2, String.CASE_INSENSITIVE_ORDER);
 			if ( result == 0 ) {
-				result = o1.compareTo(o2.getId());
+				result = o1.compareTo(o2);
 			}
 			return result;
 		}
@@ -118,5 +118,10 @@ public interface LocalizedServiceInfo extends Identity<String> {
 	 * @return a map of messages, never {@literal null}
 	 */
 	Map<String, String> getLocalizedInfoMessages();
+
+	@Override
+	default int compareTo(LocalizedServiceInfo o) {
+		return SORT_BY_NAME.compare(this, o);
+	}
 
 }

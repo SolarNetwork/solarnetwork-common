@@ -1,0 +1,19 @@
+{
+  "connectorId": 1,
+  "csChargingProfiles": {
+    "chargingProfileId": 11,
+    "transactionId": 224296,
+    "stackLevel": 4,
+    "chargingProfilePurpose": "TxProfile",
+    "chargingProfileKind": "Relative",
+    "chargingSchedule": {
+      "chargingRateUnit": "W",
+      "chargingSchedulePeriod": [
+        {
+          "startPeriod": 0,
+          "limit": 4000
+        }
+      ]
+    }
+  }
+}

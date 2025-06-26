@@ -22,11 +22,11 @@
 
 package net.solarnetwork.codec.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeThat;
 import java.io.IOException;
 import java.time.Instant;

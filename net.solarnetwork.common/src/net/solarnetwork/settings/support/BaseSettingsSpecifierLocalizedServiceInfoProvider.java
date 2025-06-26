@@ -41,14 +41,12 @@ import net.solarnetwork.settings.TitleSettingSpecifier;
  * Convenient abstract class that is both a {@link SettingSpecifierProvider} and
  * a {@link LocalizedServiceInfoProvider}.
  *
- * @param <PK>
- *        the primary key type
  * @author matt
- * @version 2.2
+ * @version 2.0
  * @since 1.43
  */
-public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK extends Comparable<PK>>
-		extends BaseLocalizedServiceInfoProvider<PK> implements SettingSpecifierProvider {
+public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider
+		extends BaseLocalizedServiceInfoProvider implements SettingSpecifierProvider {
 
 	/**
 	 * Constructor.
@@ -56,14 +54,13 @@ public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider<PK exten
 	 * @param id
 	 *        the identity of this provider
 	 */
-	public BaseSettingsSpecifierLocalizedServiceInfoProvider(PK id) {
+	public BaseSettingsSpecifierLocalizedServiceInfoProvider(String id) {
 		super(id);
 	}
 
 	@Override
 	public String getSettingUid() {
-		PK id = getId();
-		return (id != null ? id.toString() : null);
+		return getId();
 	}
 
 	@Override

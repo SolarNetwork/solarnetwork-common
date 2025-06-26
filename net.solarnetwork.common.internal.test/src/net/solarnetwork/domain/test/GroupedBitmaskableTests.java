@@ -24,10 +24,10 @@ package net.solarnetwork.domain.test;
 
 import static java.util.Arrays.asList;
 import static net.solarnetwork.domain.GroupedBitmaskable.groupBitmaskValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashSet;

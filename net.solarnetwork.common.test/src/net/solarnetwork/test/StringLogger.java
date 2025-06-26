@@ -1,21 +1,21 @@
 /* ==================================================================
  * StringLogger.java - 7/08/2021 3:35:11 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -31,11 +31,12 @@ import org.slf4j.helpers.MarkerIgnoringBase;
 
 /**
  * A {@link org.slf4j.Logger} that logs to a list of log entries in memory.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.16
  */
+@SuppressWarnings("deprecation")
 public final class StringLogger extends MarkerIgnoringBase {
 
 	/** A parameter placeholder. */
@@ -78,7 +79,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param level
 		 *        the level
 		 * @param message
@@ -119,7 +120,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 
 		/**
 		 * Get the time stamp.
-		 * 
+		 *
 		 * @return the ts
 		 */
 		public long getDate() {
@@ -128,7 +129,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 
 		/**
 		 * Get the level.
-		 * 
+		 *
 		 * @return the level
 		 */
 		public StringLogger.Level getLevel() {
@@ -137,7 +138,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 
 		/**
 		 * Get the message.
-		 * 
+		 *
 		 * @return the message
 		 */
 		public String getMessage() {
@@ -146,7 +147,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 
 		/**
 		 * Get the arguments.
-		 * 
+		 *
 		 * @return the args
 		 */
 		public Object[] getArgs() {
@@ -163,7 +164,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 
 	/**
 	 * Get the level.
-	 * 
+	 *
 	 * @return the level
 	 */
 	public StringLogger.Level getLevel() {
@@ -172,7 +173,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 
 	/**
 	 * Set the level.
-	 * 
+	 *
 	 * @param level
 	 *        the level to set
 	 */
@@ -182,7 +183,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 
 	/**
 	 * Get the entries.
-	 * 
+	 *
 	 * @return the entries
 	 */
 	public List<StringLogger.Entry> getEntries() {

@@ -22,8 +22,8 @@
 
 package net.solarnetwork.io.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
