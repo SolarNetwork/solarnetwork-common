@@ -65,9 +65,9 @@ import net.solarnetwork.settings.support.SettingUtils;
  * {@link S3Client} API.
  *
  * @author matt
- * @version 2.1
+ * @version 3.0
  */
-public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServiceInfoProvider<String>
+public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServiceInfoProvider
 		implements ResourceStorageService, SettingSpecifierProvider, SettingsChangeObserver {
 
 	private String uid;

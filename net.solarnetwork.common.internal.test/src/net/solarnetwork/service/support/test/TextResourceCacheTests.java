@@ -22,8 +22,8 @@
 
 package net.solarnetwork.service.support.test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import java.util.Collections;
 import org.junit.Test;
 import net.solarnetwork.service.support.TextResourceCache;

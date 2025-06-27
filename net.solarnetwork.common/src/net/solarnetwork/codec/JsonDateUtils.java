@@ -1,21 +1,21 @@
 /* ==================================================================
  * JsonDateUtils.java - 16/06/2020 10:28:54 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -40,9 +40,9 @@ import net.solarnetwork.util.DateUtils;
 
 /**
  * JSON date handling utilities.
- * 
+ *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.72
  */
 public final class JsonDateUtils implements Serializable {
@@ -119,7 +119,7 @@ public final class JsonDateUtils implements Serializable {
 
 	/**
 	 * {@link java.time.LocalTime} serializer that formats as {@literal HH:mm}.
-	 * 
+	 *
 	 * @since 1.2
 	 */
 	public static class LocalTimeSerializer
@@ -142,7 +142,7 @@ public final class JsonDateUtils implements Serializable {
 	/**
 	 * {@link java.time.Instant} deserializer that formats using a space or
 	 * {@literal T} date/time separator.
-	 * 
+	 *
 	 * @since 1.1
 	 */
 	public static class InstantDeserializer
@@ -159,7 +159,7 @@ public final class JsonDateUtils implements Serializable {
 		public InstantDeserializer() {
 			super(Instant.class, DateUtils.ISO_DATE_TIME_ALT_UTC, Instant::from,
 					a -> Instant.ofEpochMilli(a.value),
-					a -> Instant.ofEpochSecond(a.integer, a.fraction), null, true);
+					a -> Instant.ofEpochSecond(a.integer, a.fraction), null, true, true, false);
 		}
 
 		@Override
@@ -192,7 +192,7 @@ public final class JsonDateUtils implements Serializable {
 	/**
 	 * {@link java.time.ZonedDateTime} deserializer that parses using a space or
 	 * {@literal T} date/time separator.
-	 * 
+	 *
 	 * @since 1.1
 	 */
 	public static class ZonedDateTimeDeserializer
@@ -210,7 +210,7 @@ public final class JsonDateUtils implements Serializable {
 			super(ZonedDateTime.class, DateUtils.ISO_DATE_TIME_ALT_UTC, ZonedDateTime::from,
 					a -> ZonedDateTime.ofInstant(Instant.ofEpochMilli(a.value), a.zoneId),
 					a -> ZonedDateTime.ofInstant(Instant.ofEpochSecond(a.integer, a.fraction), a.zoneId),
-					ZonedDateTime::withZoneSameInstant, false);
+					ZonedDateTime::withZoneSameInstant, false, true, false);
 		}
 
 		@Override
@@ -237,7 +237,7 @@ public final class JsonDateUtils implements Serializable {
 	/**
 	 * {@link java.time.LocalDateTime} deserializer that parses using a space or
 	 * {@literal T} date/time separator.
-	 * 
+	 *
 	 * @since 1.1
 	 */
 	public static class LocalDateTimeDeserializer
@@ -280,7 +280,7 @@ public final class JsonDateUtils implements Serializable {
 	/**
 	 * {@link java.time.LocalTime} deserializer that parses using the pattern
 	 * {@literal HH:mm}.
-	 * 
+	 *
 	 * @since 1.2
 	 */
 	public static class LocalTimeDeserializer

@@ -33,7 +33,7 @@ import java.util.Objects;
  * </p>
  *
  * @author matt
- * @version 1.2
+ * @version 2.0
  */
 public class SimplePagination implements Cloneable {
 
@@ -46,25 +46,6 @@ public class SimplePagination implements Cloneable {
 	 */
 	public SimplePagination() {
 		super();
-	}
-
-	/**
-	 * Test if the arguments match the values in this instance.
-	 *
-	 * @param sorts
-	 *        the sorts
-	 * @param offset
-	 *        the offset
-	 * @param max
-	 *        the max
-	 * @return {@literal true} if all the arguments match the associated
-	 *         properties in this instance
-	 * @deprecated use {@link #matches(List, Long, Integer)}
-	 */
-	@Deprecated
-	public boolean matches(List<SortDescriptor> sorts, Integer offset, Integer max) {
-		Long offsetLong = offset != null ? offset.longValue() : null;
-		return matches(sorts, offsetLong, max);
 	}
 
 	/**

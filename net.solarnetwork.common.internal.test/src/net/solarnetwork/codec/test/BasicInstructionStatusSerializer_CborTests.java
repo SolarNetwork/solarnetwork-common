@@ -24,9 +24,9 @@ package net.solarnetwork.codec.test;
 
 import static java.util.Collections.singletonMap;
 import static net.solarnetwork.util.ByteUtils.objectArray;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;

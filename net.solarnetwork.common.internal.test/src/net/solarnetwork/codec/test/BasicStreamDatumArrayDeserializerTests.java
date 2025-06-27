@@ -24,12 +24,12 @@ package net.solarnetwork.codec.test;
 
 import static java.time.Instant.ofEpochMilli;
 import static net.solarnetwork.util.NumberUtils.decimalArray;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;

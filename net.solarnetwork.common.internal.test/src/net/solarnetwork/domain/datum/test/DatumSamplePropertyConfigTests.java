@@ -23,8 +23,8 @@
 package net.solarnetwork.domain.datum.test;
 
 import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.DatumSamplePropertyConfig;
 
