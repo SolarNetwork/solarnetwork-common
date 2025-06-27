@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: MQTT client - Paho
 Bundle-Description: MQTT client based on the Paho framework.
 Bundle-SymbolicName: net.solarnetwork.common.mqtt.paho
-Bundle-Version: 4.0.0
+Bundle-Version: 5.0.0
 Automatic-Module-Name: net.solarnetwork.common.mqtt.paho
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
