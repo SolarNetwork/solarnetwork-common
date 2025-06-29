@@ -1,21 +1,21 @@
 /* ==================================================================
  * SpelExpressionService.java - 5/02/2019 3:22:32 pm
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -40,14 +40,22 @@ import net.solarnetwork.service.ExpressionService;
 
 /**
  * Spring Expression Language implementation of {@link ExpressionService}.
- * 
+ *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class SpelExpressionService implements ExpressionService {
 
 	/** The default value for the {@code languageReferenceLink} property. */
 	public static final URI DEFAULT_LANG_REF_LINK = defaultLangRefLink();
+
+	/**
+	 * A default evaluation context that can be shared across expression
+	 * evaluations.
+	 *
+	 * @since 1.2
+	 */
+	public static final EvaluationContext DEFAULT_EVALUATION_CONTEXT = evaluationContext(null);
 
 	private final ExpressionParser parser;
 	private String groupUid;
@@ -64,7 +72,7 @@ public class SpelExpressionService implements ExpressionService {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * <p>
 	 * The expression compiler mode can be set via the
 	 * <code>spring.expression.compiler.mode</code> system property, set to one
@@ -78,7 +86,7 @@ public class SpelExpressionService implements ExpressionService {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param configuration
 	 *        the configuration to use
 	 */
@@ -88,21 +96,29 @@ public class SpelExpressionService implements ExpressionService {
 
 	/**
 	 * Create a reusable evaluation context.
-	 * 
+	 *
 	 * <p>
 	 * This creates a {@link RestrictedEvaluationContext}, with both
 	 * {@link MapAccessor} and {@link ReflectivePropertyAccessor} property
 	 * accessors.
 	 * </p>
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
 	public EvaluationContext createEvaluationContext(EvaluationConfiguration configuration,
 			Object root) {
-		RestrictedEvaluationContext ctx = new RestrictedEvaluationContext(root);
-		ctx.addPropertyAccessor(new MapAccessor());
-		ctx.addPropertyAccessor(new ReflectivePropertyAccessor());
+		// NOTE configuration is not used
+		if ( root == null ) {
+			return DEFAULT_EVALUATION_CONTEXT;
+		}
+		return evaluationContext(root);
+	}
+
+	private static RestrictedEvaluationContext evaluationContext(Object root) {
+		RestrictedEvaluationContext ctx = (root == null ? new RestrictedEvaluationContext()
+				: new RestrictedEvaluationContext(root));
+		ctx.addPropertyAccessor(new MapAccessor()); // inserts before default Reflective
 		return ctx;
 	}
 
@@ -162,7 +178,7 @@ public class SpelExpressionService implements ExpressionService {
 
 	/**
 	 * Set the language reference link.
-	 * 
+	 *
 	 * @param languageReferenceLink
 	 *        the link to set
 	 */
@@ -187,7 +203,7 @@ public class SpelExpressionService implements ExpressionService {
 
 	/**
 	 * Set the group UID.
-	 * 
+	 *
 	 * @param groupUid
 	 *        the group UID to set
 	 */

@@ -3,11 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Spring Expression Service
 Bundle-Description: Spring Expression implementation of ExpressionService.
 Bundle-SymbolicName: net.solarnetwork.common.expr.spel
-Bundle-Version: 4.0.0
+Bundle-Version: 4.1.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.expr.spel
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Export-Package: net.solarnetwork.common.expr.spel;version="2.1.0"
+Export-Package: net.solarnetwork.common.expr.spel;version="2.2.0"
 Import-Package: 
  net.solarnetwork.service;version="[1.0,2.0)",
  org.springframework.context.expression;version="[6.2,7.0)",
