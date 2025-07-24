@@ -42,7 +42,7 @@ import net.solarnetwork.domain.datum.GeneralDatum;
  * Test cases for the {@link BasicGeneralDatumSerializer} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class BasicGeneralDatumSerializerTests {
 
@@ -141,6 +141,28 @@ public class BasicGeneralDatumSerializerTests {
 						+ ",\"a\":{\"b\":2}"
 						+ ",\"s\":{\"c\":\"three\"}"
 						+ ",\"t\":[\"d\"]}"));
+		// @formatter:on
+	}
+
+	@Test
+	public void serializer_infinity() throws IOException {
+		// GIVEN
+		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
+				(int) TimeUnit.MILLISECONDS.toNanos(345));
+		Instant ts = date.toInstant(ZoneOffset.UTC);
+		DatumSamples s = new DatumSamples();
+		s.putInstantaneousSampleValue("a", Double.POSITIVE_INFINITY);
+		GeneralDatum datum = new GeneralDatum(DatumId.nodeId(123L, "test.source", ts), s);
+
+		// WHEN
+		String json = mapper.writeValueAsString(datum);
+
+		// THEN
+		// @formatter:off
+		assertThat("JSON", json,
+				is("{\"created\":\"2021-08-17 14:28:12.345Z\",\"nodeId\":123"
+						+ ",\"sourceId\":\"test.source\""
+						+ ",\"i\":{\"a\":\"Infinity\"}}"));
 		// @formatter:on
 	}
 

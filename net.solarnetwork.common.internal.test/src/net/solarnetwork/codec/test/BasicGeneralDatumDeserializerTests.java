@@ -43,7 +43,7 @@ import net.solarnetwork.domain.datum.GeneralDatum;
  * Test cases for the {@link BasicGeneralDatumDeserializer} class.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class BasicGeneralDatumDeserializerTests {
 
@@ -205,6 +205,25 @@ public class BasicGeneralDatumDeserializerTests {
 		GeneralDatum expected = GeneralDatum.locationDatum(123L, "test.source", ts, s);
 		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
 		assertThat("GeneralDatum samples parsed", datum.asSampleOperations(),
+				is(equalTo(expected.asSampleOperations())));
+	}
+
+	@Test
+	public void deserialize_infinity() throws IOException {
+		// GIVEN
+		final String json = "{\"created\":\"2021-08-17 14:28:12.345Z\",\"nodeId\":123"
+				+ ",\"sourceId\":\"test.source\"" + ",\"i\":{\"a\":\"Infinity\"}}";
+
+		// WHEN
+		Datum datum = mapper.readValue(json, Datum.class);
+
+		// THEN
+		Instant ts = Instant.parse("2021-08-17T14:28:12.345Z");
+
+		DatumSamples s = new DatumSamples();
+		GeneralDatum expected = GeneralDatum.nodeDatum(123L, "test.source", ts, s);
+		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
+		assertThat("GeneralDatum samples parsed, ignoring Infinity", datum.asSampleOperations(),
 				is(equalTo(expected.asSampleOperations())));
 	}
 
