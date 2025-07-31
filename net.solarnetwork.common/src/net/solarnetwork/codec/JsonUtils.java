@@ -24,8 +24,6 @@ package net.solarnetwork.codec;
 
 import static java.util.Arrays.asList;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
@@ -41,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -55,14 +52,13 @@ import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import net.solarnetwork.domain.Bitmaskable;
 import net.solarnetwork.domain.Instruction;
 import net.solarnetwork.domain.InstructionStatus;
@@ -94,7 +90,7 @@ import net.solarnetwork.util.StringUtils;
  * </ul>
  *
  * @author matt
- * @version 2.6
+ * @version 2.7
  * @since 1.72
  */
 public final class JsonUtils {
@@ -117,22 +113,14 @@ public final class JsonUtils {
 	 */
 	public static final com.fasterxml.jackson.databind.Module JAVA_TIME_MODULE;
 	static {
-		JAVA_TIME_MODULE = createOptionalModule("com.fasterxml.jackson.datatype.jsr310.JavaTimeModule",
-				m -> {
-					// replace default timestamp JsonSerializer with one that supports spaces
-					m.addSerializer(Instant.class, loadOptionalSerializerInstance(
-							"net.solarnetwork.codec.JsonDateUtils$InstantSerializer"));
-					m.addSerializer(ZonedDateTime.class, loadOptionalSerializerInstance(
-							"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeSerializer"));
-					m.addSerializer(LocalDateTime.class, loadOptionalSerializerInstance(
-							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeSerializer"));
-					m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
-							"net.solarnetwork.codec.JsonDateUtils$InstantDeserializer"));
-					m.addDeserializer(ZonedDateTime.class, loadOptionalDeserializerInstance(
-							"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeDeserializer"));
-					m.addDeserializer(LocalDateTime.class, loadOptionalDeserializerInstance(
-							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeDeserializer"));
-				});
+		JavaTimeModule m = new JavaTimeModule();
+		m.addSerializer(Instant.class, JsonDateUtils.InstantSerializer.INSTANCE);
+		m.addSerializer(ZonedDateTime.class, JsonDateUtils.ZonedDateTimeSerializer.INSTANCE);
+		m.addSerializer(LocalDateTime.class, JsonDateUtils.LocalDateTimeSerializer.INSTANCE);
+		m.addDeserializer(Instant.class, JsonDateUtils.InstantDeserializer.INSTANCE);
+		m.addDeserializer(ZonedDateTime.class, JsonDateUtils.ZonedDateTimeDeserializer.INSTANCE);
+		m.addDeserializer(LocalDateTime.class, JsonDateUtils.LocalDateTimeDeserializer.INSTANCE);
+		JAVA_TIME_MODULE = m;
 	}
 
 	/**
@@ -159,20 +147,14 @@ public final class JsonUtils {
 	 *
 	 * @since 2.0
 	 */
-	public static final com.fasterxml.jackson.databind.Module JAVA_TIMESTAMP_MODULE;
+	public static final Module JAVA_TIMESTAMP_MODULE;
 	static {
-		JAVA_TIMESTAMP_MODULE = createOptionalModule(
-				"com.fasterxml.jackson.datatype.jsr310.JavaTimeModule", m -> {
-					// replace default timestamp JsonSerializer with one that supports spaces
-					m.addSerializer(LocalDateTime.class, loadOptionalSerializerInstance(
-							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeSerializer"));
-					m.addDeserializer(Instant.class, loadOptionalDeserializerInstance(
-							"net.solarnetwork.codec.JsonDateUtils$InstantDeserializer"));
-					m.addDeserializer(ZonedDateTime.class, loadOptionalDeserializerInstance(
-							"net.solarnetwork.codec.JsonDateUtils$ZonedDateTimeDeserializer"));
-					m.addDeserializer(LocalDateTime.class, loadOptionalDeserializerInstance(
-							"net.solarnetwork.codec.JsonDateUtils$LocalDateTimeDeserializer"));
-				});
+		JavaTimeModule m = new JavaTimeModule();
+		m.addSerializer(LocalDateTime.class, JsonDateUtils.LocalDateTimeSerializer.INSTANCE);
+		m.addDeserializer(Instant.class, JsonDateUtils.InstantDeserializer.INSTANCE);
+		m.addDeserializer(ZonedDateTime.class, JsonDateUtils.ZonedDateTimeDeserializer.INSTANCE);
+		m.addDeserializer(LocalDateTime.class, JsonDateUtils.LocalDateTimeDeserializer.INSTANCE);
+		JAVA_TIMESTAMP_MODULE = m;
 	}
 
 	/**
@@ -180,7 +162,7 @@ public final class JsonUtils {
 	 *
 	 * @since 2.0
 	 */
-	public static final com.fasterxml.jackson.databind.Module DATUM_MODULE;
+	public static final Module DATUM_MODULE;
 	static {
 		SimpleModule m = new SimpleModule("SolarNetwork Datum");
 		m.addSerializer(BasicGeneralDatumSerializer.INSTANCE);
@@ -248,7 +230,7 @@ public final class JsonUtils {
 
 		if ( modules != null ) {
 			for ( Module module : modules ) {
-				registerOptionalModule(factory, module);
+				registerModule(factory, module);
 			}
 		}
 
@@ -263,58 +245,16 @@ public final class JsonUtils {
 		}
 	}
 
-	private static SimpleModule createOptionalModule(String className,
-			Consumer<SimpleModule> configuror) {
-		try {
-			Class<? extends SimpleModule> clazz = JsonUtils.class.getClassLoader().loadClass(className)
-					.asSubclass(SimpleModule.class);
-			SimpleModule m = clazz.getDeclaredConstructor().newInstance();
-			if ( configuror != null ) {
-				configuror.accept(m);
-			}
-			return m;
-		} catch ( ClassNotFoundException | InstantiationException | IllegalAccessException
-				| InvocationTargetException | NoSuchMethodException e ) {
-			LOG.info("Optional JSON module {} not available ({})", className, e.toString());
-			return null;
+	private static void registerModule(ObjectMapperFactoryBean factory, Module m) {
+		if ( m == null ) {
+			return;
 		}
-	}
-
-	private static void registerOptionalModule(ObjectMapperFactoryBean factory, Module m) {
-		if ( m != null ) {
-			List<Module> modules = factory.getModules();
-			if ( modules == null ) {
-				modules = new ArrayList<>(2);
-			}
-			modules.add(m);
+		List<Module> modules = factory.getModules();
+		if ( modules == null ) {
+			modules = new ArrayList<>(2);
 			factory.setModules(modules);
 		}
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static final <T> JsonSerializer<T> loadOptionalSerializerInstance(String className) {
-		try {
-			Class<? extends JsonSerializer> clazz = JsonUtils.class.getClassLoader().loadClass(className)
-					.asSubclass(JsonSerializer.class);
-			Field f = clazz.getDeclaredField("INSTANCE");
-			return (JsonSerializer<T>) f.get(null);
-		} catch ( ClassNotFoundException | IllegalAccessException | NoSuchFieldException e ) {
-			LOG.info("Optional JSON serializer {} not available ({})", className, e.toString());
-			return null;
-		}
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static final <T> JsonDeserializer<T> loadOptionalDeserializerInstance(String className) {
-		try {
-			Class<? extends JsonDeserializer> clazz = JsonUtils.class.getClassLoader()
-					.loadClass(className).asSubclass(JsonDeserializer.class);
-			Field f = clazz.getDeclaredField("INSTANCE");
-			return (JsonDeserializer<T>) f.get(null);
-		} catch ( ClassNotFoundException | IllegalAccessException | NoSuchFieldException e ) {
-			LOG.info("Optional JSON deserializer {} not available ({})", className, e.toString());
-			return null;
-		}
+		modules.add(m);
 	}
 
 	private static final class StringMapTypeReference
