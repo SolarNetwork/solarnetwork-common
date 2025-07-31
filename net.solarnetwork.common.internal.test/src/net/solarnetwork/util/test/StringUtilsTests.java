@@ -65,7 +65,7 @@ import net.solarnetwork.util.StringUtils;
  * Unit test for the StringUtils class.
  *
  * @author matt
- * @version 1.8
+ * @version 1.9
  */
 public class StringUtilsTests {
 
@@ -761,6 +761,133 @@ public class StringUtilsTests {
 		// THEN
 		IntRangeSet expected = new IntRangeSet(rangeOf(2), rangeOf(4), rangeOf(8, 11), rangeOf(99));
 		assertThat("Set parsed", result, is(equalTo(expected)));
+	}
+
+	@Test
+	public void compareComponentsIgnoreCase_equalComponentCount() {
+		// GIVEN
+		String left = "a/b/c";
+		String right = "A/B/d";
+
+		// WHEN
+		int result = StringUtils.compareComponentsIgnoreCase(left, right, "/");
+
+		// THEN
+		assertThat("Left sorts before right", result, is(equalTo(-1)));
+	}
+
+	@Test
+	public void compareComponentsIgnoreCase_equalIgnoringCase() {
+		// GIVEN
+		String left = "a/b/c";
+		String right = "A/B/C";
+
+		// WHEN
+		int result = StringUtils.compareComponentsIgnoreCase(left, right, "/");
+
+		// THEN
+		assertThat("Equal ignoring case", result, is(equalTo(0)));
+	}
+
+	@Test
+	public void compareComponentsIgnoreCase_equal() {
+		// GIVEN
+		String left = "a/b/c";
+		String right = "a/b/c";
+
+		// WHEN
+		int result = StringUtils.compareComponentsIgnoreCase(left, right, "/");
+
+		// THEN
+		assertThat("Equal", result, is(equalTo(0)));
+	}
+
+	@Test
+	public void compareComponentsIgnoreCase_shorterBeforeLonger() {
+		// GIVEN
+		String left = "a/b/c";
+		String right = "a/b";
+
+		// WHEN
+		int result1 = StringUtils.compareComponentsIgnoreCase(left, right, "/");
+		int result2 = StringUtils.compareComponentsIgnoreCase(right, left, "/");
+
+		// THEN
+		assertThat("Longer after shorter", result1, is(equalTo(1)));
+		assertThat("Shorter before longer", result2, is(equalTo(-1)));
+	}
+
+	@Test
+	public void compareComponentsIgnoreCase_nullsAreEqual() {
+		// GIVEN
+		String left = null;
+		String right = null;
+
+		// WHEN
+		int result = StringUtils.compareComponentsIgnoreCase(left, right, "/");
+
+		// THEN
+		assertThat("Nulls are equal", result, is(equalTo(0)));
+	}
+
+	@Test
+	public void compareComponentsIgnoreCase_nullEqualsEmptyString() {
+		// GIVEN
+		String left = null;
+		String right = "";
+
+		// WHEN
+		int result1 = StringUtils.compareComponentsIgnoreCase(left, right, "/");
+		int result2 = StringUtils.compareComponentsIgnoreCase(right, left, "/");
+
+		// THEN
+		assertThat("Null equals empty string", result1, is(equalTo(0)));
+		assertThat("Null equals empty string", result2, is(equalTo(0)));
+	}
+
+	@Test
+	public void compareComponentsIgnoreCase_nullsFirst() {
+		// GIVEN
+		String left = null;
+		String right = "a";
+
+		// WHEN
+		int result1 = StringUtils.compareComponentsIgnoreCase(left, right, "/");
+		int result2 = StringUtils.compareComponentsIgnoreCase(right, left, "/");
+
+		// THEN
+		assertThat("Null before non-empty", result1, is(equalTo(-1)));
+		assertThat("Non-empty after null", result2, is(equalTo(1)));
+	}
+
+	@Test
+	public void compareComponentsIgnoreCase_singletons() {
+		// GIVEN
+		String left = "a";
+		String right = "b";
+
+		// WHEN
+		int result1 = StringUtils.compareComponentsIgnoreCase(left, right, "/");
+		int result2 = StringUtils.compareComponentsIgnoreCase(right, left, "/");
+
+		// THEN
+		assertThat("Singleton string comparison", result1, is(equalTo(-1)));
+		assertThat("Singleton string reverse comparison", result2, is(equalTo(1)));
+	}
+
+	@Test
+	public void compareComponentsIgnoreCase_singletonVsNonSingleton() {
+		// GIVEN
+		String left = "a";
+		String right = "a/b";
+
+		// WHEN
+		int result1 = StringUtils.compareComponentsIgnoreCase(left, right, "/");
+		int result2 = StringUtils.compareComponentsIgnoreCase(right, left, "/");
+
+		// THEN
+		assertThat("Shorter before longer", result1, is(equalTo(-1)));
+		assertThat("Longer after shorter", result2, is(equalTo(1)));
 	}
 
 }

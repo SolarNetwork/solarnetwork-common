@@ -58,7 +58,7 @@ import net.solarnetwork.util.IntRangeSet;
  * Test cases for the {@link CollectionUtils} class.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class CollectionUtilsTests {
 
@@ -491,6 +491,15 @@ public class CollectionUtilsTests {
 		// THEN
 		assertThat("Map returned is same as input because no keys needed transforming", result,
 				is(sameInstance(input)));
+	}
+
+	@Test(expected = NumberFormatException.class)
+	public void getMapBigDecimal_Infinity() {
+		Map<String, Number> map = new LinkedHashMap<>();
+		map.put("num", Double.POSITIVE_INFINITY);
+
+		// WHEN
+		CollectionUtils.getMapBigDecimal("num", map);
 	}
 
 }
