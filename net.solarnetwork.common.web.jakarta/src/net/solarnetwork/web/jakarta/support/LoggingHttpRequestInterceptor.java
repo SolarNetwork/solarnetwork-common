@@ -279,9 +279,11 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 			buf.append(comp);
 		}
 
-		comp = String.valueOf(uri.getPort());
-		if ( buf.charAt(buf.length() - 1) != '.' ) {
-			buf.append('.');
+		if ( uri.getPort() >= 0 ) {
+			comp = String.valueOf(uri.getPort());
+			if ( buf.charAt(buf.length() - 1) != '.' ) {
+				buf.append('.');
+			}
 			buf.append(comp);
 		}
 
