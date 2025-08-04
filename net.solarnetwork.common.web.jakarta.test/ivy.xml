@@ -10,7 +10,7 @@
 			<exclude org="org.springframework" module="spring-test"/>
 		</dependency>
 
-		<!-- Testing support -->
+		<dependency org="org.eclipse.jetty" name="jetty-server" rev="12.0.22"/>
 		<dependency org="org.springframework" name="spring-test" rev="6.2.6"/>
 		<dependency org="io.micrometer" name="micrometer-observation" rev="1.15.2" />
     </dependencies>
