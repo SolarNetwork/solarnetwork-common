@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicObjectDatumStreamDataSetSerializerTests.java - 29/04/2022 12:19:55 PM
- * 
+ *
  * Copyright 2022 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -59,9 +59,9 @@ import net.solarnetwork.util.ClassUtils;
 
 /**
  * Test cases for the {@link BasicObjectDatumStreamDataSetDeserializer} class.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicObjectDatumStreamDataSetDeserializerTests {
 
@@ -267,12 +267,12 @@ public class BasicObjectDatumStreamDataSetDeserializerTests {
 		assertThat("Datum instantaneous values", d.getProperties().getInstantaneous(),
 				is(arrayContaining(decimalArray("3.6", "19.1"))));
 		assertThat("Datum instantaneous stats", d.getStatistics().getInstantaneous(),
-				is(arrayContaining(new BigDecimal[][] { decimalArray("2", "0", "7.2"),
-						decimalArray("2", "18.1", "20.1"), })));
+				is(arrayContaining(new BigDecimal[][] { decimalArray("3.6", "2", "0", "7.2"),
+						decimalArray("19.1", "2", "18.1", "20.1"), })));
 		assertThat("Datum accumulating values", d.getProperties().getAccumulating(),
 				is(arrayContaining(decimalArray("1.422802"))));
-		assertThat("Datum accumulating stats", d.getStatistics().getAccumulating(),
-				is(arrayContaining(new BigDecimal[][] { decimalArray("1138.446687", "1139.869489") })));
+		assertThat("Datum accumulating stats", d.getStatistics().getAccumulating(), is(arrayContaining(
+				new BigDecimal[][] { decimalArray("1.422802", "1138.446687", "1139.869489") })));
 		assertThat("Datum status values", d.getProperties().getStatus(),
 				is(arrayContaining("Nominal", "S1")));
 		assertThat("Datum tag values", d.getProperties().getTags(), is(arrayContaining("active")));
@@ -322,12 +322,12 @@ public class BasicObjectDatumStreamDataSetDeserializerTests {
 		assertThat("Datum instantaneous values", d.getProperties().getInstantaneous(),
 				is(arrayContaining(decimalArray("3.6", "19.1"))));
 		assertThat("Datum instantaneous stats", d.getStatistics().getInstantaneous(),
-				is(arrayContaining(new BigDecimal[][] { decimalArray("2", "0", "7.2"),
-						decimalArray("2", "18.1", "20.1"), })));
+				is(arrayContaining(new BigDecimal[][] { decimalArray("3.6", "2", "0", "7.2"),
+						decimalArray("19.1", "2", "18.1", "20.1"), })));
 		assertThat("Datum accumulating values", d.getProperties().getAccumulating(),
 				is(arrayContaining(decimalArray("1.422802"))));
-		assertThat("Datum accumulating stats", d.getStatistics().getAccumulating(),
-				is(arrayContaining(new BigDecimal[][] { decimalArray("1138.446687", "1139.869489") })));
+		assertThat("Datum accumulating stats", d.getStatistics().getAccumulating(), is(arrayContaining(
+				new BigDecimal[][] { decimalArray("1.422802", "1138.446687", "1139.869489") })));
 		assertThat("Datum status values", d.getProperties().getStatus(),
 				is(arrayContaining("Nominal", "S1")));
 		assertThat("Datum tag values", d.getProperties().getTags(), is(arrayContaining("active")));

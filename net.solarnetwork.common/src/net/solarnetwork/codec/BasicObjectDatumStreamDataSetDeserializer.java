@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicObjectDatumStreamDataSetDeserializer.java - 30/04/2022 9:42:57 am
- * 
+ *
  * Copyright 2022 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -52,12 +52,12 @@ import net.solarnetwork.domain.datum.StreamDatum;
 
 /**
  * Deserializer for {@link ObjectDatumStreamDataSet}.
- * 
+ *
  * <p>
  * Note that {@link AggregateStreamDatum} instances will be returned when
  * appropriate.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.1
  * @since 2.4
@@ -171,17 +171,18 @@ public class BasicObjectDatumStreamDataSetDeserializer
 									}
 								} else if ( iLen > 0 && i < aStart ) {
 									if ( t == JsonToken.START_ARRAY ) {
-										BigDecimal[] stats = new BigDecimal[3];
+										BigDecimal[] stats = new BigDecimal[4];
 										iStats[i] = stats;
-										int j = -1;
+										int j = 0;
 										for ( t = p.nextToken(); t != null
 												&& t != JsonToken.END_ARRAY; t = p.nextToken(), j++ ) {
-											if ( j < 0 ) {
-												iData[i] = (t == JsonToken.VALUE_NULL ? null
-														: p.getDecimalValue());
-											} else if ( j < 3 ) {
-												stats[j] = (t == JsonToken.VALUE_NULL ? null
-														: p.getDecimalValue());
+											BigDecimal val = (t == JsonToken.VALUE_NULL ? null
+													: p.getDecimalValue());
+											if ( j == 0 ) {
+												iData[i] = val;
+											}
+											if ( j < 4 ) {
+												stats[j] = val;
 											}
 										}
 									} else {
@@ -190,17 +191,18 @@ public class BasicObjectDatumStreamDataSetDeserializer
 									}
 								} else if ( aLen > 0 && i < sStart ) {
 									if ( t == JsonToken.START_ARRAY ) {
-										BigDecimal[] stats = new BigDecimal[2];
+										BigDecimal[] stats = new BigDecimal[3];
 										aStats[i - aStart] = stats;
-										int j = -1;
+										int j = 0;
 										for ( t = p.nextToken(); t != null
 												&& t != JsonToken.END_ARRAY; t = p.nextToken(), j++ ) {
-											if ( j < 0 ) {
-												aData[i - aStart] = (t == JsonToken.VALUE_NULL ? null
-														: p.getDecimalValue());
-											} else if ( j < 2 ) {
-												stats[j] = (t == JsonToken.VALUE_NULL ? null
-														: p.getDecimalValue());
+											BigDecimal val = (t == JsonToken.VALUE_NULL ? null
+													: p.getDecimalValue());
+											if ( j == 0 ) {
+												aData[i - aStart] = val;
+											}
+											if ( j < 3 ) {
+												stats[j] = val;
 											}
 										}
 									} else {
