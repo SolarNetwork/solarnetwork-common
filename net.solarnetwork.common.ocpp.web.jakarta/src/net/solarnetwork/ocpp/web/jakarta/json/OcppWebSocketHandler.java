@@ -120,7 +120,7 @@ import net.solarnetwork.util.StatTracker;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 2.9
+ * @version 2.10
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler implements WebSocketHandler, SubProtocolCapable,
@@ -1084,6 +1084,9 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			try {
 				payload = chargePointActionPayloadDecoder
 						.decodeActionPayload(msg.getMessage().getAction(), true, tree.path(2));
+			} catch ( SchemaValidationException e ) {
+				err = new ErrorCodeException(errorCode(RpcError.PayloadTypeConstraintViolation), null,
+						"Payload schema violation: " + e.getMessage(), e);
 			} catch ( IOException e ) {
 				err = new ErrorCodeException(errorCode(RpcError.PayloadSyntaxError), null,
 						"Error parsing payload: " + e.getMessage(), e);
