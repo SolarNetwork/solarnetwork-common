@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Core OCPP Web Support
 Bundle-Description: Core OCPP web service support using Jakarta EE.
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.web.jakarta
-Bundle-Version: 3.1.1
+Bundle-Version: 3.1.2
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.web.jakarta
 Bundle-RequiredExecutionEnvironment: JavaSE-17
