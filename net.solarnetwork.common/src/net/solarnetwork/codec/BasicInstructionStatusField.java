@@ -39,10 +39,13 @@ import net.solarnetwork.domain.InstructionStatus;
  * Fields for {@link BasicInstructionStatus} de/serialization.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.0
  */
 public enum BasicInstructionStatusField implements IndexedField {
+
+	/** The instruction ID alternate field name. */
+	Id(0, "id"),
 
 	/** The instruction ID. */
 	InstructionId(0, "instructionId"),
@@ -84,6 +87,7 @@ public enum BasicInstructionStatusField implements IndexedField {
 	public Object parseValue(JsonParser parser, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
 		switch (this) {
+			case Id:
 			case InstructionId:
 				parser.nextToken();
 				return parser.getLongValue();
@@ -115,6 +119,7 @@ public enum BasicInstructionStatusField implements IndexedField {
 			return;
 		}
 		switch (this) {
+			case Id:
 			case InstructionId:
 				generator.writeNumberField(fieldName, ((Number) value).longValue());
 				break;
