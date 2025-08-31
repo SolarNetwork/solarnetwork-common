@@ -176,7 +176,7 @@ public final class DateUtils {
 	 *
 	 * @since 2.2
 	 */
-	public static final DateTimeFormatter ISO_DATE_OPT_TIME_UTC = ISO_DATE_OPT_TIME_ALT
+	public static final DateTimeFormatter ISO_DATE_OPT_TIME_UTC = ISO_DATE_OPT_TIME
 			.withZone(ZoneOffset.UTC);
 
 	/**
@@ -185,7 +185,7 @@ public final class DateUtils {
 	 *
 	 * @since 2.2
 	 */
-	public static final DateTimeFormatter ISO_DATE_OPT_TIME_LOCAL = ISO_DATE_OPT_TIME_ALT
+	public static final DateTimeFormatter ISO_DATE_OPT_TIME_LOCAL = ISO_DATE_OPT_TIME
 			.withZone(ZoneId.systemDefault());
 
 	/**
