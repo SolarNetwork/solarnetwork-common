@@ -31,24 +31,24 @@ import org.junit.Before;
 import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import net.solarnetwork.codec.BasicLocationDeserializer;
+import net.solarnetwork.codec.BasicIdentityLocationDeserializer;
+import net.solarnetwork.domain.BasicIdentityLocation;
 import net.solarnetwork.domain.BasicLocation;
-import net.solarnetwork.domain.Location;
 
 /**
- * Test cases for the {@link BasicLocationDeserializer} class.
+ * Test cases for the {@link BasicIdentityLocationDeserializer} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.0
  */
-public class BasicLocationDeserializerTests {
+public class BasicIdentityLocationDeserializerTests {
 
 	private ObjectMapper mapper;
 
 	private ObjectMapper createObjectMapper() {
 		ObjectMapper m = new ObjectMapper();
 		SimpleModule mod = new SimpleModule("Test");
-		mod.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
+		mod.addDeserializer(BasicIdentityLocation.class, BasicIdentityLocationDeserializer.INSTANCE);
 		m.registerModule(mod);
 		return m;
 	}
@@ -59,7 +59,7 @@ public class BasicLocationDeserializerTests {
 	}
 
 	@Test
-	public void deserialize_typical() throws IOException {
+	public void deserialize_withoutId() throws IOException {
 		// GIVEN
 		final String json = "{\"name\":\"Test\",\"country\":\"NZ\",\"region\":\"Wellington Region\""
 				+ ",\"stateOrProvince\":\"Wellington State\",\"postalCode\":\"6011\""
@@ -67,11 +67,12 @@ public class BasicLocationDeserializerTests {
 				+ ",\"lat\":1.23,\"lon\":2.34,\"el\":3.45,\"zone\":\"Pacific/Auckland\"}";
 
 		// WHEN
-		Location l = mapper.readValue(json, Location.class);
+		BasicIdentityLocation l = mapper.readValue(json, BasicIdentityLocation.class);
 
-		BasicLocation expected = new BasicLocation("Test", "NZ", "Wellington Region", "Wellington State",
-				"Wellington", "6011", "123 Main Street", new BigDecimal("1.23"), new BigDecimal("2.34"),
-				new BigDecimal("3.45"), "Pacific/Auckland");
+		BasicIdentityLocation expected = new BasicIdentityLocation(null,
+				new BasicLocation("Test", "NZ", "Wellington Region", "Wellington State", "Wellington",
+						"6011", "123 Main Street", new BigDecimal("1.23"), new BigDecimal("2.34"),
+						new BigDecimal("3.45"), "Pacific/Auckland"));
 		assertThat("Location parsed", l, is(equalTo(expected)));
 	}
 
@@ -84,11 +85,12 @@ public class BasicLocationDeserializerTests {
 				+ ",\"lat\":1.23,\"lon\":2.34,\"el\":3.45,\"zone\":\"Pacific/Auckland\"}";
 
 		// WHEN
-		Location l = mapper.readValue(json, Location.class);
+		BasicIdentityLocation l = mapper.readValue(json, BasicIdentityLocation.class);
 
-		BasicLocation expected = new BasicLocation("Test", "NZ", "Wellington Region", "Wellington State",
-				"Wellington", "6011", "123 Main Street", new BigDecimal("1.23"), new BigDecimal("2.34"),
-				new BigDecimal("3.45"), "Pacific/Auckland");
+		BasicIdentityLocation expected = new BasicIdentityLocation(123L,
+				new BasicLocation("Test", "NZ", "Wellington Region", "Wellington State", "Wellington",
+						"6011", "123 Main Street", new BigDecimal("1.23"), new BigDecimal("2.34"),
+						new BigDecimal("3.45"), "Pacific/Auckland"));
 		assertThat("Location parsed", l, is(equalTo(expected)));
 	}
 
