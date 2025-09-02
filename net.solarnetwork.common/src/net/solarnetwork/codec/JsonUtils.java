@@ -59,6 +59,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import net.solarnetwork.domain.BasicIdentityLocation;
 import net.solarnetwork.domain.Bitmaskable;
 import net.solarnetwork.domain.Instruction;
 import net.solarnetwork.domain.InstructionStatus;
@@ -90,7 +91,7 @@ import net.solarnetwork.util.StringUtils;
  * </ul>
  *
  * @author matt
- * @version 2.7
+ * @version 2.8
  * @since 1.72
  */
 public final class JsonUtils {
@@ -175,6 +176,7 @@ public final class JsonUtils {
 				BasicObjectDatumStreamMetadataIdSerializer.INSTANCE);
 		m.addSerializer(BasicObjectDatumStreamDataSetSerializer.INSTANCE);
 		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
+		m.addDeserializer(BasicIdentityLocation.class, BasicIdentityLocationDeserializer.INSTANCE);
 		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamMetadata.class,
 				BasicObjectDatumStreamMetadataDeserializer.INSTANCE);
@@ -1211,10 +1213,12 @@ public final class JsonUtils {
 		while ( (f = p.nextFieldName()) != null ) {
 			final IndexedField field = fields.get(f);
 			if ( field == null ) {
+				p.nextValue(); // skip to next field
 				continue;
 			}
 			final int index = field.getIndex();
 			if ( !(index < len) ) {
+				p.nextValue(); // skip to next field
 				continue;
 			}
 			Object o = field.parseValue(p, ctxt);

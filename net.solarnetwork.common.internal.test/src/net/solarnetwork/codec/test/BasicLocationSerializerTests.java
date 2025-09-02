@@ -32,6 +32,7 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.codec.BasicLocationSerializer;
+import net.solarnetwork.domain.BasicIdentityLocation;
 import net.solarnetwork.domain.BasicLocation;
 import net.solarnetwork.domain.Identity;
 import net.solarnetwork.domain.Location;
@@ -40,7 +41,7 @@ import net.solarnetwork.domain.Location;
  * Test cases for the {@link BasicLocationSerializer} class.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class BasicLocationSerializerTests {
 
@@ -105,6 +106,25 @@ public class BasicLocationSerializerTests {
 				"Wellington", "6011", "123 Main Street", new BigDecimal("1.23"), new BigDecimal("2.34"),
 				new BigDecimal("3.45"), "Pacific/Auckland");
 		IdentityBasicLocation loc = new IdentityBasicLocation(123L, l);
+
+		// WHEN
+		String json = mapper.writeValueAsString(loc);
+
+		// THEN
+		assertThat("JSON", json, is(equalTo(
+				"{\"id\":123,\"name\":\"Test\",\"country\":\"NZ\",\"region\":\"Wellington Region\""
+						+ ",\"stateOrProvince\":\"Wellington State\",\"postalCode\":\"6011\""
+						+ ",\"locality\":\"Wellington\",\"street\":\"123 Main Street\""
+						+ ",\"lat\":1.23,\"lon\":2.34,\"el\":3.45,\"zone\":\"Pacific/Auckland\"}")));
+	}
+
+	@Test
+	public void serialize_ident2() throws IOException {
+		// GIVEN
+		BasicLocation l = new BasicLocation("Test", "NZ", "Wellington Region", "Wellington State",
+				"Wellington", "6011", "123 Main Street", new BigDecimal("1.23"), new BigDecimal("2.34"),
+				new BigDecimal("3.45"), "Pacific/Auckland");
+		BasicIdentityLocation loc = new BasicIdentityLocation(123L, l);
 
 		// WHEN
 		String json = mapper.writeValueAsString(loc);
