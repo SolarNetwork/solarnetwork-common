@@ -120,7 +120,7 @@ import net.solarnetwork.util.StatTracker;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 2.10
+ * @version 2.11
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler implements WebSocketHandler, SubProtocolCapable,
@@ -996,6 +996,12 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			final long duration = System.currentTimeMillis() - msg.getDate();
 			stats.add(actionErrorStatName(msg.getMessage().getAction()), duration);
 
+			if ( !msg.isOutbound() ) {
+				log.warn("OCPP {} <<< Message {} not outbound; ignoring CallError message: {}", clientId,
+						messageId, message.getPayload());
+				return;
+			}
+
 			ErrorCode errorCode;
 			try {
 				errorCode = errorCodeResolver.errorCodeForName(tree.path(2).asText());
@@ -1078,6 +1084,12 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			// stat update
 			final long duration = System.currentTimeMillis() - msg.getDate();
 			stats.add(actionStatName(msg.getMessage().getAction()), duration);
+
+			if ( !msg.isOutbound() ) {
+				log.warn("OCPP {} <<< Message {} not outbound; ignoring CallError message: {}", clientId,
+						messageId, message.getPayload());
+				return;
+			}
 
 			ErrorCodeException err = null;
 			Object payload = null;
