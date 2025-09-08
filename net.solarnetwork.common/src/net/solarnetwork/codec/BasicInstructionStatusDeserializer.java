@@ -40,7 +40,7 @@ import net.solarnetwork.domain.InstructionStatus;
  * Deserializer for {@link InstructionStatus} instances.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.0
  */
 public class BasicInstructionStatusDeserializer extends StdScalarDeserializer<InstructionStatus>
@@ -71,11 +71,12 @@ public class BasicInstructionStatusDeserializer extends StdScalarDeserializer<In
 			Instant statusDate = null;
 			Map<String, ?> resultParameters = null;
 
-			String f;
-			while ( (f = p.nextFieldName()) != null ) {
+			while ( (t = p.nextToken()) != JsonToken.END_OBJECT ) {
+				String f = p.currentName();
 				BasicInstructionStatusField statusField = BasicInstructionStatusField.FIELD_MAP.get(f);
 				if ( statusField == null ) {
 					p.nextToken();
+					p.skipChildren();
 					continue;
 				}
 				Object v = statusField.parseValue(p, ctxt);
@@ -100,7 +101,7 @@ public class BasicInstructionStatusDeserializer extends StdScalarDeserializer<In
 				}
 			}
 			// jump to end object
-			while ( (t = p.currentToken()) != JsonToken.END_OBJECT ) {
+			while ( (t = p.currentToken()) != JsonToken.END_OBJECT && t != null ) {
 				t = p.nextToken();
 			}
 			return new BasicInstructionStatus(id, state, statusDate, resultParameters);

@@ -46,7 +46,7 @@ import net.solarnetwork.domain.InstructionStatus;
  * Test cases for the {@link BasicInstructionStatusDeserializer} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class BasicInstructionStatusDeserializerTests {
 
@@ -226,6 +226,39 @@ public class BasicInstructionStatusDeserializerTests {
 		expectedResultParams.put("obj", nested);
 		BasicInstructionStatus expected = new BasicInstructionStatus(1L,
 				InstructionStatus.InstructionState.Completed, TEST_STATUS_DATE, expectedResultParams);
+		assertInstructionStatusEquals("Status with result params", result, expected);
+	}
+
+	@Test
+	public void deserialize_withStatus_withStatusDate_withParameters_withResultParams()
+			throws IOException {
+		// GIVEN
+		ObjectMapper mapper = createObjectMapper();
+
+		// @formatter:off
+		String json = """
+				{
+					"instructionId" : 1,
+					"topic" : "Mock/Topic",
+					"state" : "Completed",
+					"statusDate" : "%s",
+					"parameters" : {
+						"a" : "b"
+					},
+					"resultParameters" : {
+						"status" : "bar"
+					}
+				}
+				""".formatted(TEST_STATUS_DATE_STRING);
+		// @formatter:on
+
+		// WHEN
+		InstructionStatus result = mapper.readValue(json, InstructionStatus.class);
+
+		// THEN
+		BasicInstructionStatus expected = new BasicInstructionStatus(1L,
+				InstructionStatus.InstructionState.Completed, TEST_STATUS_DATE,
+				Collections.singletonMap("status", "bar"));
 		assertInstructionStatusEquals("Status with result params", result, expected);
 	}
 
