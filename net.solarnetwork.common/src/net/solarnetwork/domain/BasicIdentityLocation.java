@@ -35,6 +35,7 @@ public class BasicIdentityLocation extends BasicLocation implements Identity<Lon
 
 	private static final long serialVersionUID = 3445970896204685365L;
 
+	/** The identity value. */
 	private final Long id;
 
 	/**
