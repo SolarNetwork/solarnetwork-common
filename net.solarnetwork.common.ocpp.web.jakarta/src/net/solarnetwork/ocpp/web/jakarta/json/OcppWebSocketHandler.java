@@ -23,6 +23,7 @@
 package net.solarnetwork.ocpp.web.jakarta.json;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.Duration;
@@ -120,7 +121,7 @@ import net.solarnetwork.util.StatTracker;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 2.11
+ * @version 2.12
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler implements WebSocketHandler, SubProtocolCapable,
@@ -131,6 +132,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 
 	/** The default {@code pingFrequencySecs} property. */
 	public static final int DEFAULT_PING_FREQUENCY_SECS = 50;
+
+	/**
+	 * A session key for a partial message buffer.
+	 */
+	public static final String PARTIAL_MESSAGE_BUFFER_SESSION_KEY = "PartialMessageBuffer";
 
 	/** A class logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -162,6 +168,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	private long pendingMessageTimeout = DEFAULT_PENDING_MESSAGE_TIMEOUT;
 	private int pingFrequencySecs = DEFAULT_PING_FREQUENCY_SECS;
 	private CloseStatus shutdownCloseStatus = CloseStatus.SERVICE_RESTARTED;
+	private int partialMessageMaximumSize;
 
 	private boolean started;
 	private Future<?> startupTask;
@@ -544,6 +551,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	}
 
 	@Override
+	public boolean supportsPartialMessages() {
+		return partialMessageMaximumSize > 0;
+	}
+
+	@Override
 	public List<String> getSubProtocols() {
 		return subProtocols;
 	}
@@ -657,8 +669,34 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-		stats.increment(Stats.MessagesReceived);
 		final ChargePointIdentity clientId = clientId(session);
+		if ( supportsPartialMessages() ) {
+			ByteArrayOutputStream partialBuffer = (ByteArrayOutputStream) session.getAttributes()
+					.get(PARTIAL_MESSAGE_BUFFER_SESSION_KEY);
+			if ( partialBuffer != null || !message.isLast() ) {
+				if ( partialBuffer == null ) {
+					// partial message start... create new buffer
+					partialBuffer = new ByteArrayOutputStream(
+							Math.max(4096, message.getPayloadLength()));
+					session.getAttributes().put(PARTIAL_MESSAGE_BUFFER_SESSION_KEY, partialBuffer);
+				}
+				if ( ((long) partialBuffer.size()
+						+ message.getPayloadLength()) > partialMessageMaximumSize ) {
+					session.getAttributes().remove(PARTIAL_MESSAGE_BUFFER_SESSION_KEY);
+					sendCallError(session, clientId, null, errorCode(RpcError.PayloadProtocolError),
+							"Maximum partial message sequence total allowed size exceeded.", null);
+					return;
+				}
+				partialBuffer.write(message.asBytes());
+				if ( message.isLast() ) {
+					message = new TextMessage(partialBuffer.toByteArray());
+					session.getAttributes().remove(PARTIAL_MESSAGE_BUFFER_SESSION_KEY);
+				} else {
+					return;
+				}
+			}
+		}
+		stats.increment(Stats.MessagesReceived);
 		log.trace("OCPP {} <<< {}", clientId, message.getPayload());
 		JsonNode tree;
 		try {
@@ -1597,6 +1635,30 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 */
 	public void setShutdownCloseStatus(CloseStatus shutdownCloseStatus) {
 		this.shutdownCloseStatus = shutdownCloseStatus;
+	}
+
+	/**
+	 * Get the partial message total sequence maximum size.
+	 *
+	 * @return the maximum size of all partial messages in sequence combined, or
+	 *         if less than {@code 1} disable partial message support; defaults
+	 *         to {@code 0}
+	 * @since 2.12
+	 */
+	public int getPartialMessageMaximumSize() {
+		return partialMessageMaximumSize;
+	}
+
+	/**
+	 * Set the partial message total sequence maximum size.
+	 *
+	 * @param partialMessageMaximumSize
+	 *        the maximum size of all partial messages in sequence combined, or
+	 *        if less than {@code 1} disable partial message support
+	 * @since 2.12
+	 */
+	public void setPartialMessageMaximumSize(int partialMessageMaximumSize) {
+		this.partialMessageMaximumSize = partialMessageMaximumSize;
 	}
 
 }

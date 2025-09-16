@@ -26,9 +26,12 @@ import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.expect;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.easymock.Capture;
@@ -63,7 +66,7 @@ import ocpp.v16.jakarta.cs.HeartbeatResponse;
  * Test cases for the {@link OcppWebSocketHandler} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class OcppWebSocketHandlerV16Tests {
 
@@ -232,6 +235,76 @@ public class OcppWebSocketHandlerV16Tests {
 		assertThat("Heartbeat response message sent", outMsg, notNullValue());
 		assertThat("Heartbeat response message content", outMsg.getPayload()
 				.matches("\\[3,\"1603881305171\",\\{\"currentTime\":\"[^\"]+\"\\}\\]"), equalTo(true));
+	}
+
+	@Test
+	public void partialMessageRequest() throws Exception {
+		// GIVEN
+		final ChargePointIdentity cpIdent = new ChargePointIdentity("foo", "user");
+		final Map<String, Object> sessionAttributes = new HashMap<>(2);
+		sessionAttributes.put(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR, cpIdent);
+		final String sessionId = UUID.randomUUID().toString();
+		expect(session.getId()).andReturn(sessionId).anyTimes();
+		expect(session.getAttributes()).andReturn(sessionAttributes).anyTimes();
+		handler.addActionMessageProcessor(new HeartbeatProcessor());
+		handler.setPartialMessageMaximumSize(1024);
+
+		// send HeartbeatResponse
+		Capture<TextMessage> outMessageCaptor = Capture.newInstance();
+		session.sendMessage(capture(outMessageCaptor));
+
+		// WHEN
+		replayAll();
+		handler.startup(false);
+		handler.afterConnectionEstablished(session);
+		TextMessage msg1 = new TextMessage("[2,\"1603881305171\",", false);
+		TextMessage msg2 = new TextMessage("\"Heartbeat\",", false);
+		TextMessage msg3 = new TextMessage("{}]", true);
+		handler.handleMessage(session, msg1);
+		handler.handleMessage(session, msg2);
+		handler.handleMessage(session, msg3);
+
+		// THEN
+		TextMessage outMsg = outMessageCaptor.getValue();
+		assertThat("Heartbeat response message sent", outMsg, notNullValue());
+		assertThat("Heartbeat response message content", outMsg.getPayload()
+				.matches("\\[3,\"1603881305171\",\\{\"currentTime\":\"[^\"]+\"\\}\\]"), equalTo(true));
+		assertThat("Partial message buffer cleared", sessionAttributes,
+				not(hasKey(OcppWebSocketHandler.PARTIAL_MESSAGE_BUFFER_SESSION_KEY)));
+	}
+
+	@Test
+	public void partialMessageRequest_tooBig() throws Exception {
+		// GIVEN
+		final ChargePointIdentity cpIdent = new ChargePointIdentity("foo", "user");
+		final Map<String, Object> sessionAttributes = new HashMap<>(2);
+		sessionAttributes.put(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR, cpIdent);
+		final String sessionId = UUID.randomUUID().toString();
+		expect(session.getId()).andReturn(sessionId).anyTimes();
+		expect(session.getAttributes()).andReturn(sessionAttributes).anyTimes();
+		handler.addActionMessageProcessor(new HeartbeatProcessor());
+		handler.setPartialMessageMaximumSize(24);
+
+		// send HeartbeatResponse
+		Capture<TextMessage> outMessageCaptor = Capture.newInstance();
+		session.sendMessage(capture(outMessageCaptor));
+
+		// WHEN
+		replayAll();
+		handler.startup(false);
+		handler.afterConnectionEstablished(session);
+		TextMessage msg1 = new TextMessage("[2,\"1603881305171\",", false);
+		TextMessage msg2 = new TextMessage("\"Heartbeat\",", false);
+		handler.handleMessage(session, msg1);
+		handler.handleMessage(session, msg2);
+
+		// THEN
+		TextMessage outMsg = outMessageCaptor.getValue();
+		assertThat("Heartbeat response message sent", outMsg, notNullValue());
+		assertThat("Heartbeat response message content", outMsg.getPayload(), is(equalTo(
+				"[4,null,\"ProtocolError\",\"Maximum partial message sequence total allowed size exceeded.\",{}]")));
+		assertThat("Partial message buffer cleared", sessionAttributes,
+				not(hasKey(OcppWebSocketHandler.PARTIAL_MESSAGE_BUFFER_SESSION_KEY)));
 	}
 
 }
