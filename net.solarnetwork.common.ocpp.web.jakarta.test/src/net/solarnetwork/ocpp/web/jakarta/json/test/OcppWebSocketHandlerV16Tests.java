@@ -40,6 +40,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.task.support.TaskExecutorAdapter;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -302,9 +303,41 @@ public class OcppWebSocketHandlerV16Tests {
 		TextMessage outMsg = outMessageCaptor.getValue();
 		assertThat("Heartbeat response message sent", outMsg, notNullValue());
 		assertThat("Heartbeat response message content", outMsg.getPayload(), is(equalTo(
-				"[4,null,\"ProtocolError\",\"Maximum partial message sequence total allowed size exceeded.\",{}]")));
+				"[4,null,\"ProtocolError\",\"Maximum partial message sequence total allowed size 24 exceeded.\",{}]")));
 		assertThat("Partial message buffer cleared", sessionAttributes,
 				not(hasKey(OcppWebSocketHandler.PARTIAL_MESSAGE_BUFFER_SESSION_KEY)));
+	}
+
+	@Test
+	public void partialMessageRequest_tooBig_close() throws Exception {
+		// GIVEN
+		final ChargePointIdentity cpIdent = new ChargePointIdentity("foo", "user");
+		final Map<String, Object> sessionAttributes = new HashMap<>(2);
+		sessionAttributes.put(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR, cpIdent);
+		final String sessionId = UUID.randomUUID().toString();
+		expect(session.getId()).andReturn(sessionId).anyTimes();
+		expect(session.getAttributes()).andReturn(sessionAttributes).anyTimes();
+		handler.addActionMessageProcessor(new HeartbeatProcessor());
+		handler.setPartialMessageMaximumSize(24);
+		handler.setPartialMessageMaximumSizeExceededClose(true);
+
+		Capture<CloseStatus> closeStatusCaptor = Capture.newInstance();
+		session.close(capture(closeStatusCaptor));
+
+		// WHEN
+		replayAll();
+		handler.startup(false);
+		handler.afterConnectionEstablished(session);
+		TextMessage msg1 = new TextMessage("[2,\"1603881305171\",", false);
+		TextMessage msg2 = new TextMessage("\"Heartbeat\",", false);
+		handler.handleMessage(session, msg1);
+		handler.handleMessage(session, msg2);
+
+		// THEN
+		CloseStatus status = closeStatusCaptor.getValue();
+		assertThat("Session was closed", status, notNullValue());
+		assertThat("Close reason was 'too big'", status.getCode(),
+				is(equalTo(CloseStatus.TOO_BIG_TO_PROCESS.getCode())));
 	}
 
 }
