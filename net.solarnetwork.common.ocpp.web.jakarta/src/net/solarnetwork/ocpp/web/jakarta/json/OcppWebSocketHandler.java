@@ -169,6 +169,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	private int pingFrequencySecs = DEFAULT_PING_FREQUENCY_SECS;
 	private CloseStatus shutdownCloseStatus = CloseStatus.SERVICE_RESTARTED;
 	private int partialMessageMaximumSize;
+	private boolean partialMessageMaximumSizeExceededClose;
 
 	private boolean started;
 	private Future<?> startupTask;
@@ -683,8 +684,14 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 				if ( ((long) partialBuffer.size()
 						+ message.getPayloadLength()) > partialMessageMaximumSize ) {
 					session.getAttributes().remove(PARTIAL_MESSAGE_BUFFER_SESSION_KEY);
-					sendCallError(session, clientId, null, errorCode(RpcError.PayloadProtocolError),
-							"Maximum partial message sequence total allowed size exceeded.", null);
+					String msg = "Maximum partial message sequence total allowed size %d exceeded."
+							.formatted(partialMessageMaximumSize);
+					if ( partialMessageMaximumSizeExceededClose ) {
+						session.close(new CloseStatus(CloseStatus.TOO_BIG_TO_PROCESS.getCode(), msg));
+					} else {
+						sendCallError(session, clientId, null, errorCode(RpcError.PayloadProtocolError),
+								msg, null);
+					}
 					return;
 				}
 				partialBuffer.write(message.asBytes());
@@ -1659,6 +1666,32 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 */
 	public void setPartialMessageMaximumSize(int partialMessageMaximumSize) {
 		this.partialMessageMaximumSize = partialMessageMaximumSize;
+	}
+
+	/**
+	 * Get the "close session after partial message maximum size exceeded" mode.
+	 *
+	 * @return {@code true} to close the connection when the partial message
+	 *         maximum size is exceeded, {@code false} to respond with an OCPP
+	 *         protocol error
+	 * @since 2.13
+	 */
+	public boolean isPartialMessageMaximumSizeExceededClose() {
+		return partialMessageMaximumSizeExceededClose;
+	}
+
+	/**
+	 * Set the "close session after partial message maximum size exceeded" mode.
+	 *
+	 * @param partialMessageMaximumSizeExceededClose
+	 *        {@code true} to close the connection when the partial message
+	 *        maximum size is exceeded, {@code false} to respond with an OCPP
+	 *        protocol error
+	 * @since 2.13
+	 */
+	public void setPartialMessageMaximumSizeExceededClose(
+			boolean partialMessageMaximumSizeExceededClose) {
+		this.partialMessageMaximumSizeExceededClose = partialMessageMaximumSizeExceededClose;
 	}
 
 }
