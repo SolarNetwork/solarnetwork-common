@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OCPP 1.6 Core Support (Jakarta EE) Tests
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.v16.jakarta.test
-Bundle-Version: 4.0.0
+Bundle-Version: 4.0.1
 Bundle-Vendor: SolarNetwork
 Fragment-Host: net.solarnetwork.common.ocpp.v16.jakarta;bundle-version="[5.0,6.0)"
 Automatic-Module-Name: net.solarnetwork.common.ocpp.v16.jakarta.test

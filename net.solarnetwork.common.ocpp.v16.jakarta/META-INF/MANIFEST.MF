@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OCPP 1.6 Core Support (Jakarta EE)
 Bundle-Description: Support for OCPP 1.6 service implementations using Jakarta EE.
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.v16.jakarta
-Bundle-Version: 5.0.0
+Bundle-Version: 5.0.1
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.v16.jakarta
 Bundle-RequiredExecutionEnvironment: JavaSE-17
@@ -24,7 +24,7 @@ Export-Package:
    net.solarnetwork.ocpp.domain,
    com.fasterxml.jackson.databind,
    net.solarnetwork.ocpp.v16.jakarta.json",
- net.solarnetwork.ocpp.v16.jakarta.json;version="1.0.0";
+ net.solarnetwork.ocpp.v16.jakarta.json;version="1.0.1";
   uses:="jakarta.xml.bind,
    net.solarnetwork.ocpp.json,
    net.solarnetwork.ocpp.xml.jakarta.support,
