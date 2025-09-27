@@ -72,6 +72,20 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 		private Instant notAfter;
 		private Boolean refreshAllowed;
 
+		/**
+		 * Constructor.
+		 */
+		public Builder() {
+			super();
+		}
+
+		/**
+		 * Copy policy settings.
+		 *
+		 * @param policy
+		 *        the policy to copy
+		 * @return this instance
+		 */
 		public Builder withPolicy(SecurityPolicy policy) {
 			if ( policy != null ) {
 				return this.withAggregations(policy.getAggregations())
@@ -87,6 +101,13 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 			return this;
 		}
 
+		/**
+		 * Merge another policy's settings.
+		 *
+		 * @param policy
+		 *        the policy to merge
+		 * @return this instance
+		 */
 		public Builder withMergedPolicy(SecurityPolicy policy) {
 			if ( policy != null ) {
 				Builder b = this.withMergedAggregations(policy.getAggregations())
@@ -113,46 +134,102 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 			return this;
 		}
 
+		/**
+		 * Set the node IDs.
+		 *
+		 * @param nodeIds
+		 *        the node IDs to use
+		 * @return this instance
+		 */
 		public Builder withNodeIds(Set<Long> nodeIds) {
 			this.nodeIds = (nodeIds == null || nodeIds.isEmpty() ? null
 					: Collections.unmodifiableSet(nodeIds));
 			return this;
 		}
 
+		/**
+		 * Set the node metadata paths.
+		 *
+		 * @param nodeMetadataPaths
+		 *        the paths to use
+		 * @return this instance
+		 */
 		public Builder withNodeMetadataPaths(Set<String> nodeMetadataPaths) {
 			this.nodeMetadataPaths = (nodeMetadataPaths == null || nodeMetadataPaths.isEmpty() ? null
 					: Collections.unmodifiableSet(nodeMetadataPaths));
 			return this;
 		}
 
+		/**
+		 * Set the user metadata paths.
+		 *
+		 * @param userMetadataPaths
+		 *        the paths to use
+		 * @return this instacne
+		 */
 		public Builder withUserMetadataPaths(Set<String> userMetadataPaths) {
 			this.userMetadataPaths = (userMetadataPaths == null || userMetadataPaths.isEmpty() ? null
 					: Collections.unmodifiableSet(userMetadataPaths));
 			return this;
 		}
 
+		/**
+		 * Set the API paths.
+		 *
+		 * @param apiPaths
+		 *        the paths to use
+		 * @return this instance
+		 */
 		public Builder withApiPaths(Set<String> apiPaths) {
 			this.apiPaths = (apiPaths == null || apiPaths.isEmpty() ? null
 					: Collections.unmodifiableSet(apiPaths));
 			return this;
 		}
 
+		/**
+		 * Set the source IDs.
+		 *
+		 * @param sourceIds
+		 *        the source IDs to use
+		 * @return this intance
+		 */
 		public Builder withSourceIds(Set<String> sourceIds) {
 			this.sourceIds = (sourceIds == null || sourceIds.isEmpty() ? null
 					: Collections.unmodifiableSet(sourceIds));
 			return this;
 		}
 
+		/**
+		 * Set the aggregations.
+		 *
+		 * @param aggregations
+		 *        the aggregations to use
+		 * @return this instance
+		 */
 		public Builder withAggregations(Set<Aggregation> aggregations) {
 			this.aggregations = aggregations;
 			return this;
 		}
 
+		/**
+		 * Set the location precision.
+		 *
+		 * @param locationPrecisions
+		 *        the precision to use
+		 * @return this intance
+		 */
 		public Builder withLocationPrecisions(Set<LocationPrecision> locationPrecisions) {
 			this.locationPrecisions = locationPrecisions;
 			return this;
 		}
 
+		/**
+		 * Add a set of node IDs.
+		 *
+		 * @param nodeIds
+		 *        the node IDs to add
+		 * @return this instance
+		 */
 		public Builder withMergedNodeIds(Set<Long> nodeIds) {
 			Set<Long> set = nodeIds;
 			if ( this.nodeIds != null && !this.nodeIds.isEmpty() ) {
@@ -164,6 +241,13 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 			return withNodeIds(set);
 		}
 
+		/**
+		 * Add node metadata paths.
+		 *
+		 * @param nodeMetadataPaths
+		 *        the paths to add
+		 * @return this instance
+		 */
 		public Builder withMergedNodeMetadataPaths(Set<String> nodeMetadataPaths) {
 			Set<String> set = nodeMetadataPaths;
 			if ( this.nodeMetadataPaths != null && !this.nodeMetadataPaths.isEmpty() ) {
@@ -175,6 +259,13 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 			return withNodeMetadataPaths(set);
 		}
 
+		/**
+		 * Add user metadata paths.
+		 *
+		 * @param userMetadataPaths
+		 *        the patsh to add
+		 * @return this instance
+		 */
 		public Builder withMergedUserMetadataPaths(Set<String> userMetadataPaths) {
 			Set<String> set = userMetadataPaths;
 			if ( this.userMetadataPaths != null && !this.userMetadataPaths.isEmpty() ) {
@@ -186,6 +277,13 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 			return withUserMetadataPaths(set);
 		}
 
+		/**
+		 * Add API paths.
+		 *
+		 * @param apiPaths
+		 *        the paths to add
+		 * @return this instance
+		 */
 		public Builder withMergedApiPaths(Set<String> apiPaths) {
 			Set<String> set = apiPaths;
 			if ( this.apiPaths != null && !this.apiPaths.isEmpty() ) {
@@ -197,6 +295,13 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 			return withApiPaths(set);
 		}
 
+		/**
+		 * Add source IDs.
+		 *
+		 * @param sourceIds
+		 *        the source IDs to add
+		 * @return this instance
+		 */
 		public Builder withMergedSourceIds(Set<String> sourceIds) {
 			Set<String> set = sourceIds;
 			if ( this.sourceIds != null && !this.sourceIds.isEmpty() ) {
@@ -208,6 +313,13 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 			return withSourceIds(set);
 		}
 
+		/**
+		 * Add aggregations.
+		 *
+		 * @param aggregations
+		 *        the aggregations to add
+		 * @return this instance
+		 */
 		public Builder withMergedAggregations(Set<Aggregation> aggregations) {
 			Set<Aggregation> set = aggregations;
 			if ( this.aggregations != null && !this.aggregations.isEmpty() ) {
@@ -221,6 +333,13 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 			return withAggregations(set);
 		}
 
+		/**
+		 * Add location precisions.
+		 *
+		 * @param locationPrecisions
+		 *        the location precisions to add
+		 * @return this instance
+		 */
 		public Builder withMergedLocationPrecisions(Set<LocationPrecision> locationPrecisions) {
 			Set<LocationPrecision> set = locationPrecisions;
 			if ( this.locationPrecisions != null && !this.locationPrecisions.isEmpty() ) {
@@ -234,6 +353,13 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 			return withLocationPrecisions(set);
 		}
 
+		/**
+		 * Set the minimum aggregation.
+		 *
+		 * @param minAggregation
+		 *        the minimum aggregation to use
+		 * @return this instance
+		 */
 		public Builder withMinAggregation(Aggregation minAggregation) {
 			this.minAggregation = minAggregation;
 			return this;
@@ -308,16 +434,35 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 			return result;
 		}
 
+		/**
+		 * Set the expiration date.
+		 *
+		 * @param date
+		 *        the date to set
+		 * @return this instance
+		 */
 		public Builder withNotAfter(Instant date) {
 			this.notAfter = date;
 			return this;
 		}
 
+		/**
+		 * Set the "refresh allowed" mode.
+		 *
+		 * @param refreshAllowed
+		 *        {@code true} to allow refreshing
+		 * @return this instance
+		 */
 		public Builder withRefreshAllowed(Boolean refreshAllowed) {
 			this.refreshAllowed = refreshAllowed;
 			return this;
 		}
 
+		/**
+		 * Build the policy instance.
+		 *
+		 * @return the new policy instance
+		 */
 		public BasicSecurityPolicy build() {
 			return new BasicSecurityPolicy(nodeIds, sourceIds, buildAggregations(), minAggregation,
 					buildLocationPrecisions(), minLocationPrecision, nodeMetadataPaths,
@@ -330,22 +475,42 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 	 * Get a new builder instance.
 	 *
 	 * @return the new builder
-	 * @since 2.0
 	 */
 	public static Builder builder() {
 		return new Builder();
 	}
 
+	/** The allowed node IDs. */
 	private final Set<Long> nodeIds;
+
+	/** The allowed source IDs. */
 	private final Set<String> sourceIds;
+
+	/** The allowed aggregations. */
 	private final Set<Aggregation> aggregations;
+
+	/** The allowed location precisions. */
 	private final Set<LocationPrecision> locationPrecisions;
+
+	/** The minimum allowed aggregation. */
 	private final Aggregation minAggregation;
+
+	/** The minimum allowed location precision. */
 	private final LocationPrecision minLocationPrecision;
+
+	/** The allowed node metadata paths. */
 	private final Set<String> nodeMetadataPaths;
+
+	/** The allowed user metadata paths. */
 	private final Set<String> userMetadataPaths;
+
+	/** The allowed API paths. */
 	private final Set<String> apiPaths;
+
+	/** The expiration date. */
 	private final Instant notAfter;
+
+	/** The "refresh allowed" mode. */
 	private final Boolean refreshAllowed;
 
 	/**

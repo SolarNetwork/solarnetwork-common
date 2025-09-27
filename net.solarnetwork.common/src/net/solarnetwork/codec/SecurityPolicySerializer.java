@@ -43,6 +43,9 @@ public class SecurityPolicySerializer extends StdSerializer<SecurityPolicy> {
 	@Serial
 	private static final long serialVersionUID = -5542903806671694581L;
 
+	/**
+	 * Constructor.
+	 */
 	public SecurityPolicySerializer() {
 		super(SecurityPolicy.class);
 	}
