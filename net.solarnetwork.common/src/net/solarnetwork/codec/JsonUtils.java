@@ -64,6 +64,7 @@ import net.solarnetwork.domain.Bitmaskable;
 import net.solarnetwork.domain.Instruction;
 import net.solarnetwork.domain.InstructionStatus;
 import net.solarnetwork.domain.Location;
+import net.solarnetwork.domain.SecurityPolicy;
 import net.solarnetwork.domain.datum.Datum;
 import net.solarnetwork.domain.datum.GeneralDatumMetadata;
 import net.solarnetwork.domain.datum.ObjectDatumStreamDataSet;
@@ -91,7 +92,7 @@ import net.solarnetwork.util.StringUtils;
  * </ul>
  *
  * @author matt
- * @version 2.8
+ * @version 2.9
  * @since 1.72
  */
 public final class JsonUtils {
@@ -159,6 +160,26 @@ public final class JsonUtils {
 	}
 
 	/**
+	 * A module for handling core objects.
+	 *
+	 * @since 2.9
+	 */
+	public static final Module CORE_MODULE;
+	static {
+		SimpleModule m = new SimpleModule("SolarNetwork Core");
+		m.addSerializer(BasicLocationSerializer.INSTANCE);
+		m.addSerializer(BasicInstructionSerializer.INSTANCE);
+		m.addSerializer(BasicInstructionStatusSerializer.INSTANCE);
+		m.addSerializer(SecurityPolicySerializer.INSTANCE);
+		m.addDeserializer(BasicIdentityLocation.class, BasicIdentityLocationDeserializer.INSTANCE);
+		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
+		m.addDeserializer(Instruction.class, BasicInstructionDeserializer.INSTANCE);
+		m.addDeserializer(InstructionStatus.class, BasicInstructionStatusDeserializer.INSTANCE);
+		m.addDeserializer(SecurityPolicy.class, BasicSecurityPolicyDeserializer.INSTANCE);
+		CORE_MODULE = m;
+	}
+
+	/**
 	 * A module for handling datum objects.
 	 *
 	 * @since 2.0
@@ -167,22 +188,15 @@ public final class JsonUtils {
 	static {
 		SimpleModule m = new SimpleModule("SolarNetwork Datum");
 		m.addSerializer(BasicGeneralDatumSerializer.INSTANCE);
-		m.addSerializer(BasicLocationSerializer.INSTANCE);
 		m.addSerializer(BasicObjectDatumStreamMetadataSerializer.INSTANCE);
 		m.addSerializer(BasicStreamDatumArraySerializer.INSTANCE);
-		m.addSerializer(BasicInstructionSerializer.INSTANCE);
-		m.addSerializer(BasicInstructionStatusSerializer.INSTANCE);
 		m.addSerializer(ObjectDatumStreamMetadataId.class,
 				BasicObjectDatumStreamMetadataIdSerializer.INSTANCE);
 		m.addSerializer(BasicObjectDatumStreamDataSetSerializer.INSTANCE);
 		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
-		m.addDeserializer(BasicIdentityLocation.class, BasicIdentityLocationDeserializer.INSTANCE);
-		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamMetadata.class,
 				BasicObjectDatumStreamMetadataDeserializer.INSTANCE);
 		m.addDeserializer(StreamDatum.class, BasicStreamDatumArrayDeserializer.INSTANCE);
-		m.addDeserializer(Instruction.class, BasicInstructionDeserializer.INSTANCE);
-		m.addDeserializer(InstructionStatus.class, BasicInstructionStatusDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamMetadataId.class,
 				BasicObjectDatumStreamMetadataIdDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamDataSet.class,
@@ -193,11 +207,11 @@ public final class JsonUtils {
 	private static final ObjectMapper OBJECT_MAPPER = createObjectMapper();
 
 	private static final ObjectMapper createObjectMapper() {
-		return createObjectMapper(null, JAVA_TIME_MODULE);
+		return createObjectMapper(null, JAVA_TIME_MODULE, CORE_MODULE);
 	}
 
 	private static final ObjectMapper createObjectMapper(JsonFactory jsonFactory) {
-		return createObjectMapper(jsonFactory, JAVA_TIME_MODULE);
+		return createObjectMapper(jsonFactory, JAVA_TIME_MODULE, CORE_MODULE);
 	}
 
 	/**
@@ -733,6 +747,38 @@ public final class JsonUtils {
 				}
 			} while ( t != null && t != JsonToken.END_ARRAY );
 			return l.toArray(new String[l.size()]);
+		}
+		return null;
+	}
+
+	/**
+	 * Parse a JSON array of scalar values into a long array.
+	 *
+	 * @param p
+	 *        the parser
+	 * @return the parsed long array
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 * @since 2.9
+	 */
+	public static Long[] parseLongArray(JsonParser p) throws IOException, JsonProcessingException {
+		JsonToken t = p.nextToken();
+		if ( p.isExpectedStartArrayToken() ) {
+			List<Long> l = new ArrayList<>(8);
+			do {
+				t = p.nextToken();
+				if ( t != null ) {
+					if ( t.isNumeric() ) {
+						l.add(p.getValueAsLong());
+					} else if ( t != JsonToken.END_ARRAY ) {
+						// assume null
+						l.add(null);
+					}
+				}
+			} while ( t != null && t != JsonToken.END_ARRAY );
+			return l.toArray(new Long[l.size()]);
 		}
 		return null;
 	}
