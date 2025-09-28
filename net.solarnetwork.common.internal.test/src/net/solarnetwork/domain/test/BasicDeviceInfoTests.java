@@ -48,7 +48,7 @@ public class BasicDeviceInfoTests {
 	@Before
 	public void setup() {
 		objectMapper = new ObjectMapper();
-		objectMapper.setSerializationInclusion(Include.NON_NULL);
+		objectMapper.setDefaultPropertyInclusion(Include.NON_NULL);
 		objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
 		objectMapper.registerModule(new JavaTimeModule());
 	}

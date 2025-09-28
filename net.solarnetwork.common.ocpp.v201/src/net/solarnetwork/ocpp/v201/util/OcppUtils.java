@@ -64,7 +64,7 @@ import ocpp.v201.ReasonEnum;
  * Utilities for OCPP v2.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public final class OcppUtils {
 
@@ -158,7 +158,7 @@ public final class OcppUtils {
 		mapper.registerModule(new JavaTimeModule());
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
-		mapper.setSerializationInclusion(Include.NON_EMPTY);
+		mapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
 		return mapper;
 	}
 

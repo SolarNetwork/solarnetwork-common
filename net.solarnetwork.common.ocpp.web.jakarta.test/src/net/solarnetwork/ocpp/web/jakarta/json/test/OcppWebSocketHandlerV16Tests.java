@@ -77,7 +77,7 @@ public class OcppWebSocketHandlerV16Tests {
 	private static ObjectMapper defaultObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new JakartaXmlBindAnnotationModule());
-		mapper.setSerializationInclusion(Include.NON_NULL);
+		mapper.setDefaultPropertyInclusion(Include.NON_NULL);
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		return mapper;
 	}

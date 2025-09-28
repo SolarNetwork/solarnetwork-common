@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Test
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.web.jakarta.test
-Bundle-Version: 3.3.0
+Bundle-Version: 3.3.1
 Bundle-Vendor: SolarNetwork
 Fragment-Host: net.solarnetwork.common.ocpp.web.jakarta;bundle-version="[3.3,4.0)"
 Automatic-Module-Name: net.solarnetwork.common.ocpp.web.jakarta.test

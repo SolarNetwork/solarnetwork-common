@@ -58,7 +58,7 @@ public class JsonMessageTests {
 	private ObjectMapper createObjectMapperJaxbWriteJson() {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new JakartaXmlBindAnnotationModule());
-		mapper.setSerializationInclusion(Include.NON_NULL);
+		mapper.setDefaultPropertyInclusion(Include.NON_NULL);
 		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
 		return mapper;
