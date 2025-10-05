@@ -29,11 +29,11 @@ import java.util.Map;
  * API for a datum-based expression root.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 2.0
  */
 public interface DatumExpressionRoot
-		extends DatumMathFunctions, DatumDateFunctions, Map<String, Object> {
+		extends DatumDateFunctions, DatumMathFunctions, DatumStringFunctions, Map<String, Object> {
 
 	/**
 	 * Get the datum.
