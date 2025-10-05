@@ -54,7 +54,7 @@ import net.solarnetwork.service.ExpressionService;
  * Test cases for the {@link ExpressionRoot} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class DatumSamplesExpressionRootTests {
 
@@ -316,6 +316,32 @@ public class DatumSamplesExpressionRootTests {
 			assertThat("Internal parameter not provided in entry set", e.getKey(),
 					is(not(equalTo(internalProp))));
 		}
+	}
+
+	@Test
+	public void regexMatches() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+
+		// WHEN
+		Boolean result = expressionService.evaluateExpression("regexMatches(sourceId, '^f')", null, root,
+				null, Boolean.class);
+
+		// THEN
+		assertThat("Regex match executed", result, is(true));
+	}
+
+	@Test
+	public void regexReplace() {
+		// GIVEN
+		DatumSamplesExpressionRoot root = createTestRoot();
+
+		// WHEN
+		String result = expressionService.evaluateExpression("regexReplace(sourceId, '^f(.*)', 'F$1')",
+				null, root, null, String.class);
+
+		// THEN
+		assertThat("Regex replace executed", result, is(equalTo("Foo")));
 	}
 
 }
