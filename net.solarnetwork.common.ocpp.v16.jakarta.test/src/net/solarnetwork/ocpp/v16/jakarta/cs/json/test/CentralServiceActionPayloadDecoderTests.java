@@ -1,21 +1,21 @@
 /* ==================================================================
  * CentralServiceActionPayloadDecoderTests.java - 3/02/2020 7:53:09 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,7 +25,9 @@ package net.solarnetwork.ocpp.v16.jakarta.cs.json.test;
 import static net.solarnetwork.ocpp.xml.jakarta.support.XmlDateUtils.newXmlCalendar;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +37,7 @@ import net.solarnetwork.ocpp.domain.SchemaValidationException;
 import net.solarnetwork.ocpp.v16.jakarta.CentralSystemAction;
 import net.solarnetwork.ocpp.v16.jakarta.cs.json.CentralServiceActionPayloadDecoder;
 import net.solarnetwork.ocpp.v16.jakarta.json.BaseActionPayloadDecoder;
+import ocpp.v16.jakarta.cp.CancelReservationRequest;
 import ocpp.v16.jakarta.cs.AuthorizationStatus;
 import ocpp.v16.jakarta.cs.AuthorizeRequest;
 import ocpp.v16.jakarta.cs.AuthorizeResponse;
@@ -44,7 +47,7 @@ import ocpp.v16.jakarta.cs.RegistrationStatus;
 
 /**
  * Test cases for the {@link CentralServiceActionPayloadDecoder} class.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -55,6 +58,14 @@ public class CentralServiceActionPayloadDecoderTests {
 
 	private ObjectMapper createObjectMapper() {
 		return BaseActionPayloadDecoder.defaultObjectMapper();
+	}
+
+	private JsonNode treeForJson(String json) {
+		try {
+			return mapper.readTree(json);
+		} catch ( IOException e ) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private JsonNode treeForResource(String resource) {
@@ -69,6 +80,29 @@ public class CentralServiceActionPayloadDecoderTests {
 	public void setup() {
 		mapper = createObjectMapper();
 		decoder = new CentralServiceActionPayloadDecoder();
+	}
+
+	@Test
+	public void decodeNull() throws IOException {
+		CancelReservationRequest result = decoder.decodeActionPayload(CentralSystemAction.Authorize,
+				false, null);
+		assertThat("Null returned on null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void decodeJsonNull() throws IOException {
+		JsonNode json = treeForJson("null");
+		CancelReservationRequest result = decoder.decodeActionPayload(CentralSystemAction.Authorize,
+				false, json);
+		assertThat("Null returned on JSON null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void decodeJsonEmptyObject() throws IOException {
+		JsonNode json = treeForJson("{}");
+		CancelReservationRequest result = decoder.decodeActionPayload(CentralSystemAction.Authorize,
+				false, json);
+		assertThat("Null returned on JSON empty object input", result, is(nullValue()));
 	}
 
 	@Test
