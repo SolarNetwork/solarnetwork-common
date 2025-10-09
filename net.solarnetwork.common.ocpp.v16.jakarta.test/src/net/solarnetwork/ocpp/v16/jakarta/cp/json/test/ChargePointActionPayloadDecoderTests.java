@@ -55,7 +55,7 @@ import ocpp.v16.jakarta.cp.SetChargingProfileRequest;
  * Test cases for the {@link ChargePointActionPayloadDecoder} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class ChargePointActionPayloadDecoderTests {
 
@@ -64,6 +64,14 @@ public class ChargePointActionPayloadDecoderTests {
 
 	private ObjectMapper createObjectMapper() {
 		return BaseActionPayloadDecoder.defaultObjectMapper();
+	}
+
+	private JsonNode treeForJson(String json) {
+		try {
+			return mapper.readTree(json);
+		} catch ( IOException e ) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private JsonNode treeForResource(String resource) {
@@ -78,6 +86,29 @@ public class ChargePointActionPayloadDecoderTests {
 	public void setup() {
 		mapper = createObjectMapper();
 		decoder = new ChargePointActionPayloadDecoder();
+	}
+
+	@Test
+	public void decodeNull() throws IOException {
+		CancelReservationRequest result = decoder
+				.decodeActionPayload(ChargePointAction.CancelReservation, false, null);
+		assertThat("Null returned on null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void decodeJsonNull() throws IOException {
+		JsonNode json = treeForJson("null");
+		CancelReservationRequest result = decoder
+				.decodeActionPayload(ChargePointAction.CancelReservation, false, json);
+		assertThat("Null returned on JSON null input", result, is(nullValue()));
+	}
+
+	@Test
+	public void decodeJsonEmptyObject() throws IOException {
+		JsonNode json = treeForJson("{}");
+		CancelReservationRequest result = decoder
+				.decodeActionPayload(ChargePointAction.CancelReservation, false, json);
+		assertThat("Null returned on JSON empty object input", result, is(nullValue()));
 	}
 
 	@Test
