@@ -1,21 +1,21 @@
 /* ==================================================================
  * ByteUtils.java - 25/09/2019 8:17:46 pm
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,6 +25,7 @@ package net.solarnetwork.util;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import net.solarnetwork.domain.BitDataType;
@@ -32,43 +33,43 @@ import net.solarnetwork.domain.ByteOrdering;
 
 /**
  * Utilities for working with bytes.
- * 
+ *
  * <p>
  * Some routines have been adapted from Apache Commons Codec's
  * {@literal Hex.java} class.
  * </p>
- * 
+ *
  * @author matt
- * @version 1.4
+ * @version 1.5
  * @since 1.54
  */
 public final class ByteUtils {
 
 	/** The UTF-8 character set name. */
-	public static final String UTF8_CHARSET = "UTF-8";
+	public static final String UTF8_CHARSET = StandardCharsets.UTF_8.name();
 
 	/** The UTF-8 character set. */
-	public static final Charset UTF8 = Charset.forName(UTF8_CHARSET);
+	public static final Charset UTF8 = StandardCharsets.UTF_8;
 
 	/** The ASCII character set name. */
-	public static final String ASCII_CHARSET = "US-ASCII";
+	public static final String ASCII_CHARSET = StandardCharsets.US_ASCII.name();
 
 	/** The ASCII character set. */
-	public static final Charset ASCII = Charset.forName(ASCII_CHARSET);
+	public static final Charset ASCII = StandardCharsets.US_ASCII;
 
 	/**
 	 * The ISO-8859-1 (ISO-LATIN-1) character set name.
-	 * 
+	 *
 	 * @since 1.1
 	 */
-	public static final String LATIN1_CHARSET = "ISO-8859-1";
+	public static final String LATIN1_CHARSET = StandardCharsets.ISO_8859_1.name();
 
 	/**
 	 * The ISO-8859-1 (ISO-LATIN-1) character set.
-	 * 
+	 *
 	 * @since 1.1
 	 */
-	public static final Charset LATIN1 = Charset.forName(LATIN1_CHARSET);
+	public static final Charset LATIN1 = StandardCharsets.ISO_8859_1;
 
 	private static final char[] DIGITS_UPPER = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A',
 			'B', 'C', 'D', 'E', 'F' };
@@ -81,7 +82,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a single byte as hex characters.
-	 * 
+	 *
 	 * @param b
 	 *        the byte to encode
 	 * @param toDigits
@@ -102,7 +103,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a single byte as upper-case hex characters.
-	 * 
+	 *
 	 * @param b
 	 *        the byte to encode
 	 * @param dest
@@ -118,7 +119,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a single byte as lower-case hex characters.
-	 * 
+	 *
 	 * @param b
 	 *        the byte to encode
 	 * @param dest
@@ -145,7 +146,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a byte array into a hex-encoded upper-case string.
-	 * 
+	 *
 	 * @param data
 	 *        the data to encode as hex strings
 	 * @param fromIndex
@@ -164,7 +165,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a byte array into a hex-encoded string.
-	 * 
+	 *
 	 * @param data
 	 *        the data to encode as hex strings
 	 * @param fromIndex
@@ -199,12 +200,12 @@ public final class ByteUtils {
 
 	/**
 	 * Convert a hex-encoded string to a byte array.
-	 * 
+	 *
 	 * <p>
 	 * If the string does not have an even number of characters, a {@literal 0}
 	 * will be inserted at the start of the string.
 	 * </p>
-	 * 
+	 *
 	 * @param s
 	 *        the string to decode
 	 * @return the bytes, never {@literal null}
@@ -219,12 +220,12 @@ public final class ByteUtils {
 
 	/**
 	 * Convert a hex-encoded string to a byte array.
-	 * 
+	 *
 	 * <p>
 	 * If the string does not have an even number of characters, a {@literal 0}
 	 * will be inserted at the start of the string.
 	 * </p>
-	 * 
+	 *
 	 * @param chars
 	 *        the characters to decode
 	 * @return the bytes, never {@literal null}
@@ -255,7 +256,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode an 8-bit signed integer value into a raw byte value.
-	 * 
+	 *
 	 * @param n
 	 *        the number to encode
 	 * @param dest
@@ -272,7 +273,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode an 8-bit unsigned integer value into a raw byte value.
-	 * 
+	 *
 	 * @param n
 	 *        the number to encode
 	 * @param dest
@@ -289,7 +290,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a 16-bit signed integer value into a raw byte value.
-	 * 
+	 *
 	 * @param n
 	 *        the number to encode
 	 * @param dest
@@ -315,7 +316,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a 16-bit unsigned integer value into a raw byte value.
-	 * 
+	 *
 	 * @param n
 	 *        the number to encode
 	 * @param dest
@@ -342,7 +343,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a 32-bit signed integer value into a raw byte value.
-	 * 
+	 *
 	 * @param n
 	 *        the number to encode
 	 * @param dest
@@ -372,7 +373,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a 32-bit unsigned integer value into a raw byte value.
-	 * 
+	 *
 	 * @param n
 	 *        the number to encode
 	 * @param dest
@@ -403,7 +404,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a 64-bit signed integer value into a raw byte value.
-	 * 
+	 *
 	 * @param n
 	 *        the number to encode
 	 * @param dest
@@ -423,7 +424,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a 64-bit signed integer value into a raw byte value.
-	 * 
+	 *
 	 * @param l
 	 *        the number to encode
 	 * @param dest
@@ -460,7 +461,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a 64-bit unsigned integer value into a raw byte value.
-	 * 
+	 *
 	 * @param n
 	 *        the number to encode
 	 * @param dest
@@ -481,7 +482,7 @@ public final class ByteUtils {
 
 	/**
 	 * Encode a 64-bit unsigned integer value into a raw byte value.
-	 * 
+	 *
 	 * @param l
 	 *        the number to encode
 	 * @param dest
@@ -519,11 +520,11 @@ public final class ByteUtils {
 
 	/**
 	 * Parse a number from raw byte data.
-	 * 
+	 *
 	 * <p>
 	 * This method is suitable for fixed-length data types only.
 	 * </p>
-	 * 
+	 *
 	 * @param dataType
 	 *        the desired data type
 	 * @param data
@@ -547,7 +548,7 @@ public final class ByteUtils {
 
 	/**
 	 * Parse a number from raw byte data.
-	 * 
+	 *
 	 * @param dataType
 	 *        the desired data type
 	 * @param data
@@ -720,7 +721,7 @@ public final class ByteUtils {
 
 	/**
 	 * Parse an 8-bit signed integer value from a raw byte value.
-	 * 
+	 *
 	 * @param b
 	 *        bits 7-0
 	 * @return the parsed integer, never {@literal null}
@@ -731,11 +732,11 @@ public final class ByteUtils {
 
 	/**
 	 * Parse an 8-bit unsigned integer value from a raw byte value.
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> a {@code Short} is returned to support unsigned 8-bit values.
 	 * </p>
-	 * 
+	 *
 	 * @param b
 	 *        bits 7-0
 	 * @return the parsed integer, never {@literal null}
@@ -746,7 +747,7 @@ public final class ByteUtils {
 
 	/**
 	 * Parse a 16-bit signed integer value from a raw byte value.
-	 * 
+	 *
 	 * @param hi
 	 *        bits 15-8
 	 * @param lo
@@ -759,12 +760,12 @@ public final class ByteUtils {
 
 	/**
 	 * Parse a 16-bit unsigned integer value from a raw byte value.
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> a {@code Integer} is returned to support unsigned 16-bit
 	 * values.
 	 * </p>
-	 * 
+	 *
 	 * @param hi
 	 *        bits 15-8
 	 * @param lo
@@ -777,7 +778,7 @@ public final class ByteUtils {
 
 	/**
 	 * Parse a 32-bit signed integer value from raw byte values.
-	 * 
+	 *
 	 * @param d
 	 *        bits 31-24
 	 * @param c
@@ -794,11 +795,11 @@ public final class ByteUtils {
 
 	/**
 	 * Parse a 32-bit unsigned integer value from raw byte values.
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> a {@code Long} is returned to support unsigned 32-bit values.
 	 * </p>
-	 * 
+	 *
 	 * @param d
 	 *        bits 31-24
 	 * @param c
@@ -815,7 +816,7 @@ public final class ByteUtils {
 
 	/**
 	 * Parse a 64-bit signed integer value from raw byte values.
-	 * 
+	 *
 	 * @param h
 	 *        bits 63-56
 	 * @param g
@@ -843,12 +844,12 @@ public final class ByteUtils {
 
 	/**
 	 * Construct an 64-bit unsigned integer from raw byte values.
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> a {@code BigInteger} is returned to support unsigned 64-bit
 	 * values.
 	 * </p>
-	 * 
+	 *
 	 * @param h
 	 *        bits 63-56
 	 * @param g
@@ -876,7 +877,7 @@ public final class ByteUtils {
 
 	/**
 	 * Parse an IEEE-754 32-bit float value from raw byte values.
-	 * 
+	 *
 	 * @param d
 	 *        bits 31-24
 	 * @param c
@@ -899,7 +900,7 @@ public final class ByteUtils {
 
 	/**
 	 * Parse an IEEE-754 64-bit floating point value from raw byte values.
-	 * 
+	 *
 	 * @param h
 	 *        bits 63-56
 	 * @param g
@@ -930,7 +931,7 @@ public final class ByteUtils {
 
 	/**
 	 * Parse any number of byte values as a series of bytes.
-	 * 
+	 *
 	 * @param data
 	 *        the data
 	 * @param offset
@@ -959,7 +960,7 @@ public final class ByteUtils {
 
 	/**
 	 * Parse any number of byte values into an signed {@link BigInteger}.
-	 * 
+	 *
 	 * @param data
 	 *        the data to parse
 	 * @param offset
@@ -983,7 +984,7 @@ public final class ByteUtils {
 
 	/**
 	 * Parse any number of byte values into an unsigned {@link BigInteger}.
-	 * 
+	 *
 	 * @param data
 	 *        the data to parse
 	 * @param offset
@@ -1016,7 +1017,7 @@ public final class ByteUtils {
 	/**
 	 * Parse any number of byte values representing characters into a decimal
 	 * string.
-	 * 
+	 *
 	 * <p>
 	 * This method interprets the {@code data} bytes as a string encoded as
 	 * {@code charset}, whose string value contains a string decimal number. For
@@ -1024,7 +1025,7 @@ public final class ByteUtils {
 	 * {@literal 0x31 0x30 0x32 0x34} is interpreted as the string
 	 * {@literal "1024"} which is then parsed as a {@link BigDecimal}.
 	 * </p>
-	 * 
+	 *
 	 * @param data
 	 *        the data to parse
 	 * @param offset
@@ -1046,7 +1047,7 @@ public final class ByteUtils {
 
 	/**
 	 * Convert an array of bytes to Byte objects.
-	 * 
+	 *
 	 * @param array
 	 *        the array to convert
 	 * @return the converted array, or {@literal null} if {@code array} is
@@ -1067,11 +1068,11 @@ public final class ByteUtils {
 
 	/**
 	 * Convert an array of bytes to Byte objects.
-	 * 
+	 *
 	 * <p>
 	 * {@literal 0} will be used for any {@literal null} object values.
 	 * </p>
-	 * 
+	 *
 	 * @param array
 	 *        the array to convert
 	 * @return the converted array, or {@literal null} if {@code array} is
@@ -1084,7 +1085,7 @@ public final class ByteUtils {
 
 	/**
 	 * Convert an array of bytes to Byte objects.
-	 * 
+	 *
 	 * @param array
 	 *        the array to convert
 	 * @param nullValue
@@ -1108,17 +1109,17 @@ public final class ByteUtils {
 	/**
 	 * Format a byte count in a "human readable" format, with progressively
 	 * larger binary units (powers of 1024).
-	 * 
+	 *
 	 * <p>
 	 * For example this method will return {@literal 6.8 MiB} for input of
 	 * {@literal 7077888}.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * Adapted from
 	 * <a href="https://stackoverflow.com/a/3758880/3072216">@aioobe on Stack
 	 * Overflow</a>
-	 * 
+	 *
 	 * @param count
 	 *        the byte count to format
 	 * @return the count formatted as a string
