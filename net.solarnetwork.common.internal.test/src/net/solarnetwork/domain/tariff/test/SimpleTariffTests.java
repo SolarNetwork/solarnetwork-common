@@ -37,7 +37,7 @@ import net.solarnetwork.domain.tariff.Tariff.Rate;
  * Test cases for the {@link SimpleTariff} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.2
  */
 public class SimpleTariffTests {
 
@@ -85,11 +85,15 @@ public class SimpleTariffTests {
 			.as("Rate shortcut for non-existing ID returns null")
 			.isNull()
 			;
+		then(t.rate())
+			.as("Rate shortcut returns first instance")
+			.isSameAs(rateList.get(0))
+			;
 		// @formatter:on
 	}
 
 	@Test
-	public void amounthortcut() {
+	public void amountShortcut() {
 		// GIVEN
 		List<Rate> rateList = asList(new SimpleTariffRate("zero", BigDecimal.ZERO),
 				new SimpleTariffRate("one", BigDecimal.ONE),
@@ -106,6 +110,37 @@ public class SimpleTariffTests {
 			;
 		then(t.amount("does not exist"))
 			.as("Amount shortcut for non-existing ID returns null")
+			.isNull()
+			;
+		then(t.amount())
+			.as("Amount for first rate returned")
+			.isSameAs(rateList.get(0).getAmount())
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void emptyTariffShortcuts() {
+		// WHEN
+		SimpleTariff t = new SimpleTariff(List.of());
+
+		// THEN
+		// @formatter:off
+		then(t.rate("does not exist"))
+			.as("Rate shortcut for non-existing ID returns null")
+			.isNull()
+			;
+		then(t.rate())
+			.as("Rate for first returns null")
+			.isNull()
+			;
+
+		then(t.amount("does not exist"))
+			.as("Amount shortcut for non-existing ID returns null")
+			.isNull()
+			;
+		then(t.amount())
+			.as("Amount for first rate rerturns null")
 			.isNull()
 			;
 		// @formatter:on

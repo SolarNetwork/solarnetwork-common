@@ -30,7 +30,7 @@ import java.util.Map;
  * A tariff.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.71
  */
 public interface Tariff {
@@ -101,6 +101,33 @@ public interface Tariff {
 	 */
 	default BigDecimal amount(String id) {
 		Rate rate = rate(id);
+		return (rate != null ? rate.getAmount() : null);
+	}
+
+	/**
+	 * Get the first available rate.
+	 *
+	 * <p>
+	 * If multiple rates are available, this method does not specify any
+	 * ordering that determines which rate will be returned.
+	 * </p>
+	 *
+	 * @return the rate, or {@code null} if no rate is available
+	 * @since 1.3
+	 */
+	default Rate rate() {
+		Map<String, Rate> rates = getRates();
+		return (rates != null && !rates.isEmpty() ? rates.values().iterator().next() : null);
+	}
+
+	/**
+	 * Get the first available rate amount.
+	 *
+	 * @return the rate amount, or {@code null} if no rate is available
+	 * @since 1.3
+	 */
+	default BigDecimal amount() {
+		Rate rate = rate();
 		return (rate != null ? rate.getAmount() : null);
 	}
 
