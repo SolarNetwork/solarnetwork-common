@@ -1,21 +1,21 @@
 /* ==================================================================
  * SimpleTariffTests.java - 12/05/2021 5:17:02 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,10 +23,8 @@
 package net.solarnetwork.domain.tariff.test;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.notNullValue;
+import static java.util.Map.entry;
+import static org.assertj.core.api.BDDAssertions.then;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +35,7 @@ import net.solarnetwork.domain.tariff.Tariff.Rate;
 
 /**
  * Test cases for the {@link SimpleTariff} class.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -55,11 +53,62 @@ public class SimpleTariffTests {
 		Map<String, Rate> rates = t.getRates();
 
 		// THEN
-		assertThat("Rates created", rates, notNullValue());
-		assertThat("Rate keys maintain order", rates.keySet(), contains("zero", "one", "ten"));
-		assertThat("Rate zero", rates, hasEntry("zero", rateList.get(0)));
-		assertThat("Rate one", rates, hasEntry("one", rateList.get(1)));
-		assertThat("Rate ten", rates, hasEntry("ten", rateList.get(2)));
+		// @formatter:off
+		then(rates)
+			.as("Expected rate mappings for all rates in given list")
+			.containsOnly(
+					entry("zero", rateList.get(0)),
+					entry("one", rateList.get(1)),
+					entry("ten", rateList.get(2))
+					)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void rateShortcut() {
+		// GIVEN
+		List<Rate> rateList = asList(new SimpleTariffRate("zero", BigDecimal.ZERO),
+				new SimpleTariffRate("one", BigDecimal.ONE),
+				new SimpleTariffRate("ten", BigDecimal.TEN));
+
+		// WHEN
+		SimpleTariff t = new SimpleTariff(rateList);
+
+		// THEN
+		// @formatter:off
+		then(t.rate("zero"))
+			.as("Rate shortcut returns instance")
+			.isSameAs(rateList.get(0))
+			;
+		then(t.rate("does not exist"))
+			.as("Rate shortcut for non-existing ID returns null")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void amounthortcut() {
+		// GIVEN
+		List<Rate> rateList = asList(new SimpleTariffRate("zero", BigDecimal.ZERO),
+				new SimpleTariffRate("one", BigDecimal.ONE),
+				new SimpleTariffRate("ten", BigDecimal.TEN));
+
+		// WHEN
+		SimpleTariff t = new SimpleTariff(rateList);
+
+		// THEN
+		// @formatter:off
+		then(t.amount("zero"))
+			.as("Amount shortcut returns instance")
+			.isSameAs(rateList.get(0).getAmount())
+			;
+		then(t.amount("does not exist"))
+			.as("Amount shortcut for non-existing ID returns null")
+			.isNull()
+			;
+		// @formatter:on
 	}
 
 }

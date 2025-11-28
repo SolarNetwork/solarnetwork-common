@@ -31,10 +31,22 @@ import java.util.Map;
  * API for a tariff schedule, that can resolve a tariff based on a date.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.71
  */
 public interface TariffSchedule {
+
+	/**
+	 * Resolve a tariff without any parameters.
+	 *
+	 * @param dateTime
+	 *        the date to resolve a tariff for
+	 * @return the tariff, or {@code null} if no tariff applies
+	 * @since 1.2
+	 */
+	default Tariff resolveTariff(LocalDateTime dateTime) {
+		return resolveTariff(dateTime, null);
+	}
 
 	/**
 	 * Resolve a tariff.
@@ -43,7 +55,7 @@ public interface TariffSchedule {
 	 *        the date to resolve a tariff for
 	 * @param parameters
 	 *        optional parameters
-	 * @return the tariff, or {@literal null} if no tariff applies
+	 * @return the tariff, or {@code null} if no tariff applies
 	 */
 	Tariff resolveTariff(LocalDateTime dateTime, Map<String, ?> parameters);
 
