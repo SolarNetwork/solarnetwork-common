@@ -30,7 +30,7 @@ import java.util.Map;
  * A tariff.
  *
  * @author matt
- * @version 1.1
+ * @version 1.3
  * @since 1.71
  */
 public interface Tariff {
@@ -48,7 +48,7 @@ public interface Tariff {
 		 * description can be localized.
 		 * </p>
 		 *
-		 * @return a unique ID, never {@literal null}
+		 * @return a unique ID, never {@code null}
 		 */
 		String getId();
 
@@ -62,7 +62,7 @@ public interface Tariff {
 		/**
 		 * Get the rate amount.
 		 *
-		 * @return the amount, never {@literal null}
+		 * @return the amount, never {@code null}
 		 */
 		BigDecimal getAmount();
 
@@ -72,9 +72,64 @@ public interface Tariff {
 	 * Get the rates that apply with this tariff.
 	 *
 	 * @return the rates, as a mapping of rate IDs to associated rates, never
-	 *         {@literal null}
+	 *         {@code null}
 	 */
 	Map<String, Rate> getRates();
+
+	/**
+	 * Get a rate.
+	 *
+	 * @param id
+	 *        the ID of the rate to get
+	 * @return the rate, or {@code null} if no rate with the given ID is
+	 *         available
+	 * @since 1.2
+	 */
+	default Rate rate(String id) {
+		Map<String, Rate> rates = getRates();
+		return (rates != null ? rates.get(id) : null);
+	}
+
+	/**
+	 * Get a rate amount.
+	 *
+	 * @param id
+	 *        the ID of the rate to get the amount for
+	 * @return the rate amount, or {@code null} if no rate with the given ID is
+	 *         available
+	 * @since 1.2
+	 */
+	default BigDecimal amount(String id) {
+		Rate rate = rate(id);
+		return (rate != null ? rate.getAmount() : null);
+	}
+
+	/**
+	 * Get the first available rate.
+	 *
+	 * <p>
+	 * If multiple rates are available, this method does not specify any
+	 * ordering that determines which rate will be returned.
+	 * </p>
+	 *
+	 * @return the rate, or {@code null} if no rate is available
+	 * @since 1.3
+	 */
+	default Rate rate() {
+		Map<String, Rate> rates = getRates();
+		return (rates != null && !rates.isEmpty() ? rates.values().iterator().next() : null);
+	}
+
+	/**
+	 * Get the first available rate amount.
+	 *
+	 * @return the rate amount, or {@code null} if no rate is available
+	 * @since 1.3
+	 */
+	default BigDecimal amount() {
+		Rate rate = rate();
+		return (rate != null ? rate.getAmount() : null);
+	}
 
 	/**
 	 * Create a temporal tariff.
@@ -125,8 +180,8 @@ public interface Tariff {
 	 *        the tariff type to unwrap
 	 * @param tariffType
 	 *        the class to unwrap as
-	 * @return the tariff as the given type, or {@literal null} if the reply is
-	 *         not compatible with {@code msgType}
+	 * @return the tariff as the given type, or {@code null} if the reply is not
+	 *         compatible with {@code msgType}
 	 * @since 1.1
 	 */
 	@SuppressWarnings("unchecked")
