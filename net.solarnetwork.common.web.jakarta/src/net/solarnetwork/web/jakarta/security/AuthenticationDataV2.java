@@ -1,21 +1,21 @@
 /* ==================================================================
  * AuthenticationDataV2.java - 1/03/2017 8:41:00 PM
- * 
+ *
  * Copyright 2007-2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -39,12 +39,12 @@ import net.solarnetwork.util.StringUtils;
 
 /**
  * Version 2 authentication token scheme based on HMAC-SHA256.
- * 
+ *
  * Signing keys are treated valid for up to 7 days in the past from the time of
  * the signature calculation in {@link #computeSignatureDigest(String)}.
- * 
+ *
  * @author matt
- * @version 3.0
+ * @version 3.1
  * @since 1.11
  */
 public class AuthenticationDataV2 extends AuthenticationData {
@@ -73,7 +73,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param request
 	 *        the HTTP request
 	 * @param headerValue
@@ -88,7 +88,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param request
 	 *        the HTTP request
 	 * @param headerValue
@@ -169,13 +169,13 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 	/**
 	 * Compute the signature digest, using a specific signing date.
-	 * 
+	 *
 	 * <p>
 	 * Generally the current date/time is used to sign the request, which is
 	 * what the {@link #computeSignatureDigest(String)} method uses. This method
 	 * can be useful for testing purposes.
 	 * </p>
-	 * 
+	 *
 	 * @param secretKey
 	 *        the secret key
 	 * @param signDate
@@ -268,13 +268,13 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 	private void validateSignedHeaderNames(SecurityHttpServletRequestWrapper request) {
 		// MUST include host
-		if ( !signedHeaderNames.contains(HOST_HEADER) ) {
+		if ( Arrays.binarySearch(sortedSignedHeaderNames, HOST_HEADER) < 0 ) {
 			throw new BadCredentialsException(
 					"The 'Host' HTTP header must be included in SignedHeaders");
 		}
 		// MUST include one of Date or X-SN-Date
-		if ( !(signedHeaderNames.contains(WebConstants.HEADER_DATE.toLowerCase())
-				|| signedHeaderNames.contains("date")) ) {
+		if ( Arrays.binarySearch(sortedSignedHeaderNames, WebConstants.HEADER_DATE_LOWER_CASE) < 0
+				&& Arrays.binarySearch(sortedSignedHeaderNames, "date") < 0 ) {
 			throw new BadCredentialsException(
 					"One of the 'Date' or 'X-SN-Date' HTTP headers must be included in SignedHeaders");
 		}
@@ -286,7 +286,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 			boolean mustInclude = (headerName.startsWith(snHeaderPrefix)
 					|| headerName.equals("content-type") || headerName.equals("content-md5")
 					|| headerName.equals("digest"));
-			if ( mustInclude && !signedHeaderNames.contains(headerName) ) {
+			if ( mustInclude && Arrays.binarySearch(sortedSignedHeaderNames, headerName) < 0 ) {
 				throw new BadCredentialsException(
 						"The '" + headerName + "' HTTP header must be included in SignedHeaders");
 			}
@@ -310,7 +310,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 
 	/**
 	 * Get the set of signed header names.
-	 * 
+	 *
 	 * @return The signed header names, or {@literal null}.
 	 */
 	public Set<String> getSignedHeaderNames() {

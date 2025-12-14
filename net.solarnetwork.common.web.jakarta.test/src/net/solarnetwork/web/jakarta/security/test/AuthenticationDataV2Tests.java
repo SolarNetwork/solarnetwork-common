@@ -1,21 +1,21 @@
 /* ==================================================================
  * AuthenticationDataV2Tests.java - 2/03/2017 12:29:20 PM
- * 
+ *
  * Copyright 2007-2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -57,7 +57,7 @@ import net.solarnetwork.web.jakarta.security.WebConstants;
 
 /**
  * Unit tests for the {@link AuthenticationDataV2} class.
- * 
+ *
  * @author matt
  * @version 2.0
  */
@@ -156,7 +156,7 @@ public class AuthenticationDataV2Tests {
 
 	private static byte[] computeSigningKey(String secretKey, Instant date) {
 		/*- signing key is like:
-		 
+
 		HMACSHA256(HMACSHA256("SNWS2"+secretKey, "20160301"), "snws2_request")
 		*/
 		return computeHMACSHA256(computeHMACSHA256(AuthenticationScheme.V2.getSchemeName() + secretKey,
@@ -165,7 +165,7 @@ public class AuthenticationDataV2Tests {
 
 	private static String computeSignatureData(String canonicalRequestData, Instant date) {
 		/*- signature data is like:
-		 
+
 		 	SNWS2-HMAC-SHA256\n
 		 	20170301T120000Z\n
 		 	Hex(SHA256(canonicalRequestData))
@@ -180,7 +180,7 @@ public class AuthenticationDataV2Tests {
 	/**
 	 * Create an {@code Authorization} HTTP header using the
 	 * {@link AuthenticationScheme#V2} scheme and no body content.
-	 * 
+	 *
 	 * @param authTokenId
 	 *        The auth token ID.
 	 * @param authTokenSecret
@@ -201,7 +201,7 @@ public class AuthenticationDataV2Tests {
 	/**
 	 * Create an {@code Authorization} HTTP header using the
 	 * {@link AuthenticationScheme#V2} scheme.
-	 * 
+	 *
 	 * @param authTokenId
 	 *        The auth token ID.
 	 * @param authTokenSecret
@@ -225,7 +225,7 @@ public class AuthenticationDataV2Tests {
 	/**
 	 * Create an {@code Authorization} HTTP header using the
 	 * {@link AuthenticationScheme#V2} scheme.
-	 * 
+	 *
 	 * @param authTokenId
 	 *        The auth token ID.
 	 * @param authTokenSecret
@@ -398,6 +398,29 @@ public class AuthenticationDataV2Tests {
 		// given a request with Host: other.example.com
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
 		request.addHeader(HTTP_HEADER_HOST, "other.example.com:443");
+		final Instant now = Instant.now();
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
+
+		// but signature calculated with host.example.com
+		String destHost = TEST_HOST + ":443";
+		// @formatter:off
+		String authHeader = new Snws2AuthorizationBuilder(TEST_AUTH_TOKEN)
+				.host(destHost)
+				.path(request.getRequestURI())
+				.date(now)
+				.build(TEST_PASSWORD);
+		// @formatter:on
+		request.addHeader(HTTP_HEADER_AUTH, authHeader);
+
+		// verify using host.example.com as explicit host
+		verifyRequest(request, TEST_PASSWORD, destHost);
+	}
+
+	@Test
+	public void simplePath_explicitHostWithPort_lcHost() throws ServletException, IOException {
+		// given a request with Host: other.example.com
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
+		request.addHeader(HTTP_HEADER_HOST.toLowerCase(), "other.example.com:443");
 		final Instant now = Instant.now();
 		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
 
