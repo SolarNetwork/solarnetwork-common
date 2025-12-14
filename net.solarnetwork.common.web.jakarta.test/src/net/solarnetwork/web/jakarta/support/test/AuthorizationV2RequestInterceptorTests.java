@@ -80,7 +80,7 @@ public class AuthorizationV2RequestInterceptorTests {
 
 	@Before
 	public void setup() {
-		restTemplate = new RestTemplate();
+		restTemplate = WebTestUtils.testRestTemplate();
 		credentialsProvider = new StaticAuthorizationCredentialsProvider(randomUUID().toString(),
 				randomUUID().toString());
 		setupRestTemplateInterceptors(credentialsProvider);

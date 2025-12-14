@@ -57,9 +57,11 @@ import net.solarnetwork.web.jakarta.support.LoggingHttpRequestInterceptor;
 public class LoggingHttpRequestInterceptorTests extends AbstractHttpServerTests {
 
 	private RestTemplate restTemplate(LoggingHttpRequestInterceptor interceptor) {
+		RestTemplate restTemplate = WebTestUtils.testRestTemplate();
 		RestTemplate debugTemplate = new RestTemplate(
 				new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
 		debugTemplate.setInterceptors(List.of(interceptor));
+		debugTemplate.setMessageConverters(restTemplate.getMessageConverters());
 		return debugTemplate;
 	}
 
