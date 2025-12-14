@@ -38,7 +38,7 @@ import net.solarnetwork.domain.datum.Aggregation;
  * Basic implementation of {@link SecurityPolicy}.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 
@@ -128,6 +128,50 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 				}
 				if ( policy.getRefreshAllowed() != null ) {
 					b = b.withRefreshAllowed(policy.getRefreshAllowed());
+				}
+				return b;
+			}
+			return this;
+		}
+
+		/**
+		 * Merge another policy's settings that intersect with this policy.
+		 *
+		 * @param policy
+		 *        the policy to merge
+		 * @return this instance
+		 * @since 1.1
+		 */
+		public Builder withIntersectPolicy(SecurityPolicy policy) {
+			if ( policy != null ) {
+				Builder b = this.withIntersectAggregations(policy.getAggregations())
+						.withIntersectLocationPrecisions(policy.getLocationPrecisions())
+						.withIntersectNodeIds(policy.getNodeIds())
+						.withIntersectSourceIds(policy.getSourceIds())
+						.withIntersectNodeMetadataPaths(policy.getNodeMetadataPaths())
+						.withIntersectUserMetadataPaths(policy.getUserMetadataPaths())
+						.withIntersectApiPaths(policy.getApiPaths());
+				if ( policy.getMinAggregation() != null ) {
+					b = b.withMinAggregation(this.minAggregation == null
+							|| policy.getMinAggregation().compareLevel(this.minAggregation) >= 0
+									? policy.getMinAggregation()
+									: this.minAggregation);
+				}
+				if ( policy.getMinLocationPrecision() != null ) {
+					b = b.withMinLocationPrecision(this.minLocationPrecision == null || policy
+							.getMinLocationPrecision().comparePrecision(this.minLocationPrecision) >= 0
+									? policy.getMinLocationPrecision()
+									: this.minLocationPrecision);
+				}
+				if ( policy.getNotAfter() != null ) {
+					b = b.withNotAfter(
+							this.notAfter == null || policy.getNotAfter().compareTo(this.notAfter) <= 0
+									? policy.getNotAfter()
+									: this.notAfter);
+				}
+				if ( policy.getRefreshAllowed() != null ) {
+					b = b.withRefreshAllowed(this.refreshAllowed != null && this.refreshAllowed
+							&& policy.getRefreshAllowed());
 				}
 				return b;
 			}
@@ -233,9 +277,41 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 		public Builder withMergedNodeIds(Set<Long> nodeIds) {
 			Set<Long> set = nodeIds;
 			if ( this.nodeIds != null && !this.nodeIds.isEmpty() ) {
-				set = new LinkedHashSet<>(this.nodeIds);
 				if ( nodeIds != null ) {
+					set = new LinkedHashSet<>(this.nodeIds);
 					set.addAll(nodeIds);
+				} else {
+					set = this.nodeIds;
+				}
+			}
+			return withNodeIds(set);
+		}
+
+		/**
+		 * Add a set of node IDs that intersect with this policy.
+		 *
+		 * @param nodeIds
+		 *        the node IDs to add
+		 * @return this instance
+		 * @since 1.1
+		 */
+		public Builder withIntersectNodeIds(Set<Long> nodeIds) {
+			Set<Long> set = nodeIds;
+			if ( this.nodeIds != null && !this.nodeIds.isEmpty() ) {
+				if ( nodeIds != null ) {
+					set = new LinkedHashSet<>(this.nodeIds.size());
+					for ( Long val : nodeIds ) {
+						if ( this.nodeIds.contains(val) ) {
+							set.add(val);
+						}
+					}
+					if ( set.isEmpty() ) {
+						throw new IllegalArgumentException(
+								"No overlapping node IDs between given [%s] and desired [%s]"
+										.formatted(this.nodeIds, nodeIds));
+					}
+				} else {
+					set = this.nodeIds;
 				}
 			}
 			return withNodeIds(set);
@@ -251,9 +327,41 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 		public Builder withMergedNodeMetadataPaths(Set<String> nodeMetadataPaths) {
 			Set<String> set = nodeMetadataPaths;
 			if ( this.nodeMetadataPaths != null && !this.nodeMetadataPaths.isEmpty() ) {
-				set = new LinkedHashSet<>(this.nodeMetadataPaths);
 				if ( nodeMetadataPaths != null ) {
+					set = new LinkedHashSet<>(this.nodeMetadataPaths);
 					set.addAll(nodeMetadataPaths);
+				} else {
+					set = this.nodeMetadataPaths;
+				}
+			}
+			return withNodeMetadataPaths(set);
+		}
+
+		/**
+		 * Add node metadata paths that intersect with this policy.
+		 *
+		 * @param nodeMetadataPaths
+		 *        the paths to add
+		 * @return this instance
+		 * @since 1.1
+		 */
+		public Builder withIntersectNodeMetadataPaths(Set<String> nodeMetadataPaths) {
+			Set<String> set = nodeMetadataPaths;
+			if ( this.nodeMetadataPaths != null && !this.nodeMetadataPaths.isEmpty() ) {
+				if ( nodeMetadataPaths != null ) {
+					set = new LinkedHashSet<>(this.nodeMetadataPaths.size());
+					for ( String val : nodeMetadataPaths ) {
+						if ( this.nodeMetadataPaths.contains(val) ) {
+							set.add(val);
+						}
+					}
+					if ( set.isEmpty() ) {
+						throw new IllegalArgumentException(
+								"No overlapping node metadata paths between given [%s] and desired [%s]"
+										.formatted(this.nodeMetadataPaths, nodeMetadataPaths));
+					}
+				} else {
+					set = this.nodeMetadataPaths;
 				}
 			}
 			return withNodeMetadataPaths(set);
@@ -269,9 +377,41 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 		public Builder withMergedUserMetadataPaths(Set<String> userMetadataPaths) {
 			Set<String> set = userMetadataPaths;
 			if ( this.userMetadataPaths != null && !this.userMetadataPaths.isEmpty() ) {
-				set = new LinkedHashSet<>(this.userMetadataPaths);
 				if ( userMetadataPaths != null ) {
+					set = new LinkedHashSet<>(this.userMetadataPaths);
 					set.addAll(userMetadataPaths);
+				} else {
+					set = this.userMetadataPaths;
+				}
+			}
+			return withUserMetadataPaths(set);
+		}
+
+		/**
+		 * Add user metadata paths that intersect with this policy.
+		 *
+		 * @param userMetadataPaths
+		 *        the patsh to add
+		 * @return this instance
+		 * @since 1.1
+		 */
+		public Builder withIntersectUserMetadataPaths(Set<String> userMetadataPaths) {
+			Set<String> set = userMetadataPaths;
+			if ( this.userMetadataPaths != null && !this.userMetadataPaths.isEmpty() ) {
+				if ( userMetadataPaths != null ) {
+					set = new LinkedHashSet<>(this.userMetadataPaths.size());
+					for ( String val : userMetadataPaths ) {
+						if ( this.userMetadataPaths.contains(val) ) {
+							set.add(val);
+						}
+					}
+					if ( set.isEmpty() ) {
+						throw new IllegalArgumentException(
+								"No overlapping user metadata paths between given [%s] and desired [%s]"
+										.formatted(this.userMetadataPaths, userMetadataPaths));
+					}
+				} else {
+					set = this.userMetadataPaths;
 				}
 			}
 			return withUserMetadataPaths(set);
@@ -287,9 +427,41 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 		public Builder withMergedApiPaths(Set<String> apiPaths) {
 			Set<String> set = apiPaths;
 			if ( this.apiPaths != null && !this.apiPaths.isEmpty() ) {
-				set = new LinkedHashSet<>(this.apiPaths);
 				if ( apiPaths != null ) {
+					set = new LinkedHashSet<>(this.apiPaths);
 					set.addAll(apiPaths);
+				} else {
+					set = this.apiPaths;
+				}
+			}
+			return withApiPaths(set);
+		}
+
+		/**
+		 * Add API paths that intersect with this policy.
+		 *
+		 * @param apiPaths
+		 *        the paths to add
+		 * @return this instance
+		 * @since 1.1
+		 */
+		public Builder withIntersectApiPaths(Set<String> apiPaths) {
+			Set<String> set = apiPaths;
+			if ( this.apiPaths != null && !this.apiPaths.isEmpty() ) {
+				if ( apiPaths != null ) {
+					set = new LinkedHashSet<>(this.apiPaths.size());
+					for ( String val : apiPaths ) {
+						if ( this.apiPaths.contains(val) ) {
+							set.add(val);
+						}
+					}
+					if ( set.isEmpty() ) {
+						throw new IllegalArgumentException(
+								"No overlapping API paths between given [%s] and desired [%s]"
+										.formatted(this.apiPaths, apiPaths));
+					}
+				} else {
+					set = this.apiPaths;
 				}
 			}
 			return withApiPaths(set);
@@ -305,9 +477,41 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 		public Builder withMergedSourceIds(Set<String> sourceIds) {
 			Set<String> set = sourceIds;
 			if ( this.sourceIds != null && !this.sourceIds.isEmpty() ) {
-				set = new LinkedHashSet<>(this.sourceIds);
 				if ( sourceIds != null ) {
+					set = new LinkedHashSet<>(this.sourceIds);
 					set.addAll(sourceIds);
+				} else {
+					set = this.sourceIds;
+				}
+			}
+			return withSourceIds(set);
+		}
+
+		/**
+		 * Add source IDs that intersect with this policy.
+		 *
+		 * @param sourceIds
+		 *        the source IDs to add
+		 * @return this instance
+		 * @since 1.1
+		 */
+		public Builder withIntersectSourceIds(Set<String> sourceIds) {
+			Set<String> set = sourceIds;
+			if ( this.sourceIds != null && !this.sourceIds.isEmpty() ) {
+				if ( sourceIds != null ) {
+					set = new LinkedHashSet<>(this.sourceIds.size());
+					for ( String val : sourceIds ) {
+						if ( this.sourceIds.contains(val) ) {
+							set.add(val);
+						}
+					}
+					if ( set.isEmpty() ) {
+						throw new IllegalArgumentException(
+								"No overlapping source IDs between given [%s] and desired [%s]"
+										.formatted(this.sourceIds, sourceIds));
+					}
+				} else {
+					set = this.sourceIds;
 				}
 			}
 			return withSourceIds(set);
@@ -334,6 +538,36 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 		}
 
 		/**
+		 * Add aggregations that intersect with the current policy.
+		 *
+		 * @param aggregations
+		 *        the aggregations to add
+		 * @return this instance
+		 * @since 1.1
+		 */
+		public Builder withIntersectAggregations(Set<Aggregation> aggregations) {
+			Set<Aggregation> set = aggregations;
+			if ( this.aggregations != null && !this.aggregations.isEmpty() ) {
+				if ( aggregations != null ) {
+					set = new LinkedHashSet<>(this.aggregations.size());
+					for ( Aggregation val : aggregations ) {
+						if ( this.aggregations.contains(val) ) {
+							set.add(val);
+						}
+					}
+					if ( set.isEmpty() ) {
+						throw new IllegalArgumentException(
+								"No overlapping aggregations between given [%s] and desired [%s]"
+										.formatted(this.aggregations, aggregations));
+					}
+				} else {
+					set = this.aggregations;
+				}
+			}
+			return withAggregations(set);
+		}
+
+		/**
 		 * Add location precisions.
 		 *
 		 * @param locationPrecisions
@@ -346,6 +580,36 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 				if ( locationPrecisions != null ) {
 					set = new LinkedHashSet<>(this.locationPrecisions);
 					set.addAll(locationPrecisions);
+				} else {
+					set = this.locationPrecisions;
+				}
+			}
+			return withLocationPrecisions(set);
+		}
+
+		/**
+		 * Add location precisions taht intersect with the current policy.
+		 *
+		 * @param locationPrecisions
+		 *        the location precisions to add
+		 * @return this instance
+		 * @since 1.1
+		 */
+		public Builder withIntersectLocationPrecisions(Set<LocationPrecision> locationPrecisions) {
+			Set<LocationPrecision> set = locationPrecisions;
+			if ( this.locationPrecisions != null && !this.locationPrecisions.isEmpty() ) {
+				if ( locationPrecisions != null ) {
+					set = new LinkedHashSet<>(this.locationPrecisions.size());
+					for ( LocationPrecision val : locationPrecisions ) {
+						if ( this.locationPrecisions.contains(val) ) {
+							set.add(val);
+						}
+					}
+					if ( set.isEmpty() ) {
+						throw new IllegalArgumentException(
+								"No overlapping location precisions between given [%s] and desired [%s]"
+										.formatted(this.locationPrecisions, locationPrecisions));
+					}
 				} else {
 					set = this.locationPrecisions;
 				}

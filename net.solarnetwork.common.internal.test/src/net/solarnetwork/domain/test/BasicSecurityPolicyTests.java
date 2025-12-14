@@ -23,6 +23,7 @@
 package net.solarnetwork.domain.test;
 
 import static net.solarnetwork.codec.JsonUtils.newObjectMapper;
+import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenExceptionOfType;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,6 +36,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,7 +53,7 @@ import net.solarnetwork.domain.datum.Aggregation;
  * Test cases for the {@link BasicSecurityPolicy} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicSecurityPolicyTests {
 
@@ -80,6 +82,51 @@ public class BasicSecurityPolicyTests {
 	}
 
 	@Test
+	public void buildIntersectNodeIdsPolicy() {
+		// GIVEN
+		Set<Long> nodeIds = new HashSet<Long>(Arrays.asList(1L, 2L, 3L));
+		Set<Long> additionalNodeIds = new HashSet<Long>(Arrays.asList(3L, 4L, 5L));
+		Set<Long> merged = new HashSet<Long>(Arrays.asList(3L));
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withNodeIds(nodeIds)
+				.withIntersectNodeIds(additionalNodeIds).build();
+
+		// THEN
+		assertThat("Node ID set", policy.getNodeIds(), is(merged));
+		thenExceptionOfType(UnsupportedOperationException.class).as("Node ID set should be immutable")
+				.isThrownBy(() -> policy.getNodeIds().add(-1L));
+	}
+
+	@Test
+	public void buildIntersectNodeIdsPolicy_emptyStart() {
+		// GIVEN
+		Set<Long> additionalNodeIds = new HashSet<Long>(Arrays.asList(3L, 4L, 5L));
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder()
+				.withIntersectNodeIds(additionalNodeIds).build();
+
+		// THEN
+		then(policy.getNodeIds()).as("Node IDs set to additional because no starting restriction")
+				.isEqualTo(additionalNodeIds);
+		thenExceptionOfType(UnsupportedOperationException.class).as("Node ID set should be immutable")
+				.isThrownBy(() -> policy.getNodeIds().add(-1L));
+	}
+
+	@Test
+	public void buildIntersectNodeIdsPolicy_noOverlap() {
+		// GIVEN
+		Set<Long> nodeIds = new HashSet<Long>(Arrays.asList(1L, 2L, 3L));
+		Set<Long> additionalNodeIds = new HashSet<Long>(Arrays.asList(4L, 5L));
+
+		// THEN
+		thenExceptionOfType(IllegalArgumentException.class).as("Disjoint merge not allowed")
+				.isThrownBy(() -> BasicSecurityPolicy.builder().withNodeIds(nodeIds)
+						.withIntersectNodeIds(additionalNodeIds).build());
+	}
+
+	@Test
 	public void buildSourceIdsPolicy() {
 		Set<String> sourceIds = new HashSet<String>(Arrays.asList("one", "two", "three"));
 		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withSourceIds(sourceIds).build();
@@ -98,6 +145,51 @@ public class BasicSecurityPolicyTests {
 		assertThat("Source ID set", policy.getSourceIds(), is(merged));
 		thenExceptionOfType(UnsupportedOperationException.class).as("Source ID set should be immutable")
 				.isThrownBy(() -> policy.getSourceIds().add("no"));
+	}
+
+	@Test
+	public void buildIntersectSourceIdsPolicy() {
+		// GIVEN
+		Set<String> sourceIds = new HashSet<String>(Arrays.asList("one", "two", "three"));
+		Set<String> additionalSourceIds = new HashSet<String>(Arrays.asList("three", "four", "five"));
+		Set<String> merged = new HashSet<String>(Arrays.asList("three"));
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withSourceIds(sourceIds)
+				.withIntersectSourceIds(additionalSourceIds).build();
+
+		// THEN
+		assertThat("Node ID set", policy.getSourceIds(), is(merged));
+		thenExceptionOfType(UnsupportedOperationException.class).as("Node ID set should be immutable")
+				.isThrownBy(() -> policy.getSourceIds().add("o"));
+	}
+
+	@Test
+	public void buildIntersectSourceIdsPolicy_emptyStart() {
+		// GIVEN
+		Set<String> additionalSourceIds = new HashSet<String>(Arrays.asList("three", "four", "five"));
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder()
+				.withIntersectSourceIds(additionalSourceIds).build();
+
+		// THEN
+		then(policy.getSourceIds()).as("Node IDs set to additional because no starting restriction")
+				.isEqualTo(additionalSourceIds);
+		thenExceptionOfType(UnsupportedOperationException.class).as("Node ID set should be immutable")
+				.isThrownBy(() -> policy.getSourceIds().add("o"));
+	}
+
+	@Test
+	public void buildIntersectSourceIdsPolicy_noOverlap() {
+		// GIVEN
+		Set<String> sourceIds = new HashSet<String>(Arrays.asList("one", "two", "three"));
+		Set<String> additionalSourceIds = new HashSet<String>(Arrays.asList("four", "five"));
+
+		// THEN
+		thenExceptionOfType(IllegalArgumentException.class).as("Disjoint merge not allowed")
+				.isThrownBy(() -> BasicSecurityPolicy.builder().withSourceIds(sourceIds)
+						.withIntersectSourceIds(additionalSourceIds).build());
 	}
 
 	@Test
@@ -124,6 +216,54 @@ public class BasicSecurityPolicyTests {
 	}
 
 	@Test
+	public void buildIntersectNodeMetadataPathsPolicy() {
+		// GIVEN
+		Set<String> paths = new HashSet<String>(Arrays.asList("one", "two", "three"));
+		Set<String> additionalPaths = new HashSet<String>(Arrays.asList("three", "four", "five"));
+		Set<String> merged = new HashSet<String>(Arrays.asList("three"));
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withNodeMetadataPaths(paths)
+				.withIntersectNodeMetadataPaths(additionalPaths).build();
+
+		// THEN
+		then(policy.getNodeMetadataPaths()).as("Api path set to intersection").isEqualTo(merged);
+		thenExceptionOfType(UnsupportedOperationException.class)
+				.as("Node metadata path set should be immutable")
+				.isThrownBy(() -> policy.getNodeMetadataPaths().add("no"));
+	}
+
+	@Test
+	public void buildIntersectNodeMetadataPathsPolicy_emptyStart() {
+		// GIVEN
+		Set<String> additionalPaths = new HashSet<String>(Arrays.asList("three", "four", "five"));
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder()
+				.withIntersectNodeMetadataPaths(additionalPaths).build();
+
+		// THEN
+		then(policy.getNodeMetadataPaths())
+				.as("Node metadata path set to additional because no starting restriction")
+				.isEqualTo(additionalPaths);
+		thenExceptionOfType(UnsupportedOperationException.class)
+				.as("Node metadata path set should be immutable")
+				.isThrownBy(() -> policy.getNodeMetadataPaths().add("no"));
+	}
+
+	@Test
+	public void buildIntersectNodeMetadataPathsPolicy_noOverlap() {
+		// GIVEN
+		Set<String> paths = new HashSet<String>(Arrays.asList("one", "two", "three"));
+		Set<String> additionalPaths = new HashSet<String>(Arrays.asList("four", "five"));
+
+		// THEN
+		thenExceptionOfType(IllegalArgumentException.class).as("Disjoint merge not allowed")
+				.isThrownBy(() -> BasicSecurityPolicy.builder().withNodeMetadataPaths(paths)
+						.withIntersectNodeMetadataPaths(additionalPaths).build());
+	}
+
+	@Test
 	public void buildUserMetadataPathsPolicy() {
 		Set<String> paths = new HashSet<String>(Arrays.asList("one", "two", "three"));
 		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withUserMetadataPaths(paths).build();
@@ -147,6 +287,54 @@ public class BasicSecurityPolicyTests {
 	}
 
 	@Test
+	public void buildIntersectUserMetadataPathsPolicy() {
+		// GIVEN
+		Set<String> paths = new HashSet<String>(Arrays.asList("one", "two", "three"));
+		Set<String> additionalPaths = new HashSet<String>(Arrays.asList("three", "four", "five"));
+		Set<String> merged = new HashSet<String>(Arrays.asList("three"));
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withUserMetadataPaths(paths)
+				.withIntersectUserMetadataPaths(additionalPaths).build();
+
+		// THEN
+		then(policy.getUserMetadataPaths()).as("Api path set to intersection").isEqualTo(merged);
+		thenExceptionOfType(UnsupportedOperationException.class)
+				.as("User metadata path set should be immutable")
+				.isThrownBy(() -> policy.getUserMetadataPaths().add("no"));
+	}
+
+	@Test
+	public void buildIntersectUserMetadataPathsPolicy_emptyStart() {
+		// GIVEN
+		Set<String> additionalPaths = new HashSet<String>(Arrays.asList("three", "four", "five"));
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder()
+				.withIntersectUserMetadataPaths(additionalPaths).build();
+
+		// THEN
+		then(policy.getUserMetadataPaths())
+				.as("User metadata path set to additional because no starting restriction")
+				.isEqualTo(additionalPaths);
+		thenExceptionOfType(UnsupportedOperationException.class)
+				.as("User metadata path set should be immutable")
+				.isThrownBy(() -> policy.getUserMetadataPaths().add("no"));
+	}
+
+	@Test
+	public void buildIntersectUserMetadataPathsPolicy_noOverlap() {
+		// GIVEN
+		Set<String> paths = new HashSet<String>(Arrays.asList("one", "two", "three"));
+		Set<String> additionalPaths = new HashSet<String>(Arrays.asList("four", "five"));
+
+		// THEN
+		thenExceptionOfType(IllegalArgumentException.class).as("Disjoint merge not allowed")
+				.isThrownBy(() -> BasicSecurityPolicy.builder().withUserMetadataPaths(paths)
+						.withIntersectUserMetadataPaths(additionalPaths).build());
+	}
+
+	@Test
 	public void buildApiPathsPolicy() {
 		Set<String> paths = new HashSet<String>(Arrays.asList("one", "two", "three"));
 		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withApiPaths(paths).build();
@@ -165,6 +353,51 @@ public class BasicSecurityPolicyTests {
 		then(policy.getApiPaths()).as("Api path set").isEqualTo(merged);
 		thenExceptionOfType(UnsupportedOperationException.class).as("Api path set should be immutable")
 				.isThrownBy(() -> policy.getApiPaths().add("no"));
+	}
+
+	@Test
+	public void buildIntersectApiPathsPolicy() {
+		// GIVEN
+		Set<String> paths = new HashSet<String>(Arrays.asList("one", "two", "three"));
+		Set<String> additionalPaths = new HashSet<String>(Arrays.asList("three", "four", "five"));
+		Set<String> merged = new HashSet<String>(Arrays.asList("three"));
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withApiPaths(paths)
+				.withIntersectApiPaths(additionalPaths).build();
+
+		// THEN
+		then(policy.getApiPaths()).as("Api path set to intersection").isEqualTo(merged);
+		thenExceptionOfType(UnsupportedOperationException.class).as("Api path set should be immutable")
+				.isThrownBy(() -> policy.getApiPaths().add("no"));
+	}
+
+	@Test
+	public void buildIntersectApiPathsPolicy_emptyStart() {
+		// GIVEN
+		Set<String> additionalPaths = new HashSet<String>(Arrays.asList("three", "four", "five"));
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withIntersectApiPaths(additionalPaths)
+				.build();
+
+		// THEN
+		then(policy.getApiPaths()).as("Api path set to additional because no starting restriction")
+				.isEqualTo(additionalPaths);
+		thenExceptionOfType(UnsupportedOperationException.class).as("Api path set should be immutable")
+				.isThrownBy(() -> policy.getApiPaths().add("no"));
+	}
+
+	@Test
+	public void buildIntersectApiPathsPolicy_noOverlap() {
+		// GIVEN
+		Set<String> paths = new HashSet<String>(Arrays.asList("one", "two", "three"));
+		Set<String> additionalPaths = new HashSet<String>(Arrays.asList("four", "five"));
+
+		// THEN
+		thenExceptionOfType(IllegalArgumentException.class).as("Disjoint merge not allowed")
+				.isThrownBy(() -> BasicSecurityPolicy.builder().withApiPaths(paths)
+						.withIntersectApiPaths(additionalPaths).build());
 	}
 
 	@Test
@@ -204,6 +437,185 @@ public class BasicSecurityPolicyTests {
 				.build();
 		assertThat("Cached minimum aggregation set", policy2.getAggregations(),
 				is(sameInstance(policy.getAggregations())));
+	}
+
+	@Test
+	public void buildIntersecNotAfter_before() {
+		// GIVEN
+		final Instant expire = Instant.now().truncatedTo(ChronoUnit.MINUTES);
+		BasicSecurityPolicy orig = BasicSecurityPolicy.builder().withNotAfter(expire).build();
+		BasicSecurityPolicy patch = BasicSecurityPolicy.builder().withNotAfter(expire.minusSeconds(1L))
+				.build();
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withPolicy(orig)
+				.withIntersectPolicy(patch).build();
+
+		// THEN
+		// @formatter:off
+		then(policy)
+			.as("Expiring earlier than source policy is allowed")
+			.returns(patch.getNotAfter(), from(BasicSecurityPolicy::getNotAfter))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void buildIntersecNotAfter_after() {
+		// GIVEN
+		final Instant expire = Instant.now().truncatedTo(ChronoUnit.MINUTES);
+		BasicSecurityPolicy orig = BasicSecurityPolicy.builder().withNotAfter(expire).build();
+		BasicSecurityPolicy patch = BasicSecurityPolicy.builder().withNotAfter(expire.plusSeconds(1L))
+				.build();
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withPolicy(orig)
+				.withIntersectPolicy(patch).build();
+
+		// THEN
+		// @formatter:off
+		then(policy)
+			.as("Expiring later than source policy is restricted to source")
+			.returns(orig.getNotAfter(), from(BasicSecurityPolicy::getNotAfter))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void buildIntersecRefreshAllowed_yesNo() {
+		// GIVEN
+		BasicSecurityPolicy orig = BasicSecurityPolicy.builder().withRefreshAllowed(true).build();
+		BasicSecurityPolicy patch = BasicSecurityPolicy.builder().withRefreshAllowed(false).build();
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withPolicy(orig)
+				.withIntersectPolicy(patch).build();
+
+		// THEN
+		// @formatter:off
+		then(policy)
+			.as("Disabling refresh allowed is allowed")
+			.returns(false, from(BasicSecurityPolicy::getRefreshAllowed))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void buildIntersecRefreshAllowed_yesYes() {
+		// GIVEN
+		BasicSecurityPolicy orig = BasicSecurityPolicy.builder().withRefreshAllowed(true).build();
+		BasicSecurityPolicy patch = BasicSecurityPolicy.builder().withRefreshAllowed(true).build();
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withPolicy(orig)
+				.withIntersectPolicy(patch).build();
+
+		// THEN
+		// @formatter:off
+		then(policy)
+			.as("Keeping refresh allowed is allowed")
+			.returns(true, from(BasicSecurityPolicy::getRefreshAllowed))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void buildIntersecRefreshAllowed_noYes() {
+		// GIVEN
+		BasicSecurityPolicy orig = BasicSecurityPolicy.builder().withRefreshAllowed(false).build();
+		BasicSecurityPolicy patch = BasicSecurityPolicy.builder().withRefreshAllowed(true).build();
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withPolicy(orig)
+				.withIntersectPolicy(patch).build();
+
+		// THEN
+		// @formatter:off
+		then(policy)
+			.as("Enabling refresh allowed is denied")
+			.returns(false, from(BasicSecurityPolicy::getRefreshAllowed))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void buildIntersecRefreshAllowed_nullNo() {
+		// GIVEN
+		BasicSecurityPolicy orig = BasicSecurityPolicy.builder().build();
+		BasicSecurityPolicy patch = BasicSecurityPolicy.builder().withRefreshAllowed(false).build();
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withPolicy(orig)
+				.withIntersectPolicy(patch).build();
+
+		// THEN
+		// @formatter:off
+		then(policy)
+			.as("Keeping refresh not allowed is allowed")
+			.returns(false, from(BasicSecurityPolicy::getRefreshAllowed))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void buildIntersecRefreshAllowed_nullYes() {
+		// GIVEN
+		BasicSecurityPolicy orig = BasicSecurityPolicy.builder().build();
+		BasicSecurityPolicy patch = BasicSecurityPolicy.builder().withRefreshAllowed(true).build();
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withPolicy(orig)
+				.withIntersectPolicy(patch).build();
+
+		// THEN
+		// @formatter:off
+		then(policy)
+			.as("Enabling refresh allowed is denied")
+			.returns(false, from(BasicSecurityPolicy::getRefreshAllowed))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void buildIntersectMinAggregationPolicy_narrower() {
+		// GIVEN
+		BasicSecurityPolicy orig = BasicSecurityPolicy.builder().withMinAggregation(Aggregation.Month)
+				.build();
+		BasicSecurityPolicy patch = BasicSecurityPolicy.builder().withMinAggregation(Aggregation.Day)
+				.build();
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withPolicy(orig)
+				.withIntersectPolicy(patch).build();
+
+		// THEN
+		// @formatter:off
+		then(policy)
+			.as("Minimim aggregation is restricted to source policy minimum")
+			.returns(Aggregation.Month, from(BasicSecurityPolicy::getMinAggregation))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void buildIntersectMinAggregationPolicy_wider() {
+		// GIVEN
+		BasicSecurityPolicy orig = BasicSecurityPolicy.builder().withMinAggregation(Aggregation.Month)
+				.build();
+		BasicSecurityPolicy patch = BasicSecurityPolicy.builder().withMinAggregation(Aggregation.Year)
+				.build();
+
+		// WHEN
+		BasicSecurityPolicy policy = BasicSecurityPolicy.builder().withPolicy(orig)
+				.withIntersectPolicy(patch).build();
+
+		// THEN
+		// @formatter:off
+		then(policy)
+			.as("Minimim aggregation is allowed to be wider than source policy minimum")
+			.returns(Aggregation.Year, from(BasicSecurityPolicy::getMinAggregation))
+			;
+		// @formatter:on
 	}
 
 	@Test
