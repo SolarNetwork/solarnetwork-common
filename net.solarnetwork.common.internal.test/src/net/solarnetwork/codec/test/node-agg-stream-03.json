@@ -1,0 +1,50 @@
+{
+  "success": true,
+  "meta": [
+    {
+      "streamId": "5514f762-2361-4ec2-98ab-7e96807b3255",
+      "zone": "America/New_York",
+      "kind": "n",
+      "objectId": 123,
+      "sourceId": "/pyrometer/1",
+      "i": [
+        "irradiance",
+        "temperature"
+      ],
+      "a": [
+        "irradianceHours"
+      ],
+      "s": [
+        "state",
+        "code"
+      ]
+    }
+  ],
+  "data": [
+    [
+      0,
+      [
+        1650945600000,
+        1651032000000
+      ],
+      [
+        3.6,
+        2,
+        0,
+        7.2
+      ],
+      [
+        19.1,
+        2,
+        18.1,
+        20.1
+      ],
+      [
+        1.422802
+      ],
+      "Nominal",
+      "S1",
+      "active"
+    ]
+  ]
+}
