@@ -1,21 +1,21 @@
 /* ==================================================================
  * GeneralNodeDatumSamples.java - Aug 22, 2014 6:26:13 AM
- * 
+ *
  * Copyright 2007-2014 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -39,9 +39,9 @@ import net.solarnetwork.util.StringUtils;
 
 /**
  * Metadata about general node datum streams of data.
- * 
+ *
  * @author matt
- * @version 2.1
+ * @version 2.2
  */
 @JsonPropertyOrder({ "m", "pm", "t" })
 @JsonIgnoreProperties({ "empty", "infoKeys" })
@@ -65,12 +65,12 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * <p>
 	 * This constructor will copy all the top-level collections into new
 	 * collection instances, but preserving all value instances.
 	 * </p>
-	 * 
+	 *
 	 * @param other
 	 *        the metadata to copy
 	 */
@@ -92,7 +92,7 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	/**
 	 * Construct with values.
-	 * 
+	 *
 	 * @param info
 	 *        the info data
 	 */
@@ -103,7 +103,7 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	/**
 	 * Construct with values.
-	 * 
+	 *
 	 * @param info
 	 *        the info data
 	 * @param propertyInfo
@@ -117,19 +117,90 @@ public class GeneralDatumMetadata extends DatumSupport
 	}
 
 	/**
+	 * Populate metadata based on a key and value.
+	 *
+	 * <p>
+	 * The {@code key} will be treated as a general metadata key, unless it
+	 * starts with a {@code /} character in which case a path is assumed. Values
+	 * that can be coerced to number types will be.
+	 * </p>
+	 *
+	 * @param key
+	 *        the key to set
+	 * @param value
+	 *        the value to set
+	 * @since 2.2
+	 */
+	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void populate(String key, final Object value) {
+		if ( key != null ) {
+			key = key.trim();
+		}
+		if ( key == null || key.isEmpty() ) {
+			return;
+		}
+
+		// treat as a number if we can
+		Number numVal = (value instanceof Number n ? n : null);
+		String val = (numVal == null && value != null ? value.toString() : null);
+		if ( val != null ) {
+			val = val.trim();
+		}
+		// treat as a number if we can
+		if ( numVal == null ) {
+			numVal = NumberUtils.narrow(StringUtils.numberValue(val), 2);
+		}
+		if ( key.startsWith("/") ) {
+			String[] components = key.split("/");
+			int idx = 0;
+			if ( components[0].isEmpty() ) {
+				idx += 1;
+			}
+			Map<String, Object> root = null;
+			if ( "m".equals(components[idx]) && idx + 1 < components.length ) {
+				root = getInfo();
+				if ( root == null ) {
+					root = new LinkedHashMap<>(8);
+					setInfo(root);
+				}
+				idx++;
+			} else if ( "pm".equals(components[idx]) && idx + 2 < components.length ) {
+				root = (Map) getPropertyInfo();
+				if ( root == null ) {
+					root = new LinkedHashMap<>();
+					setPropertyInfo((Map) root);
+				}
+				idx++;
+			} else if ( "t".equals(components[idx]) ) {
+				Set<String> tags = getTags();
+				if ( tags == null ) {
+					tags = new LinkedHashSet<>(8);
+					setTags(tags);
+				}
+				tags.add(val);
+			}
+			if ( root != null ) {
+				putMetadataAtPath(components, idx, root, numVal != null ? numVal : val);
+			}
+		} else {
+			putInfoValue(key, numVal != null ? numVal : val);
+		}
+	}
+
+	/**
 	 * Populate metadata values based on a list of {@link KeyValuePair}
 	 * instances.
-	 * 
+	 *
 	 * <p>
 	 * Each pair's key will be used as a general metadata key, unless it starts
 	 * with a {@literal /} character in which case a path is assumed. Values
 	 * that can be coerced to number types will be.
 	 * </p>
-	 * 
+	 *
 	 * @param data
 	 *        the data to populate
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void populate(final KeyValuePair[] data) {
 		final int len = (data != null ? data.length : 0);
 		for ( int i = 0; i < len; i++ ) {
@@ -137,54 +208,7 @@ public class GeneralDatumMetadata extends DatumSupport
 			if ( kv == null ) {
 				continue;
 			}
-			String key = kv.getKey();
-			if ( key != null ) {
-				key = key.trim();
-			}
-			if ( key == null || key.isEmpty() ) {
-				continue;
-			}
-			String val = kv.getValue();
-			if ( val != null ) {
-				val = val.trim();
-			}
-			// treat as a number if we can
-			Number numVal = NumberUtils.narrow(StringUtils.numberValue(val), 2);
-			if ( key.startsWith("/") ) {
-				String[] components = key.split("/");
-				int idx = 0;
-				if ( components[0].isEmpty() ) {
-					idx += 1;
-				}
-				Map<String, Object> root = null;
-				if ( "m".equals(components[idx]) && idx + 1 < components.length ) {
-					root = getInfo();
-					if ( root == null ) {
-						root = new LinkedHashMap<>(8);
-						setInfo(root);
-					}
-					idx++;
-				} else if ( "pm".equals(components[idx]) && idx + 2 < components.length ) {
-					root = (Map) getPropertyInfo();
-					if ( root == null ) {
-						root = new LinkedHashMap<>();
-						setPropertyInfo((Map) root);
-					}
-					idx++;
-				} else if ( "t".equals(components[idx]) ) {
-					Set<String> tags = getTags();
-					if ( tags == null ) {
-						tags = new LinkedHashSet<>(8);
-						setTags(tags);
-					}
-					tags.add(val);
-				}
-				if ( root != null ) {
-					putMetadataAtPath(components, idx, root, numVal != null ? numVal : val);
-				}
-			} else {
-				putInfoValue(key, numVal != null ? numVal : val);
-			}
+			populate(kv.getKey(), kv.getValue());
 		}
 	}
 
@@ -360,7 +384,7 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	/**
 	 * Shortcut for {@link #getInfo()}.
-	 * 
+	 *
 	 * @return map
 	 */
 	public Map<String, Object> getM() {
@@ -369,7 +393,7 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	/**
 	 * Shortcut for {@link #setInfo(Map)}.
-	 * 
+	 *
 	 * @param map
 	 *        the Map to set
 	 */
@@ -380,7 +404,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	/**
 	 * Get a map of <em>property info</em> maps. Each top-level key represents a
 	 * property name and the associated map the metadata for that property.
-	 * 
+	 *
 	 * @return map
 	 */
 	@JsonIgnore
@@ -405,7 +429,7 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	/**
 	 * Set the property info.
-	 * 
+	 *
 	 * @param propertyInfo
 	 *        the property info to set
 	 */
@@ -415,7 +439,7 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	/**
 	 * Shortcut for {@link #getPropertyInfo()}.
-	 * 
+	 *
 	 * @return the map
 	 */
 	public Map<String, Map<String, Object>> getPm() {
@@ -424,7 +448,7 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	/**
 	 * Shortcut for {@link GeneralDatumMetadata#setPropertyInfo(Map)}.
-	 * 
+	 *
 	 * @param map
 	 *        the map to set
 	 */
@@ -474,7 +498,7 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	/**
 	 * Get a metadata value at a given path.
-	 * 
+	 *
 	 * <p>
 	 * The {@code path} syntax is that of URL paths, using a {@literal /}
 	 * delimiter between nested metadata objects. The top-level path component
@@ -482,7 +506,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	 * for {@link #getPropertyInfo()} data, or {@literal /t} for
 	 * {@link #getTags()} data.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * For example, the path {@literal /m/foo} would return the value associated
 	 * with the "foo" key in the {@code Map} returned from {@link #getInfo()}.
@@ -490,7 +514,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	 * {@code Map} associated with the "foo" key in the {@code Map} returned
 	 * from {@link #getPropertyInfo()}.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * For tags, using the {@literal /t} path will return the complete
 	 * {@code Set} of tags returned by {@link #getTags()}. If the path has
@@ -499,7 +523,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	 * {@literal /t/foo} would return {@literal foo} if {@link #getTags()}
 	 * contains {@literal foo}, otherwise {@literal null}.
 	 * </p>
-	 * 
+	 *
 	 * @param path
 	 *        the path of the metadata object to get
 	 * @param meta
@@ -535,7 +559,7 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	/**
 	 * Get a metadata value of a given type at a given path.
-	 * 
+	 *
 	 * @param <T>
 	 *        the expected return type
 	 * @param path

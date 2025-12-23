@@ -1,21 +1,21 @@
 /* ==================================================================
  * DatumSamples.java - Oct 17, 2014 12:14:16 PM
- * 
+ *
  * Copyright 2007-2014 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU  Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU  Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  *  Public License for more details.
- * 
- * You should have received a copy of the GNU  Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU  Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -34,9 +34,9 @@ import net.solarnetwork.domain.SerializeIgnore;
 /**
  * A collection of different types of sample data, grouped by logical sample
  * type.
- * 
+ *
  * @author matt
- * @version 2.1
+ * @version 2.2
  */
 @JsonPropertyOrder({ "i", "a", "s", "t" })
 public class DatumSamples extends DatumSupport implements MutableDatumSamplesOperations, Serializable {
@@ -61,7 +61,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Construct with values.
-	 * 
+	 *
 	 * @param instantaneous
 	 *        the instantaneous data
 	 * @param accumulating
@@ -79,7 +79,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the samples to copy
 	 * @since 1.4
@@ -144,7 +144,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a merged map of all sample data.
-	 * 
+	 *
 	 * @return a map with all sample data combined
 	 */
 	@JsonIgnore
@@ -172,7 +172,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Test if there are any properties configured in the instantaneous,
 	 * accumulating, status, or tag data sets.
-	 * 
+	 *
 	 * @return {@literal true} if there is at least one value in one of the data
 	 *         sets of this object
 	 * @since 1.3
@@ -198,23 +198,13 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	@Override
 	public Map<String, ?> getSampleData(DatumSamplesType type) {
-		Map<String, ?> data;
-		switch (type) {
-			case Instantaneous:
-				data = instantaneous;
-				break;
-
-			case Accumulating:
-				data = accumulating;
-				break;
-
-			case Status:
-				data = status;
-				break;
-
-			default:
-				throw new IllegalArgumentException("Sample type [" + type + "] not supported");
-		}
+		Map<String, ?> data = switch (type) {
+			case Instantaneous -> instantaneous;
+			case Accumulating -> accumulating;
+			case Status -> status;
+			case Metadata -> null; // for backwards compatibility
+			default -> throw new IllegalArgumentException("Sample type [" + type + "] not supported");
+		};
 		return data;
 	}
 
@@ -236,6 +226,10 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 			case Tag:
 				setTags(data.keySet());
+				break;
+
+			case Metadata:
+				// do nothing for backwards compatibility
 				break;
 
 			default:
@@ -351,7 +345,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Put a value into or remove a value from the {@link #getInstantaneous()}
 	 * map, creating the map if it doesn't exist.
-	 * 
+	 *
 	 * @param key
 	 *        the key to put
 	 * @param n
@@ -376,7 +370,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Put a value into or remove a value from the {@link #getAccumulating()}
 	 * map, creating the map if it doesn't exist.
-	 * 
+	 *
 	 * @param key
 	 *        the key to put
 	 * @param n
@@ -401,7 +395,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Put a value into or remove a value from the {@link #getStatus()} map,
 	 * creating the map if it doesn't exist.
-	 * 
+	 *
 	 * @param key
 	 *        the key to put
 	 * @param value
@@ -426,7 +420,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get an Integer value from the {@link #getInstantaneous()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Integer, or {@literal null} if not available
@@ -438,7 +432,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a Long value from the {@link #getInstantaneous()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Long, or {@literal null} if not available
@@ -450,7 +444,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a Float value from the {@link #getInstantaneous()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Float, or {@literal null} if not available
@@ -462,7 +456,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a Double value from the {@link #getInstantaneous()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Double, or {@literal null} if not available
@@ -474,7 +468,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a BigDecimal value from the {@link #getInstantaneous()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an BigDecimal, or {@literal null} if not available
@@ -486,7 +480,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get an Integer value from the {@link #getAccumulating()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Integer, or {@literal null} if not available
@@ -498,7 +492,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a Long value from the {@link #getAccumulating()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Long, or {@literal null} if not available
@@ -510,7 +504,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a Float value from the {@link #getAccumulating()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Float, or {@literal null} if not available
@@ -522,7 +516,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a Double value from the {@link #getAccumulating()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Double, or {@literal null} if not available
@@ -534,7 +528,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a BigDecimal value from the {@link #getAccumulating()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an BigDecimal, or {@literal null} if not available
@@ -546,7 +540,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get an Integer value from the {@link #getInstantaneous()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Integer, or {@literal null} if not available
@@ -558,7 +552,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a Long value from the {@link #getInstantaneous()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Long, or {@literal null} if not available
@@ -570,7 +564,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a Float value from the {@link #getInstantaneous()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Float, or {@literal null} if not available
@@ -582,7 +576,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a Double value from the {@link #getInstantaneous()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an Double, or {@literal null} if not available
@@ -594,7 +588,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a BigDecimal value from the {@link #getInstantaneous()} map, or
 	 * {@literal null} if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as an BigDecimal, or {@literal null} if not available
@@ -606,7 +600,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a String value from the {@link #getStatus()} map, or {@literal null}
 	 * if not available.
-	 * 
+	 *
 	 * @param key
 	 *        the key of the value to get
 	 * @return the value as a String, or {@literal null} if not available
@@ -671,7 +665,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Shortcut for {@link #getInstantaneous()}.
-	 * 
+	 *
 	 * @return map
 	 */
 	public Map<String, Number> getI() {
@@ -680,7 +674,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Set the instantaneous properties.
-	 * 
+	 *
 	 * @param map
 	 *        the properties to set
 	 */
@@ -690,7 +684,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Shortcut for {@link #getAccumulating()}.
-	 * 
+	 *
 	 * @return map
 	 */
 	public Map<String, Number> getA() {
@@ -699,7 +693,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Set the accumulating properties.
-	 * 
+	 *
 	 * @param map
 	 *        the properties to set
 	 */
@@ -709,7 +703,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Shortcut for {@link #getStatus()}.
-	 * 
+	 *
 	 * @return map
 	 */
 	public Map<String, Object> getS() {
@@ -718,7 +712,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Set the status properties.
-	 * 
+	 *
 	 * @param map
 	 *        the status properties to set
 	 */
@@ -729,7 +723,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	/**
 	 * Get a map of <em>instantaneous</em> sample values. These values measure
 	 * instant readings of something.
-	 * 
+	 *
 	 * @return map of instantaneous measurements
 	 */
 	@JsonIgnore
@@ -740,7 +734,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Set the instantaneous properties.
-	 * 
+	 *
 	 * @param instantaneous
 	 *        the properties to set
 	 */
@@ -752,7 +746,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * Get a map <em>accumulating</em> sample values. These values measure an
 	 * accumulating data value, whose values represent an offset from another
 	 * sample on a different date.
-	 * 
+	 *
 	 * @return map of accumulating measurements
 	 */
 	@JsonIgnore
@@ -763,7 +757,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Set the accumulating properties.
-	 * 
+	 *
 	 * @param accumulating
 	 *        the properties to set
 	 */
@@ -773,7 +767,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a map of <em>status</em> sample values. These are arbitrary values.
-	 * 
+	 *
 	 * @return map of status messages
 	 */
 	@JsonIgnore
@@ -784,7 +778,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Set the status properties.
-	 * 
+	 *
 	 * @param status
 	 *        the properties to set
 	 */
