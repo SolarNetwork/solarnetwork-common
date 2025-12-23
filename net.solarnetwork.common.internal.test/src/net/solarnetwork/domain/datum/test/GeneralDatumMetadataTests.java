@@ -49,7 +49,7 @@ import net.solarnetwork.domain.datum.GeneralDatumMetadata;
  * Test cases for {@link GeneralDatumMetadata}.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class GeneralDatumMetadataTests {
 
@@ -409,4 +409,26 @@ public class GeneralDatumMetadataTests {
 		assertThat("Tags populated", meta.getTags(), containsInAnyOrder("t1", "t2"));
 	}
 
+	@Test
+	public void populate_paths() {
+		// GIVEN
+		GeneralDatumMetadata meta = new GeneralDatumMetadata();
+
+		// WHEN
+		meta.populate("/m", "b"); // ignored from missing path segment
+		meta.populate("/m/a", "c");
+		meta.populate("/pm/", 123.456); // ignored from missing path segment
+		meta.populate("/pm/p/int", 123);
+		meta.populate("/pm/p/boom", "1234");
+		meta.populate("/t", "t1");
+		meta.populate("/t/2", "t2"); // path suffix ignored
+
+		// THEN
+		assertThat("Info string value populated as string", meta.getInfo(), hasEntry("a", "c"));
+		assertThat("Property info int value populated as int", meta.getPropertyInfo("p"),
+				hasEntry("int", 123));
+		assertThat("Property info int string value populated as int", meta.getPropertyInfo("p"),
+				hasEntry("boom", 1234));
+		assertThat("Tags populated", meta.getTags(), containsInAnyOrder("t1", "t2"));
+	}
 }

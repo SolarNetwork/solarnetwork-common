@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * A property type for a datum property.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.0
  */
 public enum DatumSamplesType {
@@ -44,7 +44,16 @@ public enum DatumSamplesType {
 	Status('s'),
 
 	/** Tag property. */
-	Tag('t');
+	Tag('t'),
+
+	/**
+	 * Metadata property.
+	 *
+	 * @since 1.2
+	 */
+	Metadata('m')
+
+	;
 
 	private final String type;
 
