@@ -3,14 +3,14 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hikari JDBC Connection Pool
 Bundle-Description: JDBC DataSource backed by a HikariCP connection pool.
 Bundle-SymbolicName: net.solarnetwork.common.jdbc.pool.hikari
-Bundle-Version: 3.0.0
+Bundle-Version: 3.0.1
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.jdbc.pool.hikari
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Activator: net.solarnetwork.common.jdbc.pool.hikari.Activator
 Import-Package: 
- com.zaxxer.hikari;version="[5.1,7.0)",
- com.zaxxer.hikari.pool;version="[5.1,7.0)",
+ com.zaxxer.hikari;version="[5.1,8.0)",
+ com.zaxxer.hikari.pool;version="[5.1,8.0)",
  javax.sql,
  net.solarnetwork.common.osgi.service;version="[1.0,2.0)",
  net.solarnetwork.dao.jdbc;version="[2.0,3.0)",
