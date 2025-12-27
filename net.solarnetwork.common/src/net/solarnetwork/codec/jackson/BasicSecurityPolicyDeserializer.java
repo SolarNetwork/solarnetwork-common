@@ -32,6 +32,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.MismatchedInputException;
 
@@ -45,7 +46,7 @@ import tools.jackson.databind.exc.MismatchedInputException;
 public class BasicSecurityPolicyDeserializer extends StdDeserializer<SecurityPolicy> {
 
 	/** A default instance. */
-	public static final BasicSecurityPolicyDeserializer INSTANCE = new BasicSecurityPolicyDeserializer();
+	public static final ValueDeserializer<SecurityPolicy> INSTANCE = new BasicSecurityPolicyDeserializer();
 
 	/**
 	 * Constructor.

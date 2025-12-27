@@ -28,6 +28,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.MismatchedInputException;
 
@@ -42,7 +43,7 @@ public class BasicObjectDatumStreamMetadataIdDeserializer
 		extends StdDeserializer<ObjectDatumStreamMetadataId> {
 
 	/** A default instance. */
-	public static final BasicObjectDatumStreamMetadataIdDeserializer INSTANCE = new BasicObjectDatumStreamMetadataIdDeserializer();
+	public static final ValueDeserializer<ObjectDatumStreamMetadataId> INSTANCE = new BasicObjectDatumStreamMetadataIdDeserializer();
 
 	/**
 	 * Constructor.

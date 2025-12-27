@@ -27,6 +27,7 @@ import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -44,7 +45,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
 public class BasicObjectDatumStreamMetadataSerializer extends StdSerializer<ObjectDatumStreamMetadata> {
 
 	/** A default instance. */
-	public static final BasicObjectDatumStreamMetadataSerializer INSTANCE = new BasicObjectDatumStreamMetadataSerializer();
+	public static final ValueSerializer<ObjectDatumStreamMetadata> INSTANCE = new BasicObjectDatumStreamMetadataSerializer();
 
 	/**
 	 * Constructor.

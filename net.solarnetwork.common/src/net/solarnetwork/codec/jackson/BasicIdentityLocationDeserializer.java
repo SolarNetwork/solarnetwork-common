@@ -29,6 +29,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.MismatchedInputException;
 
@@ -42,7 +43,7 @@ import tools.jackson.databind.exc.MismatchedInputException;
 public class BasicIdentityLocationDeserializer extends StdDeserializer<BasicIdentityLocation> {
 
 	/** A default instance. */
-	public static final BasicIdentityLocationDeserializer INSTANCE = new BasicIdentityLocationDeserializer();
+	public static final ValueDeserializer<BasicIdentityLocation> INSTANCE = new BasicIdentityLocationDeserializer();
 
 	/**
 	 * Constructor.

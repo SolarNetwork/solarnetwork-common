@@ -27,6 +27,7 @@ import net.solarnetwork.domain.Location;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -39,7 +40,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
 public class BasicLocationSerializer extends StdSerializer<Location> {
 
 	/** A default instance. */
-	public static final BasicLocationSerializer INSTANCE = new BasicLocationSerializer();
+	public static final ValueSerializer<Location> INSTANCE = new BasicLocationSerializer();
 
 	/**
 	 * Constructor.

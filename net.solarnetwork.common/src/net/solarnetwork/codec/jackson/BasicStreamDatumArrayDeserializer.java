@@ -32,6 +32,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.MismatchedInputException;
 
@@ -45,7 +46,7 @@ import tools.jackson.databind.exc.MismatchedInputException;
 public class BasicStreamDatumArrayDeserializer extends StdDeserializer<StreamDatum> {
 
 	/** A default instance. */
-	public static final BasicStreamDatumArrayDeserializer INSTANCE = new BasicStreamDatumArrayDeserializer();
+	public static final ValueDeserializer<StreamDatum> INSTANCE = new BasicStreamDatumArrayDeserializer();
 
 	/**
 	 * Constructor.

@@ -31,7 +31,7 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsontype.TypeSerializer;
-import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.ser.std.StdScalarSerializer;
 
 /**
  * Specialized serializer of {@link BigDecimal} to string values.
@@ -40,7 +40,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
  * @version 1.0
  * @since 4.13
  */
-public class BigDecimalStringSerializer extends StdSerializer<BigDecimal> {
+public class BigDecimalStringSerializer extends StdScalarSerializer<BigDecimal> {
 
 	/**
 	 * Singleton instance to use.
@@ -52,16 +52,6 @@ public class BigDecimalStringSerializer extends StdSerializer<BigDecimal> {
 	 */
 	public BigDecimalStringSerializer() {
 		super(BigDecimal.class);
-	}
-
-	/**
-	 * Construct with specific class.
-	 *
-	 * @param handledType
-	 *        the type to use
-	 */
-	public BigDecimalStringSerializer(Class<? extends BigDecimal> handledType) {
-		super(handledType);
 	}
 
 	@Override

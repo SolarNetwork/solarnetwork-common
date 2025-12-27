@@ -22,7 +22,6 @@
 
 package net.solarnetwork.codec.jackson;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -73,9 +72,7 @@ import tools.jackson.databind.exc.MismatchedInputException;
  * @version 1.0
  * @since 4.13
  */
-public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> implements Serializable {
-
-	private static final long serialVersionUID = 3787325819424216521L;
+public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> {
 
 	/** A default instance. */
 	public static final ValueDeserializer<Datum> INSTANCE = new BasicGeneralDatumDeserializer();

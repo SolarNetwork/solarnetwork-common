@@ -29,6 +29,7 @@ import net.solarnetwork.domain.datum.StreamDatum;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -41,7 +42,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
 public class BasicStreamDatumArraySerializer extends StdSerializer<StreamDatum> {
 
 	/** A default instance. */
-	public static final BasicStreamDatumArraySerializer INSTANCE = new BasicStreamDatumArraySerializer();
+	public static final ValueSerializer<StreamDatum> INSTANCE = new BasicStreamDatumArraySerializer();
 
 	/**
 	 * Constructor.
