@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicAppEvent.java - 29/05/2020 3:41:41 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,16 +26,16 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Basic immutable {@link AppEvent}.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
-@JsonDeserialize(builder = BasicAppEvent.Builder.class)
+@com.fasterxml.jackson.databind.annotation.JsonDeserialize(builder = BasicAppEvent.Builder.class)
+@tools.jackson.databind.annotation.JsonDeserialize(builder = BasicAppEvent.Builder.class)
 public class BasicAppEvent implements AppEvent {
 
 	private final String topic;
@@ -44,11 +44,11 @@ public class BasicAppEvent implements AppEvent {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * The event creation date will be set to the current time.
 	 * </p>
-	 * 
+	 *
 	 * @param topic
 	 *        the event topic
 	 * @param eventProperties
@@ -62,7 +62,7 @@ public class BasicAppEvent implements AppEvent {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param topic
 	 *        the event topic
 	 * @param created
@@ -132,7 +132,7 @@ public class BasicAppEvent implements AppEvent {
 
 	/**
 	 * Creates builder to build {@link BasicAppEvent}.
-	 * 
+	 *
 	 * @return created builder
 	 */
 	public static Builder builder() {
@@ -156,7 +156,7 @@ public class BasicAppEvent implements AppEvent {
 
 	/**
 	 * Get a builder, populated with this instance's values.
-	 * 
+	 *
 	 * @return a pre-populated builder
 	 */
 	public Builder toBuilder() {
@@ -180,7 +180,7 @@ public class BasicAppEvent implements AppEvent {
 
 		/**
 		 * Constructor.
-		 * 
+		 *
 		 * @param basicAppEvent
 		 *        the event to start with
 		 */
@@ -192,7 +192,7 @@ public class BasicAppEvent implements AppEvent {
 
 		/**
 		 * Get the configured topic.
-		 * 
+		 *
 		 * @return the topic the topic
 		 */
 		public String getTopic() {
@@ -201,7 +201,7 @@ public class BasicAppEvent implements AppEvent {
 
 		/**
 		 * Configure the topic.
-		 * 
+		 *
 		 * @param topic
 		 *        the topic
 		 * @return this builder
@@ -213,7 +213,7 @@ public class BasicAppEvent implements AppEvent {
 
 		/**
 		 * Get the configured creation date.
-		 * 
+		 *
 		 * @return the creation date
 		 */
 		public Instant getCreated() {
@@ -222,7 +222,7 @@ public class BasicAppEvent implements AppEvent {
 
 		/**
 		 * Configure the creation date.
-		 * 
+		 *
 		 * @param created
 		 *        the creation date
 		 * @return the
@@ -234,7 +234,7 @@ public class BasicAppEvent implements AppEvent {
 
 		/**
 		 * Get the configured event properties.
-		 * 
+		 *
 		 * @return the event properties
 		 */
 		public Map<String, ?> getEventProperties() {
@@ -243,7 +243,7 @@ public class BasicAppEvent implements AppEvent {
 
 		/**
 		 * Configure event properties.
-		 * 
+		 *
 		 * @param eventProperties
 		 *        the properties, or {@literal null}
 		 * @return this builder
@@ -258,7 +258,7 @@ public class BasicAppEvent implements AppEvent {
 
 		/**
 		 * Build the event instance.
-		 * 
+		 *
 		 * @return the event
 		 */
 		public BasicAppEvent build() {
