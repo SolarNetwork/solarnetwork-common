@@ -1,21 +1,21 @@
 /* ==================================================================
  * AuthorizationInfo.java - 6/02/2020 7:23:43 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,11 +23,11 @@
 package net.solarnetwork.ocpp.domain;
 
 import java.time.Instant;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Charge Point authorization information.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -41,7 +41,7 @@ public class AuthorizationInfo {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the ID value, e.g. RFID tag ID
 	 * @param status
@@ -53,7 +53,7 @@ public class AuthorizationInfo {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the ID value, e.g. RFID tag ID
 	 * @param status
@@ -105,7 +105,7 @@ public class AuthorizationInfo {
 
 	/**
 	 * Get the ID.
-	 * 
+	 *
 	 * @return the ID
 	 */
 	public String getId() {
@@ -114,7 +114,7 @@ public class AuthorizationInfo {
 
 	/**
 	 * Get the status.
-	 * 
+	 *
 	 * @return the status.
 	 */
 	public AuthorizationStatus getStatus() {
@@ -123,7 +123,7 @@ public class AuthorizationInfo {
 
 	/**
 	 * Get the expiration date.
-	 * 
+	 *
 	 * @return the expiration date
 	 */
 	public Instant getExpiryDate() {
@@ -132,7 +132,7 @@ public class AuthorizationInfo {
 
 	/**
 	 * Get the authorization parent ID.
-	 * 
+	 *
 	 * @return the parent ID
 	 */
 	public String getParentId() {
@@ -141,7 +141,7 @@ public class AuthorizationInfo {
 
 	/**
 	 * Get a builder, populated with this instance's values.
-	 * 
+	 *
 	 * @return a pre-populated builder
 	 */
 	public Builder toBuilder() {
@@ -150,7 +150,7 @@ public class AuthorizationInfo {
 
 	/**
 	 * Creates builder to build {@link AuthorizationInfo}.
-	 * 
+	 *
 	 * @return created builder
 	 */
 	public static Builder builder() {
@@ -181,7 +181,7 @@ public class AuthorizationInfo {
 
 		/**
 		 * Configure the ID.
-		 * 
+		 *
 		 * @param id
 		 *        the ID
 		 * @return this instance
@@ -193,7 +193,7 @@ public class AuthorizationInfo {
 
 		/**
 		 * Configure a status.
-		 * 
+		 *
 		 * @param status
 		 *        the status
 		 * @return this instance
@@ -205,7 +205,7 @@ public class AuthorizationInfo {
 
 		/**
 		 * Configure the expiration date.
-		 * 
+		 *
 		 * @param expiryDate
 		 *        the expiration date
 		 * @return this instance
@@ -217,7 +217,7 @@ public class AuthorizationInfo {
 
 		/**
 		 * Configure a parent ID.
-		 * 
+		 *
 		 * @param parentId
 		 *        the parent ID
 		 * @return this instance
@@ -229,7 +229,7 @@ public class AuthorizationInfo {
 
 		/**
 		 * Create a new instance from this builder.
-		 * 
+		 *
 		 * @return the new instance
 		 */
 		public AuthorizationInfo build() {

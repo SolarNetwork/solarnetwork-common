@@ -23,9 +23,6 @@
 package net.solarnetwork.ocpp.v16.jakarta.cp.json;
 
 import java.io.IOException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.bind.JAXBElement;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
@@ -71,6 +68,9 @@ import ocpp.v16.jakarta.cp.UnlockConnectorRequest;
 import ocpp.v16.jakarta.cp.UnlockConnectorResponse;
 import ocpp.v16.jakarta.cp.UpdateFirmwareRequest;
 import ocpp.v16.jakarta.cp.UpdateFirmwareResponse;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * OCPP 1.6 implementation of
@@ -78,7 +78,7 @@ import ocpp.v16.jakarta.cp.UpdateFirmwareResponse;
  * actions.
  *
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class ChargePointActionPayloadDecoder extends BaseActionPayloadDecoder {
 
@@ -121,7 +121,7 @@ public class ChargePointActionPayloadDecoder extends BaseActionPayloadDecoder {
 		T result;
 		try {
 			result = mapper.treeToValue(payload, clazz);
-		} catch ( JsonMappingException e ) {
+		} catch ( JacksonException e ) {
 			throw new SchemaValidationException(payload, e.getMessage(), e);
 		}
 		validateActionMessage(a, forResult, result);

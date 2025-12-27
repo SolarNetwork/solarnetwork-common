@@ -1,21 +1,21 @@
 /* ==================================================================
  * StatusNotification.java - 12/02/2020 1:03:07 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,11 +25,11 @@ package net.solarnetwork.ocpp.domain;
 import java.time.Instant;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * An OCPP status notification.
- * 
+ *
  * @author matt
  * @version 1.1
  */
@@ -49,7 +49,7 @@ public class StatusNotification {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param connectorId
 	 *        the connector ID
 	 * @param status
@@ -72,7 +72,7 @@ public class StatusNotification {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param evseId
 	 *        the EVSE ID
 	 * @param connectorId
@@ -171,7 +171,7 @@ public class StatusNotification {
 
 	/**
 	 * Get the EVSE ID.
-	 * 
+	 *
 	 * @return the EVSE ID
 	 * @since 1.1
 	 */
@@ -181,7 +181,7 @@ public class StatusNotification {
 
 	/**
 	 * Get the connector ID.
-	 * 
+	 *
 	 * @return the connector ID
 	 */
 	public int getConnectorId() {
@@ -190,7 +190,7 @@ public class StatusNotification {
 
 	/**
 	 * Get the status.
-	 * 
+	 *
 	 * @return the status
 	 */
 	public ChargePointStatus getStatus() {
@@ -199,7 +199,7 @@ public class StatusNotification {
 
 	/**
 	 * Get the error code.
-	 * 
+	 *
 	 * @return the errorCode
 	 */
 	public ChargePointErrorCode getErrorCode() {
@@ -208,7 +208,7 @@ public class StatusNotification {
 
 	/**
 	 * Get the info.
-	 * 
+	 *
 	 * @return the info
 	 */
 	public String getInfo() {
@@ -217,7 +217,7 @@ public class StatusNotification {
 
 	/**
 	 * Get the timestamp.
-	 * 
+	 *
 	 * @return the timestamp
 	 */
 	public Instant getTimestamp() {
@@ -226,7 +226,7 @@ public class StatusNotification {
 
 	/**
 	 * Get the vendor ID.
-	 * 
+	 *
 	 * @return the vendor ID
 	 */
 	public String getVendorId() {
@@ -235,7 +235,7 @@ public class StatusNotification {
 
 	/**
 	 * Get the vendor error code.
-	 * 
+	 *
 	 * @return the error code
 	 */
 	public String getVendorErrorCode() {
@@ -245,12 +245,12 @@ public class StatusNotification {
 	/**
 	 * Test if the properties of another entity are the same as in this
 	 * instance.
-	 * 
+	 *
 	 * <p>
 	 * The {@code id} and {@code created} properties are not compared by this
 	 * method.
 	 * </p>
-	 * 
+	 *
 	 * @param other
 	 *        the other entity to compare to
 	 * @return {@literal true} if the properties of this instance are equal to
@@ -272,7 +272,7 @@ public class StatusNotification {
 
 	/**
 	 * Creates builder to build {@link StatusNotification}.
-	 * 
+	 *
 	 * @return created builder
 	 */
 	public static Builder builder() {
@@ -282,7 +282,7 @@ public class StatusNotification {
 	/**
 	 * Creates a builder to build {@link StatusNotification} and initialize it
 	 * with this object.
-	 * 
+	 *
 	 * @return created builder
 	 */
 	public Builder toBuilder() {
@@ -319,7 +319,7 @@ public class StatusNotification {
 
 		/**
 		 * Configure an EVSE ID.
-		 * 
+		 *
 		 * @param evseId
 		 *        the EVSE ID
 		 * @return this instance
@@ -332,7 +332,7 @@ public class StatusNotification {
 
 		/**
 		 * Configure a connector ID.
-		 * 
+		 *
 		 * @param connectorId
 		 *        the connector ID
 		 * @return this instance
@@ -344,7 +344,7 @@ public class StatusNotification {
 
 		/**
 		 * Configure the status.
-		 * 
+		 *
 		 * @param status
 		 *        the status
 		 * @return this instance
@@ -356,7 +356,7 @@ public class StatusNotification {
 
 		/**
 		 * Configure the error code.
-		 * 
+		 *
 		 * @param errorCode
 		 *        the error code
 		 * @return this instance
@@ -368,7 +368,7 @@ public class StatusNotification {
 
 		/**
 		 * Configure the info.
-		 * 
+		 *
 		 * @param info
 		 *        the info
 		 * @return this instance
@@ -380,7 +380,7 @@ public class StatusNotification {
 
 		/**
 		 * Configure the timestamp.
-		 * 
+		 *
 		 * @param timestamp
 		 *        the timestamp
 		 * @return this instance
@@ -392,7 +392,7 @@ public class StatusNotification {
 
 		/**
 		 * Configure the vendor ID.
-		 * 
+		 *
 		 * @param vendorId
 		 *        the vendor ID
 		 * @return this instance
@@ -404,7 +404,7 @@ public class StatusNotification {
 
 		/**
 		 * Configure the vendor error code.
-		 * 
+		 *
 		 * @param vendorErrorCode
 		 *        the error code
 		 * @return this instance
@@ -416,7 +416,7 @@ public class StatusNotification {
 
 		/**
 		 * Build a notification instance from this builder.
-		 * 
+		 *
 		 * @return the new instance
 		 */
 		public StatusNotification build() {

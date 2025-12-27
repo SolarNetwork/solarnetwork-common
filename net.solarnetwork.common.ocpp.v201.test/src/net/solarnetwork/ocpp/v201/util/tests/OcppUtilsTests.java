@@ -1,21 +1,21 @@
 /* ==================================================================
  * OcppUtilsTests.java - 9/02/2024 3:42:24 pm
- * 
+ *
  * Copyright 2024 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -33,7 +33,7 @@ import java.time.Instant;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.util.FileCopyUtils;
-import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaRegistry;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
 import net.solarnetwork.ocpp.v201.util.OcppUtils;
 import ocpp.v201.ConnectorStatusEnum;
@@ -41,17 +41,17 @@ import ocpp.v201.StatusNotificationRequest;
 
 /**
  * Test cases for the {@link OcppUtils} class.
- * 
+ *
  * @author matt
  * @version 1.0
  */
 public class OcppUtilsTests {
 
-	private JsonSchemaFactory jsonSchemaFactory;
+	private SchemaRegistry registry;
 
 	@Before
 	public void setup() {
-		jsonSchemaFactory = OcppUtils.ocppSchemaFactory_v201();
+		registry = OcppUtils.ocppSchemaRegistry_v201();
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class OcppUtilsTests {
 				StandardCharsets.UTF_8));
 
 		// WHEN
-		Object msg = OcppUtils.parseOcppMessage(action, true, json, jsonSchemaFactory);
+		Object msg = OcppUtils.parseOcppMessage(action, true, json, registry);
 
 		// THEN
 		assertThat("Message parsed and validated", msg, is(instanceOf(StatusNotificationRequest.class)));
@@ -109,7 +109,7 @@ public class OcppUtilsTests {
 				StandardCharsets.UTF_8));
 
 		// WHEN
-		OcppUtils.parseOcppMessage(action, true, json, jsonSchemaFactory);
+		OcppUtils.parseOcppMessage(action, true, json, registry);
 	}
 
 }

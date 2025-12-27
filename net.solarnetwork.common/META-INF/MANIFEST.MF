@@ -9,6 +9,7 @@ Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
  net.solarnetwork.codec;version="2.10.0",
+ net.solarnetwork.codec.jackson;version="1.0.0",
  net.solarnetwork.dao;version="3.0.0",
  net.solarnetwork.dao.jdbc;version="2.1.0",
  net.solarnetwork.domain;version="3.3.0",

@@ -24,24 +24,24 @@ package net.solarnetwork.ocpp.v201.util;
 
 import static net.solarnetwork.ocpp.v201.util.OcppUtils.parseOcppMessage;
 import java.io.IOException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SchemaRegistry;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
 import net.solarnetwork.util.ObjectUtils;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Implementation of {@link net.solarnetwork.ocpp.json.ActionPayloadDecoder}
  * with schema validation support.
  *
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class ActionPayloadDecoder implements net.solarnetwork.ocpp.json.ActionPayloadDecoder {
 
-	private final JsonSchemaFactory validator;
+	private final SchemaRegistry registry;
 	private final ObjectMapper objectMapper;
 
 	/**
@@ -54,28 +54,29 @@ public class ActionPayloadDecoder implements net.solarnetwork.ocpp.json.ActionPa
 	/**
 	 * Constructor.
 	 *
-	 * @param validator
-	 *        the optional validator to use
+	 * @param registry
+	 *        the optional registry to use
+	 * @since 2.0
 	 */
-	public ActionPayloadDecoder(JsonSchemaFactory validator) {
-		this(OcppUtils.newObjectMapper(), validator);
+	public ActionPayloadDecoder(SchemaRegistry registry) {
+		this(OcppUtils.newObjectMapper(), registry);
 	}
 
 	/**
 	 * Constructor.
 	 *
-	 * @param validator
-	 *        the optional validator to use
 	 * @param objectMapper
 	 *        the mapper to use
+	 * @param registry
+	 *        the optional validator to use
 	 * @throws IllegalArgumentException
 	 *         if {@code mapper} is {@literal null}
-	 * @since 1.1
+	 * @since 2.0
 	 */
-	public ActionPayloadDecoder(ObjectMapper objectMapper, JsonSchemaFactory validator) {
+	public ActionPayloadDecoder(ObjectMapper objectMapper, SchemaRegistry registry) {
 		super();
 		this.objectMapper = ObjectUtils.requireNonNullArgument(objectMapper, "objectMapper");
-		this.validator = validator;
+		this.registry = registry;
 	}
 
 	@Override
@@ -88,7 +89,7 @@ public class ActionPayloadDecoder implements net.solarnetwork.ocpp.json.ActionPa
 			throw new SchemaValidationException(payload, "Message is not a JSON object.");
 		}
 		@SuppressWarnings("unchecked")
-		T result = (T) parseOcppMessage(action.getName(), !forResult, (ObjectNode) payload, validator,
+		T result = (T) parseOcppMessage(action.getName(), !forResult, (ObjectNode) payload, registry,
 				objectMapper);
 		return result;
 	}
