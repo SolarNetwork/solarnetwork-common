@@ -22,7 +22,6 @@
 
 package net.solarnetwork.codec.jackson;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -78,9 +77,7 @@ public interface IndexedField {
 	 * @param ctxt
 	 *        the context
 	 * @return the parsed object
-	 * @throws IOException
-	 *         if any IO error occurs
-	 * @throws JsonProcessingException
+	 * @throws JacksonException
 	 *         if any JSON processing error occurs
 	 */
 	Object parseValue(JsonParser parser, DeserializationContext ctxt) throws JacksonException;
@@ -94,9 +91,7 @@ public interface IndexedField {
 	 *        the provider
 	 * @param value
 	 *        the value to write
-	 * @throws IOException
-	 *         if any IO error occurs
-	 * @throws JsonProcessingException
+	 * @throws JacksonException
 	 *         if any JSON processing error occurs
 	 */
 	void writeValue(JsonGenerator generator, SerializationContext ctxt, Object value)

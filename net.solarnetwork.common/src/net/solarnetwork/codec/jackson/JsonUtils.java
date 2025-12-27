@@ -40,8 +40,18 @@ import java.util.TimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import net.solarnetwork.domain.BasicIdentityLocation;
 import net.solarnetwork.domain.Bitmaskable;
+import net.solarnetwork.domain.Instruction;
+import net.solarnetwork.domain.InstructionStatus;
+import net.solarnetwork.domain.Location;
+import net.solarnetwork.domain.SecurityPolicy;
+import net.solarnetwork.domain.datum.Datum;
 import net.solarnetwork.domain.datum.GeneralDatumMetadata;
+import net.solarnetwork.domain.datum.ObjectDatumStreamDataSet;
+import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
+import net.solarnetwork.domain.datum.ObjectDatumStreamMetadataId;
+import net.solarnetwork.domain.datum.StreamDatum;
 import net.solarnetwork.util.Half;
 import net.solarnetwork.util.NumberUtils;
 import net.solarnetwork.util.StringUtils;
@@ -95,7 +105,6 @@ public final class JsonUtils {
 	public static final JacksonModule CORE_MODULE;
 	static {
 		SimpleModule m = new SimpleModule("SolarNetwork Core");
-		/*- TODO
 		m.addSerializer(BasicLocationSerializer.INSTANCE);
 		m.addSerializer(BasicInstructionSerializer.INSTANCE);
 		m.addSerializer(BasicInstructionStatusSerializer.INSTANCE);
@@ -105,7 +114,6 @@ public final class JsonUtils {
 		m.addDeserializer(Instruction.class, BasicInstructionDeserializer.INSTANCE);
 		m.addDeserializer(InstructionStatus.class, BasicInstructionStatusDeserializer.INSTANCE);
 		m.addDeserializer(SecurityPolicy.class, BasicSecurityPolicyDeserializer.INSTANCE);
-		*/
 		CORE_MODULE = m;
 	}
 
@@ -115,14 +123,13 @@ public final class JsonUtils {
 	public static final JacksonModule DATUM_MODULE;
 	static {
 		SimpleModule m = new SimpleModule("SolarNetwork Datum");
-		/*- TODO
 		m.addSerializer(BasicGeneralDatumSerializer.INSTANCE);
 		m.addSerializer(BasicObjectDatumStreamMetadataSerializer.INSTANCE);
 		m.addSerializer(BasicStreamDatumArraySerializer.INSTANCE);
 		m.addSerializer(ObjectDatumStreamMetadataId.class,
 				BasicObjectDatumStreamMetadataIdSerializer.INSTANCE);
 		m.addSerializer(BasicObjectDatumStreamDataSetSerializer.INSTANCE);
-		
+
 		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamMetadata.class,
 				BasicObjectDatumStreamMetadataDeserializer.INSTANCE);
@@ -131,7 +138,6 @@ public final class JsonUtils {
 				BasicObjectDatumStreamMetadataIdDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamDataSet.class,
 				BasicObjectDatumStreamDataSetDeserializer.INSTANCE);
-		*/
 		DATUM_MODULE = m;
 	}
 
@@ -578,16 +584,6 @@ public final class JsonUtils {
 	 */
 	public static String parseNonEmptyStringAttribute(JsonNode node, String key) {
 		return StringUtils.nonEmptyString(parseStringAttribute(node, key));
-	}
-
-	/**
-	 * Create a new {@link MapperBuilder} based on the default internal
-	 * configuration used by other methods in this class.
-	 *
-	 * @return a new {@link MapperBuilder}
-	 */
-	public static <M extends ObjectMapper, B extends MapperBuilder<M, B>> MapperBuilder<M, B> newObjectMapperBuilder() {
-		return JSON_OBJECT_MAPPER.rebuild();
 	}
 
 	/**
