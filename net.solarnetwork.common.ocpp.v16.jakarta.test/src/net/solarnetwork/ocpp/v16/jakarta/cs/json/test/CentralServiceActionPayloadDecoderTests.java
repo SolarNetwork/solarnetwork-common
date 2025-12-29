@@ -31,8 +31,6 @@ import static org.hamcrest.Matchers.nullValue;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
 import net.solarnetwork.ocpp.v16.jakarta.CentralSystemAction;
 import net.solarnetwork.ocpp.v16.jakarta.cs.json.CentralServiceActionPayloadDecoder;
@@ -44,12 +42,14 @@ import ocpp.v16.jakarta.cs.AuthorizeResponse;
 import ocpp.v16.jakarta.cs.BootNotificationRequest;
 import ocpp.v16.jakarta.cs.BootNotificationResponse;
 import ocpp.v16.jakarta.cs.RegistrationStatus;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Test cases for the {@link CentralServiceActionPayloadDecoder} class.
  *
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class CentralServiceActionPayloadDecoderTests {
 
@@ -61,19 +61,11 @@ public class CentralServiceActionPayloadDecoderTests {
 	}
 
 	private JsonNode treeForJson(String json) {
-		try {
-			return mapper.readTree(json);
-		} catch ( IOException e ) {
-			throw new RuntimeException(e);
-		}
+		return mapper.readTree(json);
 	}
 
 	private JsonNode treeForResource(String resource) {
-		try {
-			return mapper.readTree(getClass().getResourceAsStream(resource));
-		} catch ( IOException e ) {
-			throw new RuntimeException(e);
-		}
+		return mapper.readTree(getClass().getResourceAsStream(resource));
 	}
 
 	@Before

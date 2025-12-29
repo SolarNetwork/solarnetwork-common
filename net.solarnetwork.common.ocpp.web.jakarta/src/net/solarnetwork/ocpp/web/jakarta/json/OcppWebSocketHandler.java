@@ -58,9 +58,6 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.adapter.NativeWebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.websocket.Session;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
@@ -90,6 +87,9 @@ import net.solarnetwork.service.PingTest;
 import net.solarnetwork.service.PingTestResult;
 import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.util.StatTracker;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * OCPP Charge Point JSON web socket handler.
@@ -121,7 +121,7 @@ import net.solarnetwork.util.StatTracker;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 2.12
+ * @version 3.0
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler implements WebSocketHandler, SubProtocolCapable,
@@ -708,7 +708,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		JsonNode tree;
 		try {
 			tree = mapper.readTree(message.getPayload());
-		} catch ( JsonProcessingException e ) {
+		} catch ( JacksonException e ) {
 			sendCallError(session, clientId, null, errorCode(RpcError.PayloadProtocolError),
 					"Message malformed JSON.", null);
 			return;
@@ -716,7 +716,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		if ( tree.isArray() ) {
 			JsonNode msgTypeNode = tree.path(0);
 			JsonNode messageIdNode = tree.path(1);
-			final String messageId = messageIdNode.isTextual() ? messageIdNode.textValue() : "NULL";
+			final String messageId = messageIdNode.isString() ? messageIdNode.stringValue() : "NULL";
 			if ( !msgTypeNode.isInt() ) {
 				sendCallError(session, clientId, messageId, errorCode(RpcError.MessageSyntaxError),
 						"Message type not provided.", null);
@@ -811,9 +811,9 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		final JsonNode actionNode = tree.path(2);
 		final Action action;
 		try {
-			action = actionNode.isTextual() ? centralSystemAction(actionNode.textValue()) : null;
+			action = actionNode.isString() ? centralSystemAction(actionNode.stringValue()) : null;
 			if ( action == null ) {
-				if ( actionNode.isTextual() && !actionNode.textValue().isEmpty() ) {
+				if ( actionNode.isString() && !actionNode.stringValue().isEmpty() ) {
 					return sendCallError(session, clientId, messageId,
 							errorCode(RpcError.ActionNotImplemented), "Unknown action.", null);
 				}
@@ -1049,20 +1049,20 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 
 			ErrorCode errorCode;
 			try {
-				errorCode = errorCodeResolver.errorCodeForName(tree.path(2).asText());
+				errorCode = errorCodeResolver.errorCodeForName(tree.path(2).asString());
 			} catch ( IllegalArgumentException e ) {
 				log.warn("OCPP {} <<< Error code {} not valid; ignoring CallError message: {}", clientId,
-						tree.path(2).asText(), message.getPayload());
+						tree.path(2).asString(), message.getPayload());
 				return;
 			}
 			Map<String, ?> details = null;
 			try {
 				details = mapper.treeToValue(tree.path(4), Map.class);
-			} catch ( JsonProcessingException e ) {
+			} catch ( JacksonException e ) {
 				log.warn("OCPP {} <<< Error parsing CallError details object {}, ignoring: {}", clientId,
 						tree.path(4), e.toString());
 			}
-			ErrorCodeException err = new ErrorCodeException(errorCode, details, tree.path(3).asText(),
+			ErrorCodeException err = new ErrorCodeException(errorCode, details, tree.path(3).asString(),
 					null);
 			willProcessCallResponse(msg, null, err);
 			msg.getHandler().handleActionMessageResult(msg.getMessage(), null, err);

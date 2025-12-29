@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import org.junit.Before;
 import org.junit.Test;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
 import net.solarnetwork.ocpp.v16.jakarta.ChargePointAction;
 import net.solarnetwork.ocpp.v16.jakarta.cp.json.ChargePointActionPayloadDecoder;
@@ -50,12 +48,14 @@ import ocpp.v16.jakarta.cp.ChargingSchedulePeriod;
 import ocpp.v16.jakarta.cp.GetConfigurationRequest;
 import ocpp.v16.jakarta.cp.GetConfigurationResponse;
 import ocpp.v16.jakarta.cp.SetChargingProfileRequest;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Test cases for the {@link ChargePointActionPayloadDecoder} class.
  *
  * @author matt
- * @version 1.2
+ * @version 2.0
  */
 public class ChargePointActionPayloadDecoderTests {
 
@@ -67,19 +67,11 @@ public class ChargePointActionPayloadDecoderTests {
 	}
 
 	private JsonNode treeForJson(String json) {
-		try {
-			return mapper.readTree(json);
-		} catch ( IOException e ) {
-			throw new RuntimeException(e);
-		}
+		return mapper.readTree(json);
 	}
 
 	private JsonNode treeForResource(String resource) {
-		try {
-			return mapper.readTree(getClass().getResourceAsStream(resource));
-		} catch ( IOException e ) {
-			throw new RuntimeException(e);
-		}
+		return mapper.readTree(getClass().getResourceAsStream(resource));
 	}
 
 	@Before

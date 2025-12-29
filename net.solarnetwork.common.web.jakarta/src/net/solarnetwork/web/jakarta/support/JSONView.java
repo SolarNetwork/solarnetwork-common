@@ -1,23 +1,23 @@
 /* ===================================================================
  * JSONView.java
- * 
+ *
  * Created Jan 3, 2007 12:20:21 PM
- * 
+ *
  * Copyright (c) 2007 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ===================================================================
  */
@@ -32,25 +32,30 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.PropertyEditorRegistrar;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import net.solarnetwork.domain.SerializeIgnore;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.PrettyPrinter;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.util.DefaultPrettyPrinter;
 
 /**
  * View to return JSON encoded data.
- * 
+ *
  * <p>
  * The view model is turned into a complete JSON object. The model keys become
  * JSON object keys, and the model values the corresponding JSON object values.
@@ -59,27 +64,24 @@ import net.solarnetwork.domain.SerializeIgnore;
  * Objects will be treated as JavaBeans and the bean properties will be used to
  * render nested JSON objects.
  * </p>
- * 
+ *
  * <p>
  * All object values are handled in a recursive fashion, so array, collection,
  * and bean property values will be rendered accordingly.
  * </p>
- * 
+ *
  * <p>
  * The JSON encoding is constructed in a streaming fashion, so object graphs of
  * arbitrary size should not cause any memory-related errors.
  * </p>
- * 
+ *
  * @author Matt Magoffin
- * @version 1.2
+ * @version 1.3
  */
 public class JSONView extends AbstractView {
 
 	/** The default content type: application/json;charset=UTF-8. */
 	public static final String JSON_CONTENT_TYPE = "application/json;charset=UTF-8";
-
-	/** The default character encoding used: UTF-8. */
-	public static final String UTF8_CHAR_ENCODING = "UTF-8";
 
 	private int indentAmount = 0;
 	private boolean includeParentheses = false;
@@ -107,17 +109,25 @@ public class JSONView extends AbstractView {
 			}
 		}
 
-		response.setCharacterEncoding(UTF8_CHAR_ENCODING);
+		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setContentType(getContentType());
 		Writer writer = response.getWriter();
 		if ( this.includeParentheses ) {
 			writer.write('(');
 		}
-		JsonGenerator json = new JsonFactory().createGenerator(writer);
-		json.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-		if ( indentAmount > 0 ) {
-			json.useDefaultPrettyPrinter();
-		}
+
+		JsonGenerator json = JsonFactory.builder().build()
+				.createGenerator(new ObjectWriteContext.Base() {
+
+					final PrettyPrinter pp = (indentAmount > 0 ? new DefaultPrettyPrinter() : null);
+
+					@Override
+					public PrettyPrinter getPrettyPrinter() {
+						return pp;
+					}
+
+				}, writer);
+		json.configure(StreamWriteFeature.AUTO_CLOSE_TARGET, false);
 		json.writeStartObject();
 		for ( String key : model.keySet() ) {
 			Object val = model.get(key);
@@ -140,7 +150,7 @@ public class JSONView extends AbstractView {
 	}
 
 	private void writeJsonValue(JsonGenerator json, String key, Object val,
-			PropertyEditorRegistrar registrar) throws JsonGenerationException, IOException {
+			PropertyEditorRegistrar registrar) throws JacksonException, IOException {
 		if ( val instanceof Collection<?> || (val != null && val.getClass().isArray()) ) {
 			Collection<?> col;
 			if ( val instanceof Collection<?> ) {
@@ -152,7 +162,7 @@ public class JSONView extends AbstractView {
 				col = getPrimitiveCollection(val);
 			}
 			if ( key != null ) {
-				json.writeFieldName(key);
+				json.writeName(key);
 			}
 			json.writeStartArray();
 			for ( Object colObj : col ) {
@@ -162,7 +172,7 @@ public class JSONView extends AbstractView {
 			json.writeEndArray();
 		} else if ( val instanceof Map<?, ?> ) {
 			if ( key != null ) {
-				json.writeFieldName(key);
+				json.writeName(key);
 			}
 			json.writeStartObject();
 			for ( Map.Entry<?, ?> me : ((Map<?, ?>) val).entrySet() ) {
@@ -177,55 +187,55 @@ public class JSONView extends AbstractView {
 			if ( key == null ) {
 				json.writeNumber((Double) val);
 			} else {
-				json.writeNumberField(key, (Double) val);
+				json.writeNumberProperty(key, (Double) val);
 			}
 		} else if ( val instanceof Integer ) {
 			if ( key == null ) {
 				json.writeNumber((Integer) val);
 			} else {
-				json.writeNumberField(key, (Integer) val);
+				json.writeNumberProperty(key, (Integer) val);
 			}
 		} else if ( val instanceof Short ) {
 			if ( key == null ) {
 				json.writeNumber(((Short) val).intValue());
 			} else {
-				json.writeNumberField(key, ((Short) val).intValue());
+				json.writeNumberProperty(key, ((Short) val).intValue());
 			}
 		} else if ( val instanceof Float ) {
 			if ( key == null ) {
 				json.writeNumber((Float) val);
 			} else {
-				json.writeNumberField(key, (Float) val);
+				json.writeNumberProperty(key, (Float) val);
 			}
 		} else if ( val instanceof Long ) {
 			if ( key == null ) {
 				json.writeNumber((Long) val);
 			} else {
-				json.writeNumberField(key, (Long) val);
+				json.writeNumberProperty(key, (Long) val);
 			}
 		} else if ( val instanceof BigDecimal ) {
 			if ( key == null ) {
 				json.writeNumber((BigDecimal) val);
 			} else {
-				json.writeNumberField(key, (BigDecimal) val);
+				json.writeNumberProperty(key, (BigDecimal) val);
 			}
 		} else if ( val instanceof BigInteger ) {
 			if ( key == null ) {
 				json.writeNumber((BigInteger) val);
 			} else {
-				json.writeNumberField(key, new BigDecimal((BigInteger) val));
+				json.writeNumberProperty(key, new BigDecimal((BigInteger) val));
 			}
 		} else if ( val instanceof Boolean ) {
 			if ( key == null ) {
 				json.writeBoolean((Boolean) val);
 			} else {
-				json.writeBooleanField(key, (Boolean) val);
+				json.writeBooleanProperty(key, (Boolean) val);
 			}
 		} else if ( val instanceof String ) {
 			if ( key == null ) {
 				json.writeString((String) val);
 			} else {
-				json.writeStringField(key, (String) val);
+				json.writeStringProperty(key, (String) val);
 			}
 		} else {
 			// create a JSON object from bean properties
@@ -245,9 +255,9 @@ public class JSONView extends AbstractView {
 	}
 
 	private void generateJavaBeanObject(JsonGenerator json, String key, Object bean,
-			PropertyEditorRegistrar registrar) throws JsonGenerationException, IOException {
+			PropertyEditorRegistrar registrar) throws JacksonException, IOException {
 		if ( key != null ) {
-			json.writeFieldName(key);
+			json.writeName(key);
 		}
 		if ( bean == null ) {
 			json.writeNull();
@@ -304,11 +314,11 @@ public class JSONView extends AbstractView {
 
 	/**
 	 * Get the number of spaces to indent (pretty print) the JSON output with.
-	 * 
+	 *
 	 * <p>
 	 * If set to zero no indentation will be added (this is the default).
 	 * </p>
-	 * 
+	 *
 	 * @return the indentation amount; defaults to {@literal 0}
 	 */
 	public int getIndentAmount() {
@@ -317,7 +327,7 @@ public class JSONView extends AbstractView {
 
 	/**
 	 * Set the number of spaces to indent (pretty print) the JSON output with.
-	 * 
+	 *
 	 * @param indentAmount
 	 *        the amount to set
 	 */
@@ -327,7 +337,7 @@ public class JSONView extends AbstractView {
 
 	/**
 	 * Get the "include parentheses" option.
-	 * 
+	 *
 	 * @return the option; defaults to {@literal false}
 	 */
 	public boolean isIncludeParentheses() {
@@ -336,7 +346,7 @@ public class JSONView extends AbstractView {
 
 	/**
 	 * Set the "include parentheses" option.
-	 * 
+	 *
 	 * @param includeParentheses
 	 *        {@literal true} to wrap the entire response in parentheses,
 	 *        required for JSON evaluation support in certain (old school)
@@ -349,7 +359,7 @@ public class JSONView extends AbstractView {
 	/**
 	 * Get the optional registrar of PropertyEditor instances that can be used
 	 * to serialize specific objects into String values.
-	 * 
+	 *
 	 * @return the registrar
 	 */
 	public PropertyEditorRegistrar getPropertyEditorRegistrar() {
@@ -359,11 +369,11 @@ public class JSONView extends AbstractView {
 	/**
 	 * Set the optional registrar of PropertyEditor instances that can be used
 	 * to serialize specific objects into String values.
-	 * 
+	 *
 	 * <p>
 	 * This can be useful for formatting Date objects into strings, for example.
 	 * </p>
-	 * 
+	 *
 	 * @param propertyEditorRegistrar
 	 *        the registrar to set
 	 */

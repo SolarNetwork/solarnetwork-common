@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import net.solarnetwork.codec.JsonUtils;
+import net.solarnetwork.codec.jackson.JsonUtils;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ErrorCodeException;
@@ -46,7 +46,7 @@ import ocpp.v201.MeterValuesResponse;
  * Process {@link MeterValuesRequest} action messages.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class MeterValuesProcessor
 		extends BaseActionMessageProcessor<MeterValuesRequest, MeterValuesResponse> {

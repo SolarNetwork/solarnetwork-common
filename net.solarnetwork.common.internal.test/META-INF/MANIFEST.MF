@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Tests
 Bundle-SymbolicName: net.solarnetwork.common.internal.test
-Bundle-Version: 4.12.0
+Bundle-Version: 4.13.0
 Bundle-Vendor: SolarNetwork
-Fragment-Host: net.solarnetwork.common;bundle-version="[4.12,5.0)"
+Fragment-Host: net.solarnetwork.common;bundle-version="[4.13,5.0)"
 Automatic-Module-Name: net.solarnetwork.common.internal.test
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: 
@@ -28,4 +28,5 @@ Import-Package:
  org.slf4j.helpers;version="[1.7,2.0)",
  org.springframework.context.support;version="[6.2,7.0)",
  org.springframework.security.crypto.bcrypt;version="[6.4,7.0)",
- org.springframework.util;version="[6.2,7.0)"
+ org.springframework.util;version="[6.2,7.0)",
+ tools.jackson.dataformat.cbor;version="[3.0.0,4.0.0)"
