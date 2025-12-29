@@ -1,29 +1,29 @@
 /* ==================================================================
  * AuthenticationDataToken.java - 27/04/2017 7:10:35 AM
- * 
+ *
  * Copyright 2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.web.jakarta.security;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.solarnetwork.security.AuthorizationUtils.computeHmacSha256;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -33,22 +33,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 import org.apache.commons.codec.binary.Base64;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
+import net.solarnetwork.codec.jackson.JsonUtils;
+import tools.jackson.core.JacksonException;
 
 /**
  * Support for JWT encoded authorization data.
- * 
+ *
  * This class provides support for JWT encoded authorization data, including
  * using HTTP cookies for persistence of the token data.
- * 
+ *
  * The only supported token type is {@literal jwt}. The only supported signature
  * algorithm is {@code HMAC-SHA256}, which is encoded as the literal
  * {@literal HS256}.
- * 
+ *
  * @author matt
- * @version 3.0
+ * @version 3.1
  */
 public class AuthenticationDataToken {
 
@@ -66,7 +66,7 @@ public class AuthenticationDataToken {
 
 	/**
 	 * The payload key for the token expiration date claim.
-	 * 
+	 *
 	 * The value associated with this claim is an integer representing seconds
 	 * from the Unix epoch.
 	 */
@@ -74,7 +74,7 @@ public class AuthenticationDataToken {
 
 	/**
 	 * The payload key for the token issue date.
-	 * 
+	 *
 	 * The value associated with this claim is an integer representing seconds
 	 * from the Unix epoch.
 	 */
@@ -82,7 +82,7 @@ public class AuthenticationDataToken {
 
 	/**
 	 * The payload key for the token subject.
-	 * 
+	 *
 	 * The value associated with this claim is a string representing a unique
 	 * identifier for the bearer of the token, e.g. a token identifier.
 	 */
@@ -99,7 +99,7 @@ public class AuthenticationDataToken {
 
 	/**
 	 * Construct from an existing cookie.
-	 * 
+	 *
 	 * @param cookie
 	 *        The cookie to parse.
 	 * @throws IllegalArgumentException
@@ -147,7 +147,7 @@ public class AuthenticationDataToken {
 
 	/**
 	 * Construct from {@link AuthenticationData}.
-	 * 
+	 *
 	 * @param data
 	 *        The data to use.
 	 * @param secret
@@ -161,7 +161,7 @@ public class AuthenticationDataToken {
 
 	/**
 	 * Construct from {@link AuthenticationData}.
-	 * 
+	 *
 	 * @param data
 	 *        The data to use.
 	 * @param secret
@@ -183,8 +183,6 @@ public class AuthenticationDataToken {
 		cal.add(Calendar.DATE, 7);
 		expires = cal.getTimeInMillis() / 1000;
 
-		final ObjectMapper mapper = new ObjectMapper();
-
 		// compose the header and payload for the JWT
 		Map<String, Object> header = new HashMap<String, Object>();
 		header.put(HEADER_TOKEN_TYPE, TOKEN_TYPE_JWT);
@@ -196,10 +194,12 @@ public class AuthenticationDataToken {
 		payload.put(CLAIM_ISSUED_AT, Long.valueOf(issued));
 
 		try {
-			messageData = Base64.encodeBase64URLSafeString(mapper.writeValueAsBytes(header)) + '.'
-					+ Base64.encodeBase64URLSafeString(mapper.writeValueAsBytes(payload));
+			messageData = Base64
+					.encodeBase64URLSafeString(JsonUtils.JSON_OBJECT_MAPPER.writeValueAsBytes(header))
+					+ '.' + Base64.encodeBase64URLSafeString(
+							JsonUtils.JSON_OBJECT_MAPPER.writeValueAsBytes(payload));
 			signature = computeHmacSha256(secret, messageData);
-		} catch ( IOException e ) {
+		} catch ( JacksonException e ) {
 			throw new IllegalArgumentException("Error encoding message data JSON", e);
 		}
 	}
@@ -215,14 +215,12 @@ public class AuthenticationDataToken {
 
 	/**
 	 * Parse token data into a map.
-	 * 
+	 *
 	 * @param cookieValue
 	 *        the token data value to parse
 	 * @return the parsed data
 	 */
 	public static final Map<String, Object> parseTokenData(final String cookieValue) {
-		final ObjectMapper mapper = new ObjectMapper();
-
 		// split into header/payload/signature
 		final String[] components = cookieValue.split("\\.", 3);
 
@@ -233,37 +231,31 @@ public class AuthenticationDataToken {
 
 		final Map<String, Object> result = new HashMap<String, Object>(8);
 
-		TypeReference<HashMap<String, Object>> mapType = new TypeReference<HashMap<String, Object>>() {
-		};
+		final Base64 decoder = new Base64(true);
 
-		Base64 decoder = new Base64(true);
-
-		try {
-			Map<String, Object> map = mapper.readValue(decoder.decode(components[0]), mapType);
-			if ( !TOKEN_TYPE_JWT.equals(map.get(HEADER_TOKEN_TYPE)) ) {
-				throw new IllegalArgumentException("Unsupported token type");
-			}
-			if ( !SIGN_ALG_HMAC_SHA256.equals(map.get(HEADER_SIGN_ALG)) ) {
-				throw new IllegalArgumentException("Unsupported token sign algorithm");
-			}
-
-			map = mapper.readValue(decoder.decode(components[1]), mapType);
-
-			if ( map.containsKey(CLAIM_SUBJECT) ) {
-				result.put(CLAIM_SUBJECT, map.get(CLAIM_SUBJECT));
-			}
-			if ( map.containsKey(CLAIM_EXPIRES) ) {
-				result.put(CLAIM_EXPIRES, map.get(CLAIM_EXPIRES));
-			}
-			if ( map.containsKey(CLAIM_ISSUED_AT) ) {
-				result.put(CLAIM_ISSUED_AT, map.get(CLAIM_ISSUED_AT));
-			}
-
-			result.put(SIGNATURE_KEY, decoder.decode(components[2]));
-			result.put(MESSAGE_KEY, components[0] + '.' + components[1]);
-		} catch ( IOException e ) {
-			throw new IllegalArgumentException("Malformed token cookie data (header)", e);
+		Map<String, Object> map = JsonUtils
+				.getStringMap(new String(decoder.decode(components[0]), UTF_8));
+		if ( map == null || !TOKEN_TYPE_JWT.equals(map.get(HEADER_TOKEN_TYPE)) ) {
+			throw new IllegalArgumentException("Unsupported token type");
 		}
+		if ( !SIGN_ALG_HMAC_SHA256.equals(map.get(HEADER_SIGN_ALG)) ) {
+			throw new IllegalArgumentException("Unsupported token sign algorithm");
+		}
+
+		map = JsonUtils.getStringMap(new String(decoder.decode(components[1]), UTF_8));
+
+		if ( map.containsKey(CLAIM_SUBJECT) ) {
+			result.put(CLAIM_SUBJECT, map.get(CLAIM_SUBJECT));
+		}
+		if ( map.containsKey(CLAIM_EXPIRES) ) {
+			result.put(CLAIM_EXPIRES, map.get(CLAIM_EXPIRES));
+		}
+		if ( map.containsKey(CLAIM_ISSUED_AT) ) {
+			result.put(CLAIM_ISSUED_AT, map.get(CLAIM_ISSUED_AT));
+		}
+
+		result.put(SIGNATURE_KEY, decoder.decode(components[2]));
+		result.put(MESSAGE_KEY, components[0] + '.' + components[1]);
 
 		return result;
 	}
@@ -271,7 +263,7 @@ public class AuthenticationDataToken {
 	/**
 	 * Verify the token cookie data using a provided signing secret key and the
 	 * current date.
-	 * 
+	 *
 	 * @param secret
 	 *        The secret key to compute the signature digest with, as a UTF-8
 	 *        encoded string.
@@ -286,7 +278,7 @@ public class AuthenticationDataToken {
 	/**
 	 * Verify the token cookie data using a provided signing secret key and
 	 * date.
-	 * 
+	 *
 	 * @param secret
 	 *        The secret key to compute the signature digest with, as a UTF-8
 	 *        encoded string.
@@ -303,7 +295,7 @@ public class AuthenticationDataToken {
 	/**
 	 * Verify the token cookie data using a provided signing secret key and the
 	 * current date.
-	 * 
+	 *
 	 * @param secret
 	 *        The secret key to compute the signature digest with.
 	 * @throws SecurityException
@@ -317,7 +309,7 @@ public class AuthenticationDataToken {
 	/**
 	 * Verify the token cookie data using a provided signing secret key and
 	 * date.
-	 * 
+	 *
 	 * @param secret
 	 *        The secret key to compute the signature digest with.
 	 * @param date
@@ -338,7 +330,7 @@ public class AuthenticationDataToken {
 
 	/**
 	 * Get a value suitable for storing on a {@link Cookie} from the token data.
-	 * 
+	 *
 	 * @return The cookie value.
 	 */
 	public String cookieValue() {
@@ -347,7 +339,7 @@ public class AuthenticationDataToken {
 
 	/**
 	 * Get the identity value, e.g. token ID.
-	 * 
+	 *
 	 * @return the identity
 	 */
 	public String getIdentity() {
@@ -356,7 +348,7 @@ public class AuthenticationDataToken {
 
 	/**
 	 * Get the expiration date, expressed as seconds since the Unix epoch.
-	 * 
+	 *
 	 * @return the expiration date
 	 */
 	public long getExpires() {
@@ -365,7 +357,7 @@ public class AuthenticationDataToken {
 
 	/**
 	 * Get the issue date, expressed as seconds since the Unix epoch.
-	 * 
+	 *
 	 * @return the issued date
 	 */
 	public long getIssued() {
@@ -374,7 +366,7 @@ public class AuthenticationDataToken {
 
 	/**
 	 * Get the digest signature bytes.
-	 * 
+	 *
 	 * @return the signature
 	 */
 	public byte[] getSignature() {

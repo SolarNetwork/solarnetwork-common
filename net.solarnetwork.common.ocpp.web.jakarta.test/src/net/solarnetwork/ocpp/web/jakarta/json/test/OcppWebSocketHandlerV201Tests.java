@@ -42,8 +42,7 @@ import org.junit.Test;
 import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.solarnetwork.codec.JsonUtils;
+import net.solarnetwork.codec.jackson.JsonUtils;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.json.WebSocketSubProtocol;
@@ -59,13 +58,14 @@ import net.solarnetwork.security.AuthorizationException;
 import net.solarnetwork.test.CallingThreadExecutorService;
 import ocpp.v201.HeartbeatRequest;
 import ocpp.v201.HeartbeatResponse;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Test cases for the {@link OcppWebSocketHandler} class using OCPP 2.0.1
  * actions.
  *
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class OcppWebSocketHandlerV201Tests {
 
@@ -73,7 +73,7 @@ public class OcppWebSocketHandlerV201Tests {
 	private OcppWebSocketHandler<Action, Action> handler;
 
 	private static ObjectMapper defaultObjectMapper() {
-		return JsonUtils.newObjectMapper();
+		return JsonUtils.JSON_OBJECT_MAPPER;
 	}
 
 	@Before
@@ -83,7 +83,7 @@ public class OcppWebSocketHandlerV201Tests {
 		handler = new OcppWebSocketHandler<>(Action.class, Action.class, new ErrorCodeResolver(),
 				new TaskExecutorAdapter(new CallingThreadExecutorService()), mapper,
 				WebSocketSubProtocol.OCPP_V201.getValue());
-		ActionPayloadDecoder decoder = new ActionPayloadDecoder(OcppUtils.ocppSchemaFactory_v201());
+		ActionPayloadDecoder decoder = new ActionPayloadDecoder(OcppUtils.ocppSchemaRegistry_v201());
 		handler.setChargePointActionPayloadDecoder(decoder);
 		handler.setCentralServiceActionPayloadDecoder(decoder);
 	}

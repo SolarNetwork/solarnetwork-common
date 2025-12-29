@@ -1,21 +1,21 @@
 /* ==================================================================
  * DeviceOperatingStatus.java - 18/02/2019 10:54:36 am
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,24 +25,24 @@ package net.solarnetwork.domain;
 import java.util.Collections;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * A device operating state combined with vendor-specific states.
- * 
+ *
  * <p>
  * This class is designed to support operating states that are hardware or
  * vendor specific and compliment the standardized states offered by
  * {@link DeviceOperatingState}.
  * </p>
- * 
+ *
  * @param <C>
  *        the status type
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.50
  */
-@JsonDeserialize(builder = DeviceOperatingStatus.Builder.class)
+@com.fasterxml.jackson.databind.annotation.JsonDeserialize(builder = DeviceOperatingStatus.Builder.class)
+@tools.jackson.databind.annotation.JsonDeserialize(builder = DeviceOperatingStatus.Builder.class)
 @JsonPropertyOrder({ "state", "stateCode", "deviceStatesCode", "deviceStates" })
 public class DeviceOperatingStatus<C extends Bitmaskable> {
 
@@ -51,11 +51,11 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * The {@code deviceStates} property will be set to {@literal null}.
 	 * </p>
-	 * 
+	 *
 	 * @param state
 	 *        the state
 	 */
@@ -65,7 +65,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param state
 	 *        the state
 	 * @param deviceStates
@@ -80,7 +80,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 	/**
 	 * Get the device operating state.
-	 * 
+	 *
 	 * @return the state, never {@literal null}
 	 */
 	public DeviceOperatingState getState() {
@@ -89,7 +89,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 	/**
 	 * Get the device operating state code value.
-	 * 
+	 *
 	 * @return the state code value
 	 */
 	public int getStateCode() {
@@ -98,7 +98,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 	/**
 	 * Get the device states.
-	 * 
+	 *
 	 * @return the immutable device states, or {@literal null}
 	 */
 	public Set<C> getDeviceStates() {
@@ -107,7 +107,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 	/**
 	 * Get the device states bitmask value.
-	 * 
+	 *
 	 * @return the device states bitmask value
 	 */
 	public int getDeviceStatesCode() {
@@ -116,7 +116,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 	/**
 	 * Creates builder to build {@link GenericDeviceOperatingStatus}.
-	 * 
+	 *
 	 * @return created builder
 	 */
 	public static Builder builder() {
@@ -136,7 +136,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 		/**
 		 * Configure a state value.
-		 * 
+		 *
 		 * @param state
 		 *        the state to set
 		 * @return this builder
@@ -148,7 +148,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 		/**
 		 * Configure a code value.
-		 * 
+		 *
 		 * @param code
 		 *        the code to set
 		 * @return this builder
@@ -165,7 +165,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 		/**
 		 * Configure a device states code value.
-		 * 
+		 *
 		 * @param mask
 		 *        the mask to set
 		 * @return this instance
@@ -177,7 +177,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 		/**
 		 * Create a new operating status instance based on this builder.
-		 * 
+		 *
 		 * @return the new instance
 		 */
 		public GenericDeviceOperatingStatus build() {
@@ -188,7 +188,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	/**
 	 * Creates builder to build {@link DeviceOperatingStatus} using an enum for
 	 * device state values.
-	 * 
+	 *
 	 * @param <C>
 	 *        the enum type
 	 * @param clazz
@@ -202,7 +202,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	/**
 	 * Builder to build {@link DeviceOperatingStatus} using an enum of device
 	 * state values.
-	 * 
+	 *
 	 * @param <C>
 	 *        the enum type
 	 */
@@ -219,7 +219,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 		/**
 		 * Configure a state value.
-		 * 
+		 *
 		 * @param state
 		 *        the state to set
 		 * @return this builder
@@ -231,7 +231,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 		/**
 		 * Configure a state code.
-		 * 
+		 *
 		 * @param code
 		 *        the code to set
 		 * @return this instance
@@ -248,7 +248,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 		/**
 		 * Configure a states code.
-		 * 
+		 *
 		 * @param mask
 		 *        the mask to set
 		 * @return this instance
@@ -260,7 +260,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 		/**
 		 * Create a new instance status instance from this builder.
-		 * 
+		 *
 		 * @return the new instance
 		 */
 		public DeviceOperatingStatus<C> build() {

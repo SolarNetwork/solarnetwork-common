@@ -23,23 +23,24 @@
 package net.solarnetwork.ocpp.v16.jakarta.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationModule;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.annotation.XmlRegistry;
 import net.solarnetwork.ocpp.json.ActionPayloadDecoder;
 import net.solarnetwork.ocpp.xml.jakarta.support.JaxbUtils;
 import net.solarnetwork.ocpp.xml.jakarta.support.SchemaValidationHelper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.util.StdDateFormat;
+import tools.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationModule;
 
 /**
  * Abstract base implementation of {@link ActionPayloadDecoder} with JAXB schema
  * validation support.
  *
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public abstract class BaseActionPayloadDecoder implements ActionPayloadDecoder {
 
@@ -58,12 +59,12 @@ public abstract class BaseActionPayloadDecoder implements ActionPayloadDecoder {
 	 * @return a default mapper
 	 */
 	public static ObjectMapper defaultObjectMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JakartaXmlBindAnnotationModule());
-		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
-		mapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
-		return mapper;
+		return JsonMapper.builder().addModule(new JakartaXmlBindAnnotationModule())
+				.configure(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, false)
+				.defaultDateFormat(new StdDateFormat().withColonInTimeZone(true))
+				.changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(Include.NON_EMPTY))
+				.changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(Include.NON_EMPTY))
+				.build();
 	}
 
 	/**

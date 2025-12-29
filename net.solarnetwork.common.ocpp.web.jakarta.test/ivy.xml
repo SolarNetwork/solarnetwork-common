@@ -9,15 +9,14 @@
 		<dependency org="net.solarnetwork.common.test" name="net.solarnetwork.common.test" rev="2.0.0"/>
 
 		<!-- Testing support -->
-		<dependency org="com.fasterxml.jackson.datatype" name="jackson-datatype-jsr310" rev="2.19.0"/>
-		<dependency org="com.fasterxml.jackson.module" name="jackson-module-jakarta-xmlbind-annotations" rev="2.19.0" />
     	<dependency org="com.networknt" name="json-schema-validator" rev="1.3.2"/>
 		<dependency org="jakarta.activation" name="jakarta.activation-api" rev="2.1.2"/>
 		<dependency org="org.glassfish.jaxb" name="jaxb-runtime" rev="4.0.5"/>
-		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.ocpp.v16.jakarta" rev="[3.0,)"/>
-		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.ocpp.v201" rev="[1.0,)"/>
+		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.ocpp.v16.jakarta" rev="[6.0,)"/>
+		<dependency org="net.solarnetwork.common" name="net.solarnetwork.common.ocpp.v201" rev="[3.0,)"/>
 		<dependency org="net.solarnetwork.external" name="net.solarnetwork.external.ocpp.v16.jakarta" rev="[1.0,)"/>
 		<dependency org="net.solarnetwork.external" name="net.solarnetwork.external.ocpp.v201" rev="[1.0,)"/>
+		<dependency org="tools.jackson.module" name="jackson-module-jakarta-xmlbind-annotations" rev="3.0.3" />
 
     </dependencies>
 </ivy-module>

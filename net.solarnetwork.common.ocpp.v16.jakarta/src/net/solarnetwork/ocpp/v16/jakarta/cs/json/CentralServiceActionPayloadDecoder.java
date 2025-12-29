@@ -23,9 +23,6 @@
 package net.solarnetwork.ocpp.v16.jakarta.cs.json;
 
 import java.io.IOException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.bind.JAXBElement;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
@@ -53,6 +50,9 @@ import ocpp.v16.jakarta.cs.StatusNotificationRequest;
 import ocpp.v16.jakarta.cs.StatusNotificationResponse;
 import ocpp.v16.jakarta.cs.StopTransactionRequest;
 import ocpp.v16.jakarta.cs.StopTransactionResponse;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * OCPP 1.6 implementation of
@@ -60,7 +60,7 @@ import ocpp.v16.jakarta.cs.StopTransactionResponse;
  * actions.
  *
  * @author matt
- * @version 1.1
+ * @version 2.0
  */
 public class CentralServiceActionPayloadDecoder extends BaseActionPayloadDecoder {
 
@@ -104,7 +104,7 @@ public class CentralServiceActionPayloadDecoder extends BaseActionPayloadDecoder
 		T result;
 		try {
 			result = mapper.treeToValue(payload, clazz);
-		} catch ( JsonMappingException e ) {
+		} catch ( JacksonException e ) {
 			throw new SchemaValidationException(payload, e.getMessage(), e);
 		}
 		validateActionMessage(a, forResult, result);

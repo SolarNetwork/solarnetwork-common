@@ -4,20 +4,17 @@ Bundle-Name: Core SolarNetwork Web Support
 Bundle-SymbolicName: net.solarnetwork.common.web.jakarta
 Automatic-Module-Name: net.solarnetwork.common.web.jakarta
 Bundle-Description: Common supporting infrastructure for SolarNode and SolarNet web applications using Jakarta EE.
-Bundle-Version: 2.1.2
+Bundle-Version: 2.2.1
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
  net.solarnetwork.web.jakarta.domain;version="1.0.0",
- net.solarnetwork.web.jakarta.security;version="1.0.1",
+ net.solarnetwork.web.jakarta.security;version="1.1.0",
  net.solarnetwork.web.jakarta.service;version="1.0.0",
  net.solarnetwork.web.jakarta.service.support;version="1.0.1",
- net.solarnetwork.web.jakarta.support;version="1.1.0"
+ net.solarnetwork.web.jakarta.support;version="1.2.0"
 Import-Package: 
  com.fasterxml.jackson.annotation;version="[2.19,3.0)",
- com.fasterxml.jackson.core;version="[2.19,3.0)",
- com.fasterxml.jackson.core.type;version="[2.19,3.0)",
- com.fasterxml.jackson.databind;version="[2.19,3.0)",
  jakarta.servlet;version="6.0.0",
  jakarta.servlet.http;version="6.0.0",
  javax.crypto,
@@ -25,7 +22,8 @@ Import-Package:
  javax.security.auth,
  javax.xml.stream,
  net.solarnetwork.codec;version="[2.0,3.0)",
- net.solarnetwork.domain;version="[2.0,4.0)",
+ net.solarnetwork.codec.jackson;version="[1.0,2.0)",
+ net.solarnetwork.domain;version="[3.4,4.0)",
  net.solarnetwork.io;version="[3.0,4.0)",
  net.solarnetwork.security;version="[2.0,3.0)",
  net.solarnetwork.service;version="[1.0,2.0)",
@@ -84,4 +82,9 @@ Import-Package:
  org.springframework.web.socket.server;version="[6.0,7.0)",
  org.supercsv.io;version="[2.0,3.0)";resolution:=optional,
  org.supercsv.prefs;version="[2.0,3.0)";resolution:=optional,
- org.supercsv.util;version="[2.0,3.0)";resolution:=optional
+ org.supercsv.util;version="[2.0,3.0)";resolution:=optional,
+ tools.jackson.core;version="[3.0,4.0)",
+ tools.jackson.core.json;version="[3.0.0,4.0.0)",
+ tools.jackson.core.type;version="[3.0,4.0)",
+ tools.jackson.core.util;version="[3.0.0,4.0.0)",
+ tools.jackson.databind;version="[3.0,4.0)"

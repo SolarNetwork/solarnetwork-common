@@ -44,9 +44,6 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationModule;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
@@ -62,6 +59,11 @@ import net.solarnetwork.security.AuthorizationException;
 import net.solarnetwork.test.CallingThreadExecutorService;
 import ocpp.v16.jakarta.cs.HeartbeatRequest;
 import ocpp.v16.jakarta.cs.HeartbeatResponse;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.util.StdDateFormat;
+import tools.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationModule;
 
 /**
  * Test cases for the {@link OcppWebSocketHandler} class.
@@ -75,11 +77,12 @@ public class OcppWebSocketHandlerV16Tests {
 	private OcppWebSocketHandler<ChargePointAction, CentralSystemAction> handler;
 
 	private static ObjectMapper defaultObjectMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JakartaXmlBindAnnotationModule());
-		mapper.setDefaultPropertyInclusion(Include.NON_NULL);
-		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		return mapper;
+		return JsonMapper.builder().addModule(new JakartaXmlBindAnnotationModule())
+				.configure(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, false)
+				.defaultDateFormat(new StdDateFormat().withColonInTimeZone(true))
+				.changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(Include.NON_NULL))
+				.changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(Include.NON_NULL))
+				.build();
 	}
 
 	@Before

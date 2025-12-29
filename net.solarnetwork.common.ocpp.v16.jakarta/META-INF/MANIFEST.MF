@@ -3,13 +3,13 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OCPP 1.6 Core Support (Jakarta EE)
 Bundle-Description: Support for OCPP 1.6 service implementations using Jakarta EE.
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.v16.jakarta
-Bundle-Version: 5.0.2
+Bundle-Version: 6.0.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.v16.jakarta
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
  net.solarnetwork.ocpp.v16.jakarta;version="1.0.0";uses:="net.solarnetwork.ocpp.json,net.solarnetwork.ocpp.service,net.solarnetwork.ocpp.domain",
- net.solarnetwork.ocpp.v16.jakarta.cp.json;version="1.0.1";
+ net.solarnetwork.ocpp.v16.jakarta.cp.json;version="2.0.0";
   uses:="ocpp.v16.jakarta.cp,
    net.solarnetwork.ocpp.domain,
    com.fasterxml.jackson.databind,
@@ -19,12 +19,12 @@ Export-Package:
    net.solarnetwork.ocpp.service.cs,
    ocpp.v16.jakarta.cs,
    net.solarnetwork.ocpp.domain",
- net.solarnetwork.ocpp.v16.jakarta.cs.json;version="1.0.1";
+ net.solarnetwork.ocpp.v16.jakarta.cs.json;version="2.0.0";
   uses:="ocpp.v16.jakarta.cs,
    net.solarnetwork.ocpp.domain,
    com.fasterxml.jackson.databind,
    net.solarnetwork.ocpp.v16.jakarta.json",
- net.solarnetwork.ocpp.v16.jakarta.json;version="1.0.1";
+ net.solarnetwork.ocpp.v16.jakarta.json;version="2.0.0";
   uses:="jakarta.xml.bind,
    net.solarnetwork.ocpp.json,
    net.solarnetwork.ocpp.xml.jakarta.support,
@@ -36,10 +36,6 @@ Export-Package:
    javax.xml.datatype"
 Import-Package: 
  com.fasterxml.jackson.annotation;version="[2.19,3.0)",
- com.fasterxml.jackson.core;version="[2.19,3.0)",
- com.fasterxml.jackson.databind;version="[2.19,3.0)",
- com.fasterxml.jackson.databind.util;version="[2.19,3.0)",
- com.fasterxml.jackson.module.jakarta.xmlbind;version="[2.19,3.0)",
  jakarta.activation,
  jakarta.xml.bind,
  jakarta.xml.bind.annotation,
@@ -50,12 +46,12 @@ Import-Package:
  javax.xml.namespace,
  javax.xml.parsers,
  javax.xml.validation,
- net.solarnetwork.codec;version="[2.0,3.0)",
+ net.solarnetwork.codec.jackson;version="[1.0,2.0)",
  net.solarnetwork.dao;version="[2.0,4.0)",
- net.solarnetwork.domain;version="[2.0,4.0)",
+ net.solarnetwork.domain;version="[3.4,4.0)",
  net.solarnetwork.ocpp.dao;version="[3.0,4.0)",
- net.solarnetwork.ocpp.domain;version="[3.0,4.0)",
- net.solarnetwork.ocpp.json;version="[1.0,2.0)",
+ net.solarnetwork.ocpp.domain;version="[4.0,5.0)",
+ net.solarnetwork.ocpp.json;version="[2.0,3.0)",
  net.solarnetwork.ocpp.service;version="[2.2.1,3.0)",
  net.solarnetwork.ocpp.service.cs;version="[3.0,4.0)",
  net.solarnetwork.security;version="[2.0,3.0)",
@@ -66,4 +62,10 @@ Import-Package:
  org.w3c.dom.bootstrap,
  org.w3c.dom.ls,
  org.xml.sax,
- org.xml.sax.helpers
+ org.xml.sax.helpers,
+ tools.jackson.core;version="[3.0,4.0)",
+ tools.jackson.databind;version="[3.0,4.0)",
+ tools.jackson.databind.cfg;version="[3.0,4.0)",
+ tools.jackson.databind.json;version="[3.0,4.0)",
+ tools.jackson.databind.util;version="[3.0,4.0)",
+ tools.jackson.module.jakarta.xmlbind;version="[3.0,4.0)"

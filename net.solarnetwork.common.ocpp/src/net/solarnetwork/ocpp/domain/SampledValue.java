@@ -1,21 +1,21 @@
 /* ==================================================================
  * SampledValue.java - 10/02/2020 9:29:55 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,11 +25,11 @@ package net.solarnetwork.ocpp.domain;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * A sampled value, e.g. a meter reading.
- * 
+ *
  * @author matt
  * @version 1.1
  */
@@ -47,7 +47,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param sessionId
 	 *        the session ID
 	 * @param timestamp
@@ -185,7 +185,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	/**
 	 * Get the {@link ChargeSession} ID associated with this value.
-	 * 
+	 *
 	 * @return the session ID
 	 */
 	public UUID getSessionId() {
@@ -194,7 +194,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	/**
 	 * Get the time the sample was captured.
-	 * 
+	 *
 	 * @return the timestamp
 	 */
 	public Instant getTimestamp() {
@@ -203,7 +203,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	/**
 	 * Get the sampled value.
-	 * 
+	 *
 	 * @return the value the value
 	 */
 	public String getValue() {
@@ -212,7 +212,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	/**
 	 * Get the reading context.
-	 * 
+	 *
 	 * @return the context
 	 */
 	public ReadingContext getContext() {
@@ -221,7 +221,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	/**
 	 * Get the measurement type.
-	 * 
+	 *
 	 * @return the measurand
 	 */
 	public Measurand getMeasurand() {
@@ -230,7 +230,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	/**
 	 * Get the phase.
-	 * 
+	 *
 	 * @return the phase
 	 */
 	public Phase getPhase() {
@@ -239,7 +239,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	/**
 	 * Get the location.
-	 * 
+	 *
 	 * @return the location
 	 */
 	public Location getLocation() {
@@ -248,7 +248,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	/**
 	 * Get the measurement unit.
-	 * 
+	 *
 	 * @return the unit
 	 */
 	public UnitOfMeasure getUnit() {
@@ -257,7 +257,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	/**
 	 * Creates builder to build {@link SampledValue}.
-	 * 
+	 *
 	 * @return created builder
 	 */
 	public static Builder builder() {
@@ -266,7 +266,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	/**
 	 * Get a builder, populated with this instance's values.
-	 * 
+	 *
 	 * @return a pre-populated builder
 	 */
 	public Builder toBuilder() {
@@ -305,7 +305,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 		/**
 		 * Configure the session ID.
-		 * 
+		 *
 		 * @param sessionId
 		 *        the session ID
 		 * @return this instance
@@ -317,7 +317,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 		/**
 		 * Configure the timestamp.
-		 * 
+		 *
 		 * @param timestamp
 		 *        the timestamp
 		 * @return this instance
@@ -329,7 +329,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 		/**
 		 * Configure the value.
-		 * 
+		 *
 		 * @param value
 		 *        the value
 		 * @return this instance
@@ -341,7 +341,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 		/**
 		 * Configure the context.
-		 * 
+		 *
 		 * @param context
 		 *        the context
 		 * @return this instance
@@ -353,7 +353,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 		/**
 		 * Configure the measurand.
-		 * 
+		 *
 		 * @param measurand
 		 *        the measurand
 		 * @return this instance
@@ -365,7 +365,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 		/**
 		 * Configure the phase.
-		 * 
+		 *
 		 * @param phase
 		 *        the phase
 		 * @return this instance
@@ -377,7 +377,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 		/**
 		 * Configure the location.
-		 * 
+		 *
 		 * @param location
 		 *        the location
 		 * @return this instance
@@ -389,7 +389,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 		/**
 		 * Configure the unit.
-		 * 
+		 *
 		 * @param unit
 		 *        the unit
 		 * @return this instance
@@ -401,7 +401,7 @@ public class SampledValue implements Comparable<SampledValue> {
 
 		/**
 		 * Build a value from this builder.
-		 * 
+		 *
 		 * @return the new instance
 		 */
 		public SampledValue build() {

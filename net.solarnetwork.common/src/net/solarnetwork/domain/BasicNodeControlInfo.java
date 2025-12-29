@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicNodeControlInfo.java - 3/09/2021 3:36:43 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,16 +23,16 @@
 package net.solarnetwork.domain;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Basic implementation of {@link NodeControlInfo}.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
-@JsonDeserialize(builder = BasicNodeControlInfo.Builder.class)
+@com.fasterxml.jackson.databind.annotation.JsonDeserialize(builder = BasicNodeControlInfo.Builder.class)
+@tools.jackson.databind.annotation.JsonDeserialize(builder = BasicNodeControlInfo.Builder.class)
 @JsonPropertyOrder({ "controlId", "type", "propertyName", "value", "readonly", "unit" })
 public class BasicNodeControlInfo implements NodeControlInfo {
 
@@ -45,7 +45,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param controlId
 	 *        the control ID
 	 * @param type
@@ -76,7 +76,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 
 	/**
 	 * Creates builder to build {@link BasicNodeControlInfo}.
-	 * 
+	 *
 	 * @return created builder
 	 */
 	public static Builder builder() {
@@ -86,7 +86,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 	/**
 	 * Creates a builder to build {@link NodeControlInfo} and initialize it with
 	 * the given object.
-	 * 
+	 *
 	 * @param info
 	 *        the object to initialize the builder with
 	 * @return created builder
@@ -123,7 +123,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 
 		/**
 		 * Configure a control ID.
-		 * 
+		 *
 		 * @param controlId
 		 *        the control ID
 		 * @return this instance
@@ -135,7 +135,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 
 		/**
 		 * Configure a property type.
-		 * 
+		 *
 		 * @param type
 		 *        the property type
 		 * @return this instance
@@ -147,7 +147,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 
 		/**
 		 * Configure a value.
-		 * 
+		 *
 		 * @param value
 		 *        the value
 		 * @return this instance
@@ -159,7 +159,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 
 		/**
 		 * Configure a read-only flag.
-		 * 
+		 *
 		 * @param readonly
 		 *        {@literal true} for a read-only property
 		 * @return this instance
@@ -171,7 +171,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 
 		/**
 		 * Configure a unit.
-		 * 
+		 *
 		 * @param unit
 		 *        the unit
 		 * @return this instance
@@ -183,7 +183,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 
 		/**
 		 * Configure a property name.
-		 * 
+		 *
 		 * @param propertyName
 		 *        the property name
 		 * @return this instance
@@ -195,7 +195,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 
 		/**
 		 * Create a new instance from this builder.
-		 * 
+		 *
 		 * @return the new instance
 		 */
 		public BasicNodeControlInfo build() {

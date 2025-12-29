@@ -28,27 +28,23 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.networknt.schema.AbsoluteIri;
-import com.networknt.schema.JsonMetaSchema;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.NonValidationKeyword;
+import com.networknt.schema.Error;
+import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.dialect.BasicDialectRegistry;
+import com.networknt.schema.dialect.Dialect;
+import com.networknt.schema.dialect.Draft6;
+import com.networknt.schema.keyword.NonValidationKeyword;
 import net.solarnetwork.ocpp.domain.AuthorizationStatus;
 import net.solarnetwork.ocpp.domain.ChargeSessionEndReason;
 import net.solarnetwork.ocpp.domain.Location;
@@ -59,12 +55,19 @@ import net.solarnetwork.ocpp.domain.SampledValue;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
 import net.solarnetwork.ocpp.domain.UnitOfMeasure;
 import ocpp.v201.ReasonEnum;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.util.StdDateFormat;
 
 /**
  * Utilities for OCPP v2.
  *
  * @author matt
- * @version 1.2
+ * @version 2.0
  */
 public final class OcppUtils {
 
@@ -154,31 +157,31 @@ public final class OcppUtils {
 	 * @since 1.1
 	 */
 	public static ObjectMapper newObjectMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
-		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
-		mapper.setDefaultPropertyInclusion(Include.NON_EMPTY);
-		return mapper;
+		return JsonMapper.builder().configure(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, false)
+				.defaultDateFormat(new StdDateFormat().withColonInTimeZone(true))
+				.changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(Include.NON_EMPTY))
+				.changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(Include.NON_EMPTY))
+				.build();
 	}
 
 	/**
-	 * Get a JSON schema validator for OCPP 2.0.1.
+	 * Get a JSON schema registry for OCPP 2.0.1.
 	 *
-	 * @return the validator
+	 * @return the registry
+	 * @since 2.0
 	 */
-	public static JsonSchemaFactory ocppSchemaFactory_v201() {
-		JsonMetaSchema baseSchema = JsonMetaSchema.getV6();
+	public static SchemaRegistry ocppSchemaRegistry_v201() {
 		// @formatter:off
-		JsonMetaSchema metaSchema = JsonMetaSchema.builder(baseSchema.getUri(), baseSchema)
-				.addKeywords(Arrays.asList(
+		Dialect dialect = Dialect.builder(Draft6.getInstance())
+				.keywords(Arrays.asList(
 						// OCPP schemas include these non-validating keywords we want to ignore
 						new NonValidationKeyword("comment"),
 						new NonValidationKeyword("javaType")))
 				.build();
+
 		// @formatter:on
-		return JsonSchemaFactory.builder().defaultMetaSchemaURI(metaSchema.getUri())
-				.addMetaSchema(metaSchema).schemaLoaders((l) -> {
+		return SchemaRegistry.builder().defaultDialectId(dialect.getId())
+				.dialectRegistry(new BasicDialectRegistry(dialect)).resourceLoaders((l) -> {
 					l.add((iri) -> {
 						Resource r = OCPP_ACTION_SCHEMA_RESOURCES.get(iri);
 						if ( r == null ) {
@@ -217,7 +220,7 @@ public final class OcppUtils {
 	 *        {@literal false} for a response
 	 * @param message
 	 *        the OCPP message content
-	 * @param validator
+	 * @param registry
 	 *        if provided, validate the message content using the schema
 	 *        associated with {@code action}
 	 * @return the parsed OCPP action instance
@@ -231,8 +234,8 @@ public final class OcppUtils {
 	 *      ObjectMapper)
 	 */
 	public static Object parseOcppMessage(final String action, final boolean request,
-			final String message, JsonSchemaFactory validator) throws IOException {
-		return parseOcppMessage(action, request, message, validator, OBJECT_MAPPER);
+			final String message, SchemaRegistry registry) throws IOException {
+		return parseOcppMessage(action, request, message, registry, OBJECT_MAPPER);
 	}
 
 	/**
@@ -245,7 +248,7 @@ public final class OcppUtils {
 	 *        {@literal false} for a response
 	 * @param message
 	 *        the OCPP message content
-	 * @param validator
+	 * @param registry
 	 *        if provided, validate the message content using the schema
 	 *        associated with {@code action}
 	 * @param objectMapper
@@ -262,7 +265,7 @@ public final class OcppUtils {
 	 * @since 1.1
 	 */
 	public static Object parseOcppMessage(final String action, final boolean request,
-			final String message, JsonSchemaFactory validator, ObjectMapper objectMapper)
+			final String message, SchemaRegistry registry, ObjectMapper objectMapper)
 			throws IOException {
 		JsonNode jsonNode = objectMapper.readTree(message);
 		ObjectNode jsonPayload;
@@ -273,7 +276,7 @@ public final class OcppUtils {
 		} else {
 			throw new IOException("OCPP message must be a JSON object.");
 		}
-		return parseOcppMessage(action, request, jsonPayload, validator, objectMapper);
+		return parseOcppMessage(action, request, jsonPayload, registry, objectMapper);
 	}
 
 	/**
@@ -286,7 +289,7 @@ public final class OcppUtils {
 	 *        {@literal false} for a response
 	 * @param message
 	 *        the OCPP message content
-	 * @param validator
+	 * @param registry
 	 *        if provided, validate the message content using the schema
 	 *        associated with {@code action}
 	 * @return the parsed OCPP action instance
@@ -298,8 +301,8 @@ public final class OcppUtils {
 	 *      ObjectMapper)
 	 */
 	public static Object parseOcppMessage(final String action, final boolean request,
-			final ObjectNode message, JsonSchemaFactory validator) {
-		return parseOcppMessage(action, request, message, validator, OBJECT_MAPPER);
+			final ObjectNode message, SchemaRegistry registry) {
+		return parseOcppMessage(action, request, message, registry, OBJECT_MAPPER);
 	}
 
 	/**
@@ -312,7 +315,7 @@ public final class OcppUtils {
 	 *        {@literal false} for a response
 	 * @param message
 	 *        the OCPP message content
-	 * @param validator
+	 * @param registry
 	 *        if provided, validate the message content using the schema
 	 *        associated with {@code action}
 	 * @param objectMapper
@@ -325,18 +328,18 @@ public final class OcppUtils {
 	 * @since 1.1
 	 */
 	public static Object parseOcppMessage(final String action, final boolean request,
-			final ObjectNode message, JsonSchemaFactory validator, ObjectMapper objectMapper) {
+			final ObjectNode message, SchemaRegistry registry, ObjectMapper objectMapper) {
 		String actionClassName = actionClassName(action, request);
 		Class<?> actionClass = OCPP_ACTION_CLASSES.get(actionClassName);
 		if ( actionClass == null ) {
 			throw new IllegalArgumentException("Unknown OCPP action [" + action + "]");
 		}
 		try {
-			if ( validator != null ) {
+			if ( registry != null ) {
 				SchemaLocation loc = OCPP_ACTION_SCHEMA_LOCATIONS.get(actionClassName);
 				if ( loc != null ) {
-					JsonSchema schema = validator.getSchema(loc);
-					Set<ValidationMessage> errors = schema.validate(message);
+					Schema schema = registry.getSchema(loc);
+					List<Error> errors = schema.validate(message);
 					if ( !errors.isEmpty() ) {
 						throw new SchemaValidationException(message,
 								String.format("JSON schema validation error on [%s] OCPP action: %s.",
@@ -346,7 +349,7 @@ public final class OcppUtils {
 				}
 			}
 			return objectMapper.treeToValue(message, actionClass);
-		} catch ( IOException e ) {
+		} catch ( JacksonException e ) {
 			throw new IllegalArgumentException(String.format("Invalid JSON for [%s] OCPP action: %s",
 					actionClassName, e.getMessage()));
 		}

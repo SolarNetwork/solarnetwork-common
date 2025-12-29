@@ -1,21 +1,21 @@
 /* ==================================================================
  * JsonMessageTests.java - 30/01/2020 4:45:29 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -30,10 +30,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationModule;
 import ocpp.v16.jakarta.cs.BootNotificationRequest;
 import ocpp.v16.jakarta.cs.Location;
 import ocpp.v16.jakarta.cs.Measurand;
@@ -44,24 +40,29 @@ import ocpp.v16.jakarta.cs.SampledValue;
 import ocpp.v16.jakarta.cs.StopTransactionRequest;
 import ocpp.v16.jakarta.cs.UnitOfMeasure;
 import ocpp.v16.jakarta.cs.ValueFormat;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.util.StdDateFormat;
+import tools.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationModule;
 
 /**
  * Test cases for mapping JAXB XML classes into JSON and vice versa.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 2.0
  */
 public class JsonMessageTests {
 
 	private static final Logger log = LoggerFactory.getLogger(JsonMessageTests.class);
 
 	private ObjectMapper createObjectMapperJaxbWriteJson() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JakartaXmlBindAnnotationModule());
-		mapper.setDefaultPropertyInclusion(Include.NON_NULL);
-		mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
-		return mapper;
+		return JsonMapper.builder().addModule(new JakartaXmlBindAnnotationModule())
+				.configure(DateTimeFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, false)
+				.defaultDateFormat(new StdDateFormat().withColonInTimeZone(true))
+				.changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(Include.NON_NULL))
+				.changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(Include.NON_NULL))
+				.build();
 	}
 
 	@Test
@@ -143,7 +144,7 @@ public class JsonMessageTests {
 		String json = mapper.writeValueAsString(req);
 		log.debug("Got JSON: {}", json);
 		assertThat("Message", json, equalTo(
-				"{\"transactionId\":321,\"idTag\":\"abc123\",\"timestamp\":\"2020-01-30T23:20:30.000+00:00\",\"meterStop\":12345,\"reason\":\"Local\",\"transactionData\":[{\"timestamp\":\"2020-01-30T23:20:30.000+00:00\",\"sampledValue\":[{\"value\":\"0\",\"context\":\"Transaction.Begin\",\"format\":\"Raw\",\"measurand\":\"Energy.Active.Import.Register\",\"location\":\"Inlet\",\"unit\":\"kWh\"},{\"value\":\"500\",\"context\":\"Transaction.Begin\",\"format\":\"Raw\",\"measurand\":\"Power.Active.Import\",\"location\":\"Inlet\",\"unit\":\"W\"}]},{\"timestamp\":\"2020-01-30T23:20:30.000+00:00\",\"sampledValue\":[{\"value\":\"1\",\"context\":\"Sample.Periodic\",\"format\":\"Raw\",\"measurand\":\"Energy.Active.Import.Register\",\"location\":\"Inlet\",\"unit\":\"kWh\"},{\"value\":\"500\",\"context\":\"Sample.Periodic\",\"format\":\"Raw\",\"measurand\":\"Power.Active.Import\",\"location\":\"Inlet\",\"unit\":\"W\"}]},{\"timestamp\":\"2020-01-30T23:20:30.000+00:00\",\"sampledValue\":[{\"value\":\"2\",\"context\":\"Transaction.End\",\"format\":\"Raw\",\"measurand\":\"Energy.Active.Import.Register\",\"location\":\"Inlet\",\"unit\":\"kWh\"},{\"value\":\"500\",\"context\":\"Transaction.End\",\"format\":\"Raw\",\"measurand\":\"Power.Active.Import\",\"location\":\"Inlet\",\"unit\":\"W\"}]}]}"));
+				"{\"transactionId\":321,\"idTag\":\"abc123\",\"timestamp\":\"2020-01-30T23:20:30.000Z\",\"meterStop\":12345,\"reason\":\"Local\",\"transactionData\":[{\"timestamp\":\"2020-01-30T23:20:30.000Z\",\"sampledValue\":[{\"value\":\"0\",\"context\":\"Transaction.Begin\",\"format\":\"Raw\",\"measurand\":\"Energy.Active.Import.Register\",\"location\":\"Inlet\",\"unit\":\"kWh\"},{\"value\":\"500\",\"context\":\"Transaction.Begin\",\"format\":\"Raw\",\"measurand\":\"Power.Active.Import\",\"location\":\"Inlet\",\"unit\":\"W\"}]},{\"timestamp\":\"2020-01-30T23:20:30.000Z\",\"sampledValue\":[{\"value\":\"1\",\"context\":\"Sample.Periodic\",\"format\":\"Raw\",\"measurand\":\"Energy.Active.Import.Register\",\"location\":\"Inlet\",\"unit\":\"kWh\"},{\"value\":\"500\",\"context\":\"Sample.Periodic\",\"format\":\"Raw\",\"measurand\":\"Power.Active.Import\",\"location\":\"Inlet\",\"unit\":\"W\"}]},{\"timestamp\":\"2020-01-30T23:20:30.000Z\",\"sampledValue\":[{\"value\":\"2\",\"context\":\"Transaction.End\",\"format\":\"Raw\",\"measurand\":\"Energy.Active.Import.Register\",\"location\":\"Inlet\",\"unit\":\"kWh\"},{\"value\":\"500\",\"context\":\"Transaction.End\",\"format\":\"Raw\",\"measurand\":\"Power.Active.Import\",\"location\":\"Inlet\",\"unit\":\"W\"}]}]}"));
 	}
 
 }

@@ -27,16 +27,16 @@ import java.util.Map;
 import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Basic implementation of {@link DeviceInfo}.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.75
  */
-@JsonDeserialize(builder = BasicDeviceInfo.Builder.class)
+@com.fasterxml.jackson.databind.annotation.JsonDeserialize(builder = BasicDeviceInfo.Builder.class)
+@tools.jackson.databind.annotation.JsonDeserialize(builder = BasicDeviceInfo.Builder.class)
 @JsonPropertyOrder({ "name", "manufacturer", "modelName", "version", "serialNumber", "manufactureDate",
 		"deviceAddress", "nameplateRatings" })
 public class BasicDeviceInfo implements DeviceInfo {
