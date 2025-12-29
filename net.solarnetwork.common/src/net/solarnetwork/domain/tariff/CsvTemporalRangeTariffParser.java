@@ -36,11 +36,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvListWriter;
-import org.supercsv.io.ICsvListReader;
-import org.supercsv.io.ICsvListWriter;
-import org.supercsv.prefs.CsvPreference;
+import de.siegmar.fastcsv.reader.CommentStrategy;
+import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.CsvRecord;
+import de.siegmar.fastcsv.reader.CsvRecordHandler;
+import de.siegmar.fastcsv.reader.FieldModifiers;
+import de.siegmar.fastcsv.writer.CsvWriter;
 import net.solarnetwork.domain.tariff.Tariff.Rate;
 import net.solarnetwork.util.StringUtils;
 
@@ -68,7 +69,7 @@ import net.solarnetwork.util.StringUtils;
  * </p>
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.71
  */
 public class CsvTemporalRangeTariffParser {
@@ -125,40 +126,44 @@ public class CsvTemporalRangeTariffParser {
 	 */
 	public List<ChronoFieldsTariff> parseTariffs(Reader reader) throws IOException {
 		List<ChronoFieldsTariff> result = new ArrayList<>();
-		try (ICsvListReader csvReader = new CsvListReader(reader, CsvPreference.STANDARD_PREFERENCE)) {
-			String[] headers = csvReader.getHeader(true);
-			if ( headers == null || headers.length < 5 ) {
-				throw new IllegalArgumentException(
-						format("Not enough columns in CSV header: need at least 5 but found %d",
-								(headers != null ? headers.length : 0)));
-			}
-			String[] ids = new String[headers.length - 4];
-			for ( int i = 0, len = ids.length; i < len; i++ ) {
-				ids[i] = StringUtils.simpleIdValue(headers[i + 4], preserveRateCase);
-			}
-			while ( true ) {
-				List<String> row = csvReader.read();
-				if ( row == null ) {
-					break;
+		try (CsvReader<CsvRecord> csvReader = CsvReader.builder().allowMissingFields(true)
+				.allowExtraFields(true).commentStrategy(CommentStrategy.SKIP)
+				.build(CsvRecordHandler.builder().fieldModifier(FieldModifiers.TRIM).build(), reader)) {
+			List<String> headers = null;
+			String[] ids = null;
+			for ( CsvRecord row : csvReader ) {
+				if ( headers == null ) {
+					headers = row.getFields();
+					if ( headers.size() < 5 ) {
+						throw new IllegalArgumentException(
+								format("Not enough columns in CSV header: need at least 5 but found %d",
+										(headers != null ? headers.size() : 0)));
+					}
+					ids = new String[headers.size() - 4];
+					for ( int i = 0, len = ids.length; i < len; i++ ) {
+						ids[i] = StringUtils.simpleIdValue(headers.get(i + 4), preserveRateCase);
+					}
+					continue;
 				}
-				if ( row.size() < 5 ) {
+
+				if ( row.getFieldCount() < 5 ) {
 					throw new IllegalArgumentException(
 							format("Not enough columns in CSV row %d: need at least 5 but found %d",
-									csvReader.getLineNumber(), (row != null ? row.size() : 0)));
+									row.getStartingLineNumber(), row.getFieldCount()));
 				}
 				try {
-					int ratesLength = Math.min(row.size() - 4, ids.length);
+					int ratesLength = Math.min(row.getFieldCount() - 4, ids.length);
 					List<Rate> rates = new ArrayList<>(ratesLength);
 					for ( int i = 0; i < ratesLength; i++ ) {
 						int j = i + 4;
-						String rateString = row.get(j);
+						String rateString = row.getField(j);
 						if ( rateString != null && !rateString.isEmpty() ) {
 							BigDecimal rateValue = new BigDecimal(rateString);
-							rates.add(new SimpleTariffRate(ids[i], headers[j], rateValue));
+							rates.add(new SimpleTariffRate(ids[i], headers.get(j), rateValue));
 						}
 					}
 					// look for MOD singleton hour; convert to hour range if found
-					String modRange = row.get(3);
+					String modRange = row.getField(3);
 					if ( modRange != null && modRange.indexOf('-') < 0 && modRange.indexOf(':') < 0 ) {
 						try {
 							int hod = Integer.parseInt(modRange);
@@ -169,22 +174,22 @@ public class CsvTemporalRangeTariffParser {
 							// ignore and continue
 						}
 					}
-					TemporalRangeSetsTariff t = new TemporalRangeSetsTariff(row.get(0), row.get(1),
-							row.get(2), modRange, rates, locale);
+					TemporalRangeSetsTariff t = new TemporalRangeSetsTariff(row.getField(0),
+							row.getField(1), row.getField(2), modRange, rates, locale);
 					result.add(t);
 				} catch ( NumberFormatException e ) {
 					throw new IllegalArgumentException(
 							format("Error parsing rate value in CSV row %d: %s",
-									csvReader.getLineNumber(), e.getMessage()),
+									row.getStartingLineNumber(), e.getMessage()),
 							e);
 				} catch ( DateTimeException e ) {
 					throw new IllegalArgumentException(
 							format("Error parsing date range value in CSV row %d: %s",
-									csvReader.getLineNumber(), e.getMessage()),
+									row.getStartingLineNumber(), e.getMessage()),
 							e);
 				} catch ( Exception e ) {
 					throw new IllegalArgumentException(format("Error parsing CSV row %d: %s",
-							csvReader.getLineNumber(), e.getMessage()), e);
+							row.getStartingLineNumber(), e.getMessage()), e);
 				}
 			}
 		}
@@ -214,38 +219,40 @@ public class CsvTemporalRangeTariffParser {
 			return;
 		}
 		List<String> rateNames = extractRateDescriptions(tariffs);
-		String[] headers = new String[4 + rateNames.size()];
-		headers[0] = "Month";
-		headers[1] = "Day";
-		headers[2] = "Weekday";
-		headers[3] = "Time";
+		String[] header = new String[4 + rateNames.size()];
+		header[0] = "Month";
+		header[1] = "Day";
+		header[2] = "Weekday";
+		header[3] = "Time";
 		for ( int i = 0, len = rateNames.size(); i < len; i++ ) {
-			headers[i + 4] = rateNames.get(i);
+			header[i + 4] = rateNames.get(i);
 		}
-		try (ICsvListWriter csvWriter = new CsvListWriter(writer, CsvPreference.STANDARD_PREFERENCE)) {
-			csvWriter.writeHeader(headers);
+		int rowNumber = 1;
+		try (CsvWriter csvWriter = CsvWriter.builder().build(writer)) {
+			csvWriter.writeRecord(header);
 			try {
 				// change rate headers to IDs for faster lookup while processing rows
-				for ( int i = 4; i < headers.length; i++ ) {
-					headers[i] = StringUtils.simpleIdValue(headers[i]);
+				for ( int i = 4; i < header.length; i++ ) {
+					header[i] = StringUtils.simpleIdValue(header[i]);
 				}
 
 				for ( ChronoFieldsTariff tariff : tariffs ) {
-					encodeToCsv(tariff, headers, csvWriter);
+					rowNumber++;
+					encodeToCsv(tariff, header, csvWriter);
 				}
 			} catch ( DateTimeException e ) {
 				throw new IllegalArgumentException(
-						format("Error formatting date range value in CSV row %d: %s",
-								csvWriter.getLineNumber(), e.getMessage()),
+						format("Error formatting date range value in CSV row %d: %s", rowNumber,
+								e.getMessage()),
 						e);
 			} catch ( Exception e ) {
-				throw new IllegalArgumentException(format("Error formatting CSV row %d: %s",
-						csvWriter.getLineNumber(), e.getMessage()), e);
+				throw new IllegalArgumentException(
+						format("Error formatting CSV row %d: %s", rowNumber, e.getMessage()), e);
 			}
 		}
 	}
 
-	private void encodeToCsv(ChronoFieldsTariff tariff, String[] headers, ICsvListWriter csvWriter)
+	private void encodeToCsv(ChronoFieldsTariff tariff, String[] headers, CsvWriter csvWriter)
 			throws IOException {
 		String[] row = new String[headers.length];
 		row[0] = formatRange(ChronoField.MONTH_OF_YEAR,
@@ -260,7 +267,7 @@ public class CsvTemporalRangeTariffParser {
 			Rate r = tariff.getRates().get(headers[i]);
 			row[i] = (r != null ? r.getAmount().toPlainString() : null);
 		}
-		csvWriter.write(row);
+		csvWriter.writeRecord(row);
 	}
 
 	private List<String> extractRateDescriptions(List<ChronoFieldsTariff> tariffs) {
