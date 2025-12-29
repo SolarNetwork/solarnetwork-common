@@ -1,31 +1,30 @@
 /* ==================================================================
  * SimpleCsvHttpMessageConverter.java - Dec 3, 2013 2:50:27 PM
- * 
+ *
  * Copyright 2007-2013 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.web.jakarta.support;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import java.beans.PropertyEditor;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,18 +43,16 @@ import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.supercsv.io.CsvMapWriter;
-import org.supercsv.io.ICsvMapWriter;
-import org.supercsv.prefs.CsvPreference;
+import de.siegmar.fastcsv.writer.CsvWriter;
 import net.solarnetwork.codec.PropertySerializerRegistrar;
 import net.solarnetwork.domain.Result;
 import net.solarnetwork.util.ClassUtils;
 
 /**
  * {@link HttpMessageConverter} that marshals objects into CSV documents.
- * 
+ *
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
@@ -81,7 +78,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 	 * Default constructor.
 	 */
 	public SimpleCsvHttpMessageConverter() {
-		super(new MediaType("text", "csv", Charset.forName("UTF-8")));
+		super(new MediaType("text", "csv", UTF_8));
 	}
 
 	@Override
@@ -148,13 +145,10 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 			return;
 		}
 
-		final ICsvMapWriter writer = new CsvMapWriter(
-				new OutputStreamWriter(outputMessage.getBody(), "UTF-8"),
-				CsvPreference.EXCEL_PREFERENCE);
-		try {
+		try (final CsvWriter writer = CsvWriter.builder().build(outputMessage.getBody())) {
 			// output header
 			if ( includeHeader ) {
-				writer.writeHeader(fields);
+				writer.writeRecord(fields);
 			}
 
 			// output first row
@@ -164,15 +158,6 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 			while ( rowIterator.hasNext() ) {
 				row = rowIterator.next();
 				writeCSV(writer, fields, row);
-			}
-		} finally {
-			if ( writer != null ) {
-				try {
-					writer.flush();
-					writer.close();
-				} catch ( IOException e ) {
-					// ignore these
-				}
 			}
 		}
 	}
@@ -217,11 +202,18 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 		return (T) o;
 	}
 
-	private void writeCSV(ICsvMapWriter writer, String[] fields, Object row) throws IOException {
+	private void writeCSV(CsvWriter writer, String[] fields, Object row) throws IOException {
 		if ( row instanceof Map ) {
+			String[] csvRow = new String[fields.length];
 			@SuppressWarnings("unchecked")
 			Map<String, ?> map = (Map<String, ?>) row;
-			writer.write(map, fields);
+			for ( int i = 0; i < fields.length; i++ ) {
+				Object val = map.get(fields[i]);
+				if ( val != null ) {
+					csvRow[i] = val.toString();
+				}
+			}
+			writer.writeRecord(csvRow);
 		} else if ( row != null ) {
 			Map<String, Object> map = new HashMap<String, Object>(fields.length);
 
@@ -252,8 +244,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 					}
 				}
 			}
-
-			writer.write(map, fields);
+			writeCSV(writer, fields, map);
 		}
 	}
 
@@ -279,7 +270,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Get the property serializer registrar.
-	 * 
+	 *
 	 * @return the registrar
 	 */
 	public PropertySerializerRegistrar getPropertySerializerRegistrar() {
@@ -288,7 +279,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Set the property serializer registrar.
-	 * 
+	 *
 	 * @param propertySerializerRegistrar
 	 *        the registrar to set
 	 */
@@ -298,7 +289,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Get the JavaBean properties to ignore.
-	 * 
+	 *
 	 * @return the properties
 	 */
 	public Set<String> getJavaBeanIgnoreProperties() {
@@ -307,7 +298,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Set the JavaBean properties to ignore.
-	 * 
+	 *
 	 * @param javaBeanIgnoreProperties
 	 *        the properties
 	 */
@@ -317,7 +308,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Get the JavaBean classes to treat as strings.
-	 * 
+	 *
 	 * @return the class set
 	 */
 	public Set<Class<?>> getJavaBeanTreatAsStringValues() {
@@ -326,7 +317,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Set the JavaBean classes to treat as strings.
-	 * 
+	 *
 	 * @param javaBeanTreatAsStringValues
 	 *        the class set
 	 */
@@ -336,7 +327,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Get the "include header" option.
-	 * 
+	 *
 	 * @return {@literal true} to include a header row in the output; defaults
 	 *         to {@literal true}
 	 */
@@ -346,7 +337,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 
 	/**
 	 * Set the "include header" option.
-	 * 
+	 *
 	 * @param includeHeader
 	 *        {@literal true} to include a header row in the output
 	 */
