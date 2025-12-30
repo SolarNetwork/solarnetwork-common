@@ -1,21 +1,21 @@
 /* ==================================================================
  * SimpleCsvHttpMessageCoverterTest.java - Apr 21, 2014 9:05:31 AM
- * 
+ *
  * Copyright 2007-2014 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -29,8 +29,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import net.solarnetwork.test.AbstractTest;
-import net.solarnetwork.web.jakarta.support.SimpleCsvHttpMessageConverter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,10 +37,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.mock.web.MockHttpServletResponse;
+import net.solarnetwork.test.AbstractTest;
+import net.solarnetwork.web.jakarta.support.SimpleCsvHttpMessageConverter;
 
 /**
  * Test cases for the {@link SimpleCsvHttpMessageConverter} class.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -87,7 +87,7 @@ public class SimpleCsvHttpMessageCoverterTest extends AbstractTest {
 		hmc.write(model, CSV_MEDIA_TYPE, output);
 
 		String result = response.getContentAsString();
-		assertEquals("foo\nbar\n", result);
+		assertEquals("foo\r\nbar\r\n", result);
 	}
 
 	@Test
@@ -101,7 +101,7 @@ public class SimpleCsvHttpMessageCoverterTest extends AbstractTest {
 		hmc.write(row, CSV_MEDIA_TYPE, output);
 
 		String result = response.getContentAsString();
-		assertEquals("one,two,three\n1,2,3\n", result);
+		assertEquals("one,two,three\r\n1,2,3\r\n", result);
 	}
 
 	@Test
@@ -122,7 +122,7 @@ public class SimpleCsvHttpMessageCoverterTest extends AbstractTest {
 		hmc.write(rows, CSV_MEDIA_TYPE, output);
 
 		String result = response.getContentAsString();
-		assertEquals("one,two,three\n1,2,3\n4,5,6\n", result);
+		assertEquals("one,two,three\r\n1,2,3\r\n4,5,6\r\n", result);
 	}
 
 	public static final class TestBean {
@@ -174,7 +174,7 @@ public class SimpleCsvHttpMessageCoverterTest extends AbstractTest {
 		hmc.write(row, CSV_MEDIA_TYPE, output);
 
 		String result = response.getContentAsString();
-		assertEquals("one,two,three\n\"1,1\",2,\"3,3\"\n", result);
+		assertEquals("one,two,three\r\n\"1,1\",2,\"3,3\"\r\n", result);
 	}
 
 }
