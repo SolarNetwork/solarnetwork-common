@@ -29,6 +29,7 @@ import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -36,9 +37,11 @@ import java.time.temporal.TemporalQuery;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -92,7 +95,7 @@ import net.solarnetwork.util.StringUtils;
  * </ul>
  *
  * @author matt
- * @version 2.9
+ * @version 2.10
  * @since 1.72
  */
 public final class JsonUtils {
@@ -252,7 +255,8 @@ public final class JsonUtils {
 
 		try {
 			ObjectMapper mapper = factory.getObject();
-			mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS'Z'"));
+			mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS'Z'", Locale.ENGLISH));
+			mapper.setTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC));
 			return mapper;
 		} catch ( RuntimeException e ) {
 			throw e;
