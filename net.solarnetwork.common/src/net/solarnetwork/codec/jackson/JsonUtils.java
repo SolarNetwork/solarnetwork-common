@@ -33,6 +33,7 @@ import java.time.temporal.TemporalQuery;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -89,7 +90,7 @@ import tools.jackson.databind.module.SimpleModule;
  * </ul>
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 4.13
  */
 public final class JsonUtils {
@@ -182,7 +183,7 @@ public final class JsonUtils {
 						DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS,
 						DateTimeFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
 				.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-				.defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS'Z'"))
+				.defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS'Z'", Locale.ENGLISH))
 				.defaultTimeZone(TimeZone.getTimeZone(ZoneOffset.UTC))
 				;
 		// @formatter:on
