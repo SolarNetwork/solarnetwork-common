@@ -23,7 +23,6 @@
 package net.solarnetwork.common.expr.spel.test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.fail;
@@ -181,14 +180,36 @@ public class SpelExpressionServiceTests {
 		assertThat("Result", result, contains(new BigInteger("3"), new BigDecimal("2.2")));
 	}
 
-	@Test
+	/**
+	 * Constructing array literals not supported.
+	 *
+	 * <p>
+	 * Because the {@code RestrictedEvaluationContext} context is used and
+	 * constructor resolvers are disabled, array construction is not allowed.
+	 * </p>
+	 */
+	@Test(expected = SpelEvaluationException.class)
 	public void arrayLiteral() {
 		Map<String, Object> vars = new HashMap<>(2);
 		vars.put("a", new BigInteger("3"));
 		vars.put("b", new BigDecimal("2.2"));
-		Number[] result = service.evaluateExpression("new Number[]{a,b}", null, vars, null,
-				Number[].class);
-		assertThat("Result", result, arrayContaining(new BigInteger("3"), new BigDecimal("2.2")));
+		service.evaluateExpression("new Number[]{a,b}", null, vars, null, Number[].class);
+	}
+
+	/**
+	 * Constructing array literals not supported.
+	 *
+	 * <p>
+	 * Because the {@code RestrictedEvaluationContext} context is used and
+	 * constructor resolvers are disabled, array construction is not allowed.
+	 * </p>
+	 */
+	@Test(expected = SpelEvaluationException.class)
+	public void primitiveArrayLiteral() {
+		Map<String, Object> vars = new HashMap<>(2);
+		vars.put("a", 3);
+		vars.put("b", 3);
+		service.evaluateExpression("new int[]{a,b}", null, vars, null, Number[].class);
 	}
 
 	@Test
