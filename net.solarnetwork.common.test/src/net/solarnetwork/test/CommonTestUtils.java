@@ -141,6 +141,8 @@ public final class CommonTestUtils {
 	/**
 	 * Get a random string value of an arbitrary length.
 	 *
+	 * @param len
+	 *        the desired string length
 	 * @return the string
 	 */
 	public static String randomString(int len) {

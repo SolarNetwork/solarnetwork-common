@@ -163,6 +163,13 @@ public final class StringLogger extends MarkerIgnoringBase {
 	private StringLogger.Level level = Level.TRACE;
 
 	/**
+	 * Constructor.
+	 */
+	public StringLogger() {
+		super();
+	}
+
+	/**
 	 * Get the level.
 	 *
 	 * @return the level

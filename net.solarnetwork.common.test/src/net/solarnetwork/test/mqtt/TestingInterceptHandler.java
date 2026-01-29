@@ -1,21 +1,21 @@
 /* ==================================================================
  * TestingInterceptHandler.java - 8/06/2018 4:29:18 PM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -40,7 +40,7 @@ import io.moquette.interception.messages.InterceptUnsubscribeMessage;
 
 /**
  * An {@link InterceptHandler} for unit testing.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -79,7 +79,7 @@ public class TestingInterceptHandler extends AbstractInterceptHandler {
 
 		/**
 		 * Handle an intercept message.
-		 * 
+		 *
 		 * @param msg
 		 *        the message to handle
 		 */
@@ -88,6 +88,13 @@ public class TestingInterceptHandler extends AbstractInterceptHandler {
 	}
 
 	private Callback callback;
+
+	/**
+	 * Constructor.
+	 */
+	public TestingInterceptHandler() {
+		super();
+	}
 
 	@Override
 	public final String getID() {
@@ -123,7 +130,7 @@ public class TestingInterceptHandler extends AbstractInterceptHandler {
 
 	/**
 	 * Get a published message.
-	 * 
+	 *
 	 * @param index
 	 *        the index of the publish message to get
 	 * @return the message
@@ -134,7 +141,7 @@ public class TestingInterceptHandler extends AbstractInterceptHandler {
 
 	/**
 	 * Get a published payload.
-	 * 
+	 *
 	 * @param index
 	 *        the index of the publish payload to get
 	 * @return the payload
@@ -145,7 +152,7 @@ public class TestingInterceptHandler extends AbstractInterceptHandler {
 
 	/**
 	 * Get a publish payload as a UTF-8 string.
-	 * 
+	 *
 	 * @param index
 	 *        the index of the publish payload to get
 	 * @return the string
@@ -156,7 +163,7 @@ public class TestingInterceptHandler extends AbstractInterceptHandler {
 
 	/**
 	 * Get a publish payload as a string.
-	 * 
+	 *
 	 * @param index
 	 *        the index of the publish payload to get
 	 * @param charsetName
@@ -197,7 +204,7 @@ public class TestingInterceptHandler extends AbstractInterceptHandler {
 
 	/**
 	 * Get the configured callback.
-	 * 
+	 *
 	 * @return the callback
 	 */
 	public Callback getCallback() {
@@ -206,7 +213,7 @@ public class TestingInterceptHandler extends AbstractInterceptHandler {
 
 	/**
 	 * Set a callback.
-	 * 
+	 *
 	 * @param callback
 	 *        the callback
 	 */

@@ -45,6 +45,16 @@ public abstract class AbstractHttpServerTests {
 
 	private TestHttpServer httpServer;
 
+	/**
+	 * Constructor.
+	 */
+	public AbstractHttpServerTests() {
+		super();
+	}
+
+	/**
+	 * Set up and start the HTTP server.
+	 */
 	@Before
 	public void setup() {
 		if ( httpServer == null ) {
@@ -59,6 +69,9 @@ public abstract class AbstractHttpServerTests {
 		}
 	}
 
+	/**
+	 * Stop the HTTP server.
+	 */
 	@After
 	public void teardown() {
 		if ( httpServer != null ) {
@@ -73,7 +86,7 @@ public abstract class AbstractHttpServerTests {
 	/**
 	 * Start the HTTP server.
 	 *
-	 * @throws Exception
+	 * @throws RuntimeException
 	 *         if an error occurs
 	 */
 	public void startHttpServer() {
@@ -92,7 +105,7 @@ public abstract class AbstractHttpServerTests {
 	/**
 	 * Stop the HTTP server.
 	 *
-	 * @throws Exception
+	 * @throws RuntimeException
 	 *         if an error occurs
 	 */
 	public void stopHttpServer() {

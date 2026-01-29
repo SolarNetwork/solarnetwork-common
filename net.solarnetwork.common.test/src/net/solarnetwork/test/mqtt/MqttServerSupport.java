@@ -68,6 +68,13 @@ public class MqttServerSupport {
 	private TestingInterceptHandler testingHandler;
 
 	/**
+	 * Constructor.
+	 */
+	public MqttServerSupport() {
+		super();
+	}
+
+	/**
 	 * Find and return an unused IP port.
 	 *
 	 * @return the unused port

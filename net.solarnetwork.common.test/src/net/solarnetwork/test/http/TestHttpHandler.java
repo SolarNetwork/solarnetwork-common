@@ -66,6 +66,13 @@ public abstract class TestHttpHandler extends Handler.Abstract {
 	private boolean handled = false;
 	private Throwable exception;
 
+	/**
+	 * Constructor.
+	 */
+	public TestHttpHandler() {
+		super();
+	}
+
 	@Override
 	public final boolean handle(Request request, Response response, Callback callback) throws Exception {
 		log.trace("HTTP request {}", request.getHttpURI());
@@ -121,6 +128,8 @@ public abstract class TestHttpHandler extends Handler.Abstract {
 	 *        the request
 	 * @param response
 	 *        the response
+	 * @param callback
+	 *        the callback
 	 * @return {@literal true} if the request was handled successfully, and as
 	 *         expected.
 	 * @throws Exception
@@ -232,7 +241,8 @@ public abstract class TestHttpHandler extends Handler.Abstract {
 	 * accordingly.
 	 * </p>
 	 *
-	 * @oaran request the HTTP request
+	 * @param request
+	 *        the HTTP request
 	 * @param response
 	 *        the HTTP response
 	 * @param contentType
@@ -313,7 +323,8 @@ public abstract class TestHttpHandler extends Handler.Abstract {
 	 * accordingly.
 	 * </p>
 	 *
-	 * @oaran request the HTTP request
+	 * @param request
+	 *        the HTTP request
 	 * @param response
 	 *        the HTTP response
 	 * @param resource
