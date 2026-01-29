@@ -2,16 +2,16 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Tests
 Bundle-SymbolicName: net.solarnetwork.common.internal.test
-Bundle-Version: 4.13.0
+Bundle-Version: 4.16.0
 Bundle-Vendor: SolarNetwork
-Fragment-Host: net.solarnetwork.common;bundle-version="[4.13,5.0)"
+Fragment-Host: net.solarnetwork.common;bundle-version="[4.16,5.0)"
 Automatic-Module-Name: net.solarnetwork.common.internal.test
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: 
  com.fasterxml.jackson.dataformat.cbor;version="[2.19,3.0)",
  net.solarnetwork.common.expr.spel;version="[2.0,3.0)",
  net.solarnetwork.pki.bc;version="[2.0,3.0)",
- net.solarnetwork.test;version="[1.7,2.0)",
+ net.solarnetwork.test;version="[1.8,2.0)",
  org.apache.commons.codec.binary;version="[1.7,2.0)",
  org.assertj.core.api;version="[3.27,4.0)",
  org.easymock;version="[3.6,4.0)",

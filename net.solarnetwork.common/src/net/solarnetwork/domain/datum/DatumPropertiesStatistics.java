@@ -1,21 +1,21 @@
 /* ==================================================================
  * DatumPropertiesStatistics.java - 30/10/2020 4:35:52 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,16 +28,16 @@ import java.util.Arrays;
 
 /**
  * Statistic information associated with datum properties.
- * 
+ *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.7
  */
 public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Instantaneous statistic enumeration.
-	 * 
+	 *
 	 * <p>
 	 * The ordinal of each enumeration value represents its position in the
 	 * statistics array for a given instantaneous property.
@@ -57,7 +57,7 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Accumulating statistic enumeration.
-	 * 
+	 *
 	 * <p>
 	 * The ordinal of each enumeration value represents its position in the
 	 * statistics array for a given instantaneous property.
@@ -92,12 +92,12 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Create a datum statistics instance.
-	 * 
+	 *
 	 * @param instantaneous
 	 *        the instantaneous statistic values
 	 * @param accumulating
 	 *        the accumulating statistic values
-	 * @return the new instance, never {@literal null}
+	 * @return the new instance, never {@code null}
 	 */
 	public static DatumPropertiesStatistics statisticsOf(BigDecimal[][] instantaneous,
 			BigDecimal[][] accumulating) {
@@ -148,13 +148,13 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Get the overall number of array property values (first dimension).
-	 * 
+	 *
 	 * <p>
 	 * This returns the sum of the length (first dimension) all the array fields
 	 * of this class.
 	 * </p>
-	 * 
-	 * @return the number of values (including {@literal null} values)
+	 *
+	 * @return the number of values (including {@code null} values)
 	 */
 	public int getLength() {
 		return getInstantaneousLength() + getAccumulatingLength();
@@ -162,8 +162,8 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Get the instantaneous values array length (first dimension).
-	 * 
-	 * @return the number of instantaneous values (including {@literal null}
+	 *
+	 * @return the number of instantaneous values (including {@code null}
 	 *         values)
 	 */
 	public int getInstantaneousLength() {
@@ -173,7 +173,7 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Get the instantaneous statistics.
-	 * 
+	 *
 	 * @return the instantaneous statistics
 	 */
 	public BigDecimal[][] getInstantaneous() {
@@ -182,7 +182,7 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Set the instantaneous statistics.
-	 * 
+	 *
 	 * @param instantaneous
 	 *        the instantaneous statistics to set
 	 */
@@ -202,11 +202,39 @@ public class DatumPropertiesStatistics implements Serializable {
 	}
 
 	/**
+	 * Get an instantaneous statistic value.
+	 * @param type
+	 *        the desired statistic
+	 * @param propertyIndex
+	 *        the property index
+	 *
+	 * @return the value, or {@code null} if not available
+	 * @since 1.2
+	 */
+	public BigDecimal stat(InstantaneousStatistic type, int propertyIndex) {
+		return getStat(getInstantaneous(), propertyIndex, type.ordinal());
+	}
+
+	/**
+	 * Get an accumulating statistic value.
+	 * @param type
+	 *        the desired statistic
+	 * @param propertyIndex
+	 *        the property index
+	 *
+	 * @return the value, or {@code null} if not available
+	 * @since 1.2
+	 */
+	public BigDecimal stat(AccumulatingStatistic type, int propertyIndex) {
+		return getStat(getAccumulating(), propertyIndex, type.ordinal());
+	}
+
+	/**
 	 * Get the count statistic for an instantaneous property.
-	 * 
+	 *
 	 * @param propertyIndex
 	 *        the index of the property to get the statistic for
-	 * @return the statistic value, or {@literal null} if not available
+	 * @return the statistic value, or {@code null} if not available
 	 */
 	public BigDecimal getInstantaneousCount(int propertyIndex) {
 		return getStat(getInstantaneous(), propertyIndex, InstantaneousStatistic.Count.ordinal());
@@ -214,10 +242,10 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Get the minimum statistic for an instantaneous property.
-	 * 
+	 *
 	 * @param propertyIndex
 	 *        the index of the property to get the statistic for
-	 * @return the statistic value, or {@literal null} if not available
+	 * @return the statistic value, or {@code null} if not available
 	 */
 	public BigDecimal getInstantaneousMinimum(int propertyIndex) {
 		return getStat(getInstantaneous(), propertyIndex, InstantaneousStatistic.Minimum.ordinal());
@@ -225,10 +253,10 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Get the maximum statistic for an instantaneous property.
-	 * 
+	 *
 	 * @param propertyIndex
 	 *        the index of the property to get the statistic for
-	 * @return the statistic value, or {@literal null} if not available
+	 * @return the statistic value, or {@code null} if not available
 	 */
 	public BigDecimal getInstantaneousMaximum(int propertyIndex) {
 		return getStat(getInstantaneous(), propertyIndex, InstantaneousStatistic.Maximum.ordinal());
@@ -236,10 +264,10 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Get the difference statistic for an accumulating property.
-	 * 
+	 *
 	 * @param propertyIndex
 	 *        the index of the property to get the statistic for
-	 * @return the statistic value, or {@literal null} if not available
+	 * @return the statistic value, or {@code null} if not available
 	 * @since 1.1
 	 */
 	public BigDecimal getAccumulatingDifference(int propertyIndex) {
@@ -248,10 +276,10 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Get the start statistic for an accumulating property.
-	 * 
+	 *
 	 * @param propertyIndex
 	 *        the index of the property to get the statistic for
-	 * @return the statistic value, or {@literal null} if not available
+	 * @return the statistic value, or {@code null} if not available
 	 */
 	public BigDecimal getAccumulatingStart(int propertyIndex) {
 		return getStat(getAccumulating(), propertyIndex, AccumulatingStatistic.Start.ordinal());
@@ -259,10 +287,10 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Get the end statistic for an accumulating property.
-	 * 
+	 *
 	 * @param propertyIndex
 	 *        the index of the property to get the statistic for
-	 * @return the statistic value, or {@literal null} if not available
+	 * @return the statistic value, or {@code null} if not available
 	 */
 	public BigDecimal getAccumulatingEnd(int propertyIndex) {
 		return getStat(getAccumulating(), propertyIndex, AccumulatingStatistic.End.ordinal());
@@ -270,9 +298,8 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Get the accumulating values array length (first dimension).
-	 * 
-	 * @return the number of accumulating values (including {@literal null}
-	 *         values)
+	 *
+	 * @return the number of accumulating values (including {@code null} values)
 	 */
 	public int getAccumulatingLength() {
 		BigDecimal[][] array = getAccumulating();
@@ -281,7 +308,7 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Get the accumulating statistics.
-	 * 
+	 *
 	 * @return the accumulating statistics
 	 */
 	public BigDecimal[][] getAccumulating() {
@@ -290,7 +317,7 @@ public class DatumPropertiesStatistics implements Serializable {
 
 	/**
 	 * Set the accumulating statistics.
-	 * 
+	 *
 	 * @param accumulating
 	 *        the accumulating statistics to set
 	 */

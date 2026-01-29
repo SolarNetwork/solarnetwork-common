@@ -1,21 +1,21 @@
 /* ==================================================================
  * DatumProperties.java - 22/10/2020 10:38:32 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU  Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU  Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  *  Public License for more details.
- * 
- * You should have received a copy of the GNU  Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU  Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -31,16 +31,16 @@ import java.util.Set;
 
 /**
  * A collection of property values for a datum.
- * 
+ *
  * <p>
  * The properties are stored as ordered arrays of values. The meaning of the
  * values depends on external {@link DatumStreamMetadata}. {@literal null}
  * values are allowed both as the array fields of this class and as values
  * within array instances.
  * </p>
- * 
+ *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.72
  */
 public class DatumProperties implements Serializable {
@@ -68,7 +68,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Create a datum properties instance.
-	 * 
+	 *
 	 * @param instantaneous
 	 *        the instantaneous values
 	 * @param accumulating
@@ -92,12 +92,12 @@ public class DatumProperties implements Serializable {
 	/**
 	 * Create a new instance out of a general datum and associated stream
 	 * metadata.
-	 * 
+	 *
 	 * <p>
 	 * Note that trailing {@literal null} values will be removed from the
 	 * instantaneous, accumulating, and status data arrays.
 	 * </p>
-	 * 
+	 *
 	 * @param datum
 	 *        the datum to create properties from
 	 * @param meta
@@ -260,12 +260,32 @@ public class DatumProperties implements Serializable {
 	}
 
 	/**
+	 * Get a property value.
+	 *
+	 * @param type
+	 *        the type
+	 * @param index
+	 *        the index to get
+	 * @return the property value, or {@code null} if not available
+	 * @since 1.3
+	 */
+	public Object value(DatumSamplesType type, int index) {
+		return switch (type) {
+			case Instantaneous -> instantaneousValue(index);
+			case Accumulating -> accumulatingValue(index);
+			case Status -> statusValue(index);
+			case Tag -> tagValue(index);
+			default -> null;
+		};
+	}
+
+	/**
 	 * Get the overall number of array property values.
-	 * 
+	 *
 	 * <p>
 	 * This returns the sum of the length of all the array fields of this class.
 	 * </p>
-	 * 
+	 *
 	 * @return the number of values (including {@literal null} values)
 	 */
 	public int getLength() {
@@ -274,7 +294,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Get the instantaneous values array length.
-	 * 
+	 *
 	 * @return the number of instantaneous values (including {@literal null}
 	 *         values)
 	 */
@@ -285,7 +305,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Get the instantaneous values.
-	 * 
+	 *
 	 * @return the instantaneous sample values
 	 */
 	public BigDecimal[] getInstantaneous() {
@@ -294,7 +314,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Set the instantaneous values.
-	 * 
+	 *
 	 * @param values
 	 *        the values to set
 	 */
@@ -304,7 +324,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Get the value of a specific instantaneous property by index.
-	 * 
+	 *
 	 * @param index
 	 *        the property index to return
 	 * @return the value, or {@literal null} if not available
@@ -320,7 +340,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Get the accumulating values array length.
-	 * 
+	 *
 	 * @return the number of accumulating values (including {@literal null}
 	 *         values)
 	 */
@@ -331,7 +351,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Get the accumulating values.
-	 * 
+	 *
 	 * @return the accumulating sample values
 	 */
 	public BigDecimal[] getAccumulating() {
@@ -340,7 +360,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Set the accumulating values.
-	 * 
+	 *
 	 * @param values
 	 *        the values to set
 	 */
@@ -350,7 +370,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Get the value of a specific accumulating property by index.
-	 * 
+	 *
 	 * @param index
 	 *        the property index to return
 	 * @return the value, or {@literal null} if not available
@@ -366,7 +386,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Get the status values array length.
-	 * 
+	 *
 	 * @return the number of status values (including {@literal null} values)
 	 */
 	public int getStatusLength() {
@@ -376,7 +396,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Get the status values.
-	 * 
+	 *
 	 * @return the status sample values
 	 */
 	public String[] getStatus() {
@@ -385,7 +405,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Set the status values.
-	 * 
+	 *
 	 * @param status
 	 *        the values to set
 	 */
@@ -395,7 +415,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Get the value of a specific status property by index.
-	 * 
+	 *
 	 * @param index
 	 *        the property index to return
 	 * @return the value, or {@literal null} if not available
@@ -411,7 +431,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Get the tags array length.
-	 * 
+	 *
 	 * @return the number of tags (including {@literal null} values)
 	 */
 	public int getTagsLength() {
@@ -421,7 +441,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Get the tag values.
-	 * 
+	 *
 	 * @return the tag values
 	 */
 	public String[] getTags() {
@@ -430,7 +450,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Set the tag values.
-	 * 
+	 *
 	 * @param tags
 	 *        the tags to set
 	 */
@@ -440,7 +460,7 @@ public class DatumProperties implements Serializable {
 
 	/**
 	 * Test if a specific tag exits (case-insensitive).
-	 * 
+	 *
 	 * @param tag
 	 *        the tag to test for
 	 * @return {@literal true} if the given tag is present in the
@@ -459,4 +479,19 @@ public class DatumProperties implements Serializable {
 		return false;
 	}
 
+	/**
+	 * Get the value of a specific tag property by index.
+	 *
+	 * @param index
+	 *        the property index to return
+	 * @return the value, or {@literal null} if not available
+	 * @since 1.3
+	 */
+	public String tagValue(int index) {
+		final String[] values = getTags();
+		if ( values != null && index < values.length ) {
+			return values[index];
+		}
+		return null;
+	}
 }
