@@ -1,21 +1,21 @@
 /* ==================================================================
  * ChargePoint.java - 7/02/2020 7:56:29 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -24,14 +24,15 @@ package net.solarnetwork.ocpp.domain;
 
 import java.time.Instant;
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import net.solarnetwork.dao.BasicLongEntity;
 import net.solarnetwork.domain.Differentiable;
 
 /**
  * A Charge Point entity.
- * 
+ *
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class ChargePoint extends BasicLongEntity implements Differentiable<ChargePoint> {
 
@@ -59,7 +60,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the primary key
 	 */
@@ -69,7 +70,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the primary key
 	 * @param created
@@ -81,7 +82,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the primary key
 	 * @param created
@@ -102,7 +103,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param created
 	 *        the created date
 	 * @param identifier
@@ -119,7 +120,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the other charge point to copy
 	 */
@@ -132,12 +133,12 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Create a charge point identity based on this entity.
-	 * 
+	 *
 	 * <p>
 	 * This implementation uses {@link ChargePointIdentity#ANY_USER} for the
 	 * resolved username.
 	 * </p>
-	 * 
+	 *
 	 * @return the new identity, never {@literal null}
 	 */
 	public ChargePointIdentity chargePointIdentity() {
@@ -147,12 +148,12 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	/**
 	 * Test if the properties of another entity are the same as in this
 	 * instance.
-	 * 
+	 *
 	 * <p>
 	 * The {@code id} and {@code created} properties are not compared by this
 	 * method.
 	 * </p>
-	 * 
+	 *
 	 * @param other
 	 *        the other entity to compare to
 	 * @return {@literal true} if the properties of this instance are equal to
@@ -201,7 +202,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Copy the properties of a {@link ChargePointInfo}.
-	 * 
+	 *
 	 * @param info
 	 *        the properties to copy
 	 */
@@ -211,16 +212,17 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Get the Charge Point information.
-	 * 
+	 *
 	 * @return the info; never {@literal null}
 	 */
+	@JsonProperty
 	public ChargePointInfo getInfo() {
 		return info;
 	}
 
 	/**
 	 * Get the enabled flag.
-	 * 
+	 *
 	 * @return the enabled flag
 	 */
 	public boolean isEnabled() {
@@ -229,7 +231,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Set the enabled flag.
-	 * 
+	 *
 	 * @param enabled
 	 *        the enabled flag to set
 	 */
@@ -239,7 +241,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Get the registration status.
-	 * 
+	 *
 	 * @return the registrationStatus
 	 */
 	public RegistrationStatus getRegistrationStatus() {
@@ -248,7 +250,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Set the registration status.
-	 * 
+	 *
 	 * @param registrationStatus
 	 *        the registrationStatus to set
 	 */
@@ -258,7 +260,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Get the total number of connectors available on this charge point.
-	 * 
+	 *
 	 * @return the total number of connectors, or {@literal 0} if not known
 	 */
 	public int getConnectorCount() {
@@ -267,7 +269,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 
 	/**
 	 * Set the total number of connectors on this charge point.
-	 * 
+	 *
 	 * @param connectorCount
 	 *        the count to set, or {@literal 0} if not known
 	 */
