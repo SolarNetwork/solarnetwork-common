@@ -24,6 +24,7 @@ package net.solarnetwork.ocpp.domain;
 
 import java.time.Instant;
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.solarnetwork.dao.BasicLongEntity;
 import net.solarnetwork.domain.Differentiable;
@@ -216,6 +217,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @return the info; never {@literal null}
 	 */
 	@JsonProperty
+	@JsonMerge
 	public ChargePointInfo getInfo() {
 		return info;
 	}
