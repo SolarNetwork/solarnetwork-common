@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.SubProtocolCapable;
 import org.springframework.web.socket.TextMessage;
@@ -58,6 +59,8 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.adapter.NativeWebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
+import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
+import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator.OverflowStrategy;
 import jakarta.websocket.Session;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
@@ -121,7 +124,7 @@ import tools.jackson.databind.ObjectMapper;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 3.0
+ * @version 3.1
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler implements WebSocketHandler, SubProtocolCapable,
@@ -132,6 +135,27 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 
 	/** The default {@code pingFrequencySecs} property. */
 	public static final int DEFAULT_PING_FREQUENCY_SECS = 50;
+
+	/**
+	 * The {@code sendTimeLimit} property default value.
+	 *
+	 * @since 3.1
+	 */
+	public static final Duration DEFAULT_SEND_TIME_LIMIT = Duration.ofSeconds(10);
+
+	/**
+	 * The {@code sendBufferSizeLimit} property default value.
+	 *
+	 * @since 3.1
+	 */
+	public static final DataSize DEFAULT_SEND_BUFFER_SIZE_LIMIT = DataSize.ofKilobytes(512);
+
+	/**
+	 * The {@code sendOverflowStrategy} property default value.
+	 *
+	 * @since 3.1
+	 */
+	public static final OverflowStrategy DEFAULT_SEND_OVERFLOW_STRATEGY = OverflowStrategy.TERMINATE;
 
 	/**
 	 * A session key for a partial message buffer.
@@ -170,6 +194,9 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	private CloseStatus shutdownCloseStatus = CloseStatus.SERVICE_RESTARTED;
 	private int partialMessageMaximumSize;
 	private boolean partialMessageMaximumSizeExceededClose;
+	private Duration sendTimeLimit = DEFAULT_SEND_TIME_LIMIT;
+	private DataSize sendBufferSizeLimit = DEFAULT_SEND_BUFFER_SIZE_LIMIT;
+	private OverflowStrategy sendOverflowStrategy = DEFAULT_SEND_OVERFLOW_STRATEGY;
 
 	private boolean started;
 	private Future<?> startupTask;
@@ -571,7 +598,9 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		// save client session association
 		ChargePointIdentity clientId = clientId(session);
 		if ( clientId != null ) {
-			clientSessions.put(new ChargePointSessionIdentity(clientId, session.getId()), session);
+			clientSessions.put(new ChargePointSessionIdentity(clientId, session.getId()),
+					new ConcurrentWebSocketSessionDecorator(session, (int) sendTimeLimit.toMillis(),
+							(int) sendBufferSizeLimit.toBytes(), sendOverflowStrategy));
 		}
 	}
 
@@ -1692,6 +1721,77 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	public void setPartialMessageMaximumSizeExceededClose(
 			boolean partialMessageMaximumSizeExceededClose) {
 		this.partialMessageMaximumSizeExceededClose = partialMessageMaximumSizeExceededClose;
+	}
+
+	/**
+	 * Get the message send time limit.
+	 *
+	 * @return the limit; defaults to {@link #DEFAULT_SEND_TIME_LIMIT}; never
+	 *         {@code null}
+	 * @since 3.1
+	 */
+	public Duration getSendTimeLimit() {
+		return sendTimeLimit;
+	}
+
+	/**
+	 * Set the message send time limit.
+	 *
+	 * @param sendTimeLimit
+	 *        the limit to set; if {@code null} then
+	 *        {@link #DEFAULT_SEND_TIME_LIMIT} will be used instead
+	 * @since 3.1
+	 */
+	public void setSendTimeLimit(Duration sendTimeLimit) {
+		this.sendTimeLimit = (sendTimeLimit != null ? sendTimeLimit : DEFAULT_SEND_TIME_LIMIT);
+	}
+
+	/**
+	 * Get the message send buffer size limit.
+	 *
+	 * @return the limit; defaults to {@link #DEFAULT_SEND_BUFFER_SIZE_LIMIT};
+	 *         never {@code null}
+	 * @since 3.1
+	 */
+	public DataSize getSendBufferSizeLimit() {
+		return sendBufferSizeLimit;
+	}
+
+	/**
+	 * Set the message send buffer size limit.
+	 *
+	 * @param sendBufferSizeLimit
+	 *        the limit to set; if {@code null} then
+	 *        {@link #DEFAULT_SEND_BUFFER_SIZE_LIMIT} will be used instead
+	 * @since 3.1
+	 */
+	public void setSendBufferSizeLimit(DataSize sendBufferSizeLimit) {
+		this.sendBufferSizeLimit = (sendBufferSizeLimit != null ? sendBufferSizeLimit
+				: DEFAULT_SEND_BUFFER_SIZE_LIMIT);
+	}
+
+	/**
+	 * Get the send message overflow strategy.
+	 *
+	 * @return the strategy; defaults to
+	 *         {@link #DEFAULT_SEND_OVERFLOW_STRATEGY}; never {@code null}
+	 * @since 3.1
+	 */
+	public OverflowStrategy getSendOverflowStrategy() {
+		return sendOverflowStrategy;
+	}
+
+	/**
+	 * Set the send message overflow strategy.
+	 *
+	 * @param sendOverflowStrategy
+	 *        the strategy to set; if {@code null} then
+	 *        {@link #DEFAULT_SEND_OVERFLOW_STRATEGY} will be used instead
+	 * @since 3.1
+	 */
+	public void setSendOverflowStrategy(OverflowStrategy sendOverflowStrategy) {
+		this.sendOverflowStrategy = (sendOverflowStrategy != null ? sendOverflowStrategy
+				: DEFAULT_SEND_OVERFLOW_STRATEGY);
 	}
 
 }
