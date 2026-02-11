@@ -1170,7 +1170,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			stats.increment(Stats.CallMessagesSent);
 			didSendCall(clientId, messageId, action, payload, json, null);
 			return true;
-		} catch ( IOException e ) {
+		} catch ( IOException | IllegalStateException e ) {
 			log.warn("OCPP {} >>> Communication error sending Call for message ID {}: {}", clientId,
 					messageId, e.getMessage());
 			stats.increment(Stats.CallMessageSendFailures);
@@ -1214,7 +1214,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			stats.increment(Stats.CallResultMessagesSent);
 			didSendCallResult(clientId, messageId, payload, json, null);
 			return true;
-		} catch ( IOException e ) {
+		} catch ( IOException | IllegalStateException e ) {
 			log.warn("OCPP {} >>> Communication error sending CallResult for message ID {}: {}",
 					clientId, messageId, e.getMessage());
 			stats.increment(Stats.CallResultMessageSendFailures);
@@ -1257,7 +1257,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			stats.increment(Stats.CallErrorMessagesSent);
 			didSendCallError(clientId, messageId, errorCode, errorDescription, details, json, null);
 			return true;
-		} catch ( IOException e ) {
+		} catch ( IOException | IllegalStateException e ) {
 			log.warn("OCPP {} >>> Communication error sending CallError for message ID {}: {}", clientId,
 					messageId, e.getMessage());
 			stats.increment(Stats.CallErrorMessageSendFailures);
