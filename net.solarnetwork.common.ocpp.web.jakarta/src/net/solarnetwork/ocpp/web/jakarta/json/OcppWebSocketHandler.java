@@ -61,6 +61,7 @@ import org.springframework.web.socket.adapter.NativeWebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator.OverflowStrategy;
+import org.springframework.web.socket.handler.WebSocketSessionDecorator;
 import jakarta.websocket.Session;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
@@ -529,8 +530,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			int count = 0;
 			for ( WebSocketSession wss : clientSessions.values() ) {
 				final Session s;
-				if ( wss instanceof NativeWebSocketSession ) {
-					s = ((NativeWebSocketSession) wss).getNativeSession(Session.class);
+				if ( wss instanceof WebSocketSessionDecorator dec ) {
+					wss = dec.getLastSession();
+				}
+				if ( wss instanceof NativeWebSocketSession nwss ) {
+					s = nwss.getNativeSession(Session.class);
 				} else {
 					s = null;
 				}
