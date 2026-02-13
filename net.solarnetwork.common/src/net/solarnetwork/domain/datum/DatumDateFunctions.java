@@ -46,7 +46,7 @@ import net.solarnetwork.util.DateUtils;
  * API for datum-related date helper functions.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  * @since 3.17
  */
 public interface DatumDateFunctions {
@@ -440,7 +440,7 @@ public interface DatumDateFunctions {
 		} catch ( DateTimeException e ) {
 			throw new IllegalArgumentException(
 					format("Cannot construct invalid date %d-%02d-%02d %02d:%02d:%02d: %s", year, month,
-							day, hour, minute, e.getMessage()));
+							day, hour, minute, second, e.getMessage()));
 		}
 	}
 

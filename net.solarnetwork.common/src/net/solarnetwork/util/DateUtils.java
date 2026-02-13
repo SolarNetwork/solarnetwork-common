@@ -1355,8 +1355,8 @@ public final class DateUtils {
 		try {
 			return date.plus(amount, unit);
 		} catch ( DateTimeException e ) {
-			throw new IllegalArgumentException(
-					String.format("Unable to add %d %s to [%s]: %s", unit, date, e.getMessage()));
+			throw new IllegalArgumentException(String.format("Unable to add %d %s to [%s]: %s", amount,
+					unit, date, e.getMessage()));
 		}
 	}
 
