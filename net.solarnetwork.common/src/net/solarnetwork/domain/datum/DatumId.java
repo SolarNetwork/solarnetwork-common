@@ -1,21 +1,21 @@
 /* ==================================================================
  * DatumStreamId.java - 21/11/2020 9:40:24 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -29,7 +29,7 @@ import net.solarnetwork.domain.BaseId;
 
 /**
  * Primary key for a datum based on kind/object/source/timestamp values.
- * 
+ *
  * @author matt
  * @version 2.0
  * @since 1.71
@@ -52,7 +52,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	/**
 	 * Create a new node datum stream ID.
-	 * 
+	 *
 	 * @param nodeId
 	 *        the node ID
 	 * @param sourceId
@@ -67,7 +67,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	/**
 	 * Create a new location datum stream ID.
-	 * 
+	 *
 	 * @param locationId
 	 *        the node ID
 	 * @param sourceId
@@ -82,7 +82,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param kind
 	 *        the kind
 	 * @param objectId
@@ -157,6 +157,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 		}
 	}
 
+	@SuppressWarnings("BoxedPrimitiveEquality")
 	@Override
 	public int compareTo(DatumId o) {
 		if ( this == o ) {
@@ -230,7 +231,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	/**
 	 * Get the kind.
-	 * 
+	 *
 	 * @return the kind
 	 */
 	public ObjectDatumKind getKind() {
@@ -239,7 +240,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	/**
 	 * Get the object ID.
-	 * 
+	 *
 	 * @return the object ID
 	 */
 	public Long getObjectId() {
@@ -248,7 +249,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	/**
 	 * Get the source ID.
-	 * 
+	 *
 	 * @return the source ID
 	 */
 	public String getSourceId() {
@@ -257,7 +258,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	/**
 	 * Get the timestamp.
-	 * 
+	 *
 	 * @return the timestamp
 	 */
 	public Instant getTimestamp() {
