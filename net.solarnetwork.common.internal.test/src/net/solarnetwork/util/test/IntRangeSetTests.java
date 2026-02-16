@@ -1182,7 +1182,7 @@ public class IntRangeSetTests {
 	@Test
 	public void remove_nonInteger() {
 		IntRangeSet s = new IntRangeSet(rangeOf(1));
-		@SuppressWarnings("unlikely-arg-type")
+		@SuppressWarnings({ "unlikely-arg-type", "CollectionIncompatibleType" })
 		boolean result = s.remove("1");
 		assertThat("No change on non-Integer argument", result, equalTo(false));
 	}
@@ -1269,7 +1269,7 @@ public class IntRangeSetTests {
 	@Test
 	public void removeAll_nonInteger() {
 		IntRangeSet s = new IntRangeSet(rangeOf(1));
-		@SuppressWarnings("unlikely-arg-type")
+		@SuppressWarnings({ "unlikely-arg-type", "CollectionIncompatibleType" })
 		boolean result = s.removeAll(asList("1", "2"));
 		assertThat("No change on non-Integer argument", result, equalTo(false));
 	}
@@ -1568,7 +1568,7 @@ public class IntRangeSetTests {
 		assertThat("Does not contain value", set.contains(11), is(false));
 	}
 
-	@SuppressWarnings("unlikely-arg-type")
+	@SuppressWarnings({ "unlikely-arg-type", "CollectionIncompatibleType" })
 	@Test
 	public void containsImpl_nonInteger() {
 		// GIVEN
