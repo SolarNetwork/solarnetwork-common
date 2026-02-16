@@ -214,9 +214,12 @@ public class BasicStreamDatumArrayDeserializerTests {
 				+ ",null,[\"howdy\"],null,null]";
 
 		// WHEN
-		catchThrowableOfType(InvalidFormatException.class, () -> {
+		InvalidFormatException ex = catchThrowableOfType(InvalidFormatException.class, () -> {
 			mapper.readValue(json, StreamDatum.class);
 		});
+
+		// THEN
+		then(ex.getValue()).isEqualTo("howdy");
 	}
 
 }

@@ -337,7 +337,10 @@ public class JsonUtilsTests {
 		try (JsonParser p = JsonUtils.JSON_OBJECT_MAPPER.createParser("\"12345.6789\"")) {
 
 			// WHEN
-			catchThrowableOfType(InvalidFormatException.class, () -> JsonUtils.parseLong(p));
+			InvalidFormatException ex = catchThrowableOfType(InvalidFormatException.class,
+					() -> JsonUtils.parseLong(p));
+
+			then(ex.getValue()).isEqualTo("12345.6789");
 		}
 	}
 

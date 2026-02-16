@@ -23,6 +23,7 @@
 package net.solarnetwork.codec.jackson.test;
 
 import static org.assertj.core.api.BDDAssertions.catchThrowableOfType;
+import static org.assertj.core.api.BDDAssertions.then;
 import java.io.IOException;
 import java.util.HexFormat;
 import org.junit.Before;
@@ -66,9 +67,11 @@ public class JsonUtils_CborTests {
 		try (JsonParser p = mapper.createParser(cbor)) {
 
 			// THEN
-			catchThrowableOfType(NumberFormatException.class, () -> {
+			NumberFormatException ex = catchThrowableOfType(NumberFormatException.class, () -> {
 				JsonUtils.parseDecimal(p);
 			});
+
+			then(ex).hasMessageContaining("Infinity");
 		}
 	}
 
