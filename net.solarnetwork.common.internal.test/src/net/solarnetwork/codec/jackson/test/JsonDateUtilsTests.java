@@ -26,7 +26,6 @@ import static org.assertj.core.api.BDDAssertions.then;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
@@ -217,7 +216,7 @@ public class JsonDateUtilsTests {
 		// THEN
 		ZonedDateTime expected = LocalDateTime
 				.of(2021, 8, 11, 11, 47, 0, (int) TimeUnit.MILLISECONDS.toNanos(123))
-				.atZone(ZoneId.of("Z"));
+				.atZone(ZoneOffset.UTC);
 		then(result).as("ZonedDateTime parsed").isEqualTo(expected);
 	}
 
