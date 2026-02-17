@@ -1,21 +1,21 @@
 /* ==================================================================
  * ProtobufObjectCodec.java - 26/04/2021 12:02:44 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -42,12 +42,12 @@ import net.solarnetwork.settings.SettingsChangeObserver;
  * A {@link ObjectEncoder} and {@link ObjectDecoder} service that uses a
  * configurable {@link ProtobufCompilerService} to dynamically encode and decode
  * objects into Protobuf message byte arrays.
- * 
+ *
  * <p>
  * Each instance of this class is designed to encode/decode a single Protobuf
  * message, configured via {@link #setMessageClassName(String)}.
  * </p>
- * 
+ *
  * @author matt
  * @version 2.0
  */
@@ -71,7 +71,7 @@ public abstract class ProtobufObjectCodec extends BasicIdentifiable
 
 	/**
 	 * Internal constructor.
-	 * 
+	 *
 	 * @param protoClassLoader
 	 *        the class loader to use
 	 */
@@ -115,7 +115,7 @@ public abstract class ProtobufObjectCodec extends BasicIdentifiable
 			return msg.toByteArray();
 		} catch ( IllegalArgumentException e ) {
 			throw new IOException(
-					format("Error populating Protobuf message %s: %s", className, e.getMessage(), e));
+					format("Error populating Protobuf message %s: %s", className, e.getMessage()), e);
 		}
 	}
 
@@ -166,11 +166,11 @@ public abstract class ProtobufObjectCodec extends BasicIdentifiable
 	/**
 	 * Convert the provided object into a map suitable for passing to a
 	 * {@link ProtobufMessagePopulator}.
-	 * 
+	 *
 	 * <p>
 	 * This method is called from {@link #encodeAsBytes(Object, Map)}.
 	 * </p>
-	 * 
+	 *
 	 * @param obj
 	 *        the object to convert to a map
 	 * @param parameters
@@ -182,11 +182,11 @@ public abstract class ProtobufObjectCodec extends BasicIdentifiable
 
 	/**
 	 * Compile protobuf resources.
-	 * 
+	 *
 	 * <p>
 	 * This method is called from {@link #encodeAsBytes(Object, Map)}.
 	 * </p>
-	 * 
+	 *
 	 * @param compiler
 	 *        the compiler to use
 	 * @return the resulting class loader
@@ -198,12 +198,12 @@ public abstract class ProtobufObjectCodec extends BasicIdentifiable
 
 	/**
 	 * Get the compiler service UID filter.
-	 * 
+	 *
 	 * <p>
 	 * The configured {@link #getCompilerService()} must also implement
 	 * {@link FilterableService} for this method to work.
 	 * </p>
-	 * 
+	 *
 	 * @return the UID filter
 	 */
 	public String getCompilerServiceUidFilter() {
@@ -212,12 +212,12 @@ public abstract class ProtobufObjectCodec extends BasicIdentifiable
 
 	/**
 	 * Set the compiler service UID filter.
-	 * 
+	 *
 	 * <p>
 	 * The configured {@link #getCompilerService()} must also implement
 	 * {@link FilterableService} for this method to work.
 	 * </p>
-	 * 
+	 *
 	 * @param uid
 	 *        the filter to set
 	 */
@@ -227,7 +227,7 @@ public abstract class ProtobufObjectCodec extends BasicIdentifiable
 
 	/**
 	 * Get the compiler service.
-	 * 
+	 *
 	 * @return the service
 	 */
 	public OptionalService<ProtobufCompilerService> getCompilerService() {
@@ -236,7 +236,7 @@ public abstract class ProtobufObjectCodec extends BasicIdentifiable
 
 	/**
 	 * Set the compiler service.
-	 * 
+	 *
 	 * @param compilerService
 	 *        the service to set
 	 */
@@ -246,7 +246,7 @@ public abstract class ProtobufObjectCodec extends BasicIdentifiable
 
 	/**
 	 * Get the Protobuf message class name to map objects to.
-	 * 
+	 *
 	 * @return the message class name
 	 */
 	public String getMessageClassName() {
@@ -255,7 +255,7 @@ public abstract class ProtobufObjectCodec extends BasicIdentifiable
 
 	/**
 	 * Set the Protobuf message class name to map objects to.
-	 * 
+	 *
 	 * @param messageClassName
 	 *        the class name to set
 	 */
