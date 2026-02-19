@@ -32,7 +32,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -352,7 +352,7 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 			buf.append(':').append(uri.getPort());
 		}
 		buf.append('\n');
-		for ( Map.Entry<String, List<String>> me : request.getHeaders().entrySet() ) {
+		for ( Entry<String, List<String>> me : request.getHeaders().headerSet() ) {
 			buf.append(me.getKey()).append(": ")
 					.append(me.getValue().stream().collect(Collectors.joining(", "))).append('\n');
 		}
@@ -394,7 +394,7 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 			buf.append(w.toString());
 		}
 		if ( headers != null ) {
-			for ( Map.Entry<String, List<String>> me : headers.entrySet() ) {
+			for ( Entry<String, List<String>> me : headers.headerSet() ) {
 				buf.append(me.getKey()).append(": ")
 						.append(me.getValue().stream().collect(Collectors.joining(", "))).append('\n');
 			}
