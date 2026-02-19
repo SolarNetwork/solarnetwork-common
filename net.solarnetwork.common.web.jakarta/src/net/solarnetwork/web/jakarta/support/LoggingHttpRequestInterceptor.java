@@ -416,8 +416,8 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 				|| contentType.isCompatibleWith(MediaType.valueOf("text/*"))
 				|| contentType.isCompatibleWith(MediaType.APPLICATION_XML)) ) {
 			// print out textual content; possibly decoding gzip/defalte
-			if ( headers.containsKey(HttpHeaders.CONTENT_ENCODING) ) {
-				String enc = headers.getFirst(HttpHeaders.CONTENT_ENCODING);
+			final String enc = headers.getFirst(HttpHeaders.CONTENT_ENCODING);
+			if ( enc != null ) {
 				if ( "gzip".equalsIgnoreCase(enc) ) {
 					in = new GZIPInputStream(in);
 				} else if ( "deflate".equalsIgnoreCase(enc) ) {
