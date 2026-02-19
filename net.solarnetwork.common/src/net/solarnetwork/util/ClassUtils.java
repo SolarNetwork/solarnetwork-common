@@ -29,6 +29,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +40,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.springframework.beans.BeanWrapper;
@@ -50,7 +54,7 @@ import net.solarnetwork.domain.SerializeIgnore;
  * Utility methods for dealing with classes at runtime.
  *
  * @author matt
- * @version 2.1
+ * @version 2.2
  */
 public final class ClassUtils {
 
@@ -181,27 +185,7 @@ public final class ClassUtils {
 	 * @return Map (never null)
 	 */
 	public static Map<String, Object> getBeanProperties(Object o, Set<String> ignore) {
-		if ( ignore == null ) {
-			ignore = DEFAULT_BEAN_PROP_NAME_IGNORE;
-		}
-		Map<String, Object> result = new LinkedHashMap<String, Object>();
-		BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(o);
-		PropertyDescriptor[] props = bean.getPropertyDescriptors();
-		for ( PropertyDescriptor prop : props ) {
-			if ( prop.getReadMethod() == null ) {
-				continue;
-			}
-			String propName = prop.getName();
-			if ( ignore != null && ignore.contains(propName) ) {
-				continue;
-			}
-			Object propValue = bean.getPropertyValue(propName);
-			if ( propValue == null ) {
-				continue;
-			}
-			result.put(propName, propValue);
-		}
-		return result;
+		return getBeanProperties(o, ignore, false);
 	}
 
 	/**
@@ -215,40 +199,112 @@ public final class ClassUtils {
 	 * @since 1.1
 	 */
 	public static Map<String, Object> getSimpleBeanProperties(Object o, Set<String> ignore) {
+		return getSimpleBeanProperties(o, ignore, false);
+	}
+
+	/**
+	 * Get a Map of non-null <em>simple</em> bean properties for an object.
+	 *
+	 * <p>
+	 * Enum objects will be returned as strings, and absolute date objects
+	 * ({@code Date}, {@code Instant}, {@code ZonedDateTime}, and
+	 * {@code OffsetDateTime}) will be returned as epoch millisecond values.
+	 * </p>
+	 *
+	 * @param o
+	 *        the object to inspect
+	 * @param ignore
+	 *        a set of property names to ignore (optional)
+	 * @param serializeIgnore
+	 *        if {@literal true} test for the {@link SerializeIgnore} annotation
+	 *        for ignoring properties
+	 * @return Map (never {@literal null})
+	 * @since 2.2
+	 */
+	public static Map<String, Object> getSimpleBeanProperties(Object o, Set<String> ignore,
+			boolean serializeIgnore) {
 		if ( ignore == null ) {
 			ignore = DEFAULT_BEAN_PROP_NAME_IGNORE;
 		}
-		Map<String, Object> result = new LinkedHashMap<String, Object>();
-		BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(o);
-		PropertyDescriptor[] props = bean.getPropertyDescriptors();
-		for ( PropertyDescriptor prop : props ) {
-			if ( prop.getReadMethod() == null ) {
-				continue;
+		final Map<String, Object> result = new LinkedHashMap<>();
+		if ( o instanceof Map<?, ?> m ) {
+			o = m;
+			for ( Entry<?, ?> e : m.entrySet() ) {
+				if ( e.getKey() == null || e.getValue() == null ) {
+					continue;
+				}
+				final String propName = e.getKey().toString();
+				if ( ignore != null && ignore.contains(propName) ) {
+					continue;
+				}
+				final Class<?> propType = e.getValue().getClass();
+				if ( !isSimpleBeanPropertyType(propType) ) {
+					continue;
+				}
+				final Object propValue = e.getValue();
+				result.put(propName, simpleBeanPropertyValue(propType, propValue));
 			}
-			String propName = prop.getName();
-			if ( ignore != null && ignore.contains(propName) ) {
-				continue;
+		} else {
+			BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(o);
+			PropertyDescriptor[] props = bean.getPropertyDescriptors();
+			for ( PropertyDescriptor prop : props ) {
+				if ( prop.getReadMethod() == null ) {
+					continue;
+				}
+				final String propName = prop.getName();
+				if ( ignore != null && ignore.contains(propName) ) {
+					continue;
+				}
+				final Class<?> propType = bean.getPropertyType(propName);
+				if ( !isSimpleBeanPropertyType(propType) ) {
+					continue;
+				}
+				final Object propValue = bean.getPropertyValue(propName);
+				if ( propValue == null ) {
+					continue;
+				}
+				if ( serializeIgnore ) {
+					Method getter = prop.getReadMethod();
+					if ( getter != null && getter.isAnnotationPresent(SerializeIgnore.class) ) {
+						continue;
+					}
+				}
+				result.put(propName, simpleBeanPropertyValue(propType, propValue));
 			}
-			Class<?> propType = bean.getPropertyType(propName);
-			if ( !(propType.isPrimitive() || propType.isEnum() || String.class.isAssignableFrom(propType)
-					|| Number.class.isAssignableFrom(propType)
-					|| Character.class.isAssignableFrom(propType)
-					|| Byte.class.isAssignableFrom(propType)
-					|| Date.class.isAssignableFrom(propType)) ) {
-				continue;
-			}
-			Object propValue = bean.getPropertyValue(propName);
-			if ( propValue == null ) {
-				continue;
-			}
-			if ( propType.isEnum() ) {
-				propValue = propValue.toString();
-			} else if ( Date.class.isAssignableFrom(propType) ) {
-				propValue = ((Date) propValue).getTime();
-			}
-			result.put(propName, propValue);
 		}
 		return result;
+	}
+
+	private static boolean isSimpleBeanPropertyType(Class<?> propType) {
+		// @formatter:off
+		return propType != null && (
+				propType.isPrimitive()
+				|| propType.isEnum()
+				|| String.class.isAssignableFrom(propType)
+				|| Number.class.isAssignableFrom(propType)
+				|| Character.class.isAssignableFrom(propType)
+				|| Byte.class.isAssignableFrom(propType)
+				|| Date.class.isAssignableFrom(propType)
+				|| Instant.class.isAssignableFrom(propType)
+				|| ZonedDateTime.class.isAssignableFrom(propType)
+				|| OffsetDateTime.class.isAssignableFrom(propType)
+			);
+		// @formatter:on
+	}
+
+	private static Object simpleBeanPropertyValue(Class<?> propType, Object propValue) {
+		if ( propType.isEnum() ) {
+			return propValue.toString();
+		} else if ( propValue instanceof Date d ) {
+			return d.getTime();
+		} else if ( propValue instanceof Instant d ) {
+			return d.toEpochMilli();
+		} else if ( propValue instanceof ZonedDateTime d ) {
+			return d.toInstant().toEpochMilli();
+		} else if ( propValue instanceof OffsetDateTime d ) {
+			return d.toInstant().toEpochMilli();
+		}
+		return propValue;
 	}
 
 	/**
@@ -325,28 +381,42 @@ public final class ClassUtils {
 		if ( ignore == null ) {
 			ignore = DEFAULT_BEAN_PROP_NAME_IGNORE;
 		}
-		Map<String, Object> result = new LinkedHashMap<String, Object>();
-		BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(o);
-		PropertyDescriptor[] props = bean.getPropertyDescriptors();
-		for ( PropertyDescriptor prop : props ) {
-			if ( prop.getReadMethod() == null ) {
-				continue;
-			}
-			String propName = prop.getName();
-			if ( ignore != null && ignore.contains(propName) ) {
-				continue;
-			}
-			Object propValue = bean.getPropertyValue(propName);
-			if ( propValue == null ) {
-				continue;
-			}
-			if ( serializeIgnore ) {
-				Method getter = prop.getReadMethod();
-				if ( getter != null && getter.isAnnotationPresent(SerializeIgnore.class) ) {
+		final Map<String, Object> result = new LinkedHashMap<>();
+		if ( o instanceof Map<?, ?> m ) {
+			o = m;
+			for ( Entry<?, ?> e : m.entrySet() ) {
+				if ( e.getKey() == null || e.getValue() == null ) {
 					continue;
 				}
+				final String propName = e.getKey().toString();
+				if ( ignore != null && ignore.contains(propName) ) {
+					continue;
+				}
+				result.put(propName, e.getValue());
 			}
-			result.put(propName, propValue);
+		} else {
+			BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(o);
+			PropertyDescriptor[] props = bean.getPropertyDescriptors();
+			for ( PropertyDescriptor prop : props ) {
+				if ( prop.getReadMethod() == null ) {
+					continue;
+				}
+				String propName = prop.getName();
+				if ( ignore != null && ignore.contains(propName) ) {
+					continue;
+				}
+				Object propValue = bean.getPropertyValue(propName);
+				if ( propValue == null ) {
+					continue;
+				}
+				if ( serializeIgnore ) {
+					Method getter = prop.getReadMethod();
+					if ( getter != null && getter.isAnnotationPresent(SerializeIgnore.class) ) {
+						continue;
+					}
+				}
+				result.put(propName, propValue);
+			}
 		}
 		return result;
 	}
