@@ -23,6 +23,7 @@
 package net.solarnetwork.codec.jackson;
 
 import java.math.BigDecimal;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
@@ -55,7 +56,7 @@ public class BigDecimalStringSerializer extends StdScalarSerializer<BigDecimal> 
 	}
 
 	@Override
-	public boolean isEmpty(SerializationContext prov, BigDecimal value) {
+	public boolean isEmpty(SerializationContext prov, @Nullable BigDecimal value) {
 		if ( value == null ) {
 			return true;
 		}

@@ -24,6 +24,7 @@ package net.solarnetwork.codec.jackson;
 
 import java.util.Map;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -92,7 +93,8 @@ public enum BasicObjectDatumStreamMetadataField implements IndexedField {
 	}
 
 	@Override
-	public Object parseValue(JsonParser parser, DeserializationContext ctxt) throws JacksonException {
+	public @Nullable Object parseValue(JsonParser parser, DeserializationContext ctxt)
+			throws JacksonException {
 		switch (this) {
 			case StreamId:
 				return UUID.fromString(parser.nextStringValue());
@@ -122,8 +124,8 @@ public enum BasicObjectDatumStreamMetadataField implements IndexedField {
 	}
 
 	@Override
-	public void writeValue(JsonGenerator generator, SerializationContext provider, Object value)
-			throws JacksonException {
+	public void writeValue(JsonGenerator generator, SerializationContext provider,
+			@Nullable Object value) throws JacksonException {
 		if ( value == null ) {
 			return;
 		}

@@ -24,6 +24,7 @@ package net.solarnetwork.codec.jackson;
 
 import java.time.Instant;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BasicInstructionStatus;
 import net.solarnetwork.domain.InstructionStatus;
 import tools.jackson.core.JacksonException;
@@ -55,7 +56,7 @@ public class BasicInstructionStatusDeserializer extends StdDeserializer<Instruct
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public InstructionStatus deserialize(JsonParser p, DeserializationContext ctxt)
+	public @Nullable InstructionStatus deserialize(JsonParser p, DeserializationContext ctxt)
 			throws JacksonException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {

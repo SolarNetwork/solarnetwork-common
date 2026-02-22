@@ -24,6 +24,7 @@ package net.solarnetwork.codec.jackson;
 
 import java.time.Instant;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BasicSecurityPolicy;
 import net.solarnetwork.domain.LocationPrecision;
 import net.solarnetwork.domain.SecurityPolicy;
@@ -57,7 +58,7 @@ public class BasicSecurityPolicyDeserializer extends StdDeserializer<SecurityPol
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public SecurityPolicy deserialize(JsonParser p, DeserializationContext ctxt)
+	public @Nullable SecurityPolicy deserialize(JsonParser p, DeserializationContext ctxt)
 			throws JacksonException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {

@@ -24,6 +24,7 @@ package net.solarnetwork.codec;
 
 import java.util.Collection;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.FactoryBean;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -51,8 +52,8 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 		implements FactoryBean<ObjectMapper> {
 
 	private JsonInclude.Include serializationInclusion = JsonInclude.Include.NON_NULL;
-	private List<Object> featuresToEnable = null;
-	private List<Object> featuresToDisable = null;
+	private @Nullable List<Object> featuresToEnable;
+	private @Nullable List<Object> featuresToDisable;
 
 	/**
 	 * Constructor.
@@ -105,7 +106,8 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 	}
 
 	@SuppressWarnings("deprecation")
-	private void setupFeatures(final ObjectMapper m, final Collection<?> features, final boolean state) {
+	private void setupFeatures(final ObjectMapper m, final @Nullable Collection<?> features,
+			final boolean state) {
 		if ( features == null ) {
 			return;
 		}
@@ -158,7 +160,7 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 	 * @return list of features to enable
 	 * @since 1.2
 	 */
-	public List<Object> getFeaturesToEnable() {
+	public @Nullable List<Object> getFeaturesToEnable() {
 		return featuresToEnable;
 	}
 
@@ -170,7 +172,7 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 	 *        the list of features to enable
 	 * @since 1.2
 	 */
-	public void setFeaturesToEnable(List<Object> featuresToEnable) {
+	public void setFeaturesToEnable(@Nullable List<Object> featuresToEnable) {
 		this.featuresToEnable = featuresToEnable;
 	}
 
@@ -181,7 +183,7 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 	 * @return the list of features to disable
 	 * @since 1.2
 	 */
-	public List<Object> getFeaturesToDisable() {
+	public @Nullable List<Object> getFeaturesToDisable() {
 		return featuresToDisable;
 	}
 
@@ -193,7 +195,7 @@ public class ObjectMapperFactoryBean extends ObjectMapperModuleSupport
 	 *        the list of features to disable
 	 * @since 1.2
 	 */
-	public void setFeaturesToDisable(List<Object> featuresToDisable) {
+	public void setFeaturesToDisable(@Nullable List<Object> featuresToDisable) {
 		this.featuresToDisable = featuresToDisable;
 	}
 

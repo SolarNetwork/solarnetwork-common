@@ -1,7 +1,7 @@
 /* ==================================================================
- * ObjectEncoder.java - 26/04/2021 11:53:30 AM
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2021 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,34 +20,5 @@
  * ==================================================================
  */
 
-package net.solarnetwork.codec;
-
-import java.io.IOException;
-import java.util.Map;
-import org.jspecify.annotations.Nullable;
-import net.solarnetwork.service.Identifiable;
-
-/**
- * API for a service that can encode objects into alternate representations.
- *
- * @author matt
- * @version 1.0
- * @since 1.69
- * @see ObjectDecoder
- */
-public interface ObjectEncoder extends Identifiable {
-
-	/**
-	 * Encode an object into a byte array.
-	 *
-	 * @param obj
-	 *        the object to encode
-	 * @param parameters
-	 *        optional parameters to pass to the encoder
-	 * @return the bytes, never {@literal null}
-	 * @throws IOException
-	 *         if an encoding problem occurs
-	 */
-	byte[] encodeAsBytes(Object obj, @Nullable Map<String, ?> parameters) throws IOException;
-
-}
+@org.jspecify.annotations.NullMarked
+package net.solarnetwork.codec.jackson;

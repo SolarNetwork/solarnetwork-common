@@ -1,23 +1,23 @@
 /* ===================================================================
  * PropertySerializerRegistrar.java
- * 
+ *
  * Created Sep 24, 2009 2:23:43 PM
- * 
+ *
  * Copyright (c) 2009 Solarnetwork.net Dev Team.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ===================================================================
  */
@@ -25,20 +25,21 @@
 package net.solarnetwork.codec;
 
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A registrar of {@link PropertySerializer} implementations mapped to specific
  * object types or property names.
- * 
+ *
  * <p>
  * The configurable properties of this class are:
  * </p>
- * 
+ *
  * <dl class="class-properties">
  * <dt>propertySerializers</dt>
  * <dd>A property name mapping to {@link PropertySerializer} implementations for
  * serializing those properties with.</dd>
- * 
+ *
  * <dt>classSerializers</dt>
  * <dd>A property type mapping to {@link PropertySerializer} implementations for
  * serializing those properties with.</dd>
@@ -49,8 +50,8 @@ import java.util.Map;
  */
 public class PropertySerializerRegistrar {
 
-	private Map<String, PropertySerializer> propertySerializers = null;
-	private Map<String, PropertySerializer> classSerializers = null;
+	private @Nullable Map<String, PropertySerializer> propertySerializers;
+	private @Nullable Map<String, PropertySerializer> classSerializers;
 
 	/**
 	 * Constructor.
@@ -62,7 +63,7 @@ public class PropertySerializerRegistrar {
 	/**
 	 * Return a configured {@link PropertySerializer} for either a specific
 	 * property name or property type.
-	 * 
+	 *
 	 * <p>
 	 * The {@code propertySerializers} mappings are consulted first (using the
 	 * passed in {@code propertyName} value), and if no match is found there the
@@ -70,14 +71,15 @@ public class PropertySerializerRegistrar {
 	 * {@code propertyType} value). If no match is found, {@literal null} is
 	 * returned.
 	 * </p>
-	 * 
+	 *
 	 * @param propertyName
 	 *        the name of the property to serialize
 	 * @param propertyType
 	 *        the type of property to serialize
 	 * @return configured PropertySerializer, or {@literal null} if none found
 	 */
-	public PropertySerializer serializerFor(String propertyName, Class<?> propertyType) {
+	public @Nullable PropertySerializer serializerFor(@Nullable String propertyName,
+			@Nullable Class<?> propertyType) {
 		if ( propertyName != null && propertySerializers != null
 				&& propertySerializers.containsKey(propertyName) ) {
 			return propertySerializers.get(propertyName);
@@ -93,7 +95,7 @@ public class PropertySerializerRegistrar {
 	 * Attempt to serialize a property using a configured
 	 * {@link PropertySerializer}, returning {@code propertyValue} if no
 	 * matching serializer configured.
-	 * 
+	 *
 	 * <p>
 	 * This method calls {@link #serializerFor(String, Class)}, and if that
 	 * returns a {@link PropertySerializer} the {@code bean},
@@ -101,12 +103,12 @@ public class PropertySerializerRegistrar {
 	 * {@link PropertySerializer#serialize(Object, String, Object)} and the
 	 * result of that returned from this method.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * If no matching serializer is found, {@code propertyValue} is returned
 	 * unchanged.
 	 * </p>
-	 * 
+	 *
 	 * @param propertyName
 	 *        the name of the property being serialized
 	 * @param propertyType
@@ -117,8 +119,8 @@ public class PropertySerializerRegistrar {
 	 *        the value of the property to serialize
 	 * @return serialized value
 	 */
-	public Object serializeProperty(String propertyName, Class<?> propertyType, Object bean,
-			Object propertyValue) {
+	public @Nullable Object serializeProperty(@Nullable String propertyName,
+			@Nullable Class<?> propertyType, @Nullable Object bean, @Nullable Object propertyValue) {
 		PropertySerializer ser = serializerFor(propertyName, propertyType);
 		if ( ser == null ) {
 			return propertyValue;
@@ -128,39 +130,39 @@ public class PropertySerializerRegistrar {
 
 	/**
 	 * Get the property serializers.
-	 * 
+	 *
 	 * @return the property serializers
 	 */
-	public Map<String, PropertySerializer> getPropertySerializers() {
+	public @Nullable Map<String, PropertySerializer> getPropertySerializers() {
 		return propertySerializers;
 	}
 
 	/**
 	 * Set the property serializers.
-	 * 
+	 *
 	 * @param propertySerializers
 	 *        the property serializers to set
 	 */
-	public void setPropertySerializers(Map<String, PropertySerializer> propertySerializers) {
+	public void setPropertySerializers(@Nullable Map<String, PropertySerializer> propertySerializers) {
 		this.propertySerializers = propertySerializers;
 	}
 
 	/**
 	 * Get the class serializers.
-	 * 
+	 *
 	 * @return the class serializers
 	 */
-	public Map<String, PropertySerializer> getClassSerializers() {
+	public @Nullable Map<String, PropertySerializer> getClassSerializers() {
 		return classSerializers;
 	}
 
 	/**
 	 * Set the class serializers.
-	 * 
+	 *
 	 * @param classSerializers
 	 *        the class serializers to set
 	 */
-	public void setClassSerializers(Map<String, PropertySerializer> classSerializers) {
+	public void setClassSerializers(@Nullable Map<String, PropertySerializer> classSerializers) {
 		this.classSerializers = classSerializers;
 	}
 

@@ -22,6 +22,7 @@
 
 package net.solarnetwork.codec.jackson;
 
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.InstructionStatus;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -73,8 +74,8 @@ public class BasicInstructionStatusSerializer extends StdSerializer<InstructionS
 	}
 
 	@Override
-	public void serialize(InstructionStatus value, JsonGenerator gen, SerializationContext provider)
-			throws JacksonException {
+	public void serialize(@Nullable InstructionStatus value, JsonGenerator gen,
+			SerializationContext provider) throws JacksonException {
 		if ( value == null ) {
 			if ( !embedded ) {
 				gen.writeNull();

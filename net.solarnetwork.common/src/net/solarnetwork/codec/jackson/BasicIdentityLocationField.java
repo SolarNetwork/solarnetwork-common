@@ -24,6 +24,7 @@ package net.solarnetwork.codec.jackson;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BasicLocation;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -101,7 +102,8 @@ public enum BasicIdentityLocationField implements IndexedField {
 	}
 
 	@Override
-	public Object parseValue(JsonParser parser, DeserializationContext ctxt) throws JacksonException {
+	public @Nullable Object parseValue(JsonParser parser, DeserializationContext ctxt)
+			throws JacksonException {
 		switch (this) {
 			case Id:
 				return JsonUtils.parseLong(parser);
@@ -127,8 +129,8 @@ public enum BasicIdentityLocationField implements IndexedField {
 	}
 
 	@Override
-	public void writeValue(JsonGenerator generator, SerializationContext provider, Object value)
-			throws JacksonException {
+	public void writeValue(JsonGenerator generator, SerializationContext provider,
+			@Nullable Object value) throws JacksonException {
 		if ( value == null ) {
 			return;
 		}

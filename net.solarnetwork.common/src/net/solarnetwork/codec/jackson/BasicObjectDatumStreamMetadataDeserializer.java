@@ -23,6 +23,7 @@
 package net.solarnetwork.codec.jackson;
 
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.Location;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.ObjectDatumKind;
@@ -61,7 +62,7 @@ public class BasicObjectDatumStreamMetadataDeserializer
 	}
 
 	@Override
-	public ObjectDatumStreamMetadata deserialize(JsonParser p, DeserializationContext ctxt)
+	public @Nullable ObjectDatumStreamMetadata deserialize(JsonParser p, DeserializationContext ctxt)
 			throws JacksonException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {

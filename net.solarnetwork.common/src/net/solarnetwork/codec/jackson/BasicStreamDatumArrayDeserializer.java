@@ -26,6 +26,7 @@ import static java.time.Instant.ofEpochMilli;
 import static net.solarnetwork.domain.datum.DatumProperties.propertiesOf;
 import java.math.BigDecimal;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.datum.BasicStreamDatum;
 import net.solarnetwork.domain.datum.StreamDatum;
 import tools.jackson.core.JacksonException;
@@ -56,7 +57,8 @@ public class BasicStreamDatumArrayDeserializer extends StdDeserializer<StreamDat
 	}
 
 	@Override
-	public StreamDatum deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+	public @Nullable StreamDatum deserialize(JsonParser p, DeserializationContext ctxt)
+			throws JacksonException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {
 			return null;

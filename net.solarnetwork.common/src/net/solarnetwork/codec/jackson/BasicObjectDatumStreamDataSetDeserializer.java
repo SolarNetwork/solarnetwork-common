@@ -33,6 +33,7 @@ import static net.solarnetwork.domain.datum.DatumPropertiesStatistics.statistics
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.datum.AggregateStreamDatum;
 import net.solarnetwork.domain.datum.BasicAggregateStreamDatum;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamDataSet;
@@ -74,9 +75,10 @@ public class BasicObjectDatumStreamDataSetDeserializer
 		super(ObjectDatumStreamDataSet.class);
 	}
 
+	@SuppressWarnings({ "null", "NullAway" })
 	@Override
-	public ObjectDatumStreamDataSet<StreamDatum> deserialize(JsonParser p, DeserializationContext ctxt)
-			throws JacksonException {
+	public @Nullable ObjectDatumStreamDataSet<StreamDatum> deserialize(JsonParser p,
+			DeserializationContext ctxt) throws JacksonException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {
 			return null;

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.Serial;
 import java.time.Instant;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -60,7 +61,7 @@ public class BasicSecurityPolicyDeserializer extends StdDeserializer<SecurityPol
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public SecurityPolicy deserialize(JsonParser p, DeserializationContext ctxt)
+	public @Nullable SecurityPolicy deserialize(JsonParser p, DeserializationContext ctxt)
 			throws IOException, JacksonException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {

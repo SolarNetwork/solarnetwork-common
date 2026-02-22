@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -59,7 +60,7 @@ public class BasicIdentityLocationDeserializer extends StdScalarDeserializer<Bas
 	}
 
 	@Override
-	public BasicIdentityLocation deserialize(JsonParser p, DeserializationContext ctxt)
+	public @Nullable BasicIdentityLocation deserialize(JsonParser p, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -40,7 +41,7 @@ import net.solarnetwork.domain.datum.ObjectDatumKind;
  * Serializer for {@link Datum} instances.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 2.0
  */
 public class BasicGeneralDatumSerializer extends StdScalarSerializer<Datum> {
@@ -58,8 +59,12 @@ public class BasicGeneralDatumSerializer extends StdScalarSerializer<Datum> {
 	}
 
 	@Override
-	public void serialize(Datum value, JsonGenerator gen, SerializerProvider provider)
+	public void serialize(@Nullable Datum value, JsonGenerator gen, SerializerProvider provider)
 			throws IOException {
+		if ( value == null ) {
+			gen.writeNull();
+			return;
+		}
 		gen.writeStartObject(7);
 		if ( value.getTimestamp() != null ) {
 			gen.writeStringField("created",

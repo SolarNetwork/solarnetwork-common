@@ -23,6 +23,7 @@
 package net.solarnetwork.codec.jackson;
 
 import java.math.BigDecimal;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BasicIdentityLocation;
 import net.solarnetwork.domain.BasicLocation;
 import tools.jackson.core.JacksonException;
@@ -53,7 +54,7 @@ public class BasicIdentityLocationDeserializer extends StdDeserializer<BasicIden
 	}
 
 	@Override
-	public BasicIdentityLocation deserialize(JsonParser p, DeserializationContext ctxt)
+	public @Nullable BasicIdentityLocation deserialize(JsonParser p, DeserializationContext ctxt)
 			throws JacksonException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {

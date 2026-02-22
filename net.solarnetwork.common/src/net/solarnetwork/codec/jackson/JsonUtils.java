@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -174,7 +175,7 @@ public final class JsonUtils {
 	 *         if any error occurs
 	 */
 	public static final <M extends ObjectMapper, B extends MapperBuilder<M, B>> void setupMapperBuilder(
-			MapperBuilder<M, B> builder, JacksonModule... modules) throws JacksonException {
+			MapperBuilder<M, B> builder, JacksonModule @Nullable... modules) throws JacksonException {
 		// @formatter:off
 		builder.changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
 				.changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_NULL))
@@ -222,7 +223,7 @@ public final class JsonUtils {
 	 * @see #getJSONString(Object, String)
 	 * @since 2.3
 	 */
-	public static String getJSONString(final Object o) {
+	public static @Nullable String getJSONString(final @Nullable Object o) {
 		return getJSONString(o, null);
 	}
 
@@ -242,7 +243,8 @@ public final class JsonUtils {
 	 *        error occurs serializing the object to JSON
 	 * @return the JSON string
 	 */
-	public static String getJSONString(final Object o, final String defaultValue) {
+	public static @Nullable String getJSONString(final @Nullable Object o,
+			final @Nullable String defaultValue) {
 		String result = defaultValue;
 		if ( o != null ) {
 			try {
@@ -272,7 +274,7 @@ public final class JsonUtils {
 	 *        the type of Object to map the JSON into
 	 * @return the object
 	 */
-	public static <T> T getObjectFromJSON(final String json, Class<T> clazz) {
+	public static <T> @Nullable T getObjectFromJSON(final @Nullable String json, Class<T> clazz) {
 		T result = null;
 		if ( json != null ) {
 			try {
@@ -299,7 +301,7 @@ public final class JsonUtils {
 	 * @return the map, or {@literal null} if {@code json} is {@literal null} or
 	 *         empty, or any exception occurs generating the JSON
 	 */
-	public static Map<String, Object> getStringMap(final String json) {
+	public static @Nullable Map<String, Object> getStringMap(final @Nullable String json) {
 		if ( json == null || json.length() < 1 ) {
 			return null;
 		}
@@ -326,7 +328,7 @@ public final class JsonUtils {
 	 * @return the map, or {@literal null} if {@code node} is not a JSON object,
 	 *         is {@literal null}, or any exception occurs generating the JSON
 	 */
-	public static Map<String, Object> getStringMapFromTree(final JsonNode node) {
+	public static @Nullable Map<String, Object> getStringMapFromTree(final @Nullable JsonNode node) {
 		if ( node == null || !node.isObject() ) {
 			return null;
 		}
@@ -346,7 +348,7 @@ public final class JsonUtils {
 	 * @return the JSON tree, or {@literal null} if {@code o} is
 	 *         {@literal null}, or any exception occurs generating the JSON
 	 */
-	public static JsonNode getTreeFromObject(final Object o) {
+	public static @Nullable JsonNode getTreeFromObject(final @Nullable Object o) {
 		if ( o == null ) {
 			return null;
 		}
@@ -366,7 +368,7 @@ public final class JsonUtils {
 	 * @return the map, or {@literal null} if {@code node} is not a JSON object,
 	 *         is {@literal null}, or any exception occurs generating the JSON
 	 */
-	public static Map<String, Object> getStringMapFromObject(final Object o) {
+	public static @Nullable Map<String, Object> getStringMapFromObject(final @Nullable Object o) {
 		return getStringMapFromTree(getTreeFromObject(o));
 	}
 
@@ -380,7 +382,7 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static void writeMetadata(JsonGenerator generator, GeneralDatumMetadata meta)
+	public static void writeMetadata(JsonGenerator generator, @Nullable GeneralDatumMetadata meta)
 			throws JacksonException {
 		if ( meta == null ) {
 			return;
@@ -415,7 +417,7 @@ public final class JsonUtils {
 	 * @return the parsed {@link BigDecimal}, or {@literal null} if an error
 	 *         occurs or the specified attribute {@code key} is not available
 	 */
-	public static BigDecimal parseBigDecimalAttribute(JsonNode node, String key) {
+	public static @Nullable BigDecimal parseBigDecimalAttribute(@Nullable JsonNode node, String key) {
 		BigDecimal num = null;
 		if ( node != null ) {
 			JsonNode attrNode = node.get(key);
@@ -455,8 +457,8 @@ public final class JsonUtils {
 	 * @return the parsed date instance, or {@literal null} if an error occurs
 	 *         or the specified attribute {@code key} is not available
 	 */
-	public static <T> T parseDateAttribute(TreeNode node, String key, DateTimeFormatter dateFormat,
-			TemporalQuery<T> query) {
+	public static <T> @Nullable T parseDateAttribute(@Nullable TreeNode node, String key,
+			DateTimeFormatter dateFormat, TemporalQuery<T> query) {
 		T result = null;
 		if ( node != null ) {
 			TreeNode attrNode = node.get(key);
@@ -492,7 +494,7 @@ public final class JsonUtils {
 	 * @return the parsed {@link Integer}, or {@literal null} if an error occurs
 	 *         or the specified attribute {@code key} is not available
 	 */
-	public static Integer parseIntegerAttribute(JsonNode node, String key) {
+	public static @Nullable Integer parseIntegerAttribute(@Nullable JsonNode node, String key) {
 		Integer num = null;
 		if ( node != null ) {
 			JsonNode attrNode = node.get(key);
@@ -528,7 +530,7 @@ public final class JsonUtils {
 	 * @return the parsed {@link Long}, or {@literal null} if an error occurs or
 	 *         the specified attribute {@code key} is not available
 	 */
-	public static Long parseLongAttribute(JsonNode node, String key) {
+	public static @Nullable Long parseLongAttribute(@Nullable JsonNode node, String key) {
 		Long num = null;
 		if ( node != null ) {
 			JsonNode attrNode = node.get(key);
@@ -560,7 +562,7 @@ public final class JsonUtils {
 	 * @return the parsed {@link String}, or {@literal null} if an error occurs
 	 *         or the specified attribute {@code key} is not available
 	 */
-	public static String parseStringAttribute(JsonNode node, String key) {
+	public static @Nullable String parseStringAttribute(@Nullable JsonNode node, String key) {
 		String s = null;
 		if ( node != null ) {
 			JsonNode attrNode = node.get(key);
@@ -583,7 +585,7 @@ public final class JsonUtils {
 	 * @return the parsed {@link String}, or {@literal null} if an error occurs
 	 *         or the specified attribute {@code key} is not available
 	 */
-	public static String parseNonEmptyStringAttribute(JsonNode node, String key) {
+	public static @Nullable String parseNonEmptyStringAttribute(@Nullable JsonNode node, String key) {
 		return StringUtils.nonEmptyString(parseStringAttribute(node, key));
 	}
 
@@ -596,7 +598,7 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static String[] parseStringArray(JsonParser p) throws JacksonException {
+	public static String @Nullable [] parseStringArray(JsonParser p) throws JacksonException {
 		JsonToken t = p.nextToken();
 		if ( p.isExpectedStartArrayToken() ) {
 			List<String> l = new ArrayList<>(8);
@@ -625,7 +627,7 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static Long[] parseLongArray(JsonParser p) throws JacksonException {
+	public static Long @Nullable [] parseLongArray(JsonParser p) throws JacksonException {
 		JsonToken t = p.nextToken();
 		if ( p.isExpectedStartArrayToken() ) {
 			List<Long> l = new ArrayList<>(8);
@@ -655,7 +657,7 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static void writeStringArray(JsonGenerator generator, String[] array)
+	public static void writeStringArray(JsonGenerator generator, String @Nullable [] array)
 			throws JacksonException {
 		if ( array != null && array.length > 0 ) {
 			generator.writeStartArray(array, array.length);
@@ -685,8 +687,8 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static void writeStringArrayField(JsonGenerator generator, String fieldName, String[] array)
-			throws JacksonException {
+	public static void writeStringArrayField(JsonGenerator generator, String fieldName,
+			String @Nullable [] array) throws JacksonException {
 		if ( array != null && array.length > 0 ) {
 			generator.writeName(fieldName);
 			writeStringArray(generator, array);
@@ -712,8 +714,9 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static void writeStringArrayValues(final JsonGenerator generator, final String[] array,
-			final int count) throws JacksonException {
+	@SuppressWarnings({ "null", "NullAway" })
+	public static void writeStringArrayValues(final JsonGenerator generator,
+			final String @Nullable [] array, final int count) throws JacksonException {
 		int i;
 		final int arrayLen = (array != null ? array.length : 0);
 		for ( i = 0; i < count && i < arrayLen; i++ ) {
@@ -738,7 +741,7 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static void writeDecimalArray(JsonGenerator generator, BigDecimal[] array)
+	public static void writeDecimalArray(JsonGenerator generator, BigDecimal @Nullable [] array)
 			throws JacksonException {
 		if ( array != null && array.length > 0 ) {
 			generator.writeStartArray(array, array.length);
@@ -775,8 +778,9 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static void writeDecimalArrayValues(final JsonGenerator generator, final BigDecimal[] array,
-			final int count) throws JacksonException {
+	@SuppressWarnings({ "null", "NullAway" })
+	public static void writeDecimalArrayValues(final JsonGenerator generator,
+			final BigDecimal @Nullable [] array, final int count) throws JacksonException {
 		int i;
 		final int arrayLen = (array != null ? array.length : 0);
 		for ( i = 0; i < count && i < arrayLen; i++ ) {
@@ -808,7 +812,7 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static void writeNumberField(JsonGenerator gen, String fieldName, Number value)
+	public static void writeNumberField(JsonGenerator gen, String fieldName, @Nullable Number value)
 			throws JacksonException {
 		if ( value == null ) {
 			return;
@@ -850,8 +854,8 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static void writeIso8601Timestamp(JsonGenerator gen, String fieldName, Instant value)
-			throws JacksonException {
+	public static void writeIso8601Timestamp(JsonGenerator gen, String fieldName,
+			@Nullable Instant value) throws JacksonException {
 		if ( value == null ) {
 			return;
 		}
@@ -876,7 +880,7 @@ public final class JsonUtils {
 	 *         if any IO error occurs
 	 */
 	public static void writeBitmaskValue(JsonGenerator gen, String fieldName,
-			Set<? extends Bitmaskable> value) throws JacksonException {
+			@Nullable Set<? extends Bitmaskable> value) throws JacksonException {
 		int v = Bitmaskable.bitmaskValue(value);
 		if ( v > 0 ) {
 			gen.writeNumberProperty(fieldName, v);
@@ -892,7 +896,7 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static BigDecimal parseDecimal(JsonParser p) throws JacksonException {
+	public static @Nullable BigDecimal parseDecimal(JsonParser p) throws JacksonException {
 		JsonToken t = p.nextToken();
 		if ( t != null ) {
 			if ( t.isNumeric() ) {
@@ -922,7 +926,7 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static Long parseLong(JsonParser p) throws JacksonException {
+	public static @Nullable Long parseLong(JsonParser p) throws JacksonException {
 		JsonToken t = p.nextToken();
 		if ( t != null ) {
 			if ( t.isNumeric() ) {
@@ -952,7 +956,7 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static BigDecimal[] parseDecimalArray(JsonParser p) throws JacksonException {
+	public static BigDecimal @Nullable [] parseDecimalArray(JsonParser p) throws JacksonException {
 		JsonToken t = p.nextToken();
 		if ( p.isExpectedStartArrayToken() ) {
 			List<BigDecimal> l = new ArrayList<>(8);
@@ -981,7 +985,7 @@ public final class JsonUtils {
 	 * @throws JacksonException
 	 *         if any IO error occurs
 	 */
-	public static Map<String, ?> parseSimpleMap(JsonParser p) throws JacksonException {
+	public static @Nullable Map<String, ?> parseSimpleMap(JsonParser p) throws JacksonException {
 		JsonToken t = p.nextToken();
 		Map<String, Object> result = null;
 		if ( p.isExpectedStartObjectToken() ) {

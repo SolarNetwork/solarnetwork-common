@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BasicInstruction;
 import net.solarnetwork.domain.BasicInstructionStatus;
 import net.solarnetwork.domain.Instruction;
@@ -59,7 +60,7 @@ public class BasicInstructionDeserializer extends StdDeserializer<Instruction> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public BasicInstruction deserialize(JsonParser p, DeserializationContext ctxt)
+	public @Nullable BasicInstruction deserialize(JsonParser p, DeserializationContext ctxt)
 			throws JacksonException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {

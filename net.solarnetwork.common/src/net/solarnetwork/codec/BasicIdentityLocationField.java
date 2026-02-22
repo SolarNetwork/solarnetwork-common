@@ -25,6 +25,7 @@ package net.solarnetwork.codec;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -102,7 +103,7 @@ public enum BasicIdentityLocationField implements IndexedField {
 	}
 
 	@Override
-	public Object parseValue(JsonParser parser, DeserializationContext ctxt)
+	public @Nullable Object parseValue(JsonParser parser, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
 		switch (this) {
 			case Id:
@@ -129,7 +130,7 @@ public enum BasicIdentityLocationField implements IndexedField {
 	}
 
 	@Override
-	public void writeValue(JsonGenerator generator, SerializerProvider provider, Object value)
+	public void writeValue(JsonGenerator generator, SerializerProvider provider, @Nullable Object value)
 			throws IOException, JsonProcessingException {
 		if ( value == null ) {
 			return;

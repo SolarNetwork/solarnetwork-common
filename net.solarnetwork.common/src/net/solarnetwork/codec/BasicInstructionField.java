@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicInstructionField.java - 11/08/2021 3:22:37 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,7 +43,7 @@ import net.solarnetwork.domain.InstructionStatus;
 
 /**
  * Fields for {@link BasicInstruction} de/serialization.
- * 
+ *
  * @author matt
  * @version 1.1
  * @since 2.0
@@ -92,7 +93,7 @@ public enum BasicInstructionField implements IndexedField {
 	}
 
 	@Override
-	public Object parseValue(JsonParser parser, DeserializationContext ctxt)
+	public @Nullable Object parseValue(JsonParser parser, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
 		switch (this) {
 			case Id:
@@ -121,7 +122,7 @@ public enum BasicInstructionField implements IndexedField {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void writeValue(JsonGenerator generator, SerializerProvider provider, Object value)
+	public void writeValue(JsonGenerator generator, SerializerProvider provider, @Nullable Object value)
 			throws IOException, JsonProcessingException {
 		if ( value == null ) {
 			return;
@@ -155,8 +156,8 @@ public enum BasicInstructionField implements IndexedField {
 		}
 	}
 
-	private static Map<String, List<String>> parseParameters(JsonParser p, DeserializationContext ctxt)
-			throws IOException {
+	private static @Nullable Map<String, List<String>> parseParameters(JsonParser p,
+			DeserializationContext ctxt) throws IOException {
 		JsonToken t = p.nextToken();
 		switch (t) {
 			case START_ARRAY:

@@ -24,6 +24,7 @@ package net.solarnetwork.codec.jackson;
 
 import java.time.Instant;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.codec.jackson.JsonDateUtils.InstantDeserializer;
 import net.solarnetwork.codec.jackson.JsonDateUtils.InstantSerializer;
 import net.solarnetwork.domain.BasicInstructionStatus;
@@ -83,7 +84,8 @@ public enum BasicInstructionStatusField implements IndexedField {
 	}
 
 	@Override
-	public Object parseValue(JsonParser parser, DeserializationContext ctxt) throws JacksonException {
+	public @Nullable Object parseValue(JsonParser parser, DeserializationContext ctxt)
+			throws JacksonException {
 		switch (this) {
 			case Id:
 			case InstructionId:
@@ -111,8 +113,8 @@ public enum BasicInstructionStatusField implements IndexedField {
 	}
 
 	@Override
-	public void writeValue(JsonGenerator generator, SerializationContext provider, Object value)
-			throws JacksonException {
+	public void writeValue(JsonGenerator generator, SerializationContext provider,
+			@Nullable Object value) throws JacksonException {
 		if ( value == null ) {
 			return;
 		}

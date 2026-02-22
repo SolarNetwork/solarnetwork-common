@@ -22,6 +22,7 @@
 
 package net.solarnetwork.codec.jackson;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.solarnetwork.codec.PropertySerializer;
@@ -38,7 +39,7 @@ public class JsonStringPropertySerializer implements PropertySerializer {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private ObjectMapper objectMapper;
+	private @Nullable ObjectMapper objectMapper;
 
 	/**
 	 * Constructor.
@@ -48,11 +49,14 @@ public class JsonStringPropertySerializer implements PropertySerializer {
 	}
 
 	@Override
-	public Object serialize(Object data, String propertyName, Object propertyValue) {
-		try {
-			return objectMapper.writeValueAsString(propertyValue);
-		} catch ( Exception e ) {
-			log.error("Exception marshalling {} to JSON", propertyValue, e);
+	public @Nullable Object serialize(@Nullable Object data, @Nullable String propertyName,
+			@Nullable Object propertyValue) {
+		if ( objectMapper != null ) {
+			try {
+				return objectMapper.writeValueAsString(propertyValue);
+			} catch ( Exception e ) {
+				log.error("Exception marshalling {} to JSON", propertyValue, e);
+			}
 		}
 		return null;
 	}
@@ -62,7 +66,7 @@ public class JsonStringPropertySerializer implements PropertySerializer {
 	 *
 	 * @return the mapper
 	 */
-	public ObjectMapper getObjectMapper() {
+	public @Nullable ObjectMapper getObjectMapper() {
 		return objectMapper;
 	}
 
@@ -72,7 +76,7 @@ public class JsonStringPropertySerializer implements PropertySerializer {
 	 * @param objectMapper
 	 *        the mapper to set
 	 */
-	public void setObjectMapper(ObjectMapper objectMapper) {
+	public void setObjectMapper(@Nullable ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
 	}
 

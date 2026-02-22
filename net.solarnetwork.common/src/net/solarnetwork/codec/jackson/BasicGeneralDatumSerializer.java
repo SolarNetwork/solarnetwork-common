@@ -26,6 +26,7 @@ import static net.solarnetwork.util.DateUtils.ISO_DATE_TIME_ALT_UTC;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.datum.Datum;
 import net.solarnetwork.domain.datum.DatumSamplesOperations;
 import net.solarnetwork.domain.datum.DatumSamplesType;
@@ -56,8 +57,12 @@ public class BasicGeneralDatumSerializer extends StdSerializer<Datum> {
 	}
 
 	@Override
-	public void serialize(Datum value, JsonGenerator gen, SerializationContext provider)
+	public void serialize(@Nullable Datum value, JsonGenerator gen, SerializationContext provider)
 			throws JacksonException {
+		if ( value == null ) {
+			gen.writeNull();
+			return;
+		}
 		gen.writeStartObject(7);
 		if ( value.getTimestamp() != null ) {
 			gen.writeStringProperty("created",

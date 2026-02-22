@@ -22,6 +22,7 @@
 
 package net.solarnetwork.codec.jackson;
 
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.SecurityPolicy;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -48,8 +49,8 @@ public class SecurityPolicySerializer extends StdSerializer<SecurityPolicy> {
 	}
 
 	@Override
-	public void serialize(SecurityPolicy policy, JsonGenerator generator, SerializationContext provider)
-			throws JacksonException {
+	public void serialize(@Nullable SecurityPolicy policy, JsonGenerator generator,
+			SerializationContext provider) throws JacksonException {
 		if ( policy == null ) {
 			generator.writeNull();
 			return;

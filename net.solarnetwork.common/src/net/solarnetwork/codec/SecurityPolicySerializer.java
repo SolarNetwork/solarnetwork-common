@@ -24,6 +24,7 @@ package net.solarnetwork.codec;
 
 import java.io.IOException;
 import java.io.Serial;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -51,8 +52,8 @@ public class SecurityPolicySerializer extends StdSerializer<SecurityPolicy> {
 	}
 
 	@Override
-	public void serialize(SecurityPolicy policy, JsonGenerator generator, SerializerProvider provider)
-			throws IOException {
+	public void serialize(@Nullable SecurityPolicy policy, JsonGenerator generator,
+			SerializerProvider provider) throws IOException {
 		if ( policy == null ) {
 			generator.writeNull();
 			return;

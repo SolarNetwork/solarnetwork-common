@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BasicSecurityPolicy;
 import net.solarnetwork.domain.LocationPrecision;
 import net.solarnetwork.domain.datum.Aggregation;
@@ -103,7 +104,8 @@ public enum BasicSecurityPolicyField implements IndexedField {
 	}
 
 	@Override
-	public Object parseValue(JsonParser parser, DeserializationContext ctxt) throws JacksonException {
+	public @Nullable Object parseValue(JsonParser parser, DeserializationContext ctxt)
+			throws JacksonException {
 		switch (this) {
 			case NodeIds: {
 				Long[] array = JsonUtils.parseLongArray(parser);
@@ -189,8 +191,8 @@ public enum BasicSecurityPolicyField implements IndexedField {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void writeValue(JsonGenerator generator, SerializationContext provider, Object value)
-			throws JacksonException {
+	public void writeValue(JsonGenerator generator, SerializationContext provider,
+			@Nullable Object value) throws JacksonException {
 		if ( value == null ) {
 			return;
 		}

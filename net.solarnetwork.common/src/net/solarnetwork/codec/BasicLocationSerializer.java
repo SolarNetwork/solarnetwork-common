@@ -24,6 +24,7 @@ package net.solarnetwork.codec;
 
 import java.io.IOException;
 import java.io.Serializable;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -52,7 +53,7 @@ public class BasicLocationSerializer extends StdScalarSerializer<Location> imple
 	}
 
 	@Override
-	public void serialize(Location value, JsonGenerator generator, SerializerProvider provider)
+	public void serialize(@Nullable Location value, JsonGenerator generator, SerializerProvider provider)
 			throws IOException {
 		if ( value == null ) {
 			generator.writeNull();

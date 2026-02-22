@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.codec.jackson.JsonDateUtils.InstantDeserializer;
 import net.solarnetwork.codec.jackson.JsonDateUtils.InstantSerializer;
 import net.solarnetwork.domain.BasicInstruction;
@@ -91,7 +92,8 @@ public enum BasicInstructionField implements IndexedField {
 	}
 
 	@Override
-	public Object parseValue(JsonParser parser, DeserializationContext ctxt) throws JacksonException {
+	public @Nullable Object parseValue(JsonParser parser, DeserializationContext ctxt)
+			throws JacksonException {
 		switch (this) {
 			case Id:
 				parser.nextToken();
@@ -119,8 +121,8 @@ public enum BasicInstructionField implements IndexedField {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void writeValue(JsonGenerator generator, SerializationContext provider, Object value)
-			throws JacksonException {
+	public void writeValue(JsonGenerator generator, SerializationContext provider,
+			@Nullable Object value) throws JacksonException {
 		if ( value == null ) {
 			return;
 		}
@@ -153,8 +155,8 @@ public enum BasicInstructionField implements IndexedField {
 		}
 	}
 
-	private static Map<String, List<String>> parseParameters(JsonParser p, DeserializationContext ctxt)
-			throws JacksonException {
+	private static @Nullable Map<String, List<String>> parseParameters(JsonParser p,
+			DeserializationContext ctxt) throws JacksonException {
 		JsonToken t = p.nextToken();
 		switch (t) {
 			case START_ARRAY:

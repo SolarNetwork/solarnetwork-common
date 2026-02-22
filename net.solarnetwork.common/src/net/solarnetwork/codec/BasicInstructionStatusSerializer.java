@@ -24,6 +24,7 @@ package net.solarnetwork.codec;
 
 import java.io.IOException;
 import java.io.Serializable;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -77,8 +78,8 @@ public class BasicInstructionStatusSerializer extends StdScalarSerializer<Instru
 	}
 
 	@Override
-	public void serialize(InstructionStatus value, JsonGenerator gen, SerializerProvider provider)
-			throws IOException {
+	public void serialize(@Nullable InstructionStatus value, JsonGenerator gen,
+			SerializerProvider provider) throws IOException {
 		if ( value == null ) {
 			if ( !embedded ) {
 				gen.writeNull();

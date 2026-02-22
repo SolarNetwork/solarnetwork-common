@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -77,9 +78,10 @@ public class BasicObjectDatumStreamDataSetDeserializer
 		super(ObjectDatumStreamDataSet.class);
 	}
 
+	@SuppressWarnings({ "null", "NullAway" })
 	@Override
-	public ObjectDatumStreamDataSet<StreamDatum> deserialize(JsonParser p, DeserializationContext ctxt)
-			throws IOException, JsonProcessingException {
+	public @Nullable ObjectDatumStreamDataSet<StreamDatum> deserialize(JsonParser p,
+			DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {
 			return null;

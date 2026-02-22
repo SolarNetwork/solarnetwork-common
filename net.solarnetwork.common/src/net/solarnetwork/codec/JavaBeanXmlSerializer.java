@@ -1,21 +1,21 @@
 /* ==================================================================
  * JavaBeanXmlSerializer.java - Sep 6, 2011 9:00:16 PM
- * 
+ *
  * Copyright 2007-2011 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -34,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import javax.xml.stream.FactoryConfigurationError;
@@ -43,31 +45,32 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.solarnetwork.util.ClassUtils;
 
 /**
  * PropertySerializer that serializes JavaBean objects into XML strings.
- * 
+ *
  * <p>
  * This class can also be used in a stand-alone manner, calling the public
  * methods exposed for generating XML from JavaBean objects.
  * </p>
- * 
+ *
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class JavaBeanXmlSerializer implements PropertySerializer {
 
 	private static final ThreadLocal<SimpleDateFormat> SDF = new ThreadLocal<SimpleDateFormat>();
 
-	private final String rootElementName = "root";
-	private final boolean singleBeanAsRoot = true;
-	private final boolean useModelTimeZoneForDates = true;
-	private final String modelKey = null;
-	private final Set<String> classNamesAllowedForNesting = null;
-	private final PropertySerializerRegistrar propertySerializerRegistrar = null;
+	private String rootElementName = "root";
+	private boolean singleBeanAsRoot = true;
+	private boolean useModelTimeZoneForDates = true;
+	private @Nullable String modelKey;
+	private @Nullable Set<String> classNamesAllowedForNesting;
+	private @Nullable PropertySerializerRegistrar propertySerializerRegistrar;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -79,7 +82,8 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 	}
 
 	@Override
-	public Object serialize(Object data, String propertyName, Object propertyValue) {
+	public Object serialize(@Nullable Object data, @Nullable String propertyName,
+			@Nullable Object propertyValue) {
 		setupDateFormat(null);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		XMLStreamWriter writer = startXml(out);
@@ -95,7 +99,7 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 
 	/**
 	 * Render a JavaBean object as XML serialized to a given OutputStream.
-	 * 
+	 *
 	 * @param bean
 	 *        the object to serialize as XML
 	 * @param out
@@ -115,7 +119,7 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 
 	/**
 	 * Render a Map as XML serialized to a given OutputStream.
-	 * 
+	 *
 	 * @param model
 	 *        the data to serialize as XML
 	 * @param out
@@ -125,13 +129,12 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 		Map<String, Object> finalModel = setupDateFormat(model);
 		XMLStreamWriter writer = startXml(out);
 		try {
-			Object singleBean = finalModel.size() == 1 && this.singleBeanAsRoot
-					? finalModel.values().iterator().next()
-					: null;
+			Entry<String, Object> singleBean = finalModel != null && finalModel.size() == 1
+					&& this.singleBeanAsRoot ? finalModel.entrySet().iterator().next() : null;
 
 			if ( singleBean != null ) {
-				outputObject(singleBean, finalModel.keySet().iterator().next().toString(), writer);
-			} else {
+				outputObject(singleBean.getValue(), singleBean.getKey(), writer);
+			} else if ( finalModel != null ) {
 				writeElement(this.rootElementName, null, writer, false);
 
 				for ( Map.Entry<String, Object> me : finalModel.entrySet() ) {
@@ -174,19 +177,22 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 	/**
 	 * Create a {@link SimpleDateFormat} and cache on the {@link #SDF}
 	 * ThreadLocal to re-use for all dates within a single response.
-	 * 
+	 *
 	 * @param model
 	 *        the model, to look for a TimeZone to format the dates in
+	 * @return the model to use
 	 */
-	private Map<String, Object> setupDateFormat(Map<String, ?> model) {
+	private @Nullable Map<String, Object> setupDateFormat(@Nullable Map<String, ?> model) {
 		TimeZone tz = TimeZone.getTimeZone("GMT");
 		Map<String, Object> result = null;
 		if ( model != null ) {
 			result = new LinkedHashMap<String, Object>();
 			for ( Map.Entry<String, ?> me : model.entrySet() ) {
 				Object o = me.getValue();
-				if ( useModelTimeZoneForDates && o instanceof TimeZone ) {
-					tz = (TimeZone) o;
+				if ( useModelTimeZoneForDates && o instanceof TimeZone z ) {
+					tz = z;
+				} else if ( useModelTimeZoneForDates && o instanceof ZoneId z ) {
+					tz = TimeZone.getTimeZone(z);
 				} else if ( modelKey != null ) {
 					if ( modelKey.equals(me.getKey()) ) {
 						result.put(modelKey, o);
@@ -210,21 +216,20 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 		return result;
 	}
 
-	private void outputObject(Object o, String name, XMLStreamWriter out) throws XMLStreamException {
-		if ( o instanceof Collection ) {
-			Collection<?> col = (Collection<?>) o;
+	private void outputObject(@Nullable Object o, @Nullable String name, XMLStreamWriter out)
+			throws XMLStreamException {
+		if ( name != null && o instanceof Collection<?> col ) {
 			outputCollection(col, name, out);
-		} else if ( o instanceof Map ) {
-			Map<?, ?> map = (Map<?, ?>) o;
+		} else if ( name != null && o instanceof Map<?, ?> map ) {
 			outputMap(map, name, out);
 		} else if ( o instanceof String || o instanceof Number ) {
 			// for simple types, write as unified <value type="String" value="foo"/>
 			// this happens often in collections / maps of simple data types
-			Map<String, Object> params = new LinkedHashMap<String, Object>(2);
+			Map<String, Object> params = new LinkedHashMap<>(2);
 			params.put("type", org.springframework.util.ClassUtils.getShortName(o.getClass()));
 			params.put("value", o);
 			writeElement("value", params, out, true);
-		} else {
+		} else if ( name != null ) {
 			String elementName = (o == null ? name
 					: org.springframework.util.ClassUtils.getShortName(o.getClass()));
 			writeElement(elementName, o, out, true);
@@ -264,7 +269,7 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 		out.writeEndElement();
 	}
 
-	private void writeElement(String name, Map<?, ?> props, XMLStreamWriter out, boolean close)
+	private void writeElement(String name, @Nullable Map<?, ?> props, XMLStreamWriter out, boolean close)
 			throws XMLStreamException {
 		out.writeStartElement(name);
 		Map<String, Object> nested = null;
@@ -298,7 +303,8 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 					}
 					nested.put(key, val);
 					val = null;
-				} else if ( classNamesAllowedForNesting != null && !(val instanceof Enum<?>) ) {
+				} else if ( val != null && classNamesAllowedForNesting != null
+						&& !(val instanceof Enum<?>) ) {
 					for ( String prefix : classNamesAllowedForNesting ) {
 						if ( val.getClass().getName().startsWith(prefix) ) {
 							if ( nested == null ) {
@@ -327,7 +333,7 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 		}
 	}
 
-	private void writeElement(String name, Object bean, XMLStreamWriter out, boolean close)
+	private void writeElement(String name, @Nullable Object bean, XMLStreamWriter out, boolean close)
 			throws XMLStreamException {
 		if ( propertySerializerRegistrar != null && bean != null ) {
 			// try whole-bean serialization first
@@ -345,12 +351,12 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 
 	/**
 	 * Parse XML into a simple Map structure.
-	 * 
+	 *
 	 * @param in
 	 *        the input stream to parse
 	 * @return a Map of the XML
 	 */
-	public Map<String, Object> parseXml(InputStream in) {
+	public @Nullable Map<String, Object> parseXml(InputStream in) {
 		Deque<Map<String, Object>> stack = new LinkedList<Map<String, Object>>();
 		Map<String, Object> result = null;
 		XMLStreamReader reader = startParse(in);
@@ -438,4 +444,132 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 			// ignore this
 		}
 	}
+
+	/**
+	 * Get the root element name.
+	 *
+	 * @return the name; defaults to {@code root}
+	 * @since 2.1
+	 */
+	public String getRootElementName() {
+		return rootElementName;
+	}
+
+	/**
+	 * Set the root element name.
+	 *
+	 * @param rootElementName
+	 *        the name to set
+	 * @since 2.1
+	 */
+	public void setRootElementName(String rootElementName) {
+		this.rootElementName = rootElementName;
+	}
+
+	/**
+	 * Get the root bean mode.
+	 *
+	 * @return {@code true} to treat a single bean as the root
+	 * @since 2.1
+	 */
+	public boolean isSingleBeanAsRoot() {
+		return singleBeanAsRoot;
+	}
+
+	/**
+	 * Set the root bean mode.
+	 *
+	 * @param singleBeanAsRoot
+	 *        {@code true} to treat a single bean as the root
+	 * @since 2.1
+	 */
+	public void setSingleBeanAsRoot(boolean singleBeanAsRoot) {
+		this.singleBeanAsRoot = singleBeanAsRoot;
+	}
+
+	/**
+	 * Get the model time zone for dates mode.
+	 *
+	 * @return {@code true} to use any model {@code TimeZone} for dates
+	 * @since 2.1
+	 */
+	public boolean isUseModelTimeZoneForDates() {
+		return useModelTimeZoneForDates;
+	}
+
+	/**
+	 * Set the model time zone for dates mode.
+	 *
+	 * @param useModelTimeZoneForDates
+	 *        {@code true} to use any model {@code TimeZone} for dates
+	 * @since 2.1
+	 */
+	public void setUseModelTimeZoneForDates(boolean useModelTimeZoneForDates) {
+		this.useModelTimeZoneForDates = useModelTimeZoneForDates;
+	}
+
+	/**
+	 * Get the model key.
+	 *
+	 * @return the key
+	 * @since 2.1
+	 */
+	public @Nullable String getModelKey() {
+		return modelKey;
+	}
+
+	/**
+	 * Set the model key.
+	 *
+	 * @param modelKey
+	 *        the key to set
+	 * @since 2.1
+	 */
+	public void setModelKey(@Nullable String modelKey) {
+		this.modelKey = modelKey;
+	}
+
+	/**
+	 * Get the class names allowed for nesting.
+	 *
+	 * @return the classNamesAllowedForNesting
+	 * @since 2.1
+	 */
+	public @Nullable Set<String> getClassNamesAllowedForNesting() {
+		return classNamesAllowedForNesting;
+	}
+
+	/**
+	 * Set the class names allowed for nesting.
+	 *
+	 * @param classNamesAllowedForNesting
+	 *        the class names to set
+	 * @since 2.1
+	 */
+	public void setClassNamesAllowedForNesting(@Nullable Set<String> classNamesAllowedForNesting) {
+		this.classNamesAllowedForNesting = classNamesAllowedForNesting;
+	}
+
+	/**
+	 * Get the property serializer registrar.
+	 *
+	 * @return the registrar
+	 * @since 2.1
+	 */
+	public @Nullable PropertySerializerRegistrar getPropertySerializerRegistrar() {
+		return propertySerializerRegistrar;
+	}
+
+	/**
+	 * Set the property serializer registrar.
+	 *
+	 * @param propertySerializerRegistrar
+	 *        the registrar to set
+	 * @since 2.1
+	 */
+	public void setPropertySerializerRegistrar(
+			@Nullable PropertySerializerRegistrar propertySerializerRegistrar) {
+		this.propertySerializerRegistrar = propertySerializerRegistrar;
+	}
+
 }

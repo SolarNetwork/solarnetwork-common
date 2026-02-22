@@ -30,6 +30,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -88,7 +89,7 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 	}
 
 	@Override
-	public Datum deserialize(JsonParser p, DeserializationContext ctxt)
+	public @Nullable Datum deserialize(JsonParser p, DeserializationContext ctxt)
 			throws IOException, JsonProcessingException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {

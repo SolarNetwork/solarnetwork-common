@@ -24,6 +24,7 @@ package net.solarnetwork.codec.jackson;
 
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.Instruction;
 import net.solarnetwork.domain.InstructionStatus;
 import tools.jackson.core.JacksonException;
@@ -52,7 +53,7 @@ public class BasicInstructionSerializer extends StdSerializer<Instruction> {
 	}
 
 	@Override
-	public void serialize(Instruction value, JsonGenerator gen, SerializationContext provider)
+	public void serialize(@Nullable Instruction value, JsonGenerator gen, SerializationContext provider)
 			throws JacksonException {
 		if ( value == null ) {
 			gen.writeNull();

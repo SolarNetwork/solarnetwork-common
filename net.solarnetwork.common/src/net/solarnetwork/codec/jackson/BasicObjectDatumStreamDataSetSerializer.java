@@ -166,8 +166,14 @@ public class BasicObjectDatumStreamDataSetSerializer
 				int tLen = (p != null ? p.getTagsLength() : 0);
 				int totalLen = 1 + baseLen + tLen;
 
+				final Integer metaIndex = metaIndexMap.get(d.getStreamId());
+				if ( metaIndex == null ) {
+					// should not happen, but being safe
+					continue;
+				}
+
 				gen.writeStartArray(d, totalLen);
-				gen.writeNumber(metaIndexMap.get(d.getStreamId()));
+				gen.writeNumber(metaIndex);
 				gen.writeNumber(ts);
 				if ( p != null ) {
 					writeDecimalArrayValues(gen, p.getInstantaneous(), iLen);

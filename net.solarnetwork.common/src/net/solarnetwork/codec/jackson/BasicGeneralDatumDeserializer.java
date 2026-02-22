@@ -28,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.datum.Datum;
 import net.solarnetwork.domain.datum.DatumId;
 import net.solarnetwork.domain.datum.DatumSamples;
@@ -85,7 +86,8 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 	}
 
 	@Override
-	public Datum deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+	public @Nullable Datum deserialize(JsonParser p, DeserializationContext ctxt)
+			throws JacksonException {
 		JsonToken t = p.currentToken();
 		if ( t == JsonToken.VALUE_NULL ) {
 			return null;

@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
@@ -80,6 +81,7 @@ public interface IndexedField {
 	 * @throws JacksonException
 	 *         if any JSON processing error occurs
 	 */
+	@Nullable
 	Object parseValue(JsonParser parser, DeserializationContext ctxt) throws JacksonException;
 
 	/**
@@ -94,7 +96,7 @@ public interface IndexedField {
 	 * @throws JacksonException
 	 *         if any JSON processing error occurs
 	 */
-	void writeValue(JsonGenerator generator, SerializationContext ctxt, Object value)
+	void writeValue(JsonGenerator generator, SerializationContext ctxt, @Nullable Object value)
 			throws JacksonException;
 
 	/**
