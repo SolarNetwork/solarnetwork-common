@@ -22,6 +22,7 @@
 
 package net.solarnetwork.codec.jackson;
 
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.Identity;
 import net.solarnetwork.domain.Location;
 import tools.jackson.core.JacksonException;
@@ -50,8 +51,8 @@ public class BasicLocationSerializer extends StdSerializer<Location> {
 	}
 
 	@Override
-	public void serialize(Location value, JsonGenerator generator, SerializationContext provider)
-			throws JacksonException {
+	public void serialize(@Nullable Location value, JsonGenerator generator,
+			SerializationContext provider) throws JacksonException {
 		if ( value == null ) {
 			generator.writeNull();
 			return;
