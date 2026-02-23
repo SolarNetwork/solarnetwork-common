@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A composite collection of tariffs that act like a single {@link Tariff}.
@@ -50,7 +51,7 @@ public class CompositeTariff implements Tariff {
 	 * @param tariffs
 	 *        the tariffs
 	 */
-	public CompositeTariff(Collection<? extends Tariff> tariffs) {
+	public CompositeTariff(@Nullable Collection<? extends Tariff> tariffs) {
 		super();
 		this.tariffs = (tariffs != null ? tariffs : Collections.emptyList());
 	}
@@ -75,7 +76,7 @@ public class CompositeTariff implements Tariff {
 	}
 
 	@Override
-	public <T extends Tariff> T unwrap(Class<T> tariffType) {
+	public <T extends Tariff> @Nullable T unwrap(Class<T> tariffType) {
 		T result = Tariff.super.unwrap(tariffType);
 		if ( result == null ) {
 			for ( Tariff t : tariffs ) {

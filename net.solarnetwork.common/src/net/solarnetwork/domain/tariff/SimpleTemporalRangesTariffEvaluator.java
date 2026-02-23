@@ -25,6 +25,7 @@ package net.solarnetwork.domain.tariff;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.service.support.BasicIdentifiable;
 import net.solarnetwork.util.IntRangeContainer;
 
@@ -59,25 +60,26 @@ public final class SimpleTemporalRangesTariffEvaluator extends BasicIdentifiable
 
 	@Override
 	public boolean applies(TemporalRangesTariff rule, LocalDateTime dateTime,
-			Map<String, ?> parameters) {
-		return appliesInternal(rule, dateTime, parameters);
+			@Nullable Map<String, ?> parameters) {
+		return appliesInternal(rule, dateTime);
 	}
 
 	@Override
-	public boolean applies(Tariff rule, LocalDateTime date, Map<String, ?> parameters) {
+	public boolean applies(Tariff rule, LocalDateTime date, @Nullable Map<String, ?> parameters) {
 		if ( rule instanceof ChronoFieldsTariff ) {
-			return appliesInternal((ChronoFieldsTariff) rule, date, parameters);
+			return appliesInternal((ChronoFieldsTariff) rule, date);
 		}
 		return false;
 	}
 
-	private boolean appliesInternal(ChronoFieldsTariff rule, LocalDateTime dateTime,
-			Map<String, ?> parameters) {
+	private boolean appliesInternal(ChronoFieldsTariff rule, LocalDateTime dateTime) {
 		for ( ChronoField f : SimpleTemporalTariffSchedule.FIELDS ) {
 			IntRangeContainer ranges = rule.rangeForChronoField(f);
 			if ( ranges != null ) {
 				int v = dateTime.get(f);
-				if ( !ranges.contains(v) || (f == ChronoField.MINUTE_OF_DAY && v == ranges.max()) ) {
+				Integer max = ranges.max();
+				if ( !ranges.contains(v)
+						|| (f == ChronoField.MINUTE_OF_DAY && max != null && v == max) ) {
 					return false;
 				}
 			}

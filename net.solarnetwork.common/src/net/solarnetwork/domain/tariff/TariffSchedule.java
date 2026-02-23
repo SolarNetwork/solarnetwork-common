@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * API for a tariff schedule, that can resolve a tariff based on a date.
@@ -44,7 +45,7 @@ public interface TariffSchedule {
 	 * @return the tariff, or {@code null} if no tariff applies
 	 * @since 1.2
 	 */
-	default Tariff resolveTariff(LocalDateTime dateTime) {
+	default @Nullable Tariff resolveTariff(LocalDateTime dateTime) {
 		return resolveTariff(dateTime, null);
 	}
 
@@ -57,7 +58,8 @@ public interface TariffSchedule {
 	 *        optional parameters
 	 * @return the tariff, or {@code null} if no tariff applies
 	 */
-	Tariff resolveTariff(LocalDateTime dateTime, Map<String, ?> parameters);
+	@Nullable
+	Tariff resolveTariff(LocalDateTime dateTime, @Nullable Map<String, ?> parameters);
 
 	/**
 	 * Get all available rules in the schedule.

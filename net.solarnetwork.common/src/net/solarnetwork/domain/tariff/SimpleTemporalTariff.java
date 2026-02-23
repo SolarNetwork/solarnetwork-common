@@ -26,6 +26,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
+import net.solarnetwork.util.ObjectUtils;
 
 /**
  * A simple implementation of {@link TemporalTariff} that delegates to another
@@ -37,8 +39,8 @@ import java.util.Map;
  */
 public class SimpleTemporalTariff implements TemporalTariff {
 
-	private final LocalDate date;
-	private final LocalTime time;
+	private final @Nullable LocalDate date;
+	private final @Nullable LocalTime time;
 	private final Tariff delegate;
 
 	/**
@@ -48,12 +50,14 @@ public class SimpleTemporalTariff implements TemporalTariff {
 	 *        a date time
 	 * @param delegate
 	 *        the tariff
+	 * @throws IllegalArgumentException
+	 *         if {@code delegate} is {@code null}
 	 */
 	public SimpleTemporalTariff(LocalDateTime dateTime, Tariff delegate) {
 		super();
 		this.date = (dateTime != null ? dateTime.toLocalDate() : null);
 		this.time = (dateTime != null ? dateTime.toLocalTime() : null);
-		this.delegate = delegate;
+		this.delegate = ObjectUtils.requireNonNullArgument(delegate, "delegate");
 	}
 
 	@Override
@@ -62,17 +66,17 @@ public class SimpleTemporalTariff implements TemporalTariff {
 	}
 
 	@Override
-	public LocalDate getDate() {
+	public @Nullable LocalDate getDate() {
 		return date;
 	}
 
 	@Override
-	public LocalTime getTime() {
+	public @Nullable LocalTime getTime() {
 		return time;
 	}
 
 	@Override
-	public <T extends Tariff> T unwrap(Class<T> tariffType) {
+	public <T extends Tariff> @Nullable T unwrap(Class<T> tariffType) {
 		T result = TemporalTariff.super.unwrap(tariffType);
 		if ( result == null ) {
 			result = delegate.unwrap(tariffType);

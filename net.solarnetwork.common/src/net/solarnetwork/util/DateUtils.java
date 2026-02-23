@@ -652,7 +652,7 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 1.2
 	 */
-	public static @Nullable IntRange parseMonthRange(@Nullable String range, Locale locale)
+	public static @Nullable IntRange parseMonthRange(@Nullable String range, @Nullable Locale locale)
 			throws DateTimeException {
 		return parseRange(ChronoField.MONTH_OF_YEAR, range, locale);
 	}
@@ -675,8 +675,8 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 1.2
 	 */
-	public static @Nullable IntRange parseDayOfMonthRange(@Nullable String range, Locale locale)
-			throws DateTimeException {
+	public static @Nullable IntRange parseDayOfMonthRange(@Nullable String range,
+			@Nullable Locale locale) throws DateTimeException {
 		return parseRange(ChronoField.DAY_OF_MONTH, range, locale);
 	}
 
@@ -699,7 +699,7 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 1.2
 	 */
-	public static @Nullable IntRange parseDayOfWeekRange(@Nullable String range, Locale locale)
+	public static @Nullable IntRange parseDayOfWeekRange(@Nullable String range, @Nullable Locale locale)
 			throws DateTimeException {
 		return parseRange(ChronoField.DAY_OF_WEEK, range, locale);
 	}
@@ -721,8 +721,8 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 1.2
 	 */
-	public static @Nullable IntRange parseMinuteOfDayRange(@Nullable String range, Locale locale)
-			throws DateTimeException {
+	public static @Nullable IntRange parseMinuteOfDayRange(@Nullable String range,
+			@Nullable Locale locale) throws DateTimeException {
 		return parseMinuteOfDayRange(range, locale, false);
 	}
 
@@ -752,8 +752,8 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 1.2
 	 */
-	public static @Nullable IntRange parseMinuteOfDayRange(@Nullable String range, Locale locale,
-			boolean fix24) throws DateTimeException {
+	public static @Nullable IntRange parseMinuteOfDayRange(@Nullable String range,
+			@Nullable Locale locale, boolean fix24) throws DateTimeException {
 		String[] r = splitRange(range);
 		if ( r == null ) {
 			return null;
@@ -905,7 +905,8 @@ public final class DateUtils {
 	 *        system default
 	 * @param style
 	 *        the formatting style
-	 * @return the range string
+	 * @return the range string, or {@code null} if {@code range} is
+	 *         {@code null}
 	 * @throws DateTimeException
 	 *         if any formatting error occurs
 	 * @since 2.3
@@ -936,7 +937,8 @@ public final class DateUtils {
 	 *        the formatting style
 	 * @param rangeDelim
 	 *        the delimiter to use between ranges
-	 * @return the range string
+	 * @return the range string, or {@code null} if {@code range} is
+	 *         {@code null}
 	 * @throws DateTimeException
 	 *         if any formatting error occurs
 	 * @since 2.3

@@ -23,17 +23,18 @@
 package net.solarnetwork.domain.tariff;
 
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toMap;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.DateUtils;
 import net.solarnetwork.util.IntRange;
 import net.solarnetwork.util.IntRangeContainer;
@@ -52,10 +53,10 @@ import net.solarnetwork.util.IntRangeContainer;
  */
 public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 
-	private final IntRange monthRange;
-	private final IntRange dayOfMonthRange;
-	private final IntRange dayOfWeekRange;
-	private final IntRange minuteOfDayRange;
+	private final @Nullable IntRange monthRange;
+	private final @Nullable IntRange dayOfMonthRange;
+	private final @Nullable IntRange dayOfWeekRange;
+	private final @Nullable IntRange minuteOfDayRange;
 	private final Map<String, Rate> rates;
 
 	/**
@@ -72,14 +73,15 @@ public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 	 * @param rates
 	 *        a list of rates associated with the tariff
 	 */
-	public TemporalRangesTariff(IntRange monthRange, IntRange dayOfMonthRange, IntRange dayOfWeekRange,
-			IntRange minuteOfDayRange, List<Rate> rates) {
+	public TemporalRangesTariff(@Nullable IntRange monthRange, @Nullable IntRange dayOfMonthRange,
+			@Nullable IntRange dayOfWeekRange, @Nullable IntRange minuteOfDayRange,
+			@Nullable List<Rate> rates) {
 		super();
 		this.monthRange = monthRange;
 		this.dayOfMonthRange = dayOfMonthRange;
 		this.dayOfWeekRange = dayOfWeekRange;
 		this.minuteOfDayRange = minuteOfDayRange;
-		this.rates = (rates == null ? Collections.emptyMap()
+		this.rates = (rates == null ? emptyMap()
 				: rates.stream().collect(
 						toMap(Rate::getId, Function.identity(), (k, v) -> v, LinkedHashMap::new)));
 	}
@@ -100,15 +102,17 @@ public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 	 * @param locale
 	 *        the locale
 	 */
-	public TemporalRangesTariff(String monthRange, String dayOfMonthRange, String dayOfWeekRange,
-			String minuteOfDayRange, List<Rate> rates, Locale locale) {
+	public TemporalRangesTariff(@Nullable String monthRange, @Nullable String dayOfMonthRange,
+			@Nullable String dayOfWeekRange, @Nullable String minuteOfDayRange,
+			@Nullable List<Rate> rates, @Nullable Locale locale) {
 		super();
 		this.monthRange = DateUtils.parseMonthRange(monthRange, locale);
 		this.dayOfMonthRange = DateUtils.parseDayOfMonthRange(dayOfMonthRange, locale);
 		this.dayOfWeekRange = DateUtils.parseDayOfWeekRange(dayOfWeekRange, locale);
 		this.minuteOfDayRange = DateUtils.parseMinuteOfDayRange(minuteOfDayRange, locale);
-		this.rates = rates.stream()
-				.collect(toMap(Rate::getId, Function.identity(), (k, v) -> v, LinkedHashMap::new));
+		this.rates = (rates == null ? emptyMap()
+				: rates.stream().collect(
+						toMap(Rate::getId, Function.identity(), (k, v) -> v, LinkedHashMap::new)));
 	}
 
 	@Override
@@ -124,7 +128,7 @@ public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 	 * @return the associated range, or {@literal null} if the field is not
 	 *         supported or the range is {@literal null}
 	 */
-	public IntRange rangeForField(ChronoField field) {
+	public @Nullable IntRange rangeForField(ChronoField field) {
 		switch (field) {
 			case MONTH_OF_YEAR:
 				return getMonthRange();
@@ -144,7 +148,7 @@ public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 	}
 
 	@Override
-	public IntRangeContainer rangeForChronoField(ChronoField field) {
+	public @Nullable IntRangeContainer rangeForChronoField(ChronoField field) {
 		return rangeForField(field);
 	}
 
@@ -163,12 +167,12 @@ public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 	 *         with this object
 	 */
 	public boolean applies(TemporalRangesTariffEvaluator evaluator, LocalDateTime dateTime,
-			Map<String, ?> parameters) {
+			@Nullable Map<String, ?> parameters) {
 		return evaluator.applies(this, dateTime, parameters);
 	}
 
 	@Override
-	public String formatChronoField(ChronoField field, Locale locale, TextStyle style) {
+	public @Nullable String formatChronoField(ChronoField field, Locale locale, TextStyle style) {
 		return DateUtils.formatRange(field, rangeForField(field), locale, style);
 	}
 
@@ -211,7 +215,7 @@ public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 	 *
 	 * @return the month range, from 1 - 12
 	 */
-	public IntRange getMonthRange() {
+	public @Nullable IntRange getMonthRange() {
 		return monthRange;
 	}
 
@@ -220,7 +224,7 @@ public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 	 *
 	 * @return the day range, from 1 - 31
 	 */
-	public IntRange getDayOfMonthRange() {
+	public @Nullable IntRange getDayOfMonthRange() {
 		return dayOfMonthRange;
 	}
 
@@ -229,7 +233,7 @@ public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 	 *
 	 * @return the weekday range, from 1-7 with Monday being 1
 	 */
-	public IntRange getDayOfWeekRange() {
+	public @Nullable IntRange getDayOfWeekRange() {
 		return dayOfWeekRange;
 	}
 
@@ -238,7 +242,7 @@ public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 	 *
 	 * @return the range, from 0 - 1440
 	 */
-	public IntRange getMinuteOfDayRange() {
+	public @Nullable IntRange getMinuteOfDayRange() {
 		return minuteOfDayRange;
 	}
 

@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain.tariff;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A simple time-based tariff schedule based on a list of time-based rules.
@@ -58,6 +60,8 @@ public class SimpleTemporalTariffSchedule implements TariffSchedule {
 	 *
 	 * @param rules
 	 *        the schedule rules
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public SimpleTemporalTariffSchedule(Iterable<? extends Tariff> rules) {
 		this(rules, null);
@@ -69,26 +73,27 @@ public class SimpleTemporalTariffSchedule implements TariffSchedule {
 	 * @param rules
 	 *        the schedule rules
 	 * @param evaluator
-	 *        the evaluator
+	 *        the evaluator, or {@code null} to use a default evaluator
+	 * @throws IllegalArgumentException
+	 *         if {@code rules} is {@code null}
 	 */
 	public SimpleTemporalTariffSchedule(Iterable<? extends Tariff> rules,
-			TemporalTariffEvaluator evaluator) {
+			@Nullable TemporalTariffEvaluator evaluator) {
 		super();
-		if ( rules == null ) {
-			throw new IllegalArgumentException("The rules argument must not be null.");
-		}
-		this.rules = StreamSupport.stream(rules.spliterator(), false).collect(Collectors.toList());
+		this.rules = StreamSupport.stream(requireNonNullArgument(rules, "rules").spliterator(), false)
+				.collect(Collectors.toList());
 		this.evaluator = (evaluator != null ? evaluator : DEFAULT_EVALUATOR);
 	}
 
 	@Override
-	public Tariff resolveTariff(LocalDateTime dateTime, Map<String, ?> parameters) {
+	public @Nullable Tariff resolveTariff(LocalDateTime dateTime, @Nullable Map<String, ?> parameters) {
 		final boolean firstOnly = isFirstMatchOnly();
 		List<Tariff> matches = (firstOnly ? null : new ArrayList<>(rules.size()));
 		for ( Tariff rule : rules ) {
 			if ( evaluator.applies(rule, dateTime, parameters) ) {
 				TemporalTariff t = rule.toTemporalTariff(dateTime);
-				if ( firstOnly ) {
+				// matches can only be null if firstOnly is true; check that instead of firstOnly to silence NullAway warning
+				if ( matches == null ) {
 					return t;
 				}
 				matches.add(t);

@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.StringUtils;
 
 /**
@@ -75,9 +76,9 @@ public final class TariffUtils {
 	 *         if any parsing error occurs
 	 * @see CsvTemporalRangeTariffParser
 	 */
-	public static TariffSchedule parseCsvTemporalRangeSchedule(final Locale locale,
+	public static @Nullable TariffSchedule parseCsvTemporalRangeSchedule(final @Nullable Locale locale,
 			final boolean preserveRateCase, final boolean firstMatchOnly,
-			final TemporalTariffEvaluator evaluator, Object scheduleData) throws IOException {
+			final @Nullable TemporalTariffEvaluator evaluator, Object scheduleData) throws IOException {
 		List<ChronoFieldsTariff> tariffs;
 		if ( scheduleData instanceof String || scheduleData instanceof Reader ) {
 			// parse as CSV
@@ -101,6 +102,9 @@ public final class TariffUtils {
 					for ( int j = 4; j < row.length; j++ ) {
 						String name = headers[j];
 						String id = StringUtils.simpleIdValue(name, preserveRateCase);
+						if ( id == null ) {
+							continue;
+						}
 						rates.add(new SimpleTariffRate(id, name, new BigDecimal(row[j])));
 					}
 					TemporalRangeSetsTariff tariff = new TemporalRangeSetsTariff(row[0], row[1], row[2],

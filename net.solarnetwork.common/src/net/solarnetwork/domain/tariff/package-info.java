@@ -1,7 +1,7 @@
 /* ==================================================================
- * TemporalTariff.java - 12/05/2021 10:31:33 AM
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2021 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,35 +20,5 @@
  * ==================================================================
  */
 
+@org.jspecify.annotations.NullMarked
 package net.solarnetwork.domain.tariff;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import org.jspecify.annotations.Nullable;
-
-/**
- * A tariff associated with a date.
- *
- * @author matt
- * @version 1.0
- * @since 1.71
- */
-public interface TemporalTariff extends Tariff {
-
-	/**
-	 * Get a date associated with this tariff.
-	 *
-	 * @return the date, or {@literal null}
-	 */
-	@Nullable
-	LocalDate getDate();
-
-	/**
-	 * Get a time associated with this tariff.
-	 *
-	 * @return the time, or {@literal null}
-	 */
-	@Nullable
-	LocalTime getTime();
-
-}

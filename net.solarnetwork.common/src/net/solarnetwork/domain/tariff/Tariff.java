@@ -25,6 +25,7 @@ package net.solarnetwork.domain.tariff;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A tariff.
@@ -57,6 +58,7 @@ public interface Tariff {
 		 *
 		 * @return the description
 		 */
+		@Nullable
 		String getDescription();
 
 		/**
@@ -85,7 +87,7 @@ public interface Tariff {
 	 *         available
 	 * @since 1.2
 	 */
-	default Rate rate(String id) {
+	default @Nullable Rate rate(String id) {
 		Map<String, Rate> rates = getRates();
 		return (rates != null ? rates.get(id) : null);
 	}
@@ -99,7 +101,7 @@ public interface Tariff {
 	 *         available
 	 * @since 1.2
 	 */
-	default BigDecimal amount(String id) {
+	default @Nullable BigDecimal amount(String id) {
 		Rate rate = rate(id);
 		return (rate != null ? rate.getAmount() : null);
 	}
@@ -115,7 +117,7 @@ public interface Tariff {
 	 * @return the rate, or {@code null} if no rate is available
 	 * @since 1.3
 	 */
-	default Rate rate() {
+	default @Nullable Rate rate() {
 		Map<String, Rate> rates = getRates();
 		return (rates != null && !rates.isEmpty() ? rates.values().iterator().next() : null);
 	}
@@ -126,7 +128,7 @@ public interface Tariff {
 	 * @return the rate amount, or {@code null} if no rate is available
 	 * @since 1.3
 	 */
-	default BigDecimal amount() {
+	default @Nullable BigDecimal amount() {
 		Rate rate = rate();
 		return (rate != null ? rate.getAmount() : null);
 	}
@@ -185,7 +187,7 @@ public interface Tariff {
 	 * @since 1.1
 	 */
 	@SuppressWarnings("unchecked")
-	default <T extends Tariff> T unwrap(Class<T> tariffType) {
+	default <T extends Tariff> @Nullable T unwrap(Class<T> tariffType) {
 		if ( tariffType.isAssignableFrom(this.getClass()) ) {
 			return (T) this;
 		}

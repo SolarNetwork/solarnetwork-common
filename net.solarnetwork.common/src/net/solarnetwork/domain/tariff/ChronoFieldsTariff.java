@@ -25,6 +25,7 @@ package net.solarnetwork.domain.tariff;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.util.Locale;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.IntRangeContainer;
 
 /**
@@ -44,6 +45,7 @@ public interface ChronoFieldsTariff extends Tariff {
 	 * @return the range, or {@literal null} if no range defined for the given
 	 *         field
 	 */
+	@Nullable
 	IntRangeContainer rangeForChronoField(ChronoField field);
 
 	/**
@@ -55,11 +57,13 @@ public interface ChronoFieldsTariff extends Tariff {
 	 *        the locale
 	 * @param style
 	 *        the style
-	 * @return the formatted tariff value
+	 * @return the formatted tariff value, or {@code null} if no range defined
+	 *         for the given field
 	 * @throws IllegalArgumentException
 	 *         if {@code field} is not supported or any argument is
 	 *         {@literal null}
 	 */
+	@Nullable
 	String formatChronoField(ChronoField field, Locale locale, TextStyle style);
 
 }

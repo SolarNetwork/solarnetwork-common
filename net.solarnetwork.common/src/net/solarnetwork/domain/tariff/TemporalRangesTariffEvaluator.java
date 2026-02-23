@@ -24,6 +24,7 @@ package net.solarnetwork.domain.tariff;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * API for a function that can evaluate a given {@link TemporalRangesTariff}
@@ -50,7 +51,7 @@ public interface TemporalRangesTariffEvaluator extends TemporalTariffEvaluator {
 	 *        the parameters
 	 * @return {@literal true} if the tariff applies
 	 */
-	boolean applies(TemporalRangesTariff rule, LocalDateTime date, Map<String, ?> parameters);
+	boolean applies(TemporalRangesTariff rule, LocalDateTime date, @Nullable Map<String, ?> parameters);
 
 	/**
 	 * Test if a rule applies to a given date and set of parameters.
@@ -71,7 +72,7 @@ public interface TemporalRangesTariffEvaluator extends TemporalTariffEvaluator {
 	 * @since 1.1
 	 */
 	@Override
-	default boolean applies(Tariff rule, LocalDateTime date, Map<String, ?> parameters) {
+	default boolean applies(Tariff rule, LocalDateTime date, @Nullable Map<String, ?> parameters) {
 		if ( rule instanceof TemporalRangesTariff ) {
 			return applies((TemporalRangesTariff) rule, date, parameters);
 		}

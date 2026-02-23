@@ -24,6 +24,7 @@ package net.solarnetwork.domain.tariff;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.service.Identifiable;
 
 /**
@@ -47,6 +48,6 @@ public interface TemporalTariffEvaluator extends Identifiable {
 	 *        the parameters
 	 * @return {@literal true} if the tariff applies
 	 */
-	boolean applies(Tariff rule, LocalDateTime date, Map<String, ?> parameters);
+	boolean applies(Tariff rule, LocalDateTime date, @Nullable Map<String, ?> parameters);
 
 }

@@ -36,6 +36,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 import de.siegmar.fastcsv.reader.CommentStrategy;
 import de.siegmar.fastcsv.reader.CsvReader;
 import de.siegmar.fastcsv.reader.CsvRecord;
@@ -94,7 +95,7 @@ public class CsvTemporalRangeTariffParser {
 	 * @param locale
 	 *        the locale to use, or {@literal null} to use the system default
 	 */
-	public CsvTemporalRangeTariffParser(Locale locale) {
+	public CsvTemporalRangeTariffParser(@Nullable Locale locale) {
 		this(locale, false);
 	}
 
@@ -107,7 +108,7 @@ public class CsvTemporalRangeTariffParser {
 	 *        {@literal true} to preserve the case of rate names
 	 * @since 1.2
 	 */
-	public CsvTemporalRangeTariffParser(Locale locale, boolean preserveRateCase) {
+	public CsvTemporalRangeTariffParser(@Nullable Locale locale, boolean preserveRateCase) {
 		super();
 		this.locale = (locale != null ? locale : Locale.getDefault());
 		this.preserveRateCase = preserveRateCase;
@@ -146,7 +147,8 @@ public class CsvTemporalRangeTariffParser {
 					continue;
 				}
 
-				if ( row.getFieldCount() < 5 ) {
+				// ids can not be null here, but test to silence NullAway warning
+				if ( row.getFieldCount() < 5 || ids == null ) {
 					throw new IllegalArgumentException(
 							format("Not enough columns in CSV row %d: need at least 5 but found %d",
 									row.getStartingLineNumber(), row.getFieldCount()));
@@ -214,7 +216,7 @@ public class CsvTemporalRangeTariffParser {
 	 * @throws IllegalArgumentException
 	 *         if any formatting error occurs
 	 */
-	public void formatCsv(List<ChronoFieldsTariff> tariffs, Writer writer) throws IOException {
+	public void formatCsv(@Nullable List<ChronoFieldsTariff> tariffs, Writer writer) throws IOException {
 		if ( tariffs == null || tariffs.isEmpty() ) {
 			return;
 		}
