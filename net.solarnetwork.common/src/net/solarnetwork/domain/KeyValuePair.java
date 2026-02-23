@@ -65,7 +65,7 @@ public class KeyValuePair implements Serializable, Comparable<KeyValuePair> {
 
 	/**
 	 * Compare the {@code key} values of two KeyValuePair objects, falling back
-	 * to {@code value} if {@code key} is {@literal null} in both objects.
+	 * to {@code value} if {@code key} is {@code null} in both objects.
 	 */
 	@Override
 	public int compareTo(KeyValuePair o) {

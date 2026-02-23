@@ -42,7 +42,7 @@ public interface TextFieldSettingSpecifier extends TitleSettingSpecifier {
 	 * setting, for example as a list of possible values to suggest for this
 	 * field.
 	 *
-	 * @return the related service filter, or {@literal null}
+	 * @return the related service filter, or {@code null}
 	 */
 	default String getRelatedServiceFilter() {
 		return null;

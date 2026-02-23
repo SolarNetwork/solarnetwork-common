@@ -40,7 +40,7 @@ import org.jspecify.annotations.Nullable;
  * The {@code Map} implementation treats the given {@code Datum},
  * {@link DatumSamplesOperations}, and parameter {@code Map} as a single
  * {@code Map}, where keys are handled by returning the first found
- * non-{@literal null} value in the following order:
+ * non-{@code null} value in the following order:
  * </p>
  *
  * <ol>
@@ -106,7 +106,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 * {@link #getDatum()}.
 	 * </p>
 	 *
-	 * @return the datum samples; may be {@literal null}
+	 * @return the datum samples; may be {@code null}
 	 */
 	public @Nullable DatumSamplesOperations getSamples() {
 		return sample;
@@ -115,7 +115,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	/**
 	 * Get optional additional parameters.
 	 *
-	 * @return the parameters; may be {@literal null}
+	 * @return the parameters; may be {@code null}
 	 */
 	public @Nullable Map<String, ?> getParameters() {
 		return parameters;
@@ -270,7 +270,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 *
 	 * @param pattern
 	 *        the property name pattern to group
-	 * @return the group of matching properties, never {@literal null}
+	 * @return the group of matching properties, never {@code null}
 	 * @since 2.1
 	 */
 	public final Collection<? extends Number> group(String pattern) {

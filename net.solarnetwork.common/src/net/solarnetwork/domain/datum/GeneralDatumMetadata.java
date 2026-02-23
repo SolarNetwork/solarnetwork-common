@@ -526,14 +526,14 @@ public class GeneralDatumMetadata extends DatumSupport
 	 * another component, then the next component value will be returned if a
 	 * tag matching that component value exists. For example the path
 	 * {@literal /t/foo} would return {@literal foo} if {@link #getTags()}
-	 * contains {@literal foo}, otherwise {@literal null}.
+	 * contains {@literal foo}, otherwise {@code null}.
 	 * </p>
 	 *
 	 * @param path
 	 *        the path of the metadata object to get
 	 * @param meta
 	 *        the metadata to look in
-	 * @return the metadata value, or {@literal null} if none exists at the
+	 * @return the metadata value, or {@code null} if none exists at the
 	 *         given path
 	 * @since 1.3
 	 */
@@ -574,7 +574,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	 *        the metadata to look in
 	 * @param clazz
 	 *        the expected class of the return type
-	 * @return the metadata, or {@literal null} if none exists at the given path
+	 * @return the metadata, or {@code null} if none exists at the given path
 	 *         or is not of type {@code T}
 	 * @see GeneralDatumMetadata#metadataAtPath(String, GeneralDatumMetadata,
 	 *      Class)

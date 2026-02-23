@@ -121,7 +121,7 @@ public interface SecurityPolicy {
 	 * matches.
 	 * </p>
 	 *
-	 * @return set of allowed API paths, or {@literal null} or empty set if all
+	 * @return set of allowed API paths, or {@code null} or empty set if all
 	 *         paths are allowed
 	 * @since 1.3
 	 */
@@ -131,7 +131,7 @@ public interface SecurityPolicy {
 	/**
 	 * Get a date after which a token is no longer valid.
 	 *
-	 * @return the expiry date, or {@literal null} for no expiration
+	 * @return the expiry date, or {@code null} for no expiration
 	 * @since 2.0
 	 */
 	@Nullable

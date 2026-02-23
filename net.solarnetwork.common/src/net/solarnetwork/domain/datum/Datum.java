@@ -106,7 +106,7 @@ public interface Datum {
 	/**
 	 * Get a domain-specific ID related to the object kind.
 	 *
-	 * @return the object ID, or {@literal null}
+	 * @return the object ID, or {@code null}
 	 */
 	@Nullable
 	Long getObjectId();
@@ -160,7 +160,7 @@ public interface Datum {
 	/**
 	 * Get a general accessor for the sample data.
 	 *
-	 * @return the operations instance, never {@literal null}
+	 * @return the operations instance, never {@code null}
 	 */
 	DatumSamplesOperations asSampleOperations();
 

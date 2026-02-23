@@ -74,7 +74,7 @@ public interface Instruction {
 	/**
 	 * Get an Iterator of all unique instruction parameter names.
 	 *
-	 * @return iterator, never {@literal null}
+	 * @return iterator, never {@code null}
 	 */
 	@Nullable
 	Iterable<String> getParameterNames();
@@ -94,7 +94,7 @@ public interface Instruction {
 	 *
 	 * @param parameterName
 	 *        the parameter name to get the value for
-	 * @return the first available parameter name, or {@literal null} if not
+	 * @return the first available parameter name, or {@code null} if not
 	 *         available
 	 */
 	@Nullable
@@ -105,7 +105,7 @@ public interface Instruction {
 	 *
 	 * @param parameterName
 	 *        the parameter name to get the values for
-	 * @return all available parameter values, or {@literal null} if not
+	 * @return all available parameter values, or {@code null} if not
 	 *         available
 	 */
 	String @Nullable [] getAllParameterValues(String parameterName);
@@ -121,7 +121,7 @@ public interface Instruction {
 	/**
 	 * Get the instruction state.
 	 *
-	 * @return the state, or {@literal null} if none available
+	 * @return the state, or {@code null} if none available
 	 */
 	default @Nullable InstructionState getInstructionState() {
 		InstructionStatus status = getStatus();
@@ -131,7 +131,7 @@ public interface Instruction {
 	/**
 	 * Get a single-valued map of all parameter values.
 	 *
-	 * @return the parameters as a map, never {@literal null}
+	 * @return the parameters as a map, never {@code null}
 	 */
 	default @Nullable Map<String, String> getParameterMap() {
 		Map<String, String> result = null;
@@ -150,7 +150,7 @@ public interface Instruction {
 	/**
 	 * Get a multi-valued map of all parameter values.
 	 *
-	 * @return the parameters as a multi-valued map, never {@literal null}
+	 * @return the parameters as a multi-valued map, never {@code null}
 	 */
 	default @Nullable Map<String, List<String>> getParameterMultiMap() {
 		Map<String, List<String>> result = null;

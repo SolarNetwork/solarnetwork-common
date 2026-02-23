@@ -39,7 +39,7 @@ public interface DatumExpressionRoot
 	/**
 	 * Get the datum.
 	 *
-	 * @return the datum; may be {@literal null}
+	 * @return the datum; may be {@code null}
 	 */
 	@Nullable
 	Datum getDatum();
@@ -62,7 +62,7 @@ public interface DatumExpressionRoot
 	/**
 	 * Get a location datum's object ID.
 	 *
-	 * @return the datum object ID, or {@literal null} if the datum is not a
+	 * @return the datum object ID, or {@code null} if the datum is not a
 	 *         location kind or does not have a location ID
 	 * @since 1.2
 	 */
@@ -75,7 +75,7 @@ public interface DatumExpressionRoot
 	/**
 	 * Get a node datum's object ID.
 	 *
-	 * @return the datum object ID, or {@literal null} if the datum is not a
+	 * @return the datum object ID, or {@code null} if the datum is not a
 	 *         node kind or does not have a node ID
 	 * @since 1.2
 	 */
@@ -87,7 +87,7 @@ public interface DatumExpressionRoot
 	/**
 	 * Get a datum's source ID.
 	 *
-	 * @return the datum source ID, or {@literal null} if the datum does not
+	 * @return the datum source ID, or {@code null} if the datum does not
 	 *         have a source ID
 	 * @since 1.2
 	 */
@@ -99,7 +99,7 @@ public interface DatumExpressionRoot
 	/**
 	 * Get a datum's timestamp.
 	 *
-	 * @return the datum timestamp, or {@literal null} if the datum does not
+	 * @return the datum timestamp, or {@code null} if the datum does not
 	 *         have a timestamp
 	 * @since 1.2
 	 */

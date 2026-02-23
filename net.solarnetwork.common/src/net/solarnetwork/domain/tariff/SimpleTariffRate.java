@@ -54,7 +54,7 @@ public class SimpleTariffRate implements Tariff.Rate {
 	 * @param amount
 	 *        the amount
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public SimpleTariffRate(String description, BigDecimal amount) {
 		this(requireNonNullArgument(StringUtils.simpleIdValue(description), "description"), description,
@@ -71,7 +71,7 @@ public class SimpleTariffRate implements Tariff.Rate {
 	 * @param amount
 	 *        the amount
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public SimpleTariffRate(String id, String description, BigDecimal amount) {
 		super();

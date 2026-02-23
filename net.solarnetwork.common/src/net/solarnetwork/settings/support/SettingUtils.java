@@ -132,8 +132,8 @@ public final class SettingUtils {
 	 * </p>
 	 * 
 	 * @param settings
-	 *        the settings to check ({@literal null} allowed)
-	 * @return the set of secure entry keys, never {@literal null}
+	 *        the settings to check ({@code null} allowed)
+	 * @return the set of secure entry keys, never {@code null}
 	 */
 	public static Set<String> secureKeys(List<SettingSpecifier> settings) {
 		if ( settings == null || settings.isEmpty() ) {
@@ -162,8 +162,8 @@ public final class SettingUtils {
 	 *        the settings to map
 	 * @param prefix
 	 *        the prefix to add to all {@link MappableSpecifier} settings
-	 * @return list of mapped settings, or {@literal null} if {@code settings}
-	 *         is {@literal null}
+	 * @return list of mapped settings, or {@code null} if {@code settings}
+	 *         is {@code null}
 	 * @since 1.1
 	 */
 	public static List<SettingSpecifier> mappedWithPrefix(List<SettingSpecifier> settings,
@@ -195,7 +195,7 @@ public final class SettingUtils {
 	 * @param settings
 	 *        the settings to extract the keyed defaults from
 	 * @return a map of keyed setting keys to associated default values, never
-	 *         {@literal null}
+	 *         {@code null}
 	 * @since 1.1
 	 */
 	public static Map<String, Object> keyedSettingDefaults(List<SettingSpecifier> settings) {
@@ -371,7 +371,7 @@ public final class SettingUtils {
 	 * @param capacity
 	 *        the estimated number of properties that will be added to the
 	 *        specification
-	 * @return the new map, never {@literal null}
+	 * @return the new map, never {@code null}
 	 * @since 1.2
 	 */
 	public static Map<String, Object> createBaseTemplateSpecification(SettingSpecifier spec,

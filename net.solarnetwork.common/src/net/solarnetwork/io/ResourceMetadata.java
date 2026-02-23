@@ -49,14 +49,14 @@ public interface ResourceMetadata {
 	/**
 	 * Get the modification date, if known.
 	 * 
-	 * @return the modified date, or {@literal null} if not known
+	 * @return the modified date, or {@code null} if not known
 	 */
 	Date getModified();
 
 	/**
 	 * Get the resource content type.
 	 * 
-	 * @return the content type, never {@literal null}
+	 * @return the content type, never {@code null}
 	 */
 	default MimeType getContentType() {
 		return DEFAULT_CONTENT_TYPE;

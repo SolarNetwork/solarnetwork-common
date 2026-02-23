@@ -23,6 +23,7 @@
 package net.solarnetwork.domain;
 
 import java.io.Serializable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A basic, immutable implementation of {@link Identity} that is also
@@ -45,7 +46,7 @@ public abstract class BasicSerializableIdentity<K extends Comparable<K> & Serial
 	 * @param id
 	 *        the ID to use
 	 */
-	public BasicSerializableIdentity(K id) {
+	public BasicSerializableIdentity(@Nullable K id) {
 		super(id);
 	}
 

@@ -47,7 +47,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
  * Serializer for {@link ObjectDatumStreamDataSet}.
  *
  * <p>
- * This generates a JSON object with the following form ({@literal null} values
+ * This generates a JSON object with the following form ({@code null} values
  * are omitted}:
  * </p>
  *

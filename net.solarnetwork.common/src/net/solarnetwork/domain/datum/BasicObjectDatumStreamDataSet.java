@@ -72,12 +72,12 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 	 * @param data
 	 *        the data
 	 * @param totalResultCount
-	 *        the total result count, or {@literal null} if not known
+	 *        the total result count, or {@code null} if not known
 	 * @param startingOffset
 	 *        the starting offset within the total result set, or
-	 *        {@literal null} if not known
+	 *        {@code null} if not known
 	 * @param returnedResultCount
-	 *        the number of results available in {@code data} or {@literal null}
+	 *        the number of results available in {@code data} or {@code null}
 	 *        if not known
 	 * @return the new instance
 	 */
@@ -98,7 +98,7 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 	 * @param data
 	 *        the data
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public BasicObjectDatumStreamDataSet(ObjectDatumStreamMetadataProvider provider, Iterable<T> data) {
 		this(provider, data, null, null, null);
@@ -112,15 +112,15 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 	 * @param data
 	 *        the data
 	 * @param totalResultCount
-	 *        the total result count, or {@literal null} if not known
+	 *        the total result count, or {@code null} if not known
 	 * @param startingOffset
 	 *        the starting offset within the total result set, or
-	 *        {@literal null} if not known
+	 *        {@code null} if not known
 	 * @param returnedResultCount
-	 *        the number of results available in {@code data} or {@literal null}
+	 *        the number of results available in {@code data} or {@code null}
 	 *        if not known
 	 * @throws IllegalArgumentException
-	 *         if either {@code provider} or {@code data} is {@literal null}
+	 *         if either {@code provider} or {@code data} is {@code null}
 	 */
 	public BasicObjectDatumStreamDataSet(ObjectDatumStreamMetadataProvider provider, Iterable<T> data,
 			@Nullable Long totalResultCount, @Nullable Integer startingOffset,

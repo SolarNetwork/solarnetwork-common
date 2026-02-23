@@ -52,7 +52,7 @@ public interface DcEnergyDatum extends EnergyDatum {
 	/**
 	 * Get the instantaneous DC current, in amperes.
 	 *
-	 * @return current, or {@literal null} if not available
+	 * @return current, or {@code null} if not available
 	 * @since 1.1
 	 */
 	default @Nullable Float getDcCurrent() {
@@ -62,7 +62,7 @@ public interface DcEnergyDatum extends EnergyDatum {
 	/**
 	 * Get the instantaneous DC power output, in watts.
 	 *
-	 * @return watts, or {@literal null} if not available
+	 * @return watts, or {@code null} if not available
 	 */
 	default @Nullable Integer getDcPower() {
 		return asSampleOperations().getSampleInteger(Instantaneous, DC_POWER_KEY);
@@ -71,7 +71,7 @@ public interface DcEnergyDatum extends EnergyDatum {
 	/**
 	 * Get the instantaneous DC voltage output, in volts.
 	 *
-	 * @return DC voltage, or {@literal null} if not available
+	 * @return DC voltage, or {@code null} if not available
 	 */
 	default @Nullable Float getDcVoltage() {
 		return asSampleOperations().getSampleFloat(Instantaneous, DC_VOLTAGE_KEY);

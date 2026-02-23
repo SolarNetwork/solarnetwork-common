@@ -63,10 +63,10 @@ public final class ObjectUtils {
 	 *        the argument to require to be non-null
 	 * @param argumentName
 	 *        the name of {@code arg} to report in the
-	 *        {@link IllegalArgumentException} if {@code arg} is {@literal null}
+	 *        {@link IllegalArgumentException} if {@code arg} is {@code null}
 	 * @return {@code arg}
 	 * @throws IllegalArgumentException
-	 *         if {@code arg} is {@literal null}
+	 *         if {@code arg} is {@code null}
 	 */
 	public static <T> T requireNonNullArgument(@Nullable T arg, String argumentName) {
 		if ( arg == null ) {
@@ -101,10 +101,10 @@ public final class ObjectUtils {
 	 *        the argument to require to be non-empty
 	 * @param argumentName
 	 *        the name of {@code arg} to report in the
-	 *        {@link IllegalArgumentException} if {@code arg} is {@literal null}
+	 *        {@link IllegalArgumentException} if {@code arg} is {@code null}
 	 * @return {@code arg}
 	 * @throws IllegalArgumentException
-	 *         if {@code arg} is {@literal null} or empty
+	 *         if {@code arg} is {@code null} or empty
 	 */
 	public static <T> T[] requireNonEmptyArgument(T[] arg, String argumentName) {
 		if ( arg == null || arg.length < 1 ) {
@@ -139,10 +139,10 @@ public final class ObjectUtils {
 	 *        the argument to require to be non-empty
 	 * @param argumentName
 	 *        the name of {@code arg} to report in the
-	 *        {@link IllegalArgumentException} if {@code arg} is {@literal null}
+	 *        {@link IllegalArgumentException} if {@code arg} is {@code null}
 	 * @return {@code arg}
 	 * @throws IllegalArgumentException
-	 *         if {@code arg} is {@literal null} or empty
+	 *         if {@code arg} is {@code null} or empty
 	 */
 	public static <T extends Collection<?>> T requireNonEmptyArgument(T arg, String argumentName) {
 		if ( arg == null || arg.size() < 1 ) {

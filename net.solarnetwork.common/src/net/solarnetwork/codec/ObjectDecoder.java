@@ -44,7 +44,7 @@ public interface ObjectDecoder extends Identifiable {
 	 *        the data to decode
 	 * @param parameters
 	 *        optional parameters to pass to the decoder
-	 * @return the decoded object, never {@literal null}
+	 * @return the decoded object, never {@code null}
 	 * @throws IOException
 	 *         if a decoding problem occurs
 	 */

@@ -50,7 +50,7 @@ public final class NodeControlUtils {
 	 *        the desired control property type
 	 * @param value
 	 *        the value
-	 * @return a string value derived from {@code value}, or {@literal null} if
+	 * @return a string value derived from {@code value}, or {@code null} if
 	 *         {@code value} cannot be converted to an appropriate value
 	 */
 	public static @Nullable String controlValue(NodeControlPropertyType type, @Nullable Object value) {
@@ -94,7 +94,7 @@ public final class NodeControlUtils {
 	 * <li>if {@code value} is a {@link Number} then if
 	 * {@link Number#intValue()} is {@literal 0} then {@literal false} otherwise
 	 * {@literal true}</li>
-	 * <li>if {@code value} is {@literal null} then {@literal false} otherwise
+	 * <li>if {@code value} is {@code null} then {@literal false} otherwise
 	 * {@literal true}</li>
 	 * <li>otherwise the result of passing the value's {@link Object#toString()}
 	 * to {@link StringUtils#parseBoolean(String)} is returned</li>
@@ -108,7 +108,7 @@ public final class NodeControlUtils {
 	 * @param value
 	 *        the value to convert to a boolean control value
 	 * @return either {@literal "true"} or {@literal "false"}, never
-	 *         {@literal null}
+	 *         {@code null}
 	 */
 	public static String booleanControlValue(@Nullable Object value) {
 		Boolean b = null;
@@ -136,7 +136,7 @@ public final class NodeControlUtils {
 	 * <li>if {@code value} is a {@link BigDecimal} then use directly</li>
 	 * <li>if {@code value} is a {@link Number} then create a {@link BigDecimal}
 	 * from the string value of the number</li>
-	 * <li>otherwise {@literal null} is returned</li>
+	 * <li>otherwise {@code null} is returned</li>
 	 * </ol>
 	 *
 	 * <p>
@@ -145,7 +145,7 @@ public final class NodeControlUtils {
 	 *
 	 * @param value
 	 *        the value to convert to a floating point control value
-	 * @return a decimal string representation of a float, or {@literal null} if
+	 * @return a decimal string representation of a float, or {@code null} if
 	 *         {@code value} is not a number
 	 */
 	public static @Nullable String floatControlValue(@Nullable Object value) {
@@ -171,7 +171,7 @@ public final class NodeControlUtils {
 	 * <li>if {@code value} is a {@link Number} then create a {@link BigDecimal}
 	 * from the string value of the number and convert that to a rounded
 	 * {@link BigInteger} value</li>
-	 * <li>otherwise {@literal null} is returned</li>
+	 * <li>otherwise {@code null} is returned</li>
 	 * </ol>
 	 *
 	 * <p>
@@ -180,7 +180,7 @@ public final class NodeControlUtils {
 	 *
 	 * @param value
 	 *        the value to convert to an integer control value
-	 * @return a decimal string representation of an integer, or {@literal null}
+	 * @return a decimal string representation of an integer, or {@code null}
 	 *         if {@code value} is not a number
 	 */
 	public static @Nullable String integerControlValue(@Nullable Object value) {
@@ -210,7 +210,7 @@ public final class NodeControlUtils {
 	 * point left by 2</li>
 	 * <li>if {@code value} is a {@link Number} then create a {@link BigDecimal}
 	 * from the string value of the number</li>
-	 * <li>otherwise {@literal null} is returned</li>
+	 * <li>otherwise {@code null} is returned</li>
 	 * </ol>
 	 *
 	 * <p>
@@ -219,7 +219,7 @@ public final class NodeControlUtils {
 	 *
 	 * @param value
 	 *        the value to convert to a percentage control value
-	 * @return a decimal string representation of a float, or {@literal null} if
+	 * @return a decimal string representation of a float, or {@code null} if
 	 *         {@code value} is not a number
 	 */
 	public static @Nullable String percentControlValue(@Nullable Object value) {
@@ -243,7 +243,7 @@ public final class NodeControlUtils {
 	 *
 	 * @param value
 	 *        the value to convert to an integer control value
-	 * @return a decimal string representation of an integer, or {@literal null}
+	 * @return a decimal string representation of an integer, or {@code null}
 	 *         if {@code value} is not a number
 	 */
 	public static @Nullable String stringControlValue(@Nullable Object value) {

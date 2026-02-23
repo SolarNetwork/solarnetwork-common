@@ -118,7 +118,7 @@ public interface InstructionStatus {
 	/**
 	 * Get result parameters.
 	 *
-	 * @return the result parameters, or {@literal null} if none available
+	 * @return the result parameters, or {@code null} if none available
 	 */
 	@Nullable
 	Map<String, ?> getResultParameters();
@@ -152,14 +152,14 @@ public interface InstructionStatus {
 	 * Create a new status for a given instruction.
 	 *
 	 * @param instruction
-	 *        the instruction, or {@literal null}
+	 *        the instruction, or {@code null}
 	 * @param state
 	 *        the new state
 	 * @param date
 	 *        the status date
 	 * @param resultParameters
 	 *        the optional result parameters
-	 * @return the status, never {@literal null}
+	 * @return the status, never {@code null}
 	 */
 	static InstructionStatus createStatus(@Nullable Instruction instruction, InstructionState state,
 			@Nullable Instant date, @Nullable Map<String, ?> resultParameters) {

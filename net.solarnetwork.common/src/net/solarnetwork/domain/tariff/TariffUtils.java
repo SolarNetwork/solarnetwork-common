@@ -69,7 +69,7 @@ public final class TariffUtils {
 	 * @param scheduleData
 	 *        a {@code String}, {@link Reader}, or {@code String[]} instance of
 	 *        CSV data
-	 * @return the parsed schedule, or {@literal null} if {@code scheduleData}
+	 * @return the parsed schedule, or {@code null} if {@code scheduleData}
 	 *         is not a {@code String}, {@link Reader}, or {@code String[]}
 	 *         instance
 	 * @throws IOException

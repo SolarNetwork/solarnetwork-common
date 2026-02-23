@@ -57,7 +57,7 @@ public interface FilterableService {
 	 * 
 	 * @param key
 	 *        the key to remove
-	 * @return the removed value, or {@literal null} if no value was available
+	 * @return the removed value, or {@code null} if no value was available
 	 */
 	Object removePropertyFilter(String key);
 
@@ -68,7 +68,7 @@ public interface FilterableService {
 	 *        the expected property value type
 	 * @param key
 	 *        the property filter key to get the value for
-	 * @return the property value, or {@literal null} if not available
+	 * @return the property value, or {@code null} if not available
 	 * @since 1.2
 	 */
 	@SuppressWarnings("unchecked")
@@ -84,10 +84,10 @@ public interface FilterableService {
 	 * @param <T>
 	 *        the filter property type
 	 * @param optionalService
-	 *        the optional service, or {@literal null}
+	 *        the optional service, or {@code null}
 	 * @param key
 	 *        the desired filter property key
-	 * @return the filter property value, or {@literal null}
+	 * @return the filter property value, or {@code null}
 	 * @since 1.1
 	 */
 	static <T> T filterPropValue(OptionalService<?> optionalService, String key) {
@@ -103,10 +103,10 @@ public interface FilterableService {
 	 * @param <T>
 	 *        the filter property type
 	 * @param service
-	 *        the filterable service, or {@literal null}
+	 *        the filterable service, or {@code null}
 	 * @param key
 	 *        the desired filter property key
-	 * @return the filter property value, or {@literal null}
+	 * @return the filter property value, or {@code null}
 	 * @since 1.1
 	 */
 	@SuppressWarnings("unchecked")
@@ -119,7 +119,7 @@ public interface FilterableService {
 	 * Set a filter property value on an optional service that is also optional.
 	 * 
 	 * @param optionalService
-	 *        the optional service, or {@literal null}
+	 *        the optional service, or {@code null}
 	 * @param key
 	 *        the desired filter property key
 	 * @param value
@@ -137,7 +137,7 @@ public interface FilterableService {
 	 * Set a filter property value.
 	 * 
 	 * @param service
-	 *        the filterable service, or {@literal null}
+	 *        the filterable service, or {@code null}
 	 * @param key
 	 *        the filter property key
 	 * @param value

@@ -48,7 +48,7 @@ public interface MutableDatumMetadataOperations extends DatumMetadataOperations 
 	 * @param key
 	 *        the key to put
 	 * @param value
-	 *        the value to put, or {@literal null} to remove the key
+	 *        the value to put, or {@code null} to remove the key
 	 */
 	void putInfoValue(String key, @Nullable Object value);
 
@@ -56,7 +56,7 @@ public interface MutableDatumMetadataOperations extends DatumMetadataOperations 
 	 * Set the complete info metadata map.
 	 *
 	 * @param info
-	 *        the info to set, or {@literal null}
+	 *        the info to set, or {@code null}
 	 */
 	void setInfo(@Nullable Map<String, Object> info);
 
@@ -70,7 +70,7 @@ public interface MutableDatumMetadataOperations extends DatumMetadataOperations 
 	 * @param key
 	 *        the key to put
 	 * @param value
-	 *        the value to put, or {@literal null} to remove the key
+	 *        the value to put, or {@code null} to remove the key
 	 */
 	void putInfoValue(String property, String key, @Nullable Object value);
 
@@ -80,7 +80,7 @@ public interface MutableDatumMetadataOperations extends DatumMetadataOperations 
 	 * @param key
 	 *        the property key
 	 * @param info
-	 *        the info metadata to set, or {@literal null}
+	 *        the info metadata to set, or {@code null}
 	 */
 	void setInfo(String key, @Nullable Map<String, Object> info);
 

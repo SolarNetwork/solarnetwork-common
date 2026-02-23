@@ -110,7 +110,7 @@ public class ResultStatusException extends RuntimeException {
 	/**
 	 * Get the source URL, if available.
 	 * 
-	 * @return the url the URL, or {@literal null}
+	 * @return the url the URL, or {@code null}
 	 */
 	public URL getUrl() {
 		return url;

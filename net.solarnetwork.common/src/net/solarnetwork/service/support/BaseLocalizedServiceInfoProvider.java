@@ -84,7 +84,7 @@ public abstract class BaseLocalizedServiceInfoProvider extends BasicUnique<Strin
 	 *
 	 * @param locale
 	 *        the locale to resolve mesages for
-	 * @return the map, never {@literal null}
+	 * @return the map, never {@code null}
 	 */
 	protected Map<String, String> resolveInfoMessages(Locale locale) {
 		return Collections.emptyMap();

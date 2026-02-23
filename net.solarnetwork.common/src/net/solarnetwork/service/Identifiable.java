@@ -68,7 +68,7 @@ public interface Identifiable {
 	 * This should be meaningful to the service implementation.
 	 * </p>
 	 *
-	 * @return a group identifier, or {@literal null} if not part of any group
+	 * @return a group identifier, or {@code null} if not part of any group
 	 */
 	@Nullable
 	String getGroupUid();

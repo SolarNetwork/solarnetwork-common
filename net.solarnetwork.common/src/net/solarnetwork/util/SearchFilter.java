@@ -85,7 +85,7 @@ public class SearchFilter {
 		 *
 		 * @param key
 		 *        the key of the enum to get
-		 * @return the enum, or {@literal null} if not supported
+		 * @return the enum, or {@code null} if not supported
 		 * @since 1.1
 		 */
 		public static @Nullable LogicOperator forKey(char key) {
@@ -186,7 +186,7 @@ public class SearchFilter {
 		 *
 		 * @param key
 		 *        the key of the enum to get
-		 * @return the enum, or {@literal null} if not supported
+		 * @return the enum, or {@code null} if not supported
 		 * @since 1.1
 		 */
 		public static @Nullable CompareOperator forKey(String key) {
@@ -243,7 +243,7 @@ public class SearchFilter {
 		 * @param node
 		 *        the filter being visited
 		 * @param parentNode
-		 *        the node's parent filter, or {@literal null} for the top-level
+		 *        the node's parent filter, or {@code null} for the top-level
 		 *        node
 		 * @return {@literal false} to stop walking
 		 */
@@ -637,7 +637,7 @@ public class SearchFilter {
 	 *
 	 * @param s
 	 *        the string to parse
-	 * @return the filter, or {@literal null} if {@code s} is not in a valid
+	 * @return the filter, or {@code null} if {@code s} is not in a valid
 	 *         format
 	 */
 	public static @Nullable SearchFilter forLDAPSearchFilterString(@Nullable String s) {

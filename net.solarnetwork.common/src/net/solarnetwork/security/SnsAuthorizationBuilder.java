@@ -66,7 +66,7 @@ public class SnsAuthorizationBuilder extends AbstractAuthorizationBuilder<SnsAut
 	 * Reset all values to their defaults.
 	 * 
 	 * <p>
-	 * All properties will be set to {@literal null} except the following:
+	 * All properties will be set to {@code null} except the following:
 	 * </p>
 	 * 
 	 * <dl>
@@ -99,7 +99,7 @@ public class SnsAuthorizationBuilder extends AbstractAuthorizationBuilder<SnsAut
 	 * </p>
 	 * 
 	 * @param date
-	 *        the date to use, or {@literal null} for the current system time
+	 *        the date to use, or {@code null} for the current system time
 	 *        via {@code Instant.now()}; will be truncated to second resolution
 	 * @return this builder
 	 */

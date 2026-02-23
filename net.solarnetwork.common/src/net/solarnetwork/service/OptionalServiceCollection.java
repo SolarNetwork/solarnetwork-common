@@ -49,7 +49,7 @@ public interface OptionalServiceCollection<T> {
 	/**
 	 * Get the collection of configured services.
 	 * 
-	 * @return the services, never {@literal null} but could be empty
+	 * @return the services, never {@code null} but could be empty
 	 */
 	Iterable<T> services();
 
@@ -64,8 +64,8 @@ public interface OptionalServiceCollection<T> {
 	 * @param <T>
 	 *        the service type
 	 * @param optional
-	 *        the optional service collection, or {@literal null}
-	 * @return the resolved services, or {@literal null}
+	 *        the optional service collection, or {@code null}
+	 * @return the resolved services, or {@code null}
 	 * @since 1.1
 	 */
 	static <T> Iterable<T> services(OptionalServiceCollection<T> optional) {
@@ -83,10 +83,10 @@ public interface OptionalServiceCollection<T> {
 	 * @param <T>
 	 *        the service type
 	 * @param optional
-	 *        the optional service collection, or {@literal null}
+	 *        the optional service collection, or {@code null}
 	 * @param fallback
-	 *        the result to return if {@code optional} is {@literal null} or its
-	 *        resolved service collection is {@literal null}
+	 *        the result to return if {@code optional} is {@code null} or its
+	 *        resolved service collection is {@code null}
 	 * @return the resolved services, or {@code fallback}
 	 * @since 1.1
 	 */

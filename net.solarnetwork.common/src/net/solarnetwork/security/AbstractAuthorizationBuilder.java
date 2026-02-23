@@ -122,7 +122,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * Reset all values to their defaults.
 	 * 
 	 * <p>
-	 * All properties will be set to {@literal null} except the following:
+	 * All properties will be set to {@code null} except the following:
 	 * </p>
 	 * 
 	 * <dl>
@@ -156,7 +156,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * </p>
 	 * 
 	 * @param date
-	 *        the date to use, or {@literal null} for the current system time
+	 *        the date to use, or {@code null} for the current system time
 	 *        via {@code Instant.now()}; will be truncated to second resolution
 	 * @return this builder
 	 */
@@ -188,7 +188,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 *        the verb
 	 * @return this builder
 	 * @throws IllegalArgumentException
-	 *         if {@code verb} is {@literal null}
+	 *         if {@code verb} is {@code null}
 	 */
 	@SuppressWarnings("unchecked")
 	public T verb(String verb) {
@@ -215,7 +215,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 *        the request path to use
 	 * @return this builder
 	 * @throws IllegalArgumentException
-	 *         if {@code path} is {@literal null}
+	 *         if {@code path} is {@code null}
 	 */
 	@SuppressWarnings("unchecked")
 	public T path(String path) {
@@ -255,7 +255,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * Set the body content SHA-256 digest value.
 	 * 
 	 * @param digest
-	 *        the digest value to use or {@literal null} for none; if provided,
+	 *        the digest value to use or {@code null} for none; if provided,
 	 *        the array must have a length of {@literal 32} and will be copied
 	 * @return this builder
 	 */
@@ -355,7 +355,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 *        the header value(s) to set
 	 * @return this builder
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	@SuppressWarnings("unchecked")
 	public T header(String headerName, String... headerValue) {
@@ -376,7 +376,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * 
 	 * @param headerName
 	 *        the name of the header to get the first value for
-	 * @return the header value, or {@literal null} if the header does not exist
+	 * @return the header value, or {@code null} if the header does not exist
 	 */
 	public String headerValue(String headerName) {
 		List<String> values = headerValues(headerName);
@@ -388,7 +388,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * 
 	 * @param headerName
 	 *        the name of the header to get the values for
-	 * @return the header values, or {@literal null} if the header does not
+	 * @return the header values, or {@code null} if the header does not
 	 *         exist
 	 */
 	public List<String> headerValues(String headerName) {
@@ -442,7 +442,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * Get the signing key, encoded as hex.
 	 * 
 	 * @return the computed or saved signing key encoded as hex, or
-	 *         {@literal null} if none computed or saved yet
+	 *         {@code null} if none computed or saved yet
 	 */
 	public String signingKeyHex() {
 		final byte[] k = this.signingKey;
@@ -483,7 +483,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * 
 	 * @return the signing key
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public byte[] computeSigningKey(Instant date, String secret) {
 		if ( secret == null || date == null ) {
@@ -497,7 +497,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	/**
 	 * Get all configured header names as a sorted array of lower-case values.
 	 * 
-	 * @return the sorted array, never {@literal null}
+	 * @return the sorted array, never {@code null}
 	 */
 	public String[] sortedHeaderNames() {
 		SortedSet<String> headerNames = new TreeSet<String>();
@@ -517,7 +517,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	/**
 	 * Compute the canonical request message.
 	 * 
-	 * @return the message content, never {@literal null}
+	 * @return the message content, never {@code null}
 	 * @see #computeCanonicalRequestMessage(String[])
 	 */
 	public String computeCanonicalRequestMessage() {

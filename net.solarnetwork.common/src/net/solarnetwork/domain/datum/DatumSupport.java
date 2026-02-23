@@ -80,8 +80,8 @@ public abstract class DatumSupport implements Serializable {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found
 	 */
 	protected @Nullable String getMapString(String key, @Nullable Map<String, ?> map) {
 		return CollectionUtils.getMapString(key, map);
@@ -94,8 +94,8 @@ public abstract class DatumSupport implements Serializable {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found
 	 */
 	protected @Nullable Integer getMapInteger(String key, @Nullable Map<String, ?> map) {
 		return CollectionUtils.getMapInteger(key, map);
@@ -108,8 +108,8 @@ public abstract class DatumSupport implements Serializable {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found
 	 */
 	protected @Nullable Long getMapLong(String key, @Nullable Map<String, ?> map) {
 		return CollectionUtils.getMapLong(key, map);
@@ -122,8 +122,8 @@ public abstract class DatumSupport implements Serializable {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found
 	 */
 	protected @Nullable Float getMapFloat(String key, @Nullable Map<String, ?> map) {
 		return CollectionUtils.getMapFloat(key, map);
@@ -136,8 +136,8 @@ public abstract class DatumSupport implements Serializable {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found
 	 */
 	protected @Nullable Double getMapDouble(String key, @Nullable Map<String, ?> map) {
 		return CollectionUtils.getMapDouble(key, map);
@@ -151,8 +151,8 @@ public abstract class DatumSupport implements Serializable {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found
 	 */
 	protected @Nullable BigDecimal getMapBigDecimal(String key, @Nullable Map<String, ?> map) {
 		return CollectionUtils.getMapBigDecimal(key, map);

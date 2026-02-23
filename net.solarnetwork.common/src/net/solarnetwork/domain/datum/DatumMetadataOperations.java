@@ -45,7 +45,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	/**
 	 * Get a set of all available info keys.
 	 *
-	 * @return the set of keys, never {@literal null}
+	 * @return the set of keys, never {@code null}
 	 */
 	default @Nullable Set<String> getInfoKeys() {
 		Map<String, ?> info = getInfo();
@@ -55,7 +55,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	/**
 	 * Get a general information metadata map.
 	 *
-	 * @return the map of general information, or {@literal null}
+	 * @return the map of general information, or {@code null}
 	 */
 	@Nullable
 	Map<String, ?> getInfo();
@@ -65,7 +65,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *
 	 * @param key
 	 *        the info key to get the associated metadata value for
-	 * @return the value, or {@literal null}
+	 * @return the value, or {@code null}
 	 */
 	default @Nullable Object getInfo(String key) {
 		Map<String, ?> info = getInfo();
@@ -88,7 +88,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	/**
 	 * Get a set of all available property info keys.
 	 *
-	 * @return the set of property info keys, never {@literal null}
+	 * @return the set of property info keys, never {@code null}
 	 */
 	Set<String> getPropertyInfoKeys();
 
@@ -97,7 +97,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *
 	 * @param key
 	 *        the property key to get the metadata for
-	 * @return the property metadata, or {@literal null}
+	 * @return the property metadata, or {@code null}
 	 */
 	@Nullable
 	Map<String, ?> getPropertyInfo(String key);
@@ -133,7 +133,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	/**
 	 * Get the sample tags.
 	 *
-	 * @return the tags, or {@literal null}
+	 * @return the tags, or {@code null}
 	 */
 	@Nullable
 	Set<String> getTags();
@@ -234,7 +234,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *
 	 * @param path
 	 *        the path of the metadata object to get
-	 * @return the metadata value, or {@literal null} if none exists at the
+	 * @return the metadata value, or {@code null} if none exists at the
 	 *         given path
 	 * @see #metadataAtPath(String, Class)
 	 */
@@ -266,7 +266,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 * another component, then the next component value will be returned if a
 	 * tag matching that component value exists. For example the path
 	 * {@literal /t/foo} would return {@literal foo} if {@link #getTags()}
-	 * contains {@literal foo}, otherwise {@literal null}.
+	 * contains {@literal foo}, otherwise {@code null}.
 	 * </p>
 	 *
 	 * @param <T>
@@ -275,18 +275,18 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the path of the metadata object to get
 	 * @param clazz
 	 *        the expected class of the return type
-	 * @return the metadata, or {@literal null} if none exists at the given path
+	 * @return the metadata, or {@code null} if none exists at the given path
 	 *         or is not of type {@code T}
 	 */
 	<T> @Nullable T metadataAtPath(@Nullable String path, Class<T> clazz);
 
 	/**
-	 * Get a Number value from the {@link #getInfo()} map, or {@literal null} if
+	 * Get a Number value from the {@link #getInfo()} map, or {@code null} if
 	 * not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as a Short, or {@literal null} if not available
+	 * @return the value as a Short, or {@code null} if not available
 	 */
 	default @Nullable Number getInfoNumber(String key) {
 		Map<String, ?> info = getInfo();
@@ -304,60 +304,60 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	}
 
 	/**
-	 * Get a Short value from the {@link #getInfo()} map, or {@literal null} if
+	 * Get a Short value from the {@link #getInfo()} map, or {@code null} if
 	 * not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as a Short, or {@literal null} if not available
+	 * @return the value as a Short, or {@code null} if not available
 	 */
 	default @Nullable Short getInfoShort(String key) {
 		return CollectionUtils.getMapShort(key, getInfo());
 	}
 
 	/**
-	 * Get an Integer value from the {@link #getInfo()} map, or {@literal null}
+	 * Get an Integer value from the {@link #getInfo()} map, or {@code null}
 	 * if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Integer, or {@literal null} if not available
+	 * @return the value as an Integer, or {@code null} if not available
 	 */
 	default @Nullable Integer getInfoInteger(String key) {
 		return CollectionUtils.getMapInteger(key, getInfo());
 	}
 
 	/**
-	 * Get a Long value from the {@link #getInfo()} map, or {@literal null} if
+	 * Get a Long value from the {@link #getInfo()} map, or {@code null} if
 	 * not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Long, or {@literal null} if not available
+	 * @return the value as an Long, or {@code null} if not available
 	 */
 	default @Nullable Long getInfoLong(String key) {
 		return CollectionUtils.getMapLong(key, getInfo());
 	}
 
 	/**
-	 * Get a Float value from the {@link #getInfo()} map, or {@literal null} if
+	 * Get a Float value from the {@link #getInfo()} map, or {@code null} if
 	 * not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Float, or {@literal null} if not available
+	 * @return the value as an Float, or {@code null} if not available
 	 */
 	default @Nullable Float getInfoFloat(String key) {
 		return CollectionUtils.getMapFloat(key, getInfo());
 	}
 
 	/**
-	 * Get a Double value from the {@link #getInfo()} map, or {@literal null} if
+	 * Get a Double value from the {@link #getInfo()} map, or {@code null} if
 	 * not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Double, or {@literal null} if not available
+	 * @return the value as an Double, or {@code null} if not available
 	 */
 	default @Nullable Double getInfoDouble(String key) {
 		return CollectionUtils.getMapDouble(key, getInfo());
@@ -365,11 +365,11 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 
 	/**
 	 * Get a BigDecimal value from the {@link #getInfo()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or {@literal null} if not available
+	 * @return the value as an BigDecimal, or {@code null} if not available
 	 */
 	default @Nullable BigDecimal getInfoBigDecimal(String key) {
 		return CollectionUtils.getMapBigDecimal(key, getInfo());
@@ -377,23 +377,23 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 
 	/**
 	 * Get a BigInteger value from the {@link #getInfo()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigInteger, or {@literal null} if not available
+	 * @return the value as an BigInteger, or {@code null} if not available
 	 */
 	default @Nullable BigInteger getInfoBigInteger(String key) {
 		return CollectionUtils.getMapBigInteger(key, getInfo());
 	}
 
 	/**
-	 * Get a String value from the {@link #getInfo()} map, or {@literal null} if
+	 * Get a String value from the {@link #getInfo()} map, or {@code null} if
 	 * not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as a String, or {@literal null} if not available
+	 * @return the value as a String, or {@code null} if not available
 	 */
 	default @Nullable String getInfoString(String key) {
 		return CollectionUtils.getMapString(key, getInfo());
@@ -401,13 +401,13 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 
 	/**
 	 * Get a Number value from the {@link #getPropertyInfo(String)} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as a Number, or {@literal null} if not available
+	 * @return the value as a Number, or {@code null} if not available
 	 */
 	default @Nullable Number getInfoNumber(String property, String key) {
 		Map<String, ?> info = getPropertyInfo(property);
@@ -426,13 +426,13 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 
 	/**
 	 * Get a Short value from the {@link #getPropertyInfo(String)} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as a Short, or {@literal null} if not available
+	 * @return the value as a Short, or {@code null} if not available
 	 */
 	default @Nullable Short getInfoShort(String property, String key) {
 		return CollectionUtils.getMapShort(key, getPropertyInfo(property));
@@ -440,13 +440,13 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 
 	/**
 	 * Get an Integer value from the {@link #getPropertyInfo(String)} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Integer, or {@literal null} if not available
+	 * @return the value as an Integer, or {@code null} if not available
 	 */
 	default @Nullable Integer getInfoInteger(String property, String key) {
 		return CollectionUtils.getMapInteger(key, getPropertyInfo(property));
@@ -454,13 +454,13 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 
 	/**
 	 * Get a Long value from the {@link #getPropertyInfo(String)} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Long, or {@literal null} if not available
+	 * @return the value as an Long, or {@code null} if not available
 	 */
 	default @Nullable Long getInfoLong(String property, String key) {
 		return CollectionUtils.getMapLong(key, getPropertyInfo(property));
@@ -468,13 +468,13 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 
 	/**
 	 * Get a Float value from the {@link #getPropertyInfo(String)} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Float, or {@literal null} if not available
+	 * @return the value as an Float, or {@code null} if not available
 	 */
 	default @Nullable Float getInfoFloat(String property, String key) {
 		return CollectionUtils.getMapFloat(key, getPropertyInfo(property));
@@ -482,13 +482,13 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 
 	/**
 	 * Get a Double value from the {@link #getPropertyInfo(String)} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Double, or {@literal null} if not available
+	 * @return the value as an Double, or {@code null} if not available
 	 */
 	default @Nullable Double getInfoDouble(String property, String key) {
 		return CollectionUtils.getMapDouble(key, getPropertyInfo(property));
@@ -496,13 +496,13 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 
 	/**
 	 * Get a BigDecimal value from the {@link #getPropertyInfo(String)} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or {@literal null} if not available
+	 * @return the value as an BigDecimal, or {@code null} if not available
 	 */
 	default @Nullable BigDecimal getInfoBigDecimal(String property, String key) {
 		return CollectionUtils.getMapBigDecimal(key, getPropertyInfo(property));
@@ -510,13 +510,13 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 
 	/**
 	 * Get a BigInteger value from the {@link #getPropertyInfo(String)} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigInteger, or {@literal null} if not available
+	 * @return the value as an BigInteger, or {@code null} if not available
 	 */
 	default @Nullable BigInteger getInfoBigInteger(String property, String key) {
 		return CollectionUtils.getMapBigInteger(key, getPropertyInfo(property));
@@ -524,13 +524,13 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 
 	/**
 	 * Get a String value from the {@link #getPropertyInfo(String)} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param property
 	 *        the property name
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as a String, or {@literal null} if not available
+	 * @return the value as a String, or {@code null} if not available
 	 */
 	default @Nullable String getInfoString(String property, String key) {
 		return CollectionUtils.getMapString(key, getPropertyInfo(property));

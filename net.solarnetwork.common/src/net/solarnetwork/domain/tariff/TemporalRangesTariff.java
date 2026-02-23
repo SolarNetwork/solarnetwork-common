@@ -125,8 +125,8 @@ public class TemporalRangesTariff implements Tariff, ChronoFieldsTariff {
 	 *
 	 * @param field
 	 *        the field to get the range for
-	 * @return the associated range, or {@literal null} if the field is not
-	 *         supported or the range is {@literal null}
+	 * @return the associated range, or {@code null} if the field is not
+	 *         supported or the range is {@code null}
 	 */
 	public @Nullable IntRange rangeForField(ChronoField field) {
 		switch (field) {

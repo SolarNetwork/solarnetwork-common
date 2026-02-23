@@ -120,7 +120,7 @@ public class SimplePagination implements Cloneable {
 	/**
 	 * Get the desired starting offset.
 	 *
-	 * @return the offset, or {@literal null}
+	 * @return the offset, or {@code null}
 	 */
 	public @Nullable Long getOffset() {
 		return offset;
@@ -139,7 +139,7 @@ public class SimplePagination implements Cloneable {
 	/**
 	 * Get the maximum desired results.
 	 *
-	 * @return the max, or {@literal null} for all results
+	 * @return the max, or {@code null} for all results
 	 */
 	public @Nullable Integer getMax() {
 		return max;

@@ -30,7 +30,7 @@ import java.util.Map;
  * <p>
  * This API is like a simplified OSGi ServiceTracker. Calling the
  * {@link #service()} method will return the first available matching service,
- * or {@literal null} if none available.
+ * or {@code null} if none available.
  * </p>
  * 
  * @param <T>
@@ -51,9 +51,9 @@ public interface OptionalService<T> {
 	}
 
 	/**
-	 * Get the configured service, or {@literal null} if none available.
+	 * Get the configured service, or {@code null} if none available.
 	 * 
-	 * @return the service, or {@literal null}
+	 * @return the service, or {@code null}
 	 */
 	T service();
 
@@ -68,8 +68,8 @@ public interface OptionalService<T> {
 	 * @param <T>
 	 *        the service type
 	 * @param optional
-	 *        the optional service, or {@literal null}
-	 * @return the resolved service, or {@literal null}
+	 *        the optional service, or {@code null}
+	 * @return the resolved service, or {@code null}
 	 * @since 1.1
 	 */
 	static <T> T service(OptionalService<T> optional) {
@@ -87,10 +87,10 @@ public interface OptionalService<T> {
 	 * @param <T>
 	 *        the service type
 	 * @param optional
-	 *        the optional service, or {@literal null}
+	 *        the optional service, or {@code null}
 	 * @param fallback
-	 *        the result to return if {@code optional} is {@literal null} or its
-	 *        resolved service is {@literal null}
+	 *        the result to return if {@code optional} is {@code null} or its
+	 *        resolved service is {@code null}
 	 * @return the resolved service, or {@code fallback}
 	 * @since 1.1
 	 */
@@ -106,8 +106,8 @@ public interface OptionalService<T> {
 	 * @param <T>
 	 *        the service type
 	 * @param optional
-	 *        the optional service, or {@literal null}
-	 * @return the resolved service, never {@literal null}
+	 *        the optional service, or {@code null}
+	 * @return the resolved service, never {@code null}
 	 * @throws OptionalServiceNotAvailableException
 	 *         if the service can not be resolved
 	 * @since 2.0
@@ -123,11 +123,11 @@ public interface OptionalService<T> {
 	 * @param <T>
 	 *        the service type
 	 * @param optional
-	 *        the optional service, or {@literal null}
+	 *        the optional service, or {@code null}
 	 * @param description
 	 *        a description to use if the service can not be resolved, or
-	 *        {@literal null}
-	 * @return the resolved service, never {@literal null}
+	 *        {@code null}
+	 * @return the resolved service, never {@code null}
 	 * @throws OptionalServiceNotAvailableException
 	 *         if the service can not be resolved
 	 * @since 2.0

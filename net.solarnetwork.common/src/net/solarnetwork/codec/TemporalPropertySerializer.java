@@ -59,7 +59,7 @@ public class TemporalPropertySerializer implements PropertySerializer {
 	 * @param pattern
 	 *        the pattern to use
 	 * @param zone
-	 *        if not {@literal null} then a zone to use
+	 *        if not {@code null} then a zone to use
 	 */
 	public TemporalPropertySerializer(String pattern, ZoneId zone) {
 		this((zone != null ? DateTimeFormatter.ofPattern(pattern).withZone(zone)
@@ -72,7 +72,7 @@ public class TemporalPropertySerializer implements PropertySerializer {
 	 * @param formatter
 	 *        the formatter to use
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public TemporalPropertySerializer(DateTimeFormatter formatter) {
 		super();

@@ -52,7 +52,7 @@ public interface TemplateRenderer extends Identity<String> {
 	/**
 	 * Get the MIME types this service is capable of rendering output as.
 	 *
-	 * @return the supported MIME type, never {@literal null}
+	 * @return the supported MIME type, never {@code null}
 	 */
 	List<MimeType> supportedMimeTypes();
 

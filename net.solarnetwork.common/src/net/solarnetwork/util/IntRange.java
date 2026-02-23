@@ -191,7 +191,7 @@ public final class IntRange implements Serializable, Comparable<IntRange>, IntRa
 	 * @return {@literal true} if this range intersects (overlaps) with the
 	 *         given range
 	 * @throws NullPointerException
-	 *         if {@code o} is {@literal null}
+	 *         if {@code o} is {@code null}
 	 */
 	public boolean intersects(final IntRange o) {
 		return (min >= o.min && min <= o.max) || (o.min >= min && o.min <= max);
@@ -204,7 +204,7 @@ public final class IntRange implements Serializable, Comparable<IntRange>, IntRa
 	 *        the range to compare to this range
 	 * @return {@literal true} if this range is adjacent to the given range
 	 * @throws NullPointerException
-	 *         if {@code o} is {@literal null}
+	 *         if {@code o} is {@code null}
 	 */
 	public boolean adjacentTo(final IntRange o) {
 		return (max + 1 == o.min) || (o.max + 1 == min);

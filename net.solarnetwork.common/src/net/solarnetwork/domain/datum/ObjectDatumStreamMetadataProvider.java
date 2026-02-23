@@ -45,7 +45,7 @@ public interface ObjectDatumStreamMetadataProvider {
 	 * metadata available for.
 	 *
 	 * @return the set of stream IDs that {@link #metadataForStreamId(UUID)}
-	 *         will return a value for, or {@literal null} it not known
+	 *         will return a value for, or {@code null} it not known
 	 */
 	@Nullable
 	Collection<UUID> metadataStreamIds();
@@ -55,7 +55,7 @@ public interface ObjectDatumStreamMetadataProvider {
 	 *
 	 * @param streamId
 	 *        the stream ID
-	 * @return the stream metadata, or {@literal null} if not available
+	 * @return the stream metadata, or {@code null} if not available
 	 */
 	@Nullable
 	ObjectDatumStreamMetadata metadataForStreamId(UUID streamId);
@@ -67,7 +67,7 @@ public interface ObjectDatumStreamMetadataProvider {
 	 *        the object ID, e.g. node or location ID
 	 * @param sourceId
 	 *        the source ID
-	 * @return the stream metadata, or {@literal null} if not available
+	 * @return the stream metadata, or {@code null} if not available
 	 */
 	@Nullable
 	ObjectDatumStreamMetadata metadataForObjectSource(Long objectId, String sourceId);
@@ -77,9 +77,9 @@ public interface ObjectDatumStreamMetadataProvider {
 	 *
 	 * @param metadatas
 	 *        the collection of metadata
-	 * @return the provider, never {@literal null}
+	 * @return the provider, never {@code null}
 	 * @throws IllegalArgumentException
-	 *         if {@code metadatas} is {@literal null}
+	 *         if {@code metadatas} is {@code null}
 	 */
 	static ObjectDatumStreamMetadataProvider staticProvider(
 			Iterable<ObjectDatumStreamMetadata> metadatas) {

@@ -123,7 +123,7 @@ public enum SkyCondition implements Bitmaskable {
 	 *
 	 * @param code
 	 *        the code to get an enum for
-	 * @return the enum with the given {@code code}, or {@literal null} if
+	 * @return the enum with the given {@code code}, or {@code null} if
 	 *         {@code code} is {@literal 0}
 	 * @throws IllegalArgumentException
 	 *         if {@code code} is not supported
@@ -144,7 +144,7 @@ public enum SkyCondition implements Bitmaskable {
 	 * Get a bitmask value out of a set of conditions.
 	 *
 	 * @param conditions
-	 *        the set of conditions ({@literal null} allowed)
+	 *        the set of conditions ({@code null} allowed)
 	 * @return the bitmask
 	 */
 	public static int bitmaskValue(@Nullable Set<SkyCondition> conditions) {
@@ -161,7 +161,7 @@ public enum SkyCondition implements Bitmaskable {
 	 *
 	 * @param mask
 	 *        a bitmask value of a set of condition codes
-	 * @return an immutable set of conditions, never {@literal null}
+	 * @return an immutable set of conditions, never {@code null}
 	 * @see #bitmaskValue(Set)
 	 */
 	public static Set<SkyCondition> conditionsForBitmask(int mask) {

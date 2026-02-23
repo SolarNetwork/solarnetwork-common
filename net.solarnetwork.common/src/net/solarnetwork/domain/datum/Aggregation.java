@@ -157,7 +157,7 @@ public enum Aggregation {
 	 * Get an enum instance for a key value.
 	 *
 	 * @param key
-	 *        the key value; if {@literal null} or empty then {@link #None} will
+	 *        the key value; if {@code null} or empty then {@link #None} will
 	 *        be returned
 	 * @return the enum
 	 * @throws IllegalArgumentException

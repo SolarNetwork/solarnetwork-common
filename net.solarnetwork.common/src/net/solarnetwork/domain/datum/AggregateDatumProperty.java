@@ -128,7 +128,7 @@ public class AggregateDatumProperty {
 	/**
 	 * Get the first accumulated value.
 	 * 
-	 * @return the first value, never {@literal null}
+	 * @return the first value, never {@code null}
 	 */
 	public BigDecimal first() {
 		return first;
@@ -137,7 +137,7 @@ public class AggregateDatumProperty {
 	/**
 	 * Get the last accumulated value.
 	 * 
-	 * @return the last value, never {@literal null}
+	 * @return the last value, never {@code null}
 	 */
 	public BigDecimal last() {
 		return last;

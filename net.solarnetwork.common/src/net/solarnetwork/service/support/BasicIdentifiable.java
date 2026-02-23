@@ -160,7 +160,7 @@ public class BasicIdentifiable implements Identifiable {
 	 * @param key
 	 *        the metadata key to get the value for
 	 * @return the value found on the first matching metadata key, or
-	 *         {@literal null} if not found
+	 *         {@code null} if not found
 	 * @since 2.1
 	 */
 	public String metadataValue(String key) {
@@ -188,7 +188,7 @@ public class BasicIdentifiable implements Identifiable {
 	 * @param key
 	 *        the metadata key to get the value for
 	 * @return the value found on the first matching metadata key, or
-	 *         {@literal null} if not found
+	 *         {@code null} if not found
 	 * @since 2.1
 	 */
 	public Object smartMetadataValue(String key) {
@@ -208,7 +208,7 @@ public class BasicIdentifiable implements Identifiable {
 	 * @param key
 	 *        the metadata key to get the value for
 	 * @return the value found on the first matching metadata key, or
-	 *         {@literal null} if not found or the value cannot be coerced to a
+	 *         {@code null} if not found or the value cannot be coerced to a
 	 *         number
 	 * @since 2.1
 	 */
@@ -223,7 +223,7 @@ public class BasicIdentifiable implements Identifiable {
 	 * @param key
 	 *        the metadata key to get the value for
 	 * @return the value found on the first matching metadata key, or
-	 *         {@literal null} if not found or the value cannot be coerced to an
+	 *         {@code null} if not found or the value cannot be coerced to an
 	 *         integer
 	 * @since 2.1
 	 */
@@ -239,7 +239,7 @@ public class BasicIdentifiable implements Identifiable {
 	 * @param key
 	 *        the metadata key to get the value for
 	 * @return the value found on the first matching metadata key, or
-	 *         {@literal null} if not found or the value cannot be coerced to a
+	 *         {@code null} if not found or the value cannot be coerced to a
 	 *         double
 	 * @since 2.1
 	 */
@@ -456,7 +456,7 @@ public class BasicIdentifiable implements Identifiable {
 	/**
 	 * Get a list of metadata values.
 	 * 
-	 * @return the metadata, or {@literal null}
+	 * @return the metadata, or {@code null}
 	 * @since 2.1
 	 */
 	public KeyValuePair[] getMetadata() {
@@ -467,7 +467,7 @@ public class BasicIdentifiable implements Identifiable {
 	 * Set a list of metadata values.
 	 * 
 	 * @param metadata
-	 *        the metadata to set, or {@literal null}
+	 *        the metadata to set, or {@code null}
 	 * @since 2.1
 	 */
 	public void setMetadata(KeyValuePair[] metadata) {

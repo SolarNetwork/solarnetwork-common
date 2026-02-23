@@ -85,7 +85,7 @@ public enum DeviceOperatingState implements Bitmaskable {
 	 *
 	 * @param code
 	 *        the code to get an enum for
-	 * @return the enum with the given {@code code}, or {@literal null} if
+	 * @return the enum with the given {@code code}, or {@code null} if
 	 *         {@code code} is {@literal 0}
 	 * @throws IllegalArgumentException
 	 *         if {@code code} is not supported

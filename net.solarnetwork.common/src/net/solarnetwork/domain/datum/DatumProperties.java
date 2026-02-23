@@ -35,7 +35,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>
  * The properties are stored as ordered arrays of values. The meaning of the
- * values depends on external {@link DatumStreamMetadata}. {@literal null}
+ * values depends on external {@link DatumStreamMetadata}. {@code null}
  * values are allowed both as the array fields of this class and as values
  * within array instances.
  * </p>
@@ -78,7 +78,7 @@ public class DatumProperties implements Serializable {
 	 *        the status values
 	 * @param tags
 	 *        the tag values
-	 * @return the new instance, never {@literal null}
+	 * @return the new instance, never {@code null}
 	 */
 	public static DatumProperties propertiesOf(BigDecimal @Nullable [] instantaneous,
 			BigDecimal @Nullable [] accumulating, String @Nullable [] status, String @Nullable [] tags) {
@@ -95,7 +95,7 @@ public class DatumProperties implements Serializable {
 	 * metadata.
 	 *
 	 * <p>
-	 * Note that trailing {@literal null} values will be removed from the
+	 * Note that trailing {@code null} values will be removed from the
 	 * instantaneous, accumulating, and status data arrays.
 	 * </p>
 	 *
@@ -103,8 +103,8 @@ public class DatumProperties implements Serializable {
 	 *        the datum to create properties from
 	 * @param meta
 	 *        the metadata that defines the property order
-	 * @return the properties, or {@literal null} if {@code datum} is
-	 *         {@literal null}
+	 * @return the properties, or {@code null} if {@code datum} is
+	 *         {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the metadata does not support a property found on the datum
 	 */
@@ -288,7 +288,7 @@ public class DatumProperties implements Serializable {
 	 * This returns the sum of the length of all the array fields of this class.
 	 * </p>
 	 *
-	 * @return the number of values (including {@literal null} values)
+	 * @return the number of values (including {@code null} values)
 	 */
 	public int getLength() {
 		return getInstantaneousLength() + getAccumulatingLength() + getStatusLength() + getTagsLength();
@@ -297,7 +297,7 @@ public class DatumProperties implements Serializable {
 	/**
 	 * Get the instantaneous values array length.
 	 *
-	 * @return the number of instantaneous values (including {@literal null}
+	 * @return the number of instantaneous values (including {@code null}
 	 *         values)
 	 */
 	public int getInstantaneousLength() {
@@ -329,7 +329,7 @@ public class DatumProperties implements Serializable {
 	 *
 	 * @param index
 	 *        the property index to return
-	 * @return the value, or {@literal null} if not available
+	 * @return the value, or {@code null} if not available
 	 * @since 1.2
 	 */
 	public @Nullable BigDecimal instantaneousValue(int index) {
@@ -343,7 +343,7 @@ public class DatumProperties implements Serializable {
 	/**
 	 * Get the accumulating values array length.
 	 *
-	 * @return the number of accumulating values (including {@literal null}
+	 * @return the number of accumulating values (including {@code null}
 	 *         values)
 	 */
 	public int getAccumulatingLength() {
@@ -375,7 +375,7 @@ public class DatumProperties implements Serializable {
 	 *
 	 * @param index
 	 *        the property index to return
-	 * @return the value, or {@literal null} if not available
+	 * @return the value, or {@code null} if not available
 	 * @since 1.2
 	 */
 	public @Nullable BigDecimal accumulatingValue(int index) {
@@ -389,7 +389,7 @@ public class DatumProperties implements Serializable {
 	/**
 	 * Get the status values array length.
 	 *
-	 * @return the number of status values (including {@literal null} values)
+	 * @return the number of status values (including {@code null} values)
 	 */
 	public int getStatusLength() {
 		String[] array = getStatus();
@@ -420,7 +420,7 @@ public class DatumProperties implements Serializable {
 	 *
 	 * @param index
 	 *        the property index to return
-	 * @return the value, or {@literal null} if not available
+	 * @return the value, or {@code null} if not available
 	 * @since 1.2
 	 */
 	public @Nullable String statusValue(int index) {
@@ -434,7 +434,7 @@ public class DatumProperties implements Serializable {
 	/**
 	 * Get the tags array length.
 	 *
-	 * @return the number of tags (including {@literal null} values)
+	 * @return the number of tags (including {@code null} values)
 	 */
 	public int getTagsLength() {
 		String[] array = getTags();
@@ -486,7 +486,7 @@ public class DatumProperties implements Serializable {
 	 *
 	 * @param index
 	 *        the property index to return
-	 * @return the value, or {@literal null} if not available
+	 * @return the value, or {@code null} if not available
 	 * @since 1.3
 	 */
 	public @Nullable String tagValue(int index) {

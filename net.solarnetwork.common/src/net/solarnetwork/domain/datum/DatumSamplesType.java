@@ -105,7 +105,7 @@ public enum DatumSamplesType {
 	 *
 	 * @param value
 	 *        the enumeration name or key value, case-insensitve
-	 * @return the enum, or {@literal null} if value is {@literal null} or empty
+	 * @return the enum, or {@code null} if value is {@code null} or empty
 	 * @throws IllegalArgumentException
 	 *         if {@code value} is not a valid value
 	 * @since 1.1

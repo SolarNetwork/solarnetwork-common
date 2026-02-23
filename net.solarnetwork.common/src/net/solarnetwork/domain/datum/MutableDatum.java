@@ -34,7 +34,7 @@ public interface MutableDatum extends Datum {
 	/**
 	 * Get a mutable general accessor for the sample data.
 	 * 
-	 * @return the operations instance, never {@literal null}
+	 * @return the operations instance, never {@code null}
 	 * @throws UnsupportedOperationException
 	 *         if mutation is not supported
 	 */

@@ -91,7 +91,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 	 * @param capacity
 	 *        the initial capacity
 	 * @param nullValue
-	 *        the value that represents {@literal null}
+	 *        the value that represents {@code null}
 	 */
 	public ByteList(int capacity, byte nullValue) {
 		super();
@@ -120,7 +120,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 	 * @param values
 	 *        the initial content to add to this list; the values are copied
 	 * @param nullValue
-	 *        the value that represents {@literal null}
+	 *        the value that represents {@code null}
 	 */
 	public ByteList(byte[] values, byte nullValue) {
 		super();

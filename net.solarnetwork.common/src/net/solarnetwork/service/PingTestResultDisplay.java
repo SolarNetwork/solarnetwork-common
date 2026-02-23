@@ -50,7 +50,7 @@ public class PingTestResultDisplay extends PingTestResult {
 	 * @param start
 	 *        The time the test started.
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public PingTestResultDisplay(PingTest test, PingTest.Result result, Instant start) {
 		super(requireNonNullArgument(result, "result").isSuccess(), result.getMessage(),

@@ -34,7 +34,7 @@ public interface ResourceMetadataHolder {
 	/**
 	 * Get the resource metadata.
 	 * 
-	 * @return the metadata, or {@literal null} if not available
+	 * @return the metadata, or {@code null} if not available
 	 */
 	ResourceMetadata getMetadata();
 

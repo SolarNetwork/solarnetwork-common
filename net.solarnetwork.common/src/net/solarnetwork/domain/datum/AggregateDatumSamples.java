@@ -140,7 +140,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 * @param maxPropertyFormat
 	 *        an optional string template to generate a "maximum" property name
 	 *        with; will be passed a single string parameter
-	 * @return the new samples instance, never {@literal null}
+	 * @return the new samples instance, never {@code null}
 	 * @since 1.1
 	 */
 	public DatumSamples average(int decimalScale, String minPropertyFormat, String maxPropertyFormat) {
@@ -193,7 +193,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 * @param key
 	 *        the key to put
 	 * @param n
-	 *        the value to put, or {@literal null} to remove the key
+	 *        the value to put, or {@code null} to remove the key
 	 */
 	public void putInstantaneousSampleValue(String key, @Nullable Number n) {
 		Map<String, AggregateDatumProperty> m = instantaneous;
@@ -214,7 +214,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 * @param key
 	 *        the key to put
 	 * @param n
-	 *        the value to put, or {@literal null} to remove the key
+	 *        the value to put, or {@code null} to remove the key
 	 */
 	public void putAccumulatingSampleValue(String key, @Nullable Number n) {
 		Map<String, AggregateDatumProperty> m = accumulating;
@@ -235,7 +235,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 * @param key
 	 *        the key to put
 	 * @param value
-	 *        the value to put, or {@literal null} to remove the key
+	 *        the value to put, or {@code null} to remove the key
 	 */
 	public void putStatusSampleValue(String key, @Nullable Object value) {
 		Map<String, Object> m = status;
@@ -283,7 +283,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	/**
 	 * Get the timestamp.
 	 *
-	 * @return the timestamp, or {@literal null}
+	 * @return the timestamp, or {@code null}
 	 * @since 2.1
 	 */
 	public @Nullable Instant getTimestamp() {

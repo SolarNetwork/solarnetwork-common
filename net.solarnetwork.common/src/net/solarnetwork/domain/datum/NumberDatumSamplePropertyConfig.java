@@ -146,8 +146,8 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 *
 	 * @param value
 	 *        the number to apply the transform properties to
-	 * @return the result, or {@literal null} if {@code value} is
-	 *         {@literal null}
+	 * @return the result, or {@code null} if {@code value} is
+	 *         {@code null}
 	 */
 	public @Nullable Number applyTransformations(@Nullable Number value) {
 		if ( value == null ) {
@@ -169,7 +169,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * value to <i>watts</i>.
 	 * </p>
 	 *
-	 * @return the slope multiplier, never {@literal null}; defaults to
+	 * @return the slope multiplier, never {@code null}; defaults to
 	 *         {@link #DEFAULT_SLOPE}
 	 */
 	public BigDecimal getSlope() {
@@ -180,7 +180,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * Set the slope multiplier.
 	 *
 	 * @param slope
-	 *        the slope multiplier to set; if {@literal null}
+	 *        the slope multiplier to set; if {@code null}
 	 *        {@link #DEFAULT_SLOPE} will be used instead
 	 */
 	public void setSlope(BigDecimal slope) {
@@ -198,7 +198,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * convert the value appropriately.
 	 * </p>
 	 *
-	 * @return the y-intercept, never {@literal null}; defaults to
+	 * @return the y-intercept, never {@code null}; defaults to
 	 *         {@link #DEFAULT_INTERCEPT}
 	 */
 	public BigDecimal getIntercept() {
@@ -209,7 +209,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * Set the y-intercept offset.
 	 *
 	 * @param intercept
-	 *        the intercept offset to set; if {@literal null}
+	 *        the intercept offset to set; if {@code null}
 	 *        {@link #DEFAULT_INTERCEPT} will be used instead
 	 */
 	public void setIntercept(BigDecimal intercept) {
@@ -226,7 +226,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * value to <i>watts</i>.
 	 * </p>
 	 *
-	 * @return the unit slope multiplier, never {@literal null}; defaults to
+	 * @return the unit slope multiplier, never {@code null}; defaults to
 	 *         {@link #DEFAULT_SLOPE}
 	 */
 	public BigDecimal getUnitSlope() {
@@ -237,7 +237,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * Set the unit slope multiplier.
 	 *
 	 * @param unitSlope
-	 *        the unit slope multiplier to set; if {@literal null}
+	 *        the unit slope multiplier to set; if {@code null}
 	 *        {@link #DEFAULT_SLOPE} will be used instead
 	 */
 	public void setUnitSlope(BigDecimal unitSlope) {
@@ -255,7 +255,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * convert the value appropriately.
 	 * </p>
 	 *
-	 * @return the unit y-intercept, never {@literal null}; defaults to
+	 * @return the unit y-intercept, never {@code null}; defaults to
 	 *         {@link #DEFAULT_INTERCEPT}
 	 */
 	public BigDecimal getUnitIntercept() {
@@ -266,7 +266,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * Set the unit y-intercept offset.
 	 *
 	 * @param unitIntercept
-	 *        the unit intercept offset to set; if {@literal null}
+	 *        the unit intercept offset to set; if {@code null}
 	 *        {@link #DEFAULT_INTERCEPT} will be used instead
 	 */
 	public void setUnitIntercept(BigDecimal unitIntercept) {

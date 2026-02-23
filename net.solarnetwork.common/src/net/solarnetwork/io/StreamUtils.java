@@ -56,7 +56,7 @@ public final class StreamUtils {
 	 * 
 	 * @param in
 	 *        the input stream to wrap
-	 * @return the appropriate input stream, never {@literal null}
+	 * @return the appropriate input stream, never {@code null}
 	 * @throws IOException
 	 *         if any IO error occurs
 	 */

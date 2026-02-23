@@ -108,7 +108,7 @@ public interface ResourceStorageService extends Identifiable {
 	 * 
 	 * @param pathPrefix
 	 *        an optional prefix to limit the listed resources to, or
-	 *        {@literal null} for all available resources
+	 *        {@code null} for all available resources
 	 * @return a future that returns the list of matching resources
 	 */
 	CompletableFuture<Iterable<Resource>> listResources(String pathPrefix);
@@ -118,7 +118,7 @@ public interface ResourceStorageService extends Identifiable {
 	 * 
 	 * @param path
 	 *        the path
-	 * @return the resource storage URL, or {@literal null} if a URL cannot be
+	 * @return the resource storage URL, or {@code null} if a URL cannot be
 	 *         determined or is not supported
 	 */
 	URL resourceStorageUrl(String path);

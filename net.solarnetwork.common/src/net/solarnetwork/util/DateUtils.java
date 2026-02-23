@@ -421,7 +421,7 @@ public final class DateUtils {
 	 * @param defaultZone
 	 *        a default time zone to use if one is not available in
 	 *        {@code value}
-	 * @return the parsed date, or {@literal null} if it cannot be parsed for
+	 * @return the parsed date, or {@code null} if it cannot be parsed for
 	 *         any reason
 	 */
 	public static @Nullable ZonedDateTime parseIsoAltTimestamp(final @Nullable String value,
@@ -443,7 +443,7 @@ public final class DateUtils {
 	 * @param defaultZone
 	 *        a default time zone to use if one is not available in
 	 *        {@code value}
-	 * @return the parsed date, or {@literal null} if it cannot be parsed for
+	 * @return the parsed date, or {@code null} if it cannot be parsed for
 	 *         any reason
 	 * @since 2.2
 	 */
@@ -468,7 +468,7 @@ public final class DateUtils {
 	 * @param defaultZone
 	 *        a default time zone to use if one is not available in
 	 *        {@code value}
-	 * @return the parsed date, or {@literal null} if it cannot be parsed for
+	 * @return the parsed date, or {@code null} if it cannot be parsed for
 	 *         any reason
 	 * @since 2.2
 	 */
@@ -584,8 +584,8 @@ public final class DateUtils {
 	 *        the range set string to parse into a time range set
 	 * @param locale
 	 *        the locale to parse the ranges as
-	 * @return the range set, or {@literal null} if {@code ranges} is
-	 *         {@literal null} or empty
+	 * @return the range set, or {@code null} if {@code ranges} is
+	 *         {@code null} or empty
 	 * @throws DateTimeException
 	 *         if any parsing error occurs
 	 * @since 2.3
@@ -606,8 +606,8 @@ public final class DateUtils {
 	 *        the locale to parse the ranges as
 	 * @param rangeDelim
 	 *        the delimiter to use between ranges
-	 * @return the range set, or {@literal null} if {@code ranges} is
-	 *         {@literal null} or empty
+	 * @return the range set, or {@code null} if {@code ranges} is
+	 *         {@code null} or empty
 	 * @throws DateTimeException
 	 *         if any parsing error occurs
 	 * @since 2.3
@@ -863,7 +863,7 @@ public final class DateUtils {
 	 * @param range
 	 *        the range to format into a string
 	 * @param locale
-	 *        the locale to format the range as, or {@literal null} to use the
+	 *        the locale to format the range as, or {@code null} to use the
 	 *        system default
 	 * @param style
 	 *        the formatting style
@@ -901,7 +901,7 @@ public final class DateUtils {
 	 * @param range
 	 *        the range to format into a string
 	 * @param locale
-	 *        the locale to format the range as, or {@literal null} to use the
+	 *        the locale to format the range as, or {@code null} to use the
 	 *        system default
 	 * @param style
 	 *        the formatting style
@@ -931,7 +931,7 @@ public final class DateUtils {
 	 * @param range
 	 *        the range to format into a string
 	 * @param locale
-	 *        the locale to format the range as, or {@literal null} to use the
+	 *        the locale to format the range as, or {@code null} to use the
 	 *        system default
 	 * @param style
 	 *        the formatting style
@@ -1071,9 +1071,9 @@ public final class DateUtils {
 	 * Parse a time zone ID into a zone instance.
 	 *
 	 * @param zoneId
-	 *        the zone ID to parse, or {@literal null} to resolve the system
+	 *        the zone ID to parse, or {@code null} to resolve the system
 	 *        time zone
-	 * @return the zone, never {@literal null}
+	 * @return the zone, never {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} cannot be parsed
 	 * @since 2.4
@@ -1096,8 +1096,8 @@ public final class DateUtils {
 	 *
 	 * @param date
 	 *        the temporal to convert
-	 * @return the converted instant, or {@literal null} if {code temporal} or
-	 *         {@code zone} are {@literal null}
+	 * @return the converted instant, or {@code null} if {code temporal} or
+	 *         {@code zone} are {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported
 	 * @since 2.4
@@ -1114,8 +1114,8 @@ public final class DateUtils {
 	 *        the temporal to convert
 	 * @param zoneId
 	 *        the zone ID to use
-	 * @return the converted instant, or {@literal null} if {code temporal} or
-	 *         {@code zone} are {@literal null}
+	 * @return the converted instant, or {@code null} if {code temporal} or
+	 *         {@code zone} are {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported or {@code zoneId} is not
 	 *         valid
@@ -1131,9 +1131,9 @@ public final class DateUtils {
 	 * @param date
 	 *        the temporal to convert
 	 * @param zone
-	 *        the time zone, or {@literal null} to use the system time zone
-	 * @return the converted instant, or {@literal null} if {code temporal} or
-	 *         {@code zone} are {@literal null}
+	 *        the time zone, or {@code null} to use the system time zone
+	 * @return the converted instant, or {@code null} if {code temporal} or
+	 *         {@code zone} are {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported
 	 * @since 2.4
@@ -1169,8 +1169,8 @@ public final class DateUtils {
 	 *
 	 * @param name
 	 *        the value to case insensitively parse as a {@link ChronoUnit}
-	 * @return the enum value, or {@literal null} if {@code name} is
-	 *         {@literal null}
+	 * @return the enum value, or {@code null} if {@code name} is
+	 *         {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code name} is not valid
 	 * @since 2.4
@@ -1358,8 +1358,8 @@ public final class DateUtils {
 	 *        the amount to add
 	 * @param unit
 	 *        the unit
-	 * @return the new adjusted date, or {@literal null} if {@code date} or
-	 *         {@code unit} are {@literal null}
+	 * @return the new adjusted date, or {@code null} if {@code date} or
+	 *         {@code unit} are {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code unit} cannot be added to {@code date}
 	 * @since 2.4

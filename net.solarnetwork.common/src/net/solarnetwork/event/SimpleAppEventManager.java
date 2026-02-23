@@ -67,7 +67,7 @@ public class SimpleAppEventManager implements AppEventHandlerRegistrar, AppEvent
 	 * @param executor
 	 *        the executor
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public SimpleAppEventManager(Executor executor) {
 		this(new AntPathMatcher(), executor);
@@ -81,7 +81,7 @@ public class SimpleAppEventManager implements AppEventHandlerRegistrar, AppEvent
 	 * @param executor
 	 *        the executor
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public SimpleAppEventManager(PathMatcher pathMatcher, Executor executor) {
 		this(pathMatcher, executor, new ConcurrentHashMap<>(32, 0.9f, 4));
@@ -97,7 +97,7 @@ public class SimpleAppEventManager implements AppEventHandlerRegistrar, AppEvent
 	 * @param handlerMap
 	 *        the map to use for handler registration
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public SimpleAppEventManager(PathMatcher pathMatcher, Executor executor,
 			ConcurrentMap<String, Set<AppEventHandler>> handlerMap) {

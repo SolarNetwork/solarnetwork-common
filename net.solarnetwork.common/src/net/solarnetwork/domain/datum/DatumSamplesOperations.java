@@ -42,7 +42,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	 *
 	 * @param type
 	 *        the type of sample data to get
-	 * @return a map with the specific sample data, or {@literal null}
+	 * @return a map with the specific sample data, or {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code type} is not supported
 	 */
@@ -50,83 +50,83 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	Map<String, ?> getSampleData(DatumSamplesType type);
 
 	/**
-	 * Get an Integer value from a sample map, or {@literal null} if not
+	 * Get an Integer value from a sample map, or {@code null} if not
 	 * available.
 	 *
 	 * @param type
 	 *        the type of sample data to get
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Integer, or {@literal null} if not available
+	 * @return the value as an Integer, or {@code null} if not available
 	 */
 	@Nullable
 	Integer getSampleInteger(DatumSamplesType type, String key);
 
 	/**
-	 * Get a Long value from a sample map, or {@literal null} if not available.
+	 * Get a Long value from a sample map, or {@code null} if not available.
 	 *
 	 * @param type
 	 *        the type of sample data to get
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Long, or {@literal null} if not available
+	 * @return the value as an Long, or {@code null} if not available
 	 */
 	@Nullable
 	Long getSampleLong(DatumSamplesType type, String key);
 
 	/**
-	 * Get a Float value from a sample map, or {@literal null} if not available.
+	 * Get a Float value from a sample map, or {@code null} if not available.
 	 *
 	 * @param type
 	 *        the type of sample data to get
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Float, or {@literal null} if not available
+	 * @return the value as an Float, or {@code null} if not available
 	 */
 	@Nullable
 	Float getSampleFloat(DatumSamplesType type, String key);
 
 	/**
-	 * Get a Double value from a sample map, or {@literal null} if not
+	 * Get a Double value from a sample map, or {@code null} if not
 	 * available.
 	 *
 	 * @param type
 	 *        the type of sample data to get
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Double, or {@literal null} if not available
+	 * @return the value as an Double, or {@code null} if not available
 	 */
 	@Nullable
 	Double getSampleDouble(DatumSamplesType type, String key);
 
 	/**
-	 * Get a BigDecimal value from a sample map, or {@literal null} if not
+	 * Get a BigDecimal value from a sample map, or {@code null} if not
 	 * available.
 	 *
 	 * @param type
 	 *        the type of sample data to get
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or {@literal null} if not available
+	 * @return the value as an BigDecimal, or {@code null} if not available
 	 */
 	@Nullable
 	BigDecimal getSampleBigDecimal(DatumSamplesType type, String key);
 
 	/**
-	 * Get a String value from a sample map, or {@literal null} if not
+	 * Get a String value from a sample map, or {@code null} if not
 	 * available.
 	 *
 	 * <p>
 	 * If {@code type} is {@link DatumSamplesType#Tag}, then this method will
 	 * return {@code key} if a tag by that name exists and otherwise it will
-	 * return {@literal null}.
+	 * return {@code null}.
 	 * </p>
 	 *
 	 * @param type
 	 *        the type of sample data to get
 	 * @param key
 	 *        the key of the value, or tag name, to get
-	 * @return the value as an String, or {@literal null} if not available
+	 * @return the value as an String, or {@code null} if not available
 	 */
 	@Nullable
 	String getSampleString(DatumSamplesType type, String key);
@@ -137,7 +137,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	 * <p>
 	 * If {@code type} is {@link DatumSamplesType#Tag}, then this method will
 	 * return {@code key} if a tag by that name exists and otherwise it will
-	 * return {@literal null}.
+	 * return {@code null}.
 	 * </p>
 	 *
 	 * @param <V>
@@ -146,7 +146,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	 *        the type of sample data to get
 	 * @param key
 	 *        the key of the value, or tag name, to get
-	 * @return the value cast as a {@code V}, or {@literal null} if not
+	 * @return the value cast as a {@code V}, or {@code null} if not
 	 *         available
 	 */
 	<V> @Nullable V getSampleValue(DatumSamplesType type, String key);
@@ -180,7 +180,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	 *        the expected value type
 	 * @param key
 	 *        the key of the value, or tag name, to get
-	 * @return the value cast as a {@code V}, or {@literal null} if not
+	 * @return the value cast as a {@code V}, or {@code null} if not
 	 *         available
 	 */
 	<V> @Nullable V findSampleValue(String key);
@@ -203,7 +203,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	/**
 	 * Get the sample tags.
 	 *
-	 * @return the tags, or {@literal null}
+	 * @return the tags, or {@code null}
 	 */
 	@Nullable
 	Set<String> getTags();
@@ -223,7 +223,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	/**
 	 * Test if there are any properties available.
 	 *
-	 * @return {@literal true} if there is at least one non-{@literal null}
+	 * @return {@literal true} if there is at least one non-{@code null}
 	 *         property or tag available
 	 */
 	default boolean isEmpty() {

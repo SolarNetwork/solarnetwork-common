@@ -58,8 +58,8 @@ public interface Differentiable<T> {
 	 * Test if two {@link Differentiable} objects differ.
 	 *
 	 * <p>
-	 * If both objects are {@literal null} this method returns {@literal false}.
-	 * If one object is {@literal null} this methdo returns {@literal true}.
+	 * If both objects are {@code null} this method returns {@literal false}.
+	 * If one object is {@code null} this methdo returns {@literal true}.
 	 * Otherwise this method returns the result of {@code l.differsFrom(r)}.
 	 * </p>
 	 *
@@ -90,7 +90,7 @@ public interface Differentiable<T> {
 	 * This compares the objects in each collection in iteration order. If any
 	 * pair of objects differ, this method returns {@literal true}. If the
 	 * collections are of different sizes, this method returns true. If both
-	 * collections are {@literal null} this method returns {@literal false}.
+	 * collections are {@code null} this method returns {@literal false}.
 	 * </p>
 	 *
 	 * @param <T>

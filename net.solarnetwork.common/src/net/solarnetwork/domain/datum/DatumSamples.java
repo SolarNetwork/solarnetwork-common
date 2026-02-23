@@ -352,7 +352,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param key
 	 *        the key to put
 	 * @param n
-	 *        the value to put, or {@literal null} to remove the key
+	 *        the value to put, or {@code null} to remove the key
 	 */
 	public void putInstantaneousSampleValue(String key, @Nullable Number n) {
 		Map<String, Number> m = instantaneous;
@@ -377,7 +377,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param key
 	 *        the key to put
 	 * @param n
-	 *        the value to put, or {@literal null} to remove the key
+	 *        the value to put, or {@code null} to remove the key
 	 */
 	public void putAccumulatingSampleValue(String key, @Nullable Number n) {
 		Map<String, Number> m = accumulating;
@@ -402,7 +402,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param key
 	 *        the key to put
 	 * @param value
-	 *        the value to put, or {@literal null} to remove the key
+	 *        the value to put, or {@code null} to remove the key
 	 */
 	public void putStatusSampleValue(String key, @Nullable Object value) {
 		Map<String, Object> m = status;
@@ -422,11 +422,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get an Integer value from the {@link #getInstantaneous()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Integer, or {@literal null} if not available
+	 * @return the value as an Integer, or {@code null} if not available
 	 */
 	public @Nullable Integer getInstantaneousSampleInteger(String key) {
 		return getMapInteger(key, instantaneous);
@@ -434,11 +434,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a Long value from the {@link #getInstantaneous()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Long, or {@literal null} if not available
+	 * @return the value as an Long, or {@code null} if not available
 	 */
 	public @Nullable Long getInstantaneousSampleLong(String key) {
 		return getMapLong(key, instantaneous);
@@ -446,11 +446,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a Float value from the {@link #getInstantaneous()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Float, or {@literal null} if not available
+	 * @return the value as an Float, or {@code null} if not available
 	 */
 	public @Nullable Float getInstantaneousSampleFloat(String key) {
 		return getMapFloat(key, instantaneous);
@@ -458,11 +458,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a Double value from the {@link #getInstantaneous()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Double, or {@literal null} if not available
+	 * @return the value as an Double, or {@code null} if not available
 	 */
 	public @Nullable Double getInstantaneousSampleDouble(String key) {
 		return getMapDouble(key, instantaneous);
@@ -470,11 +470,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a BigDecimal value from the {@link #getInstantaneous()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or {@literal null} if not available
+	 * @return the value as an BigDecimal, or {@code null} if not available
 	 */
 	public @Nullable BigDecimal getInstantaneousSampleBigDecimal(String key) {
 		return getMapBigDecimal(key, instantaneous);
@@ -482,11 +482,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get an Integer value from the {@link #getAccumulating()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Integer, or {@literal null} if not available
+	 * @return the value as an Integer, or {@code null} if not available
 	 */
 	public @Nullable Integer getAccumulatingSampleInteger(String key) {
 		return getMapInteger(key, accumulating);
@@ -494,11 +494,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a Long value from the {@link #getAccumulating()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Long, or {@literal null} if not available
+	 * @return the value as an Long, or {@code null} if not available
 	 */
 	public @Nullable Long getAccumulatingSampleLong(String key) {
 		return getMapLong(key, accumulating);
@@ -506,11 +506,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a Float value from the {@link #getAccumulating()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Float, or {@literal null} if not available
+	 * @return the value as an Float, or {@code null} if not available
 	 */
 	public @Nullable Float getAccumulatingSampleFloat(String key) {
 		return getMapFloat(key, accumulating);
@@ -518,11 +518,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a Double value from the {@link #getAccumulating()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Double, or {@literal null} if not available
+	 * @return the value as an Double, or {@code null} if not available
 	 */
 	public @Nullable Double getAccumulatingSampleDouble(String key) {
 		return getMapDouble(key, accumulating);
@@ -530,11 +530,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a BigDecimal value from the {@link #getAccumulating()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or {@literal null} if not available
+	 * @return the value as an BigDecimal, or {@code null} if not available
 	 */
 	public @Nullable BigDecimal getAccumulatingSampleBigDecimal(String key) {
 		return getMapBigDecimal(key, accumulating);
@@ -542,11 +542,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get an Integer value from the {@link #getInstantaneous()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Integer, or {@literal null} if not available
+	 * @return the value as an Integer, or {@code null} if not available
 	 */
 	public @Nullable Integer getStatusSampleInteger(String key) {
 		return getMapInteger(key, status);
@@ -554,11 +554,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a Long value from the {@link #getInstantaneous()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Long, or {@literal null} if not available
+	 * @return the value as an Long, or {@code null} if not available
 	 */
 	public @Nullable Long getStatusSampleLong(String key) {
 		return getMapLong(key, status);
@@ -566,11 +566,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a Float value from the {@link #getInstantaneous()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Float, or {@literal null} if not available
+	 * @return the value as an Float, or {@code null} if not available
 	 */
 	public @Nullable Float getStatusSampleFloat(String key) {
 		return getMapFloat(key, status);
@@ -578,11 +578,11 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a Double value from the {@link #getInstantaneous()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an Double, or {@literal null} if not available
+	 * @return the value as an Double, or {@code null} if not available
 	 */
 	public @Nullable Double getStatusSampleDouble(String key) {
 		return getMapDouble(key, status);
@@ -590,23 +590,23 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	/**
 	 * Get a BigDecimal value from the {@link #getInstantaneous()} map, or
-	 * {@literal null} if not available.
+	 * {@code null} if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as an BigDecimal, or {@literal null} if not available
+	 * @return the value as an BigDecimal, or {@code null} if not available
 	 */
 	public @Nullable BigDecimal getStatusSampleBigDecimal(String key) {
 		return getMapBigDecimal(key, status);
 	}
 
 	/**
-	 * Get a String value from the {@link #getStatus()} map, or {@literal null}
+	 * Get a String value from the {@link #getStatus()} map, or {@code null}
 	 * if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
-	 * @return the value as a String, or {@literal null} if not available
+	 * @return the value as a String, or {@code null} if not available
 	 */
 	public @Nullable String getStatusSampleString(String key) {
 		return getMapString(key, status);

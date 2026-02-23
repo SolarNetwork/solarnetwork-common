@@ -90,7 +90,7 @@ import net.solarnetwork.util.StringUtils;
  * <li>{@code java.time} date/time values, serialized as strings using the RFC
  * 3339 profile of ISO-8601 with a space separator between date/time sections
  * instead of a {@literal T} character.</li>
- * <li>{@literal null} values are not serialized.</li>
+ * <li>{@code null} values are not serialized.</li>
  * <li>Floating point numbers are deserialized as {@link java.math.BigDecimal}
  * instances.</li>
  * </ul>
@@ -110,7 +110,7 @@ public final class JsonUtils {
 	 * A module for handling Java date and time objects in The SolarNetwork Way.
 	 *
 	 * <p>
-	 * This field will be {@literal null} if the
+	 * This field will be {@code null} if the
 	 * {@code com.fasterxml.jackson.datatype.jsr310.JavaTimeModule} class is not
 	 * available.
 	 * </p>
@@ -146,7 +146,7 @@ public final class JsonUtils {
 	 * </p>
 	 *
 	 * <p>
-	 * This field will be {@literal null} if the
+	 * This field will be {@code null} if the
 	 * {@code com.fasterxml.jackson.datatype.jsr310.JavaTimeModule} class is not
 	 * available.
 	 * </p>
@@ -225,7 +225,7 @@ public final class JsonUtils {
 	 *        an optional factory to use
 	 * @param modules
 	 *        optional modules to register; can be completely omitted and
-	 *        individual elements are allowed to be {@literal null} (e.g.
+	 *        individual elements are allowed to be {@code null} (e.g.
 	 *        optionally missing modules)
 	 * @return the new mapper
 	 * @throws RuntimeException
@@ -298,8 +298,8 @@ public final class JsonUtils {
 	 *
 	 * @param o
 	 *        the object to serialize to JSON
-	 * @return the JSON string, or {@literal null} if {@code o} is
-	 *         {@literal null} or any error occurs serializing the object to
+	 * @return the JSON string, or {@code null} if {@code o} is
+	 *         {@code null} or any error occurs serializing the object to
 	 *         JSON
 	 * @see #getJSONString(Object, String)
 	 * @since 2.3
@@ -320,7 +320,7 @@ public final class JsonUtils {
 	 * @param o
 	 *        the object to serialize to JSON
 	 * @param defaultValue
-	 *        a default value to use if {@code o} is {@literal null} or if any
+	 *        a default value to use if {@code o} is {@code null} or if any
 	 *        error occurs serializing the object to JSON
 	 * @return the JSON string
 	 */
@@ -380,7 +380,7 @@ public final class JsonUtils {
 	 *
 	 * @param json
 	 *        the JSON to convert
-	 * @return the map, or {@literal null} if {@code json} is {@literal null} or
+	 * @return the map, or {@code null} if {@code json} is {@code null} or
 	 *         empty, or any exception occurs generating the JSON
 	 */
 	public static @Nullable Map<String, Object> getStringMap(final @Nullable String json) {
@@ -407,8 +407,8 @@ public final class JsonUtils {
 	 *
 	 * @param node
 	 *        the JSON object to convert
-	 * @return the map, or {@literal null} if {@code node} is not a JSON object,
-	 *         is {@literal null}, or any exception occurs generating the JSON
+	 * @return the map, or {@code null} if {@code node} is not a JSON object,
+	 *         is {@code null}, or any exception occurs generating the JSON
 	 */
 	public static @Nullable Map<String, Object> getStringMapFromTree(final @Nullable JsonNode node) {
 		if ( node == null || !node.isObject() ) {
@@ -427,8 +427,8 @@ public final class JsonUtils {
 	 *
 	 * @param o
 	 *        the object to convert
-	 * @return the JSON tree, or {@literal null} if {@code o} is
-	 *         {@literal null}, or any exception occurs generating the JSON
+	 * @return the JSON tree, or {@code null} if {@code o} is
+	 *         {@code null}, or any exception occurs generating the JSON
 	 * @since 1.1
 	 */
 	public static @Nullable JsonNode getTreeFromObject(final @Nullable Object o) {
@@ -448,8 +448,8 @@ public final class JsonUtils {
 	 *
 	 * @param o
 	 *        the object to convert
-	 * @return the map, or {@literal null} if {@code node} is not a JSON object,
-	 *         is {@literal null}, or any exception occurs generating the JSON
+	 * @return the map, or {@code null} if {@code node} is not a JSON object,
+	 *         is {@code null}, or any exception occurs generating the JSON
 	 * @since 1.1
 	 */
 	public static @Nullable Map<String, Object> getStringMapFromObject(final @Nullable Object o) {
@@ -498,7 +498,7 @@ public final class JsonUtils {
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node}
-	 * @return the parsed {@link BigDecimal}, or {@literal null} if an error
+	 * @return the parsed {@link BigDecimal}, or {@code null} if an error
 	 *         occurs or the specified attribute {@code key} is not available
 	 */
 	public static @Nullable BigDecimal parseBigDecimalAttribute(@Nullable JsonNode node, String key) {
@@ -525,7 +525,7 @@ public final class JsonUtils {
 	 * Parse a date from a JSON object attribute value.
 	 *
 	 * <p>
-	 * If the date cannot be parsed, {@literal null} will be returned.
+	 * If the date cannot be parsed, {@code null} will be returned.
 	 * </p>
 	 *
 	 * @param <T>
@@ -538,7 +538,7 @@ public final class JsonUtils {
 	 *        the date format to use to parse the date string
 	 * @param query
 	 *        the temporal query, e.g. {@code Instant::from}
-	 * @return the parsed date instance, or {@literal null} if an error occurs
+	 * @return the parsed date instance, or {@code null} if an error occurs
 	 *         or the specified attribute {@code key} is not available
 	 * @since 2.0
 	 */
@@ -570,13 +570,13 @@ public final class JsonUtils {
 	/**
 	 * Parse a Integer from a JSON object attribute value.
 	 *
-	 * If the Integer cannot be parsed, {@literal null} will be returned.
+	 * If the Integer cannot be parsed, {@code null} will be returned.
 	 *
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node} node
-	 * @return the parsed {@link Integer}, or {@literal null} if an error occurs
+	 * @return the parsed {@link Integer}, or {@code null} if an error occurs
 	 *         or the specified attribute {@code key} is not available
 	 */
 	public static @Nullable Integer parseIntegerAttribute(@Nullable JsonNode node, String key) {
@@ -606,13 +606,13 @@ public final class JsonUtils {
 	/**
 	 * Parse a Long from a JSON object attribute value.
 	 *
-	 * If the Long cannot be parsed, {@literal null} will be returned.
+	 * If the Long cannot be parsed, {@code null} will be returned.
 	 *
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node} node
-	 * @return the parsed {@link Long}, or {@literal null} if an error occurs or
+	 * @return the parsed {@link Long}, or {@code null} if an error occurs or
 	 *         the specified attribute {@code key} is not available
 	 */
 	public static @Nullable Long parseLongAttribute(@Nullable JsonNode node, String key) {
@@ -638,13 +638,13 @@ public final class JsonUtils {
 	/**
 	 * Parse a String from a JSON object attribute value.
 	 *
-	 * If the String cannot be parsed, {@literal null} will be returned.
+	 * If the String cannot be parsed, {@code null} will be returned.
 	 *
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node} node
-	 * @return the parsed {@link String}, or {@literal null} if an error occurs
+	 * @return the parsed {@link String}, or {@code null} if an error occurs
 	 *         or the specified attribute {@code key} is not available
 	 */
 	public static @Nullable String parseStringAttribute(@Nullable JsonNode node, String key) {
@@ -661,13 +661,13 @@ public final class JsonUtils {
 	/**
 	 * Parse a String from a JSON object attribute value.
 	 *
-	 * If the String cannot be parsed, {@literal null} will be returned.
+	 * If the String cannot be parsed, {@code null} will be returned.
 	 *
 	 * @param node
 	 *        the JSON node (e.g. object)
 	 * @param key
 	 *        the attribute key to obtain from {@code node} node
-	 * @return the parsed {@link String}, or {@literal null} if an error occurs
+	 * @return the parsed {@link String}, or {@code null} if an error occurs
 	 *         or the specified attribute {@code key} is not available
 	 * @since 2.4
 	 */
@@ -850,7 +850,7 @@ public final class JsonUtils {
 	 * <p>
 	 * This method does not write any starting or ending JSON array, it only
 	 * writes the values. It always writes {@code count} values, regardless of
-	 * the length of {@code array}. JSON {@literal null} values will be written
+	 * the length of {@code array}. JSON {@code null} values will be written
 	 * for any missing {@code array} values.
 	 * </p>
 	 *
@@ -919,7 +919,7 @@ public final class JsonUtils {
 	 * <p>
 	 * This method does not write any starting or ending JSON array, it only
 	 * writes the values. It always writes {@code count} values, regardless of
-	 * the length of {@code array}. JSON {@literal null} values will be written
+	 * the length of {@code array}. JSON {@code null} values will be written
 	 * for any missing {@code array} values.
 	 * </p>
 	 *
@@ -956,7 +956,7 @@ public final class JsonUtils {
 	 * Write a number field value using the smallest possible number type.
 	 *
 	 * <p>
-	 * If {@code value} is {@literal null} then <b>nothing</b> will be
+	 * If {@code value} is {@code null} then <b>nothing</b> will be
 	 * generated.
 	 * </p>
 	 *
@@ -1002,8 +1002,8 @@ public final class JsonUtils {
 	 *
 	 * @param timestamp
 	 *        the timestamp value
-	 * @return the instant, or {@literal null} if {@code timestamp} is
-	 *         {@literal null}, empty, or cannot be parsed
+	 * @return the instant, or {@code null} if {@code timestamp} is
+	 *         {@code null}, empty, or cannot be parsed
 	 * @since 2.0
 	 */
 	public static @Nullable Instant iso8610Timestamp(@Nullable String timestamp) {
@@ -1022,7 +1022,7 @@ public final class JsonUtils {
 	 * Write a timestamp field value in ISO 8601 form.
 	 *
 	 * <p>
-	 * If {@code value} is {@literal null} then <b>nothing</b> will be
+	 * If {@code value} is {@code null} then <b>nothing</b> will be
 	 * generated.
 	 * </p>
 	 *
@@ -1048,7 +1048,7 @@ public final class JsonUtils {
 	 * Write a bitmask set as a field number value.
 	 *
 	 * <p>
-	 * If {@code value} is {@literal null} or empty then <b>nothing</b> will be
+	 * If {@code value} is {@code null} or empty then <b>nothing</b> will be
 	 * generated.
 	 * </p>
 	 *
@@ -1173,7 +1173,7 @@ public final class JsonUtils {
 	 *
 	 * @param p
 	 *        the parser
-	 * @return the Map, or {@literal null} if no Map can be parsed
+	 * @return the Map, or {@code null} if no Map can be parsed
 	 * @throws IOException
 	 *         if any IO error occurs
 	 * @throws JsonProcessingException

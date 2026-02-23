@@ -319,8 +319,8 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 	 *
 	 * @param location
 	 *        the location to get as a {@code BasicLocation}
-	 * @return the {@code BasicLocation} instance, or {@literal null} if
-	 *         {@code location} is {@literal null}
+	 * @return the {@code BasicLocation} instance, or {@code null} if
+	 *         {@code location} is {@code null}
 	 * @since 1.1
 	 */
 	public static @Nullable BasicLocation locationValue(@Nullable Location location) {

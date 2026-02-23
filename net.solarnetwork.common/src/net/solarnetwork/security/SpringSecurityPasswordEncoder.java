@@ -53,7 +53,7 @@ public class SpringSecurityPasswordEncoder
 	 * @param encoders
 	 *        the encoders to use
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public SpringSecurityPasswordEncoder(
 			Map<String, org.springframework.security.crypto.password.PasswordEncoder> encoders) {

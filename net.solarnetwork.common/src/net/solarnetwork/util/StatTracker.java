@@ -77,7 +77,7 @@ public class StatTracker implements Identifiable {
 	 * @param logFrequency
 	 *        the log frequency
 	 * @throws IllegalArgumentException
-	 *         if {@code name} is {@literal null}
+	 *         if {@code name} is {@code null}
 	 */
 	public StatTracker(String name, @Nullable String uid, @Nullable Logger log, int logFrequency) {
 		this(new ConcurrentHashMap<>(), name, uid, log, logFrequency);
@@ -97,7 +97,7 @@ public class StatTracker implements Identifiable {
 	 * @param logFrequency
 	 *        the log frequency
 	 * @throws IllegalArgumentException
-	 *         if {@code counts} or {@code name} is {@literal null}
+	 *         if {@code counts} or {@code name} is {@code null}
 	 */
 	public StatTracker(ConcurrentMap<String, LongAdder> counts, String name, @Nullable String uid,
 			@Nullable Logger log, int logFrequency) {
@@ -121,7 +121,7 @@ public class StatTracker implements Identifiable {
 	 *        the log frequency
 	 * @throws IllegalArgumentException
 	 *         if {@code counts}, {@code accums}, or {@code name} is
-	 *         {@literal null}
+	 *         {@code null}
 	 * @since 1.1
 	 */
 	public StatTracker(ConcurrentMap<String, LongAdder> counts,
@@ -762,7 +762,7 @@ public class StatTracker implements Identifiable {
 	 * Set the unique ID.
 	 *
 	 * @param uid
-	 *        the unique ID, or {@literal null} for none
+	 *        the unique ID, or {@code null} for none
 	 */
 	public final void setUid(@Nullable String uid) {
 		this.uid = uid;

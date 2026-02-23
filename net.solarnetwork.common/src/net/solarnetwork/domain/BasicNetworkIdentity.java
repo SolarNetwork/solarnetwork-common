@@ -211,7 +211,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * {@link NetworkIdentity#SOLARUSER_NETWORK_SERVICE_KEY} key.
 	 *
 	 * @param url
-	 *        The URL to set, or {@literal null} to remove.
+	 *        The URL to set, or {@code null} to remove.
 	 */
 	public final void setSolarUserServiceURL(@Nullable String url) {
 		putServiceURL(SOLARUSER_NETWORK_SERVICE_KEY, url);
@@ -232,7 +232,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * {@link NetworkIdentity#SOLARQUERY_NETWORK_SERVICE_KEY} key.
 	 *
 	 * @param url
-	 *        The URL to set, or {@literal null} to remove.
+	 *        The URL to set, or {@code null} to remove.
 	 */
 	public final void setSolarQueryServiceURL(@Nullable String url) {
 		putServiceURL(SOLARQUERY_NETWORK_SERVICE_KEY, url);
@@ -253,7 +253,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * {@link NetworkIdentity#SOLARIN_MQTT_NETWORK_SERVICE_KEY} key.
 	 *
 	 * @param url
-	 *        The URL to set, or {@literal null} to remove.
+	 *        The URL to set, or {@code null} to remove.
 	 */
 	public final void setSolarInMqttServiceURL(@Nullable String url) {
 		putServiceURL(SOLARIN_MQTT_NETWORK_SERVICE_KEY, url);

@@ -67,7 +67,7 @@ public class BasicInstruction implements Instruction, Serializable {
 	 * @param instructionDate
 	 *        the instruction date
 	 * @param status
-	 *        the status, or {@literal null}
+	 *        the status, or {@code null}
 	 */
 	public BasicInstruction(@Nullable Long id, @Nullable String topic, @Nullable Instant instructionDate,
 			@Nullable InstructionStatus status) {

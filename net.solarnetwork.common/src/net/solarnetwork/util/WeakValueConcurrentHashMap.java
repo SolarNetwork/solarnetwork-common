@@ -44,7 +44,7 @@ import org.jspecify.annotations.Nullable;
  * The values stored in this map are only weakly-referenced. If a value is
  * garbage collected, then the associated key will remain in this map, but
  * methods that query for the value based on its key will return
- * {@literal null}.
+ * {@code null}.
  * </p>
  *
  * @param <K>

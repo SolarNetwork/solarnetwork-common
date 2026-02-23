@@ -43,7 +43,7 @@ public interface NodeControlInfo {
 	/**
 	 * Get an optional control property name.
 	 *
-	 * @return the control property name, or {@literal null}
+	 * @return the control property name, or {@code null}
 	 */
 	@Nullable
 	String getPropertyName();
@@ -75,7 +75,7 @@ public interface NodeControlInfo {
 	/**
 	 * Get an optional unit of measure for the control value.
 	 *
-	 * @return the unit of measure, or {@literal null}
+	 * @return the unit of measure, or {@code null}
 	 */
 	@Nullable
 	String getUnit();

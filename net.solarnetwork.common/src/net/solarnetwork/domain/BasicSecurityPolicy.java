@@ -784,32 +784,32 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 	 * Constructor.
 	 *
 	 * <p>
-	 * The {@code notAfter} property will be set to {@literal null} (for no
+	 * The {@code notAfter} property will be set to {@code null} (for no
 	 * expiration date) and {@code refreshable} to {@literal false}.
 	 * </p>
 	 *
 	 * @param nodeIds
-	 *        The node IDs to restrict to, or {@literal null} for no
+	 *        The node IDs to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param sourceIds
-	 *        The source ID to restrict to, or {@literal null} for no
+	 *        The source ID to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param aggregations
-	 *        The aggregations to restrict to, or {@literal null} for no
+	 *        The aggregations to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param minAggregation
 	 *        If specified, a minimum aggregation level that is allowed.
 	 * @param locationPrecisions
-	 *        The location precisions to restrict to, or {@literal null} for no
+	 *        The location precisions to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param minLocationPrecision
 	 *        If specified, a minimum location precision that is allowed.
 	 * @param nodeMetadataPaths
 	 *        The {@code SolarNodeMetadata} paths to restrict to, or
-	 *        {@literal null} for no restriction.
+	 *        {@code null} for no restriction.
 	 * @param userMetadataPaths
 	 *        The {@code UserNodeMetadata} paths to restrict to, or
-	 *        {@literal null} for no restriction.
+	 *        {@code null} for no restriction.
 	 */
 	public BasicSecurityPolicy(@Nullable Set<Long> nodeIds, @Nullable Set<String> sourceIds,
 			@Nullable Set<Aggregation> aggregations, @Nullable Aggregation minAggregation,
@@ -824,30 +824,30 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 	 * Constructor.
 	 *
 	 * @param nodeIds
-	 *        The node IDs to restrict to, or {@literal null} for no
+	 *        The node IDs to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param sourceIds
-	 *        The source ID to restrict to, or {@literal null} for no
+	 *        The source ID to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param aggregations
-	 *        The aggregations to restrict to, or {@literal null} for no
+	 *        The aggregations to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param minAggregation
 	 *        If specified, a minimum aggregation level that is allowed.
 	 * @param locationPrecisions
-	 *        The location precisions to restrict to, or {@literal null} for no
+	 *        The location precisions to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param minLocationPrecision
 	 *        If specified, a minimum location precision that is allowed.
 	 * @param nodeMetadataPaths
 	 *        The {@code SolarNodeMetadata} paths to restrict to, or
-	 *        {@literal null} for no restriction.
+	 *        {@code null} for no restriction.
 	 * @param userMetadataPaths
 	 *        The {@code UserNodeMetadata} paths to restrict to, or
-	 *        {@literal null} for no restriction.
+	 *        {@code null} for no restriction.
 	 * @param notAfter
 	 *        A date after which the token is no longer valid, or
-	 *        {@literal null} for no expiration.
+	 *        {@code null} for no expiration.
 	 * @param refreshAllowed
 	 *        {@literal true} if the token can be refreshed
 	 * @since 2.0
@@ -866,33 +866,33 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 	 * Constructor.
 	 *
 	 * @param nodeIds
-	 *        The node IDs to restrict to, or {@literal null} for no
+	 *        The node IDs to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param sourceIds
-	 *        The source ID to restrict to, or {@literal null} for no
+	 *        The source ID to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param aggregations
-	 *        The aggregations to restrict to, or {@literal null} for no
+	 *        The aggregations to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param minAggregation
 	 *        If specified, a minimum aggregation level that is allowed.
 	 * @param locationPrecisions
-	 *        The location precisions to restrict to, or {@literal null} for no
+	 *        The location precisions to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param minLocationPrecision
 	 *        If specified, a minimum location precision that is allowed.
 	 * @param nodeMetadataPaths
 	 *        The {@code SolarNodeMetadata} paths to restrict to, or
-	 *        {@literal null} for no restriction.
+	 *        {@code null} for no restriction.
 	 * @param userMetadataPaths
 	 *        The {@code UserNodeMetadata} paths to restrict to, or
-	 *        {@literal null} for no restriction.
+	 *        {@code null} for no restriction.
 	 * @param apiPaths
-	 *        The API paths to restrict to, or {@literal null} for no
+	 *        The API paths to restrict to, or {@code null} for no
 	 *        restriction.
 	 * @param notAfter
 	 *        A date after which the token is no longer valid, or
-	 *        {@literal null} for no expiration.
+	 *        {@code null} for no expiration.
 	 * @param refreshAllowed
 	 *        {@literal true} if the token can be refreshed
 	 * @since 2.0

@@ -57,7 +57,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	 * @param parameters
 	 *        the parameters
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public MapSampleOperations(Map<String, Object> parameters) {
 		this(parameters, null);
@@ -71,7 +71,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	 * @param datum
 	 *        the optional sample operations to delegate get operations to
 	 * @throws IllegalArgumentException
-	 *         if {@code parameters} is {@literal null}
+	 *         if {@code parameters} is {@code null}
 	 */
 	public MapSampleOperations(Map<String, Object> parameters, @Nullable DatumSamplesOperations datum) {
 		super();
@@ -215,7 +215,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	 * Set the tags.
 	 *
 	 * <p>
-	 * <b>Note</b> this method will always return {@literal null} as tags are
+	 * <b>Note</b> this method will always return {@code null} as tags are
 	 * not supported.
 	 * </p>
 	 *

@@ -67,7 +67,7 @@ public class Result<T> {
 		 *
 		 * @param location
 		 *        the error location, such as a bean-style path, or
-		 *        {@literal null} for an overall error
+		 *        {@code null} for an overall error
 		 * @param rejectedValue
 		 *        the value the rejected value, if available
 		 * @param message
@@ -82,7 +82,7 @@ public class Result<T> {
 		 *
 		 * @param location
 		 *        the error location, such as a bean-style path, or
-		 *        {@literal null} for an overall error
+		 *        {@code null} for an overall error
 		 * @param code
 		 *        the code
 		 * @param rejectedValue
@@ -323,7 +323,7 @@ public class Result<T> {
 	/**
 	 * Get the success indicator.
 	 *
-	 * @return the success indicator, or {@literal null} if not known
+	 * @return the success indicator, or {@code null} if not known
 	 */
 	public final @Nullable Boolean getSuccess() {
 		return success;
@@ -332,7 +332,7 @@ public class Result<T> {
 	/**
 	 * Get the code.
 	 *
-	 * @return the code, or {@literal null}
+	 * @return the code, or {@code null}
 	 */
 	public final @Nullable String getCode() {
 		return code;
@@ -341,7 +341,7 @@ public class Result<T> {
 	/**
 	 * Get the message.
 	 *
-	 * @return the message, or {@literal null}
+	 * @return the message, or {@code null}
 	 */
 	public final @Nullable String getMessage() {
 		return message;
@@ -350,7 +350,7 @@ public class Result<T> {
 	/**
 	 * Get the error details.
 	 *
-	 * @return the error details, or {@literal null}
+	 * @return the error details, or {@code null}
 	 */
 	public final @Nullable List<ErrorDetail> getErrors() {
 		return errors;
@@ -359,7 +359,7 @@ public class Result<T> {
 	/**
 	 * Get the data.
 	 *
-	 * @return the data, or {@literal null}
+	 * @return the data, or {@code null}
 	 */
 	public final @Nullable T getData() {
 		return data;

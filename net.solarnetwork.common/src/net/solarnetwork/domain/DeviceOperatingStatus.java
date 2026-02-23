@@ -54,7 +54,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	 * Constructor.
 	 *
 	 * <p>
-	 * The {@code deviceStates} property will be set to {@literal null}.
+	 * The {@code deviceStates} property will be set to {@code null}.
 	 * </p>
 	 *
 	 * @param state
@@ -70,7 +70,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	 * @param state
 	 *        the state
 	 * @param deviceStates
-	 *        device specific states ({@literal null} allowed)
+	 *        device specific states ({@code null} allowed)
 	 */
 	public DeviceOperatingStatus(@Nullable DeviceOperatingState state, @Nullable Set<C> deviceStates) {
 		super();
@@ -82,7 +82,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	/**
 	 * Get the device operating state.
 	 *
-	 * @return the state, never {@literal null}
+	 * @return the state, never {@code null}
 	 */
 	public final DeviceOperatingState getState() {
 		return state;
@@ -100,7 +100,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	/**
 	 * Get the device states.
 	 *
-	 * @return the immutable device states, or {@literal null}
+	 * @return the immutable device states, or {@code null}
 	 */
 	public final @Nullable Set<C> getDeviceStates() {
 		return deviceStates;

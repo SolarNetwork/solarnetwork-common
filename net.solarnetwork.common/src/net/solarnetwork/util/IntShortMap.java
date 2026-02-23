@@ -300,7 +300,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *
 	 * @param k
 	 *        the key of the value to get
-	 * @return the associated value, or {@literal null} if {@code k} is not
+	 * @return the associated value, or {@code null} if {@code k} is not
 	 *         present
 	 */
 	public @Nullable Short get(final int k) {
@@ -338,7 +338,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *        the key
 	 * @param value
 	 *        the value, which will be down-cast to a short
-	 * @return the previous value associated with {@code k}, or {@literal null}
+	 * @return the previous value associated with {@code k}, or {@code null}
 	 *         if none
 	 */
 	public @Nullable Short putValue(final int k, final int value) {
@@ -352,7 +352,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *        the key
 	 * @param value
 	 *        the value
-	 * @return the previous value associated with {@code k}, or {@literal null}
+	 * @return the previous value associated with {@code k}, or {@code null}
 	 *         if none
 	 */
 	public @Nullable Short putValue(final int k, final short value) {

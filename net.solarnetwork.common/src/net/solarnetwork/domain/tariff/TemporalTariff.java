@@ -38,7 +38,7 @@ public interface TemporalTariff extends Tariff {
 	/**
 	 * Get a date associated with this tariff.
 	 *
-	 * @return the date, or {@literal null}
+	 * @return the date, or {@code null}
 	 */
 	@Nullable
 	LocalDate getDate();
@@ -46,7 +46,7 @@ public interface TemporalTariff extends Tariff {
 	/**
 	 * Get a time associated with this tariff.
 	 *
-	 * @return the time, or {@literal null}
+	 * @return the time, or {@code null}
 	 */
 	@Nullable
 	LocalTime getTime();

@@ -53,7 +53,7 @@ public interface Unique<K> {
 	 *
 	 * <p>
 	 * This implementation simply tests if {@link #getId()} is not
-	 * {@literal null}. Extending classes, such as those with composite keys
+	 * {@code null}. Extending classes, such as those with composite keys
 	 * where nested properties must be defined for the key to be valid, can
 	 * override this implementation as needed.
 	 * </p>

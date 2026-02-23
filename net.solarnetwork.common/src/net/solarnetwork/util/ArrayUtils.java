@@ -52,12 +52,12 @@ public final class ArrayUtils {
 	 *
 	 * <p>
 	 * This method can shorten or lengthen an array of objects. After adjusting
-	 * the array length, any {@literal null} element in the array will be
+	 * the array length, any {@code null} element in the array will be
 	 * initialized to an object returned from {@code factory}, or if
 	 * {@code factory} is not provided a new instance of {@code itemClass} via
 	 * {@link Class#newInstance()}. The {@link ObjectFactory#getObject()} method
 	 * (or class constructor if no {@code factory} provided) will be called for
-	 * <b>each</b> {@literal null} array index.
+	 * <b>each</b> {@code null} array index.
 	 * </p>
 	 *
 	 * <p>
@@ -70,14 +70,14 @@ public final class ArrayUtils {
 	 * @param <T>
 	 *        the array item type
 	 * @param array
-	 *        the source array, or {@literal null}
+	 *        the source array, or {@code null}
 	 * @param count
 	 *        the desired length of the array; if less than zero will be treated
 	 *        as zero
 	 * @param itemClass
 	 *        the class of array items
 	 * @param factory
-	 *        a factory to create new array items, or {@literal null} to create
+	 *        a factory to create new array items, or {@code null} to create
 	 *        {@code itemClass} instances directly
 	 * @return a copy of {@code array} with the adjusted length, or
 	 *         {@code array} if no adjustment was necessary
@@ -95,12 +95,12 @@ public final class ArrayUtils {
 	 *
 	 * <p>
 	 * This method can shorten or lengthen an array of objects. After adjusting
-	 * the array length, any {@literal null} element in the array will be
+	 * the array length, any {@code null} element in the array will be
 	 * initialized to an object returned from {@code factory}, or if
 	 * {@code factory} is not provided a new instance of {@code itemClass} via
 	 * {@link Class#newInstance()}. The {@link ObjectFactory#getObject()} method
 	 * (or class constructor if no {@code factory} provided) will be called for
-	 * <b>each</b> {@literal null} array index.
+	 * <b>each</b> {@code null} array index.
 	 * </p>
 	 *
 	 * <p>
@@ -113,14 +113,14 @@ public final class ArrayUtils {
 	 * @param <T>
 	 *        the array item type
 	 * @param array
-	 *        the source array, or {@literal null}
+	 *        the source array, or {@code null}
 	 * @param count
 	 *        the desired length of the array; if less than zero will be treated
 	 *        as zero
 	 * @param itemClass
 	 *        the class of array items
 	 * @param factory
-	 *        a factory to create new array items, or {@literal null} to create
+	 *        a factory to create new array items, or {@code null} to create
 	 *        {@code itemClass} instances directly
 	 * @return a copy of {@code array} with the adjusted length, or
 	 *         {@code array} if no adjustment was necessary
@@ -202,8 +202,8 @@ public final class ArrayUtils {
 	}
 
 	/**
-	 * Test if an array has only {@literal null} elements or is itself
-	 * {@literal null} or empty.
+	 * Test if an array has only {@code null} elements or is itself
+	 * {@code null} or empty.
 	 *
 	 * <p>
 	 * This method will perform a linear search for the first non-null element.
@@ -211,8 +211,8 @@ public final class ArrayUtils {
 	 *
 	 * @param array
 	 *        the array to test
-	 * @return {@literal true} if {@code array} is {@literal null}, empty, or
-	 *         has only {@literal null} elements
+	 * @return {@literal true} if {@code array} is {@code null}, empty, or
+	 *         has only {@code null} elements
 	 * @since 1.2
 	 */
 	public static boolean isOnlyNull(@Nullable Object @Nullable [] array) {

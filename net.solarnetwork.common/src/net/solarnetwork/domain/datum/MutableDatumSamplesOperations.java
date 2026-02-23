@@ -49,7 +49,7 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 	 *
 	 * <p>
 	 * To add a tag, pass the tag name for both {@code key} and {@code value}.
-	 * To remove a tag, pass the tag name for {@code key} and {@literal null}
+	 * To remove a tag, pass the tag name for {@code key} and {@code null}
 	 * for {@code value}. To replace a tag, pass the tag to remove for
 	 * {@code key} and the tag to add as {@code value}.
 	 * </p>
@@ -66,7 +66,7 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 	 *        the key to put, or tag to add/remove for
 	 *        {@link DatumSamplesType#Tag}
 	 * @param value
-	 *        the value to put, or tag to add, or {@literal null} to remove the
+	 *        the value to put, or tag to add, or {@code null} to remove the
 	 *        value; this will be cast without checking
 	 */
 	void putSampleValue(DatumSamplesType type, String key, @Nullable Object value);

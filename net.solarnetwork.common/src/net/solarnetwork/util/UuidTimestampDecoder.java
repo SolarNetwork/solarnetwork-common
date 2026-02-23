@@ -40,7 +40,7 @@ public interface UuidTimestampDecoder {
 	 *
 	 * @param uuid
 	 *        the UUID to decode the timestamp from
-	 * @return the timestamp, or {@literal null} if unable to decode one
+	 * @return the timestamp, or {@code null} if unable to decode one
 	 */
 	@Nullable
 	Instant decodeTimestamp(UUID uuid);

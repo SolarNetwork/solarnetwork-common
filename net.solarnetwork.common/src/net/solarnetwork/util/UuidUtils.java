@@ -55,7 +55,7 @@ public final class UuidUtils {
 	 *
 	 * @param uuid
 	 *        the UUID to extract the timestamp from
-	 * @return the timestamp, or {@literal null} if unable to extract a
+	 * @return the timestamp, or {@code null} if unable to extract a
 	 *         timestamp
 	 */
 	public static @Nullable Instant extractTimestamp(UUID uuid) {
@@ -78,7 +78,7 @@ public final class UuidUtils {
 	 *        {@link #V7_MICRO_COUNT_PRECISION} can be passed to represent a
 	 *        10-bit microsecond counter value, e.g. 0-999; pass {@code 0} to
 	 *        assume no additional precision
-	 * @return the timestamp, or {@literal null} if unable to extract a
+	 * @return the timestamp, or {@code null} if unable to extract a
 	 *         timestamp
 	 */
 	public static @Nullable Instant extractTimestamp(UUID uuid, int additionalPrecisionBits) {
@@ -102,7 +102,7 @@ public final class UuidUtils {
 	 *        {@link #V7_MICRO_COUNT_PRECISION} can be passed to represent a
 	 *        10-bit microsecond counter value, e.g. 0-999; pass {@code 0} to
 	 *        assume no additional precision
-	 * @return the timestamp, or {@literal null} if unable to extract a
+	 * @return the timestamp, or {@code null} if unable to extract a
 	 *         timestamp
 	 */
 	public static @Nullable Instant extractTimestampV7(UUID uuid, int additionalPrecisionBits) {

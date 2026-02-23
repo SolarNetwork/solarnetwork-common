@@ -83,7 +83,7 @@ public interface ServiceConfiguration {
 	 *        the type of the value
 	 * @return {@literal true} if the service property value exists and can be
 	 *         returned as the given type and if a string value is not empty, or
-	 *         {@literal null} if not available or cannot be converted to the
+	 *         {@code null} if not available or cannot be converted to the
 	 *         given type
 	 */
 	default <T> boolean hasServiceProperty(String key, Class<T> type) {
@@ -100,7 +100,7 @@ public interface ServiceConfiguration {
 	 *        the service property key to get the value for
 	 * @param type
 	 *        the type of the value
-	 * @return the service property value, or {@literal null} if not available
+	 * @return the service property value, or {@code null} if not available
 	 *         or cannot be converted to the given type or if a string value is
 	 *         empty
 	 */
@@ -135,7 +135,7 @@ public interface ServiceConfiguration {
 	 *
 	 * @param key
 	 *        the service property key to extract
-	 * @return the mapping, or {@literal null}
+	 * @return the mapping, or {@code null}
 	 * @since 1.1
 	 */
 	@SuppressWarnings("unchecked")
@@ -162,7 +162,7 @@ public interface ServiceConfiguration {
 	 *        the configuration to extract the mapping from
 	 * @param key
 	 *        the service property key to extract
-	 * @return the mapping, or {@literal null}
+	 * @return the mapping, or {@code null}
 	 * @since 1.1
 	 */
 	static Map<String, String> servicePropertyStringMap(ServiceConfiguration configuration, String key) {
@@ -182,7 +182,7 @@ public interface ServiceConfiguration {
 	 *
 	 * @param key
 	 *        the service property key to extract
-	 * @return the list, or {@literal null}
+	 * @return the list, or {@code null}
 	 * @since 1.1
 	 */
 	@SuppressWarnings("unchecked")
@@ -236,7 +236,7 @@ public interface ServiceConfiguration {
 	 *        the configuration to extract the mapping from
 	 * @param key
 	 *        the service property key to extract
-	 * @return the list, or {@literal null}
+	 * @return the list, or {@code null}
 	 * @since 1.1
 	 */
 	static List<String> servicePropertyStringList(ServiceConfiguration configuration, String key) {

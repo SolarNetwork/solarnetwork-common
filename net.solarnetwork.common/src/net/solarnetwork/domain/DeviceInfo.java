@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>
  * All properties are considered optional, and methods may return
- * {@literal null} if a property is not known.
+ * {@code null} if a property is not known.
  * </p>
  *
  * @author matt

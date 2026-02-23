@@ -68,7 +68,7 @@ public interface EnergyDatum extends Datum {
 	 * reading was taken.
 	 * </p>
 	 *
-	 * @return the watt hour reading, or {@literal null} if not available
+	 * @return the watt hour reading, or {@code null} if not available
 	 */
 	default @Nullable Long getWattHourReading() {
 		return asSampleOperations().getSampleLong(Accumulating, WATT_HOUR_READING_KEY);
@@ -87,7 +87,7 @@ public interface EnergyDatum extends Datum {
 	/**
 	 * Get the instantaneous watts.
 	 *
-	 * @return watts, or {@literal null} if not available
+	 * @return watts, or {@code null} if not available
 	 */
 	default @Nullable Integer getWatts() {
 		return asSampleOperations().getSampleInteger(Instantaneous, WATTS_KEY);

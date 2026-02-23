@@ -55,7 +55,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param id
 	 *        the ID
 	 * @param samples
-	 *        the samples; if {@literal null} a new instance will be created
+	 *        the samples; if {@code null} a new instance will be created
 	 */
 	public GeneralDatum(DatumId id, @Nullable DatumSamples samples) {
 		super(id);
@@ -66,7 +66,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * Constructor.
 	 *
 	 * <p>
-	 * This creates a {@literal null} {@code kind} and {@code objectId} and sets
+	 * This creates a {@code null} {@code kind} and {@code objectId} and sets
 	 * the timestamp to the system time.
 	 * </p>
 	 *
@@ -81,7 +81,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * Constructor.
 	 *
 	 * <p>
-	 * This creates a {@literal null} {@code kind} and {@code objectId}.
+	 * This creates a {@code null} {@code kind} and {@code objectId}.
 	 * </p>
 	 *
 	 * @param sourceId
@@ -97,7 +97,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * Constructor.
 	 *
 	 * <p>
-	 * This creates a {@literal null} {@code kind} and {@code objectId}.
+	 * This creates a {@code null} {@code kind} and {@code objectId}.
 	 * </p>
 	 *
 	 * @param sourceId
@@ -105,7 +105,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param timestamp
 	 *        the timestamp
 	 * @param samples
-	 *        the samples; if {@literal null} a new instance will be created
+	 *        the samples; if {@code null} a new instance will be created
 	 */
 	public GeneralDatum(String sourceId, Instant timestamp, @Nullable DatumSamples samples) {
 		this(new DatumId(null, null, sourceId, timestamp), samples);
@@ -115,7 +115,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * Constructor.
 	 *
 	 * <p>
-	 * This creates a {@literal null} {@code kind}.
+	 * This creates a {@code null} {@code kind}.
 	 * </p>
 	 *
 	 * @param objectId
@@ -125,7 +125,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param timestamp
 	 *        the timestamp
 	 * @param samples
-	 *        the samples; if {@literal null} a new instance will be created
+	 *        the samples; if {@code null} a new instance will be created
 	 */
 	public GeneralDatum(Long objectId, String sourceId, Instant timestamp,
 			@Nullable DatumSamples samples) {
@@ -142,7 +142,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param timestamp
 	 *        the timestamp
 	 * @param samples
-	 *        the samples; if {@literal null} a new instance will be created
+	 *        the samples; if {@code null} a new instance will be created
 	 * @return the new instance
 	 */
 	public static GeneralDatum nodeDatum(Long nodeId, String sourceId, Instant timestamp,
@@ -160,7 +160,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param timestamp
 	 *        the timestamp
 	 * @param samples
-	 *        the samples; if {@literal null} a new instance will be created
+	 *        the samples; if {@code null} a new instance will be created
 	 * @return the new instance
 	 */
 	public static GeneralDatum locationDatum(Long locationId, String sourceId, Instant timestamp,
@@ -453,7 +453,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	/**
 	 * Get the samples instance.
 	 *
-	 * @return the samples, never {@literal null}
+	 * @return the samples, never {@code null}
 	 */
 	@Override
 	public DatumSamples getSamples() {

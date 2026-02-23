@@ -401,7 +401,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	 * </p>
 	 *
 	 * @return the disjoint ranges in this set, ordered from least to greatest,
-	 *         never {@literal null}
+	 *         never {@code null}
 	 */
 	@Override
 	public Iterable<IntRange> ranges() {

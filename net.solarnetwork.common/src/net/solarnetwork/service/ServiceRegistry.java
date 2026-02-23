@@ -40,9 +40,9 @@ public interface ServiceRegistry {
 	 *
 	 * @param filter
 	 *        an optional LDAP-style search filter
-	 * @return the resolved services, never {@literal null}
+	 * @return the resolved services, never {@code null}
 	 * @throws IllegalArgumentException
-	 *         if {@code clazz} is {@literal null} or {@code filter} has an
+	 *         if {@code clazz} is {@code null} or {@code filter} has an
 	 *         invalid syntax
 	 */
 	Collection<?> services(String filter);
@@ -57,9 +57,9 @@ public interface ServiceRegistry {
 	 *        the service class
 	 * @param filter
 	 *        an optional LDAP-style search filter
-	 * @return the resolved services, never {@literal null}
+	 * @return the resolved services, never {@code null}
 	 * @throws IllegalArgumentException
-	 *         if {@code clazz} is {@literal null} or {@code filter} has an
+	 *         if {@code clazz} is {@code null} or {@code filter} has an
 	 *         invalid syntax
 	 */
 	<S> Collection<S> services(Class<S> clazz, String filter);
@@ -78,7 +78,7 @@ public interface ServiceRegistry {
 	 *        class of {@code service} will be used
 	 * @return the registered service
 	 * @throws IllegalArgumentException
-	 *         if {@code service} is {@literal null}
+	 *         if {@code service} is {@code null}
 	 */
 	<S> RegisteredService<S> registerService(S service, Map<String, ?> properties, Class<?>... classes);
 

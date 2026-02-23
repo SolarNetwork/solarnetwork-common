@@ -50,7 +50,7 @@ public interface DatumMathFunctions {
 	 * @param mask
 	 *        the mask
 	 * @return the result of {@code (n & mask)}, or {@code n} as an integer if
-	 *         {@code mask} is {@literal null} or {@literal null} if {@code n}
+	 *         {@code mask} is {@code null} or {@code null} if {@code n}
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
@@ -66,7 +66,7 @@ public interface DatumMathFunctions {
 	 * @param n
 	 *        the integer number
 	 * @return the result of {@code (~n)}, or {@code n} as an integer or
-	 *         {@literal null} if {@code n} cannot be converted to an integer
+	 *         {@code null} if {@code n} cannot be converted to an integer
 	 * @since 1.1
 	 */
 	default @Nullable BigInteger not(@Nullable Number n) {
@@ -83,7 +83,7 @@ public interface DatumMathFunctions {
 	 * @param mask
 	 *        the mask
 	 * @return the result of {@code (n & ~mask)}, or {@code n} as an integer if
-	 *         {@code mask} is {@literal null} or {@literal null} if {@code n}
+	 *         {@code mask} is {@code null} or {@code null} if {@code n}
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
@@ -101,7 +101,7 @@ public interface DatumMathFunctions {
 	 * @param mask
 	 *        the mask
 	 * @return the result of {@code (n | mask)}, or {@code n} as an integer if
-	 *         {@code mask} is {@literal null} or {@literal null} if {@code n}
+	 *         {@code mask} is {@code null} or {@code null} if {@code n}
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
@@ -119,7 +119,7 @@ public interface DatumMathFunctions {
 	 * @param mask
 	 *        the mask
 	 * @return the result of {@code (n ^ mask)}, or {@code n} as an integer if
-	 *         {@code mask} is {@literal null} or {@literal null} if {@code n}
+	 *         {@code mask} is {@code null} or {@code null} if {@code n}
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
@@ -137,7 +137,7 @@ public interface DatumMathFunctions {
 	 * @param count
 	 *        the shift distance, in bits
 	 * @return the result of {@code (n >> count)}, or {@code n} as an integer if
-	 *         {@code count} is {@literal null} or {@literal null} if {@code n}
+	 *         {@code count} is {@code null} or {@code null} if {@code n}
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
@@ -154,7 +154,7 @@ public interface DatumMathFunctions {
 	 * @param count
 	 *        the shift distance, in bits
 	 * @return the result of {@code (n << count)}, or {@code n} as an integer if
-	 *         {@code count} is {@literal null} or {@literal null} if {@code n}
+	 *         {@code count} is {@code null} or {@code null} if {@code n}
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
@@ -171,7 +171,7 @@ public interface DatumMathFunctions {
 	 * @param bit
 	 *        the bit to test
 	 * @return the result of {@code ((n & (1 << bit)) != 0)}, or {@code n} as an
-	 *         integer if {@code bit} is {@literal null} or {@literal null} if
+	 *         integer if {@code bit} is {@code null} or {@code null} if
 	 *         {@code n} cannot be converted to an integer
 	 * @since 1.1
 	 */
@@ -185,8 +185,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param value
 	 *        the object to get as a {@link BigDecimal}
-	 * @return the decimal instance, or {@literal null} if {@code value} is
-	 *         {@literal null} or cannot be parsed as a decimal
+	 * @return the decimal instance, or {@code null} if {@code value} is
+	 *         {@code null} or cannot be parsed as a decimal
 	 */
 	default @Nullable BigDecimal decimal(@Nullable Object value) {
 		if ( value == null ) {
@@ -206,8 +206,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param value
 	 *        the object to get as a {@link BigInteger}
-	 * @return the integer instance, or {@literal null} if {@code value} is
-	 *         {@literal null} or cannot be parsed as an integer
+	 * @return the integer instance, or {@code null} if {@code value} is
+	 *         {@code null} or cannot be parsed as an integer
 	 * @since 1.1
 	 */
 	default @Nullable BigInteger integer(@Nullable Object value) {
@@ -230,8 +230,8 @@ public interface DatumMathFunctions {
 	 *        the first number
 	 * @param n2
 	 *        the second number
-	 * @return the minimum number, or {@literal null} if both arguments are
-	 *         {@literal null}
+	 * @return the minimum number, or {@code null} if both arguments are
+	 *         {@code null}
 	 */
 	default @Nullable Number min(@Nullable Number n1, @Nullable Number n2) {
 		return NumberUtils.min(n1, n2);
@@ -244,8 +244,8 @@ public interface DatumMathFunctions {
 	 *        the first number
 	 * @param n2
 	 *        the second number
-	 * @return the maximum number, or {@literal null} if both arguments are
-	 *         {@literal null}
+	 * @return the maximum number, or {@code null} if both arguments are
+	 *         {@code null}
 	 */
 	default @Nullable Number max(@Nullable Number n1, @Nullable Number n2) {
 		return NumberUtils.max(n1, n2);
@@ -257,8 +257,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to round
-	 * @return the rounded number, or {@literal null} if {@code n} is
-	 *         {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} is
+	 *         {@code null}
 	 */
 	default @Nullable Number ceil(@Nullable Number n) {
 		return NumberUtils.ceil(n, BigDecimal.ONE);
@@ -272,8 +272,8 @@ public interface DatumMathFunctions {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} or
+	 *         {@code significance} are {@code null}
 	 */
 	default @Nullable Number ceil(@Nullable Number n, @Nullable Number significance) {
 		return NumberUtils.ceil(n, significance);
@@ -285,8 +285,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to round
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} or
+	 *         {@code significance} are {@code null}
 	 */
 	default @Nullable Number floor(@Nullable Number n) {
 		return NumberUtils.floor(n, BigDecimal.ONE);
@@ -300,8 +300,8 @@ public interface DatumMathFunctions {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} or
+	 *         {@code significance} are {@code null}
 	 */
 	default @Nullable Number floor(@Nullable Number n, @Nullable Number significance) {
 		return NumberUtils.floor(n, significance);
@@ -316,8 +316,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to round
-	 * @return the rounded number, or {@literal null} if {@code n} is
-	 *         {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} is
+	 *         {@code null}
 	 * @see #roundUp(Number, Number)
 	 */
 	default @Nullable Number up(@Nullable Number n) {
@@ -332,8 +332,8 @@ public interface DatumMathFunctions {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} or
+	 *         {@code significance} are {@code null}
 	 */
 	default @Nullable Number up(@Nullable Number n, @Nullable Number significance) {
 		return NumberUtils.up(n, significance);
@@ -348,8 +348,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to round
-	 * @return the rounded number, or {@literal null} if {@code n} is
-	 *         {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} is
+	 *         {@code null}
 	 * @see #roundDown(Number, Number)
 	 */
 	default @Nullable Number down(@Nullable Number n) {
@@ -368,8 +368,8 @@ public interface DatumMathFunctions {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} or
+	 *         {@code significance} are {@code null}
 	 */
 	default @Nullable Number down(@Nullable Number n, @Nullable Number significance) {
 		return NumberUtils.down(n, significance);
@@ -383,8 +383,8 @@ public interface DatumMathFunctions {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code significance} are {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} or
+	 *         {@code significance} are {@code null}
 	 */
 	default @Nullable Number mround(@Nullable Number n, @Nullable Number significance) {
 		return NumberUtils.mround(n, significance);
@@ -399,8 +399,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to round
-	 * @return the rounded number, or {@literal null} if {@code n} is
-	 *         {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} is
+	 *         {@code null}
 	 */
 	default @Nullable Number round(@Nullable Number n) {
 		return NumberUtils.round(n, 0);
@@ -414,8 +414,8 @@ public interface DatumMathFunctions {
 	 *        the number to round
 	 * @param digits
 	 *        the maximum number of decimal digits
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code digits} is {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} or
+	 *         {@code digits} is {@code null}
 	 */
 	default @Nullable Number round(@Nullable Number n, @Nullable Number digits) {
 		return NumberUtils.round(n, digits);
@@ -428,8 +428,8 @@ public interface DatumMathFunctions {
 	 *        the number to round
 	 * @param digits
 	 *        the maximum number of decimal digits
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code digits} is {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} or
+	 *         {@code digits} is {@code null}
 	 */
 	default @Nullable Number roundUp(@Nullable Number n, @Nullable Number digits) {
 		return NumberUtils.roundUp(n, digits);
@@ -442,8 +442,8 @@ public interface DatumMathFunctions {
 	 *        the number to round
 	 * @param digits
 	 *        the maximum number of decimal digits
-	 * @return the rounded number, or {@literal null} if {@code n} or
-	 *         {@code digits} is {@literal null}
+	 * @return the rounded number, or {@code null} if {@code n} or
+	 *         {@code digits} is {@code null}
 	 */
 	default @Nullable Number roundDown(@Nullable Number n, @Nullable Number digits) {
 		return NumberUtils.roundDown(n, digits);
@@ -464,8 +464,8 @@ public interface DatumMathFunctions {
 	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
 	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
 	 *        most a {@link Long} or {@link Double}
-	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
-	 *         or {@code minBytePower} is {@literal null}
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n}
+	 *         or {@code minBytePower} is {@code null}
 	 * @since 1.1
 	 */
 	default @Nullable Number narrow(@Nullable Number n, @Nullable Number minBytePower) {
@@ -485,8 +485,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to narrow
-	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
-	 *         is {@literal null}
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n}
+	 *         is {@code null}
 	 * @since 1.1
 	 */
 	default @Nullable Number narrow8(@Nullable Number n) {
@@ -503,8 +503,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to narrow
-	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
-	 *         is {@literal null}
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n}
+	 *         is {@code null}
 	 * @since 1.1
 	 */
 	default @Nullable Number narrow16(@Nullable Number n) {
@@ -521,8 +521,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to narrow
-	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
-	 *         is {@literal null}
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n}
+	 *         is {@code null}
 	 * @since 1.1
 	 */
 	default @Nullable Number narrow32(@Nullable Number n) {
@@ -539,8 +539,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to narrow
-	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
-	 *         is {@literal null}
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n}
+	 *         is {@code null}
 	 * @since 1.1
 	 */
 	default @Nullable Number narrow64(@Nullable Number n) {
@@ -551,8 +551,8 @@ public interface DatumMathFunctions {
 	 * Compute the sum a group of numbers.
 	 *
 	 * @param set
-	 *        the numbers to sum; if {@literal null} or empty then
-	 *        {@literal null} will be returned
+	 *        the numbers to sum; if {@code null} or empty then
+	 *        {@code null} will be returned
 	 * @return the sum of {@code set}
 	 */
 	default @Nullable Number sum(@Nullable Collection<? extends Number> set) {
@@ -573,8 +573,8 @@ public interface DatumMathFunctions {
 	 * Compute the average (mean) of a group of numbers.
 	 *
 	 * @param set
-	 *        the numbers to average; if {@literal null} or empty then
-	 *        {@literal null} will be returned
+	 *        the numbers to average; if {@code null} or empty then
+	 *        {@code null} will be returned
 	 * @return the average of {@code set}
 	 */
 	default @Nullable Number avg(@Nullable Collection<? extends Number> set) {
@@ -605,8 +605,8 @@ public interface DatumMathFunctions {
 	 * Find the maximum value in a group of numbers.
 	 *
 	 * @param set
-	 *        the numbers to find the maximum in; if {@literal null} or empty
-	 *        then {@literal null} will be returned
+	 *        the numbers to find the maximum in; if {@code null} or empty
+	 *        then {@code null} will be returned
 	 * @return the maximum of {@code set}
 	 */
 	default @Nullable Number max(@Nullable Collection<? extends Number> set) {
@@ -630,8 +630,8 @@ public interface DatumMathFunctions {
 	 * Find the minimum value in a group of numbers.
 	 *
 	 * @param set
-	 *        the numbers to find the minimum in; if {@literal null} or empty
-	 *        then {@literal null} will be returned
+	 *        the numbers to find the minimum in; if {@code null} or empty
+	 *        then {@code null} will be returned
 	 * @return the minimum of {@code set}
 	 */
 	default @Nullable Number min(@Nullable Collection<? extends Number> set) {
@@ -712,8 +712,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the value to raise <i>e</i> to
-	 * @return the calculated value, or {@literal null} if {@code n} is
-	 *         {@literal null}
+	 * @return the calculated value, or {@code null} if {@code n} is
+	 *         {@code null}
 	 * @since 1.2
 	 */
 	default @Nullable Number exp(@Nullable Number n) {
@@ -728,8 +728,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to calculate the square root of
-	 * @return the square root of {@code n}, or {@literal null} if {@code n} is
-	 *         {@literal null}
+	 * @return the square root of {@code n}, or {@code null} if {@code n} is
+	 *         {@code null}
 	 * @since 1.4
 	 */
 	default @Nullable Number sqrt(@Nullable Number n) {
@@ -746,8 +746,8 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to calculate the cube root of
-	 * @return the cube root of {@code n}, or {@literal null} if {@code n} is
-	 *         {@literal null}
+	 * @return the cube root of {@code n}, or {@code null} if {@code n} is
+	 *         {@code null}
 	 * @since 1.4
 	 */
 	default @Nullable Number cbrt(@Nullable Number n) {
@@ -764,8 +764,8 @@ public interface DatumMathFunctions {
 	 *        the number to raise
 	 * @param e
 	 *        the power to raise to
-	 * @return {@code n} raised to the power of {@code p}, or {@literal null} if
-	 *         any argument is {@literal null}
+	 * @return {@code n} raised to the power of {@code p}, or {@code null} if
+	 *         any argument is {@code null}
 	 * @since 1.4
 	 */
 	default @Nullable Number pow(@Nullable Number n, @Nullable Number e) {
@@ -809,7 +809,7 @@ public interface DatumMathFunctions {
 	 * @param n
 	 *        the number to extract the whole part from
 	 * @return the whole part as an integer, or zero if {@code n} is
-	 *         {@literal null}
+	 *         {@code null}
 	 * @since 1.3
 	 */
 	default @Nullable BigInteger wholePart(@Nullable Number n) {
@@ -826,7 +826,7 @@ public interface DatumMathFunctions {
 	 * @param n
 	 *        the number to extract the fractional part from
 	 * @return the fractional part as an integer, or zero if {@code n} is
-	 *         {@literal null}
+	 *         {@code null}
 	 * @since 1.3
 	 */
 	default @Nullable BigInteger fracPart(@Nullable Number n) {
@@ -848,7 +848,7 @@ public interface DatumMathFunctions {
 	 * @param scale
 	 *        the maximum power-of-10 scale
 	 * @return the fractional part as an integer, or zero if {@code n} is
-	 *         {@literal null}
+	 *         {@code null}
 	 * @since 1.3
 	 */
 	default @Nullable BigInteger fracPart(@Nullable Number n, int scale) {
@@ -859,8 +859,8 @@ public interface DatumMathFunctions {
 	 * Compute the root-mean-squared a group of numbers.
 	 *
 	 * @param set
-	 *        the numbers to calculate the RMS for; if {@literal null} then
-	 *        {@literal null} will be returned
+	 *        the numbers to calculate the RMS for; if {@code null} then
+	 *        {@code null} will be returned
 	 * @return the RMS of {@code set}
 	 */
 	default @Nullable Number rms(@Nullable Collection<? extends Number> set) {

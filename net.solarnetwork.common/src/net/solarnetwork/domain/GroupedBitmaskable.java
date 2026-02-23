@@ -100,7 +100,7 @@ public interface GroupedBitmaskable extends Bitmaskable {
 	 * @param values
 	 *        the set of grouped bitmaskables to extract the overall bitmask
 	 *        value from
-	 * @return the bitset of overall enabled bits, or {@literal null} if no bits
+	 * @return the bitset of overall enabled bits, or {@code null} if no bits
 	 *         are set
 	 */
 	public static @Nullable BitSet overallBitmaskValue(

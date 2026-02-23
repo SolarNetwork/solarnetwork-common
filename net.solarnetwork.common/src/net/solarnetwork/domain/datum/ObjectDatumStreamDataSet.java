@@ -43,7 +43,7 @@ public interface ObjectDatumStreamDataSet<T extends StreamDatum>
 	 * These are the same results returned by {@link Iterable#iterator()}.
 	 * </p>
 	 *
-	 * @return the results, never {@literal null}
+	 * @return the results, never {@code null}
 	 */
 	Iterable<T> getResults();
 
@@ -56,7 +56,7 @@ public interface ObjectDatumStreamDataSet<T extends StreamDatum>
 	 * available results.
 	 * </p>
 	 *
-	 * @return total available results, or {@literal null} if not known
+	 * @return total available results, or {@code null} if not known
 	 */
 	@Nullable
 	Long getTotalResultCount();
@@ -64,7 +64,7 @@ public interface ObjectDatumStreamDataSet<T extends StreamDatum>
 	/**
 	 * Get the starting offset of the returned results.
 	 *
-	 * @return the starting offset, or {@literal null} if not known
+	 * @return the starting offset, or {@code null} if not known
 	 */
 	@Nullable
 	Integer getStartingOffset();
@@ -72,7 +72,7 @@ public interface ObjectDatumStreamDataSet<T extends StreamDatum>
 	/**
 	 * Get the number of results that matched the query.
 	 *
-	 * @return the number of returned results, or {@literal null} if not known
+	 * @return the number of returned results, or {@code null} if not known
 	 */
 	@Nullable
 	Integer getReturnedResultCount();

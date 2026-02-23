@@ -57,7 +57,7 @@ public interface DatumFilterService extends Identifiable {
 	 * </p>
 	 * 
 	 * <p>
-	 * This method may also return {@literal null} to indicate the
+	 * This method may also return {@code null} to indicate the
 	 * {@code samples} instance should not be processed, or that there is
 	 * essentially no data to associate with this particular {@code datum}.
 	 * </p>
@@ -70,7 +70,7 @@ public interface DatumFilterService extends Identifiable {
 	 *        optional implementation-specific parameters to pass to the
 	 *        transformer
 	 * @return the transformed samples instance, which may be the
-	 *         {@code samples} instance or a new instance, or {@literal null} to
+	 *         {@code samples} instance or a new instance, or {@code null} to
 	 *         indicate the samples should be discarded
 	 */
 	DatumSamplesOperations filter(Datum datum, DatumSamplesOperations samples,

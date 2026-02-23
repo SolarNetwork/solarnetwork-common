@@ -63,7 +63,7 @@ public interface Bitmaskable {
 	 * Get a bitmask value for a set of {@code Bitmaskable} objects.
 	 *
 	 * @param maskables
-	 *        the set of {@code Bitmaskable} objects ({@literal null} allowed)
+	 *        the set of {@code Bitmaskable} objects ({@code null} allowed)
 	 * @return a bitmask value of all {@link Bitmaskable#bitmaskBitOffset()}
 	 *         values of the given {@code maskables}
 	 * @see #setForBitmask(int, Class)
@@ -88,7 +88,7 @@ public interface Bitmaskable {
 	 * @param clazz
 	 *        the class of an enumeration of {@link Bitmaskable} objects
 	 * @return an immutable set of {@link Bitmaskable} objects, never
-	 *         {@literal null}
+	 *         {@code null}
 	 * @see #bitmaskValue(Set)
 	 */
 	static <T extends Enum<T> & Bitmaskable> Set<T> setForBitmask(int mask, Class<T> clazz) {
@@ -106,7 +106,7 @@ public interface Bitmaskable {
 	 * @param values
 	 *        the complete set of possible {@link Bitmaskable} objects
 	 * @return an immutable set of {@link Bitmaskable} objects, never
-	 *         {@literal null}
+	 *         {@code null}
 	 * @see #bitmaskValue(Set)
 	 */
 	static <T extends Bitmaskable> Set<T> setForBitmask(int mask, T[] values) {
@@ -127,7 +127,7 @@ public interface Bitmaskable {
 	 * Sort {@link Bitmaskable} instances by type, then bit index.
 	 *
 	 * <p>
-	 * {@literal null} values are not supported.
+	 * {@code null} values are not supported.
 	 * </p>
 	 *
 	 * @since 1.1

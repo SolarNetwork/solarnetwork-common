@@ -98,7 +98,7 @@ public class SnsAuthorizationInfo {
 	 * @param signature
 	 *        the computed signature, as a hex-encoded string
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public SnsAuthorizationInfo(String scheme, String identifier, String[] headerNames,
 			String signature) {
@@ -124,7 +124,7 @@ public class SnsAuthorizationInfo {
 	/**
 	 * Get the authorization scheme.
 	 * 
-	 * @return the scheme, never {@literal null}
+	 * @return the scheme, never {@code null}
 	 */
 	public String getScheme() {
 		return scheme;
@@ -133,7 +133,7 @@ public class SnsAuthorizationInfo {
 	/**
 	 * Get the identifier (credential).
 	 * 
-	 * @return the identifier, never {@literal null}
+	 * @return the identifier, never {@code null}
 	 */
 	public String getIdentifier() {
 		return identifier;
@@ -142,7 +142,7 @@ public class SnsAuthorizationInfo {
 	/**
 	 * Get the header name list.
 	 * 
-	 * @return the header names, never {@literal null}
+	 * @return the header names, never {@code null}
 	 */
 	public String[] getHeaderNames() {
 		return headerNames;
@@ -151,7 +151,7 @@ public class SnsAuthorizationInfo {
 	/**
 	 * Get the signature.
 	 * 
-	 * @return the signature as a hex-encoded string, never {@literal null}
+	 * @return the signature as a hex-encoded string, never {@code null}
 	 */
 	public String getSignature() {
 		return signature;

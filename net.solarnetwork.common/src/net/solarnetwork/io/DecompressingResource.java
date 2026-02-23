@@ -82,7 +82,7 @@ public class DecompressingResource extends AbstractResource {
 	 * @param source
 	 *        the source (compressed) resource
 	 * @param compressionType
-	 *        the compression type to use, or {@literal null} to try to
+	 *        the compression type to use, or {@code null} to try to
 	 *        automatically detect the type
 	 */
 	public DecompressingResource(Resource source, String compressionType) {
@@ -95,7 +95,7 @@ public class DecompressingResource extends AbstractResource {
 	 * @param source
 	 *        the source (compressed) resource
 	 * @param compressionType
-	 *        the compression type to use, or {@literal null} to try to
+	 *        the compression type to use, or {@code null} to try to
 	 *        automatically detect the type
 	 * @param contentLength
 	 *        the known uncompressed content length of the resource, or

@@ -342,9 +342,9 @@ public class BasicDeviceInfo implements DeviceInfo {
 		}
 
 		/**
-		 * Test if all fields are {@literal null} or empty.
+		 * Test if all fields are {@code null} or empty.
 		 *
-		 * @return {@literal true} if all fields are {@literal null} or empty
+		 * @return {@literal true} if all fields are {@code null} or empty
 		 */
 		public boolean isEmpty() {
 			// @formatter:off

@@ -198,7 +198,7 @@ public final class ClassUtils {
 	 *        the object to inspect
 	 * @param ignore
 	 *        a set of property names to ignore (optional)
-	 * @return Map (never {@literal null})
+	 * @return Map (never {@code null})
 	 * @since 1.1
 	 */
 	public static Map<String, Object> getSimpleBeanProperties(@Nullable Object o,
@@ -222,7 +222,7 @@ public final class ClassUtils {
 	 * @param serializeIgnore
 	 *        if {@literal true} test for the {@link SerializeIgnore} annotation
 	 *        for ignoring properties
-	 * @return Map (never {@literal null})
+	 * @return Map (never {@code null})
 	 * @since 2.2
 	 */
 	public static Map<String, Object> getSimpleBeanProperties(@Nullable Object o,
@@ -319,7 +319,7 @@ public final class ClassUtils {
 	 * @param dest
 	 *        the object to copy values to
 	 * @param ignore
-	 *        a set of property names to ignore (optional) where {@literal null}
+	 *        a set of property names to ignore (optional) where {@code null}
 	 */
 	public static void copyBeanProperties(Object src, Object dest, @Nullable Set<String> ignore) {
 		copyBeanProperties(src, dest, ignore, false);
@@ -336,7 +336,7 @@ public final class ClassUtils {
 	 *        a set of property names to ignore (optional)
 	 * @param emptyStringToNull
 	 *        if {@literal true} then String values that are empty or contain
-	 *        only whitespace will be treated as if they where {@literal null}
+	 *        only whitespace will be treated as if they where {@code null}
 	 */
 	public static void copyBeanProperties(Object src, Object dest, @Nullable Set<String> ignore,
 			boolean emptyStringToNull) {

@@ -157,7 +157,7 @@ public final class ByteUtils {
 	 * @param space
 	 *        {@literal true} to add a single space character between each hex
 	 *        pair
-	 * @return the string, never {@literal null}
+	 * @return the string, never {@code null}
 	 */
 	public static String encodeHexString(final byte @Nullable [] data, final int fromIndex,
 			final int toIndex, final boolean space) {
@@ -178,7 +178,7 @@ public final class ByteUtils {
 	 * @param lowerCase
 	 *        {@literal true} to use lower case, {@literal false} for upper case
 	 *        pair
-	 * @return the string, never {@literal null}
+	 * @return the string, never {@code null}
 	 */
 	public static String encodeHexString(final byte @Nullable [] data, final int fromIndex,
 			final int toIndex, final boolean space, final boolean lowerCase) {
@@ -209,7 +209,7 @@ public final class ByteUtils {
 	 *
 	 * @param s
 	 *        the string to decode
-	 * @return the bytes, never {@literal null}
+	 * @return the bytes, never {@code null}
 	 * @see #decodeHexPadStart(char[])
 	 */
 	public static byte[] decodeHexString(@Nullable String s) {
@@ -229,7 +229,7 @@ public final class ByteUtils {
 	 *
 	 * @param chars
 	 *        the characters to decode
-	 * @return the bytes, never {@literal null}
+	 * @return the bytes, never {@code null}
 	 */
 	public static byte[] decodeHexPadStart(final char @Nullable [] chars) {
 		if ( chars == null || chars.length < 1 ) {
@@ -537,8 +537,8 @@ public final class ByteUtils {
 	 *        an offset within {@code data} to start reading from
 	 * @param byteOrder
 	 *        the byte order of {@code data}
-	 * @return the parsed number, or {@literal null} if {@code data} is
-	 *         {@literal null} or not long enough for the requested data type
+	 * @return the parsed number, or {@code null} if {@code data} is
+	 *         {@code null} or not long enough for the requested data type
 	 * @throws IllegalArgumentException
 	 *         if {@code dataType} is not supported
 	 */
@@ -564,8 +564,8 @@ public final class ByteUtils {
 	 *        types of fixed length this value is ignored
 	 * @param byteOrder
 	 *        the byte order of {@code data}
-	 * @return the parsed number, or {@literal null} if {@code data} is
-	 *         {@literal null} or not long enough for the requested data type
+	 * @return the parsed number, or {@code null} if {@code data} is
+	 *         {@code null} or not long enough for the requested data type
 	 * @throws IllegalArgumentException
 	 *         if {@code dataType} is not supported
 	 */
@@ -731,7 +731,7 @@ public final class ByteUtils {
 	 *
 	 * @param b
 	 *        bits 7-0
-	 * @return the parsed integer, never {@literal null}
+	 * @return the parsed integer, never {@code null}
 	 */
 	public static Byte parseInt8(final byte b) {
 		return b;
@@ -746,7 +746,7 @@ public final class ByteUtils {
 	 *
 	 * @param b
 	 *        bits 7-0
-	 * @return the parsed integer, never {@literal null}
+	 * @return the parsed integer, never {@code null}
 	 */
 	public static Short parseUnsignedInt8(final byte b) {
 		return (short) (b & (short) 0xFF);
@@ -759,7 +759,7 @@ public final class ByteUtils {
 	 *        bits 15-8
 	 * @param lo
 	 *        bits 7-0
-	 * @return the parsed integer, never {@literal null}
+	 * @return the parsed integer, never {@code null}
 	 */
 	public static Short parseInt16(final byte hi, final byte lo) {
 		return (short) (((hi & 0xFF) << 8) | lo & 0xFF);
@@ -777,7 +777,7 @@ public final class ByteUtils {
 	 *        bits 15-8
 	 * @param lo
 	 *        bits 7-0
-	 * @return the parsed integer, never {@literal null}
+	 * @return the parsed integer, never {@code null}
 	 */
 	public static Integer parseUnsignedInt16(final byte hi, final byte lo) {
 		return (int) (((hi & 0xFF) << 8) | lo & 0xFF);
@@ -794,7 +794,7 @@ public final class ByteUtils {
 	 *        bits 15-8
 	 * @param a
 	 *        bits 7-0
-	 * @return the parsed integer, never {@literal null}
+	 * @return the parsed integer, never {@code null}
 	 */
 	public static Integer parseInt32(final byte d, final byte c, final byte b, final byte a) {
 		return (((d & 0xFF) << 24) | ((c & 0xFF) << 16) | ((b & 0xFF) << 8) | (a & 0xFF));
@@ -815,7 +815,7 @@ public final class ByteUtils {
 	 *        bits 15-8
 	 * @param a
 	 *        bits 7-0
-	 * @return the parsed integer, never {@literal null}
+	 * @return the parsed integer, never {@code null}
 	 */
 	public static Long parseUnsignedInt32(final byte d, final byte c, final byte b, final byte a) {
 		return (long) (((d & 0xFFL) << 24) | ((c & 0xFFL) << 16) | ((b & 0xFFL) << 8) | (a & 0xFFL));
@@ -840,7 +840,7 @@ public final class ByteUtils {
 	 *        bits 15-8
 	 * @param a
 	 *        bits 7-0
-	 * @return the parsed integer, never {@literal null}
+	 * @return the parsed integer, never {@code null}
 	 */
 	public static Long parseInt64(final byte h, final byte g, final byte f, final byte e, final byte d,
 			final byte c, final byte b, final byte a) {
@@ -873,7 +873,7 @@ public final class ByteUtils {
 	 *        bits 15-8
 	 * @param a
 	 *        bits 7-0
-	 * @return the parsed integer, never {@literal null}
+	 * @return the parsed integer, never {@code null}
 	 */
 	public static BigInteger parseUnsignedInt64(final byte h, final byte g, final byte f, final byte e,
 			final byte d, final byte c, final byte b, final byte a) {
@@ -893,7 +893,7 @@ public final class ByteUtils {
 	 *        bits 15-8
 	 * @param a
 	 *        bits 7-0
-	 * @return the parsed float, or {@literal null} if not available or parsed
+	 * @return the parsed float, or {@code null} if not available or parsed
 	 *         float is {@code NaN}
 	 */
 	public static @Nullable Float parseFloat32(final byte d, final byte c, final byte b, final byte a) {
@@ -924,7 +924,7 @@ public final class ByteUtils {
 	 *        bits 15-8
 	 * @param a
 	 *        bits 7-0
-	 * @return the parsed float, or {@literal null} if the result is {@code NaN}
+	 * @return the parsed float, or {@code null} if the result is {@code NaN}
 	 */
 	public static @Nullable Double parseFloat64(final byte h, final byte g, final byte f, final byte e,
 			final byte d, final byte c, final byte b, final byte a) {
@@ -947,7 +947,7 @@ public final class ByteUtils {
 	 *        the number of bytes to consume
 	 * @param byteOrder
 	 *        the byte order of {@code data}
-	 * @return the parsed bytes, never {@literal null}
+	 * @return the parsed bytes, never {@code null}
 	 */
 	@SuppressWarnings({ "null", "NullAway" })
 	public static byte[] parseBytes(byte @Nullable [] data, int offset, int length,
@@ -1059,8 +1059,8 @@ public final class ByteUtils {
 	 *
 	 * @param array
 	 *        the array to convert
-	 * @return the converted array, or {@literal null} if {@code array} is
-	 *         {@literal null}
+	 * @return the converted array, or {@code null} if {@code array} is
+	 *         {@code null}
 	 * @since 1.1
 	 */
 	public static Byte @Nullable [] objectArray(byte @Nullable [] array) {
@@ -1079,13 +1079,13 @@ public final class ByteUtils {
 	 * Convert an array of bytes to Byte objects.
 	 *
 	 * <p>
-	 * {@literal 0} will be used for any {@literal null} object values.
+	 * {@literal 0} will be used for any {@code null} object values.
 	 * </p>
 	 *
 	 * @param array
 	 *        the array to convert
-	 * @return the converted array, or {@literal null} if {@code array} is
-	 *         {@literal null}
+	 * @return the converted array, or {@code null} if {@code array} is
+	 *         {@code null}
 	 * @since 1.1
 	 */
 	public static byte @Nullable [] byteArray(Byte @Nullable [] array) {
@@ -1098,9 +1098,9 @@ public final class ByteUtils {
 	 * @param array
 	 *        the array to convert
 	 * @param nullValue
-	 *        the byte value to use for {@literal null} Byte values
-	 * @return the converted array, or {@literal null} if {@code array} is
-	 *         {@literal null}
+	 *        the byte value to use for {@code null} Byte values
+	 * @return the converted array, or {@code null} if {@code array} is
+	 *         {@code null}
 	 * @since 1.1
 	 */
 	public static byte @Nullable [] byteArray(Byte @Nullable [] array, byte nullValue) {

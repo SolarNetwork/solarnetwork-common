@@ -106,8 +106,8 @@ public final class NumberUtils {
 	 *
 	 * @param data
 	 *        the bytes
-	 * @return the unsigned values, or {@literal null} if {@code data} is
-	 *         {@literal null}
+	 * @return the unsigned values, or {@code null} if {@code data} is
+	 *         {@code null}
 	 */
 	public static short @Nullable [] unsigned(byte @Nullable [] data) {
 		// convert bytes into "unsigned" integer values, i.e. 0..255
@@ -132,8 +132,8 @@ public final class NumberUtils {
 	 *
 	 * @param value
 	 *        the signed whole number to convert
-	 * @return the unsigned value, or {@literal null} if {@code value} is
-	 *         {@literal null}
+	 * @return the unsigned value, or {@code null} if {@code value} is
+	 *         {@code null}
 	 */
 	public static @Nullable Number unsignedNumber(@Nullable Number value) {
 		if ( value == null ) {
@@ -160,7 +160,7 @@ public final class NumberUtils {
 	 * @param value
 	 *        the number to get a {@code BigDecimal} version of
 	 * @return the {@code BigDecimal} version of {@code value}, or
-	 *         {@literal null} if {@code value} is {@literal null}
+	 *         {@code null} if {@code value} is {@code null}
 	 */
 	public static @Nullable BigDecimal bigDecimalForNumber(@Nullable Number value) {
 		BigDecimal v = null;
@@ -195,7 +195,7 @@ public final class NumberUtils {
 	 * @param value
 	 *        the number to get a {@code BigInteger} version of
 	 * @return the {@code BigInteger} version of {@code value}, or
-	 *         {@literal null} if {@code value} is {@literal null}
+	 *         {@code null} if {@code value} is {@code null}
 	 * @since 1.8
 	 */
 	public static @Nullable BigInteger bigIntegerForNumber(@Nullable Number value) {
@@ -269,7 +269,7 @@ public final class NumberUtils {
 	 * @param decimal
 	 *        the decimal
 	 * @return the whole part as an integer, or zero if {@code decimal} is
-	 *         {@literal null}
+	 *         {@code null}
 	 * @since 1.2
 	 */
 	public static BigInteger wholePartToInteger(@Nullable BigDecimal decimal) {
@@ -290,7 +290,7 @@ public final class NumberUtils {
 	 * @param decimal
 	 *        the decimal
 	 * @return the fractional part as an integer, or zero if {@code decimal} is
-	 *         {@literal null}
+	 *         {@code null}
 	 * @since 1.2
 	 */
 	public static BigInteger fractionalPartToInteger(@Nullable BigDecimal decimal) {
@@ -315,7 +315,7 @@ public final class NumberUtils {
 	 * @param maxScale
 	 *        the maximum power-of-10 scale
 	 * @return the fractional part as an integer, or zero if {@code decimal} is
-	 *         {@literal null}
+	 *         {@code null}
 	 * @since 1.2
 	 */
 	public static BigInteger fractionalPartToInteger(@Nullable BigDecimal decimal, int maxScale) {
@@ -342,7 +342,7 @@ public final class NumberUtils {
 	 *        point left this many places; a positive value shifts the decimal
 	 *        point right this many places
 	 * @return the fractional part as an integer, or zero if {@code decimal} is
-	 *         {@literal null}
+	 *         {@code null}
 	 * @since 1.2
 	 */
 	public static BigInteger fractionalPartScaledToInteger(@Nullable final BigDecimal decimal,
@@ -400,9 +400,9 @@ public final class NumberUtils {
 	 * @param value
 	 *        the source number
 	 * @param multiple
-	 *        the value to multiply {@code value} by; if {@literal null} then
+	 *        the value to multiply {@code value} by; if {@code null} then
 	 *        {@code value} is returned unchanged
-	 * @return the value, or {@literal null} if {@code value} is {@literal null}
+	 * @return the value, or {@code null} if {@code value} is {@code null}
 	 * @since 1.3
 	 */
 	public static @Nullable Number multiplied(@Nullable Number value, @Nullable BigDecimal multiple) {
@@ -419,9 +419,9 @@ public final class NumberUtils {
 	 * @param value
 	 *        the number to apply the offset to
 	 * @param offset
-	 *        the value to add to {@code value}; if {@literal null} then
+	 *        the value to add to {@code value}; if {@code null} then
 	 *        {@code value} is returned unchanged
-	 * @return the value, or {@literal null} if {@code value} is {@literal null}
+	 * @return the value, or {@code null} if {@code value} is {@code null}
 	 * @since 1.3
 	 */
 	public static @Nullable Number offset(@Nullable Number value, @Nullable BigDecimal offset) {
@@ -437,7 +437,7 @@ public final class NumberUtils {
 	 *
 	 * @param bs
 	 *        the bit set to convert to an integer representation
-	 * @return the integer, never {@literal null}
+	 * @return the integer, never {@code null}
 	 * @since 1.4
 	 */
 	public static BigInteger bigIntegerForBitSet(@Nullable BitSet bs) {
@@ -459,7 +459,7 @@ public final class NumberUtils {
 	 * @param value
 	 *        the integer to convert to a {@link BitSet}
 	 * @return a {@link BitSet} with all set bits of {@code value} set; never
-	 *         {@literal null}
+	 *         {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code value} is negative
 	 */
@@ -748,8 +748,8 @@ public final class NumberUtils {
 	 *        the first number
 	 * @param n2
 	 *        the second number
-	 * @return the minimum number, or {@literal null} if both arguments are
-	 *         {@literal null}
+	 * @return the minimum number, or {@code null} if both arguments are
+	 *         {@code null}
 	 * @since 1.10
 	 */
 	public static @Nullable Number min(@Nullable Number n1, @Nullable Number n2) {
@@ -790,8 +790,8 @@ public final class NumberUtils {
 	 *        the first number
 	 * @param n2
 	 *        the second number
-	 * @return the maximum number, or {@literal null} if both arguments are
-	 *         {@literal null}
+	 * @return the maximum number, or {@code null} if both arguments are
+	 *         {@code null}
 	 * @since 1.10
 	 */
 	public static @Nullable Number max(@Nullable Number n1, @Nullable Number n2) {
@@ -837,8 +837,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
-	 *         {@code n} or {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
+	 *         {@code n} or {@code significance} are {@code null}
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
@@ -858,8 +858,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
-	 *         {@code n} or {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
+	 *         {@code n} or {@code significance} are {@code null}
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
@@ -879,8 +879,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
-	 *         {@code n} or {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
+	 *         {@code n} or {@code significance} are {@code null}
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
@@ -900,8 +900,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
-	 *         {@code n} or {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
+	 *         {@code n} or {@code significance} are {@code null}
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
@@ -921,8 +921,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param significance
 	 *        the multiple factor to round to
-	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
-	 *         {@code n} or {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
+	 *         {@code n} or {@code significance} are {@code null}
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
@@ -946,8 +946,8 @@ public final class NumberUtils {
 	 *        the multiple factor to round to
 	 * @param mode
 	 *        the rounding mode to use
-	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
-	 *         {@code n} or {@code significance} are {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
+	 *         {@code n} or {@code significance} are {@code null}
 	 * @since 1.10
 	 */
 	public static @Nullable Number mround(@Nullable Number n, @Nullable Number significance,
@@ -975,8 +975,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param digits
 	 *        the maximum number of decimal digits
-	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
-	 *         {@code n} or {@code digits} is {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
+	 *         {@code n} or {@code digits} is {@code null}
 	 * @since 1.10
 	 * @see #round(Number, Number, RoundingMode)
 	 */
@@ -991,8 +991,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param digits
 	 *        the maximum number of decimal digits
-	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
-	 *         {@code n} or {@code digits} is {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
+	 *         {@code n} or {@code digits} is {@code null}
 	 * @since 1.10
 	 * @see #round(Number, Number, RoundingMode)
 	 */
@@ -1007,8 +1007,8 @@ public final class NumberUtils {
 	 *        the number to round
 	 * @param digits
 	 *        the maximum number of decimal digits
-	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
-	 *         {@code n} or {@code digits} is {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
+	 *         {@code n} or {@code digits} is {@code null}
 	 * @since 1.10
 	 * @see #round(Number, Number, RoundingMode)
 	 */
@@ -1025,8 +1025,8 @@ public final class NumberUtils {
 	 *        the maximum number of decimal digits
 	 * @param mode
 	 *        the rounding mode
-	 * @return the rounded number as a {@link BigDecimal}, or {@literal null} if
-	 *         {@code n} or {@code digits} is {@literal null}
+	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
+	 *         {@code n} or {@code digits} is {@code null}
 	 * @since 1.10
 	 */
 	public static @Nullable Number round(@Nullable Number n, @Nullable Number digits,
@@ -1060,8 +1060,8 @@ public final class NumberUtils {
 	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
 	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
 	 *        most a {@link Long} or {@link Double}
-	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
-	 *         is {@literal null}
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n}
+	 *         is {@code null}
 	 * @since 1.10
 	 */
 	public static @Nullable Number narrow(final @Nullable Number n, final int minBytePower) {
@@ -1123,8 +1123,8 @@ public final class NumberUtils {
 	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
 	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
 	 *        most a {@link Long} or {@link Double}
-	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
-	 *         is {@literal null}
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n}
+	 *         is {@code null}
 	 * @since 1.10
 	 */
 	public static @Nullable Number narrow(final @Nullable BigInteger n, final int minBytePower) {
@@ -1177,8 +1177,8 @@ public final class NumberUtils {
 	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
 	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
 	 *        most a {@link Long} or {@link Double}
-	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
-	 *         is {@literal null}
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n}
+	 *         is {@code null}
 	 * @since 1.10
 	 */
 	public static @Nullable Number narrow(final @Nullable BigDecimal n, final int minBytePower) {
@@ -1233,8 +1233,8 @@ public final class NumberUtils {
 	 *
 	 * @param n
 	 *        the number to convert
-	 * @return the converted value, or {@literal null} if {@code n} is
-	 *         {@literal null}
+	 * @return the converted value, or {@code null} if {@code n} is
+	 *         {@code null}
 	 * @since 1.10
 	 * @throws ArithmeticException
 	 *         if an exact conversion cannot be done
@@ -1257,8 +1257,8 @@ public final class NumberUtils {
 	 *
 	 * @param n
 	 *        the number to convert
-	 * @return the converted value, or {@literal null} if {@code n} is
-	 *         {@literal null}
+	 * @return the converted value, or {@code null} if {@code n} is
+	 *         {@code null}
 	 * @since 1.10
 	 * @throws ArithmeticException
 	 *         if an exact conversion cannot be done

@@ -104,8 +104,8 @@ public final class CollectionUtils {
 	 * @param maxRangeLength
 	 *        the maximum length of any combined range in the resulting set
 	 * @return a new set of ranges possibly combined, or {@code set} if there
-	 *         are less than two ranges to start with, or {@literal null} if
-	 *         {@code set} is {@literal null}
+	 *         are less than two ranges to start with, or {@code null} if
+	 *         {@code set} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code maxRangeLength} is less than {@literal 1}
 	 */
@@ -174,8 +174,8 @@ public final class CollectionUtils {
 	 *        the value type
 	 * @param dict
 	 *        the dictionary to convert
-	 * @return the new map instance, or {@literal null} if {@code dict} is
-	 *         {@literal null}
+	 * @return the new map instance, or {@code null} if {@code dict} is
+	 *         {@code null}
 	 */
 	public static <K, V> @Nullable Map<K, V> mapForDictionary(@Nullable Dictionary<K, V> dict) {
 		if ( dict == null ) {
@@ -206,8 +206,8 @@ public final class CollectionUtils {
 	 *        the value type
 	 * @param map
 	 *        the map to convert
-	 * @return the new dictionary instance, or {@literal null} if {@code map} is
-	 *         {@literal null}
+	 * @return the new dictionary instance, or {@code null} if {@code map} is
+	 *         {@code null}
 	 */
 	public static <K, V> @Nullable Dictionary<K, V> dictionaryForMap(@Nullable Map<K, V> map) {
 		if ( map == null ) {
@@ -227,8 +227,8 @@ public final class CollectionUtils {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found
 	 * @since 1.2
 	 */
 	public static @Nullable String getMapString(String key, @Nullable Map<String, ?> map) {
@@ -256,8 +256,8 @@ public final class CollectionUtils {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found or not compatible with
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found or not compatible with
 	 *         Short
 	 * @since 1.2
 	 */
@@ -293,8 +293,8 @@ public final class CollectionUtils {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found or not compatible with
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found or not compatible with
 	 *         Integer
 	 * @since 1.2
 	 */
@@ -330,8 +330,8 @@ public final class CollectionUtils {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found or not compatible with
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found or not compatible with
 	 *         Long
 	 * @since 1.2
 	 */
@@ -367,8 +367,8 @@ public final class CollectionUtils {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found or not compatible with
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found or not compatible with
 	 *         Float
 	 * @since 1.2
 	 */
@@ -404,8 +404,8 @@ public final class CollectionUtils {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found or not compatible with
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found or not compatible with
 	 *         Double
 	 * @since 1.2
 	 */
@@ -442,8 +442,8 @@ public final class CollectionUtils {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found or not compatible with
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found or not compatible with
 	 *         BigDecimal
 	 * @since 1.2
 	 */
@@ -477,8 +477,8 @@ public final class CollectionUtils {
 	 * @param key
 	 *        the key of the object to get
 	 * @param map
-	 *        the map to inspect, {@literal null} is allowed
-	 * @return the value, or {@literal null} if not found or not compatible with
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the value, or {@code null} if not found or not compatible with
 	 *         BigInteger
 	 * @since 1.2
 	 */
@@ -524,8 +524,8 @@ public final class CollectionUtils {
 	 * </p>
 	 *
 	 * @param set
-	 *        the names to examine, {@literal null} is allowed
-	 * @return the sensitive looking names, never {@literal null}
+	 *        the names to examine, {@code null} is allowed
+	 * @return the sensitive looking names, never {@code null}
 	 * @since 1.2
 	 * @see StringUtils#sha256MaskedMap(Map, Set)
 	 */
@@ -537,10 +537,10 @@ public final class CollectionUtils {
 	 * Extract a set of values from a set that match a regular expression.
 	 *
 	 * @param set
-	 *        the names to examine, {@literal null} is allowed
+	 *        the names to examine, {@code null} is allowed
 	 * @param pattern
 	 *        the regular expression whose matches should be returned
-	 * @return the matching names, never {@literal null}
+	 * @return the matching names, never {@code null}
 	 * @since 1.2
 	 */
 	public static Set<String> valuesMatching(@Nullable Set<String> set, Pattern pattern) {
@@ -574,12 +574,12 @@ public final class CollectionUtils {
 	 *        values
 	 * @param subSet
 	 *        the "sub" collection that defines a subset of possible collection
-	 *        item values, or a {@literal null} or empty set for all values
+	 *        item values, or a {@code null} or empty set for all values
 	 * @param supplier
 	 *        a supplier for a new result collection
 	 * @return a filtered sub-collection, or {@code superSet} if {@code subSet}
 	 *         has no values in common with {@code superSet} or {@code superSet}
-	 *         is {@literal null} or empty
+	 *         is {@code null} or empty
 	 * @since 1.3
 	 */
 	public static <C extends Collection<T>, T> @Nullable C filteredSubset(@Nullable C superSet,

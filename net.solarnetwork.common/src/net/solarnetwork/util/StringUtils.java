@@ -97,8 +97,8 @@ public final class StringUtils {
 	 *        the template string to replace variables in
 	 * @param variables
 	 *        the variables
-	 * @return the string with variables replaced, or {@literal null} if
-	 *         {@code source} is {@literal null}
+	 * @return the string with variables replaced, or {@code null} if
+	 *         {@code source} is {@code null}
 	 * @since 1.4
 	 */
 	public static @Nullable String expandTemplateString(@Nullable String source,
@@ -274,7 +274,7 @@ public final class StringUtils {
 	 *
 	 * @param list
 	 *        the comma-delimited string
-	 * @return the Set, or {@literal null} if {@code list} is {@literal null} or
+	 * @return the Set, or {@code null} if {@code list} is {@code null} or
 	 *         an empty string
 	 * @see #delimitedStringToSet(String, String)
 	 */
@@ -297,7 +297,7 @@ public final class StringUtils {
 	 *        the delimited text
 	 * @param delim
 	 *        the delimiter to split the list with
-	 * @return the Set, or {@literal null} if {@code list} is {@literal null} or
+	 * @return the Set, or {@code null} if {@code list} is {@code null} or
 	 *         an empty string
 	 */
 	public static @Nullable Set<String> delimitedStringToSet(final @Nullable String list,
@@ -318,7 +318,7 @@ public final class StringUtils {
 	 *
 	 * @param list
 	 *        the comma-delimited string
-	 * @return the List, or {@literal null} if {@code list} is {@literal null}
+	 * @return the List, or {@code null} if {@code list} is {@code null}
 	 *         or an empty string
 	 * @see #delimitedStringToList(String, String)
 	 * @since 1.16
@@ -341,7 +341,7 @@ public final class StringUtils {
 	 *        the delimited text
 	 * @param delim
 	 *        the delimiter to split the list with
-	 * @return the List, or {@literal null} if {@code list} is {@literal null}
+	 * @return the List, or {@code null} if {@code list} is {@code null}
 	 *         or an empty string
 	 * @since 1.16
 	 */
@@ -371,7 +371,7 @@ public final class StringUtils {
 	 *
 	 * @param mapping
 	 *        the delimited text
-	 * @return the map, or {@literal null} if {@code mapping} is {@literal null}
+	 * @return the map, or {@code null} if {@code mapping} is {@code null}
 	 *         or empty
 	 * @see #delimitedStringToMap(String, String, String)
 	 */
@@ -404,7 +404,7 @@ public final class StringUtils {
 	 *        the key+value record delimiter
 	 * @param fieldDelim
 	 *        the key+value delimiter
-	 * @return the map, or {@literal null} if {@code mapping} is {@literal null}
+	 * @return the map, or {@code null} if {@code mapping} is {@code null}
 	 *         or empty
 	 */
 	public static @Nullable Map<String, String> delimitedStringToMap(final @Nullable String mapping,
@@ -427,8 +427,8 @@ public final class StringUtils {
 
 	/**
 	 * Create an array of regular expressions from strings. If
-	 * {@code expressions} is {@literal null} or empty, the result will be
-	 * {@literal null}. Pass {@literal 0} for {@code flags} if no special flags
+	 * {@code expressions} is {@code null} or empty, the result will be
+	 * {@code null}. Pass {@literal 0} for {@code flags} if no special flags
 	 * are desired.
 	 *
 	 * @param expressions
@@ -436,7 +436,7 @@ public final class StringUtils {
 	 * @param flags
 	 *        the Pattern flags to use, or {@literal 0} for no flags
 	 * @return the compiled regular expressions, in the same order as
-	 *         {@code expressions}, or {@literal null} if no expressions
+	 *         {@code expressions}, or {@code null} if no expressions
 	 *         supplied
 	 * @throws PatternSyntaxException
 	 *         If an expression's syntax is invalid
@@ -455,14 +455,14 @@ public final class StringUtils {
 
 	/**
 	 * Create an array of expression strings from Pattern objects. If
-	 * {@code patterns} is {@literal null} or empty, the result will be
-	 * {@literal null}.
+	 * {@code patterns} is {@code null} or empty, the result will be
+	 * {@code null}.
 	 *
 	 * @param patterns
 	 *        the array of Pattern objects to convert to strings (may be
-	 *        {@literal null})
+	 *        {@code null})
 	 * @return the string expressions, in the same order as {@code patterns}, or
-	 *         {@literal null} if no patterns supplied
+	 *         {@code null} if no patterns supplied
 	 */
 	public static String @Nullable [] expressions(final Pattern @Nullable [] patterns) {
 		String[] results = null;
@@ -479,13 +479,13 @@ public final class StringUtils {
 	 * Test if a string matches any one of a list of patterns. The
 	 * {@code patterns} list will be tested one at a time, in array order. The
 	 * first result that matches will be returned. If no match is found,
-	 * {@literal null} is returned.
+	 * {@code null} is returned.
 	 *
 	 * @param patterns
-	 *        the patterns to test (may be {@literal null})
+	 *        the patterns to test (may be {@code null})
 	 * @param text
-	 *        the string to test (may be {@literal null})
-	 * @return a {@link Matcher} that matches {@code text} or {@literal null} if
+	 *        the string to test (may be {@code null})
+	 * @return a {@link Matcher} that matches {@code text} or {@code null} if
 	 *         no match was found
 	 */
 	public static @Nullable Matcher matches(final Pattern @Nullable [] patterns, @Nullable String text) {
@@ -624,7 +624,7 @@ public final class StringUtils {
 	 * values.
 	 *
 	 * <p>
-	 * The returned pair's {@code value} will be {@literal null} if no salt was
+	 * The returned pair's {@code value} will be {@code null} if no salt was
 	 * included in the digest. Both values will be returned as hex-encoded
 	 * strings.
 	 * </p>
@@ -756,8 +756,8 @@ public final class StringUtils {
 	 *
 	 * @param text
 	 *        the text to derive the simple ID from
-	 * @return the simple ID, or {@literal null} if {@code text} is
-	 *         {@literal null}
+	 * @return the simple ID, or {@code null} if {@code text} is
+	 *         {@code null}
 	 * @since 1.8
 	 */
 	public static @Nullable String simpleIdValue(@Nullable String text) {
@@ -783,8 +783,8 @@ public final class StringUtils {
 	 *        the text to derive the simple ID from
 	 * @param preserveRateCase
 	 *        {@literal true} to lower-case the text
-	 * @return the simple ID, or {@literal null} if {@code text} is
-	 *         {@literal null}
+	 * @return the simple ID, or {@code null} if {@code text} is
+	 *         {@code null}
 	 * @since 1.14
 	 */
 	public static @Nullable String simpleIdValue(@Nullable String text, boolean preserveRateCase) {
@@ -831,7 +831,7 @@ public final class StringUtils {
 	 * @param text
 	 *        the string to parse
 	 * @return a number instance if {@code text} can be parsed as a number, or
-	 *         {@literal null} otherwise
+	 *         {@code null} otherwise
 	 * @since 1.11
 	 */
 	public static @Nullable Number numberValue(@Nullable String text) {
@@ -864,7 +864,7 @@ public final class StringUtils {
 	 * @param text
 	 *        the string to test against {@code pattern}
 	 * @return if the string does not match or either argument is
-	 *         {@literal null}, {@literal null}; otherwise an array whose first
+	 *         {@code null}, {@code null}; otherwise an array whose first
 	 *         element is {@code text} and any additional elements are pattern
 	 *         capture values
 	 * @since 1.11
@@ -1045,8 +1045,8 @@ public final class StringUtils {
 	 *
 	 * @param value
 	 *        a delimited list of integer ranges
-	 * @return the numbers as a set, or {@literal null} if {@code value} is
-	 *         {@literal null} or empty or has no valid values
+	 * @return the numbers as a set, or {@code null} if {@code value} is
+	 *         {@code null} or empty or has no valid values
 	 * @since 1.13
 	 */
 	public static @Nullable IntRangeSet commaDelimitedStringToIntRangeSet(@Nullable String value) {
@@ -1076,8 +1076,8 @@ public final class StringUtils {
 	 *
 	 * @param set
 	 *        the set to generate the delimited string value for
-	 * @return the delimited string, or {@literal null} if {@code set} is
-	 *         {@literal null} or empty
+	 * @return the delimited string, or {@code null} if {@code set} is
+	 *         {@code null} or empty
 	 * @since 1.13
 	 */
 	public static @Nullable String commaDelimitedStringFromIntRangeSet(@Nullable IntRangeSet set) {

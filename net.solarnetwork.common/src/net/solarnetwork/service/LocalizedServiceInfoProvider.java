@@ -41,7 +41,7 @@ public interface LocalizedServiceInfoProvider {
 	 *
 	 * @param locale
 	 *        the locale to get localized information for
-	 * @return the localized info, never {@literal null}
+	 * @return the localized info, never {@code null}
 	 */
 	LocalizedServiceInfo getLocalizedServiceInfo(Locale locale);
 
@@ -52,7 +52,7 @@ public interface LocalizedServiceInfoProvider {
 	 *        the service info providers to get the info for
 	 * @param locale
 	 *        the desired locale
-	 * @return list of localized service info, never {@literal null}
+	 * @return list of localized service info, never {@code null}
 	 * @since 1.1
 	 */
 	static List<LocalizedServiceInfo> localizedServiceSettings(

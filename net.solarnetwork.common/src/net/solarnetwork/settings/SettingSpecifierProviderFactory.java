@@ -55,11 +55,11 @@ public interface SettingSpecifierProviderFactory {
 	 * Get a MessageSource to localize the setting text.
 	 * 
 	 * <p>
-	 * This method can return {@literal null} if the provider does not have any
+	 * This method can return {@code null} if the provider does not have any
 	 * localized resources.
 	 * </p>
 	 * 
-	 * @return the MessageSource, or {@literal null}
+	 * @return the MessageSource, or {@code null}
 	 */
 	MessageSource getMessageSource();
 

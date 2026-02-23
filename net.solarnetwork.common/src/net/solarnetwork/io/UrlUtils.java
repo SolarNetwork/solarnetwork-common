@@ -163,7 +163,7 @@ public final class UrlUtils {
 	 * @param in
 	 *        the input stream
 	 * @param encoding
-	 *        the content encoding (may be {@literal null}
+	 *        the content encoding (may be {@code null}
 	 * @return the InputStream
 	 * @throws IOException
 	 *         if any IO error occurs
@@ -252,7 +252,7 @@ public final class UrlUtils {
 	 *
 	 * <p>
 	 * This method is geared towards HTTP (and HTTPS) connections, but can be
-	 * used for arbitrary URLs by passing {@literal null} for the HTTP-specific
+	 * used for arbitrary URLs by passing {@code null} for the HTTP-specific
 	 * arguments.
 	 * </p>
 	 *

@@ -108,7 +108,7 @@ public class AuthorizationException extends SecurityException {
 	/**
 	 * Get the attempted login.
 	 * 
-	 * @return login value (or {@literal null} if not available)
+	 * @return login value (or {@code null} if not available)
 	 */
 	public String getEmail() {
 		return email;
@@ -117,7 +117,7 @@ public class AuthorizationException extends SecurityException {
 	/**
 	 * Get the primary key.
 	 * 
-	 * @return the primary key (or {@literal null} if not available)
+	 * @return the primary key (or {@code null} if not available)
 	 */
 	public Object getId() {
 		return id;

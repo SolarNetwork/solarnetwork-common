@@ -118,7 +118,7 @@ public interface LocalizedServiceInfo extends Unique<String>, Comparable<Localiz
 	 * associated with those well-known keys.
 	 * </p>
 	 *
-	 * @return a map of messages, never {@literal null}
+	 * @return a map of messages, never {@code null}
 	 */
 	@Nullable
 	Map<String, String> getLocalizedInfoMessages();

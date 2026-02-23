@@ -39,8 +39,8 @@ public interface Identity<K extends Comparable<K>>
 		extends Unique<K>, Comparable<Identity<K>>, Cloneable {
 
 	/**
-	 * Compare based on the {@code getId()} value only, with {@literal null}
-	 * values ordered before non-{@literal null} values.
+	 * Compare based on the {@code getId()} value only, with {@code null}
+	 * values ordered before non-{@code null} values.
 	 *
 	 * {@inheritDoc}
 	 */

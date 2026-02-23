@@ -100,7 +100,7 @@ public class SimpleResourceMetadata implements ResourceMetadata {
 	/**
 	 * Get the extended metadata.
 	 * 
-	 * @return the extended metadata, or {@literal null} if none
+	 * @return the extended metadata, or {@code null} if none
 	 */
 	public final Map<String, Object> getExtendedMetadata() {
 		return extendedMetadata;

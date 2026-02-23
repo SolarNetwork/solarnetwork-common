@@ -44,7 +44,7 @@ public interface ObjectEncoder extends Identifiable {
 	 *        the object to encode
 	 * @param parameters
 	 *        optional parameters to pass to the encoder
-	 * @return the bytes, never {@literal null}
+	 * @return the bytes, never {@code null}
 	 * @throws IOException
 	 *         if an encoding problem occurs
 	 */

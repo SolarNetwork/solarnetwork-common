@@ -119,7 +119,7 @@ public interface AcEnergyDatum extends EnergyDatum {
 	 * has this method to be explicit.
 	 * </p>
 	 *
-	 * @return the real power in watts, or {@literal null} if not available
+	 * @return the real power in watts, or {@code null} if not available
 	 */
 	default @Nullable Integer getRealPower() {
 		return asSampleOperations().getSampleInteger(Instantaneous, REAL_POWER_KEY);
@@ -128,7 +128,7 @@ public interface AcEnergyDatum extends EnergyDatum {
 	/**
 	 * Get the instantaneous apparent power, in volt-amperes (VA).
 	 *
-	 * @return the apparent power in volt-amperes, or {@literal null} if not
+	 * @return the apparent power in volt-amperes, or {@code null} if not
 	 *         available
 	 */
 	default @Nullable Integer getApparentPower() {
@@ -139,7 +139,7 @@ public interface AcEnergyDatum extends EnergyDatum {
 	/**
 	 * Get the instantaneous reactive power, in reactive volt-amperes (var).
 	 *
-	 * @return the reactive power in reactive volt-amperes, or {@literal null}
+	 * @return the reactive power in reactive volt-amperes, or {@code null}
 	 *         if not available
 	 */
 	default @Nullable Integer getReactivePower() {
@@ -162,7 +162,7 @@ public interface AcEnergyDatum extends EnergyDatum {
 	/**
 	 * Get the instantaneous frequency, in hertz (Hz).
 	 *
-	 * @return the frequency, or {@literal null} if not known
+	 * @return the frequency, or {@code null} if not known
 	 */
 	default @Nullable Float getFrequency() {
 		return asSampleOperations().getSampleFloat(Instantaneous, FREQUENCY_KEY);
@@ -171,7 +171,7 @@ public interface AcEnergyDatum extends EnergyDatum {
 	/**
 	 * Get the instantaneous neutral voltage.
 	 *
-	 * @return the volts, or {@literal null} if not known
+	 * @return the volts, or {@code null} if not known
 	 */
 	default @Nullable Float getVoltage() {
 		return asSampleOperations().getSampleFloat(Instantaneous, VOLTAGE_KEY);
@@ -182,7 +182,7 @@ public interface AcEnergyDatum extends EnergyDatum {
 	 *
 	 * @param phase
 	 *        the phase
-	 * @return the volts, or {@literal null} if not known
+	 * @return the volts, or {@code null} if not known
 	 */
 	default @Nullable Float getVoltage(AcPhase phase) {
 		return asSampleOperations().getSampleFloat(Instantaneous, phase.withKey(VOLTAGE_KEY));
@@ -196,7 +196,7 @@ public interface AcEnergyDatum extends EnergyDatum {
 	 * {@code datum.getCurrent(datum.getPhase())}.
 	 * </p>
 	 *
-	 * @return the amps, or {@literal null} if not known
+	 * @return the amps, or {@code null} if not known
 	 */
 	default @Nullable Float getCurrent() {
 		return asSampleOperations().getSampleFloat(Instantaneous, CURRENT_KEY);
@@ -216,7 +216,7 @@ public interface AcEnergyDatum extends EnergyDatum {
 	/**
 	 * Get the instantaneous neutral current, in amps.
 	 *
-	 * @return the amps, or {@literal null} if not known
+	 * @return the amps, or {@code null} if not known
 	 */
 	default @Nullable Float getNeutralCurrent() {
 		return asSampleOperations().getSampleFloat(Instantaneous, NEUTRAL_CURRENT_KEY);
@@ -230,7 +230,7 @@ public interface AcEnergyDatum extends EnergyDatum {
 	 * {@code datum.getPhaseVoltage(datum.getPhase())}.
 	 * </p>
 	 *
-	 * @return the volts, or {@literal null} if not known
+	 * @return the volts, or {@code null} if not known
 	 */
 	default @Nullable Float getPhaseVoltage() {
 		return asSampleOperations().getSampleFloat(Instantaneous, PHASE_VOLTAGE_KEY);
@@ -282,7 +282,7 @@ public interface AcEnergyDatum extends EnergyDatum {
 	/**
 	 * Get the instantaneous power factor.
 	 *
-	 * @return the power factor, or {@literal null} if not known
+	 * @return the power factor, or {@code null} if not known
 	 */
 	default @Nullable Float getPowerFactor() {
 		return asSampleOperations().getSampleFloat(Instantaneous, POWER_FACTOR_KEY);

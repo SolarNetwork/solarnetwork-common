@@ -164,7 +164,7 @@ public interface ExpressionService extends Identifiable {
 	 * @param context
 	 *        a context, such as one returned from
 	 *        {@link #createEvaluationContext(EvaluationConfiguration, Object)},
-	 *        or {@literal null} to create a new context
+	 *        or {@code null} to create a new context
 	 * @param resultClass
 	 *        the expected result object type
 	 * @return the expression result
@@ -188,7 +188,7 @@ public interface ExpressionService extends Identifiable {
 	 * @param context
 	 *        a context, such as one returned from
 	 *        {@link #createEvaluationContext(EvaluationConfiguration, Object)},
-	 *        or {@literal null} to create a new context
+	 *        or {@code null} to create a new context
 	 * @param resultClass
 	 *        the expected result object type
 	 * @return the expression result

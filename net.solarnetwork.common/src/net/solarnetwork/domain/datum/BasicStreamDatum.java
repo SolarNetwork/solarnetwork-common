@@ -60,7 +60,7 @@ public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
 	 * @param properties
 	 *        the optional samples
 	 * @throws IllegalArgumentException
-	 *         if {@code streamId} or {@code timestamp} are {@literal null}
+	 *         if {@code streamId} or {@code timestamp} are {@code null}
 	 */
 	public BasicStreamDatum(UUID streamId, Instant timestamp, @Nullable DatumProperties properties) {
 		super();

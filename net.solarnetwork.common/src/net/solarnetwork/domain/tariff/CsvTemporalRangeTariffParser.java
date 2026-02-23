@@ -93,7 +93,7 @@ public class CsvTemporalRangeTariffParser {
 	 * Constructor.
 	 *
 	 * @param locale
-	 *        the locale to use, or {@literal null} to use the system default
+	 *        the locale to use, or {@code null} to use the system default
 	 */
 	public CsvTemporalRangeTariffParser(@Nullable Locale locale) {
 		this(locale, false);
@@ -103,7 +103,7 @@ public class CsvTemporalRangeTariffParser {
 	 * Constructor.
 	 *
 	 * @param locale
-	 *        the locale to use, or {@literal null} to use the system default
+	 *        the locale to use, or {@code null} to use the system default
 	 * @param preserveRateCase
 	 *        {@literal true} to preserve the case of rate names
 	 * @since 1.2
@@ -119,7 +119,7 @@ public class CsvTemporalRangeTariffParser {
 	 *
 	 * @param reader
 	 *        the reader
-	 * @return the parsed rows, never {@literal null}
+	 * @return the parsed rows, never {@code null}
 	 * @throws IOException
 	 *         if any IO error occurs
 	 * @throws IllegalArgumentException

@@ -93,13 +93,13 @@ public class StatCounter {
 	 * @param uid
 	 *        the UID to use (appears on logs)
 	 * @param log
-	 *        the Logger to use, or {@literal null} for no logging
+	 *        the Logger to use, or {@code null} for no logging
 	 * @param logFrequency
 	 *        a frequency at which to log INFO level statistic messages
 	 * @param baseStats
-	 *        the "base" statistics to track; can <b>not</b> be {@literal null}
+	 *        the "base" statistics to track; can <b>not</b> be {@code null}
 	 * @throws IllegalArgumentException
-	 *         if any required argument is {@literal null}, or {@code stats} is
+	 *         if any required argument is {@code null}, or {@code stats} is
 	 *         provided and the component type is assignable from the
 	 *         {@code baseStats} component type
 	 */
@@ -116,11 +116,11 @@ public class StatCounter {
 	 * @param uid
 	 *        the UID to use (appears on logs)
 	 * @param baseStats
-	 *        the "base" statistics to track; can <b>not</b> be {@literal null}
+	 *        the "base" statistics to track; can <b>not</b> be {@code null}
 	 * @param stats
-	 *        the non-base statistics to track; can be {@literal null}
+	 *        the non-base statistics to track; can be {@code null}
 	 * @throws IllegalArgumentException
-	 *         if any required argument is {@literal null}, or {@code stats} is
+	 *         if any required argument is {@code null}, or {@code stats} is
 	 *         provided and the component type is assignable from the
 	 *         {@code baseStats} component type
 	 */
@@ -136,15 +136,15 @@ public class StatCounter {
 	 * @param uid
 	 *        the UID to use (appears on logs)
 	 * @param log
-	 *        the Logger to use, or {@literal null} for no logging
+	 *        the Logger to use, or {@code null} for no logging
 	 * @param logFrequency
 	 *        a frequency at which to log INFO level statistic messages
 	 * @param baseStats
-	 *        the "base" statistics to track; can <b>not</b> be {@literal null}
+	 *        the "base" statistics to track; can <b>not</b> be {@code null}
 	 * @param stats
-	 *        the non-base statistics to track; can be {@literal null}
+	 *        the non-base statistics to track; can be {@code null}
 	 * @throws IllegalArgumentException
-	 *         if any required argument is {@literal null}, or {@code stats} is
+	 *         if any required argument is {@code null}, or {@code stats} is
 	 *         provided and the component type is assignable from the
 	 *         {@code baseStats} component type
 	 */
@@ -218,7 +218,7 @@ public class StatCounter {
 	 * Set the unique ID.
 	 *
 	 * @param uid
-	 *        the unique ID, or {@literal null} for none
+	 *        the unique ID, or {@code null} for none
 	 */
 	public void setUid(@Nullable String uid) {
 		this.uid = uid;
@@ -247,7 +247,7 @@ public class StatCounter {
 	 *        the statistic to get the count for
 	 * @return the current count value
 	 * @throws IllegalArgumentException
-	 *         if {@code stat} is {@literal null} or not the same type as the
+	 *         if {@code stat} is {@code null} or not the same type as the
 	 *         configured {@code baseStats} or {@code stats} component type
 	 */
 	public long get(Stat stat) {
@@ -273,7 +273,7 @@ public class StatCounter {
 	 *        the count to increment and get
 	 * @return the incremented count value
 	 * @throws IllegalArgumentException
-	 *         if {@code stat} is {@literal null} or not the same type as the
+	 *         if {@code stat} is {@code null} or not the same type as the
 	 *         configured {@code baseStats} or {@code stats} component type
 	 */
 	public long incrementAndGet(Stat stat) {
@@ -289,7 +289,7 @@ public class StatCounter {
 	 *        {@literal true} to ignore logging
 	 * @return the incremented count value
 	 * @throws IllegalArgumentException
-	 *         if {@code stat} is {@literal null} or not the same type as the
+	 *         if {@code stat} is {@code null} or not the same type as the
 	 *         configured {@code baseStats} or {@code stats} component type
 	 */
 	public long incrementAndGet(Stat stat, boolean quiet) {
@@ -309,7 +309,7 @@ public class StatCounter {
 	 *        the amount to add
 	 * @return the added count value
 	 * @throws IllegalArgumentException
-	 *         if {@code stat} is {@literal null} or not the same type as the
+	 *         if {@code stat} is {@code null} or not the same type as the
 	 *         configured {@code baseStats} or {@code stats} component type
 	 */
 	public long addAndGet(Stat stat, long count) {
@@ -327,7 +327,7 @@ public class StatCounter {
 	 *        {@literal true} to ignore logging
 	 * @return the added count value
 	 * @throws IllegalArgumentException
-	 *         if {@code stat} is {@literal null} or not the same type as the
+	 *         if {@code stat} is {@code null} or not the same type as the
 	 *         configured {@code baseStats} or {@code stats} component type
 	 */
 	public long addAndGet(Stat stat, long count, boolean quiet) {

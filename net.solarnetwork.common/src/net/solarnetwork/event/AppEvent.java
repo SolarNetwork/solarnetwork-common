@@ -50,14 +50,14 @@ public interface AppEvent {
 	 * {@literal datum/agg/calculated}.
 	 * </p>
 	 * 
-	 * @return the event topic, never {@literal null}
+	 * @return the event topic, never {@code null}
 	 */
 	String getTopic();
 
 	/**
 	 * Get the date the event was created.
 	 * 
-	 * @return the creation date, never {@literal null}
+	 * @return the creation date, never {@code null}
 	 */
 	Instant getCreated();
 
@@ -68,7 +68,7 @@ public interface AppEvent {
 	 * The available properties is topic-specific.
 	 * </p>
 	 * 
-	 * @return the event properties, never {@literal null}
+	 * @return the event properties, never {@code null}
 	 */
 	Map<String, ?> getEventProperties();
 
@@ -77,7 +77,7 @@ public interface AppEvent {
 	 * 
 	 * @param key
 	 *        the event property name to test
-	 * @return {@literal true} if a non-{@literal null} property exists for
+	 * @return {@literal true} if a non-{@code null} property exists for
 	 *         {@code key}
 	 */
 	default boolean containsProperty(String key) {
@@ -88,7 +88,7 @@ public interface AppEvent {
 	/**
 	 * Get all available property names as an array.
 	 * 
-	 * @return the available property names, never {@literal null}
+	 * @return the available property names, never {@code null}
 	 */
 	default String[] getPropertyNames() {
 		Map<String, ?> props = getEventProperties();
@@ -101,7 +101,7 @@ public interface AppEvent {
 	 * 
 	 * @param key
 	 *        the event property name to get
-	 * @return the associated property value, or {@literal null} if not
+	 * @return the associated property value, or {@code null} if not
 	 *         available
 	 */
 	default Object getProperty(String key) {
@@ -118,7 +118,7 @@ public interface AppEvent {
 	 *        the property key to get
 	 * @param type
 	 *        the property type
-	 * @return the associated property value, or {@literal null} if not
+	 * @return the associated property value, or {@code null} if not
 	 *         available or not of type {@code T}
 	 */
 	default <T> T getProperty(String key, Class<T> type) {

@@ -59,11 +59,11 @@ public interface SettingSpecifierProvider {
 	 * Get a MessageSource to localize the setting text.
 	 *
 	 * <p>
-	 * This method can return {@literal null} if the provider does not have any
+	 * This method can return {@code null} if the provider does not have any
 	 * localized resources.
 	 * </p>
 	 *
-	 * @return the MessageSource, or {@literal null}
+	 * @return the MessageSource, or {@code null}
 	 */
 	MessageSource getMessageSource();
 
@@ -104,7 +104,7 @@ public interface SettingSpecifierProvider {
 	 *        the ID of the service to get the settings for
 	 * @param providers
 	 *        the available services
-	 * @return the settings, or {@literal null} if not available
+	 * @return the settings, or {@code null} if not available
 	 * @since 1.1
 	 */
 	static List<SettingSpecifier> settingsForService(String id,
@@ -129,9 +129,9 @@ public interface SettingSpecifierProvider {
 	 *        the unique ID
 	 * @param groupUid
 	 *        the group ID
-	 * @return the provider info, never {@literal null}
+	 * @return the provider info, never {@code null}
 	 * @throws IllegalArgumentException
-	 *         if any argument except {@code groupUid} is {@literal null}
+	 *         if any argument except {@code groupUid} is {@code null}
 	 * @since 2.2
 	 */
 	default SettingSpecifierProviderInfo localizedInfo(Locale locale, String uid, String groupUid) {
@@ -151,7 +151,7 @@ public interface SettingSpecifierProvider {
 	 *        the type to unwrap to
 	 * @param type
 	 *        the class to unwrap as
-	 * @return the given type, or {@literal null} if the provider not compatible
+	 * @return the given type, or {@code null} if the provider not compatible
 	 *         with {@code type}
 	 * @since 2.2
 	 */

@@ -45,7 +45,7 @@ public interface IntContainer {
 	/**
 	 * Get the minimum value in this container.
 	 *
-	 * @return the minimum value contained in this instance, or {@literal null}
+	 * @return the minimum value contained in this instance, or {@code null}
 	 *         if the container is empty
 	 */
 	@Nullable
@@ -54,7 +54,7 @@ public interface IntContainer {
 	/**
 	 * Get the maximum value in this container.
 	 *
-	 * @return the minimum value contained in this instance, or {@literal null}
+	 * @return the minimum value contained in this instance, or {@code null}
 	 *         if the container is empty
 	 */
 	@Nullable

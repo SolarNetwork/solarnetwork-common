@@ -44,7 +44,7 @@ public interface Cachable {
 	/**
 	 * Get a suggested time-to-live, in seconds.
 	 *
-	 * @return TTL in seconds, or {@literal null} if should use a default value
+	 * @return TTL in seconds, or {@code null} if should use a default value
 	 */
 	@Nullable
 	Long getTtl();
@@ -52,7 +52,7 @@ public interface Cachable {
 	/**
 	 * Get a suggested time-to-idle, in seconds.
 	 *
-	 * @return TTI in seconds, or {@literal null} if should use a default value
+	 * @return TTI in seconds, or {@code null} if should use a default value
 	 */
 	@Nullable
 	Long getTti();

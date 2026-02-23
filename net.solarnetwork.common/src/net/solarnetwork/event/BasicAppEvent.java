@@ -52,9 +52,9 @@ public class BasicAppEvent implements AppEvent {
 	 * @param topic
 	 *        the event topic
 	 * @param eventProperties
-	 *        the event properties, or {@literal null}
+	 *        the event properties, or {@code null}
 	 * @throws IllegalArgumentException
-	 *         if {@code topic} is {@literal null}
+	 *         if {@code topic} is {@code null}
 	 */
 	public BasicAppEvent(String topic, Map<String, ?> eventProperties) {
 		this(topic, Instant.now(), eventProperties);
@@ -66,12 +66,12 @@ public class BasicAppEvent implements AppEvent {
 	 * @param topic
 	 *        the event topic
 	 * @param created
-	 *        the event creation date, or {@literal null} to use the current
+	 *        the event creation date, or {@code null} to use the current
 	 *        time
 	 * @param eventProperties
-	 *        the event properties, or {@literal null}
+	 *        the event properties, or {@code null}
 	 * @throws IllegalArgumentException
-	 *         if {@code topic} is {@literal null} or empty
+	 *         if {@code topic} is {@code null} or empty
 	 */
 	public BasicAppEvent(String topic, Instant created, Map<String, ?> eventProperties) {
 		super();
@@ -245,7 +245,7 @@ public class BasicAppEvent implements AppEvent {
 		 * Configure event properties.
 		 *
 		 * @param eventProperties
-		 *        the properties, or {@literal null}
+		 *        the properties, or {@code null}
 		 * @return this builder
 		 */
 		public Builder withEventProperties(Map<String, ?> eventProperties) {
