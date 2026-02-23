@@ -1,21 +1,21 @@
 /* ==================================================================
  * SimpleEventHandlerRegistrar.java - 9/11/2021 10:50:05 AM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -35,7 +35,7 @@ import org.springframework.util.PathMatcher;
 
 /**
  * Simple implementation of {@link AppEventHandlerRegistrar}.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 2.0
@@ -48,7 +48,7 @@ public class SimpleAppEventManager implements AppEventHandlerRegistrar, AppEvent
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * An Ant-style path matcher and work-stealing pool will be used.
 	 * </p>
@@ -59,11 +59,11 @@ public class SimpleAppEventManager implements AppEventHandlerRegistrar, AppEvent
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * An Ant-style path matcher will be used.
 	 * </p>
-	 * 
+	 *
 	 * @param executor
 	 *        the executor
 	 * @throws IllegalArgumentException
@@ -75,7 +75,7 @@ public class SimpleAppEventManager implements AppEventHandlerRegistrar, AppEvent
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param pathMatcher
 	 *        the path matcher to use for topic matching
 	 * @param executor
@@ -89,7 +89,7 @@ public class SimpleAppEventManager implements AppEventHandlerRegistrar, AppEvent
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param pathMatcher
 	 *        the path matcher to use for topic matching
 	 * @param executor

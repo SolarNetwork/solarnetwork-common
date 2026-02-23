@@ -22,10 +22,12 @@
 
 package net.solarnetwork.event;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic immutable {@link AppEvent}.
@@ -66,14 +68,14 @@ public class BasicAppEvent implements AppEvent {
 	 * @param topic
 	 *        the event topic
 	 * @param created
-	 *        the event creation date, or {@code null} to use the current
-	 *        time
+	 *        the event creation date, or {@code null} to use the current time
 	 * @param eventProperties
 	 *        the event properties, or {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code topic} is {@code null} or empty
 	 */
-	public BasicAppEvent(String topic, Instant created, Map<String, ?> eventProperties) {
+	public BasicAppEvent(String topic, @Nullable Instant created,
+			@Nullable Map<String, ?> eventProperties) {
 		super();
 		if ( topic == null || topic.isEmpty() ) {
 			throw new IllegalArgumentException("The topic parameter must not be null.");
@@ -90,7 +92,7 @@ public class BasicAppEvent implements AppEvent {
 	}
 
 	private BasicAppEvent(Builder builder) {
-		this(builder.topic, builder.created, builder.eventProperties);
+		this(requireNonNullArgument(builder.topic, "topic"), builder.created, builder.eventProperties);
 	}
 
 	@Override
@@ -99,14 +101,13 @@ public class BasicAppEvent implements AppEvent {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
-		if ( !(obj instanceof BasicAppEvent) ) {
+		if ( !(obj instanceof BasicAppEvent other) ) {
 			return false;
 		}
-		BasicAppEvent other = (BasicAppEvent) obj;
 		return Objects.equals(created, other.created)
 				&& Objects.equals(eventProperties, other.eventProperties)
 				&& Objects.equals(topic, other.topic);
@@ -114,20 +115,20 @@ public class BasicAppEvent implements AppEvent {
 
 	@Override
 	public String toString() {
-		StringBuilder builder2 = new StringBuilder();
-		builder2.append("BasicAppEvent{");
-		builder2.append("topic=");
-		builder2.append(topic);
-		builder2.append(", ");
-		builder2.append("created=");
-		builder2.append(created);
-		builder2.append(", ");
-		if ( eventProperties != null && !eventProperties.isEmpty() ) {
-			builder2.append("eventProperties=");
-			builder2.append(eventProperties);
+		StringBuilder builder = new StringBuilder();
+		builder.append("BasicAppEvent{");
+		builder.append("topic=");
+		builder.append(topic);
+		builder.append(", ");
+		builder.append("created=");
+		builder.append(created);
+		builder.append(", ");
+		if ( !eventProperties.isEmpty() ) {
+			builder.append("eventProperties=");
+			builder.append(eventProperties);
 		}
-		builder2.append("}");
-		return builder2.toString();
+		builder.append("}");
+		return builder.toString();
 	}
 
 	/**
@@ -168,8 +169,8 @@ public class BasicAppEvent implements AppEvent {
 	 */
 	public static class Builder {
 
-		private String topic;
-		private Instant created;
+		private @Nullable String topic;
+		private @Nullable Instant created;
 		private Map<String, ?> eventProperties = Collections.emptyMap();
 
 		/**
@@ -195,7 +196,7 @@ public class BasicAppEvent implements AppEvent {
 		 *
 		 * @return the topic the topic
 		 */
-		public String getTopic() {
+		public @Nullable String getTopic() {
 			return topic;
 		}
 
@@ -216,7 +217,7 @@ public class BasicAppEvent implements AppEvent {
 		 *
 		 * @return the creation date
 		 */
-		public Instant getCreated() {
+		public @Nullable Instant getCreated() {
 			return created;
 		}
 
@@ -248,7 +249,7 @@ public class BasicAppEvent implements AppEvent {
 		 *        the properties, or {@code null}
 		 * @return this builder
 		 */
-		public Builder withEventProperties(Map<String, ?> eventProperties) {
+		public Builder withEventProperties(@Nullable Map<String, ?> eventProperties) {
 			if ( eventProperties == null ) {
 				eventProperties = Collections.emptyMap();
 			}
