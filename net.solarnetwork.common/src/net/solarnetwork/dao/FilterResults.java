@@ -22,6 +22,7 @@
 
 package net.solarnetwork.dao;
 
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.Unique;
 
 /**
@@ -50,7 +51,7 @@ public interface FilterResults<T extends Unique<K>, K extends Comparable<K>> ext
 	 * These are the same results returned by {@link Iterable#iterator()}.
 	 * </p>
 	 *
-	 * @return the results, never {@literal null}
+	 * @return the results, never {@code null}
 	 */
 	Iterable<T> getResults();
 
@@ -63,8 +64,9 @@ public interface FilterResults<T extends Unique<K>, K extends Comparable<K>> ext
 	 * available results.
 	 * </p>
 	 *
-	 * @return total available results, or {@literal null} if not known
+	 * @return total available results, or {@code null} if not known
 	 */
+	@Nullable
 	Long getTotalResults();
 
 	/**

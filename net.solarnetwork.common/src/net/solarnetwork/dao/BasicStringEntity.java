@@ -23,10 +23,11 @@
 package net.solarnetwork.dao;
 
 import java.time.Instant;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic implementation of {@link Entity} with string primary key type.
- * 
+ *
  * @author matt
  * @version 1.1
  * @since 1.59
@@ -50,7 +51,7 @@ public class BasicStringEntity extends BasicEntity<String> {
 	 * @param created
 	 *        the created date
 	 */
-	public BasicStringEntity(String id, Instant created) {
+	public BasicStringEntity(@Nullable String id, @Nullable Instant created) {
 		super(id, created);
 	}
 

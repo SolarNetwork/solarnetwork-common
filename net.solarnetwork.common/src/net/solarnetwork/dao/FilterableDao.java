@@ -23,6 +23,7 @@
 package net.solarnetwork.dao;
 
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.SortDescriptor;
 import net.solarnetwork.domain.Unique;
 
@@ -52,16 +53,17 @@ public interface FilterableDao<T extends Unique<K>, K extends Comparable<K>, F> 
 	 *        an optional result offset
 	 * @param max
 	 *        an optional maximum number of returned results
-	 * @return the results, never {@literal null}
+	 * @return the results, never {@code null}
 	 */
-	FilterResults<T, K> findFiltered(F filter, List<SortDescriptor> sorts, Long offset, Integer max);
+	FilterResults<T, K> findFiltered(F filter, @Nullable List<SortDescriptor> sorts,
+			@Nullable Long offset, @Nullable Integer max);
 
 	/**
 	 * Short cut to query for all available results with a given filter.
 	 *
 	 * <p>
 	 * This short cut method calls
-	 * {@link #findFiltered(Object, List, Long, Integer)} with {@literal null}
+	 * {@link #findFiltered(Object, List, Long, Integer)} with {@code null}
 	 * sorting and pagination arguments, so all results are returned in their
 	 * default order.
 	 * </p>

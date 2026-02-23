@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicBatchOptions.java - Nov 5, 2012 11:19:05 AM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,11 +23,12 @@
 package net.solarnetwork.dao;
 
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.dao.BatchableDao.BatchOptions;
 
 /**
  * Basic implementation of {@link BatchOptions}.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.74
@@ -41,9 +42,9 @@ public class BasicBatchOptions implements BatchOptions {
 	public static final int DEFAULT_BATCH_SIZE = 50;
 
 	private final String name;
-	private boolean updatable = false;
-	private int batchSize = DEFAULT_BATCH_SIZE;
-	private final Map<String, Object> parameters;
+	private final boolean updatable;
+	private final int batchSize;
+	private final @Nullable Map<String, Object> parameters;
 
 	/**
 	 * Default constructor.
@@ -54,7 +55,7 @@ public class BasicBatchOptions implements BatchOptions {
 
 	/**
 	 * Construct with a name.
-	 * 
+	 *
 	 * @param name
 	 *        the name
 	 */
@@ -64,7 +65,7 @@ public class BasicBatchOptions implements BatchOptions {
 
 	/**
 	 * Construct with values.
-	 * 
+	 *
 	 * @param name
 	 *        the name
 	 * @param batchSize
@@ -75,9 +76,9 @@ public class BasicBatchOptions implements BatchOptions {
 	 *        the parameters
 	 */
 	public BasicBatchOptions(String name, int batchSize, boolean updatable,
-			Map<String, Object> parameters) {
+			@Nullable Map<String, Object> parameters) {
 		super();
-		this.name = name;
+		this.name = (name != null ? name : DEFAULT_BATCH_NAME);
 		this.batchSize = batchSize;
 		this.updatable = updatable;
 		this.parameters = parameters;
@@ -99,7 +100,7 @@ public class BasicBatchOptions implements BatchOptions {
 	}
 
 	@Override
-	public Map<String, Object> getParameters() {
+	public @Nullable Map<String, Object> getParameters() {
 		return parameters;
 	}
 

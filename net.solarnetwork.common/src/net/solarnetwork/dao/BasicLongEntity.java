@@ -23,6 +23,7 @@
 package net.solarnetwork.dao;
 
 import java.time.Instant;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic implementation of {@link Entity} with long primary key type.
@@ -50,7 +51,7 @@ public abstract class BasicLongEntity extends BasicEntity<Long> {
 	 * @param created
 	 *        the created date
 	 */
-	public BasicLongEntity(Long id, Instant created) {
+	public BasicLongEntity(@Nullable Long id, @Nullable Instant created) {
 		super(id, created);
 	}
 

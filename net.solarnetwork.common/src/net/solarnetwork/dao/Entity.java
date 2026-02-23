@@ -23,6 +23,7 @@
 package net.solarnetwork.dao;
 
 import java.time.Instant;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.Identity;
 
 /**
@@ -41,6 +42,7 @@ public interface Entity<K extends Comparable<K>> extends Identity<K> {
 	 *
 	 * @return the created date
 	 */
-	public Instant getCreated();
+	@Nullable
+	Instant getCreated();
 
 }

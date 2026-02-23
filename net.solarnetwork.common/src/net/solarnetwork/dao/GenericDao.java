@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.SimpleSortDescriptor;
 import net.solarnetwork.domain.SortDescriptor;
 
@@ -181,9 +182,10 @@ public interface GenericDao<T extends Entity<K>, K extends Comparable<K>> {
 	 *        the primary key
 	 * @param entity
 	 *        the optional entity
-	 * @return the new event instance
+	 * @return the new event instance, or {@code null} if {@code id} is
+	 *         {@code null}
 	 */
-	static <E extends Entity<K>, K extends Comparable<K>> Map<String, Object> createEntityEventProperties(
+	static <E extends Entity<K>, K extends Comparable<K>> @Nullable Map<String, Object> createEntityEventProperties(
 			K id, E entity) {
 		if ( id == null ) {
 			return null;
@@ -214,6 +216,8 @@ public interface GenericDao<T extends Entity<K>, K extends Comparable<K>> {
 	 * @param id
 	 *        the primary key
 	 * @return the new entity instance
+	 * @throws UnsupportedOperationException
+	 *         if the operation is not supported
 	 * @since 1.2
 	 */
 	default T entityKey(K id) {
@@ -234,23 +238,24 @@ public interface GenericDao<T extends Entity<K>, K extends Comparable<K>> {
 	 *
 	 * @param id
 	 *        the primary key to retrieve
-	 * @return the domain object, or {@literal null} if not available
+	 * @return the domain object, or {@code null} if not available
 	 */
+	@Nullable
 	T get(K id);
 
 	/**
 	 * Get all persisted entities, optionally sorted in some way.
 	 *
 	 * <p>
-	 * The {@code sortDescriptors} parameter can be {@literal null}, in which
-	 * case the sort order is not defined and implementation specific.
+	 * The {@code sortDescriptors} parameter can be {@code null}, in which case
+	 * the sort order is not defined and implementation specific.
 	 * </p>
 	 *
 	 * @param sorts
-	 *        list of sort descriptors to sort the results by
+	 *        optional list of sort descriptors to sort the results by
 	 * @return list of all persisted entities, or empty list if none available
 	 */
-	Collection<T> getAll(List<SortDescriptor> sorts);
+	Collection<T> getAll(@Nullable List<SortDescriptor> sorts);
 
 	/**
 	 * Remove a persisted entity.

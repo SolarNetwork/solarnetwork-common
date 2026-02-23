@@ -25,8 +25,8 @@ package net.solarnetwork.dao;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.stream.StreamSupport;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import net.solarnetwork.domain.Unique;
 
@@ -46,7 +46,7 @@ public class BasicFilterResults<T extends Unique<K>, K extends Comparable<K>>
 		implements FilterResults<T, K> {
 
 	private final Iterable<T> results;
-	private final Long totalResults;
+	private final @Nullable Long totalResults;
 	private final long startingOffset;
 	private final int returnedResultCount;
 
@@ -56,14 +56,16 @@ public class BasicFilterResults<T extends Unique<K>, K extends Comparable<K>>
 	 * @param results
 	 *        the results iterable
 	 * @param totalResults
-	 *        the total available results, or {@literal null}
+	 *        the total available results, or {@code null}
 	 * @param startingOffset
 	 *        the starting offset
 	 * @param returnedResultCount
 	 *        the count of objects in {@code results}
+	 * @throws IllegalArgumentException
+	 *         if {@code results} is {@code null}
 	 */
-	public BasicFilterResults(Iterable<T> results, Long totalResults, int startingOffset,
-			int returnedResultCount) {
+	public BasicFilterResults(@Nullable Iterable<T> results, @Nullable Long totalResults,
+			int startingOffset, int returnedResultCount) {
 		this(results, totalResults, (long) startingOffset, returnedResultCount);
 	}
 
@@ -73,17 +75,17 @@ public class BasicFilterResults<T extends Unique<K>, K extends Comparable<K>>
 	 * @param results
 	 *        the results iterable
 	 * @param totalResults
-	 *        the total available results, or {@literal null}
+	 *        the total available results, or {@code null}
 	 * @param startingOffset
 	 *        the starting offset
 	 * @param returnedResultCount
 	 *        the count of objects in {@code results}
 	 * @since 1.3
 	 */
-	public BasicFilterResults(Iterable<T> results, Long totalResults, long startingOffset,
-			int returnedResultCount) {
+	public BasicFilterResults(@Nullable Iterable<T> results, @Nullable Long totalResults,
+			long startingOffset, int returnedResultCount) {
 		super();
-		this.results = results;
+		this.results = (results != null ? results : Collections.emptyList());
 		this.totalResults = totalResults;
 		this.startingOffset = startingOffset;
 		this.returnedResultCount = returnedResultCount;
@@ -93,15 +95,15 @@ public class BasicFilterResults<T extends Unique<K>, K extends Comparable<K>>
 	 * Constructor.
 	 *
 	 * <p>
-	 * This total results count will be set to {@literal null}, the starting
-	 * offset to {@literal 0}, and the returned result count will be derived
-	 * from the number of items in {@code results}.
+	 * This total results count will be set to {@code null}, the starting offset
+	 * to {@literal 0}, and the returned result count will be derived from the
+	 * number of items in {@code results}.
 	 * </p>
 	 *
 	 * @param results
 	 *        the results iterable
 	 */
-	public BasicFilterResults(Iterable<T> results) {
+	public BasicFilterResults(@Nullable Iterable<T> results) {
 		this(results, null, 0, iterableCount(results));
 	}
 
@@ -124,7 +126,8 @@ public class BasicFilterResults<T extends Unique<K>, K extends Comparable<K>>
 	 * @since 1.1
 	 */
 	public static <T extends Unique<K>, K extends Comparable<K>> FilterResults<T, K> filterResults(
-			Iterable<T> data, PaginationCriteria criteria, Long totalResults, int returnedResults) {
+			@Nullable Iterable<T> data, @Nullable PaginationCriteria criteria,
+			@Nullable Long totalResults, int returnedResults) {
 		long offset = 0;
 		if ( criteria != null && criteria.getMax() != null ) {
 			offset = criteria.getOffset() != null ? criteria.getOffset() : 0;
@@ -132,19 +135,17 @@ public class BasicFilterResults<T extends Unique<K>, K extends Comparable<K>>
 		return new BasicFilterResults<>(data, totalResults, offset, returnedResults);
 	}
 
-	private static int iterableCount(Iterable<?> iterable) {
-		if ( iterable instanceof Collection<?> ) {
-			return ((Collection<?>) iterable).size();
+	private static int iterableCount(@Nullable Iterable<?> iterable) {
+		if ( iterable == null ) {
+			return 0;
+		} else if ( iterable instanceof Collection<?> c ) {
+			return c.size();
 		}
 		return (int) StreamSupport.stream(iterable.spliterator(), false).count();
 	}
 
 	@Override
 	public Iterator<T> iterator() {
-		if ( results == null ) {
-			Set<T> emptyResult = Collections.emptySet();
-			return emptyResult.iterator();
-		}
 		return results.iterator();
 	}
 
@@ -171,7 +172,7 @@ public class BasicFilterResults<T extends Unique<K>, K extends Comparable<K>>
 	}
 
 	@Override
-	public Long getTotalResults() {
+	public @Nullable Long getTotalResults() {
 		return totalResults;
 	}
 

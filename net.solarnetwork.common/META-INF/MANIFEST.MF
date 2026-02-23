@@ -11,7 +11,7 @@ Export-Package:
  net.solarnetwork.codec;version="2.11.0",
  net.solarnetwork.codec.jackson;version="1.2.0",
  net.solarnetwork.dao;version="3.0.0",
- net.solarnetwork.dao.jdbc;version="2.1.0",
+ net.solarnetwork.dao.jdbc;version="2.2.0",
  net.solarnetwork.domain;version="3.5.0",
  net.solarnetwork.domain.datum;version="3.7.0",
  net.solarnetwork.domain.tariff;version="1.5.0",

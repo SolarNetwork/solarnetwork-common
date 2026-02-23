@@ -24,6 +24,7 @@ package net.solarnetwork.dao;
 
 import java.io.Serializable;
 import java.time.Instant;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BasicSerializableIdentity;
 
 /**
@@ -42,7 +43,7 @@ public abstract class BasicEntity<K extends Comparable<K> & Serializable>
 	private static final long serialVersionUID = -2236221331020004471L;
 
 	/** The creation date. */
-	private final Instant created;
+	private final @Nullable Instant created;
 
 	/**
 	 * Constructor.
@@ -59,7 +60,7 @@ public abstract class BasicEntity<K extends Comparable<K> & Serializable>
 	 * @param created
 	 *        the created date
 	 */
-	public BasicEntity(K id, Instant created) {
+	public BasicEntity(@Nullable K id, @Nullable Instant created) {
 		super(id);
 		this.created = created;
 	}
@@ -70,7 +71,7 @@ public abstract class BasicEntity<K extends Comparable<K> & Serializable>
 	}
 
 	@Override
-	public Instant getCreated() {
+	public @Nullable Instant getCreated() {
 		return created;
 	}
 

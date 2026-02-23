@@ -62,7 +62,7 @@ public class SQLExceptionHandlerDataSourceProxy implements DataSource, Connectio
 	 * @param delegate
 	 *        The {@link DataSource} to delegate to.
 	 * @param handlers
-	 *        The handlers to use. May be {@literal null}.
+	 *        The handlers to use. May be {@code null}.
 	 */
 	public SQLExceptionHandlerDataSourceProxy(DataSource delegate,
 			OptionalServiceCollection<SQLExceptionHandler> handlers) {

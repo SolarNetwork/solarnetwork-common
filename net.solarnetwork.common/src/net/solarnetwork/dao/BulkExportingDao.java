@@ -1,21 +1,21 @@
 /* ==================================================================
  * BulkExportingDao.java - 3/12/2020 9:40:56 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,10 +23,11 @@
 package net.solarnetwork.dao;
 
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * DAO API for bulk exporting.
- * 
+ *
  * @param <T>
  *        the domain object type
  * @author matt
@@ -42,38 +43,41 @@ public interface BulkExportingDao<T> {
 
 		/**
 		 * Get a unique name for this export operation.
-		 * 
+		 *
 		 * @return a name
 		 */
+		@Nullable
 		String getName();
 
 		/**
 		 * Get a batch size hint.
-		 * 
+		 *
 		 * @return a batch size
 		 */
+		@Nullable
 		Integer getBatchSize();
 
 		/**
 		 * Get optional additional parameters, implementation specific.
-		 * 
+		 *
 		 * @return parameters
 		 */
+		@Nullable
 		Map<String, Object> getParameters();
 
 		/**
 		 * Get a parameter, cast to a specific type.
-		 * 
+		 *
 		 * @param <T>
 		 *        the expected parameter value type
 		 * @param key
 		 *        the parameter key to get
-		 * @return the parameter value, or {@literal null}
+		 * @return the parameter value, or {@code null}
 		 * @throws ClassCastException
 		 *         if the parameter value is not of type {@code T}
 		 */
 		@SuppressWarnings("unchecked")
-		default <T> T getParameter(String key) {
+		default <T> @Nullable T getParameter(String key) {
 			Map<String, Object> m = getParameters();
 			return (T) (m != null ? m.get(key) : null);
 		}
@@ -82,7 +86,7 @@ public interface BulkExportingDao<T> {
 
 	/**
 	 * Handler for export processing.
-	 * 
+	 *
 	 * @param <T>
 	 *        the domain object type
 	 */
@@ -91,21 +95,20 @@ public interface BulkExportingDao<T> {
 		/**
 		 * Called when the export has begun, before any call to
 		 * {@link #handle(Object)}.
-		 * 
+		 *
 		 * <p>
 		 * This method will always be called once, before any calls to
 		 * {@link #handle(Object)}.
 		 * </p>
-		 * 
+		 *
 		 * @param totalResultCountEstimate
-		 *        the total result count estimate, or {@literal null} if not
-		 *        known
+		 *        the total result count estimate, or {@code null} if not known
 		 */
-		void didBegin(Long totalResultCountEstimate);
+		void didBegin(@Nullable Long totalResultCountEstimate);
 
 		/**
 		 * Handle a single domain instance batch operation.
-		 * 
+		 *
 		 * @param domainObject
 		 *        the domain object
 		 * @return the operation results
@@ -132,7 +135,7 @@ public interface BulkExportingDao<T> {
 
 		/**
 		 * Return the number of domain objects processed.
-		 * 
+		 *
 		 * @return the number of objects processed
 		 */
 		long getNumProcessed();
@@ -141,7 +144,7 @@ public interface BulkExportingDao<T> {
 
 	/**
 	 * Export a set of domain objects.
-	 * 
+	 *
 	 * @param callback
 	 *        the export callback handler
 	 * @param options

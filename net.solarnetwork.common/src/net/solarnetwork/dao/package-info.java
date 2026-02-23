@@ -1,7 +1,7 @@
 /* ==================================================================
- * BasicUuidEntity.java - 7/02/2020 9:01:40 am
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2020 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,45 +20,5 @@
  * ==================================================================
  */
 
+@org.jspecify.annotations.NullMarked
 package net.solarnetwork.dao;
-
-import java.time.Instant;
-import java.util.UUID;
-import org.jspecify.annotations.Nullable;
-
-/**
- * Basic implementation of {@link Entity} with {@link UUID} primary key type.
- *
- * @author matt
- * @version 1.1
- * @since 1.59
- */
-public class BasicUuidEntity extends BasicEntity<UUID> {
-
-	private static final long serialVersionUID = -8798995107804432989L;
-
-	/**
-	 * Constructor.
-	 */
-	public BasicUuidEntity() {
-		super();
-	}
-
-	/**
-	 * Constructor.
-	 *
-	 * @param id
-	 *        the primary key
-	 * @param created
-	 *        the created date
-	 */
-	public BasicUuidEntity(@Nullable UUID id, @Nullable Instant created) {
-		super(id, created);
-	}
-
-	@Override
-	public BasicUuidEntity clone() {
-		return (BasicUuidEntity) super.clone();
-	}
-
-}
