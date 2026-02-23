@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifierProvider;
 import net.solarnetwork.settings.support.SettingUtils;
@@ -54,6 +55,7 @@ public interface IdentifiableConfiguration extends ServiceConfiguration {
 	 *
 	 * @return a configuration name
 	 */
+	@Nullable
 	String getName();
 
 	/**
@@ -66,6 +68,7 @@ public interface IdentifiableConfiguration extends ServiceConfiguration {
 	 *
 	 * @return the service type identifier
 	 */
+	@Nullable
 	String getServiceIdentifier();
 
 	/**
@@ -82,7 +85,8 @@ public interface IdentifiableConfiguration extends ServiceConfiguration {
 	 * @return the masked configurations
 	 * @since 1.1
 	 */
-	static <T extends IdentifiableConfiguration> List<T> maskConfigurations(List<T> configurations,
+	static <T extends IdentifiableConfiguration> List<T> maskConfigurations(
+			@Nullable List<T> configurations,
 			ConcurrentMap<String, List<SettingSpecifier>> serviceSettings,
 			Supplier<Iterable<? extends SettingSpecifierProvider>> settingProviderFunction) {
 		if ( configurations == null || configurations.isEmpty() ) {
@@ -113,7 +117,7 @@ public interface IdentifiableConfiguration extends ServiceConfiguration {
 	 * @since 1.1
 	 */
 	@SuppressWarnings("unchecked")
-	static <T extends IdentifiableConfiguration> T maskConfiguration(T config,
+	static <T extends IdentifiableConfiguration> @Nullable T maskConfiguration(T config,
 			ConcurrentMap<String, List<SettingSpecifier>> serviceSettings,
 			Supplier<Iterable<? extends SettingSpecifierProvider>> settingProviderFunction) {
 		String id = config.getServiceIdentifier();
