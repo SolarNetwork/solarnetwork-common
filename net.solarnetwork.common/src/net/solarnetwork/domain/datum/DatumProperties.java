@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A collection of property values for a datum.
@@ -48,16 +49,16 @@ public class DatumProperties implements Serializable {
 	private static final long serialVersionUID = -2647856276610023629L;
 
 	/** The instantaneous values. */
-	private BigDecimal[] instantaneous;
+	private BigDecimal @Nullable [] instantaneous;
 
 	/** The accumulating values. */
-	private BigDecimal[] accumulating;
+	private BigDecimal @Nullable [] accumulating;
 
 	/** The status values. */
-	private String[] status;
+	private String @Nullable [] status;
 
 	/** The tags. */
-	private String[] tags;
+	private String @Nullable [] tags;
 
 	/**
 	 * Constructor.
@@ -79,8 +80,8 @@ public class DatumProperties implements Serializable {
 	 *        the tag values
 	 * @return the new instance, never {@literal null}
 	 */
-	public static DatumProperties propertiesOf(BigDecimal[] instantaneous, BigDecimal[] accumulating,
-			String[] status, String[] tags) {
+	public static DatumProperties propertiesOf(BigDecimal @Nullable [] instantaneous,
+			BigDecimal @Nullable [] accumulating, String @Nullable [] status, String @Nullable [] tags) {
 		DatumProperties s = new DatumProperties();
 		s.instantaneous = instantaneous;
 		s.accumulating = accumulating;
@@ -107,8 +108,8 @@ public class DatumProperties implements Serializable {
 	 * @throws IllegalArgumentException
 	 *         if the metadata does not support a property found on the datum
 	 */
-	public static DatumProperties propertiesFrom(Datum datum, ObjectDatumStreamMetadata meta)
-			throws IllegalArgumentException {
+	public static @Nullable DatumProperties propertiesFrom(@Nullable Datum datum,
+			ObjectDatumStreamMetadata meta) throws IllegalArgumentException {
 		if ( datum == null ) {
 			return null;
 		}
@@ -128,7 +129,8 @@ public class DatumProperties implements Serializable {
 		return DatumProperties.propertiesOf(data_i, data_a, data_s, data_t);
 	}
 
-	private static BigDecimal[] decimalPropertiesFrom(ObjectDatumStreamMetadata meta,
+	@SuppressWarnings({ "null", "NullAway" })
+	private static BigDecimal @Nullable [] decimalPropertiesFrom(ObjectDatumStreamMetadata meta,
 			DatumSamplesOperations ops, DatumSamplesType type) {
 		String[] propNames = meta.propertyNamesForType(type);
 		int len = (propNames != null ? propNames.length : 0);
@@ -167,7 +169,8 @@ public class DatumProperties implements Serializable {
 		return data;
 	}
 
-	private static String[] stringPropertiesFrom(ObjectDatumStreamMetadata meta,
+	@SuppressWarnings({ "null", "NullAway" })
+	private static String @Nullable [] stringPropertiesFrom(ObjectDatumStreamMetadata meta,
 			DatumSamplesOperations ops, DatumSamplesType type) {
 		String[] propNames = meta.propertyNamesForType(type);
 		int len = (propNames != null ? propNames.length : 0);
@@ -223,10 +226,9 @@ public class DatumProperties implements Serializable {
 		if ( this == obj ) {
 			return true;
 		}
-		if ( !(obj instanceof DatumProperties) ) {
+		if ( !(obj instanceof DatumProperties other) ) {
 			return false;
 		}
-		DatumProperties other = (DatumProperties) obj;
 		return Arrays.equals(accumulating, other.accumulating)
 				&& Arrays.equals(instantaneous, other.instantaneous)
 				&& Arrays.equals(status, other.status) && Arrays.equals(tags, other.tags);
@@ -269,7 +271,7 @@ public class DatumProperties implements Serializable {
 	 * @return the property value, or {@code null} if not available
 	 * @since 1.3
 	 */
-	public Object value(DatumSamplesType type, int index) {
+	public @Nullable Object value(DatumSamplesType type, int index) {
 		return switch (type) {
 			case Instantaneous -> instantaneousValue(index);
 			case Accumulating -> accumulatingValue(index);
@@ -308,7 +310,7 @@ public class DatumProperties implements Serializable {
 	 *
 	 * @return the instantaneous sample values
 	 */
-	public BigDecimal[] getInstantaneous() {
+	public BigDecimal @Nullable [] getInstantaneous() {
 		return instantaneous;
 	}
 
@@ -318,7 +320,7 @@ public class DatumProperties implements Serializable {
 	 * @param values
 	 *        the values to set
 	 */
-	public void setInstantaneous(BigDecimal[] values) {
+	public void setInstantaneous(BigDecimal @Nullable [] values) {
 		this.instantaneous = values;
 	}
 
@@ -330,7 +332,7 @@ public class DatumProperties implements Serializable {
 	 * @return the value, or {@literal null} if not available
 	 * @since 1.2
 	 */
-	public BigDecimal instantaneousValue(int index) {
+	public @Nullable BigDecimal instantaneousValue(int index) {
 		final BigDecimal[] values = getInstantaneous();
 		if ( values != null && index < values.length ) {
 			return values[index];
@@ -354,7 +356,7 @@ public class DatumProperties implements Serializable {
 	 *
 	 * @return the accumulating sample values
 	 */
-	public BigDecimal[] getAccumulating() {
+	public BigDecimal @Nullable [] getAccumulating() {
 		return accumulating;
 	}
 
@@ -364,7 +366,7 @@ public class DatumProperties implements Serializable {
 	 * @param values
 	 *        the values to set
 	 */
-	public void setAccumulating(BigDecimal[] values) {
+	public void setAccumulating(BigDecimal @Nullable [] values) {
 		this.accumulating = values;
 	}
 
@@ -376,7 +378,7 @@ public class DatumProperties implements Serializable {
 	 * @return the value, or {@literal null} if not available
 	 * @since 1.2
 	 */
-	public BigDecimal accumulatingValue(int index) {
+	public @Nullable BigDecimal accumulatingValue(int index) {
 		final BigDecimal[] values = getAccumulating();
 		if ( values != null && index < values.length ) {
 			return values[index];
@@ -399,7 +401,7 @@ public class DatumProperties implements Serializable {
 	 *
 	 * @return the status sample values
 	 */
-	public String[] getStatus() {
+	public String @Nullable [] getStatus() {
 		return status;
 	}
 
@@ -409,7 +411,7 @@ public class DatumProperties implements Serializable {
 	 * @param status
 	 *        the values to set
 	 */
-	public void setStatus(String[] status) {
+	public void setStatus(String @Nullable [] status) {
 		this.status = status;
 	}
 
@@ -421,7 +423,7 @@ public class DatumProperties implements Serializable {
 	 * @return the value, or {@literal null} if not available
 	 * @since 1.2
 	 */
-	public String statusValue(int index) {
+	public @Nullable String statusValue(int index) {
 		final String[] values = getStatus();
 		if ( values != null && index < values.length ) {
 			return values[index];
@@ -444,7 +446,7 @@ public class DatumProperties implements Serializable {
 	 *
 	 * @return the tag values
 	 */
-	public String[] getTags() {
+	public String @Nullable [] getTags() {
 		return tags;
 	}
 
@@ -454,7 +456,7 @@ public class DatumProperties implements Serializable {
 	 * @param tags
 	 *        the tags to set
 	 */
-	public void setTags(String[] tags) {
+	public void setTags(String @Nullable [] tags) {
 		this.tags = tags;
 	}
 
@@ -487,7 +489,7 @@ public class DatumProperties implements Serializable {
 	 * @return the value, or {@literal null} if not available
 	 * @since 1.3
 	 */
-	public String tagValue(int index) {
+	public @Nullable String tagValue(int index) {
 		final String[] values = getTags();
 		if ( values != null && index < values.length ) {
 			return values[index];

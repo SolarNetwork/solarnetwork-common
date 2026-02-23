@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicObjectDatumStreamDataSet.java - 30/04/2022 9:18:23 am
- * 
+ *
  * Copyright 2022 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,10 +26,11 @@ import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic implementation of {@link ObjectDatumStreamDataSet}.
- * 
+ *
  * @param <T>
  *        the stream datum type
  * @author matt
@@ -41,13 +42,13 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 
 	private final ObjectDatumStreamMetadataProvider provider;
 	private final Iterable<T> data;
-	private final Long totalResultCount;
-	private final Integer returnedResultCount;
-	private final Integer startingOffset;
+	private final @Nullable Long totalResultCount;
+	private final @Nullable Integer returnedResultCount;
+	private final @Nullable Integer startingOffset;
 
 	/**
 	 * Create a new data set instance out of a set of metadata.
-	 * 
+	 *
 	 * @param <T>
 	 *        the stream datum type
 	 * @param metadatas
@@ -63,7 +64,7 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 
 	/**
 	 * Create a new data set instance out of a set of metadata.
-	 * 
+	 *
 	 * @param <T>
 	 *        the stream datum type
 	 * @param metadatas
@@ -81,8 +82,9 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 	 * @return the new instance
 	 */
 	public static final <T extends StreamDatum> BasicObjectDatumStreamDataSet<T> dataSet(
-			Iterable<ObjectDatumStreamMetadata> metadatas, Iterable<T> data, Long totalResultCount,
-			Integer startingOffset, Integer returnedResultCount) {
+			Iterable<ObjectDatumStreamMetadata> metadatas, Iterable<T> data,
+			@Nullable Long totalResultCount, @Nullable Integer startingOffset,
+			@Nullable Integer returnedResultCount) {
 		return new BasicObjectDatumStreamDataSet<T>(
 				ObjectDatumStreamMetadataProvider.staticProvider(metadatas), data, totalResultCount,
 				startingOffset, returnedResultCount);
@@ -90,7 +92,7 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param provider
 	 *        the provider to delegate to
 	 * @param data
@@ -104,7 +106,7 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param provider
 	 *        the provider to delegate to
 	 * @param data
@@ -121,7 +123,8 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 	 *         if either {@code provider} or {@code data} is {@literal null}
 	 */
 	public BasicObjectDatumStreamDataSet(ObjectDatumStreamMetadataProvider provider, Iterable<T> data,
-			Long totalResultCount, Integer startingOffset, Integer returnedResultCount) {
+			@Nullable Long totalResultCount, @Nullable Integer startingOffset,
+			@Nullable Integer returnedResultCount) {
 		super();
 		this.provider = requireNonNullArgument(provider, "provider");
 		this.data = requireNonNullArgument(data, "data");
@@ -131,17 +134,17 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 	}
 
 	@Override
-	public Collection<UUID> metadataStreamIds() {
+	public @Nullable Collection<UUID> metadataStreamIds() {
 		return provider.metadataStreamIds();
 	}
 
 	@Override
-	public ObjectDatumStreamMetadata metadataForStreamId(UUID streamId) {
+	public @Nullable ObjectDatumStreamMetadata metadataForStreamId(UUID streamId) {
 		return provider.metadataForStreamId(streamId);
 	}
 
 	@Override
-	public ObjectDatumStreamMetadata metadataForObjectSource(Long objectId, String sourceId) {
+	public @Nullable ObjectDatumStreamMetadata metadataForObjectSource(Long objectId, String sourceId) {
 		return provider.metadataForObjectSource(objectId, sourceId);
 	}
 
@@ -156,17 +159,17 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 	}
 
 	@Override
-	public Long getTotalResultCount() {
+	public @Nullable Long getTotalResultCount() {
 		return totalResultCount;
 	}
 
 	@Override
-	public Integer getStartingOffset() {
+	public @Nullable Integer getStartingOffset() {
 		return startingOffset;
 	}
 
 	@Override
-	public Integer getReturnedResultCount() {
+	public @Nullable Integer getReturnedResultCount() {
 		return returnedResultCount;
 	}
 

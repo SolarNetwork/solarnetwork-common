@@ -64,7 +64,7 @@ public class BasicStreamDatumArraySerializer extends StdSerializer<StreamDatum> 
 		}
 
 		// 2-3: UUID high,low
-		UUID streamId = datum.getStreamId();
+		final UUID streamId = datum.getStreamId();
 		if ( streamId != null ) {
 			generator.writeNumber(streamId.getMostSignificantBits());
 			generator.writeNumber(streamId.getLeastSignificantBits());
@@ -73,19 +73,21 @@ public class BasicStreamDatumArraySerializer extends StdSerializer<StreamDatum> 
 			generator.writeNull();
 		}
 
-		DatumProperties props = datum.getProperties();
+		final DatumProperties props = datum.getProperties();
 
-		// 4: array of i props
-		JsonUtils.writeDecimalArray(generator, props.getInstantaneous());
+		if ( props != null ) {
+			// 4: array of i props
+			JsonUtils.writeDecimalArray(generator, props.getInstantaneous());
 
-		// 5: array of a props
-		JsonUtils.writeDecimalArray(generator, props.getAccumulating());
+			// 5: array of a props
+			JsonUtils.writeDecimalArray(generator, props.getAccumulating());
 
-		// 6: array of s props
-		JsonUtils.writeStringArray(generator, props.getStatus());
+			// 6: array of s props
+			JsonUtils.writeStringArray(generator, props.getStatus());
 
-		// 7: array of tags
-		JsonUtils.writeStringArray(generator, props.getTags());
+			// 7: array of tags
+			JsonUtils.writeStringArray(generator, props.getTags());
+		}
 
 		generator.writeEndArray();
 	}

@@ -1167,10 +1167,10 @@ public final class DateUtils {
 	 *
 	 * @param name
 	 *        the value to case insensitively parse as a {@link ChronoUnit}
-	 * @return the enum value
+	 * @return the enum value, or {@literal null} if {@code name} is
+	 *         {@literal null}
 	 * @throws IllegalArgumentException
-	 *         if {@code name} is not value, or {@literal null} if {@code name}
-	 *         is {@literal null}
+	 *         if {@code name} is not valid
 	 * @since 2.4
 	 */
 	public static @Nullable TemporalUnit chronoUnit(@Nullable String name) {
@@ -1238,7 +1238,8 @@ public final class DateUtils {
 	 *        the date to truncate
 	 * @param unit
 	 *        the unit to truncate to
-	 * @return the truncated date
+	 * @return the truncated date, or {@code null} if {@code date} or
+	 *         {@code unit} are {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be truncated to the given unit
 	 * @since 2.4
@@ -1411,18 +1412,19 @@ public final class DateUtils {
 	 *        the amount to floor the date within
 	 * @param zone
 	 *        the time zone to use for {@link Period} based amounts
-	 * @return the floored date, or {@code date} if {@code amount} is not a
+	 * @return the floored date, or {@code null} if {@code date} is
+	 *         {@code null}, or {@code date} if {@code amount} is not a
 	 *         supported amount type ({@link Period} or {@link Duration})
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be floored to the given duration
 	 * @since 2.7
 	 */
-	public static @Nullable Temporal dateFloor(@Nullable Temporal date, TemporalAmount amount,
+	public static @Nullable Temporal dateFloor(@Nullable Temporal date, @Nullable TemporalAmount amount,
 			ZoneId zone) {
-		if ( amount instanceof Period ) {
-			return dateFloor(date, (Period) amount, zone);
-		} else if ( amount instanceof Duration ) {
-			return dateFloor(date, (Duration) amount, zone);
+		if ( amount instanceof Period p ) {
+			return dateFloor(date, p, zone);
+		} else if ( amount instanceof Duration d ) {
+			return dateFloor(date, d, zone);
 		}
 		return date;
 	}

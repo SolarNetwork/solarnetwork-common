@@ -24,6 +24,7 @@ package net.solarnetwork.domain.datum;
 
 import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
 import static net.solarnetwork.domain.datum.DatumSamplesType.Status;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Standardized API for energy storage system related datum to implement.
@@ -72,7 +73,7 @@ public interface EnergyStorageDatum extends Datum {
 	 * @return the available energy as a percentage of the total capacity of the
 	 *         storage
 	 */
-	default Float getAvailableEnergyPercentage() {
+	default @Nullable Float getAvailableEnergyPercentage() {
 		return asSampleOperations().getSampleFloat(Instantaneous, STATE_OF_CHARGE_PERCENTAGE_KEY);
 	}
 
@@ -85,7 +86,7 @@ public interface EnergyStorageDatum extends Datum {
 	 *         total capacity of the storage when manufactured
 	 * @since 2.1
 	 */
-	default Float getStateOfHealthPercentage() {
+	default @Nullable Float getStateOfHealthPercentage() {
 		return asSampleOperations().getSampleFloat(Instantaneous, STATE_OF_HEALTH_PERCENTAGE_KEY);
 	}
 
@@ -94,7 +95,7 @@ public interface EnergyStorageDatum extends Datum {
 	 *
 	 * @return the available energy of the storage
 	 */
-	default Long getAvailableEnergy() {
+	default @Nullable Long getAvailableEnergy() {
 		return asSampleOperations().getSampleLong(Instantaneous, AVAILABLE_WATT_HOURS_KEY);
 	}
 
@@ -104,7 +105,7 @@ public interface EnergyStorageDatum extends Datum {
 	 * @return the energy capacity of the storage
 	 * @since 2.1
 	 */
-	default Long getEnergyCapacity() {
+	default @Nullable Long getEnergyCapacity() {
 		return asSampleOperations().getSampleLong(Status, CAPACITY_WATT_HOURS_KEY);
 	}
 

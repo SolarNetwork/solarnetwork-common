@@ -1,21 +1,21 @@
 /* ==================================================================
  * MutableDatumSamplesOperations.java - 23/03/2018 9:30:44 AM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU  Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU  Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  *  Public License for more details.
- * 
- * You should have received a copy of the GNU  Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU  Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -27,10 +27,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Extension of {@link DatumSamplesOperations} that adds mutate operations.
- * 
+ *
  * @author matt
  * @version 1.1
  * @since 2.0
@@ -45,20 +46,20 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 	/**
 	 * Add a value into or remove a value from a sample type collection,
 	 * creating the collection if it doesn't already exist.
-	 * 
+	 *
 	 * <p>
 	 * To add a tag, pass the tag name for both {@code key} and {@code value}.
 	 * To remove a tag, pass the tag name for {@code key} and {@literal null}
 	 * for {@code value}. To replace a tag, pass the tag to remove for
 	 * {@code key} and the tag to add as {@code value}.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * For {@link DatumSamplesType#Instantaneous} and
 	 * {@link DatumSamplesType#Accumulating} if {@code value} is non-null but
 	 * not a {@link Number}, it will be silently ignored.
 	 * </p>
-	 * 
+	 *
 	 * @param type
 	 *        the type of sample data to get
 	 * @param key
@@ -68,16 +69,16 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 	 *        the value to put, or tag to add, or {@literal null} to remove the
 	 *        value; this will be cast without checking
 	 */
-	void putSampleValue(DatumSamplesType type, String key, Object value);
+	void putSampleValue(DatumSamplesType type, String key, @Nullable Object value);
 
 	/**
 	 * Set specific sample data.
-	 * 
+	 *
 	 * <p>
 	 * In the case of {@link DatumSamplesType#Tag} the keys of {@code data} will
 	 * be used as the tag values to save.
 	 * </p>
-	 * 
+	 *
 	 * @param type
 	 *        the type of sample data to set
 	 * @param data
@@ -86,19 +87,19 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 	 * @throws IllegalArgumentException
 	 *         if {@code type} is not supported
 	 */
-	void setSampleData(DatumSamplesType type, Map<String, ?> data);
+	void setSampleData(DatumSamplesType type, @Nullable Map<String, ?> data);
 
 	/**
 	 * Set the tags.
-	 * 
+	 *
 	 * @param tags
 	 *        the tags to set
 	 */
-	void setTags(Set<String> tags);
+	void setTags(@Nullable Set<String> tags);
 
 	/**
 	 * Add a tag.
-	 * 
+	 *
 	 * @param tag
 	 *        the tag value to add
 	 * @return {@literal true} if the tag was not already present
@@ -114,7 +115,7 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 
 	/**
 	 * Remove one or more tags.
-	 * 
+	 *
 	 * @param tags
 	 *        the tags to remove
 	 * @return {@literal true} if any of the given tags were removed
@@ -135,11 +136,11 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 
 	/**
 	 * Copy all the sample data from another samples instance.
-	 * 
+	 *
 	 * @param other
 	 *        the instance to copy the sample data from
 	 */
-	default void copyFrom(DatumSamplesOperations other) {
+	default void copyFrom(@Nullable DatumSamplesOperations other) {
 		if ( other == null ) {
 			return;
 		}
@@ -163,7 +164,7 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 	/**
 	 * Merge all the sample data from another samples instance, overwriting any
 	 * duplicate properties in this instance.
-	 * 
+	 *
 	 * @param other
 	 *        the instance to merge the sample data from
 	 */
@@ -173,7 +174,7 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 
 	/**
 	 * Merge all the sample data from another samples instance.
-	 * 
+	 *
 	 * @param other
 	 *        the instance to merge the sample data from
 	 * @param overwrite

@@ -24,6 +24,7 @@ package net.solarnetwork.domain.datum;
 
 import java.time.Instant;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * API for a datum-based expression root.
@@ -40,6 +41,7 @@ public interface DatumExpressionRoot
 	 *
 	 * @return the datum; may be {@literal null}
 	 */
+	@Nullable
 	Datum getDatum();
 
 	/**
@@ -47,6 +49,7 @@ public interface DatumExpressionRoot
 	 *
 	 * @return the datum properties
 	 */
+	@Nullable
 	Map<String, ?> getProps();
 
 	/**
@@ -63,7 +66,7 @@ public interface DatumExpressionRoot
 	 *         location kind or does not have a location ID
 	 * @since 1.2
 	 */
-	default Long getLocId() {
+	default @Nullable Long getLocId() {
 		Datum datum = getDatum();
 		return (datum != null && datum.getKind() == ObjectDatumKind.Location ? datum.getObjectId()
 				: null);
@@ -76,7 +79,7 @@ public interface DatumExpressionRoot
 	 *         node kind or does not have a node ID
 	 * @since 1.2
 	 */
-	default Long getNodeId() {
+	default @Nullable Long getNodeId() {
 		Datum datum = getDatum();
 		return (datum != null && datum.getKind() == ObjectDatumKind.Node ? datum.getObjectId() : null);
 	}
@@ -88,7 +91,7 @@ public interface DatumExpressionRoot
 	 *         have a source ID
 	 * @since 1.2
 	 */
-	default String getSourceId() {
+	default @Nullable String getSourceId() {
 		Datum datum = getDatum();
 		return (datum != null ? datum.getSourceId() : null);
 	}
@@ -100,7 +103,7 @@ public interface DatumExpressionRoot
 	 *         have a timestamp
 	 * @since 1.2
 	 */
-	default Instant getTimestamp() {
+	default @Nullable Instant getTimestamp() {
 		Datum datum = getDatum();
 		return (datum != null ? datum.getTimestamp() : null);
 	}

@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An expression root object implementation that acts like a composite map of
@@ -67,10 +68,10 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 */
 	public static final String INTERNAL_PARAM_PREFIX = "__";
 
-	private final Datum datum;
-	private final DatumSamplesOperations datumOps;
-	private final DatumSamplesOperations sample;
-	private final Map<String, ?> parameters;
+	private final @Nullable Datum datum;
+	private final @Nullable DatumSamplesOperations datumOps;
+	private final @Nullable DatumSamplesOperations sample;
+	private final @Nullable Map<String, ?> parameters;
 
 	/**
 	 * Constructor.
@@ -82,7 +83,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 * @param parameters
 	 *        the parameters
 	 */
-	public DatumSamplesExpressionRoot(Datum datum, DatumSamplesOperations sample,
+	public DatumSamplesExpressionRoot(@Nullable Datum datum, @Nullable DatumSamplesOperations sample,
 			Map<String, ?> parameters) {
 		super();
 		this.datum = datum;
@@ -92,7 +93,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	}
 
 	@Override
-	public Datum getDatum() {
+	public @Nullable Datum getDatum() {
 		return datum;
 	}
 
@@ -107,7 +108,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 *
 	 * @return the datum samples; may be {@literal null}
 	 */
-	public DatumSamplesOperations getSamples() {
+	public @Nullable DatumSamplesOperations getSamples() {
 		return sample;
 	}
 
@@ -116,7 +117,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 *
 	 * @return the parameters; may be {@literal null}
 	 */
-	public Map<String, ?> getParameters() {
+	public @Nullable Map<String, ?> getParameters() {
 		return parameters;
 	}
 
@@ -165,7 +166,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	}
 
 	@Override
-	public Object get(Object key) {
+	public @Nullable Object get(@Nullable Object key) {
 		if ( key == null ) {
 			return null;
 		}

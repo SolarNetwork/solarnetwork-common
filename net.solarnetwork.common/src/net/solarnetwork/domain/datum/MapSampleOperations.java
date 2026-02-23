@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.CollectionUtils;
 import net.solarnetwork.util.ObjectUtils;
 
@@ -48,7 +49,7 @@ import net.solarnetwork.util.ObjectUtils;
 public class MapSampleOperations implements MutableDatumSamplesOperations {
 
 	private final Map<String, Object> parameters;
-	private final DatumSamplesOperations datum;
+	private final @Nullable DatumSamplesOperations datum;
 
 	/**
 	 * Constructor.
@@ -72,7 +73,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	 * @throws IllegalArgumentException
 	 *         if {@code parameters} is {@literal null}
 	 */
-	public MapSampleOperations(Map<String, Object> parameters, DatumSamplesOperations datum) {
+	public MapSampleOperations(Map<String, Object> parameters, @Nullable DatumSamplesOperations datum) {
 		super();
 		this.parameters = ObjectUtils.requireNonNullArgument(parameters, "parameters");
 		this.datum = datum;
@@ -81,7 +82,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	@Override
 	public Map<String, ?> getSampleData(DatumSamplesType type) {
 		Map<String, Object> result = parameters;
-		Map<String, ?> datumProps = datum.getSampleData(type);
+		Map<String, ?> datumProps = (datum != null ? datum.getSampleData(type) : null);
 		if ( datumProps != null ) {
 			result = new LinkedHashMap<>(result);
 			result.putAll(datumProps);
@@ -90,7 +91,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	}
 
 	@Override
-	public Integer getSampleInteger(DatumSamplesType type, String key) {
+	public @Nullable Integer getSampleInteger(DatumSamplesType type, String key) {
 		Integer result = null;
 		if ( datum != null ) {
 			result = datum.getSampleInteger(type, key);
@@ -99,7 +100,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	}
 
 	@Override
-	public Long getSampleLong(DatumSamplesType type, String key) {
+	public @Nullable Long getSampleLong(DatumSamplesType type, String key) {
 		Long result = null;
 		if ( datum != null ) {
 			result = datum.getSampleLong(type, key);
@@ -108,7 +109,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	}
 
 	@Override
-	public Float getSampleFloat(DatumSamplesType type, String key) {
+	public @Nullable Float getSampleFloat(DatumSamplesType type, String key) {
 		Float result = null;
 		if ( datum != null ) {
 			result = datum.getSampleFloat(type, key);
@@ -117,7 +118,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	}
 
 	@Override
-	public Double getSampleDouble(DatumSamplesType type, String key) {
+	public @Nullable Double getSampleDouble(DatumSamplesType type, String key) {
 		Double result = null;
 		if ( datum != null ) {
 			result = datum.getSampleDouble(type, key);
@@ -126,7 +127,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	}
 
 	@Override
-	public BigDecimal getSampleBigDecimal(DatumSamplesType type, String key) {
+	public @Nullable BigDecimal getSampleBigDecimal(DatumSamplesType type, String key) {
 		BigDecimal result = null;
 		if ( datum != null ) {
 			result = datum.getSampleBigDecimal(type, key);
@@ -135,7 +136,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	}
 
 	@Override
-	public String getSampleString(DatumSamplesType type, String key) {
+	public @Nullable String getSampleString(DatumSamplesType type, String key) {
 		String result = null;
 		if ( datum != null ) {
 			result = datum.getSampleString(type, key);
@@ -144,7 +145,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	}
 
 	@Override
-	public <V> V getSampleValue(DatumSamplesType type, String key) {
+	public <V> @Nullable V getSampleValue(DatumSamplesType type, String key) {
 		if ( datum != null ) {
 			return datum.getSampleValue(type, key);
 		}
@@ -161,7 +162,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <V> V findSampleValue(String key) {
+	public <V> @Nullable V findSampleValue(String key) {
 		V result = null;
 		if ( datum != null ) {
 			result = datum.findSampleValue(key);
@@ -180,8 +181,12 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	}
 
 	@Override
-	public void putSampleValue(DatumSamplesType type, String key, Object value) {
-		parameters.put(key, value);
+	public void putSampleValue(DatumSamplesType type, String key, @Nullable Object value) {
+		if ( value == null ) {
+			parameters.remove(key);
+		} else {
+			parameters.put(key, value);
+		}
 	}
 
 	/**
@@ -198,7 +203,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setSampleData(DatumSamplesType type, Map<String, ?> data) {
+	public void setSampleData(DatumSamplesType type, @Nullable Map<String, ?> data) {
 		// we don't allow changing the parameters instance, but we do copy the values
 		if ( data != null ) {
 			parameters.clear();
@@ -217,7 +222,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<String> getTags() {
+	public @Nullable Set<String> getTags() {
 		return null;
 	}
 
@@ -231,7 +236,7 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTags(Set<String> tags) {
+	public void setTags(@Nullable Set<String> tags) {
 		// unsupported
 	}
 

@@ -26,6 +26,7 @@ import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.NumberUtils;
 
 /**
@@ -63,7 +64,7 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public Map<String, ?> getSampleData(DatumSamplesType type) {
+	public @Nullable Map<String, ?> getSampleData(DatumSamplesType type) {
 		return samplesDelegate.getSampleData(type);
 	}
 
@@ -74,7 +75,7 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public void putSampleValue(DatumSamplesType type, String key, Object value) {
+	public void putSampleValue(DatumSamplesType type, String key, @Nullable Object value) {
 		if ( type == DatumSamplesType.Metadata ) {
 			metadataDelegate.populate(key, value);
 		} else {
@@ -83,7 +84,7 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public Integer getSampleInteger(DatumSamplesType type, String key) {
+	public @Nullable Integer getSampleInteger(DatumSamplesType type, String key) {
 		if ( type == DatumSamplesType.Metadata ) {
 			Number n = metadataDelegate.metadataAtPath(key, Number.class);
 			return (n != null ? n.intValue() : null);
@@ -92,7 +93,7 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public Long getSampleLong(DatumSamplesType type, String key) {
+	public @Nullable Long getSampleLong(DatumSamplesType type, String key) {
 		if ( type == DatumSamplesType.Metadata ) {
 			Number n = metadataDelegate.metadataAtPath(key, Number.class);
 			return (n != null ? n.longValue() : null);
@@ -101,7 +102,7 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public Float getSampleFloat(DatumSamplesType type, String key) {
+	public @Nullable Float getSampleFloat(DatumSamplesType type, String key) {
 		if ( type == DatumSamplesType.Metadata ) {
 			Number n = metadataDelegate.metadataAtPath(key, Number.class);
 			return (n != null ? n.floatValue() : null);
@@ -111,7 +112,7 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void setSampleData(DatumSamplesType type, Map<String, ?> data) {
+	public void setSampleData(DatumSamplesType type, @Nullable Map<String, ?> data) {
 		if ( type == DatumSamplesType.Metadata ) {
 			metadataDelegate.setInfo((Map) data);
 		}
@@ -119,7 +120,7 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public Double getSampleDouble(DatumSamplesType type, String key) {
+	public @Nullable Double getSampleDouble(DatumSamplesType type, String key) {
 		if ( type == DatumSamplesType.Metadata ) {
 			Number n = metadataDelegate.metadataAtPath(key, Number.class);
 			return (n != null ? n.doubleValue() : null);
@@ -128,12 +129,12 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public void setTags(Set<String> tags) {
+	public void setTags(@Nullable Set<String> tags) {
 		samplesDelegate.setTags(tags);
 	}
 
 	@Override
-	public BigDecimal getSampleBigDecimal(DatumSamplesType type, String key) {
+	public @Nullable BigDecimal getSampleBigDecimal(DatumSamplesType type, String key) {
 		if ( type == DatumSamplesType.Metadata ) {
 			Number n = metadataDelegate.metadataAtPath(key, Number.class);
 			return NumberUtils.bigDecimalForNumber(n);
@@ -147,7 +148,7 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public String getSampleString(DatumSamplesType type, String key) {
+	public @Nullable String getSampleString(DatumSamplesType type, String key) {
 		if ( type == DatumSamplesType.Metadata ) {
 			Object val = metadataDelegate.metadataAtPath(key);
 			return (val != null ? val.toString() : null);
@@ -161,13 +162,13 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public void copyFrom(DatumSamplesOperations other) {
+	public void copyFrom(@Nullable DatumSamplesOperations other) {
 		samplesDelegate.copyFrom(other);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <V> V getSampleValue(DatumSamplesType type, String key) {
+	public <V> @Nullable V getSampleValue(DatumSamplesType type, String key) {
 		if ( type == DatumSamplesType.Metadata ) {
 			return (V) metadataDelegate.metadataAtPath(key);
 		}
@@ -193,7 +194,7 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public <V> V findSampleValue(String key) {
+	public <V> @Nullable V findSampleValue(String key) {
 		return samplesDelegate.findSampleValue(key);
 	}
 
@@ -203,7 +204,7 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public Set<String> getTags() {
+	public @Nullable Set<String> getTags() {
 		return samplesDelegate.getTags();
 	}
 
@@ -218,7 +219,7 @@ public class MutableDatumSamplesWithMetadata implements MutableDatumSamplesOpera
 	}
 
 	@Override
-	public boolean differsFrom(DatumSamplesOperations other) {
+	public boolean differsFrom(@Nullable DatumSamplesOperations other) {
 		return samplesDelegate.differsFrom(other);
 	}
 

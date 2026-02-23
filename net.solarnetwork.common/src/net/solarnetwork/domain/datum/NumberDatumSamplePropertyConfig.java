@@ -1,21 +1,21 @@
 /* ==================================================================
  * NumberDatumSamplePropertyConfig.java - 27/09/2019 1:18:30 pm
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU  Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU  Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  *  Public License for more details.
- * 
- * You should have received a copy of the GNU  Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU  Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,20 +28,21 @@ import static net.solarnetwork.util.NumberUtils.offset;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
 
 /**
  * Extension of {@link DatumSamplePropertyConfig} specifically designed to help
  * with number property values.
- * 
+ *
  * <p>
  * This class contains two pairs of linear equation property pairs that can be
  * used to transform raw data values <i>x</i> into appropriate datum values
  * <i>y</i>. ly just one pair needs to be used; sometimes it is more convenient
  * to use one pair over the other.
  * </p>
- * 
+ *
  * <p>
  * First, the {@code unitSlope} <i>M</i> and {@code unitIntercept} <i>B</i>
  * properties are calculated using the equation {@literal y = M * (x + B)}.
@@ -50,7 +51,7 @@ import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
  * specified, the overall equation is thus
  * {@literal y = (m * (M * (x + B))) + b}.
  * </p>
- * 
+ *
  * @param <V>
  *        the property value type
  * @author matt
@@ -77,7 +78,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	public static final int DEFAULT_DECIMAL_SCALE = 5;
 
 	private BigDecimal slope = DEFAULT_SLOPE; // m
-	private BigDecimal intercept = DEFAULT_INTERCEPT; // b 
+	private BigDecimal intercept = DEFAULT_INTERCEPT; // b
 	private BigDecimal unitSlope = DEFAULT_SLOPE; // M
 	private BigDecimal unitIntercept = DEFAULT_INTERCEPT; // B
 	private int decimalScale = DEFAULT_DECIMAL_SCALE;
@@ -91,7 +92,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param propertyKey
 	 *        the datum property name to assign
 	 * @param propertyType
@@ -99,19 +100,20 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * @param config
 	 *        the configuration value
 	 */
-	public NumberDatumSamplePropertyConfig(String propertyKey, DatumSamplesType propertyType, V config) {
+	public NumberDatumSamplePropertyConfig(@Nullable String propertyKey,
+			@Nullable DatumSamplesType propertyType, @Nullable V config) {
 		super(propertyKey, propertyType != null ? propertyType : DEFAULT_PROPERTY_TYPE, config);
 	}
 
 	/**
 	 * Get the number transform settings for all transforms.
-	 * 
+	 *
 	 * @param prefix
 	 *        the optional prefix
 	 * @return the settings for unit intercept, unit slope, slope, and intercept
 	 * @since 2.0
 	 */
-	public static List<SettingSpecifier> numberTransformSettings(String prefix) {
+	public static List<SettingSpecifier> numberTransformSettings(@Nullable String prefix) {
 		if ( prefix == null ) {
 			prefix = "";
 		}
@@ -128,12 +130,12 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	/**
 	 * Apply the configured slope, intercept, unit slope, unit intercept, and
 	 * decimal scale to a number value.
-	 * 
+	 *
 	 * <p>
 	 * This executes the equation {@literal y = (m * (M * (x + B))) + b} and
 	 * applys {@link #getDecimalScale()} to the result. The variables are:
 	 * </p>
-	 * 
+	 *
 	 * <ul>
 	 * <li><i>x</i> - the {@code value} passed to this method</li>
 	 * <li><i>M</i> - the {@link #getUnitSlope()} value</li>
@@ -141,13 +143,13 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * <li><i>m</i> - the {@link #getSlope()} value</li>
 	 * <li><i>b</i> - the {@link #getIntercept()} value</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param value
 	 *        the number to apply the transform properties to
 	 * @return the result, or {@literal null} if {@code value} is
 	 *         {@literal null}
 	 */
-	public Number applyTransformations(Number value) {
+	public @Nullable Number applyTransformations(@Nullable Number value) {
 		if ( value == null ) {
 			return null;
 		}
@@ -159,14 +161,14 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 
 	/**
 	 * Get the slope multiplier.
-	 * 
+	 *
 	 * <p>
 	 * This value represents <i>m</i> in the equation {@code y = mx + b}. For
 	 * example, a power meter might report power as <i>killowatts</i>, in which
 	 * case {@code slope} can be configured as {@literal .001} to convert the
 	 * value to <i>watts</i>.
 	 * </p>
-	 * 
+	 *
 	 * @return the slope multiplier, never {@literal null}; defaults to
 	 *         {@link #DEFAULT_SLOPE}
 	 */
@@ -176,7 +178,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 
 	/**
 	 * Set the slope multiplier.
-	 * 
+	 *
 	 * @param slope
 	 *        the slope multiplier to set; if {@literal null}
 	 *        {@link #DEFAULT_SLOPE} will be used instead
@@ -187,7 +189,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 
 	/**
 	 * Get the y-intercept offset.
-	 * 
+	 *
 	 * <p>
 	 * This value represents <i>b</i> in the equation {@code y = mx + b}. For
 	 * example, a sensor might report values in the range {@literal -10..10}
@@ -195,7 +197,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * which case {@code intercept} can be configured as {@literal 10} to
 	 * convert the value appropriately.
 	 * </p>
-	 * 
+	 *
 	 * @return the y-intercept, never {@literal null}; defaults to
 	 *         {@link #DEFAULT_INTERCEPT}
 	 */
@@ -205,7 +207,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 
 	/**
 	 * Set the y-intercept offset.
-	 * 
+	 *
 	 * @param intercept
 	 *        the intercept offset to set; if {@literal null}
 	 *        {@link #DEFAULT_INTERCEPT} will be used instead
@@ -216,14 +218,14 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 
 	/**
 	 * Get the unit slope multiplier.
-	 * 
+	 *
 	 * <p>
 	 * This value represents <i>m</i> in the equation {@code y = m(x + b)}. For
 	 * example, a power meter might report power as <i>killowatts</i>, in which
 	 * case {@code slope} can be configured as {@literal .001} to convert the
 	 * value to <i>watts</i>.
 	 * </p>
-	 * 
+	 *
 	 * @return the unit slope multiplier, never {@literal null}; defaults to
 	 *         {@link #DEFAULT_SLOPE}
 	 */
@@ -233,7 +235,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 
 	/**
 	 * Set the unit slope multiplier.
-	 * 
+	 *
 	 * @param unitSlope
 	 *        the unit slope multiplier to set; if {@literal null}
 	 *        {@link #DEFAULT_SLOPE} will be used instead
@@ -244,7 +246,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 
 	/**
 	 * Get the unit y-intercept offset.
-	 * 
+	 *
 	 * <p>
 	 * This value represents <i>b</i> in the equation {@code y = m(x + b)}. For
 	 * example, a sensor might report values in the range {@literal -10..10}
@@ -252,7 +254,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 * which case {@code intercept} can be configured as {@literal 10} to
 	 * convert the value appropriately.
 	 * </p>
-	 * 
+	 *
 	 * @return the unit y-intercept, never {@literal null}; defaults to
 	 *         {@link #DEFAULT_INTERCEPT}
 	 */
@@ -262,7 +264,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 
 	/**
 	 * Set the unit y-intercept offset.
-	 * 
+	 *
 	 * @param unitIntercept
 	 *        the unit intercept offset to set; if {@literal null}
 	 *        {@link #DEFAULT_INTERCEPT} will be used instead
@@ -273,7 +275,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 
 	/**
 	 * Get the decimal scale to round decimal numbers to.
-	 * 
+	 *
 	 * @return the decimal scale; defaults to {@link #DEFAULT_DECIMAL_SCALE}
 	 */
 	public int getDecimalScale() {
@@ -282,13 +284,13 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 
 	/**
 	 * Set the decimal scale to round decimal numbers to.
-	 * 
+	 *
 	 * <p>
 	 * This is a <i>maximum</i> scale value that decimal values should be
 	 * rounded to. A scale of {@literal 0} would round all decimals to integer
 	 * values.
 	 * </p>
-	 * 
+	 *
 	 * @param decimalScale
 	 *        the maximum scale to set, or {@literal -1} to disable rounding
 	 *        completely

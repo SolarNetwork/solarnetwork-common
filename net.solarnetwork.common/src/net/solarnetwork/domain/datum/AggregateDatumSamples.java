@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.NumberUtils;
 
 /**
@@ -44,16 +45,16 @@ public class AggregateDatumSamples extends DatumSupport {
 	private int count = 0;
 
 	/** A timestamp. */
-	private Instant timestamp;
+	private @Nullable Instant timestamp;
 
 	/** The instantaneous values. */
-	private Map<String, AggregateDatumProperty> instantaneous;
+	private @Nullable Map<String, AggregateDatumProperty> instantaneous;
 
 	/** The accumulating values. */
-	private Map<String, AggregateDatumProperty> accumulating;
+	private @Nullable Map<String, AggregateDatumProperty> accumulating;
 
 	/** The status values. */
-	private Map<String, Object> status;
+	private @Nullable Map<String, Object> status;
 
 	/**
 	 * Constructor.
@@ -74,12 +75,13 @@ public class AggregateDatumSamples extends DatumSupport {
 		this.timestamp = timestamp;
 	}
 
-	private void addAggregatePropertyValue(Map<String, AggregateDatumProperty> m, String key, Number n) {
-		if ( n == null ) {
+	private void addAggregatePropertyValue(Map<String, AggregateDatumProperty> m, String key,
+			@Nullable Number n) {
+		final BigDecimal d = NumberUtils.bigDecimalForNumber(n);
+		if ( d == null ) {
 			m.remove(key);
 		} else {
 			m.compute(key, (k, v) -> {
-				BigDecimal d = NumberUtils.bigDecimalForNumber(n);
 				if ( v != null ) {
 					v.accumulate(d);
 					return v;
@@ -96,7 +98,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 *        the sample whose properties should be accumulated into this
 	 *        aggregate
 	 */
-	public void addSample(DatumSamplesOperations sample) {
+	public void addSample(@Nullable DatumSamplesOperations sample) {
 		if ( sample == null ) {
 			return;
 		}
@@ -193,7 +195,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 * @param n
 	 *        the value to put, or {@literal null} to remove the key
 	 */
-	public void putInstantaneousSampleValue(String key, Number n) {
+	public void putInstantaneousSampleValue(String key, @Nullable Number n) {
 		Map<String, AggregateDatumProperty> m = instantaneous;
 		if ( m == null ) {
 			if ( n == null ) {
@@ -214,7 +216,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 * @param n
 	 *        the value to put, or {@literal null} to remove the key
 	 */
-	public void putAccumulatingSampleValue(String key, Number n) {
+	public void putAccumulatingSampleValue(String key, @Nullable Number n) {
 		Map<String, AggregateDatumProperty> m = accumulating;
 		if ( m == null ) {
 			if ( n == null ) {
@@ -235,7 +237,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 * @param value
 	 *        the value to put, or {@literal null} to remove the key
 	 */
-	public void putStatusSampleValue(String key, Object value) {
+	public void putStatusSampleValue(String key, @Nullable Object value) {
 		Map<String, Object> m = status;
 		if ( m == null ) {
 			if ( value == null ) {
@@ -256,7 +258,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 *
 	 * @return the instantaneous properties
 	 */
-	public Map<String, AggregateDatumProperty> getInstantaneous() {
+	public @Nullable Map<String, AggregateDatumProperty> getInstantaneous() {
 		return instantaneous;
 	}
 
@@ -265,7 +267,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 *
 	 * @return the accumulating properties
 	 */
-	public Map<String, AggregateDatumProperty> getAccumulating() {
+	public @Nullable Map<String, AggregateDatumProperty> getAccumulating() {
 		return accumulating;
 	}
 
@@ -274,7 +276,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 *
 	 * @return the status properties
 	 */
-	public Map<String, Object> getStatus() {
+	public @Nullable Map<String, Object> getStatus() {
 		return status;
 	}
 
@@ -284,7 +286,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 * @return the timestamp, or {@literal null}
 	 * @since 2.1
 	 */
-	public Instant getTimestamp() {
+	public @Nullable Instant getTimestamp() {
 		return timestamp;
 	}
 
@@ -295,7 +297,7 @@ public class AggregateDatumSamples extends DatumSupport {
 	 *        the timestamp to set
 	 * @since 2.1
 	 */
-	public void setTimestamp(Instant timestamp) {
+	public void setTimestamp(@Nullable Instant timestamp) {
 		this.timestamp = timestamp;
 	}
 

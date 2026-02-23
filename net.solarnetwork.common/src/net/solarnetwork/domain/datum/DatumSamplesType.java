@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain.datum;
 
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -110,7 +111,7 @@ public enum DatumSamplesType {
 	 * @since 1.1
 	 */
 	@JsonCreator
-	public static DatumSamplesType fromValue(String value) {
+	public static @Nullable DatumSamplesType fromValue(String value) {
 		if ( value == null || value.isEmpty() ) {
 			return null;
 		}

@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicStreamDatum.java - 22/10/2020 10:02:38 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,10 +28,11 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic implementation of {@link StreamDatum}.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.72
@@ -47,11 +48,11 @@ public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
 	private final Instant timestamp;
 
 	/** The datum properties. */
-	private final DatumProperties properties;
+	private final @Nullable DatumProperties properties;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param streamId
 	 *        the stream ID
 	 * @param timestamp
@@ -61,7 +62,7 @@ public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
 	 * @throws IllegalArgumentException
 	 *         if {@code streamId} or {@code timestamp} are {@literal null}
 	 */
-	public BasicStreamDatum(UUID streamId, Instant timestamp, DatumProperties properties) {
+	public BasicStreamDatum(UUID streamId, Instant timestamp, @Nullable DatumProperties properties) {
 		super();
 		this.streamId = requireNonNullArgument(streamId, "streamId");
 		this.timestamp = requireNonNullArgument(timestamp, "timestamp");
@@ -112,14 +113,13 @@ public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
-		if ( !(obj instanceof BasicStreamDatum) ) {
+		if ( !(obj instanceof BasicStreamDatum other) ) {
 			return false;
 		}
-		BasicStreamDatum other = (BasicStreamDatum) obj;
 		return Objects.equals(properties, other.properties) && Objects.equals(streamId, other.streamId)
 				&& Objects.equals(timestamp, other.timestamp);
 	}
@@ -135,7 +135,7 @@ public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
 	}
 
 	@Override
-	public DatumProperties getProperties() {
+	public @Nullable DatumProperties getProperties() {
 		return properties;
 	}
 

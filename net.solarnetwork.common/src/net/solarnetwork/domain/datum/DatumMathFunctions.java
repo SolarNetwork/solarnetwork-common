@@ -29,6 +29,7 @@ import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.NumberUtils;
 import net.solarnetwork.util.StringUtils;
 
@@ -53,7 +54,7 @@ public interface DatumMathFunctions {
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
-	default BigInteger and(Number n, Number mask) {
+	default @Nullable BigInteger and(@Nullable Number n, @Nullable Number mask) {
 		BigInteger integer = integer(n);
 		BigInteger m = integer(mask);
 		return (integer != null && m != null ? integer.and(m) : integer);
@@ -68,7 +69,7 @@ public interface DatumMathFunctions {
 	 *         {@literal null} if {@code n} cannot be converted to an integer
 	 * @since 1.1
 	 */
-	default BigInteger not(Number n) {
+	default @Nullable BigInteger not(@Nullable Number n) {
 		BigInteger integer = integer(n);
 		return (integer != null ? integer.not() : integer);
 	}
@@ -86,7 +87,7 @@ public interface DatumMathFunctions {
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
-	default BigInteger andNot(Number n, Number mask) {
+	default @Nullable BigInteger andNot(@Nullable Number n, @Nullable Number mask) {
 		BigInteger integer = integer(n);
 		BigInteger m = integer(mask);
 		return (integer != null && m != null ? integer.andNot(m) : integer);
@@ -104,7 +105,7 @@ public interface DatumMathFunctions {
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
-	default BigInteger or(Number n, Number mask) {
+	default @Nullable BigInteger or(@Nullable Number n, @Nullable Number mask) {
 		BigInteger integer = integer(n);
 		BigInteger m = integer(mask);
 		return (integer != null && m != null ? integer.or(m) : integer);
@@ -122,7 +123,7 @@ public interface DatumMathFunctions {
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
-	default BigInteger xor(Number n, Number mask) {
+	default @Nullable BigInteger xor(@Nullable Number n, @Nullable Number mask) {
 		BigInteger integer = integer(n);
 		BigInteger m = integer(mask);
 		return (integer != null && m != null ? integer.xor(m) : integer);
@@ -140,7 +141,7 @@ public interface DatumMathFunctions {
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
-	default BigInteger shiftRight(Number n, Number count) {
+	default @Nullable BigInteger shiftRight(@Nullable Number n, @Nullable Number count) {
 		BigInteger integer = integer(n);
 		return (integer != null && count != null ? integer.shiftRight(count.intValue()) : integer);
 	}
@@ -157,7 +158,7 @@ public interface DatumMathFunctions {
 	 *         cannot be converted to an integer
 	 * @since 1.1
 	 */
-	default BigInteger shiftLeft(Number n, Number count) {
+	default @Nullable BigInteger shiftLeft(@Nullable Number n, @Nullable Number count) {
 		BigInteger integer = integer(n);
 		return (integer != null && count != null ? integer.shiftLeft(count.intValue()) : integer);
 	}
@@ -174,7 +175,7 @@ public interface DatumMathFunctions {
 	 *         {@code n} cannot be converted to an integer
 	 * @since 1.1
 	 */
-	default boolean testBit(Number n, Number bit) {
+	default boolean testBit(@Nullable Number n, @Nullable Number bit) {
 		BigInteger integer = integer(n);
 		return (integer != null && bit != null ? integer.testBit(bit.intValue()) : false);
 	}
@@ -187,7 +188,7 @@ public interface DatumMathFunctions {
 	 * @return the decimal instance, or {@literal null} if {@code value} is
 	 *         {@literal null} or cannot be parsed as a decimal
 	 */
-	default BigDecimal decimal(Object value) {
+	default @Nullable BigDecimal decimal(@Nullable Object value) {
 		if ( value == null ) {
 			return null;
 		}
@@ -209,7 +210,7 @@ public interface DatumMathFunctions {
 	 *         {@literal null} or cannot be parsed as an integer
 	 * @since 1.1
 	 */
-	default BigInteger integer(Object value) {
+	default @Nullable BigInteger integer(@Nullable Object value) {
 		if ( value == null ) {
 			return null;
 		}
@@ -232,7 +233,7 @@ public interface DatumMathFunctions {
 	 * @return the minimum number, or {@literal null} if both arguments are
 	 *         {@literal null}
 	 */
-	default Number min(Number n1, Number n2) {
+	default @Nullable Number min(@Nullable Number n1, @Nullable Number n2) {
 		return NumberUtils.min(n1, n2);
 	}
 
@@ -246,7 +247,7 @@ public interface DatumMathFunctions {
 	 * @return the maximum number, or {@literal null} if both arguments are
 	 *         {@literal null}
 	 */
-	default Number max(Number n1, Number n2) {
+	default @Nullable Number max(@Nullable Number n1, @Nullable Number n2) {
 		return NumberUtils.max(n1, n2);
 	}
 
@@ -259,7 +260,7 @@ public interface DatumMathFunctions {
 	 * @return the rounded number, or {@literal null} if {@code n} is
 	 *         {@literal null}
 	 */
-	default Number ceil(Number n) {
+	default @Nullable Number ceil(@Nullable Number n) {
 		return NumberUtils.ceil(n, BigDecimal.ONE);
 	}
 
@@ -274,7 +275,7 @@ public interface DatumMathFunctions {
 	 * @return the rounded number, or {@literal null} if {@code n} or
 	 *         {@code significance} are {@literal null}
 	 */
-	default Number ceil(Number n, Number significance) {
+	default @Nullable Number ceil(@Nullable Number n, @Nullable Number significance) {
 		return NumberUtils.ceil(n, significance);
 	}
 
@@ -287,7 +288,7 @@ public interface DatumMathFunctions {
 	 * @return the rounded number, or {@literal null} if {@code n} or
 	 *         {@code significance} are {@literal null}
 	 */
-	default Number floor(Number n) {
+	default @Nullable Number floor(@Nullable Number n) {
 		return NumberUtils.floor(n, BigDecimal.ONE);
 	}
 
@@ -302,7 +303,7 @@ public interface DatumMathFunctions {
 	 * @return the rounded number, or {@literal null} if {@code n} or
 	 *         {@code significance} are {@literal null}
 	 */
-	default Number floor(Number n, Number significance) {
+	default @Nullable Number floor(@Nullable Number n, @Nullable Number significance) {
 		return NumberUtils.floor(n, significance);
 	}
 
@@ -319,7 +320,7 @@ public interface DatumMathFunctions {
 	 *         {@literal null}
 	 * @see #roundUp(Number, Number)
 	 */
-	default Number up(Number n) {
+	default @Nullable Number up(@Nullable Number n) {
 		return NumberUtils.roundUp(n, 0);
 	}
 
@@ -334,7 +335,7 @@ public interface DatumMathFunctions {
 	 * @return the rounded number, or {@literal null} if {@code n} or
 	 *         {@code significance} are {@literal null}
 	 */
-	default Number up(Number n, Number significance) {
+	default @Nullable Number up(@Nullable Number n, @Nullable Number significance) {
 		return NumberUtils.up(n, significance);
 	}
 
@@ -351,7 +352,7 @@ public interface DatumMathFunctions {
 	 *         {@literal null}
 	 * @see #roundDown(Number, Number)
 	 */
-	default Number down(Number n) {
+	default @Nullable Number down(@Nullable Number n) {
 		return NumberUtils.roundDown(n, 0);
 	}
 
@@ -370,7 +371,7 @@ public interface DatumMathFunctions {
 	 * @return the rounded number, or {@literal null} if {@code n} or
 	 *         {@code significance} are {@literal null}
 	 */
-	default Number down(Number n, Number significance) {
+	default @Nullable Number down(@Nullable Number n, @Nullable Number significance) {
 		return NumberUtils.down(n, significance);
 	}
 
@@ -385,7 +386,7 @@ public interface DatumMathFunctions {
 	 * @return the rounded number, or {@literal null} if {@code n} or
 	 *         {@code significance} are {@literal null}
 	 */
-	default Number mround(Number n, Number significance) {
+	default @Nullable Number mround(@Nullable Number n, @Nullable Number significance) {
 		return NumberUtils.mround(n, significance);
 	}
 
@@ -401,7 +402,7 @@ public interface DatumMathFunctions {
 	 * @return the rounded number, or {@literal null} if {@code n} is
 	 *         {@literal null}
 	 */
-	default Number round(Number n) {
+	default @Nullable Number round(@Nullable Number n) {
 		return NumberUtils.round(n, 0);
 	}
 
@@ -416,7 +417,7 @@ public interface DatumMathFunctions {
 	 * @return the rounded number, or {@literal null} if {@code n} or
 	 *         {@code digits} is {@literal null}
 	 */
-	default Number round(Number n, Number digits) {
+	default @Nullable Number round(@Nullable Number n, @Nullable Number digits) {
 		return NumberUtils.round(n, digits);
 	}
 
@@ -430,7 +431,7 @@ public interface DatumMathFunctions {
 	 * @return the rounded number, or {@literal null} if {@code n} or
 	 *         {@code digits} is {@literal null}
 	 */
-	default Number roundUp(Number n, Number digits) {
+	default @Nullable Number roundUp(@Nullable Number n, @Nullable Number digits) {
 		return NumberUtils.roundUp(n, digits);
 	}
 
@@ -444,7 +445,7 @@ public interface DatumMathFunctions {
 	 * @return the rounded number, or {@literal null} if {@code n} or
 	 *         {@code digits} is {@literal null}
 	 */
-	default Number roundDown(Number n, Number digits) {
+	default @Nullable Number roundDown(@Nullable Number n, @Nullable Number digits) {
 		return NumberUtils.roundDown(n, digits);
 	}
 
@@ -464,10 +465,13 @@ public interface DatumMathFunctions {
 	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
 	 *        most a {@link Long} or {@link Double}
 	 * @return the (possibly) narrowed number, or {@literal null} if {@code n}
-	 *         is {@literal null}
+	 *         or {@code minBytePower} is {@literal null}
 	 * @since 1.1
 	 */
-	default Number narrow(Number n, Number minBytePower) {
+	default @Nullable Number narrow(@Nullable Number n, @Nullable Number minBytePower) {
+		if ( minBytePower == null ) {
+			return null;
+		}
 		return NumberUtils.narrow(n, minBytePower.intValue());
 	}
 
@@ -485,7 +489,7 @@ public interface DatumMathFunctions {
 	 *         is {@literal null}
 	 * @since 1.1
 	 */
-	default Number narrow8(Number n) {
+	default @Nullable Number narrow8(@Nullable Number n) {
 		return NumberUtils.narrow(n, 0);
 	}
 
@@ -503,7 +507,7 @@ public interface DatumMathFunctions {
 	 *         is {@literal null}
 	 * @since 1.1
 	 */
-	default Number narrow16(Number n) {
+	default @Nullable Number narrow16(@Nullable Number n) {
 		return NumberUtils.narrow(n, 1);
 	}
 
@@ -521,7 +525,7 @@ public interface DatumMathFunctions {
 	 *         is {@literal null}
 	 * @since 1.1
 	 */
-	default Number narrow32(Number n) {
+	default @Nullable Number narrow32(@Nullable Number n) {
 		return NumberUtils.narrow(n, 2);
 	}
 
@@ -539,7 +543,7 @@ public interface DatumMathFunctions {
 	 *         is {@literal null}
 	 * @since 1.1
 	 */
-	default Number narrow64(Number n) {
+	default @Nullable Number narrow64(@Nullable Number n) {
 		return NumberUtils.narrow(n, 3);
 	}
 
@@ -551,7 +555,7 @@ public interface DatumMathFunctions {
 	 *        {@literal null} will be returned
 	 * @return the sum of {@code set}
 	 */
-	default Number sum(Collection<? extends Number> set) {
+	default @Nullable Number sum(@Nullable Collection<? extends Number> set) {
 		BigDecimal result = null;
 		if ( set != null && !set.isEmpty() ) {
 			result = BigDecimal.ZERO;
@@ -573,12 +577,13 @@ public interface DatumMathFunctions {
 	 *        {@literal null} will be returned
 	 * @return the average of {@code set}
 	 */
-	default Number avg(Collection<? extends Number> set) {
+	default @Nullable Number avg(@Nullable Collection<? extends Number> set) {
 		BigDecimal sum = (BigDecimal) sum(set);
 		if ( sum == null ) {
 			return null;
 		}
-		if ( set.size() == 1 ) {
+		// set cannot be empty here if because sum is non-null, but we check again to avoid NullAway warning
+		if ( set == null || set.size() == 1 ) {
 			return sum;
 		}
 		int nonNullCount = 0;
@@ -604,7 +609,7 @@ public interface DatumMathFunctions {
 	 *        then {@literal null} will be returned
 	 * @return the maximum of {@code set}
 	 */
-	default Number max(Collection<? extends Number> set) {
+	default @Nullable Number max(@Nullable Collection<? extends Number> set) {
 		if ( set == null ) {
 			return null;
 		}
@@ -629,7 +634,7 @@ public interface DatumMathFunctions {
 	 *        then {@literal null} will be returned
 	 * @return the minimum of {@code set}
 	 */
-	default Number min(Collection<? extends Number> set) {
+	default @Nullable Number min(@Nullable Collection<? extends Number> set) {
 		if ( set == null ) {
 			return null;
 		}
@@ -665,10 +670,11 @@ public interface DatumMathFunctions {
 	 * @param y2
 	 *        the maximum output range to interpolate on
 	 * @return an interpolated value <em>y</em> in the range {@code y1} -
-	 *         {@code y2}
+	 *         {@code y2}, or {@code null} if any argument is {@code null}
 	 * @since 1.2
 	 */
-	default Number interp(Number x, Number x1, Number x2, Number y1, Number y2) {
+	default @Nullable Number interp(@Nullable Number x, @Nullable Number x1, @Nullable Number x2,
+			@Nullable Number y1, @Nullable Number y2) {
 		return NumberUtils.linearInterpolate(x, x1, x2, y1, y2);
 	}
 
@@ -693,10 +699,11 @@ public interface DatumMathFunctions {
 	 * @param scale
 	 *        the decimal scale
 	 * @return an interpolated value <em>y</em> in the range {@code y1} -
-	 *         {@code y2}
+	 *         {@code y2}, or {@code null} if any argument is {@code null}
 	 * @since 1.2
 	 */
-	default Number interp(Number x, Number x1, Number x2, Number y1, Number y2, int scale) {
+	default @Nullable Number interp(@Nullable Number x, @Nullable Number x1, @Nullable Number x2,
+			@Nullable Number y1, @Nullable Number y2, int scale) {
 		return NumberUtils.linearInterpolate(x, x1, x2, y1, y2, scale);
 	}
 
@@ -709,7 +716,7 @@ public interface DatumMathFunctions {
 	 *         {@literal null}
 	 * @since 1.2
 	 */
-	default Number exp(Number n) {
+	default @Nullable Number exp(@Nullable Number n) {
 		if ( n == null ) {
 			return null;
 		}
@@ -725,7 +732,7 @@ public interface DatumMathFunctions {
 	 *         {@literal null}
 	 * @since 1.4
 	 */
-	default Number sqrt(Number n) {
+	default @Nullable Number sqrt(@Nullable Number n) {
 		if ( n == null ) {
 			return null;
 		}
@@ -743,7 +750,7 @@ public interface DatumMathFunctions {
 	 *         {@literal null}
 	 * @since 1.4
 	 */
-	default Number cbrt(Number n) {
+	default @Nullable Number cbrt(@Nullable Number n) {
 		if ( n == null ) {
 			return null;
 		}
@@ -761,7 +768,7 @@ public interface DatumMathFunctions {
 	 *         any argument is {@literal null}
 	 * @since 1.4
 	 */
-	default Number pow(Number n, Number e) {
+	default @Nullable Number pow(@Nullable Number n, @Nullable Number e) {
 		if ( n == null || e == null ) {
 			return n;
 		}
@@ -769,6 +776,9 @@ public interface DatumMathFunctions {
 			return Math.pow(n.doubleValue(), e.doubleValue());
 		}
 		BigDecimal d = NumberUtils.bigDecimalForNumber(n);
+		if ( d == null ) {
+			return n;
+		}
 		return d.pow(e.intValue(), MathContext.DECIMAL64);
 	}
 
@@ -784,7 +794,7 @@ public interface DatumMathFunctions {
 	 * @return the scaled value
 	 * @since 1.3
 	 */
-	default BigDecimal scaled(Number n, int scale) {
+	default @Nullable BigDecimal scaled(@Nullable Number n, int scale) {
 		return NumberUtils.scaled(n, scale);
 	}
 
@@ -802,7 +812,7 @@ public interface DatumMathFunctions {
 	 *         {@literal null}
 	 * @since 1.3
 	 */
-	default BigInteger wholePart(Number n) {
+	default @Nullable BigInteger wholePart(@Nullable Number n) {
 		return NumberUtils.wholePartToInteger(decimal(n));
 	}
 
@@ -819,7 +829,7 @@ public interface DatumMathFunctions {
 	 *         {@literal null}
 	 * @since 1.3
 	 */
-	default BigInteger fracPart(Number n) {
+	default @Nullable BigInteger fracPart(@Nullable Number n) {
 		return NumberUtils.fractionalPartToInteger(decimal(n));
 	}
 
@@ -841,7 +851,7 @@ public interface DatumMathFunctions {
 	 *         {@literal null}
 	 * @since 1.3
 	 */
-	default BigInteger fracPart(Number n, int scale) {
+	default @Nullable BigInteger fracPart(@Nullable Number n, int scale) {
 		return NumberUtils.fractionalPartToInteger(decimal(n), scale);
 	}
 
@@ -853,14 +863,16 @@ public interface DatumMathFunctions {
 	 *        {@literal null} will be returned
 	 * @return the RMS of {@code set}
 	 */
-	default Number rms(Collection<? extends Number> set) {
+	default @Nullable Number rms(@Nullable Collection<? extends Number> set) {
 		if ( set == null || set.isEmpty() ) {
 			return null;
 		}
 		List<Number> squares = set.stream().map(n -> pow(n, 2)).collect(Collectors.toList());
-		Number sum = sum(squares);
-		return sqrt(NumberUtils.bigDecimalForNumber(sum).divide(new BigDecimal(squares.size()),
-				MathContext.DECIMAL64));
+		BigDecimal sum = NumberUtils.bigDecimalForNumber(sum(squares));
+		if ( sum == null ) {
+			return null;
+		}
+		return sqrt(sum.divide(new BigDecimal(squares.size()), MathContext.DECIMAL64));
 	}
 
 }

@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -51,10 +52,10 @@ public class GeneralDatumMetadata extends DatumSupport
 	private static final long serialVersionUID = -2571643375746163527L;
 
 	/** The info values. */
-	private Map<String, Object> info;
+	private @Nullable Map<String, Object> info;
 
 	/** The property info values. */
-	private Map<String, Map<String, Object>> propertyInfo;
+	private @Nullable Map<String, Map<String, Object>> propertyInfo;
 
 	/**
 	 * Default constructor.
@@ -96,7 +97,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	 * @param info
 	 *        the info data
 	 */
-	public GeneralDatumMetadata(Map<String, Object> info) {
+	public GeneralDatumMetadata(@Nullable Map<String, Object> info) {
 		super();
 		this.info = info;
 	}
@@ -109,8 +110,8 @@ public class GeneralDatumMetadata extends DatumSupport
 	 * @param propertyInfo
 	 *        the property info data
 	 */
-	public GeneralDatumMetadata(Map<String, Object> info,
-			Map<String, Map<String, Object>> propertyInfo) {
+	public GeneralDatumMetadata(@Nullable Map<String, Object> info,
+			@Nullable Map<String, Map<String, Object>> propertyInfo) {
 		super();
 		this.info = info;
 		this.propertyInfo = propertyInfo;
@@ -133,7 +134,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	 */
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void populate(String key, final Object value) {
+	public void populate(@Nullable String key, final @Nullable Object value) {
 		if ( key != null ) {
 			key = key.trim();
 		}
@@ -201,9 +202,10 @@ public class GeneralDatumMetadata extends DatumSupport
 	 * @param data
 	 *        the data to populate
 	 */
-	public void populate(final KeyValuePair[] data) {
+	public void populate(final KeyValuePair @Nullable [] data) {
 		final int len = (data != null ? data.length : 0);
 		for ( int i = 0; i < len; i++ ) {
+			@SuppressWarnings({ "null", "NullAway" })
 			KeyValuePair kv = data[i];
 			if ( kv == null ) {
 				continue;
@@ -214,7 +216,7 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	@SuppressWarnings("unchecked")
 	private void putMetadataAtPath(String[] components, int idx, Map<String, Object> root,
-			Object value) {
+			@Nullable Object value) {
 		if ( idx + 1 < components.length ) {
 			Object nested = root.get(components[idx]);
 			if ( !(nested instanceof Map) ) {
@@ -224,7 +226,11 @@ public class GeneralDatumMetadata extends DatumSupport
 			putMetadataAtPath(components, idx + 1, (Map<String, Object>) nested, value);
 			return;
 		}
-		root.put(components[idx], value);
+		if ( value == null ) {
+			root.remove(components[idx]);
+		} else {
+			root.put(components[idx], value);
+		}
 	}
 
 	@Override
@@ -235,7 +241,6 @@ public class GeneralDatumMetadata extends DatumSupport
 			buf.append("m=").append(info).append(", ");
 		}
 		if ( propertyInfo != null && !propertyInfo.isEmpty() ) {
-
 			buf.append("pm=").append(propertyInfo).append(", ");
 		}
 		if ( getTags() != null && !getTags().isEmpty() ) {
@@ -260,7 +265,7 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	@JsonIgnore
 	@Override
-	public Map<String, ?> getPropertyInfo(String key) {
+	public @Nullable Map<String, ?> getPropertyInfo(String key) {
 		return (propertyInfo != null ? propertyInfo.get(key) : null);
 	}
 
@@ -308,7 +313,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	}
 
 	@Override
-	public void putInfoValue(String key, Object value) {
+	public void putInfoValue(String key, @Nullable Object value) {
 		Map<String, Object> m = info;
 		if ( m == null ) {
 			if ( value == null ) {
@@ -335,7 +340,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
@@ -373,12 +378,12 @@ public class GeneralDatumMetadata extends DatumSupport
 	@Override
 	@JsonIgnore
 	@SerializeIgnore
-	public Map<String, Object> getInfo() {
+	public @Nullable Map<String, Object> getInfo() {
 		return info;
 	}
 
 	@Override
-	public void setInfo(Map<String, Object> info) {
+	public void setInfo(@Nullable Map<String, Object> info) {
 		this.info = info;
 	}
 
@@ -387,7 +392,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	 *
 	 * @return map
 	 */
-	public Map<String, Object> getM() {
+	public @Nullable Map<String, Object> getM() {
 		return getInfo();
 	}
 
@@ -397,7 +402,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	 * @param map
 	 *        the Map to set
 	 */
-	public void setM(Map<String, Object> map) {
+	public void setM(@Nullable Map<String, Object> map) {
 		setInfo(map);
 	}
 
@@ -409,12 +414,12 @@ public class GeneralDatumMetadata extends DatumSupport
 	 */
 	@JsonIgnore
 	@SerializeIgnore
-	public Map<String, Map<String, Object>> getPropertyInfo() {
+	public @Nullable Map<String, Map<String, Object>> getPropertyInfo() {
 		return propertyInfo;
 	}
 
 	@Override
-	public void setInfo(String key, Map<String, Object> info) {
+	public void setInfo(String key, @Nullable Map<String, Object> info) {
 		Map<String, Map<String, Object>> map = getPropertyInfo();
 		if ( map == null ) {
 			map = new LinkedHashMap<>(8);
@@ -433,7 +438,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	 * @param propertyInfo
 	 *        the property info to set
 	 */
-	public void setPropertyInfo(Map<String, Map<String, Object>> propertyInfo) {
+	public void setPropertyInfo(@Nullable Map<String, Map<String, Object>> propertyInfo) {
 		this.propertyInfo = propertyInfo;
 	}
 
@@ -442,7 +447,7 @@ public class GeneralDatumMetadata extends DatumSupport
 	 *
 	 * @return the map
 	 */
-	public Map<String, Map<String, Object>> getPm() {
+	public @Nullable Map<String, Map<String, Object>> getPm() {
 		return getPropertyInfo();
 	}
 
@@ -452,18 +457,18 @@ public class GeneralDatumMetadata extends DatumSupport
 	 * @param map
 	 *        the map to set
 	 */
-	public void setPm(Map<String, Map<String, Object>> map) {
+	public void setPm(@Nullable Map<String, Map<String, Object>> map) {
 		setPropertyInfo(map);
 	}
 
 	@Override
-	public void putInfoValue(String property, String key, Object value) {
+	public void putInfoValue(String property, String key, @Nullable Object value) {
 		Map<String, Map<String, Object>> pm = propertyInfo;
 		if ( pm == null ) {
 			if ( value == null ) {
 				return;
 			}
-			pm = new LinkedHashMap<String, Map<String, Object>>(4);
+			pm = new LinkedHashMap<>(4);
 			propertyInfo = pm;
 		}
 		Map<String, Object> m = pm.get(property);
@@ -482,13 +487,13 @@ public class GeneralDatumMetadata extends DatumSupport
 	}
 
 	@Override
-	public Object metadataAtPath(String path) {
+	public @Nullable Object metadataAtPath(@Nullable String path) {
 		return metadataAtPath(path, this);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> T metadataAtPath(String path, Class<T> clazz) {
+	public <T> @Nullable T metadataAtPath(@Nullable String path, Class<T> clazz) {
 		Object o = metadataAtPath(path);
 		if ( o != null && clazz.isAssignableFrom(o.getClass()) ) {
 			return (T) o;
@@ -532,7 +537,8 @@ public class GeneralDatumMetadata extends DatumSupport
 	 *         given path
 	 * @since 1.3
 	 */
-	public static Object metadataAtPath(String path, GeneralDatumMetadata meta) {
+	public static @Nullable Object metadataAtPath(@Nullable String path,
+			@Nullable GeneralDatumMetadata meta) {
 		if ( path == null || path.isEmpty() || meta == null ) {
 			return null;
 		}
@@ -548,7 +554,7 @@ public class GeneralDatumMetadata extends DatumSupport
 			return metadataAtPath(components, idx + 1, meta.getPm());
 		} else if ( "t".equals(components[idx]) ) {
 			Set<String> tags = meta.getT();
-			if ( idx + 1 < components.length ) {
+			if ( tags != null && idx + 1 < components.length ) {
 				String tag = components[idx + 1];
 				return tags.contains(tag) ? tag : null;
 			}
@@ -575,7 +581,8 @@ public class GeneralDatumMetadata extends DatumSupport
 	 * @since 1.3
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T metadataAtPath(String path, GeneralDatumMetadata meta, Class<T> clazz) {
+	public static <T> @Nullable T metadataAtPath(@Nullable String path,
+			@Nullable GeneralDatumMetadata meta, Class<T> clazz) {
 		Object o = metadataAtPath(path, meta);
 		if ( o != null && clazz.isAssignableFrom(o.getClass()) ) {
 			return (T) o;
@@ -584,7 +591,8 @@ public class GeneralDatumMetadata extends DatumSupport
 
 	}
 
-	private static Object metadataAtPath(String[] pathComponents, int idx, Map<String, ?> data) {
+	private static @Nullable Object metadataAtPath(String[] pathComponents, int idx,
+			@Nullable Map<String, ?> data) {
 		if ( data == null ) {
 			return null;
 		}

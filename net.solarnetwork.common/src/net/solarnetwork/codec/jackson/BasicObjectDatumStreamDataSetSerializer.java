@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.datum.DatumProperties;
 import net.solarnetwork.domain.datum.DatumSamplesType;
 import net.solarnetwork.domain.datum.ObjectDatumStreamDataSet;
@@ -107,7 +108,7 @@ public class BasicObjectDatumStreamDataSetSerializer
 	public void serialize(ObjectDatumStreamDataSet<StreamDatum> value, JsonGenerator gen,
 			SerializationContext provider) throws JacksonException {
 		final Collection<UUID> streamIds = value.metadataStreamIds();
-		final Map<UUID, Integer> metaIndexMap = new HashMap<>(streamIds.size());
+		final Map<UUID, Integer> metaIndexMap = new HashMap<>(streamIds != null ? streamIds.size() : 4);
 		final Iterator<StreamDatum> itr = value.iterator();
 		int count = (value.getReturnedResultCount() != null ? 1 : 0)
 				+ (value.getStartingOffset() != null ? 1 : 0)
@@ -136,8 +137,7 @@ public class BasicObjectDatumStreamDataSetSerializer
 			gen.writeStartArray(streamIds, streamIds.size());
 			for ( UUID streamId : streamIds ) {
 				metaIndexMap.put(streamId, i);
-				BasicObjectDatumStreamMetadataSerializer.INSTANCE
-						.serialize(value.metadataForStreamId(streamId), gen, provider);
+				serializeMeta(value.metadataForStreamId(streamId), gen, provider);
 				i++;
 			}
 			gen.writeEndArray();
@@ -190,4 +190,11 @@ public class BasicObjectDatumStreamDataSetSerializer
 		gen.writeEndObject();
 	}
 
+	// assume meta is non-null, because the provider gave us the steam IDs we ask for
+	@SuppressWarnings("NullAway")
+	private static void serializeMeta(@Nullable ObjectDatumStreamMetadata meta, JsonGenerator gen,
+			SerializationContext provider) throws JacksonException {
+		assert meta != null;
+		BasicObjectDatumStreamMetadataSerializer.INSTANCE.serialize(meta, gen, provider);
+	}
 }

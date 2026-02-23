@@ -23,6 +23,7 @@
 package net.solarnetwork.domain.datum;
 
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.ConcurrentLruCache;
 
 /**
@@ -71,7 +72,7 @@ public interface DatumStringFunctions {
 	 *         non-empty and the regular expression {@code regex} is found
 	 *         within {@code source}
 	 */
-	default boolean regexMatches(String source, String regex) {
+	default boolean regexMatches(@Nullable String source, @Nullable String regex) {
 		if ( source == null || source.isEmpty() || regex == null || regex.isEmpty() ) {
 			return false;
 		}
@@ -100,7 +101,8 @@ public interface DatumStringFunctions {
 	 *         {@code regex} are {@code null} then {@code source} will be
 	 *         returned unchanged
 	 */
-	default String regexReplace(String source, String regex, String replacement) {
+	default @Nullable String regexReplace(@Nullable String source, @Nullable String regex,
+			@Nullable String replacement) {
 		if ( source == null || source.isEmpty() || regex == null || regex.isEmpty() ) {
 			return source;
 		}

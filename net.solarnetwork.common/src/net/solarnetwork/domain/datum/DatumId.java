@@ -25,6 +25,7 @@ package net.solarnetwork.domain.datum;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BaseId;
 
 /**
@@ -39,16 +40,16 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	private static final long serialVersionUID = 6891814538805568843L;
 
 	/** The object kind. */
-	private final ObjectDatumKind kind;
+	private final @Nullable ObjectDatumKind kind;
 
 	/** The object ID. */
-	private final Long objectId;
+	private final @Nullable Long objectId;
 
 	/** The source ID. */
-	private final String sourceId;
+	private final @Nullable String sourceId;
 
 	/** The timestamp. */
-	private final Instant timestamp;
+	private final @Nullable Instant timestamp;
 
 	/**
 	 * Create a new node datum stream ID.
@@ -61,7 +62,8 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 *        the timestamp
 	 * @return the key
 	 */
-	public static DatumId nodeId(Long nodeId, String sourceId, Instant timestamp) {
+	public static DatumId nodeId(@Nullable Long nodeId, @Nullable String sourceId,
+			@Nullable Instant timestamp) {
 		return new DatumId(ObjectDatumKind.Node, nodeId, sourceId, timestamp);
 	}
 
@@ -76,7 +78,8 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 *        the timestamp
 	 * @return the key
 	 */
-	public static DatumId locationId(Long locationId, String sourceId, Instant timestamp) {
+	public static DatumId locationId(@Nullable Long locationId, @Nullable String sourceId,
+			@Nullable Instant timestamp) {
 		return new DatumId(ObjectDatumKind.Location, locationId, sourceId, timestamp);
 	}
 
@@ -92,7 +95,8 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 * @param timestamp
 	 *        the time stamp
 	 */
-	public DatumId(ObjectDatumKind kind, Long objectId, String sourceId, Instant timestamp) {
+	public DatumId(@Nullable ObjectDatumKind kind, @Nullable Long objectId, @Nullable String sourceId,
+			@Nullable Instant timestamp) {
 		super();
 		this.kind = kind;
 		this.objectId = objectId;
@@ -159,7 +163,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	@SuppressWarnings("BoxedPrimitiveEquality")
 	@Override
-	public int compareTo(DatumId o) {
+	public int compareTo(@Nullable DatumId o) {
 		if ( this == o ) {
 			return 0;
 		}
@@ -216,14 +220,13 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
-		if ( !(obj instanceof DatumId) ) {
+		if ( !(obj instanceof DatumId other) ) {
 			return false;
 		}
-		DatumId other = (DatumId) obj;
 		return Objects.equals(kind, other.kind) && Objects.equals(objectId, other.objectId)
 				&& Objects.equals(sourceId, other.sourceId)
 				&& Objects.equals(timestamp, other.timestamp);
@@ -234,7 +237,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 *
 	 * @return the kind
 	 */
-	public ObjectDatumKind getKind() {
+	public @Nullable ObjectDatumKind getKind() {
 		return kind;
 	}
 
@@ -243,7 +246,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 *
 	 * @return the object ID
 	 */
-	public Long getObjectId() {
+	public @Nullable Long getObjectId() {
 		return objectId;
 	}
 
@@ -252,7 +255,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 *
 	 * @return the source ID
 	 */
-	public String getSourceId() {
+	public @Nullable String getSourceId() {
 		return sourceId;
 	}
 
@@ -261,7 +264,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 *
 	 * @return the timestamp
 	 */
-	public Instant getTimestamp() {
+	public @Nullable Instant getTimestamp() {
 		return timestamp;
 	}
 

@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import net.solarnetwork.domain.SerializeIgnore;
@@ -44,13 +45,13 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	private static final long serialVersionUID = 3704506858283891128L;
 
 	/** The instantaneous properties. */
-	private Map<String, Number> instantaneous;
+	private @Nullable Map<String, Number> instantaneous;
 
 	/** The accumulating properties. */
-	private Map<String, Number> accumulating;
+	private @Nullable Map<String, Number> accumulating;
 
 	/** The status properties. */
-	private Map<String, Object> status;
+	private @Nullable Map<String, Object> status;
 
 	/**
 	 * Default constructor.
@@ -69,8 +70,8 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param status
 	 *        the status data
 	 */
-	public DatumSamples(Map<String, Number> instantaneous, Map<String, Number> accumulating,
-			Map<String, Object> status) {
+	public DatumSamples(@Nullable Map<String, Number> instantaneous,
+			@Nullable Map<String, Number> accumulating, @Nullable Map<String, Object> status) {
 		super();
 		this.instantaneous = instantaneous;
 		this.accumulating = accumulating;
@@ -85,7 +86,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @since 1.4
 	 */
 	@SuppressWarnings("unchecked")
-	public DatumSamples(DatumSamplesOperations other) {
+	public DatumSamples(@Nullable DatumSamplesOperations other) {
 		super(other);
 		if ( other != null ) {
 			@SuppressWarnings("rawtypes")
@@ -149,7 +150,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 */
 	@JsonIgnore
 	@SerializeIgnore
-	public Map<String, ?> getSampleData() {
+	public @Nullable Map<String, ?> getSampleData() {
 		if ( instantaneous == null && accumulating == null && status == null ) {
 			return null;
 		}
@@ -197,7 +198,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	}
 
 	@Override
-	public Map<String, ?> getSampleData(DatumSamplesType type) {
+	public @Nullable Map<String, ?> getSampleData(DatumSamplesType type) {
 		Map<String, ?> data = switch (type) {
 			case Instantaneous -> instantaneous;
 			case Accumulating -> accumulating;
@@ -210,7 +211,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void setSampleData(DatumSamplesType type, Map<String, ?> data) {
+	public void setSampleData(DatumSamplesType type, @Nullable Map<String, ?> data) {
 		switch (type) {
 			case Instantaneous:
 				setInstantaneous((Map) data);
@@ -225,7 +226,9 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 				break;
 
 			case Tag:
-				setTags(data.keySet());
+				if ( data != null ) {
+					setTags(data.keySet());
+				}
 				break;
 
 			case Metadata:
@@ -238,32 +241,32 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	}
 
 	@Override
-	public Integer getSampleInteger(DatumSamplesType type, String key) {
+	public @Nullable Integer getSampleInteger(DatumSamplesType type, String key) {
 		return getMapInteger(key, getSampleData(type));
 	}
 
 	@Override
-	public Long getSampleLong(DatumSamplesType type, String key) {
+	public @Nullable Long getSampleLong(DatumSamplesType type, String key) {
 		return getMapLong(key, getSampleData(type));
 	}
 
 	@Override
-	public Float getSampleFloat(DatumSamplesType type, String key) {
+	public @Nullable Float getSampleFloat(DatumSamplesType type, String key) {
 		return getMapFloat(key, getSampleData(type));
 	}
 
 	@Override
-	public Double getSampleDouble(DatumSamplesType type, String key) {
+	public @Nullable Double getSampleDouble(DatumSamplesType type, String key) {
 		return getMapDouble(key, getSampleData(type));
 	}
 
 	@Override
-	public BigDecimal getSampleBigDecimal(DatumSamplesType type, String key) {
+	public @Nullable BigDecimal getSampleBigDecimal(DatumSamplesType type, String key) {
 		return getMapBigDecimal(key, getSampleData(type));
 	}
 
 	@Override
-	public String getSampleString(DatumSamplesType type, String key) {
+	public @Nullable String getSampleString(DatumSamplesType type, String key) {
 		if ( type == DatumSamplesType.Tag ) {
 			Set<String> tags = getTags();
 			return (tags != null && tags.contains(key) ? key : null);
@@ -273,7 +276,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <V> V getSampleValue(DatumSamplesType type, String key) {
+	public <V> @Nullable V getSampleValue(DatumSamplesType type, String key) {
 		if ( type == DatumSamplesType.Tag ) {
 			Set<String> tags = getTags();
 			return (V) (tags != null && tags.contains(key) ? key : null);
@@ -283,7 +286,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	}
 
 	@Override
-	public <V> V findSampleValue(String key) {
+	public <V> @Nullable V findSampleValue(String key) {
 		V v = getSampleValue(DatumSamplesType.Instantaneous, key);
 		if ( v != null ) {
 			return v;
@@ -302,7 +305,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	}
 
 	@Override
-	public void putSampleValue(DatumSamplesType type, String key, Object value) {
+	public void putSampleValue(DatumSamplesType type, String key, @Nullable Object value) {
 		if ( type == DatumSamplesType.Tag ) {
 			if ( value == null ) {
 				removeTag(key);
@@ -351,7 +354,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param n
 	 *        the value to put, or {@literal null} to remove the key
 	 */
-	public void putInstantaneousSampleValue(String key, Number n) {
+	public void putInstantaneousSampleValue(String key, @Nullable Number n) {
 		Map<String, Number> m = instantaneous;
 		if ( m == null ) {
 			if ( n == null ) {
@@ -376,7 +379,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param n
 	 *        the value to put, or {@literal null} to remove the key
 	 */
-	public void putAccumulatingSampleValue(String key, Number n) {
+	public void putAccumulatingSampleValue(String key, @Nullable Number n) {
 		Map<String, Number> m = accumulating;
 		if ( m == null ) {
 			if ( n == null ) {
@@ -401,7 +404,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param value
 	 *        the value to put, or {@literal null} to remove the key
 	 */
-	public void putStatusSampleValue(String key, Object value) {
+	public void putStatusSampleValue(String key, @Nullable Object value) {
 		Map<String, Object> m = status;
 		if ( m == null ) {
 			if ( value == null ) {
@@ -425,7 +428,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Integer, or {@literal null} if not available
 	 */
-	public Integer getInstantaneousSampleInteger(String key) {
+	public @Nullable Integer getInstantaneousSampleInteger(String key) {
 		return getMapInteger(key, instantaneous);
 	}
 
@@ -437,7 +440,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Long, or {@literal null} if not available
 	 */
-	public Long getInstantaneousSampleLong(String key) {
+	public @Nullable Long getInstantaneousSampleLong(String key) {
 		return getMapLong(key, instantaneous);
 	}
 
@@ -449,7 +452,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Float, or {@literal null} if not available
 	 */
-	public Float getInstantaneousSampleFloat(String key) {
+	public @Nullable Float getInstantaneousSampleFloat(String key) {
 		return getMapFloat(key, instantaneous);
 	}
 
@@ -461,7 +464,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Double, or {@literal null} if not available
 	 */
-	public Double getInstantaneousSampleDouble(String key) {
+	public @Nullable Double getInstantaneousSampleDouble(String key) {
 		return getMapDouble(key, instantaneous);
 	}
 
@@ -473,7 +476,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an BigDecimal, or {@literal null} if not available
 	 */
-	public BigDecimal getInstantaneousSampleBigDecimal(String key) {
+	public @Nullable BigDecimal getInstantaneousSampleBigDecimal(String key) {
 		return getMapBigDecimal(key, instantaneous);
 	}
 
@@ -485,7 +488,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Integer, or {@literal null} if not available
 	 */
-	public Integer getAccumulatingSampleInteger(String key) {
+	public @Nullable Integer getAccumulatingSampleInteger(String key) {
 		return getMapInteger(key, accumulating);
 	}
 
@@ -497,7 +500,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Long, or {@literal null} if not available
 	 */
-	public Long getAccumulatingSampleLong(String key) {
+	public @Nullable Long getAccumulatingSampleLong(String key) {
 		return getMapLong(key, accumulating);
 	}
 
@@ -509,7 +512,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Float, or {@literal null} if not available
 	 */
-	public Float getAccumulatingSampleFloat(String key) {
+	public @Nullable Float getAccumulatingSampleFloat(String key) {
 		return getMapFloat(key, accumulating);
 	}
 
@@ -521,7 +524,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Double, or {@literal null} if not available
 	 */
-	public Double getAccumulatingSampleDouble(String key) {
+	public @Nullable Double getAccumulatingSampleDouble(String key) {
 		return getMapDouble(key, accumulating);
 	}
 
@@ -533,7 +536,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an BigDecimal, or {@literal null} if not available
 	 */
-	public BigDecimal getAccumulatingSampleBigDecimal(String key) {
+	public @Nullable BigDecimal getAccumulatingSampleBigDecimal(String key) {
 		return getMapBigDecimal(key, accumulating);
 	}
 
@@ -545,7 +548,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Integer, or {@literal null} if not available
 	 */
-	public Integer getStatusSampleInteger(String key) {
+	public @Nullable Integer getStatusSampleInteger(String key) {
 		return getMapInteger(key, status);
 	}
 
@@ -557,7 +560,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Long, or {@literal null} if not available
 	 */
-	public Long getStatusSampleLong(String key) {
+	public @Nullable Long getStatusSampleLong(String key) {
 		return getMapLong(key, status);
 	}
 
@@ -569,7 +572,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Float, or {@literal null} if not available
 	 */
-	public Float getStatusSampleFloat(String key) {
+	public @Nullable Float getStatusSampleFloat(String key) {
 		return getMapFloat(key, status);
 	}
 
@@ -581,7 +584,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an Double, or {@literal null} if not available
 	 */
-	public Double getStatusSampleDouble(String key) {
+	public @Nullable Double getStatusSampleDouble(String key) {
 		return getMapDouble(key, status);
 	}
 
@@ -593,7 +596,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as an BigDecimal, or {@literal null} if not available
 	 */
-	public BigDecimal getStatusSampleBigDecimal(String key) {
+	public @Nullable BigDecimal getStatusSampleBigDecimal(String key) {
 		return getMapBigDecimal(key, status);
 	}
 
@@ -605,7 +608,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *        the key of the value to get
 	 * @return the value as a String, or {@literal null} if not available
 	 */
-	public String getStatusSampleString(String key) {
+	public @Nullable String getStatusSampleString(String key) {
 		return getMapString(key, status);
 	}
 
@@ -621,7 +624,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
@@ -668,7 +671,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *
 	 * @return map
 	 */
-	public Map<String, Number> getI() {
+	public @Nullable Map<String, Number> getI() {
 		return getInstantaneous();
 	}
 
@@ -678,7 +681,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param map
 	 *        the properties to set
 	 */
-	public void setI(Map<String, Number> map) {
+	public void setI(@Nullable Map<String, Number> map) {
 		setInstantaneous(map);
 	}
 
@@ -687,7 +690,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *
 	 * @return map
 	 */
-	public Map<String, Number> getA() {
+	public @Nullable Map<String, Number> getA() {
 		return getAccumulating();
 	}
 
@@ -697,7 +700,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param map
 	 *        the properties to set
 	 */
-	public void setA(Map<String, Number> map) {
+	public void setA(@Nullable Map<String, Number> map) {
 		setAccumulating(map);
 	}
 
@@ -706,7 +709,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 *
 	 * @return map
 	 */
-	public Map<String, Object> getS() {
+	public @Nullable Map<String, Object> getS() {
 		return getStatus();
 	}
 
@@ -716,7 +719,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param map
 	 *        the status properties to set
 	 */
-	public void setS(Map<String, Object> map) {
+	public void setS(@Nullable Map<String, Object> map) {
 		setStatus(map);
 	}
 
@@ -728,7 +731,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 */
 	@JsonIgnore
 	@SerializeIgnore
-	public Map<String, Number> getInstantaneous() {
+	public @Nullable Map<String, Number> getInstantaneous() {
 		return instantaneous;
 	}
 
@@ -738,7 +741,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param instantaneous
 	 *        the properties to set
 	 */
-	public void setInstantaneous(Map<String, Number> instantaneous) {
+	public void setInstantaneous(@Nullable Map<String, Number> instantaneous) {
 		this.instantaneous = instantaneous;
 	}
 
@@ -751,7 +754,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 */
 	@JsonIgnore
 	@SerializeIgnore
-	public Map<String, Number> getAccumulating() {
+	public @Nullable Map<String, Number> getAccumulating() {
 		return accumulating;
 	}
 
@@ -761,7 +764,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param accumulating
 	 *        the properties to set
 	 */
-	public void setAccumulating(Map<String, Number> accumulating) {
+	public void setAccumulating(@Nullable Map<String, Number> accumulating) {
 		this.accumulating = accumulating;
 	}
 
@@ -772,7 +775,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 */
 	@JsonIgnore
 	@SerializeIgnore
-	public Map<String, Object> getStatus() {
+	public @Nullable Map<String, Object> getStatus() {
 		return status;
 	}
 
@@ -782,7 +785,7 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	 * @param status
 	 *        the properties to set
 	 */
-	public void setStatus(Map<String, Object> status) {
+	public void setStatus(@Nullable Map<String, Object> status) {
 		this.status = status;
 	}
 

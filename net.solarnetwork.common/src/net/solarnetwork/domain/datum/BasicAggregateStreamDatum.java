@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicAggregateStreamDatum.java - 29/06/2022 10:25:04 am
- * 
+ *
  * Copyright 2022 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,10 +26,11 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic implementation of {@link AggregateStreamDatum}.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 2.7
@@ -39,14 +40,14 @@ public class BasicAggregateStreamDatum extends BasicStreamDatum implements Aggre
 	private static final long serialVersionUID = 2501630135742744682L;
 
 	/** The end timestamp. */
-	private final Instant endTimestamp;
+	private final @Nullable Instant endTimestamp;
 
 	/** The statistics. */
-	private final DatumPropertiesStatistics statistics;
+	private final @Nullable DatumPropertiesStatistics statistics;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param streamId
 	 *        the stream ID
 	 * @param timestamp
@@ -58,8 +59,9 @@ public class BasicAggregateStreamDatum extends BasicStreamDatum implements Aggre
 	 * @param statistics
 	 *        the statistics
 	 */
-	public BasicAggregateStreamDatum(UUID streamId, Instant timestamp, DatumProperties properties,
-			Instant endTimestamp, DatumPropertiesStatistics statistics) {
+	public BasicAggregateStreamDatum(UUID streamId, Instant timestamp,
+			@Nullable DatumProperties properties, @Nullable Instant endTimestamp,
+			@Nullable DatumPropertiesStatistics statistics) {
 		super(streamId, timestamp, properties);
 		this.endTimestamp = endTimestamp;
 		this.statistics = statistics;
@@ -121,28 +123,27 @@ public class BasicAggregateStreamDatum extends BasicStreamDatum implements Aggre
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
 		if ( !super.equals(obj) ) {
 			return false;
 		}
-		if ( !(obj instanceof BasicAggregateStreamDatum) ) {
+		if ( !(obj instanceof BasicAggregateStreamDatum other) ) {
 			return false;
 		}
-		BasicAggregateStreamDatum other = (BasicAggregateStreamDatum) obj;
 		return Objects.equals(endTimestamp, other.endTimestamp)
 				&& Objects.equals(statistics, other.statistics);
 	}
 
 	@Override
-	public Instant getEndTimestamp() {
+	public @Nullable Instant getEndTimestamp() {
 		return endTimestamp;
 	}
 
 	@Override
-	public DatumPropertiesStatistics getStatistics() {
+	public @Nullable DatumPropertiesStatistics getStatistics() {
 		return statistics;
 	}
 

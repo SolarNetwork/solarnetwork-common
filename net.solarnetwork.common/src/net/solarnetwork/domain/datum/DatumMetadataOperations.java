@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.StringUtils;
 import net.solarnetwork.domain.Differentiable;
 import net.solarnetwork.util.CollectionUtils;
@@ -46,7 +47,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *
 	 * @return the set of keys, never {@literal null}
 	 */
-	default Set<String> getInfoKeys() {
+	default @Nullable Set<String> getInfoKeys() {
 		Map<String, ?> info = getInfo();
 		return (info != null ? info.keySet() : Collections.emptySet());
 	}
@@ -56,6 +57,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *
 	 * @return the map of general information, or {@literal null}
 	 */
+	@Nullable
 	Map<String, ?> getInfo();
 
 	/**
@@ -65,7 +67,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the info key to get the associated metadata value for
 	 * @return the value, or {@literal null}
 	 */
-	default Object getInfo(String key) {
+	default @Nullable Object getInfo(String key) {
 		Map<String, ?> info = getInfo();
 		return (info != null ? info.get(key) : null);
 	}
@@ -97,6 +99,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the property key to get the metadata for
 	 * @return the property metadata, or {@literal null}
 	 */
+	@Nullable
 	Map<String, ?> getPropertyInfo(String key);
 
 	/**
@@ -132,6 +135,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *
 	 * @return the tags, or {@literal null}
 	 */
+	@Nullable
 	Set<String> getTags();
 
 	/**
@@ -170,7 +174,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	}
 
 	@Override
-	default boolean differsFrom(DatumMetadataOperations other) {
+	default boolean differsFrom(@Nullable DatumMetadataOperations other) {
 		if ( other == null ) {
 			return true;
 		} else if ( this == other ) {
@@ -221,7 +225,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 * @return {@literal true} if metadata for the given path is available on
 	 *         this instance
 	 */
-	default boolean hasMetadataAtPath(String path) {
+	default boolean hasMetadataAtPath(@Nullable String path) {
 		return (metadataAtPath(path) != null);
 	}
 
@@ -234,7 +238,8 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *         given path
 	 * @see #metadataAtPath(String, Class)
 	 */
-	Object metadataAtPath(String path);
+	@Nullable
+	Object metadataAtPath(@Nullable String path);
 
 	/**
 	 * Get a metadata value of a given type at a given path.
@@ -273,7 +278,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 * @return the metadata, or {@literal null} if none exists at the given path
 	 *         or is not of type {@code T}
 	 */
-	<T> T metadataAtPath(String path, Class<T> clazz);
+	<T> @Nullable T metadataAtPath(@Nullable String path, Class<T> clazz);
 
 	/**
 	 * Get a Number value from the {@link #getInfo()} map, or {@literal null} if
@@ -283,7 +288,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as a Short, or {@literal null} if not available
 	 */
-	default Number getInfoNumber(String key) {
+	default @Nullable Number getInfoNumber(String key) {
 		Map<String, ?> info = getInfo();
 		Object v = (info != null ? info.get(key) : null);
 		if ( v == null ) {
@@ -306,7 +311,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as a Short, or {@literal null} if not available
 	 */
-	default Short getInfoShort(String key) {
+	default @Nullable Short getInfoShort(String key) {
 		return CollectionUtils.getMapShort(key, getInfo());
 	}
 
@@ -318,7 +323,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an Integer, or {@literal null} if not available
 	 */
-	default Integer getInfoInteger(String key) {
+	default @Nullable Integer getInfoInteger(String key) {
 		return CollectionUtils.getMapInteger(key, getInfo());
 	}
 
@@ -330,7 +335,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an Long, or {@literal null} if not available
 	 */
-	default Long getInfoLong(String key) {
+	default @Nullable Long getInfoLong(String key) {
 		return CollectionUtils.getMapLong(key, getInfo());
 	}
 
@@ -342,7 +347,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an Float, or {@literal null} if not available
 	 */
-	default Float getInfoFloat(String key) {
+	default @Nullable Float getInfoFloat(String key) {
 		return CollectionUtils.getMapFloat(key, getInfo());
 	}
 
@@ -354,7 +359,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an Double, or {@literal null} if not available
 	 */
-	default Double getInfoDouble(String key) {
+	default @Nullable Double getInfoDouble(String key) {
 		return CollectionUtils.getMapDouble(key, getInfo());
 	}
 
@@ -366,7 +371,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an BigDecimal, or {@literal null} if not available
 	 */
-	default BigDecimal getInfoBigDecimal(String key) {
+	default @Nullable BigDecimal getInfoBigDecimal(String key) {
 		return CollectionUtils.getMapBigDecimal(key, getInfo());
 	}
 
@@ -378,7 +383,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an BigInteger, or {@literal null} if not available
 	 */
-	default BigInteger getInfoBigInteger(String key) {
+	default @Nullable BigInteger getInfoBigInteger(String key) {
 		return CollectionUtils.getMapBigInteger(key, getInfo());
 	}
 
@@ -390,7 +395,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as a String, or {@literal null} if not available
 	 */
-	default String getInfoString(String key) {
+	default @Nullable String getInfoString(String key) {
 		return CollectionUtils.getMapString(key, getInfo());
 	}
 
@@ -404,7 +409,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as a Number, or {@literal null} if not available
 	 */
-	default Number getInfoNumber(String property, String key) {
+	default @Nullable Number getInfoNumber(String property, String key) {
 		Map<String, ?> info = getPropertyInfo(property);
 		Object v = (info != null ? info.get(key) : null);
 		if ( v == null ) {
@@ -429,7 +434,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as a Short, or {@literal null} if not available
 	 */
-	default Short getInfoShort(String property, String key) {
+	default @Nullable Short getInfoShort(String property, String key) {
 		return CollectionUtils.getMapShort(key, getPropertyInfo(property));
 	}
 
@@ -443,7 +448,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an Integer, or {@literal null} if not available
 	 */
-	default Integer getInfoInteger(String property, String key) {
+	default @Nullable Integer getInfoInteger(String property, String key) {
 		return CollectionUtils.getMapInteger(key, getPropertyInfo(property));
 	}
 
@@ -457,7 +462,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an Long, or {@literal null} if not available
 	 */
-	default Long getInfoLong(String property, String key) {
+	default @Nullable Long getInfoLong(String property, String key) {
 		return CollectionUtils.getMapLong(key, getPropertyInfo(property));
 	}
 
@@ -471,7 +476,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an Float, or {@literal null} if not available
 	 */
-	default Float getInfoFloat(String property, String key) {
+	default @Nullable Float getInfoFloat(String property, String key) {
 		return CollectionUtils.getMapFloat(key, getPropertyInfo(property));
 	}
 
@@ -485,7 +490,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an Double, or {@literal null} if not available
 	 */
-	default Double getInfoDouble(String property, String key) {
+	default @Nullable Double getInfoDouble(String property, String key) {
 		return CollectionUtils.getMapDouble(key, getPropertyInfo(property));
 	}
 
@@ -499,7 +504,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an BigDecimal, or {@literal null} if not available
 	 */
-	default BigDecimal getInfoBigDecimal(String property, String key) {
+	default @Nullable BigDecimal getInfoBigDecimal(String property, String key) {
 		return CollectionUtils.getMapBigDecimal(key, getPropertyInfo(property));
 	}
 
@@ -513,7 +518,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as an BigInteger, or {@literal null} if not available
 	 */
-	default BigInteger getInfoBigInteger(String property, String key) {
+	default @Nullable BigInteger getInfoBigInteger(String property, String key) {
 		return CollectionUtils.getMapBigInteger(key, getPropertyInfo(property));
 	}
 
@@ -527,7 +532,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the key of the value to get
 	 * @return the value as a String, or {@literal null} if not available
 	 */
-	default String getInfoString(String property, String key) {
+	default @Nullable String getInfoString(String property, String key) {
 		return CollectionUtils.getMapString(key, getPropertyInfo(property));
 	}
 
@@ -542,7 +547,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 * @since 1.1
 	 * @see #resolveLocale(String, Locale)
 	 */
-	default Locale resolveLocale(final String path) {
+	default Locale resolveLocale(final @Nullable String path) {
 		return resolveLocale(path, Locale.ENGLISH);
 	}
 
@@ -655,7 +660,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *         language)
 	 * @since 1.1
 	 */
-	default Locale resolveLocale(final String path, final Locale fallback) {
+	default Locale resolveLocale(final @Nullable String path, final Locale fallback) {
 		if ( isEmpty() || path == null || path.isEmpty() ) {
 			return fallback;
 		}
@@ -683,7 +688,7 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 		return (l != null ? l : fallback);
 	}
 
-	private static Locale parseLocale(final String localeValue) {
+	private static @Nullable Locale parseLocale(final @Nullable String localeValue) {
 		if ( localeValue != null && !localeValue.isEmpty() ) {
 			try {
 				Locale l = Locale.forLanguageTag(localeValue);

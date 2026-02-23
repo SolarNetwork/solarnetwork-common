@@ -22,12 +22,14 @@
 
 package net.solarnetwork.domain.datum;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BasicSerializableIdentity;
 import net.solarnetwork.domain.CopyingIdentity;
 
@@ -55,7 +57,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param samples
 	 *        the samples; if {@literal null} a new instance will be created
 	 */
-	public GeneralDatum(DatumId id, DatumSamples samples) {
+	public GeneralDatum(DatumId id, @Nullable DatumSamples samples) {
 		super(id);
 		this.samples = (samples != null ? samples : new DatumSamples());
 	}
@@ -103,9 +105,9 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param timestamp
 	 *        the timestamp
 	 * @param samples
-	 *        the samples
+	 *        the samples; if {@literal null} a new instance will be created
 	 */
-	public GeneralDatum(String sourceId, Instant timestamp, DatumSamples samples) {
+	public GeneralDatum(String sourceId, Instant timestamp, @Nullable DatumSamples samples) {
 		this(new DatumId(null, null, sourceId, timestamp), samples);
 	}
 
@@ -123,9 +125,10 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param timestamp
 	 *        the timestamp
 	 * @param samples
-	 *        the samples
+	 *        the samples; if {@literal null} a new instance will be created
 	 */
-	public GeneralDatum(Long objectId, String sourceId, Instant timestamp, DatumSamples samples) {
+	public GeneralDatum(Long objectId, String sourceId, Instant timestamp,
+			@Nullable DatumSamples samples) {
 		this(new DatumId(null, objectId, sourceId, timestamp), samples);
 	}
 
@@ -139,11 +142,11 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param timestamp
 	 *        the timestamp
 	 * @param samples
-	 *        the samples
+	 *        the samples; if {@literal null} a new instance will be created
 	 * @return the new instance
 	 */
 	public static GeneralDatum nodeDatum(Long nodeId, String sourceId, Instant timestamp,
-			DatumSamples samples) {
+			@Nullable DatumSamples samples) {
 		return new GeneralDatum(DatumId.nodeId(nodeId, sourceId, timestamp), samples);
 	}
 
@@ -157,7 +160,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param timestamp
 	 *        the timestamp
 	 * @param samples
-	 *        the samples
+	 *        the samples; if {@literal null} a new instance will be created
 	 * @return the new instance
 	 */
 	public static GeneralDatum locationDatum(Long locationId, String sourceId, Instant timestamp,
@@ -195,18 +198,19 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 
 	@Override
 	public GeneralDatum copyWithSamples(DatumSamplesOperations samples) {
-		GeneralDatum copy = new GeneralDatum(getId(), new DatumSamples());
+		final var id = requireNonNullArgument(getId(), "id");
+		GeneralDatum copy = new GeneralDatum(id, new DatumSamples());
 		copy.samples.copyFrom(samples);
 		return copy;
 	}
 
 	@Override
-	public GeneralDatum copyWithId(DatumId id) {
-		return new GeneralDatum(id, samples);
+	public GeneralDatum copyWithId(@Nullable DatumId id) {
+		return new GeneralDatum(requireNonNullArgument(id, "id"), samples);
 	}
 
 	@Override
-	public void copyTo(GeneralDatum other) {
+	public void copyTo(@Nullable GeneralDatum other) {
 		if ( other == null ) {
 			return;
 		}
@@ -219,7 +223,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @return the kind
 	 */
 	@Override
-	public ObjectDatumKind getKind() {
+	public @Nullable ObjectDatumKind getKind() {
 		final DatumId id = getId();
 		return (id != null ? id.getKind() : null);
 	}
@@ -230,25 +234,25 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @return the object ID
 	 */
 	@Override
-	public Long getObjectId() {
+	public @Nullable Long getObjectId() {
 		final DatumId id = getId();
 		return (id != null ? id.getObjectId() : null);
 	}
 
 	@Override
-	public String getSourceId() {
+	public @Nullable String getSourceId() {
 		final DatumId id = getId();
 		return (id != null ? id.getSourceId() : null);
 	}
 
 	@Override
-	public Instant getTimestamp() {
+	public @Nullable Instant getTimestamp() {
 		final DatumId id = getId();
 		return (id != null ? id.getTimestamp() : null);
 	}
 
 	@Override
-	public Map<String, ?> getSampleData() {
+	public @Nullable Map<String, ?> getSampleData() {
 		final DatumSamples s = samples;
 		return (s != null ? s.getSampleData() : null);
 	}
@@ -272,7 +276,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @return a map of simple property data
 	 */
 	protected Map<String, Object> createSimpleMap() {
-		final Map<String, Object> map = new LinkedHashMap<String, Object>();
+		final Map<String, Object> map = new LinkedHashMap<>();
 		final Instant timestamp = getTimestamp();
 		if ( timestamp != null ) {
 			map.put(TIMESTAMP, timestamp.toEpochMilli());
@@ -298,7 +302,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 *
 	 * @return the datum types
 	 */
-	protected String[] datumTypes() {
+	protected String @Nullable [] datumTypes() {
 		return null;
 	}
 
@@ -324,52 +328,52 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	}
 
 	@Override
-	public Map<String, ?> getSampleData(DatumSamplesType type) {
+	public @Nullable Map<String, ?> getSampleData(DatumSamplesType type) {
 		return samples.getSampleData(type);
 	}
 
 	@Override
-	public void setSampleData(DatumSamplesType type, Map<String, ?> data) {
+	public void setSampleData(DatumSamplesType type, @Nullable Map<String, ?> data) {
 		samples.setSampleData(type, data);
 	}
 
 	@Override
-	public Integer getSampleInteger(DatumSamplesType type, String key) {
+	public @Nullable Integer getSampleInteger(DatumSamplesType type, String key) {
 		return samples.getSampleInteger(type, key);
 	}
 
 	@Override
-	public Long getSampleLong(DatumSamplesType type, String key) {
+	public @Nullable Long getSampleLong(DatumSamplesType type, String key) {
 		return samples.getSampleLong(type, key);
 	}
 
 	@Override
-	public Float getSampleFloat(DatumSamplesType type, String key) {
+	public @Nullable Float getSampleFloat(DatumSamplesType type, String key) {
 		return samples.getSampleFloat(type, key);
 	}
 
 	@Override
-	public Double getSampleDouble(DatumSamplesType type, String key) {
+	public @Nullable Double getSampleDouble(DatumSamplesType type, String key) {
 		return samples.getSampleDouble(type, key);
 	}
 
 	@Override
-	public BigDecimal getSampleBigDecimal(DatumSamplesType type, String key) {
+	public @Nullable BigDecimal getSampleBigDecimal(DatumSamplesType type, String key) {
 		return samples.getSampleBigDecimal(type, key);
 	}
 
 	@Override
-	public String getSampleString(DatumSamplesType type, String key) {
+	public @Nullable String getSampleString(DatumSamplesType type, String key) {
 		return samples.getSampleString(type, key);
 	}
 
 	@Override
-	public <V> V getSampleValue(DatumSamplesType type, String key) {
+	public <V> @Nullable V getSampleValue(DatumSamplesType type, String key) {
 		return samples.getSampleValue(type, key);
 	}
 
 	@Override
-	public Set<String> getTags() {
+	public @Nullable Set<String> getTags() {
 		return samples.getTags();
 	}
 
@@ -386,12 +390,12 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @see net.solarnetwork.domain.datum.DatumSupport#setTags(java.util.Set)
 	 */
 	@Override
-	public void setTags(Set<String> tags) {
+	public void setTags(@Nullable Set<String> tags) {
 		samples.setTags(tags);
 	}
 
 	@Override
-	public <V> V findSampleValue(String key) {
+	public <V> @Nullable V findSampleValue(String key) {
 		return samples.findSampleValue(key);
 	}
 
@@ -426,7 +430,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	}
 
 	@Override
-	public void putSampleValue(DatumSamplesType type, String key, Object value) {
+	public void putSampleValue(DatumSamplesType type, String key, @Nullable Object value) {
 		samples.putSampleValue(type, key, value);
 	}
 

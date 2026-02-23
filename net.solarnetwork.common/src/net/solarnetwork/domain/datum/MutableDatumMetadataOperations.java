@@ -25,6 +25,7 @@ package net.solarnetwork.domain.datum;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Extension of {@link DatumSamplesOperations} that adds mutate operations.
@@ -49,7 +50,7 @@ public interface MutableDatumMetadataOperations extends DatumMetadataOperations 
 	 * @param value
 	 *        the value to put, or {@literal null} to remove the key
 	 */
-	void putInfoValue(String key, Object value);
+	void putInfoValue(String key, @Nullable Object value);
 
 	/**
 	 * Set the complete info metadata map.
@@ -57,7 +58,7 @@ public interface MutableDatumMetadataOperations extends DatumMetadataOperations 
 	 * @param info
 	 *        the info to set, or {@literal null}
 	 */
-	void setInfo(Map<String, Object> info);
+	void setInfo(@Nullable Map<String, Object> info);
 
 	/**
 	 * Put a value into or remove a value from the
@@ -71,7 +72,7 @@ public interface MutableDatumMetadataOperations extends DatumMetadataOperations 
 	 * @param value
 	 *        the value to put, or {@literal null} to remove the key
 	 */
-	void putInfoValue(String property, String key, Object value);
+	void putInfoValue(String property, String key, @Nullable Object value);
 
 	/**
 	 * Set the complete property info map for a given property key.
@@ -81,7 +82,7 @@ public interface MutableDatumMetadataOperations extends DatumMetadataOperations 
 	 * @param info
 	 *        the info metadata to set, or {@literal null}
 	 */
-	void setInfo(String key, Map<String, Object> info);
+	void setInfo(String key, @Nullable Map<String, Object> info);
 
 	/**
 	 * Set the tags.
@@ -89,7 +90,7 @@ public interface MutableDatumMetadataOperations extends DatumMetadataOperations 
 	 * @param tags
 	 *        the tags to set
 	 */
-	void setTags(Set<String> tags);
+	void setTags(@Nullable Set<String> tags);
 
 	/**
 	 * Add a tag.
@@ -152,9 +153,9 @@ public interface MutableDatumMetadataOperations extends DatumMetadataOperations 
 	 * @param key
 	 *        the key to set
 	 * @param value
-	 *        the value to set
+	 *        the value to set, or {@code null} to remove the key
 	 * @since 1.1
 	 */
-	void populate(String key, final Object value);
+	void populate(String key, final @Nullable Object value);
 
 }

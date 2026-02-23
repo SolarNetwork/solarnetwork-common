@@ -40,6 +40,7 @@ import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.DateUtils;
 
 /**
@@ -61,7 +62,7 @@ public interface DatumDateFunctions {
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} cannot be parsed
 	 */
-	default ZoneId tz(String zoneId) {
+	default ZoneId tz(@Nullable String zoneId) {
 		return DateUtils.tz(zoneId);
 	}
 
@@ -83,7 +84,7 @@ public interface DatumDateFunctions {
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} cannot be parsed
 	 */
-	default LocalDate today(String zoneId) {
+	default LocalDate today(@Nullable String zoneId) {
 		return today(tz(zoneId));
 	}
 
@@ -94,7 +95,7 @@ public interface DatumDateFunctions {
 	 *        the time zone, or {@literal null} to use the system time zone
 	 * @return the local date
 	 */
-	default LocalDate today(ZoneId zone) {
+	default LocalDate today(@Nullable ZoneId zone) {
 		if ( zone == null ) {
 			return today();
 		}
@@ -121,7 +122,7 @@ public interface DatumDateFunctions {
 	 *         if {@code zoneId} cannot be parsed
 	 * @since 1.4
 	 */
-	default ZonedDateTime startOfDay(String zoneId) {
+	default ZonedDateTime startOfDay(@Nullable String zoneId) {
 		return startOfDay(ZoneId.of(zoneId));
 	}
 
@@ -133,7 +134,7 @@ public interface DatumDateFunctions {
 	 * @return the date and time
 	 * @since 1.4
 	 */
-	default ZonedDateTime startOfDay(ZoneId zone) {
+	default ZonedDateTime startOfDay(@Nullable ZoneId zone) {
 		if ( zone == null ) {
 			zone = ZoneId.systemDefault();
 		}
@@ -158,7 +159,7 @@ public interface DatumDateFunctions {
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} cannot be parsed
 	 */
-	default LocalDateTime now(String zoneId) {
+	default LocalDateTime now(@Nullable String zoneId) {
 		return now(tz(zoneId));
 	}
 
@@ -169,7 +170,7 @@ public interface DatumDateFunctions {
 	 *        the time zone, or {@literal null} to use the system time zone
 	 * @return the local date and time
 	 */
-	default LocalDateTime now(ZoneId zone) {
+	default LocalDateTime now(@Nullable ZoneId zone) {
 		if ( zone == null ) {
 			return now();
 		}
@@ -194,7 +195,7 @@ public interface DatumDateFunctions {
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} cannot be parsed
 	 */
-	default ZonedDateTime nowTz(String zoneId) {
+	default ZonedDateTime nowTz(@Nullable String zoneId) {
 		return nowTz(tz(zoneId));
 	}
 
@@ -205,7 +206,7 @@ public interface DatumDateFunctions {
 	 *        the time zone, or {@literal null} to use the system time zone
 	 * @return the date and time
 	 */
-	default ZonedDateTime nowTz(ZoneId zone) {
+	default ZonedDateTime nowTz(@Nullable ZoneId zone) {
 		if ( zone == null ) {
 			return nowTz();
 		}
@@ -220,7 +221,7 @@ public interface DatumDateFunctions {
 	 * @return the local date and time
 	 * @since 1.1
 	 */
-	default LocalDateTime local(ZonedDateTime date) {
+	default @Nullable LocalDateTime local(@Nullable ZonedDateTime date) {
 		if ( date == null ) {
 			return null;
 		}
@@ -235,7 +236,7 @@ public interface DatumDateFunctions {
 	 * @return the local date
 	 * @since 1.1
 	 */
-	default LocalDate localDate(ZonedDateTime date) {
+	default @Nullable LocalDate localDate(@Nullable ZonedDateTime date) {
 		if ( date == null ) {
 			return null;
 		}
@@ -250,7 +251,7 @@ public interface DatumDateFunctions {
 	 * @return the local time
 	 * @since 1.1
 	 */
-	default LocalTime localTime(ZonedDateTime date) {
+	default @Nullable LocalTime localTime(@Nullable ZonedDateTime date) {
 		if ( date == null ) {
 			return null;
 		}
@@ -275,7 +276,7 @@ public interface DatumDateFunctions {
 	 *         {@literal null}
 	 * @since 1.4
 	 */
-	default Instant timestamp(Long date) {
+	default @Nullable Instant timestamp(@Nullable Long date) {
 		if ( date == null ) {
 			return null;
 		}
@@ -288,12 +289,12 @@ public interface DatumDateFunctions {
 	 *
 	 * @param date
 	 *        the temporal to convert
-	 * @return the converted instant, or {@literal null} if {code temporal} or
-	 *         {@code zone} are {@literal null}
+	 * @return the converted instant, or {@literal null} if {code temporal} is
+	 *         {@literal null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported
 	 */
-	default Instant timestamp(Temporal date) {
+	default @Nullable Instant timestamp(@Nullable Temporal date) {
 		return DateUtils.timestamp(date);
 	}
 
@@ -305,13 +306,13 @@ public interface DatumDateFunctions {
 	 *        the temporal to convert
 	 * @param zoneId
 	 *        the zone ID to use
-	 * @return the converted instant, or {@literal null} if {code temporal} or
-	 *         {@code zone} are {@literal null}
+	 * @return the converted instant, or {@literal null} if {code temporal} is
+	 *         {@literal null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported or {@code zoneId} is not
 	 *         valid
 	 */
-	default Instant timestamp(Temporal date, String zoneId) {
+	default @Nullable Instant timestamp(@Nullable Temporal date, @Nullable String zoneId) {
 		return DateUtils.timestamp(date, zoneId);
 	}
 
@@ -322,12 +323,12 @@ public interface DatumDateFunctions {
 	 *        the temporal to convert
 	 * @param zone
 	 *        the time zone, or {@literal null} to use the system time zone
-	 * @return the converted instant, or {@literal null} if {code temporal} or
-	 *         {@code zone} are {@literal null}
+	 * @return the converted instant, or {@literal null} if {code temporal} is
+	 *         {@literal null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported
 	 */
-	default Instant timestamp(Temporal date, ZoneId zone) {
+	default @Nullable Instant timestamp(@Nullable Temporal date, @Nullable ZoneId zone) {
 		return DateUtils.timestamp(date, zone);
 	}
 
@@ -342,7 +343,7 @@ public interface DatumDateFunctions {
 	 *         if the temporal type is not supported
 	 * @since 1.4
 	 */
-	default Long epoch(Temporal date) {
+	default @Nullable Long epoch(@Nullable Temporal date) {
 		Instant ts = timestamp(date);
 		return (ts != null ? ts.toEpochMilli() : null);
 	}
@@ -358,7 +359,7 @@ public interface DatumDateFunctions {
 	 *         if the temporal type is not supported
 	 * @since 1.4
 	 */
-	default Long epochSecs(Temporal date) {
+	default @Nullable Long epochSecs(@Nullable Temporal date) {
 		Instant ts = timestamp(date);
 		return (ts != null ? ts.getEpochSecond() : null);
 	}
@@ -449,12 +450,12 @@ public interface DatumDateFunctions {
 	 *
 	 * @param name
 	 *        the value to case insensitively parse as a {@link ChronoUnit}
-	 * @return the enum value
+	 * @return the enum value, or {@literal null} if {@code name} is
+	 *         {@literal null}
 	 * @throws IllegalArgumentException
-	 *         if {@code name} is not value, or {@literal null} if {@code name}
-	 *         is {@literal null}
+	 *         if {@code name} is not valid
 	 */
-	default TemporalUnit chronoUnit(String name) {
+	default @Nullable TemporalUnit chronoUnit(@Nullable String name) {
 		return DateUtils.chronoUnit(name);
 	}
 
@@ -480,14 +481,15 @@ public interface DatumDateFunctions {
 	 *        the date to truncate
 	 * @param unit
 	 *        the unit to truncate to
-	 * @return the truncated date
+	 * @return the truncated date, or {@code null} if {@code date} or
+	 *         {@code unit} are {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be truncated to the given unit, or the unit
 	 *         cannot be parsed
 	 * @see #chronoUnit(String)
 	 * @see #dateTruncate(Temporal, TemporalUnit)
 	 */
-	default Temporal dateTruncate(Temporal date, String unit) {
+	default @Nullable Temporal dateTruncate(@Nullable Temporal date, @Nullable String unit) {
 		return DateUtils.dateTruncate(date, unit);
 	}
 
@@ -498,11 +500,12 @@ public interface DatumDateFunctions {
 	 *        the date to truncate
 	 * @param unit
 	 *        the unit to truncate to
-	 * @return the truncated date
+	 * @return the truncated date, or {@code null} if {@code date} or
+	 *         {@code unit} are {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be truncated to the given unit
 	 */
-	default Temporal dateTruncate(Temporal date, TemporalUnit unit) {
+	default @Nullable Temporal dateTruncate(@Nullable Temporal date, @Nullable TemporalUnit unit) {
 		return DateUtils.dateTruncate(date, unit);
 	}
 
@@ -514,7 +517,7 @@ public interface DatumDateFunctions {
 	 * @param duration
 	 *        the period to floor the date within; must be a value supported by
 	 *        {@link #duration(String)}
-	 * @return the floored date
+	 * @return the floored date, or {@code null} if {@code date} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be floored to the given duration, or the
 	 *         duration cannot be parsed
@@ -522,7 +525,7 @@ public interface DatumDateFunctions {
 	 * @see #dateFloor(Temporal, TemporalAmount, ZoneId)
 	 * @since 1.4
 	 */
-	default Temporal dateFloor(Temporal date, String duration) {
+	default @Nullable Temporal dateFloor(@Nullable Temporal date, String duration) {
 		return dateFloor(date, duration(duration), ZoneId.systemDefault());
 	}
 
@@ -538,7 +541,7 @@ public interface DatumDateFunctions {
 	 *         if the date cannot be floored to the given duration
 	 * @since 1.4
 	 */
-	default Temporal dateFloor(Temporal date, TemporalAmount duration) {
+	default @Nullable Temporal dateFloor(@Nullable Temporal date, @Nullable TemporalAmount duration) {
 		return DateUtils.dateFloor(date, duration, ZoneId.systemDefault());
 	}
 
@@ -562,7 +565,8 @@ public interface DatumDateFunctions {
 	 * @see #dateFloor(Temporal, TemporalAmount ZoneId)
 	 * @since 1.4
 	 */
-	default Temporal dateFloor(Temporal date, String duration, String zoneId) {
+	default @Nullable Temporal dateFloor(@Nullable Temporal date, String duration,
+			@Nullable String zoneId) {
 		return dateFloor(date, duration(duration), tz(zoneId));
 	}
 
@@ -584,7 +588,8 @@ public interface DatumDateFunctions {
 	 * @see #dateFloor(Temporal, TemporalAmount, ZoneId)
 	 * @since 1.4
 	 */
-	default Temporal dateFloor(Temporal date, String duration, ZoneId zone) {
+	default @Nullable Temporal dateFloor(@Nullable Temporal date, String duration,
+			@Nullable ZoneId zone) {
 		return dateFloor(date, duration(duration), zone);
 	}
 
@@ -598,7 +603,9 @@ public interface DatumDateFunctions {
 	 * @param zoneId
 	 *        the zone IDto use for {@link Period} amounts; must be supported by
 	 *        {@link #tz(String)}
-	 * @return the floored date
+	 * @return the floored date, or {@code null} if {@code date} is
+	 *         {@code null}, or {@code date} if {@code amount} is not a
+	 *         supported amount type ({@link Period} or {@link Duration})
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be floored to the given duration, or the
 	 *         duration cannot be parsed
@@ -606,7 +613,8 @@ public interface DatumDateFunctions {
 	 * @see #dateFloor(Temporal, TemporalAmount, ZoneId)
 	 * @since 1.4
 	 */
-	default Temporal dateFloor(Temporal date, TemporalAmount duration, String zoneId) {
+	default @Nullable Temporal dateFloor(@Nullable Temporal date, @Nullable TemporalAmount duration,
+			@Nullable String zoneId) {
 		return dateFloor(date, duration, tz(zoneId));
 	}
 
@@ -619,13 +627,16 @@ public interface DatumDateFunctions {
 	 *        the amount to floor the date within
 	 * @param zone
 	 *        the zone to use for {@link Period} amounts
-	 * @return the floored date
+	 * @return the floored date, or {@code null} if {@code date} is
+	 *         {@code null}, or {@code date} if {@code amount} is not a
+	 *         supported amount type ({@link Period} or {@link Duration})
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be floored to the given duration
 	 * @since 1.4
 	 */
-	default Temporal dateFloor(Temporal date, TemporalAmount duration, ZoneId zone) {
-		return DateUtils.dateFloor(date, duration, zone);
+	default @Nullable Temporal dateFloor(@Nullable Temporal date, @Nullable TemporalAmount duration,
+			@Nullable ZoneId zone) {
+		return DateUtils.dateFloor(date, duration, zone != null ? zone : ZoneId.systemDefault());
 	}
 
 	/**
@@ -636,7 +647,7 @@ public interface DatumDateFunctions {
 	 * @return the zoned date, or {@literal null} if {@code date} is
 	 *         {@literal null}
 	 */
-	default ZonedDateTime dateTz(LocalDate date) {
+	default @Nullable ZonedDateTime dateTz(@Nullable LocalDate date) {
 		return dateTz(date, ZoneId.systemDefault());
 	}
 
@@ -652,7 +663,7 @@ public interface DatumDateFunctions {
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} is not valid
 	 */
-	default ZonedDateTime dateTz(LocalDate date, String zoneId) {
+	default @Nullable ZonedDateTime dateTz(@Nullable LocalDate date, @Nullable String zoneId) {
 		return dateTz(date, tz(zoneId));
 	}
 
@@ -666,7 +677,7 @@ public interface DatumDateFunctions {
 	 * @return the zoned date, or {@literal null} if {@code date} is
 	 *         {@literal null}
 	 */
-	default ZonedDateTime dateTz(LocalDate date, ZoneId zone) {
+	default @Nullable ZonedDateTime dateTz(@Nullable LocalDate date, @Nullable ZoneId zone) {
 		if ( date == null ) {
 			return null;
 		}
@@ -684,7 +695,7 @@ public interface DatumDateFunctions {
 	 * @return the zoned date, or {@literal null} if {@code date} is
 	 *         {@literal null}
 	 */
-	default ZonedDateTime dateTz(LocalDateTime date) {
+	default @Nullable ZonedDateTime dateTz(@Nullable LocalDateTime date) {
 		if ( date == null ) {
 			return null;
 		}
@@ -703,7 +714,7 @@ public interface DatumDateFunctions {
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} is not valid
 	 */
-	default ZonedDateTime dateTz(LocalDateTime date, String zoneId) {
+	default @Nullable ZonedDateTime dateTz(@Nullable LocalDateTime date, @Nullable String zoneId) {
 		return dateTz(date, tz(zoneId));
 	}
 
@@ -717,7 +728,7 @@ public interface DatumDateFunctions {
 	 * @return the zoned date, or {@literal null} if {@code date} is
 	 *         {@literal null}
 	 */
-	default ZonedDateTime dateTz(LocalDateTime date, ZoneId zone) {
+	default @Nullable ZonedDateTime dateTz(@Nullable LocalDateTime date, @Nullable ZoneId zone) {
 		if ( date == null ) {
 			return null;
 		}
@@ -739,7 +750,7 @@ public interface DatumDateFunctions {
 	 *         if {@code zoneId} is not valid
 	 * @since 1.4
 	 */
-	default ZonedDateTime dateTz(Long date) {
+	default @Nullable ZonedDateTime dateTz(@Nullable Long date) {
 		return dateTz(timestamp(date), ZoneId.systemDefault());
 	}
 
@@ -756,7 +767,7 @@ public interface DatumDateFunctions {
 	 *         if {@code zoneId} is not valid
 	 * @since 1.4
 	 */
-	default ZonedDateTime dateTz(Long date, String zoneId) {
+	default @Nullable ZonedDateTime dateTz(@Nullable Long date, @Nullable String zoneId) {
 		return dateTz(timestamp(date), tz(zoneId));
 	}
 
@@ -771,7 +782,7 @@ public interface DatumDateFunctions {
 	 *         {@literal null}
 	 * @since 1.4
 	 */
-	default ZonedDateTime dateTz(Long date, ZoneId zone) {
+	default @Nullable ZonedDateTime dateTz(@Nullable Long date, @Nullable ZoneId zone) {
 		return dateTz(timestamp(date), zone);
 	}
 
@@ -787,7 +798,7 @@ public interface DatumDateFunctions {
 	 *         if {@code zoneId} is not valid
 	 * @since 1.4
 	 */
-	default ZonedDateTime dateTz(Instant date) {
+	default @Nullable ZonedDateTime dateTz(@Nullable Instant date) {
 		return dateTz(date, ZoneId.systemDefault());
 	}
 
@@ -804,7 +815,7 @@ public interface DatumDateFunctions {
 	 *         if {@code zoneId} is not valid
 	 * @since 1.4
 	 */
-	default ZonedDateTime dateTz(Instant date, String zoneId) {
+	default @Nullable ZonedDateTime dateTz(@Nullable Instant date, @Nullable String zoneId) {
 		return dateTz(date, tz(zoneId));
 	}
 
@@ -819,7 +830,7 @@ public interface DatumDateFunctions {
 	 *         {@literal null}
 	 * @since 1.4
 	 */
-	default ZonedDateTime dateTz(Instant date, ZoneId zone) {
+	default @Nullable ZonedDateTime dateTz(@Nullable Instant date, @Nullable ZoneId zone) {
 		if ( date == null ) {
 			return null;
 		}
@@ -844,7 +855,7 @@ public interface DatumDateFunctions {
 	 *         {@code amount} cannot be added to {@code date}
 	 * @see #duration(String)
 	 */
-	default Temporal datePlus(Temporal date, String amount) {
+	default @Nullable Temporal datePlus(@Nullable Temporal date, String amount) {
 		return DateUtils.datePlus(date, amount);
 	}
 
@@ -860,7 +871,7 @@ public interface DatumDateFunctions {
 	 *         if {@code amount} cannot be added to {@code date}
 	 * @see #duration(String)
 	 */
-	default Temporal datePlus(Temporal date, TemporalAmount amount) {
+	default @Nullable Temporal datePlus(@Nullable Temporal date, @Nullable TemporalAmount amount) {
 		return DateUtils.datePlus(date, amount);
 	}
 
@@ -877,7 +888,7 @@ public interface DatumDateFunctions {
 	 * @throws IllegalArgumentException
 	 *         if {@code unit} cannot be parsed as a {@link ChronoUnit}
 	 */
-	default Temporal datePlus(Temporal date, long amount, String unit) {
+	default @Nullable Temporal datePlus(@Nullable Temporal date, long amount, @Nullable String unit) {
 		return DateUtils.datePlus(date, amount, unit);
 	}
 
@@ -895,7 +906,8 @@ public interface DatumDateFunctions {
 	 * @throws IllegalArgumentException
 	 *         if {@code unit} cannot be added to {@code date}
 	 */
-	default Temporal datePlus(Temporal date, long amount, TemporalUnit unit) {
+	default @Nullable Temporal datePlus(@Nullable Temporal date, long amount,
+			@Nullable TemporalUnit unit) {
 		return DateUtils.datePlus(date, amount, unit);
 	}
 
@@ -910,7 +922,7 @@ public interface DatumDateFunctions {
 	 *         if {@code value} cannot be parsed
 	 * @since 1.2
 	 */
-	default LocalDate date(String value) {
+	default @Nullable LocalDate date(@Nullable String value) {
 		if ( value == null || value.isEmpty() ) {
 			return null;
 		}
@@ -934,7 +946,7 @@ public interface DatumDateFunctions {
 	 *         if {@code value} cannot be parsed
 	 * @since 1.2
 	 */
-	default LocalTime time(String value) {
+	default @Nullable LocalTime time(@Nullable String value) {
 		if ( value == null || value.isEmpty() ) {
 			return null;
 		}
@@ -963,7 +975,7 @@ public interface DatumDateFunctions {
 	 *         if {@code value} cannot be parsed
 	 * @since 1.2
 	 */
-	default Instant timestamp(String value) {
+	default @Nullable Instant timestamp(@Nullable String value) {
 		if ( value == null || value.isEmpty() ) {
 			return null;
 		}
@@ -993,7 +1005,7 @@ public interface DatumDateFunctions {
 	 *         if the duration cannot be calculated
 	 * @since 1.2
 	 */
-	default Duration durationBetween(Temporal date1, Temporal date2) {
+	default @Nullable Duration durationBetween(@Nullable Temporal date1, @Nullable Temporal date2) {
 		if ( date1 == null || date2 == null ) {
 			return null;
 		}
@@ -1021,7 +1033,7 @@ public interface DatumDateFunctions {
 	 *         if the duration cannot be calculated
 	 * @since 1.2
 	 */
-	static long between(ChronoUnit unit, Temporal date1, Temporal date2) {
+	static long between(ChronoUnit unit, @Nullable Temporal date1, @Nullable Temporal date2) {
 		if ( date1 == null || date2 == null ) {
 			return 0;
 		}
@@ -1055,7 +1067,7 @@ public interface DatumDateFunctions {
 	 *         if the duration cannot be calculated
 	 * @since 1.2
 	 */
-	default long secondsBetween(Temporal date1, Temporal date2) {
+	default long secondsBetween(@Nullable Temporal date1, @Nullable Temporal date2) {
 		return between(ChronoUnit.SECONDS, date1, date2);
 	}
 
@@ -1072,7 +1084,7 @@ public interface DatumDateFunctions {
 	 *         if the duration cannot be calculated
 	 * @since 1.2
 	 */
-	default long minutesBetween(Temporal date1, Temporal date2) {
+	default long minutesBetween(@Nullable Temporal date1, @Nullable Temporal date2) {
 		return between(ChronoUnit.MINUTES, date1, date2);
 	}
 
@@ -1089,7 +1101,7 @@ public interface DatumDateFunctions {
 	 *         if the duration cannot be calculated
 	 * @since 1.2
 	 */
-	default long hoursBetween(Temporal date1, Temporal date2) {
+	default long hoursBetween(@Nullable Temporal date1, @Nullable Temporal date2) {
 		return between(ChronoUnit.HOURS, date1, date2);
 	}
 
@@ -1106,7 +1118,7 @@ public interface DatumDateFunctions {
 	 *         if the duration cannot be calculated
 	 * @since 1.2
 	 */
-	default long daysBetween(Temporal date1, Temporal date2) {
+	default long daysBetween(@Nullable Temporal date1, @Nullable Temporal date2) {
 		return between(ChronoUnit.DAYS, date1, date2);
 	}
 
@@ -1125,7 +1137,7 @@ public interface DatumDateFunctions {
 	 * @since 1.2
 	 */
 	@SuppressWarnings("unchecked")
-	default double monthsBetween(Temporal date1, Temporal date2) {
+	default double monthsBetween(@Nullable Temporal date1, @Nullable Temporal date2) {
 		if ( date1 == null || date2 == null ) {
 			return 0.0;
 		}
@@ -1184,7 +1196,7 @@ public interface DatumDateFunctions {
 	 * @since 1.2
 	 */
 	@SuppressWarnings("unchecked")
-	default double yearsBetween(Temporal date1, Temporal date2) {
+	default double yearsBetween(@Nullable Temporal date1, @Nullable Temporal date2) {
 		if ( date1 == null || date2 == null ) {
 			return 0.0;
 		}
@@ -1242,7 +1254,7 @@ public interface DatumDateFunctions {
 	 * @since 1.3
 	 * @see #formatDate(Temporal, String, ZoneId)
 	 */
-	default String formatDate(Temporal date, String pattern) {
+	default @Nullable String formatDate(@Nullable Temporal date, @Nullable String pattern) {
 		return formatDate(date, pattern, null);
 	}
 
@@ -1262,7 +1274,8 @@ public interface DatumDateFunctions {
 	 *         if any error occurs formatting the date
 	 * @since 1.3
 	 */
-	default String formatDate(Temporal date, String pattern, ZoneId zone) {
+	default @Nullable String formatDate(@Nullable Temporal date, @Nullable String pattern,
+			@Nullable ZoneId zone) {
 		if ( date == null || pattern == null || pattern.isEmpty() ) {
 			return null;
 		}

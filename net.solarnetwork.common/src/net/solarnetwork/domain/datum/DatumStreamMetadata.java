@@ -24,6 +24,7 @@ package net.solarnetwork.domain.datum;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.datum.DatumPropertiesStatistics.AccumulatingStatistic;
 import net.solarnetwork.domain.datum.DatumPropertiesStatistics.InstantaneousStatistic;
 
@@ -48,6 +49,7 @@ public interface DatumStreamMetadata {
 	 *
 	 * @return the time zone ID, or {@code null} if not known
 	 */
+	@Nullable
 	String getTimeZoneId();
 
 	/**
@@ -55,7 +57,7 @@ public interface DatumStreamMetadata {
 	 *
 	 * @return the property names
 	 */
-	String[] getPropertyNames();
+	String @Nullable [] getPropertyNames();
 
 	/**
 	 * Get the subset of all property names that are of a specific type.
@@ -65,7 +67,7 @@ public interface DatumStreamMetadata {
 	 * @return the property names, or {@code null} if none available or
 	 *         {@code type} is {@link DatumSamplesType#Tag}
 	 */
-	String[] propertyNamesForType(DatumSamplesType type);
+	String @Nullable [] propertyNamesForType(DatumSamplesType type);
 
 	/**
 	 * Get the index of a specific property name.
@@ -101,7 +103,8 @@ public interface DatumStreamMetadata {
 	 * @return the property value, or {@code nul}
 	 * @since 2.2
 	 */
-	default Object value(DatumProperties props, DatumSamplesType type, int propertyIndex) {
+	default @Nullable Object value(@Nullable DatumProperties props, @Nullable DatumSamplesType type,
+			int propertyIndex) {
 		if ( props == null || type == null ) {
 			return null;
 		}
@@ -121,8 +124,8 @@ public interface DatumStreamMetadata {
 	 * @return the statistic value, or {@code nul}
 	 * @since 2.2
 	 */
-	default BigDecimal stat(DatumPropertiesStatistics stats, InstantaneousStatistic type,
-			int propertyIndex) {
+	default @Nullable BigDecimal stat(@Nullable DatumPropertiesStatistics stats,
+			@Nullable InstantaneousStatistic type, int propertyIndex) {
 		if ( stats == null || type == null ) {
 			return null;
 		}
@@ -142,8 +145,8 @@ public interface DatumStreamMetadata {
 	 * @return the statistic value, or {@code nul}
 	 * @since 2.2
 	 */
-	default BigDecimal stat(DatumPropertiesStatistics stats, AccumulatingStatistic type,
-			int propertyIndex) {
+	default @Nullable BigDecimal stat(@Nullable DatumPropertiesStatistics stats,
+			@Nullable AccumulatingStatistic type, int propertyIndex) {
 		if ( stats == null || type == null ) {
 			return null;
 		}

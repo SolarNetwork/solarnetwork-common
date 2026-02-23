@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -109,7 +110,7 @@ public class BasicObjectDatumStreamDataSetSerializer extends
 	public void serialize(ObjectDatumStreamDataSet<? extends StreamDatum> value, JsonGenerator gen,
 			SerializerProvider provider) throws IOException {
 		final Collection<UUID> streamIds = value.metadataStreamIds();
-		final Map<UUID, Integer> metaIndexMap = new HashMap<>(streamIds.size());
+		final Map<UUID, Integer> metaIndexMap = new HashMap<>(streamIds != null ? streamIds.size() : 4);
 		final Iterator<? extends StreamDatum> itr = value.iterator();
 		int count = (value.getReturnedResultCount() != null ? 1 : 0)
 				+ (value.getStartingOffset() != null ? 1 : 0)
@@ -138,8 +139,7 @@ public class BasicObjectDatumStreamDataSetSerializer extends
 			gen.writeStartArray(streamIds, streamIds.size());
 			for ( UUID streamId : streamIds ) {
 				metaIndexMap.put(streamId, i);
-				BasicObjectDatumStreamMetadataSerializer.INSTANCE
-						.serialize(value.metadataForStreamId(streamId), gen, provider);
+				serializeMeta(value.metadataForStreamId(streamId), gen, provider);
 				i++;
 			}
 			gen.writeEndArray();
@@ -190,6 +190,14 @@ public class BasicObjectDatumStreamDataSetSerializer extends
 		}
 
 		gen.writeEndObject();
+	}
+
+	// assume meta is non-null, because the provider gave us the steam IDs we ask for
+	@SuppressWarnings("NullAway")
+	private static void serializeMeta(@Nullable ObjectDatumStreamMetadata meta, JsonGenerator gen,
+			SerializerProvider provider) throws IOException {
+		assert meta != null;
+		BasicObjectDatumStreamMetadataSerializer.INSTANCE.serialize(meta, gen, provider);
 	}
 
 }

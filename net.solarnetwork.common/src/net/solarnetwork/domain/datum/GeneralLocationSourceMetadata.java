@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain.datum;
 
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import net.solarnetwork.domain.Location;
@@ -37,9 +38,9 @@ import net.solarnetwork.domain.SimpleLocation;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 
-	private Long locationId;
+	private @Nullable Long locationId;
 
-	private Location location;
+	private @Nullable Location location;
 
 	/**
 	 * Constructor.
@@ -53,7 +54,7 @@ public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 	 *
 	 * @return the location ID
 	 */
-	public Long getLocationId() {
+	public @Nullable Long getLocationId() {
 		return locationId;
 	}
 
@@ -63,7 +64,7 @@ public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 	 * @param locationId
 	 *        the location ID to set
 	 */
-	public void setLocationId(Long locationId) {
+	public void setLocationId(@Nullable Long locationId) {
 		this.locationId = locationId;
 	}
 
@@ -72,7 +73,7 @@ public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 	 *
 	 * @return the location
 	 */
-	public Location getLocation() {
+	public @Nullable Location getLocation() {
 		return location;
 	}
 
@@ -84,7 +85,7 @@ public class GeneralLocationSourceMetadata extends GeneralSourceMetadata {
 	 */
 	@com.fasterxml.jackson.databind.annotation.JsonDeserialize(as = SimpleLocation.class)
 	@tools.jackson.databind.annotation.JsonDeserialize(as = SimpleLocation.class)
-	public void setLocation(Location location) {
+	public void setLocation(@Nullable Location location) {
 		this.location = location;
 	}
 

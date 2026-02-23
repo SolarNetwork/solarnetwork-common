@@ -1,30 +1,32 @@
 /* ==================================================================
  * DatumSamplePropertyConfig.java - 14/03/2018 3:45:22 PM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU  Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU  Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  *  Public License for more details.
- * 
- * You should have received a copy of the GNU  Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU  Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.domain.datum;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Join some sort of configuration with a sample property key and type.
- * 
+ *
  * @param <V>
  *        the configuration type
  * @author matt
@@ -33,9 +35,9 @@ package net.solarnetwork.domain.datum;
  */
 public class DatumSamplePropertyConfig<V> {
 
-	private String propertyKey;
-	private DatumSamplesType propertyType;
-	private V config;
+	private @Nullable String propertyKey;
+	private @Nullable DatumSamplesType propertyType;
+	private @Nullable V config;
 
 	/**
 	 * Default constructor.
@@ -46,7 +48,7 @@ public class DatumSamplePropertyConfig<V> {
 
 	/**
 	 * Construct with values.
-	 * 
+	 *
 	 * @param propertyKey
 	 *        the sample property key to use
 	 * @param propertyType
@@ -54,7 +56,8 @@ public class DatumSamplePropertyConfig<V> {
 	 * @param config
 	 *        the configuration to use
 	 */
-	public DatumSamplePropertyConfig(String propertyKey, DatumSamplesType propertyType, V config) {
+	public DatumSamplePropertyConfig(@Nullable String propertyKey,
+			@Nullable DatumSamplesType propertyType, @Nullable V config) {
 		super();
 		setPropertyKey(propertyKey);
 		setPropertyType(propertyType);
@@ -63,73 +66,73 @@ public class DatumSamplePropertyConfig<V> {
 
 	/**
 	 * Get the sample property key.
-	 * 
+	 *
 	 * <p>
 	 * This value represents a key in a
 	 * {@link DatumSamples#getSampleData(DatumSamplesType)} map.
 	 * </p>
-	 * 
+	 *
 	 * @return the sample property key
 	 */
-	public String getPropertyKey() {
+	public @Nullable String getPropertyKey() {
 		return propertyKey;
 	}
 
 	/**
 	 * Set the sample property key.
-	 * 
+	 *
 	 * <p>
 	 * This value represents a key in a
 	 * {@link DatumSamples#getSampleData(DatumSamplesType)} map.
 	 * </p>
-	 * 
+	 *
 	 * @param propertyKey
 	 *        the sample property key
 	 */
-	public void setPropertyKey(String propertyKey) {
+	public void setPropertyKey(@Nullable String propertyKey) {
 		this.propertyKey = propertyKey;
 	}
 
 	/**
 	 * Get the sample property type.
-	 * 
+	 *
 	 * <p>
 	 * This value represents the type to use in a
 	 * {@link DatumSamples#getSampleData(DatumSamplesType)} map.
 	 * </p>
-	 * 
+	 *
 	 * @return the sample property type
 	 */
-	public DatumSamplesType getPropertyType() {
+	public @Nullable DatumSamplesType getPropertyType() {
 		return propertyType;
 	}
 
 	/**
 	 * Set the sample property type.
-	 * 
+	 *
 	 * <p>
 	 * This value represents the type to use in a
 	 * {@link DatumSamples#getSampleData(DatumSamplesType)} map.
 	 * </p>
-	 * 
+	 *
 	 * @param propertyType
 	 *        the property type
 	 */
-	public void setPropertyType(DatumSamplesType propertyType) {
+	public void setPropertyType(@Nullable DatumSamplesType propertyType) {
 		this.propertyType = propertyType;
 	}
 
 	/**
 	 * Get the property type key.
-	 * 
+	 *
 	 * <p>
 	 * This returns the configured {@link #getPropertyType()}
 	 * {@link DatumSamplesType#toKey()} value as a string.
 	 * </p>
-	 * 
+	 *
 	 * @return the property type key
 	 */
-	public String getPropertyTypeKey() {
+	public @Nullable String getPropertyTypeKey() {
 		DatumSamplesType type = getPropertyType();
 		if ( type == null ) {
 			return null;
@@ -139,17 +142,17 @@ public class DatumSamplePropertyConfig<V> {
 
 	/**
 	 * Set the property type via a key value.
-	 * 
+	 *
 	 * <p>
 	 * This uses the first character of {@code key} as a
 	 * {@link DatumSamplesType} key value to call
 	 * {@link #setPropertyType(DatumSamplesType)}.
 	 * </p>
-	 * 
+	 *
 	 * @param key
 	 *        the datum property type key to set
 	 */
-	public void setPropertyTypeKey(String key) {
+	public void setPropertyTypeKey(@Nullable String key) {
 		if ( key == null || key.length() < 1 ) {
 			return;
 		}
@@ -158,22 +161,22 @@ public class DatumSamplePropertyConfig<V> {
 
 	/**
 	 * Get the configuration object.
-	 * 
+	 *
 	 * @return the configuration to associate with the sample property key and
 	 *         type
 	 */
-	public V getConfig() {
+	public @Nullable V getConfig() {
 		return config;
 	}
 
 	/**
 	 * Set the configuration object.
-	 * 
+	 *
 	 * @param config
 	 *        the configuration to associate with the sample property key and
 	 *        type
 	 */
-	public void setConfig(V config) {
+	public void setConfig(@Nullable V config) {
 		this.config = config;
 	}
 

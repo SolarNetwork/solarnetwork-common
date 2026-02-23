@@ -1,7 +1,7 @@
 /* ==================================================================
- * PriceDatum.java - Oct 22, 2014 4:01:43 PM
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2007-2014 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,29 +20,5 @@
  * ==================================================================
  */
 
+@org.jspecify.annotations.NullMarked
 package net.solarnetwork.domain.datum;
-
-import java.math.BigDecimal;
-import org.jspecify.annotations.Nullable;
-
-/**
- * API for price data.
- *
- * @author matt
- * @version 1.1
- */
-public interface PriceDatum extends Datum {
-
-	/** An instantaneous sample key for price values. */
-	static final String PRICE_KEY = "price";
-
-	/**
-	 * Get the price value.
-	 *
-	 * @return the price
-	 */
-	default @Nullable BigDecimal getPrice() {
-		return asSampleOperations().getSampleBigDecimal(DatumSamplesType.Instantaneous, PRICE_KEY);
-	}
-
-}
