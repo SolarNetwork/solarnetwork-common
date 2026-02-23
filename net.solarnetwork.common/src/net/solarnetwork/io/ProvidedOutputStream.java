@@ -25,6 +25,7 @@ package net.solarnetwork.io;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.function.Supplier;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.ObjectUtils;
 
 /**
@@ -60,13 +61,15 @@ import net.solarnetwork.util.ObjectUtils;
 public class ProvidedOutputStream extends OutputStream {
 
 	private final Supplier<OutputStream> provider;
-	private OutputStream delegate;
+	private @Nullable OutputStream delegate;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param provider
 	 *        the writer provider
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public ProvidedOutputStream(Supplier<OutputStream> provider) {
 		super();

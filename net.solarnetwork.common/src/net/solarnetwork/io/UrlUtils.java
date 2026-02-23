@@ -41,6 +41,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
@@ -288,8 +289,8 @@ public final class UrlUtils {
 	 * @throws IOException
 	 *         if any IO error occurs
 	 */
-	public static URLConnection getURLConnection(String url, String httpMethod, String accept,
-			int timeout, SSLService sslService) throws IOException {
+	public static URLConnection getURLConnection(String url, @Nullable String httpMethod,
+			@Nullable String accept, int timeout, @Nullable SSLService sslService) throws IOException {
 		URL connUrl;
 		try {
 			connUrl = new URI(url).toURL();
@@ -336,7 +337,7 @@ public final class UrlUtils {
 	 *        the value
 	 */
 	public static <T extends Appendable & CharSequence> void appendURLEncodedValue(T buf, String key,
-			Object value) {
+			@Nullable Object value) {
 		if ( value == null ) {
 			return;
 		}
@@ -364,7 +365,7 @@ public final class UrlUtils {
 	 *        the map of data to encode
 	 * @return the encoded data, or an empty string if nothing to encode
 	 */
-	public static String urlEncoded(Map<String, ?> data) {
+	public static String urlEncoded(@Nullable Map<String, ?> data) {
 		if ( data == null || data.size() < 0 ) {
 			return "";
 		}
@@ -442,8 +443,9 @@ public final class UrlUtils {
 	 *         within the 200 - 299 range
 	 * @since 2.1
 	 */
-	public static URLConnection postXWWWFormURLEncodedData(Logger log, String url, String accept,
-			Map<String, ?> data, int timeout, SSLService sslService) throws IOException {
+	public static URLConnection postXWWWFormURLEncodedData(Logger log, String url,
+			@Nullable String accept, @Nullable Map<String, ?> data, int timeout,
+			@Nullable SSLService sslService) throws IOException {
 		URLConnection conn = getURLConnection(url, HTTP_METHOD_POST, accept, timeout, sslService);
 		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 		String body = urlEncoded(data);
@@ -488,8 +490,9 @@ public final class UrlUtils {
 	 *         within the 200 - 299 range
 	 * @see #postXWWWFormURLEncodedData(String, String, Map, int, SSLService)
 	 */
-	public static String postXWWWFormURLEncodedDataForString(String url, String accept,
-			Map<String, ?> data, int timeout, SSLService sslService) throws IOException {
+	public static String postXWWWFormURLEncodedDataForString(String url, @Nullable String accept,
+			@Nullable Map<String, ?> data, int timeout, @Nullable SSLService sslService)
+			throws IOException {
 		return postXWWWFormURLEncodedDataForString(log, url, accept, data, timeout, sslService);
 	}
 
@@ -521,8 +524,9 @@ public final class UrlUtils {
 	 * @see #postXWWWFormURLEncodedData(String, String, Map, int, SSLService)
 	 * @since 2.1
 	 */
-	public static String postXWWWFormURLEncodedDataForString(Logger log, String url, String accept,
-			Map<String, ?> data, int timeout, SSLService sslService) throws IOException {
+	public static String postXWWWFormURLEncodedDataForString(Logger log, String url,
+			@Nullable String accept, @Nullable Map<String, ?> data, int timeout,
+			@Nullable SSLService sslService) throws IOException {
 		URLConnection conn = postXWWWFormURLEncodedData(log, url, accept, data, timeout, sslService);
 		return FileCopyUtils.copyToString(getUnicodeReaderFromURLConnection(log, conn));
 	}
@@ -550,8 +554,9 @@ public final class UrlUtils {
 	 *         if the URL is the HTTP scheme and the HTTP response code is not
 	 *         within the 200 - 299 range
 	 */
-	public static URLConnection getURL(String url, String accept, Map<String, ?> queryParameters,
-			int timeout, SSLService sslService) throws IOException {
+	public static URLConnection getURL(String url, @Nullable String accept,
+			@Nullable Map<String, ?> queryParameters, int timeout, @Nullable SSLService sslService)
+			throws IOException {
 		return getURL(log, url, accept, queryParameters, timeout, sslService);
 	}
 
@@ -581,8 +586,9 @@ public final class UrlUtils {
 	 *         within the 200 - 299 range
 	 * @since 2.1
 	 */
-	public static URLConnection getURL(Logger log, String url, String accept,
-			Map<String, ?> queryParameters, int timeout, SSLService sslService) throws IOException {
+	public static URLConnection getURL(Logger log, String url, @Nullable String accept,
+			@Nullable Map<String, ?> queryParameters, int timeout, @Nullable SSLService sslService)
+			throws IOException {
 		String query = urlEncoded(queryParameters);
 		String fullUrl = url;
 		if ( query != null ) {
@@ -625,8 +631,9 @@ public final class UrlUtils {
 	 *         if the URL is the HTTP scheme and the HTTP response code is not
 	 *         within the 200 - 299 range
 	 */
-	public static String getURLForString(String url, String accept, Map<String, ?> queryParameters,
-			int timeout, SSLService sslService) throws IOException {
+	public static String getURLForString(String url, @Nullable String accept,
+			@Nullable Map<String, ?> queryParameters, int timeout, @Nullable SSLService sslService)
+			throws IOException {
 		return getURLForString(log, url, accept, queryParameters, timeout, sslService);
 	}
 
@@ -656,8 +663,9 @@ public final class UrlUtils {
 	 *         within the 200 - 299 range
 	 * @since 2.1
 	 */
-	public static String getURLForString(Logger log, String url, String accept,
-			Map<String, ?> queryParameters, int timeout, SSLService sslService) throws IOException {
+	public static String getURLForString(Logger log, String url, @Nullable String accept,
+			@Nullable Map<String, ?> queryParameters, int timeout, @Nullable SSLService sslService)
+			throws IOException {
 		URLConnection conn = getURL(log, url, accept, queryParameters, timeout, sslService);
 		return FileCopyUtils.copyToString(getUnicodeReaderFromURLConnection(log, conn));
 	}

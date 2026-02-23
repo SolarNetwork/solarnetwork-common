@@ -1,21 +1,21 @@
 /* ==================================================================
  * DecompressingResource.java - 9/11/2018 7:06:20 AM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -31,14 +31,16 @@ import java.net.URL;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.apache.commons.compress.utils.CountingInputStream;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.Resource;
+import net.solarnetwork.util.ObjectUtils;
 
 /**
  * A {@link Resource} that can decompress another {@link Resource}.
- * 
+ *
  * <p>
  * This implementation uses the Apache Commons Compression library to return
  * {@link InputStream} instances from {@link #getInputStream()} that perform
@@ -46,7 +48,7 @@ import org.springframework.core.io.Resource;
  * cannot be detected then the raw stream will be returned and the compression
  * type will be set to {@link #NO_KNOWN_COMPRESSION_TYPE}.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.1
  * @since 1.47
@@ -63,14 +65,16 @@ public class DecompressingResource extends AbstractResource {
 
 	private final Resource source;
 
-	private String compressionType;
+	private @Nullable String compressionType;
 	private long contentLength = -1;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param source
 	 *        the source (compressed) resource
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public DecompressingResource(Resource source) {
 		this(source, null);
@@ -78,20 +82,22 @@ public class DecompressingResource extends AbstractResource {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param source
 	 *        the source (compressed) resource
 	 * @param compressionType
 	 *        the compression type to use, or {@code null} to try to
 	 *        automatically detect the type
+	 * @throws IllegalArgumentException
+	 *         if {@code source} is {@code null}
 	 */
-	public DecompressingResource(Resource source, String compressionType) {
+	public DecompressingResource(Resource source, @Nullable String compressionType) {
 		this(source, compressionType, -1);
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param source
 	 *        the source (compressed) resource
 	 * @param compressionType
@@ -100,11 +106,13 @@ public class DecompressingResource extends AbstractResource {
 	 * @param contentLength
 	 *        the known uncompressed content length of the resource, or
 	 *        {@literal -1} to automatically determine
+	 * @throws IllegalArgumentException
+	 *         if {@code source} is {@code null}
 	 * @since 1.1
 	 */
-	public DecompressingResource(Resource source, String compressionType, long contentLength) {
+	public DecompressingResource(Resource source, @Nullable String compressionType, long contentLength) {
 		super();
-		this.source = source;
+		this.source = ObjectUtils.requireNonNullArgument(source, "source");
 		this.compressionType = compressionType;
 		this.contentLength = contentLength;
 	}
@@ -154,10 +162,10 @@ public class DecompressingResource extends AbstractResource {
 
 	/**
 	 * Get the detected compression type.
-	 * 
+	 *
 	 * @return the detected compression type
 	 */
-	public String getCompressionType() {
+	public @Nullable String getCompressionType() {
 		if ( compressionType == null ) {
 			// call getInputStream for detection
 			try (InputStream in = getInputStream()) {
@@ -180,7 +188,7 @@ public class DecompressingResource extends AbstractResource {
 	}
 
 	@Override
-	public String getFilename() {
+	public @Nullable String getFilename() {
 		return source.getFilename();
 	}
 

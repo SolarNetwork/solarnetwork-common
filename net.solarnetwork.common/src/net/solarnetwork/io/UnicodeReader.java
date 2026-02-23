@@ -1,21 +1,21 @@
 /* ==================================================================
  * UnicodeReader.java - Oct 2, 2011 9:55:32 PM
- * 
+ *
  * Copyright 2011 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -27,12 +27,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PushbackInputStream;
 import java.io.Reader;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Reader that can detect a Unicode BOM.
- * 
+ *
  * Adapted from Google Data API.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.35
@@ -44,7 +45,7 @@ public class UnicodeReader extends Reader {
 
 	/**
 	 * Construct UnicodeReader.
-	 * 
+	 *
 	 * @param in
 	 *        Input stream.
 	 * @param defaultEncoding
@@ -53,7 +54,7 @@ public class UnicodeReader extends Reader {
 	 * @throws IOException
 	 *         If an I/O error occurs.
 	 */
-	public UnicodeReader(InputStream in, String defaultEncoding) throws IOException {
+	public UnicodeReader(InputStream in, @Nullable String defaultEncoding) throws IOException {
 		byte bom[] = new byte[BOM_SIZE];
 		String encoding;
 		int unread;
@@ -100,7 +101,7 @@ public class UnicodeReader extends Reader {
 
 	/**
 	 * Get the encoding.
-	 * 
+	 *
 	 * @return the encoding name
 	 */
 	public String getEncoding() {

@@ -1,21 +1,21 @@
 /* ==================================================================
  * ConcatenatingResource.java - 24/05/2018 6:45:27 AM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,17 +28,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.Resource;
 
 /**
  * A collection of resources concatenated together into one virtual resource.
- * 
+ *
  * <p>
  * The {@link InputStream} returned by this resource will be a concatenating
  * stream of all the configured resources. Other methods will delegate to the
  * first resource only, such as {@link #lastModified()}.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.44
@@ -49,11 +50,11 @@ public class ConcatenatingResource extends AbstractResource implements Resource 
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param resources
 	 *        the resources to concatenate
 	 */
-	public ConcatenatingResource(Collection<Resource> resources) {
+	public ConcatenatingResource(@Nullable Collection<Resource> resources) {
 		super();
 		if ( resources == null ) {
 			delegates = Collections.emptyList();
@@ -73,7 +74,7 @@ public class ConcatenatingResource extends AbstractResource implements Resource 
 
 	/**
 	 * Get a concatenating input stream of all configured resources combined.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -89,7 +90,7 @@ public class ConcatenatingResource extends AbstractResource implements Resource 
 
 	/**
 	 * Get the total length of all configured resources combined.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -103,7 +104,7 @@ public class ConcatenatingResource extends AbstractResource implements Resource 
 
 	/**
 	 * Get the modification date of the first resource.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override

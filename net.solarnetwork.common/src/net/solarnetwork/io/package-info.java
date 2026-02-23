@@ -1,7 +1,7 @@
 /* ==================================================================
- * ResourceMetadataHolder.java - 16/10/2019 6:47:49 am
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2019 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,25 +20,5 @@
  * ==================================================================
  */
 
+@org.jspecify.annotations.NullMarked
 package net.solarnetwork.io;
-
-import org.jspecify.annotations.Nullable;
-
-/**
- * An object that holds a reference to resource metadata.
- *
- * @author matt
- * @version 1.0
- * @since 1.54
- */
-public interface ResourceMetadataHolder {
-
-	/**
-	 * Get the resource metadata.
-	 *
-	 * @return the metadata, or {@code null} if not available
-	 */
-	@Nullable
-	ResourceMetadata getMetadata();
-
-}

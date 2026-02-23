@@ -25,6 +25,7 @@ package net.solarnetwork.io;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.function.Supplier;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.ObjectUtils;
 
 /**
@@ -60,7 +61,7 @@ import net.solarnetwork.util.ObjectUtils;
 public class ProvidedWriter extends Writer {
 
 	private final Supplier<Writer> provider;
-	private Writer delegate;
+	private @Nullable Writer delegate;
 
 	/**
 	 * Constructor.
@@ -80,6 +81,8 @@ public class ProvidedWriter extends Writer {
 	 *        the writer provider
 	 * @param lock
 	 *        the object to synchronize on
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public ProvidedWriter(Supplier<Writer> provider, Object lock) {
 		super(lock);

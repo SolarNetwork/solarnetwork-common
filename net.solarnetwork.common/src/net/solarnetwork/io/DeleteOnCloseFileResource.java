@@ -1,38 +1,40 @@
 /* ==================================================================
  * DeleteOnCloseFileResource.java - 23/04/2018 11:54:13 AM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.io;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.Resource;
 
 /**
  * A {@link Resource} that deletes any associated {@link File} once the stream
  * returned by {@link #getInputStream()} is closed.
- * 
+ *
  * @author matt
  * @version 1.1
  * @since 1.43
@@ -44,15 +46,17 @@ public class DeleteOnCloseFileResource implements Resource {
 
 	/**
 	 * Construct from a resource.
-	 * 
+	 *
 	 * <p>
 	 * The {@link Resource#getFile()} method will determine the file to delete.
 	 * </p>
-	 * 
+	 *
 	 * @param delegate
 	 *        the resource to delegate to
 	 * @throws IOException
 	 *         if a file cannot be determined for the resource
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public DeleteOnCloseFileResource(Resource delegate) throws IOException {
 		this(delegate, delegate.getFile());
@@ -60,16 +64,18 @@ public class DeleteOnCloseFileResource implements Resource {
 
 	/**
 	 * Construct from a resource and explicit file.
-	 * 
+	 *
 	 * @param delegate
 	 *        the resource to delegate to
 	 * @param file
 	 *        the file to delete after reading
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public DeleteOnCloseFileResource(Resource delegate, File file) {
 		super();
-		this.delegate = delegate;
-		this.file = file;
+		this.delegate = requireNonNullArgument(delegate, "delegate");
+		this.file = requireNonNullArgument(file, "file");
 	}
 
 	@Override
@@ -95,7 +101,7 @@ public class DeleteOnCloseFileResource implements Resource {
 
 		private DeleteFileOnCloseInputStream(InputStream delegate) {
 			super();
-			this.delegate = delegate;
+			this.delegate = requireNonNullArgument(delegate, "delegate");
 		}
 
 		@Override
@@ -215,7 +221,7 @@ public class DeleteOnCloseFileResource implements Resource {
 	}
 
 	@Override
-	public String getFilename() {
+	public @Nullable String getFilename() {
 		return delegate.getFilename();
 	}
 
