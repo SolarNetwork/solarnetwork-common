@@ -1,21 +1,21 @@
 /* ==================================================================
  * BulkLoadingContextSupport.java - 2/12/2020 12:16:37 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,10 +26,12 @@ import static net.solarnetwork.dao.BulkLoadingDao.LoadingTransactionMode.BatchTr
 import static net.solarnetwork.dao.BulkLoadingDao.LoadingTransactionMode.NoTransaction;
 import static net.solarnetwork.dao.BulkLoadingDao.LoadingTransactionMode.SingleTransaction;
 import static net.solarnetwork.dao.BulkLoadingDao.LoadingTransactionMode.TransactionCheckpoints;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.sql.DataSource;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.SqlProvider;
@@ -39,18 +41,20 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import net.solarnetwork.dao.BulkLoadingDao;
+import net.solarnetwork.dao.BulkLoadingDao.LoadingExceptionHandler;
+import net.solarnetwork.dao.BulkLoadingDao.LoadingOptions;
 
 /**
  * Base implementation of {@link BulkLoadingDao.LoadingContext} for JDBC stored
  * procedure based implementations.
- * 
+ *
  * <P>
  * This class handles the low-level transaction semantics for the load
  * operation, and relies on extending classes to implement the
  * {@link #doLoad(Object, PreparedStatement, long)} method to save each entity
  * into the backend database.
  * </p>
- * 
+ *
  * @param <T>
  *        the entity type
  * @author matt
@@ -65,26 +69,26 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 	/** A class-level logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final PlatformTransactionManager txManager;
+	private final @Nullable PlatformTransactionManager txManager;
 	private final DataSource dataSource;
 	private final String sql;
-	private final BulkLoadingDao.LoadingOptions options;
-	private final BulkLoadingDao.LoadingExceptionHandler<T> exceptionHandler;
+	private final LoadingOptions options;
+	private final @Nullable LoadingExceptionHandler<T> exceptionHandler;
 
-	private final TransactionStatus transaction;
+	private final @Nullable TransactionStatus transaction;
 	private final int batchSize;
 
 	private long numLoaded;
 	private long numCommitted;
-	private Connection con;
-	private PreparedStatement stmt;
-	private TransactionStatus batchTransaction;
-	private CountAwareCheckpoint transactionCheckpoint;
-	private T lastLoadedEntity;
+	private @Nullable Connection con;
+	private @Nullable PreparedStatement stmt;
+	private @Nullable TransactionStatus batchTransaction;
+	private @Nullable CountAwareCheckpoint transactionCheckpoint;
+	private @Nullable T lastLoadedEntity;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param txManager
 	 *        the transaction manager
 	 * @param dataSource
@@ -95,22 +99,26 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 	 *        the options
 	 * @param exceptionHandler
 	 *        an exception handler
+	 * @throws IllegalArgumentException
+	 *         if {@code dataSource} or {@code sql} or {@code options} is
+	 *         {@code null}, or {@code txManager} is {@code null} and the
+	 *         {@code options.transactionMode} is not {@code NoTransaction}
 	 */
-	public JdbcBulkLoadingContextSupport(PlatformTransactionManager txManager, DataSource dataSource,
-			String sql, BulkLoadingDao.LoadingOptions options,
-			BulkLoadingDao.LoadingExceptionHandler<T> exceptionHandler) {
+	public JdbcBulkLoadingContextSupport(@Nullable PlatformTransactionManager txManager,
+			DataSource dataSource, String sql, LoadingOptions options,
+			@Nullable LoadingExceptionHandler<T> exceptionHandler) {
 		super();
 		this.txManager = txManager;
-		this.dataSource = dataSource;
+		this.dataSource = requireNonNullArgument(dataSource, "dataSource");
 		this.sql = sql;
-		if ( options == null ) {
-			throw new IllegalArgumentException("The LoadingOptions argument cannot be null");
-		}
-		this.options = options;
+		this.options = requireNonNullArgument(options, "options");
 		this.exceptionHandler = exceptionHandler;
-
-		if ( options.getTransactionMode() == SingleTransaction
-				|| options.getTransactionMode() == TransactionCheckpoints ) {
+		if ( options.getTransactionMode() != NoTransaction && txManager == null ) {
+			throw new IllegalArgumentException(
+					"The txManager argument must not be null when the transaction mode is "
+							+ options.getTransactionMode());
+		} else if ( txManager != null && (options.getTransactionMode() == SingleTransaction
+				|| options.getTransactionMode() == TransactionCheckpoints) ) {
 			log.debug("Starting new bulk load [{}] overall transaction", options.getName());
 			DefaultTransactionDefinition txDef = new DefaultTransactionDefinition();
 			txDef.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
@@ -156,7 +164,7 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 
 	/**
 	 * Get the JDBC connection.
-	 * 
+	 *
 	 * @return the connection
 	 * @throws SQLException
 	 *         if any SQL error occurs
@@ -183,7 +191,7 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 	}
 
 	@Override
-	public T getLastLoadedEntity() {
+	public @Nullable T getLastLoadedEntity() {
 		return lastLoadedEntity;
 	}
 
@@ -195,12 +203,13 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 				if ( numLoaded % batchSize == 0 ) {
 					if ( batchTransaction != null ) {
 						commit();
+					} else if ( txManager != null ) {
+						log.debug("Starting new bulk load [{}] batch transaction @ row {}",
+								options.getName(), numLoaded);
+						DefaultTransactionDefinition txDef = new DefaultTransactionDefinition();
+						txDef.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+						batchTransaction = txManager.getTransaction(txDef);
 					}
-					log.debug("Starting new bulk load [{}] batch transaction @ row {}",
-							options.getName(), numLoaded);
-					DefaultTransactionDefinition txDef = new DefaultTransactionDefinition();
-					txDef.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-					batchTransaction = txManager.getTransaction(txDef);
 				}
 			}
 			if ( doLoad(entity, getPreparedStatement(), numLoaded) ) {
@@ -215,12 +224,12 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 
 	/**
 	 * Load a single entity.
-	 * 
+	 *
 	 * <p>
 	 * Extending classes must implement this method to perform the actual saving
 	 * of the entity to JDBC.
 	 * </p>
-	 * 
+	 *
 	 * @param entity
 	 *        the entity to load
 	 * @param stmt
@@ -248,12 +257,12 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 
 	@Override
 	public void commit() {
-		if ( batchTransaction != null ) {
+		if ( txManager != null && batchTransaction != null ) {
 			log.debug("Committing bulk load [{}] batch transaction @ row {}", options.getName(),
 					numLoaded);
 			txManager.commit(batchTransaction);
 			batchTransaction = null;
-		} else if ( transaction != null && !transaction.isCompleted() ) {
+		} else if ( txManager != null && transaction != null && !transaction.isCompleted() ) {
 			log.debug("Committing bulk load [{}] overall transaction @ row {}", options.getName(),
 					numLoaded);
 			txManager.commit(transaction);
@@ -271,12 +280,12 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 			transaction.releaseSavepoint(transactionCheckpoint.savepoint);
 			numLoaded = transactionCheckpoint.count;
 			transactionCheckpoint = null;
-		} else if ( batchTransaction != null && !batchTransaction.isCompleted() ) {
+		} else if ( txManager != null && batchTransaction != null && !batchTransaction.isCompleted() ) {
 			batchTransaction.setRollbackOnly();
 			txManager.rollback(batchTransaction);
 			numLoaded = numCommitted;
 			batchTransaction = null;
-		} else if ( transaction != null && !transaction.isCompleted() ) {
+		} else if ( txManager != null && transaction != null && !transaction.isCompleted() ) {
 			txManager.rollback(transaction);
 			numLoaded = numCommitted;
 		}
@@ -293,14 +302,16 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 				log.warn("Error closing bulk loading statement", e);
 			}
 		}
-		try {
-			if ( batchTransaction != null && !batchTransaction.isCompleted() ) {
-				txManager.rollback(batchTransaction);
-			} else if ( transaction != null && !transaction.isCompleted() ) {
-				txManager.rollback(transaction);
+		if ( txManager != null ) {
+			try {
+				if ( batchTransaction != null && !batchTransaction.isCompleted() ) {
+					txManager.rollback(batchTransaction);
+				} else if ( transaction != null && !transaction.isCompleted() ) {
+					txManager.rollback(transaction);
+				}
+			} catch ( Exception e ) {
+				log.warn("Error rolling back transaction", e);
 			}
-		} catch ( Exception e ) {
-			log.warn("Error rolling back transaction", e);
 		}
 		if ( con != null ) {
 			try {
@@ -317,13 +328,13 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 
 	/**
 	 * Create the JDBC statement to use.
-	 * 
+	 *
 	 * <p>
 	 * This implementation invokes {@link Connection#prepareCall(String)},
 	 * passing {@link #getSql()}. Extending classes can override to customize
 	 * this behavior.
 	 * </p>
-	 * 
+	 *
 	 * @param con
 	 *        the JDBC connection
 	 * @return the statement
@@ -336,16 +347,16 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 
 	/**
 	 * Get the transaction manager.
-	 * 
+	 *
 	 * @return the manager
 	 */
-	public PlatformTransactionManager getTransactionManager() {
+	public @Nullable PlatformTransactionManager getTransactionManager() {
 		return txManager;
 	}
 
 	/**
 	 * Get the JDBC data source.
-	 * 
+	 *
 	 * @return the dataSource
 	 */
 	public DataSource getDataSource() {
@@ -354,7 +365,7 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 
 	/**
 	 * Get the JDBC statement to use for bulk loading.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -364,10 +375,10 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 
 	/**
 	 * Get the exception handler.
-	 * 
+	 *
 	 * @return the exceptionHandler
 	 */
-	public BulkLoadingDao.LoadingExceptionHandler<T> getExceptionHandler() {
+	public @Nullable LoadingExceptionHandler<T> getExceptionHandler() {
 		return exceptionHandler;
 	}
 

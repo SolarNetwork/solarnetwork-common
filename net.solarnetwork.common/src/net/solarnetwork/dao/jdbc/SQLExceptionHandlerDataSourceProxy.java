@@ -1,27 +1,28 @@
 /* ==================================================================
  * DerbyDataSourceErrorProxy.java - 24/07/2016 2:52:57 PM
- * 
+ *
  * Copyright 2007-2016 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.dao.jdbc;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -38,6 +39,7 @@ import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
 import javax.sql.DataSource;
 import javax.sql.PooledConnection;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 import net.solarnetwork.service.OptionalServiceCollection;
 
@@ -45,35 +47,37 @@ import net.solarnetwork.service.OptionalServiceCollection;
  * A {@link DataSource} proxy that catches connection errors in order to handle
  * the exceptions from {@link SQLExceptionHandler} instances registered with the
  * system.
- * 
+ *
  * @author matt
  * @version 2.1
  */
 public class SQLExceptionHandlerDataSourceProxy implements DataSource, ConnectionEventListener {
 
 	private final DataSource delegate;
-	private final OptionalServiceCollection<SQLExceptionHandler> handlers;
+	private final @Nullable OptionalServiceCollection<SQLExceptionHandler> handlers;
 
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Construct with values.
-	 * 
+	 *
 	 * @param delegate
 	 *        The {@link DataSource} to delegate to.
 	 * @param handlers
 	 *        The handlers to use. May be {@code null}.
+	 * @throws IllegalArgumentException
+	 *         if {@code delegate} is {@code null}
 	 */
 	public SQLExceptionHandlerDataSourceProxy(DataSource delegate,
-			OptionalServiceCollection<SQLExceptionHandler> handlers) {
+			@Nullable OptionalServiceCollection<SQLExceptionHandler> handlers) {
 		super();
-		this.delegate = delegate;
+		this.delegate = requireNonNullArgument(delegate, "delegate");
 		this.handlers = handlers;
 	}
 
 	/**
 	 * Get the delegate DataSource.
-	 * 
+	 *
 	 * @return The delegate.
 	 */
 	public DataSource getDelegate() {
@@ -144,13 +148,13 @@ public class SQLExceptionHandlerDataSourceProxy implements DataSource, Connectio
 
 		/**
 		 * Delegate all method calls to another JDBC object.
-		 * 
+		 *
 		 * @param delegate
 		 *        the delegate
 		 */
 		public JDBCDelegatingHandler(Object delegate) {
 			super();
-			this.delegate = delegate;
+			this.delegate = requireNonNullArgument(delegate, "delegate");
 		}
 
 		@Override
@@ -196,7 +200,8 @@ public class SQLExceptionHandlerDataSourceProxy implements DataSource, Connectio
 		}
 	}
 
-	private void handleSQLException(final Connection conn, final SQLException e) throws SQLException {
+	private void handleSQLException(final @Nullable Connection conn, final SQLException e)
+			throws SQLException {
 		if ( e == null ) {
 			return;
 		}

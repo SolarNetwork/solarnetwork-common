@@ -1,27 +1,28 @@
 /* ==================================================================
  * DataSourcePingTest.java - 25/05/2015 11:30:49 am
- * 
+ *
  * Copyright 2007-2015 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.dao.jdbc;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,12 +35,12 @@ import net.solarnetwork.service.PingTestResult;
 
 /**
  * {@link PingTest} to verify a {@link DataSource} connection is available.
- * 
+ *
  * <p>
  * This test expects the configured {@code query} to return a
  * {@link java.sql.Timestamp} as the first column of the query result.
  * </p>
- * 
+ *
  * @author matt
  * @version 2.0
  * @since 1.52
@@ -52,39 +53,42 @@ public class DataSourcePingTest implements PingTest {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * The test ID will be set to the name of this class.
 	 * </p>
-	 * 
+	 *
 	 * @param dataSource
 	 *        the data source
 	 * @param query
 	 *        the query to execute
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public DataSourcePingTest(DataSource dataSource, String query) {
-		super();
-		this.dataSource = dataSource;
-		this.query = query;
+		this.dataSource = requireNonNullArgument(dataSource, "dataSource");
+		this.query = requireNonNullArgument(query, "query");
 		this.id = getClass().getName();
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param dataSource
 	 *        the data source
 	 * @param query
 	 *        the query to execute
 	 * @param id
 	 *        the test ID
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 * @since 1.1
 	 */
 	public DataSourcePingTest(DataSource dataSource, String query, String id) {
 		super();
-		this.dataSource = dataSource;
-		this.query = query;
-		this.id = id;
+		this.dataSource = requireNonNullArgument(dataSource, "dataSource");
+		this.query = requireNonNullArgument(query, "query");
+		this.id = requireNonNullArgument(id, "id");
 	}
 
 	@Override
@@ -139,7 +143,7 @@ public class DataSourcePingTest implements PingTest {
 
 	/**
 	 * Get the ping test SQL query.
-	 * 
+	 *
 	 * @return the SQL query
 	 */
 	public String getQuery() {
