@@ -22,6 +22,8 @@
 
 package net.solarnetwork.util;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * API for an object that contains some collection of ints.
  *
@@ -46,6 +48,7 @@ public interface IntContainer {
 	 * @return the minimum value contained in this instance, or {@literal null}
 	 *         if the container is empty
 	 */
+	@Nullable
 	Integer min();
 
 	/**
@@ -54,6 +57,7 @@ public interface IntContainer {
 	 * @return the minimum value contained in this instance, or {@literal null}
 	 *         if the container is empty
 	 */
+	@Nullable
 	Integer max();
 
 }

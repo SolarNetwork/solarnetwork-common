@@ -30,6 +30,7 @@ import java.text.StringCharacterIterator;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utilities for dealing with numbers.
@@ -108,7 +109,7 @@ public final class NumberUtils {
 	 * @return the unsigned values, or {@literal null} if {@code data} is
 	 *         {@literal null}
 	 */
-	public static short[] unsigned(byte[] data) {
+	public static short @Nullable [] unsigned(byte @Nullable [] data) {
 		// convert bytes into "unsigned" integer values, i.e. 0..255
 		if ( data == null ) {
 			return null;
@@ -134,7 +135,7 @@ public final class NumberUtils {
 	 * @return the unsigned value, or {@literal null} if {@code value} is
 	 *         {@literal null}
 	 */
-	public static Number unsignedNumber(Number value) {
+	public static @Nullable Number unsignedNumber(@Nullable Number value) {
 		if ( value == null ) {
 			return null;
 		} else if ( value instanceof Byte ) {
@@ -161,7 +162,7 @@ public final class NumberUtils {
 	 * @return the {@code BigDecimal} version of {@code value}, or
 	 *         {@literal null} if {@code value} is {@literal null}
 	 */
-	public static BigDecimal bigDecimalForNumber(Number value) {
+	public static @Nullable BigDecimal bigDecimalForNumber(@Nullable Number value) {
 		BigDecimal v = null;
 		if ( value == null ) {
 			return null;
@@ -197,7 +198,7 @@ public final class NumberUtils {
 	 *         {@literal null} if {@code value} is {@literal null}
 	 * @since 1.8
 	 */
-	public static BigInteger bigIntegerForNumber(Number value) {
+	public static @Nullable BigInteger bigIntegerForNumber(@Nullable Number value) {
 		BigInteger v = null;
 		if ( value == null ) {
 			return null;
@@ -246,7 +247,7 @@ public final class NumberUtils {
 	 * @return the checksum value
 	 * @since 1.1
 	 */
-	public static int crc16(byte[] data, int offset, int length) {
+	public static int crc16(byte @Nullable [] data, int offset, int length) {
 		int crc = 0x0000;
 		if ( data != null && data.length >= offset + length ) {
 			for ( int i = offset; i < data.length && i < offset + length; i++ ) {
@@ -271,7 +272,7 @@ public final class NumberUtils {
 	 *         {@literal null}
 	 * @since 1.2
 	 */
-	public static BigInteger wholePartToInteger(BigDecimal decimal) {
+	public static BigInteger wholePartToInteger(@Nullable BigDecimal decimal) {
 		if ( decimal == null ) {
 			return BigInteger.ZERO;
 		}
@@ -292,7 +293,7 @@ public final class NumberUtils {
 	 *         {@literal null}
 	 * @since 1.2
 	 */
-	public static BigInteger fractionalPartToInteger(BigDecimal decimal) {
+	public static BigInteger fractionalPartToInteger(@Nullable BigDecimal decimal) {
 		if ( decimal == null ) {
 			return BigInteger.ZERO;
 		}
@@ -317,7 +318,7 @@ public final class NumberUtils {
 	 *         {@literal null}
 	 * @since 1.2
 	 */
-	public static BigInteger fractionalPartToInteger(BigDecimal decimal, int maxScale) {
+	public static BigInteger fractionalPartToInteger(@Nullable BigDecimal decimal, int maxScale) {
 		if ( decimal == null ) {
 			return BigInteger.ZERO;
 		}
@@ -344,7 +345,8 @@ public final class NumberUtils {
 	 *         {@literal null}
 	 * @since 1.2
 	 */
-	public static BigInteger fractionalPartScaledToInteger(BigDecimal decimal, int scale) {
+	public static BigInteger fractionalPartScaledToInteger(@Nullable final BigDecimal decimal,
+			int scale) {
 		if ( decimal == null ) {
 			return BigInteger.ZERO;
 		}
@@ -364,12 +366,12 @@ public final class NumberUtils {
 	 * @return the scaled value
 	 * @since 1.2
 	 */
-	public static BigDecimal scaled(Number num, int scale) {
+	public static @Nullable BigDecimal scaled(@Nullable final Number num, int scale) {
 		if ( num == null ) {
 			return null;
 		}
-		BigDecimal n = bigDecimalForNumber(num);
-		if ( scale == 0 ) {
+		final BigDecimal n = bigDecimalForNumber(num);
+		if ( n == null || scale == 0 ) {
 			return n;
 		} else if ( scale < 0 ) {
 			return n.movePointLeft(-scale);
@@ -388,7 +390,7 @@ public final class NumberUtils {
 	 * @return the value, possibly rounded to {@code decimalScale}
 	 * @since 1.3
 	 */
-	public static Number maximumDecimalScale(Number value, int maxDecimalScale) {
+	public static @Nullable Number maximumDecimalScale(@Nullable Number value, int maxDecimalScale) {
 		return round(value, maxDecimalScale, RoundingMode.HALF_UP);
 	}
 
@@ -403,12 +405,12 @@ public final class NumberUtils {
 	 * @return the value, or {@literal null} if {@code value} is {@literal null}
 	 * @since 1.3
 	 */
-	public static Number multiplied(Number value, BigDecimal multiple) {
+	public static @Nullable Number multiplied(@Nullable Number value, @Nullable BigDecimal multiple) {
 		if ( value == null || multiple == null || BigDecimal.ONE.compareTo(multiple) == 0 ) {
 			return value;
 		}
-		BigDecimal v = bigDecimalForNumber(value);
-		return v.multiply(multiple);
+		final BigDecimal v = bigDecimalForNumber(value);
+		return (v != null ? v.multiply(multiple) : null);
 	}
 
 	/**
@@ -422,12 +424,12 @@ public final class NumberUtils {
 	 * @return the value, or {@literal null} if {@code value} is {@literal null}
 	 * @since 1.3
 	 */
-	public static Number offset(Number value, BigDecimal offset) {
+	public static @Nullable Number offset(@Nullable Number value, @Nullable BigDecimal offset) {
 		if ( value == null || offset == null || BigDecimal.ZERO.compareTo(offset) == 0 ) {
 			return value;
 		}
-		BigDecimal v = bigDecimalForNumber(value);
-		return v.add(offset);
+		final BigDecimal v = bigDecimalForNumber(value);
+		return (v != null ? v.add(offset) : null);
 	}
 
 	/**
@@ -438,7 +440,7 @@ public final class NumberUtils {
 	 * @return the integer, never {@literal null}
 	 * @since 1.4
 	 */
-	public static BigInteger bigIntegerForBitSet(BitSet bs) {
+	public static BigInteger bigIntegerForBitSet(@Nullable BitSet bs) {
 		BigInteger v = BigInteger.ZERO;
 		if ( bs != null ) {
 			for ( int i = bs.nextSetBit(0); i >= 0; i = bs.nextSetBit(i + 1) ) {
@@ -461,7 +463,7 @@ public final class NumberUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code value} is negative
 	 */
-	public static BitSet bitSetForBigInteger(BigInteger value) {
+	public static BitSet bitSetForBigInteger(@Nullable BigInteger value) {
 		BitSet bs = new BitSet();
 		if ( value != null ) {
 			if ( value.signum() < 0 ) {
@@ -558,7 +560,7 @@ public final class NumberUtils {
 	 *         parsed
 	 * @since 1.14
 	 */
-	public static Number parseNumber(String numberString) {
+	public static @Nullable Number parseNumber(@Nullable String numberString) {
 		if ( numberString == null || numberString.isEmpty() ) {
 			return null;
 		}
@@ -591,7 +593,8 @@ public final class NumberUtils {
 	 * @since 1.13
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends Number> T convertNumber(Number number, Class<T> numberType) {
+	public static <T extends Number> @Nullable T convertNumber(@Nullable Number number,
+			Class<T> numberType) {
 		if ( number == null ) {
 			return null;
 		}
@@ -749,7 +752,7 @@ public final class NumberUtils {
 	 *         {@literal null}
 	 * @since 1.10
 	 */
-	public static Number min(Number n1, Number n2) {
+	public static @Nullable Number min(@Nullable Number n1, @Nullable Number n2) {
 		if ( n1 == null && n2 == null ) {
 			return null;
 		}
@@ -775,7 +778,9 @@ public final class NumberUtils {
 		if ( (n1 instanceof BigInteger) && (n2 instanceof BigInteger) ) {
 			return ((BigInteger) n1).min((BigInteger) n2);
 		}
-		return bigDecimalForNumber(n1).min(bigDecimalForNumber(n2));
+		final BigDecimal l = bigDecimalForNumber(n1);
+		final BigDecimal r = bigDecimalForNumber(n2);
+		return (l != null && r != null ? l.min(r) : null);
 	}
 
 	/**
@@ -789,7 +794,7 @@ public final class NumberUtils {
 	 *         {@literal null}
 	 * @since 1.10
 	 */
-	public static Number max(Number n1, Number n2) {
+	public static @Nullable Number max(@Nullable Number n1, @Nullable Number n2) {
 		if ( n1 == null && n2 == null ) {
 			return null;
 		}
@@ -815,7 +820,9 @@ public final class NumberUtils {
 		if ( (n1 instanceof BigInteger) && (n2 instanceof BigInteger) ) {
 			return ((BigInteger) n1).max((BigInteger) n2);
 		}
-		return bigDecimalForNumber(n1).max(bigDecimalForNumber(n2));
+		final BigDecimal l = bigDecimalForNumber(n1);
+		final BigDecimal r = bigDecimalForNumber(n2);
+		return (l != null && r != null ? l.max(r) : null);
 	}
 
 	/**
@@ -835,7 +842,7 @@ public final class NumberUtils {
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
-	public static Number down(Number n, Number significance) {
+	public static @Nullable Number down(@Nullable Number n, @Nullable Number significance) {
 		return mround(n, significance, RoundingMode.DOWN);
 	}
 
@@ -856,7 +863,7 @@ public final class NumberUtils {
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
-	public static Number up(Number n, Number significance) {
+	public static @Nullable Number up(@Nullable Number n, @Nullable Number significance) {
 		return mround(n, significance, RoundingMode.UP);
 	}
 
@@ -877,7 +884,7 @@ public final class NumberUtils {
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
-	public static Number floor(Number n, Number significance) {
+	public static @Nullable Number floor(@Nullable Number n, @Nullable Number significance) {
 		return mround(n, significance, RoundingMode.FLOOR);
 	}
 
@@ -898,7 +905,7 @@ public final class NumberUtils {
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
-	public static Number ceil(Number n, Number significance) {
+	public static @Nullable Number ceil(@Nullable Number n, @Nullable Number significance) {
 		return mround(n, significance, RoundingMode.CEILING);
 	}
 
@@ -919,7 +926,7 @@ public final class NumberUtils {
 	 * @since 1.10
 	 * @see #mround(Number, Number, RoundingMode)
 	 */
-	public static Number mround(Number n, Number significance) {
+	public static @Nullable Number mround(@Nullable Number n, @Nullable Number significance) {
 		return mround(n, significance, RoundingMode.HALF_UP);
 	}
 
@@ -943,7 +950,8 @@ public final class NumberUtils {
 	 *         {@code n} or {@code significance} are {@literal null}
 	 * @since 1.10
 	 */
-	public static Number mround(Number n, Number significance, RoundingMode mode) {
+	public static @Nullable Number mround(@Nullable Number n, @Nullable Number significance,
+			@Nullable RoundingMode mode) {
 		BigDecimal d = bigDecimalForNumber(n);
 		BigDecimal s = bigDecimalForNumber(significance);
 		if ( d == null || s == null ) {
@@ -972,7 +980,7 @@ public final class NumberUtils {
 	 * @since 1.10
 	 * @see #round(Number, Number, RoundingMode)
 	 */
-	public static Number round(Number n, Number digits) {
+	public static @Nullable Number round(@Nullable Number n, @Nullable Number digits) {
 		return round(n, digits, RoundingMode.HALF_UP);
 	}
 
@@ -988,7 +996,7 @@ public final class NumberUtils {
 	 * @since 1.10
 	 * @see #round(Number, Number, RoundingMode)
 	 */
-	public static Number roundUp(Number n, Number digits) {
+	public static @Nullable Number roundUp(@Nullable Number n, @Nullable Number digits) {
 		return round(n, digits, RoundingMode.UP);
 	}
 
@@ -1004,7 +1012,7 @@ public final class NumberUtils {
 	 * @since 1.10
 	 * @see #round(Number, Number, RoundingMode)
 	 */
-	public static Number roundDown(Number n, Number digits) {
+	public static @Nullable Number roundDown(@Nullable Number n, @Nullable Number digits) {
 		return round(n, digits, RoundingMode.DOWN);
 	}
 
@@ -1021,7 +1029,8 @@ public final class NumberUtils {
 	 *         {@code n} or {@code digits} is {@literal null}
 	 * @since 1.10
 	 */
-	public static Number round(Number n, Number digits, RoundingMode mode) {
+	public static @Nullable Number round(@Nullable Number n, @Nullable Number digits,
+			@Nullable RoundingMode mode) {
 		BigDecimal d = bigDecimalForNumber(n);
 		if ( d == null || digits == null ) {
 			return null;
@@ -1055,7 +1064,7 @@ public final class NumberUtils {
 	 *         is {@literal null}
 	 * @since 1.10
 	 */
-	public static Number narrow(final Number n, final int minBytePower) {
+	public static @Nullable Number narrow(final @Nullable Number n, final int minBytePower) {
 		if ( n == null ) {
 			return null;
 		}
@@ -1118,7 +1127,7 @@ public final class NumberUtils {
 	 *         is {@literal null}
 	 * @since 1.10
 	 */
-	public static Number narrow(final BigInteger n, final int minBytePower) {
+	public static @Nullable Number narrow(final @Nullable BigInteger n, final int minBytePower) {
 		if ( n == null ) {
 			return null;
 		}
@@ -1172,7 +1181,7 @@ public final class NumberUtils {
 	 *         is {@literal null}
 	 * @since 1.10
 	 */
-	public static Number narrow(final BigDecimal n, final int minBytePower) {
+	public static @Nullable Number narrow(final @Nullable BigDecimal n, final int minBytePower) {
 		if ( n == null ) {
 			return null;
 		}
@@ -1230,7 +1239,7 @@ public final class NumberUtils {
 	 * @throws ArithmeticException
 	 *         if an exact conversion cannot be done
 	 */
-	public static Float floatValueExact(BigDecimal n) {
+	public static @Nullable Float floatValueExact(@Nullable BigDecimal n) {
 		if ( n == null ) {
 			return null;
 		}
@@ -1254,7 +1263,7 @@ public final class NumberUtils {
 	 * @throws ArithmeticException
 	 *         if an exact conversion cannot be done
 	 */
-	public static Double doubleValueExact(BigDecimal n) {
+	public static @Nullable Double doubleValueExact(@Nullable BigDecimal n) {
 		if ( n == null ) {
 			return null;
 		}
@@ -1287,11 +1296,12 @@ public final class NumberUtils {
 	 * @param y2
 	 *        the maximum output range to interpolate on
 	 * @return an interpolated value <em>y</em> in the range {@code y1} -
-	 *         {@code y2}
+	 *         {@code y2}, or {@code null} if any argument is {@code null}
 	 * @since 1.11
 	 * @see #linearInterpolate(Number, Number, Number, Number, Number, int)
 	 */
-	public static Number linearInterpolate(Number x, Number x1, Number x2, Number y1, Number y2) {
+	public static @Nullable Number linearInterpolate(@Nullable Number x, @Nullable Number x1,
+			@Nullable Number x2, @Nullable Number y1, @Nullable Number y2) {
 		return linearInterpolate(x, x1, x2, y1, y2, 12);
 	}
 
@@ -1316,22 +1326,24 @@ public final class NumberUtils {
 	 * @param scale
 	 *        the decimal scale to use
 	 * @return an interpolated value <em>y</em> in the range {@code y1} -
-	 *         {@code y2}
+	 *         {@code y2}, or {@code null} if any argument is {@code null}
 	 * @since 1.11
 	 */
-	public static Number linearInterpolate(Number x, Number x1, Number x2, Number y1, Number y2,
-			int scale) {
-		if ( x == null || x1 == null || x2 == null || y1 == null || y2 == null ) {
+	public static @Nullable Number linearInterpolate(@Nullable Number x, @Nullable Number x1,
+			@Nullable Number x2, @Nullable Number y1, @Nullable Number y2, int scale) {
+		final BigDecimal xn = bigDecimalForNumber(x);
+		final BigDecimal x1n = bigDecimalForNumber(x1);
+		final BigDecimal x2n = bigDecimalForNumber(x2);
+		final BigDecimal y1n = bigDecimalForNumber(y1);
+		final BigDecimal y2n = bigDecimalForNumber(y2);
+		if ( xn == null || x1n == null || x2n == null || y1n == null || y2n == null ) {
 			return null;
 		}
-		BigDecimal x1n = bigDecimalForNumber(x1);
-		BigDecimal y1n = bigDecimalForNumber(y1);
-		BigDecimal y2n = bigDecimalForNumber(y2);
 		// @formatter:off
-		return bigDecimalForNumber(x)
+		return xn
 				.subtract(x1n)
 				.multiply(y2n.subtract(y1n))
-				.divide(bigDecimalForNumber(x2).subtract(x1n), scale, RoundingMode.HALF_UP)
+				.divide(x2n.subtract(x1n), scale, RoundingMode.HALF_UP)
 				.add(y1n)
 				.stripTrailingZeros();
 		// @formatter:on

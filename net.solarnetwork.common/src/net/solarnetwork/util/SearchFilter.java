@@ -1,21 +1,21 @@
 /* ==================================================================
  * SearchFilter.java - Aug 8, 2010 8:15:59 PM
- * 
+ *
  * Copyright 2007-2010 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -33,17 +33,18 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Generic search filter supporting LDAP-style search queries.
- * 
+ *
  * <p>
  * This filter supports a group of key-value pairs joined by a common logical
  * operator. The key-value pairs are provided by a {@code Map}. Nested
  * {@code SearchFilter} instances can be used as values so that complex logic
  * can be implemented.
  * </p>
- * 
+ *
  * @author matt
  * @version 2.0
  */
@@ -81,13 +82,13 @@ public class SearchFilter {
 
 		/**
 		 * Get an enum value from a key value.
-		 * 
+		 *
 		 * @param key
 		 *        the key of the enum to get
 		 * @return the enum, or {@literal null} if not supported
 		 * @since 1.1
 		 */
-		public static LogicOperator forKey(char key) {
+		public static @Nullable LogicOperator forKey(char key) {
 			switch (key) {
 				case '&':
 					return AND;
@@ -182,13 +183,13 @@ public class SearchFilter {
 
 		/**
 		 * Get an enum value from a key value.
-		 * 
+		 *
 		 * @param key
 		 *        the key of the enum to get
 		 * @return the enum, or {@literal null} if not supported
 		 * @since 1.1
 		 */
-		public static CompareOperator forKey(String key) {
+		public static @Nullable CompareOperator forKey(String key) {
 			switch (key) {
 				case "=":
 					return EQUAL;
@@ -238,7 +239,7 @@ public class SearchFilter {
 
 		/**
 		 * Visit a node.
-		 * 
+		 *
 		 * @param node
 		 *        the filter being visited
 		 * @param parentNode
@@ -246,29 +247,29 @@ public class SearchFilter {
 		 *        node
 		 * @return {@literal false} to stop walking
 		 */
-		boolean visit(SearchFilter node, SearchFilter parentNode);
+		boolean visit(SearchFilter node, @Nullable SearchFilter parentNode);
 
 	}
 
 	/** The filter. */
-	protected final Map<String, ?> filter;
+	protected final @Nullable Map<String, ?> filter;
 	private final CompareOperator compareOp;
 	private final LogicOperator logicOp;
 
 	/**
 	 * Construct with a filter. Uses {@link CompareOperator#EQUAL} and
 	 * {@link LogicOperator#AND}.
-	 * 
+	 *
 	 * @param filter
 	 *        the filter value
 	 */
-	public SearchFilter(Map<String, ?> filter) {
+	public SearchFilter(@Nullable Map<String, ?> filter) {
 		this(filter, CompareOperator.EQUAL, LogicOperator.AND);
 	}
 
 	/**
 	 * Construct with values.
-	 * 
+	 *
 	 * @param filter
 	 *        the filter value
 	 * @param compareOp
@@ -276,7 +277,8 @@ public class SearchFilter {
 	 * @param logicOp
 	 *        the logical operator
 	 */
-	public SearchFilter(Map<String, ?> filter, CompareOperator compareOp, LogicOperator logicOp) {
+	public SearchFilter(@Nullable Map<String, ?> filter, CompareOperator compareOp,
+			LogicOperator logicOp) {
 		super();
 		this.filter = filter;
 		this.compareOp = compareOp;
@@ -285,7 +287,7 @@ public class SearchFilter {
 
 	/**
 	 * Construct with a single key-value pair.
-	 * 
+	 *
 	 * @param key
 	 *        the key
 	 * @param value
@@ -293,20 +295,20 @@ public class SearchFilter {
 	 * @param compareOp
 	 *        the comparison operator
 	 */
-	public SearchFilter(String key, Object value, CompareOperator compareOp) {
+	public SearchFilter(String key, @Nullable Object value, CompareOperator compareOp) {
 		this(Collections.singletonMap(key, value), compareOp, LogicOperator.AND);
 	}
 
 	/**
 	 * Construct with a filter and logic operator and
 	 * {@link CompareOperator#EQUAL} comparison operator.
-	 * 
+	 *
 	 * @param filter
 	 *        the filter
 	 * @param logicOp
 	 *        the logic operator
 	 */
-	public SearchFilter(Map<String, ?> filter, LogicOperator logicOp) {
+	public SearchFilter(@Nullable Map<String, ?> filter, LogicOperator logicOp) {
 		this(filter, CompareOperator.EQUAL, logicOp);
 	}
 
@@ -319,14 +321,11 @@ public class SearchFilter {
 	 * {@code filter} has more than one key-value pair and the {@code logicOp}
 	 * is {@link LogicOperator#NOT}, the filter will automatically be written as
 	 * {@code NOT(AND((x)(y)))}.
-	 * 
+	 *
 	 * @param buf
 	 *        the buffer to append to
 	 */
 	public void appendLDAPSearchFilter(StringBuilder buf) {
-		if ( filter == null ) {
-			return;
-		}
 		if ( filter == null || filter.size() < 1 ) {
 			return;
 		}
@@ -411,7 +410,7 @@ public class SearchFilter {
 
 	/**
 	 * Return an LDAP search filter string.
-	 * 
+	 *
 	 * @return String
 	 * @see #appendLDAPSearchFilter(StringBuilder)
 	 */
@@ -424,7 +423,7 @@ public class SearchFilter {
 	/**
 	 * Return an LDAP search filter string. This simply calls
 	 * {@link #asLDAPSearchFilterString()}.
-	 * 
+	 *
 	 * @return String
 	 */
 	@Override
@@ -434,7 +433,7 @@ public class SearchFilter {
 
 	/**
 	 * Get the comparison operator.
-	 * 
+	 *
 	 * @return the comparison
 	 */
 	public CompareOperator getCompareOperator() {
@@ -443,7 +442,7 @@ public class SearchFilter {
 
 	/**
 	 * Get the logic operator.
-	 * 
+	 *
 	 * @return the logic
 	 */
 	public LogicOperator getLogicOperator() {
@@ -452,25 +451,31 @@ public class SearchFilter {
 
 	/**
 	 * Get the filter values.
-	 * 
+	 *
 	 * @return the filter
 	 */
-	public Map<String, ?> getFilter() {
+	public @Nullable Map<String, ?> getFilter() {
 		return filter;
 	}
 
 	@SuppressWarnings("unchecked")
 	private void addChild(SearchFilter n) {
+		if ( filter == null ) {
+			throw new IllegalStateException("Cannot add child to null filter.");
+		}
 		((Map<String, Object>) filter).put(UUID.randomUUID().toString(), n);
 	}
 
 	/**
 	 * Test if this filter has any nested filters.
-	 * 
+	 *
 	 * @return {@literal true} if any nested filters exist within this filter
 	 * @since 1.1
 	 */
 	public boolean hasNestedFilter() {
+		if ( filter == null ) {
+			return false;
+		}
 		for ( Object o : filter.values() ) {
 			if ( o instanceof SearchFilter ) {
 				return true;
@@ -481,7 +486,7 @@ public class SearchFilter {
 
 	/**
 	 * Walk the filter as a tree.
-	 * 
+	 *
 	 * @param callback
 	 *        the callback
 	 */
@@ -489,7 +494,8 @@ public class SearchFilter {
 		walkNode(this, null, callback);
 	}
 
-	private static boolean walkNode(SearchFilter node, SearchFilter parent, VisitorCallback callback) {
+	private static boolean walkNode(@Nullable SearchFilter node, @Nullable SearchFilter parent,
+			VisitorCallback callback) {
 		if ( node == null ) {
 			return false;
 		}
@@ -519,10 +525,11 @@ public class SearchFilter {
 	*/
 
 	private static SearchFilter logicNode(char c) {
-		return new SearchFilter(new LinkedHashMap<>(), LogicOperator.forKey(c));
+		final LogicOperator op = LogicOperator.forKey(c);
+		return new SearchFilter(new LinkedHashMap<>(), op != null ? op : LogicOperator.AND);
 	}
 
-	private static SearchFilter compNode(String token) {
+	private static @Nullable SearchFilter compNode(String token) {
 		Matcher m = COMP_PAT.matcher(token);
 		if ( m.matches() ) {
 			CompareOperator op = CompareOperator.forKey(m.group(2));
@@ -541,12 +548,12 @@ public class SearchFilter {
 					val = null;
 				}
 			}
-			return new SearchFilter(m.group(1), val, op);
+			return new SearchFilter(m.group(1), val, op != null ? op : CompareOperator.EQUAL);
 		}
 		return null;
 	}
 
-	private static SearchFilter parseTokens(List<String> tokens, int start, int end) {
+	private static @Nullable SearchFilter parseTokens(List<String> tokens, int start, int end) {
 		char c;
 		SearchFilter topNode = null;
 		SearchFilter node = null;
@@ -574,7 +581,7 @@ public class SearchFilter {
 					if ( i + 1 < end ) {
 						node = compNode(tokens.get(i + 1));
 					}
-					if ( topNode != null ) {
+					if ( topNode != null && node != null ) {
 						topNode.addChild(node);
 					} else {
 						// our top node is not a group node, so only one node is possible and we can return now
@@ -599,7 +606,7 @@ public class SearchFilter {
 	/**
 	 * Parse an array of search filter tokens, as created via splitting a string
 	 * with the {@link #TOKEN_PAT} regular expression.
-	 * 
+	 *
 	 * <p>
 	 * For example the simple filter <code>(foo=bar)</code> could be expressed
 	 * as the tokens <code>["(", "foo=bar", ")"]</code> while the complex filter
@@ -627,13 +634,13 @@ public class SearchFilter {
 
 	/**
 	 * Parse a LDAP search filter into a {@link SearchFilter} instance.
-	 * 
+	 *
 	 * @param s
 	 *        the string to parse
 	 * @return the filter, or {@literal null} if {@code s} is not in a valid
 	 *         format
 	 */
-	public static SearchFilter forLDAPSearchFilterString(String s) {
+	public static @Nullable SearchFilter forLDAPSearchFilterString(@Nullable String s) {
 		if ( s == null ) {
 			return null;
 		}

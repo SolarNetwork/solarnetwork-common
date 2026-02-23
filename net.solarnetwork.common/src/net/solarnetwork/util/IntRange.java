@@ -114,7 +114,6 @@ public final class IntRange implements Serializable, Comparable<IntRange>, IntRa
 
 	@Override
 	public Integer min() {
-		// TODO Auto-generated method stub
 		return getMin();
 	}
 

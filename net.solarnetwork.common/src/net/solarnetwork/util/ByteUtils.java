@@ -28,6 +28,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BitDataType;
 import net.solarnetwork.domain.ByteOrdering;
 
@@ -158,8 +159,8 @@ public final class ByteUtils {
 	 *        pair
 	 * @return the string, never {@literal null}
 	 */
-	public static String encodeHexString(final byte[] data, final int fromIndex, final int toIndex,
-			final boolean space) {
+	public static String encodeHexString(final byte @Nullable [] data, final int fromIndex,
+			final int toIndex, final boolean space) {
 		return encodeHexString(data, fromIndex, toIndex, space, false);
 	}
 
@@ -179,8 +180,8 @@ public final class ByteUtils {
 	 *        pair
 	 * @return the string, never {@literal null}
 	 */
-	public static String encodeHexString(final byte[] data, final int fromIndex, final int toIndex,
-			final boolean space, final boolean lowerCase) {
+	public static String encodeHexString(final byte @Nullable [] data, final int fromIndex,
+			final int toIndex, final boolean space, final boolean lowerCase) {
 		if ( data == null || data.length < 1 || fromIndex < 0 || fromIndex >= data.length || toIndex < 0
 				|| toIndex <= fromIndex ) {
 			return "";
@@ -211,7 +212,7 @@ public final class ByteUtils {
 	 * @return the bytes, never {@literal null}
 	 * @see #decodeHexPadStart(char[])
 	 */
-	public static byte[] decodeHexString(String s) {
+	public static byte[] decodeHexString(@Nullable String s) {
 		if ( s == null ) {
 			return new byte[0];
 		}
@@ -230,7 +231,7 @@ public final class ByteUtils {
 	 *        the characters to decode
 	 * @return the bytes, never {@literal null}
 	 */
-	public static byte[] decodeHexPadStart(final char[] chars) {
+	public static byte[] decodeHexPadStart(final char @Nullable [] chars) {
 		if ( chars == null || chars.length < 1 ) {
 			return new byte[0];
 		}
@@ -303,7 +304,8 @@ public final class ByteUtils {
 	 *         if {@code dest} is not long enough to hold the number's byte
 	 *         value
 	 */
-	public static void encodeInt16(final Number n, byte[] dest, int offset, ByteOrdering byteOrder) {
+	public static void encodeInt16(final @Nullable Number n, byte[] dest, int offset,
+			ByteOrdering byteOrder) {
 		short s = (n != null ? n.shortValue() : (short) 0);
 		if ( byteOrder == ByteOrdering.BigEndian ) {
 			dest[offset] = (byte) ((s >> 8) & (short) 0xFF);
@@ -329,7 +331,7 @@ public final class ByteUtils {
 	 *         if {@code dest} is not long enough to hold the number's byte
 	 *         value
 	 */
-	public static void encodeUnsignedInt16(final Number n, byte[] dest, int offset,
+	public static void encodeUnsignedInt16(final @Nullable Number n, byte[] dest, int offset,
 			ByteOrdering byteOrder) {
 		int s = (n != null ? n.shortValue() : (short) 0);
 		if ( byteOrder == ByteOrdering.BigEndian ) {
@@ -356,7 +358,8 @@ public final class ByteUtils {
 	 *         if {@code dest} is not long enough to hold the number's byte
 	 *         value
 	 */
-	public static void encodeInt32(final Number n, byte[] dest, int offset, ByteOrdering byteOrder) {
+	public static void encodeInt32(final @Nullable Number n, byte[] dest, int offset,
+			ByteOrdering byteOrder) {
 		int s = (n != null ? n.intValue() : 0);
 		if ( byteOrder == ByteOrdering.BigEndian ) {
 			dest[offset] = (byte) ((s >> 24) & 0xFF);
@@ -386,7 +389,7 @@ public final class ByteUtils {
 	 *         if {@code dest} is not long enough to hold the number's byte
 	 *         value
 	 */
-	public static void encodeUnsignedInt32(final Number n, byte[] dest, int offset,
+	public static void encodeUnsignedInt32(final @Nullable Number n, byte[] dest, int offset,
 			ByteOrdering byteOrder) {
 		int s = (n != null ? n.intValue() : 0);
 		if ( byteOrder == ByteOrdering.BigEndian ) {
@@ -417,7 +420,8 @@ public final class ByteUtils {
 	 *         if {@code dest} is not long enough to hold the number's byte
 	 *         value
 	 */
-	public static void encodeInt64(final Number n, byte[] dest, int offset, ByteOrdering byteOrder) {
+	public static void encodeInt64(final @Nullable Number n, byte[] dest, int offset,
+			ByteOrdering byteOrder) {
 		long s = (n != null ? n.longValue() : 0L);
 		encodeInt64(s, dest, offset, byteOrder);
 	}
@@ -474,7 +478,7 @@ public final class ByteUtils {
 	 *         if {@code dest} is not long enough to hold the number's byte
 	 *         value
 	 */
-	public static void encodeUnsignedInt64(final Number n, byte[] dest, int offset,
+	public static void encodeUnsignedInt64(final @Nullable Number n, byte[] dest, int offset,
 			ByteOrdering byteOrder) {
 		long s = (n != null ? n.longValue() : 0L);
 		encodeUnsignedInt64(s, dest, offset, byteOrder);
@@ -538,8 +542,8 @@ public final class ByteUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code dataType} is not supported
 	 */
-	public static Number parseNumber(final BitDataType dataType, final byte[] data, final int offset,
-			final ByteOrdering byteOrder) {
+	public static @Nullable Number parseNumber(final BitDataType dataType, final byte @Nullable [] data,
+			final int offset, final ByteOrdering byteOrder) {
 		if ( dataType.isVariableLength() ) {
 			throw new IllegalArgumentException("Variable length data types not supported.");
 		}
@@ -565,8 +569,11 @@ public final class ByteUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code dataType} is not supported
 	 */
-	public static Number parseNumber(final BitDataType dataType, final byte[] data, final int offset,
-			final int length, final ByteOrdering byteOrder) {
+	public static @Nullable Number parseNumber(final BitDataType dataType, final byte @Nullable [] data,
+			final int offset, final int length, final ByteOrdering byteOrder) {
+		if ( data == null ) {
+			return null;
+		}
 		Number result = null;
 		switch (dataType) {
 			case Bit:
@@ -889,7 +896,7 @@ public final class ByteUtils {
 	 * @return the parsed float, or {@literal null} if not available or parsed
 	 *         float is {@code NaN}
 	 */
-	public static Float parseFloat32(final byte d, final byte c, final byte b, final byte a) {
+	public static @Nullable Float parseFloat32(final byte d, final byte c, final byte b, final byte a) {
 		Integer int32 = parseInt32(d, c, b, a);
 		Float result = Float.intBitsToFloat(int32.intValue());
 		if ( result.isNaN() ) {
@@ -919,7 +926,7 @@ public final class ByteUtils {
 	 *        bits 7-0
 	 * @return the parsed float, or {@literal null} if the result is {@code NaN}
 	 */
-	public static Double parseFloat64(final byte h, final byte g, final byte f, final byte e,
+	public static @Nullable Double parseFloat64(final byte h, final byte g, final byte f, final byte e,
 			final byte d, final byte c, final byte b, final byte a) {
 		Long l = parseInt64(h, g, f, e, d, c, b, a);
 		Double result = Double.longBitsToDouble(l);
@@ -942,7 +949,9 @@ public final class ByteUtils {
 	 *        the byte order of {@code data}
 	 * @return the parsed bytes, never {@literal null}
 	 */
-	public static byte[] parseBytes(byte[] data, int offset, int length, final ByteOrdering byteOrder) {
+	@SuppressWarnings({ "null", "NullAway" })
+	public static byte[] parseBytes(byte @Nullable [] data, int offset, int length,
+			final ByteOrdering byteOrder) {
 		final int len = (data == null || data.length < 1 ? 0
 				: offset + length <= data.length ? length : data.length - offset);
 		byte[] bytes = new byte[len];
@@ -1038,7 +1047,7 @@ public final class ByteUtils {
 	 *        the character set to interpret the bytes as
 	 * @return the number
 	 */
-	public static BigDecimal parseDecimalCharacterString(final byte[] data, final int offset,
+	public static BigDecimal parseDecimalCharacterString(final byte @Nullable [] data, final int offset,
 			final int length, final ByteOrdering byteOrder, final Charset charset) {
 		byte[] bytes = parseBytes(data, offset, length, byteOrder);
 		String s = new String(bytes, charset);
@@ -1054,7 +1063,7 @@ public final class ByteUtils {
 	 *         {@literal null}
 	 * @since 1.1
 	 */
-	public static Byte[] objectArray(byte[] array) {
+	public static Byte @Nullable [] objectArray(byte @Nullable [] array) {
 		if ( array == null ) {
 			return null;
 		}
@@ -1079,7 +1088,7 @@ public final class ByteUtils {
 	 *         {@literal null}
 	 * @since 1.1
 	 */
-	public static byte[] byteArray(Byte[] array) {
+	public static byte @Nullable [] byteArray(Byte @Nullable [] array) {
 		return byteArray(array, (byte) 0);
 	}
 
@@ -1094,7 +1103,7 @@ public final class ByteUtils {
 	 *         {@literal null}
 	 * @since 1.1
 	 */
-	public static byte[] byteArray(Byte[] array, byte nullValue) {
+	public static byte @Nullable [] byteArray(Byte @Nullable [] array, byte nullValue) {
 		if ( array == null ) {
 			return null;
 		}

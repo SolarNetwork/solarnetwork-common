@@ -1,21 +1,21 @@
 /* ==================================================================
  * ByteList.java - 25/01/2020 8:15:07 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -24,23 +24,24 @@ package net.solarnetwork.util;
 
 import java.util.AbstractList;
 import java.util.Collection;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A list of byte primitives.
- * 
+ *
  * <p>
  * The {@link ByteOrderedIterable} API has been adopted by this class such that
  * iteration ordering is the same as array ordering. That is, order is by array
  * indexes, not array values.
  * </p>
- * 
+ *
  * <p>
  * This class has been adapted from the
  * <a href="http://trove4j.sourceforge.net/html/overview.html">GNU Trove</a>
  * project's {@code gnu.trove.list.array.TByteArrayList} class, which is
  * released under the LGPL 2.1 licence.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.58
@@ -59,7 +60,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * <p>
 	 * The {@link #DEFAULT_CAPACITY} and {@link #DEFAULT_NULL_VALUE} values will
 	 * be used.
@@ -71,7 +72,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * The {@link #DEFAULT_NULL_VALUE} will be used.
 	 * </p>
@@ -105,7 +106,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 	 * <p>
 	 * The {@link #DEFAULT_NULL_VALUE} will be used.
 	 * </p>
-	 * 
+	 *
 	 * @param values
 	 *        the initial content to add to this list; the values are copied
 	 */
@@ -130,7 +131,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the list to copy
 	 */
@@ -194,7 +195,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Get the current capacity.
-	 * 
+	 *
 	 * @return the capacity
 	 */
 	public int getCapacity() {
@@ -213,7 +214,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Get the byte at a given index.
-	 * 
+	 *
 	 * @param index
 	 *        the index of the byte to get
 	 * @return the byte
@@ -229,7 +230,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Get the byte value used for "null".
-	 * 
+	 *
 	 * @return the null value
 	 */
 	public byte getNullValue() {
@@ -237,13 +238,13 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 	}
 
 	@Override
-	public boolean add(Byte e) {
+	public boolean add(@Nullable Byte e) {
 		return add(e == null ? nullValue : e.byteValue());
 	}
 
 	/**
 	 * Add a byte.
-	 * 
+	 *
 	 * @param b
 	 *        the byte to add
 	 * @return {@literal true} if the byte was added
@@ -255,7 +256,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 	}
 
 	@Override
-	public void add(int index, Byte element) {
+	public void add(int index, @Nullable Byte element) {
 		addAll(index, new byte[] { element == null ? nullValue : element.byteValue() }, 0, 1);
 	}
 
@@ -274,7 +275,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Add values from a byte array to this list.
-	 * 
+	 *
 	 * @param index
 	 *        the index to insert the copied bytes at; all existing elements
 	 *        starting at this index will be shifted to the right
@@ -296,7 +297,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Add an array of bytes.
-	 * 
+	 *
 	 * @param src
 	 *        the bytes to add
 	 */
@@ -306,7 +307,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Add an array of bytes.
-	 * 
+	 *
 	 * @param src
 	 *        the array to copy bytes from
 	 * @param srcPos
@@ -322,7 +323,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Get a copy of the bytes in this list.
-	 * 
+	 *
 	 * @return the copied array of bytes
 	 */
 	public byte[] toArrayValue() {
@@ -331,7 +332,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Get a copied subset of bytes in this list.
-	 * 
+	 *
 	 * @param index
 	 *        the position in this list to start copying from
 	 * @param length
@@ -346,7 +347,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Copy a range of bytes onto a byte array.
-	 * 
+	 *
 	 * @param index
 	 *        the position in this list to start copying from
 	 * @param dest
@@ -388,7 +389,7 @@ public class ByteList extends AbstractList<Byte> implements ByteOrderedIterable,
 
 	/**
 	 * Remove a range of bytes.
-	 * 
+	 *
 	 * @param index
 	 *        the position to start removing from
 	 * @param length

@@ -60,6 +60,7 @@ import java.time.temporal.TemporalUnit;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
@@ -423,7 +424,8 @@ public final class DateUtils {
 	 * @return the parsed date, or {@literal null} if it cannot be parsed for
 	 *         any reason
 	 */
-	public static ZonedDateTime parseIsoAltTimestamp(final String value, final ZoneId defaultZone) {
+	public static @Nullable ZonedDateTime parseIsoAltTimestamp(final @Nullable String value,
+			final ZoneId defaultZone) {
 		return parseIsoTimestamp(ISO_DATE_OPT_TIME_ALT, value, defaultZone);
 	}
 
@@ -445,7 +447,8 @@ public final class DateUtils {
 	 *         any reason
 	 * @since 2.2
 	 */
-	public static ZonedDateTime parseIsoTimestamp(final String value, final ZoneId defaultZone) {
+	public static @Nullable ZonedDateTime parseIsoTimestamp(final @Nullable String value,
+			final ZoneId defaultZone) {
 		return parseIsoTimestamp(ISO_DATE_OPT_TIME, value, defaultZone);
 	}
 
@@ -469,8 +472,8 @@ public final class DateUtils {
 	 *         any reason
 	 * @since 2.2
 	 */
-	public static ZonedDateTime parseIsoTimestamp(final DateTimeFormatter formatter, final String value,
-			final ZoneId defaultZone) {
+	public static @Nullable ZonedDateTime parseIsoTimestamp(final DateTimeFormatter formatter,
+			final @Nullable String value, final ZoneId defaultZone) {
 		ZonedDateTime result = null;
 		try {
 			// try with full time zone from value first
@@ -506,7 +509,7 @@ public final class DateUtils {
 	 */
 	public static final Pattern RANGE_DELIMITER = Pattern.compile("\\s*-\\s*");
 
-	private static String[] splitRange(String range) {
+	private static String @Nullable [] splitRange(@Nullable String range) {
 		if ( range == null ) {
 			return null;
 		}
@@ -520,8 +523,11 @@ public final class DateUtils {
 		return new String[] { range, range };
 	}
 
-	private static IntRange parseRange(String[] r, Locale locale, TemporalField field, TextStyle style)
-			throws DateTimeException {
+	private static @Nullable IntRange parseRange(String @Nullable [] r, Locale locale,
+			TemporalField field, TextStyle style) throws DateTimeException {
+		if ( r == null || r.length < 2 ) {
+			return null;
+		}
 		DateTimeFormatter f = new DateTimeFormatterBuilder().parseCaseInsensitive().parseLenient()
 				.appendText(field, style).toFormatter(locale);
 		TemporalAccessor a = f.parse(r[0]);
@@ -551,8 +557,8 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 1.2
 	 */
-	public static IntRange parseRange(TemporalField field, String range, Locale locale)
-			throws DateTimeException {
+	public static @Nullable IntRange parseRange(TemporalField field, @Nullable String range,
+			@Nullable Locale locale) throws DateTimeException {
 		if ( range == null ) {
 			return null;
 		}
@@ -584,7 +590,8 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 2.3
 	 */
-	public static IntRangeSet parseRangeSet(TemporalField field, String ranges, Locale locale) {
+	public static @Nullable IntRangeSet parseRangeSet(TemporalField field, @Nullable String ranges,
+			@Nullable Locale locale) {
 		return parseRangeSet(field, ranges, locale, ",");
 	}
 
@@ -605,8 +612,8 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 2.3
 	 */
-	public static IntRangeSet parseRangeSet(TemporalField field, String ranges, Locale locale,
-			String rangeDelim) {
+	public static @Nullable IntRangeSet parseRangeSet(TemporalField field, @Nullable String ranges,
+			@Nullable Locale locale, String rangeDelim) {
 		if ( ranges == null ) {
 			return null;
 		}
@@ -645,7 +652,8 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 1.2
 	 */
-	public static IntRange parseMonthRange(String range, Locale locale) throws DateTimeException {
+	public static @Nullable IntRange parseMonthRange(@Nullable String range, Locale locale)
+			throws DateTimeException {
 		return parseRange(ChronoField.MONTH_OF_YEAR, range, locale);
 	}
 
@@ -667,7 +675,8 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 1.2
 	 */
-	public static IntRange parseDayOfMonthRange(String range, Locale locale) throws DateTimeException {
+	public static @Nullable IntRange parseDayOfMonthRange(@Nullable String range, Locale locale)
+			throws DateTimeException {
 		return parseRange(ChronoField.DAY_OF_MONTH, range, locale);
 	}
 
@@ -690,7 +699,8 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 1.2
 	 */
-	public static IntRange parseDayOfWeekRange(String range, Locale locale) throws DateTimeException {
+	public static @Nullable IntRange parseDayOfWeekRange(@Nullable String range, Locale locale)
+			throws DateTimeException {
 		return parseRange(ChronoField.DAY_OF_WEEK, range, locale);
 	}
 
@@ -711,7 +721,8 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 1.2
 	 */
-	public static IntRange parseMinuteOfDayRange(String range, Locale locale) throws DateTimeException {
+	public static @Nullable IntRange parseMinuteOfDayRange(@Nullable String range, Locale locale)
+			throws DateTimeException {
 		return parseMinuteOfDayRange(range, locale, false);
 	}
 
@@ -731,7 +742,7 @@ public final class DateUtils {
 	 * @param range
 	 *        the range string to parse into a day of week range
 	 * @param locale
-	 *        the locale to parse the range as
+	 *        unused
 	 * @param fix24
 	 *        if {@literal true} then the value {@literal 24} will be changed to
 	 *        {@code 23:59}, otherwise {@literal 24} will be left as-is
@@ -741,8 +752,8 @@ public final class DateUtils {
 	 *         if any parsing error occurs
 	 * @since 1.2
 	 */
-	public static IntRange parseMinuteOfDayRange(String range, Locale locale, boolean fix24)
-			throws DateTimeException {
+	public static @Nullable IntRange parseMinuteOfDayRange(@Nullable String range, Locale locale,
+			boolean fix24) throws DateTimeException {
 		String[] r = splitRange(range);
 		if ( r == null ) {
 			return null;
@@ -856,13 +867,14 @@ public final class DateUtils {
 	 *        system default
 	 * @param style
 	 *        the formatting style
-	 * @return the range string
+	 * @return the range string, or {@code null} if {@code range} is
+	 *         {@code null}
 	 * @throws DateTimeException
 	 *         if any formatting error occurs
 	 * @since 1.2
 	 */
-	public static String formatRange(ChronoField field, IntRange range, Locale locale, TextStyle style)
-			throws DateTimeException {
+	public static @Nullable String formatRange(ChronoField field, @Nullable IntRange range,
+			@Nullable Locale locale, TextStyle style) throws DateTimeException {
 		if ( range == null ) {
 			return null;
 		}
@@ -900,8 +912,8 @@ public final class DateUtils {
 	 * @see #formatRange(ChronoField, IntRangeContainer, Locale, TextStyle,
 	 *      String)
 	 */
-	public static String formatRange(ChronoField field, IntRangeContainer range, Locale locale,
-			TextStyle style) throws DateTimeException {
+	public static @Nullable String formatRange(ChronoField field, @Nullable IntRangeContainer range,
+			@Nullable Locale locale, TextStyle style) throws DateTimeException {
 		return formatRange(field, range, locale, style, ",");
 	}
 
@@ -929,8 +941,8 @@ public final class DateUtils {
 	 *         if any formatting error occurs
 	 * @since 2.3
 	 */
-	public static String formatRange(ChronoField field, IntRangeContainer range, Locale locale,
-			TextStyle style, String rangeDelim) throws DateTimeException {
+	public static @Nullable String formatRange(ChronoField field, @Nullable IntRangeContainer range,
+			@Nullable Locale locale, TextStyle style, String rangeDelim) throws DateTimeException {
 		if ( range == null ) {
 			return null;
 		}
@@ -1064,7 +1076,7 @@ public final class DateUtils {
 	 *         if {@code zoneId} cannot be parsed
 	 * @since 2.4
 	 */
-	public static ZoneId tz(String zoneId) {
+	public static ZoneId tz(@Nullable String zoneId) {
 		if ( zoneId == null ) {
 			return ZoneId.systemDefault();
 		}
@@ -1088,7 +1100,7 @@ public final class DateUtils {
 	 *         if the temporal type is not supported
 	 * @since 2.4
 	 */
-	public static Instant timestamp(Temporal date) {
+	public static @Nullable Instant timestamp(@Nullable Temporal date) {
 		return timestamp(date, ZoneId.systemDefault());
 	}
 
@@ -1107,7 +1119,7 @@ public final class DateUtils {
 	 *         valid
 	 * @since 2.4
 	 */
-	public static Instant timestamp(Temporal date, String zoneId) {
+	public static @Nullable Instant timestamp(@Nullable Temporal date, @Nullable String zoneId) {
 		return timestamp(date, tz(zoneId));
 	}
 
@@ -1124,7 +1136,7 @@ public final class DateUtils {
 	 *         if the temporal type is not supported
 	 * @since 2.4
 	 */
-	public static Instant timestamp(Temporal date, ZoneId zone) {
+	public static @Nullable Instant timestamp(@Nullable Temporal date, @Nullable ZoneId zone) {
 		if ( date == null ) {
 			return null;
 		}
@@ -1161,7 +1173,7 @@ public final class DateUtils {
 	 *         is {@literal null}
 	 * @since 2.4
 	 */
-	public static TemporalUnit chronoUnit(String name) {
+	public static @Nullable TemporalUnit chronoUnit(@Nullable String name) {
 		if ( name == null ) {
 			return null;
 		}
@@ -1215,7 +1227,7 @@ public final class DateUtils {
 	 * @see #dateTruncate(Temporal, TemporalUnit)
 	 * @since 2.4
 	 */
-	public static Temporal dateTruncate(Temporal date, String unit) {
+	public static @Nullable Temporal dateTruncate(@Nullable Temporal date, @Nullable String unit) {
 		return dateTruncate(date, chronoUnit(unit));
 	}
 
@@ -1231,7 +1243,7 @@ public final class DateUtils {
 	 *         if the date cannot be truncated to the given unit
 	 * @since 2.4
 	 */
-	public static Temporal dateTruncate(Temporal date, TemporalUnit unit) {
+	public static @Nullable Temporal dateTruncate(@Nullable Temporal date, @Nullable TemporalUnit unit) {
 		if ( date == null || unit == null ) {
 			return date;
 		}
@@ -1286,7 +1298,7 @@ public final class DateUtils {
 	 * @see #duration(String)
 	 * @since 2.4
 	 */
-	public static Temporal datePlus(Temporal date, String amount) {
+	public static @Nullable Temporal datePlus(@Nullable Temporal date, String amount) {
 		return datePlus(date, duration(amount));
 	}
 
@@ -1303,7 +1315,7 @@ public final class DateUtils {
 	 * @see #duration(String)
 	 * @since 2.4
 	 */
-	public static Temporal datePlus(Temporal date, TemporalAmount amount) {
+	public static @Nullable Temporal datePlus(@Nullable Temporal date, @Nullable TemporalAmount amount) {
 		if ( date == null || amount == null ) {
 			return date;
 		}
@@ -1329,7 +1341,8 @@ public final class DateUtils {
 	 *         if {@code unit} cannot be parsed as a {@link ChronoUnit}
 	 * @since 2.4
 	 */
-	public static Temporal datePlus(Temporal date, long amount, String unit) {
+	public static @Nullable Temporal datePlus(@Nullable Temporal date, long amount,
+			@Nullable String unit) {
 		return datePlus(date, amount, chronoUnit(unit));
 	}
 
@@ -1348,7 +1361,8 @@ public final class DateUtils {
 	 *         if {@code unit} cannot be added to {@code date}
 	 * @since 2.4
 	 */
-	public static Temporal datePlus(Temporal date, long amount, TemporalUnit unit) {
+	public static @Nullable Temporal datePlus(@Nullable Temporal date, long amount,
+			@Nullable TemporalUnit unit) {
 		if ( date == null || unit == null || amount == 0 ) {
 			return date;
 		}
@@ -1403,7 +1417,8 @@ public final class DateUtils {
 	 *         if the date cannot be floored to the given duration
 	 * @since 2.7
 	 */
-	public static Temporal dateFloor(Temporal date, TemporalAmount amount, ZoneId zone) {
+	public static @Nullable Temporal dateFloor(@Nullable Temporal date, TemporalAmount amount,
+			ZoneId zone) {
 		if ( amount instanceof Period ) {
 			return dateFloor(date, (Period) amount, zone);
 		} else if ( amount instanceof Duration ) {
@@ -1426,8 +1441,14 @@ public final class DateUtils {
 	 *         if the date cannot be floored to the given duration
 	 * @since 2.7
 	 */
-	public static Temporal dateFloor(Temporal date, Duration amount, ZoneId zone) {
+	public static @Nullable Temporal dateFloor(@Nullable Temporal date, Duration amount, ZoneId zone) {
+		if ( date == null ) {
+			return null;
+		}
 		Instant ts = timestamp(date, zone);
+		if ( ts == null ) {
+			return null;
+		}
 		Instant floored = Clock.tick(Clock.fixed(ts, zone), amount).instant();
 		return convert(floored, date, zone);
 	}
@@ -1457,8 +1478,14 @@ public final class DateUtils {
 	 *         if the date cannot be floored to the given duration
 	 * @since 2.7
 	 */
-	public static Temporal dateFloor(Temporal date, Period amount, ZoneId zone) {
+	public static @Nullable Temporal dateFloor(@Nullable Temporal date, Period amount, ZoneId zone) {
+		if ( date == null ) {
+			return null;
+		}
 		Instant ts = timestamp(date, zone);
+		if ( ts == null ) {
+			return null;
+		}
 		TemporalAdjuster adj = amount.getYears() > 0 ? TemporalAdjusters.firstDayOfYear()
 				: amount.getMonths() > 0 ? TemporalAdjusters.firstDayOfMonth()
 						: amount.getDays() > 6 ? TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)

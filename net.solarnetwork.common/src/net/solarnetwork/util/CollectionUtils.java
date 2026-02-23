@@ -42,6 +42,7 @@ import java.util.SortedSet;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 
@@ -108,7 +109,8 @@ public final class CollectionUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code maxRangeLength} is less than {@literal 1}
 	 */
-	public static List<IntRange> coveringIntRanges(SortedSet<Integer> set, int maxRangeLength) {
+	public static @Nullable List<IntRange> coveringIntRanges(@Nullable SortedSet<Integer> set,
+			int maxRangeLength) {
 		if ( maxRangeLength < 1 ) {
 			throw new IllegalArgumentException("Max range length must be greater than 0.");
 		}
@@ -175,7 +177,7 @@ public final class CollectionUtils {
 	 * @return the new map instance, or {@literal null} if {@code dict} is
 	 *         {@literal null}
 	 */
-	public static <K, V> Map<K, V> mapForDictionary(Dictionary<K, V> dict) {
+	public static <K, V> @Nullable Map<K, V> mapForDictionary(@Nullable Dictionary<K, V> dict) {
 		if ( dict == null ) {
 			return null;
 		}
@@ -207,7 +209,7 @@ public final class CollectionUtils {
 	 * @return the new dictionary instance, or {@literal null} if {@code map} is
 	 *         {@literal null}
 	 */
-	public static <K, V> Dictionary<K, V> dictionaryForMap(Map<K, V> map) {
+	public static <K, V> @Nullable Dictionary<K, V> dictionaryForMap(@Nullable Map<K, V> map) {
 		if ( map == null ) {
 			return null;
 		}
@@ -229,7 +231,7 @@ public final class CollectionUtils {
 	 * @return the value, or {@literal null} if not found
 	 * @since 1.2
 	 */
-	public static String getMapString(String key, Map<String, ?> map) {
+	public static @Nullable String getMapString(String key, @Nullable Map<String, ?> map) {
 		if ( map == null ) {
 			return null;
 		}
@@ -259,7 +261,7 @@ public final class CollectionUtils {
 	 *         Short
 	 * @since 1.2
 	 */
-	public static Short getMapShort(String key, Map<String, ?> map) {
+	public static @Nullable Short getMapShort(String key, @Nullable Map<String, ?> map) {
 		if ( map == null ) {
 			return null;
 		}
@@ -296,7 +298,7 @@ public final class CollectionUtils {
 	 *         Integer
 	 * @since 1.2
 	 */
-	public static Integer getMapInteger(String key, Map<String, ?> map) {
+	public static @Nullable Integer getMapInteger(String key, @Nullable Map<String, ?> map) {
 		if ( map == null ) {
 			return null;
 		}
@@ -333,7 +335,7 @@ public final class CollectionUtils {
 	 *         Long
 	 * @since 1.2
 	 */
-	public static Long getMapLong(String key, Map<String, ?> map) {
+	public static @Nullable Long getMapLong(String key, @Nullable Map<String, ?> map) {
 		if ( map == null ) {
 			return null;
 		}
@@ -370,7 +372,7 @@ public final class CollectionUtils {
 	 *         Float
 	 * @since 1.2
 	 */
-	public static Float getMapFloat(String key, Map<String, ?> map) {
+	public static @Nullable Float getMapFloat(String key, @Nullable Map<String, ?> map) {
 		if ( map == null ) {
 			return null;
 		}
@@ -407,7 +409,7 @@ public final class CollectionUtils {
 	 *         Double
 	 * @since 1.2
 	 */
-	public static Double getMapDouble(String key, Map<String, ?> map) {
+	public static @Nullable Double getMapDouble(String key, @Nullable Map<String, ?> map) {
 		if ( map == null ) {
 			return null;
 		}
@@ -445,7 +447,7 @@ public final class CollectionUtils {
 	 *         BigDecimal
 	 * @since 1.2
 	 */
-	public static BigDecimal getMapBigDecimal(String key, Map<String, ?> map) {
+	public static @Nullable BigDecimal getMapBigDecimal(String key, @Nullable Map<String, ?> map) {
 		if ( map == null ) {
 			return null;
 		}
@@ -480,7 +482,7 @@ public final class CollectionUtils {
 	 *         BigInteger
 	 * @since 1.2
 	 */
-	public static BigInteger getMapBigInteger(String key, Map<String, ?> map) {
+	public static @Nullable BigInteger getMapBigInteger(String key, @Nullable Map<String, ?> map) {
 		if ( map == null ) {
 			return null;
 		}
@@ -527,7 +529,7 @@ public final class CollectionUtils {
 	 * @since 1.2
 	 * @see StringUtils#sha256MaskedMap(Map, Set)
 	 */
-	public static Set<String> sensitiveNamesToMask(Set<String> set) {
+	public static Set<String> sensitiveNamesToMask(@Nullable Set<String> set) {
 		return valuesMatching(set, SENSITIVE_NAME_PATTERN);
 	}
 
@@ -541,7 +543,7 @@ public final class CollectionUtils {
 	 * @return the matching names, never {@literal null}
 	 * @since 1.2
 	 */
-	public static Set<String> valuesMatching(Set<String> set, Pattern pattern) {
+	public static Set<String> valuesMatching(@Nullable Set<String> set, Pattern pattern) {
 		if ( set == null || set.isEmpty() ) {
 			return Collections.emptySet();
 		}
@@ -580,8 +582,8 @@ public final class CollectionUtils {
 	 *         is {@literal null} or empty
 	 * @since 1.3
 	 */
-	public static <C extends Collection<T>, T> C filteredSubset(C superSet, C subSet,
-			Supplier<C> supplier) {
+	public static <C extends Collection<T>, T> @Nullable C filteredSubset(@Nullable C superSet,
+			@Nullable C subSet, Supplier<C> supplier) {
 		if ( subSet != null && !subSet.isEmpty() && superSet != null && !superSet.isEmpty() ) {
 			if ( superSet.containsAll(subSet) ) {
 				// given sub-set contains only items from super-set, so return it directly
@@ -615,7 +617,8 @@ public final class CollectionUtils {
 	 * @see #sort(Collection, boolean, String...)
 	 * @since 1.4
 	 */
-	public static <T> Collection<T> sort(Collection<T> collection, String... propNames) {
+	public static <T> @Nullable Collection<T> sort(Collection<T> collection,
+			String @Nullable... propNames) {
 		return sort(collection, false, propNames);
 	}
 
@@ -651,8 +654,8 @@ public final class CollectionUtils {
 	 * @since 1.4
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> Collection<T> sort(Collection<T> collection, boolean reverse,
-			String... propNames) {
+	public static <T> @Nullable Collection<T> sort(@Nullable Collection<T> collection, boolean reverse,
+			String @Nullable... propNames) {
 		if ( collection == null || collection.size() < 2 ) {
 			return collection;
 		}
@@ -735,8 +738,8 @@ public final class CollectionUtils {
 	 *         {@code map} when no values need transforming
 	 * @since 1.5
 	 */
-	public static <K, V> Map<K, V> transformMap(Map<K, V> map, Set<K> transformKeys,
-			Function<V, V> transformer) {
+	public static <K, V> @Nullable Map<K, V> transformMap(@Nullable Map<K, V> map,
+			@Nullable Set<K> transformKeys, Function<V, V> transformer) {
 		assert transformer != null;
 		Map<K, V> res = map;
 		if ( map != null && transformKeys != null && !map.isEmpty() && !transformKeys.isEmpty() ) {

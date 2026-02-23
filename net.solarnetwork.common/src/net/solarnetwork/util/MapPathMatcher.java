@@ -1,21 +1,21 @@
 /* ==================================================================
  * MapPathMatcher.java - 27/11/2020 7:55:21 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -27,23 +27,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.SearchFilter.CompareOperator;
 import net.solarnetwork.util.SearchFilter.LogicOperator;
 import net.solarnetwork.util.SearchFilter.VisitorCallback;
 
 /**
  * Match search filter against a nested map using paths for filter keys.
- * 
+ *
  * <p>
  * This utility tries to match a {@link SearchFilter} against a {@link Map}, by
  * treating each search filter key (the left-hand side of each filter
  * comparison) like a URL path that corresponds to an entry in the map. Each
  * path segment represents a map, possibly nested with the root map.
- * 
+ *
  * <p>
  * For example, given this JSON representation of a nested map structure:
  * </p>
- * 
+ *
  * <pre>
  * <code>{
  *     "foo": {
@@ -53,40 +54,40 @@ import net.solarnetwork.util.SearchFilter.VisitorCallback;
  *     "pow": 2
  * }</code>
  * </pre>
- * 
+ *
  * <p>
  * then the filters <code>(/foo/bar=1)</code> and <code>(/foo/bim=bam)</code>
  * and <code>(/pow=2)</code> and <code>(&amp;(/foo/bar=1)(/pow&lt;5))</code>
  * would match while <code>(/foo/bar&gt;1)</code> and <code>(/foo/bim=no)</code>
  * and <code>(|(/foo/bar&gt;1)(/pow&gt;2))</code> would not.
  * </p>
- * 
+ *
  * <p>
  * Originally ported from the JavaScript <code>objectPathMatcher</code> class.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.67
  */
 public class MapPathMatcher {
 
-	private final Map<String, ?> root;
+	private final @Nullable Map<String, ?> root;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param map
 	 *        the map root
 	 */
-	public MapPathMatcher(Map<String, ?> map) {
+	public MapPathMatcher(@Nullable Map<String, ?> map) {
 		super();
 		this.root = map;
 	}
 
 	/**
 	 * Test if a filter matches a map.
-	 * 
+	 *
 	 * @param map
 	 *        the map
 	 * @param filterText
@@ -94,7 +95,7 @@ public class MapPathMatcher {
 	 * @return {@literal true} if the filter matches
 	 * @see SearchFilter#forLDAPSearchFilterString(String)
 	 */
-	public static boolean matches(Map<String, ?> map, String filterText) {
+	public static boolean matches(@Nullable Map<String, ?> map, String filterText) {
 		return new MapPathMatcher(map).matches(filterText);
 	}
 
@@ -108,7 +109,7 @@ public class MapPathMatcher {
 	 *
 	 * @return {@literal true} if the filter matches
 	 */
-	public static boolean matches(Map<String, ?> map, SearchFilter filter) {
+	public static boolean matches(@Nullable Map<String, ?> map, SearchFilter filter) {
 		return new MapPathMatcher(map).matches(filter);
 	}
 
@@ -136,8 +137,8 @@ public class MapPathMatcher {
 	 *
 	 * @return {@literal true} if the filter matches
 	 */
-	public boolean matches(SearchFilter filter) {
-		if ( root == null ) {
+	public boolean matches(@Nullable SearchFilter filter) {
+		if ( root == null || filter == null ) {
 			return false;
 		}
 		Evaluator eval = new Evaluator();
@@ -146,10 +147,10 @@ public class MapPathMatcher {
 
 	private static interface EvalCallback {
 
-		boolean isMatch(List<String> currPath, Object value);
+		boolean isMatch(List<String> currPath, @Nullable Object value);
 	}
 
-	private static boolean handleCallbackValue(Object value, List<String> currPath,
+	private static boolean handleCallbackValue(@Nullable Object value, List<String> currPath,
 			EvalCallback callback) {
 		if ( value != null && value.getClass().isArray() ) {
 			Object[] valueArray = (Object[]) value;
@@ -218,7 +219,7 @@ public class MapPathMatcher {
 
 										@Override
 										public boolean isMatch(List<String> nestedPath,
-												Object nestedVal) {
+												@Nullable Object nestedVal) {
 											List<String> p = new ArrayList<>(currPath);
 											p.addAll(nestedPath);
 											return callback.isMatch(p, nestedVal);
@@ -232,7 +233,8 @@ public class MapPathMatcher {
 								new EvalCallback() {
 
 									@Override
-									public boolean isMatch(List<String> nestedPath, Object nestedVal) {
+									public boolean isMatch(List<String> nestedPath,
+											@Nullable Object nestedVal) {
 										List<String> p = new ArrayList<>(currPath);
 										p.addAll(nestedPath);
 										return callback.isMatch(p, nestedVal);
@@ -335,7 +337,7 @@ public class MapPathMatcher {
 			filter.walk(new VisitorCallback() {
 
 				@Override
-				public boolean visit(SearchFilter node, SearchFilter parent) {
+				public boolean visit(SearchFilter node, @Nullable SearchFilter parent) {
 					boolean match = false;
 					if ( parent != null ) {
 						if ( parent != logicStack.get(stackIdx).node ) {
@@ -373,7 +375,7 @@ public class MapPathMatcher {
 						logicStack.add(new StackObj(node.getLogicOperator(), false, node));
 						currLogicOp = node.getLogicOperator();
 						stackIdx += 1;
-					} else if ( logicStackSatisfiedIdx == -1 ) {
+					} else if ( logicStackSatisfiedIdx == -1 && node.filter != null ) {
 						for ( final Map.Entry<String, ?> me : node.filter.entrySet() ) {
 							boolean r = walkObjectPathValues(obj, Arrays.asList(me.getKey().split("/")),
 									new EvalCallback() {
@@ -424,7 +426,8 @@ public class MapPathMatcher {
 										}
 
 										@Override
-										public boolean isMatch(List<String> currPath, Object value) {
+										public boolean isMatch(List<String> currPath,
+												@Nullable Object value) {
 											boolean match = false;
 											if ( node.getCompareOperator() == CompareOperator.EQUAL ) {
 												if ( value != null && value.equals(me.getValue()) ) {

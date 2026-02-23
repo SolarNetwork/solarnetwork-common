@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Map implementation that delegates to another Map instance while translating
@@ -79,7 +80,7 @@ public class NullRemoveMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public boolean containsKey(Object key) {
+	public boolean containsKey(@Nullable Object key) {
 		if ( key == null ) {
 			return false;
 		}
@@ -92,7 +93,7 @@ public class NullRemoveMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V get(Object key) {
+	public @Nullable V get(@Nullable Object key) {
 		if ( key == null ) {
 			return null;
 		}
@@ -100,7 +101,7 @@ public class NullRemoveMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V put(K key, V value) {
+	public V put(K key, @Nullable V value) {
 		if ( value == null ) {
 			return delegate.remove(key);
 		}
@@ -108,7 +109,7 @@ public class NullRemoveMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V remove(Object key) {
+	public @Nullable V remove(@Nullable Object key) {
 		if ( key == null ) {
 			return null;
 		}
@@ -116,7 +117,7 @@ public class NullRemoveMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public void putAll(Map<? extends K, ? extends V> m) {
+	public void putAll(@Nullable Map<? extends K, ? extends V> m) {
 		if ( m == null ) {
 			return;
 		}
@@ -156,7 +157,7 @@ public class NullRemoveMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V getOrDefault(Object key, V defaultValue) {
+	public @Nullable V getOrDefault(@Nullable Object key, @Nullable V defaultValue) {
 		if ( key == null ) {
 			return defaultValue;
 		}
@@ -174,7 +175,7 @@ public class NullRemoveMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V putIfAbsent(K key, V value) {
+	public @Nullable V putIfAbsent(K key, @Nullable V value) {
 		if ( value == null ) {
 			return null;
 		}
@@ -182,7 +183,7 @@ public class NullRemoveMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public boolean remove(Object key, Object value) {
+	public boolean remove(Object key, @Nullable Object value) {
 		if ( value == null ) {
 			return false;
 		}
@@ -190,7 +191,7 @@ public class NullRemoveMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public boolean replace(K key, V oldValue, V newValue) {
+	public boolean replace(K key, V oldValue, @Nullable V newValue) {
 		if ( newValue == null ) {
 			return remove(key, oldValue);
 		}
@@ -198,7 +199,7 @@ public class NullRemoveMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V replace(K key, V value) {
+	public @Nullable V replace(K key, @Nullable V value) {
 		if ( value == null ) {
 			return remove(key);
 		}
@@ -206,22 +207,26 @@ public class NullRemoveMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
+	public @Nullable V computeIfAbsent(K key,
+			Function<? super K, @Nullable ? extends V> mappingFunction) {
 		return delegate.computeIfAbsent(key, mappingFunction);
 	}
 
 	@Override
-	public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+	public @Nullable V computeIfPresent(K key,
+			BiFunction<? super K, ? super V, @Nullable ? extends V> remappingFunction) {
 		return delegate.computeIfPresent(key, remappingFunction);
 	}
 
 	@Override
-	public V compute(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+	public @Nullable V compute(K key,
+			BiFunction<? super K, ? super V, @Nullable ? extends V> remappingFunction) {
 		return delegate.compute(key, remappingFunction);
 	}
 
 	@Override
-	public V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
+	public @Nullable V merge(K key, V value,
+			BiFunction<? super V, ? super V, @Nullable ? extends V> remappingFunction) {
 		return delegate.merge(key, value, remappingFunction);
 	}
 

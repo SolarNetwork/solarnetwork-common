@@ -40,6 +40,7 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.KeyValuePair;
 
 /**
@@ -100,7 +101,8 @@ public final class StringUtils {
 	 *         {@code source} is {@literal null}
 	 * @since 1.4
 	 */
-	public static String expandTemplateString(String source, Map<String, ?> variables) {
+	public static @Nullable String expandTemplateString(@Nullable String source,
+			@Nullable Map<String, ?> variables) {
 		if ( source == null ) {
 			return null;
 		}
@@ -148,7 +150,7 @@ public final class StringUtils {
 		return sb.toString();
 	}
 
-	private static Object getVariableValue(String match, Map<String, ?> variables) {
+	private static @Nullable Object getVariableValue(String match, Map<String, ?> variables) {
 		int colonIdx = match.indexOf(':');
 		String name = (colonIdx != -1 ? match.substring(0, colonIdx) : match);
 		String fallback = (colonIdx != -1 ? match.substring(colonIdx + 1) : null);
@@ -159,7 +161,7 @@ public final class StringUtils {
 		return val;
 	}
 
-	private static String getVariableValueAsString(Object variableValue) {
+	private static String getVariableValueAsString(@Nullable Object variableValue) {
 		return (variableValue != null ? variableValue.toString() : "");
 	}
 
@@ -171,7 +173,8 @@ public final class StringUtils {
 	 * @return the comma-delimited string
 	 * @see #delimitedStringFromCollection(Collection, String)
 	 */
-	public static String commaDelimitedStringFromCollection(final Collection<?> set) {
+	public static @Nullable String commaDelimitedStringFromCollection(
+			final @Nullable Collection<?> set) {
 		return delimitedStringFromCollection(set, ",");
 	}
 
@@ -188,9 +191,11 @@ public final class StringUtils {
 	 *        the set
 	 * @param delim
 	 *        the delimiter
-	 * @return the delimited string
+	 * @return the delimited string, or {@code null} if {@code set} is
+	 *         {@code null}
 	 */
-	public static String delimitedStringFromCollection(final Collection<?> set, String delim) {
+	public static @Nullable String delimitedStringFromCollection(final @Nullable Collection<?> set,
+			String delim) {
 		if ( set == null ) {
 			return null;
 		}
@@ -220,8 +225,9 @@ public final class StringUtils {
 	 * @param map
 	 *        the map
 	 * @return the string
+	 * @see #delimitedStringFromMap(Map, String, String)
 	 */
-	public static String delimitedStringFromMap(final Map<?, ?> map) {
+	public static @Nullable String delimitedStringFromMap(final @Nullable Map<?, ?> map) {
 		return delimitedStringFromMap(map, "=", ",");
 	}
 
@@ -240,10 +246,10 @@ public final class StringUtils {
 	 *        the delimited to use between keys and values
 	 * @param pairDelim
 	 *        the delimiter to use betwen key/value pairs
-	 * @return the string
+	 * @return the string, or {@code null} if {@code map} is {@code null}
 	 */
-	public static String delimitedStringFromMap(final Map<?, ?> map, String keyValueDelim,
-			String pairDelim) {
+	public static @Nullable String delimitedStringFromMap(final @Nullable Map<?, ?> map,
+			String keyValueDelim, String pairDelim) {
 		if ( map == null ) {
 			return null;
 		}
@@ -272,7 +278,7 @@ public final class StringUtils {
 	 *         an empty string
 	 * @see #delimitedStringToSet(String, String)
 	 */
-	public static Set<String> commaDelimitedStringToSet(final String list) {
+	public static @Nullable Set<String> commaDelimitedStringToSet(final @Nullable String list) {
 		return delimitedStringToSet(list, ",");
 	}
 
@@ -294,7 +300,8 @@ public final class StringUtils {
 	 * @return the Set, or {@literal null} if {@code list} is {@literal null} or
 	 *         an empty string
 	 */
-	public static Set<String> delimitedStringToSet(final String list, final String delim) {
+	public static @Nullable Set<String> delimitedStringToSet(final @Nullable String list,
+			final String delim) {
 		if ( list == null || list.length() < 1 ) {
 			return null;
 		}
@@ -316,7 +323,7 @@ public final class StringUtils {
 	 * @see #delimitedStringToList(String, String)
 	 * @since 1.16
 	 */
-	public static List<String> commaDelimitedStringToList(final String list) {
+	public static @Nullable List<String> commaDelimitedStringToList(final @Nullable String list) {
 		return delimitedStringToList(list, ",");
 	}
 
@@ -338,7 +345,8 @@ public final class StringUtils {
 	 *         or an empty string
 	 * @since 1.16
 	 */
-	public static List<String> delimitedStringToList(final String list, final String delim) {
+	public static @Nullable List<String> delimitedStringToList(final @Nullable String list,
+			final String delim) {
 		if ( list == null || list.length() < 1 ) {
 			return null;
 		}
@@ -367,7 +375,8 @@ public final class StringUtils {
 	 *         or empty
 	 * @see #delimitedStringToMap(String, String, String)
 	 */
-	public static Map<String, String> commaDelimitedStringToMap(final String mapping) {
+	public static @Nullable Map<String, String> commaDelimitedStringToMap(
+			final @Nullable String mapping) {
 		return delimitedStringToMap(mapping, ",", "=");
 	}
 
@@ -398,7 +407,7 @@ public final class StringUtils {
 	 * @return the map, or {@literal null} if {@code mapping} is {@literal null}
 	 *         or empty
 	 */
-	public static Map<String, String> delimitedStringToMap(final String mapping,
+	public static @Nullable Map<String, String> delimitedStringToMap(final @Nullable String mapping,
 			final String recordDelim, final String fieldDelim) {
 		if ( mapping == null || mapping.length() < 1 ) {
 			return null;
@@ -432,7 +441,7 @@ public final class StringUtils {
 	 * @throws PatternSyntaxException
 	 *         If an expression's syntax is invalid
 	 */
-	public static Pattern[] patterns(final String[] expressions, int flags) {
+	public static Pattern @Nullable [] patterns(final String @Nullable [] expressions, int flags) {
 		Pattern[] result = null;
 		if ( expressions != null && expressions.length > 0 ) {
 			result = new Pattern[expressions.length];
@@ -455,7 +464,7 @@ public final class StringUtils {
 	 * @return the string expressions, in the same order as {@code patterns}, or
 	 *         {@literal null} if no patterns supplied
 	 */
-	public static String[] expressions(final Pattern[] patterns) {
+	public static String @Nullable [] expressions(final Pattern @Nullable [] patterns) {
 		String[] results = null;
 		if ( patterns != null && patterns.length > 0 ) {
 			results = new String[patterns.length];
@@ -479,7 +488,7 @@ public final class StringUtils {
 	 * @return a {@link Matcher} that matches {@code text} or {@literal null} if
 	 *         no match was found
 	 */
-	public static Matcher matches(final Pattern[] patterns, String text) {
+	public static @Nullable Matcher matches(final Pattern @Nullable [] patterns, @Nullable String text) {
 		if ( patterns == null || patterns.length < 0 || text == null ) {
 			return null;
 		}
@@ -517,7 +526,7 @@ public final class StringUtils {
 	 * @return the parsed boolean result
 	 * @since 1.6
 	 */
-	public static boolean parseBoolean(String s) {
+	public static boolean parseBoolean(@Nullable String s) {
 		boolean result = false;
 		if ( s != null ) {
 			s = s.trim();
@@ -544,7 +553,7 @@ public final class StringUtils {
 	 *         prefix
 	 * @since 1.7
 	 */
-	public static final String sha256Base64Value(String propertyValue) {
+	public static final String sha256Base64Value(@Nullable String propertyValue) {
 		byte[] salt = new byte[8];
 		rng.nextBytes(salt);
 		return sha256Base64Value(propertyValue, salt);
@@ -571,7 +580,8 @@ public final class StringUtils {
 	 *         provided
 	 * @since 1.7
 	 */
-	public static final String sha256Base64Value(String propertyValue, byte[] salt) {
+	public static final String sha256Base64Value(@Nullable String propertyValue,
+			byte @Nullable [] salt) {
 		byte[] plain;
 		try {
 			plain = (propertyValue != null ? propertyValue.getBytes("UTF-8") : new byte[0]);
@@ -625,7 +635,7 @@ public final class StringUtils {
 	 * @return a key/value pair of the
 	 * @since 1.7
 	 */
-	public static final KeyValuePair decodeBase64DigestComponents(String digest) {
+	public static final @Nullable KeyValuePair decodeBase64DigestComponents(@Nullable String digest) {
 		if ( digest == null ) {
 			return null;
 		}
@@ -690,7 +700,7 @@ public final class StringUtils {
 	 * @since 1.7
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <K, V> Map<K, V> sha256MaskedMap(Map<K, V> map, Set<K> maskKeys) {
+	public static <K, V> @Nullable Map<K, V> sha256MaskedMap(@Nullable Map<K, V> map, Set<K> maskKeys) {
 		Map<K, V> res = map;
 		if ( map != null && maskKeys != null && !map.isEmpty() && !maskKeys.isEmpty() ) {
 			for ( K propName : maskKeys ) {
@@ -750,7 +760,7 @@ public final class StringUtils {
 	 *         {@literal null}
 	 * @since 1.8
 	 */
-	public static String simpleIdValue(String text) {
+	public static @Nullable String simpleIdValue(@Nullable String text) {
 		return simpleIdValue(text, false);
 	}
 
@@ -777,7 +787,7 @@ public final class StringUtils {
 	 *         {@literal null}
 	 * @since 1.14
 	 */
-	public static String simpleIdValue(String text, boolean preserveRateCase) {
+	public static @Nullable String simpleIdValue(@Nullable String text, boolean preserveRateCase) {
 		if ( text == null || text.isEmpty() ) {
 			return text;
 		}
@@ -824,7 +834,7 @@ public final class StringUtils {
 	 *         {@literal null} otherwise
 	 * @since 1.11
 	 */
-	public static Number numberValue(String text) {
+	public static @Nullable Number numberValue(@Nullable String text) {
 		if ( text == null ) {
 			return null;
 		}
@@ -859,7 +869,7 @@ public final class StringUtils {
 	 *         capture values
 	 * @since 1.11
 	 */
-	public static String[] match(Pattern pattern, String text) {
+	public static String @Nullable [] match(@Nullable Pattern pattern, @Nullable String text) {
 		if ( pattern == null || text == null ) {
 			return null;
 		}
@@ -908,7 +918,8 @@ public final class StringUtils {
 	 * @return a negative number, {@literal 0}, or a positive number if
 	 *         {@code a} sorts before, equal to, or after {@code b}
 	 */
-	public static int naturalSortCompare(final String a, final String b, final boolean ignoreCase) {
+	public static int naturalSortCompare(final @Nullable String a, final @Nullable String b,
+			final boolean ignoreCase) {
 		if ( a == b ) {
 			return 0;
 		} else if ( a == null ) {
@@ -1038,7 +1049,7 @@ public final class StringUtils {
 	 *         {@literal null} or empty or has no valid values
 	 * @since 1.13
 	 */
-	public static IntRangeSet commaDelimitedStringToIntRangeSet(String value) {
+	public static @Nullable IntRangeSet commaDelimitedStringToIntRangeSet(@Nullable String value) {
 		if ( value == null || value.trim().isEmpty() ) {
 			return null;
 		}
@@ -1069,7 +1080,7 @@ public final class StringUtils {
 	 *         {@literal null} or empty
 	 * @since 1.13
 	 */
-	public static String commaDelimitedStringFromIntRangeSet(IntRangeSet set) {
+	public static @Nullable String commaDelimitedStringFromIntRangeSet(@Nullable IntRangeSet set) {
 		if ( set == null ) {
 			return null;
 		}
@@ -1098,7 +1109,7 @@ public final class StringUtils {
 	 *         {@code null}
 	 * @since 1.15
 	 */
-	public static String nonEmptyString(String s) {
+	public static @Nullable String nonEmptyString(@Nullable String s) {
 		return nonEmptyString(s, null);
 	}
 
@@ -1113,7 +1124,7 @@ public final class StringUtils {
 	 *         {@code defaultValue}
 	 * @since 1.15
 	 */
-	public static String nonEmptyString(String s, String defaultValue) {
+	public static @Nullable String nonEmptyString(@Nullable String s, @Nullable String defaultValue) {
 		return (s == null || s.isEmpty() ? defaultValue : s);
 	}
 
@@ -1141,7 +1152,7 @@ public final class StringUtils {
 	 * @return the compare result
 	 * @since 1.17
 	 */
-	public static int compareComponentsIgnoreCase(String l, String r, String split) {
+	public static int compareComponentsIgnoreCase(@Nullable String l, @Nullable String r, String split) {
 		var ac = (l != null ? l : "").split(split, 0);
 		var bc = (r != null ? r : "").split(split, 0);
 		var acLen = ac.length;

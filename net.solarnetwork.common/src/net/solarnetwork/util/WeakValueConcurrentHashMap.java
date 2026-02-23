@@ -1,21 +1,21 @@
 /* ==================================================================
  * WeakValueConcurrentHashMap.java - 10/05/2021 10:29:13 AM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,23 +28,25 @@ import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@code ConcurrentMap} implementation with weak-referenced values.
- * 
+ *
  * <p>
  * The values stored in this map are only weakly-referenced. If a value is
  * garbage collected, then the associated key will remain in this map, but
  * methods that query for the value based on its key will return
  * {@literal null}.
  * </p>
- * 
+ *
  * @param <K>
  *        the key type
  * @param <V>
@@ -85,7 +87,7 @@ public class WeakValueConcurrentHashMap<K, V> extends AbstractMap<K, V> implemen
 	 * @param m
 	 *        the map
 	 */
-	public WeakValueConcurrentHashMap(Map<? extends K, ? extends V> m) {
+	public WeakValueConcurrentHashMap(@Nullable Map<? extends K, ? extends V> m) {
 		this();
 		putAll(m);
 	}
@@ -149,20 +151,20 @@ public class WeakValueConcurrentHashMap<K, V> extends AbstractMap<K, V> implemen
 	}
 
 	@Override
-	public V get(Object key) {
+	public @Nullable V get(Object key) {
 		WeakValue<V> v = data.get(key);
 		return (v != null ? v.get() : null);
 	}
 
 	@Override
-	public V put(K key, V value) {
+	public @Nullable V put(K key, V value) {
 		Objects.requireNonNull(value, "The value must not be null.");
 		WeakValue<V> v = data.put(key, new WeakValue<>(value));
 		return (v != null ? v.get() : null);
 	}
 
 	@Override
-	public void putAll(Map<? extends K, ? extends V> m) {
+	public void putAll(@Nullable Map<? extends K, ? extends V> m) {
 		if ( m == null ) {
 			return;
 		}
@@ -172,7 +174,7 @@ public class WeakValueConcurrentHashMap<K, V> extends AbstractMap<K, V> implemen
 	}
 
 	@Override
-	public V remove(Object key) {
+	public @Nullable V remove(Object key) {
 		WeakValue<V> v = data.remove(key);
 		return (v != null ? v.get() : null);
 	}
@@ -183,7 +185,7 @@ public class WeakValueConcurrentHashMap<K, V> extends AbstractMap<K, V> implemen
 	}
 
 	@Override
-	public V putIfAbsent(K key, V value) {
+	public @Nullable V putIfAbsent(K key, V value) {
 		Objects.requireNonNull(value, "The value must not be null.");
 		WeakReference<V> v = data.putIfAbsent(key, new WeakValue<>(value));
 		return (v != null ? v.get() : null);
@@ -203,7 +205,7 @@ public class WeakValueConcurrentHashMap<K, V> extends AbstractMap<K, V> implemen
 	}
 
 	@Override
-	public V replace(K key, V value) {
+	public @Nullable V replace(K key, V value) {
 		Objects.requireNonNull(value, "The value must not be null.");
 		WeakValue<V> v = data.replace(key, new WeakValue<>(value));
 		return (v != null ? v.get() : null);
@@ -230,7 +232,8 @@ public class WeakValueConcurrentHashMap<K, V> extends AbstractMap<K, V> implemen
 	}
 
 	@Override
-	public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
+	public @Nullable V computeIfAbsent(K key,
+			Function<? super K, @Nullable ? extends V> mappingFunction) {
 		Objects.requireNonNull(mappingFunction, "A mapping function is required.");
 		WeakValue<V> r = data.computeIfAbsent(key, k -> {
 			V mapped = mappingFunction.apply(k);
@@ -240,7 +243,8 @@ public class WeakValueConcurrentHashMap<K, V> extends AbstractMap<K, V> implemen
 	}
 
 	@Override
-	public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+	public @Nullable V computeIfPresent(K key,
+			BiFunction<? super K, ? super V, @Nullable ? extends V> remappingFunction) {
 		Objects.requireNonNull(remappingFunction, "A remapping function is required.");
 		WeakValue<V> r = data.computeIfPresent(key, (k, v) -> {
 			V old = (v != null ? v.get() : null);
@@ -251,7 +255,8 @@ public class WeakValueConcurrentHashMap<K, V> extends AbstractMap<K, V> implemen
 	}
 
 	@Override
-	public V compute(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
+	public @Nullable V compute(K key,
+			BiFunction<? super K, ? super V, @Nullable ? extends V> remappingFunction) {
 		Objects.requireNonNull(remappingFunction, "A remapping function is required.");
 		WeakValue<V> r = data.compute(key, (k, v) -> {
 			V old = (v != null ? v.get() : null);
@@ -297,7 +302,10 @@ public class WeakValueConcurrentHashMap<K, V> extends AbstractMap<K, V> implemen
 			@Override
 			public Entry<K, V> next() {
 				Entry<K, WeakValue<V>> e = itr.next();
-				return (e != null ? new WeakEntry(e) : null);
+				if ( e == null ) {
+					throw new NoSuchElementException();
+				}
+				return new WeakEntry(e);
 			}
 		}
 
@@ -316,13 +324,13 @@ public class WeakValueConcurrentHashMap<K, V> extends AbstractMap<K, V> implemen
 			}
 
 			@Override
-			public V getValue() {
+			public @Nullable V getValue() {
 				WeakValue<V> v = e.getValue();
 				return (v != null ? v.get() : null);
 			}
 
 			@Override
-			public V setValue(V value) {
+			public @Nullable V setValue(V value) {
 				WeakValue<V> v = e.setValue(new WeakValue<>(value));
 				return (v != null ? v.get() : null);
 			}

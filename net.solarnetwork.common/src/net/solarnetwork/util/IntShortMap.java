@@ -1,21 +1,21 @@
 /* ==================================================================
  * IntShortMap.java - 17/01/2020 1:16:38 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -34,11 +34,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A map implementation optimized for sparse array like storage of integer keys
  * with associated short values.
- * 
+ *
  * <p>
  * This implementation is optimized for small sizes and appending keys in
  * ascending order. Random mutations trigger array copies that can slow
@@ -46,7 +47,7 @@ import java.util.Set;
  * Keys are maintained in ascending order, so iteration occurs also in ascending
  * order.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.58
@@ -71,7 +72,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * <p>
 	 * Defaults to returning {@literal 0} for nonexistent keys in
 	 * {@link #getValue(int)}.
@@ -83,12 +84,12 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * <p>
 	 * Defaults to returning {@literal 0} for nonexistent keys in
 	 * {@link #getValue(int)}.
 	 * </p>
-	 * 
+	 *
 	 * @param initialCapacity
 	 *        the initial capacity
 	 * @throws IllegalArgumentException
@@ -100,7 +101,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param initialCapacity
 	 *        the initial capacity
 	 * @param notFoundValue
@@ -157,14 +158,14 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * Iterate over all key/value pairs in this map.
-	 * 
+	 *
 	 * <p>
 	 * This method of iteration can be more efficient than iterating via
 	 * {@link #entrySet()} because no intermediate {@code Set},
 	 * {@code Iterator}, or {@code Entry} objects are created, and not primitive
 	 * boxing occurs.
 	 * </p>
-	 * 
+	 *
 	 * @param action
 	 *        the consumer to handle the key/value pairs
 	 */
@@ -182,14 +183,14 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * Iterate over a range of key/value pairs in this map.
-	 * 
+	 *
 	 * <p>
 	 * This method of iteration can be more efficient than iterating via
 	 * {@link #entrySet()} because no intermediate {@code Set},
 	 * {@code Iterator}, or {@code Entry} objects are created, and not primitive
 	 * boxing occurs.
 	 * </p>
-	 * 
+	 *
 	 * @param min
 	 *        the minimum key value (inclusive)
 	 * @param max
@@ -246,7 +247,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * Test if a primitive key value exists in this map.
-	 * 
+	 *
 	 * @param k
 	 *        the key to test
 	 * @return {@literal true} if the key exists in this map
@@ -263,7 +264,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * Get the current capacity.
-	 * 
+	 *
 	 * @return the capacity
 	 */
 	public int getCapacity() {
@@ -272,7 +273,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * Free up excess capacity.
-	 * 
+	 *
 	 * @return {@literal true} if any capacity was freed
 	 */
 	public boolean compact() {
@@ -289,20 +290,20 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	}
 
 	@Override
-	public Short get(Object key) {
+	public @Nullable Short get(Object key) {
 		final int k = (Integer) key;
 		return get(k);
 	}
 
 	/**
 	 * Get the value for a given key.
-	 * 
+	 *
 	 * @param k
 	 *        the key of the value to get
 	 * @return the associated value, or {@literal null} if {@code k} is not
 	 *         present
 	 */
-	public Short get(final int k) {
+	public @Nullable Short get(final int k) {
 		final int idx = binarySearch(keys, 0, size, k);
 		if ( idx >= 0 ) {
 			return values[idx];
@@ -312,7 +313,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * Get the value for a given key.
-	 * 
+	 *
 	 * @param k
 	 *        the key of the value to get
 	 * @return the associated value
@@ -332,7 +333,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * Get primitive values.
-	 * 
+	 *
 	 * @param k
 	 *        the key
 	 * @param value
@@ -340,13 +341,13 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 * @return the previous value associated with {@code k}, or {@literal null}
 	 *         if none
 	 */
-	public Short putValue(final int k, final int value) {
+	public @Nullable Short putValue(final int k, final int value) {
 		return putValue(k, (short) value);
 	}
 
 	/**
 	 * Put primitive values.
-	 * 
+	 *
 	 * @param k
 	 *        the key
 	 * @param value
@@ -354,7 +355,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 * @return the previous value associated with {@code k}, or {@literal null}
 	 *         if none
 	 */
-	public Short putValue(final int k, final short value) {
+	public @Nullable Short putValue(final int k, final short value) {
 		// find position to insert key at; if larger than highest key, we can insert at end
 		final int idx = (size == 0 || k > keys[size - 1] ? -size - 1 : binarySearch(keys, 0, size, k));
 
@@ -383,13 +384,13 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	}
 
 	@Override
-	public Short put(Integer key, Short value) {
+	public @Nullable Short put(Integer key, Short value) {
 		return putValue(key, value);
 	}
 
 	/**
 	 * Get a view of this map with unsigned integer values.
-	 * 
+	 *
 	 * @return a new map, backed by this map's data, where the values are
 	 *         returned as unsigned integers
 	 */
@@ -403,7 +404,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 			}
 
 			@Override
-			public Integer get(Object key) {
+			public @Nullable Integer get(Object key) {
 				Integer result = null;
 				Short v = IntShortMap.this.get(key);
 				if ( v != null ) {
@@ -418,7 +419,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 			}
 
 			@Override
-			public Integer put(Integer key, Integer value) {
+			public @Nullable Integer put(Integer key, Integer value) {
 				Short v = value.shortValue();
 				Short prev = IntShortMap.this.put(key, v);
 				return (prev != null ? Short.toUnsignedInt(prev) : null);

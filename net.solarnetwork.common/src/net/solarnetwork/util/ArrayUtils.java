@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.ObjectFactory;
 
 /**
@@ -82,8 +83,8 @@ public final class ArrayUtils {
 	 *         {@code array} if no adjustment was necessary
 	 * @see #arrayOfLength(Object[], int, Class, Supplier)
 	 */
-	public static <T> T[] arrayWithLength(T[] array, int count, Class<T> itemClass,
-			ObjectFactory<? extends T> factory) {
+	public static <T> T @Nullable [] arrayWithLength(T @Nullable [] array, int count, Class<T> itemClass,
+			@Nullable ObjectFactory<? extends T> factory) {
 		return arrayOfLength(array, count, itemClass,
 				factory != null ? (Supplier<T>) factory::getObject : null);
 	}
@@ -125,8 +126,8 @@ public final class ArrayUtils {
 	 *         {@code array} if no adjustment was necessary
 	 * @since 1.3
 	 */
-	public static <T> T[] arrayOfLength(T[] array, int count, Class<T> itemClass,
-			Supplier<? extends T> factory) {
+	public static <T> T @Nullable [] arrayOfLength(T @Nullable [] array, int count, Class<T> itemClass,
+			@Nullable Supplier<? extends T> factory) {
 		if ( count < 0 ) {
 			count = 0;
 		}
@@ -178,7 +179,8 @@ public final class ArrayUtils {
 	 * @return the filtered list of protocols
 	 * @since 1.1
 	 */
-	public static String[] filterByEnabledDisabled(String[] list, String[] enabled, String[] disabled) {
+	public static String[] filterByEnabledDisabled(String[] list, String @Nullable [] enabled,
+			String @Nullable [] disabled) {
 		String[] finalEnabledProtocols = list;
 		if ( enabled != null ) {
 			Set<Pattern> pats = new LinkedHashSet<>(enabled.length);
@@ -213,7 +215,7 @@ public final class ArrayUtils {
 	 *         has only {@literal null} elements
 	 * @since 1.2
 	 */
-	public static boolean isOnlyNull(Object[] array) {
+	public static boolean isOnlyNull(@Nullable Object @Nullable [] array) {
 		if ( array == null || array.length < 1 ) {
 			return true;
 		}

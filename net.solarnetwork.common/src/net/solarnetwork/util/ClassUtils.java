@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -159,7 +160,8 @@ public final class ClassUtils {
 	 *        Flag to ignore unknown and invalid properties.
 	 * @since 1.1
 	 */
-	public static void setBeanProperties(Object o, Map<String, ?> values, boolean ignoreErrors) {
+	public static void setBeanProperties(@Nullable Object o, @Nullable Map<String, ?> values,
+			boolean ignoreErrors) {
 		if ( o == null || values == null ) {
 			return;
 		}
@@ -184,7 +186,8 @@ public final class ClassUtils {
 	 *        a set of property names to ignore (optional)
 	 * @return Map (never null)
 	 */
-	public static Map<String, Object> getBeanProperties(Object o, Set<String> ignore) {
+	public static Map<String, Object> getBeanProperties(@Nullable Object o,
+			@Nullable Set<String> ignore) {
 		return getBeanProperties(o, ignore, false);
 	}
 
@@ -198,7 +201,8 @@ public final class ClassUtils {
 	 * @return Map (never {@literal null})
 	 * @since 1.1
 	 */
-	public static Map<String, Object> getSimpleBeanProperties(Object o, Set<String> ignore) {
+	public static Map<String, Object> getSimpleBeanProperties(@Nullable Object o,
+			@Nullable Set<String> ignore) {
 		return getSimpleBeanProperties(o, ignore, false);
 	}
 
@@ -221,8 +225,8 @@ public final class ClassUtils {
 	 * @return Map (never {@literal null})
 	 * @since 2.2
 	 */
-	public static Map<String, Object> getSimpleBeanProperties(Object o, Set<String> ignore,
-			boolean serializeIgnore) {
+	public static Map<String, Object> getSimpleBeanProperties(@Nullable Object o,
+			@Nullable Set<String> ignore, boolean serializeIgnore) {
 		if ( ignore == null ) {
 			ignore = DEFAULT_BEAN_PROP_NAME_IGNORE;
 		}
@@ -244,7 +248,7 @@ public final class ClassUtils {
 				final Object propValue = e.getValue();
 				result.put(propName, simpleBeanPropertyValue(propType, propValue));
 			}
-		} else {
+		} else if ( o != null ) {
 			BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(o);
 			PropertyDescriptor[] props = bean.getPropertyDescriptors();
 			for ( PropertyDescriptor prop : props ) {
@@ -275,7 +279,7 @@ public final class ClassUtils {
 		return result;
 	}
 
-	private static boolean isSimpleBeanPropertyType(Class<?> propType) {
+	private static boolean isSimpleBeanPropertyType(@Nullable Class<?> propType) {
 		// @formatter:off
 		return propType != null && (
 				propType.isPrimitive()
@@ -317,7 +321,7 @@ public final class ClassUtils {
 	 * @param ignore
 	 *        a set of property names to ignore (optional) where {@literal null}
 	 */
-	public static void copyBeanProperties(Object src, Object dest, Set<String> ignore) {
+	public static void copyBeanProperties(Object src, Object dest, @Nullable Set<String> ignore) {
 		copyBeanProperties(src, dest, ignore, false);
 	}
 
@@ -334,7 +338,7 @@ public final class ClassUtils {
 	 *        if {@literal true} then String values that are empty or contain
 	 *        only whitespace will be treated as if they where {@literal null}
 	 */
-	public static void copyBeanProperties(Object src, Object dest, Set<String> ignore,
+	public static void copyBeanProperties(Object src, Object dest, @Nullable Set<String> ignore,
 			boolean emptyStringToNull) {
 		if ( ignore == null ) {
 			ignore = DEFAULT_BEAN_PROP_NAME_IGNORE;
@@ -373,11 +377,8 @@ public final class ClassUtils {
 	 *        for ignoring properties
 	 * @return Map (never null)
 	 */
-	public static Map<String, Object> getBeanProperties(Object o, Set<String> ignore,
+	public static Map<String, Object> getBeanProperties(@Nullable Object o, @Nullable Set<String> ignore,
 			boolean serializeIgnore) {
-		if ( o == null ) {
-			return null;
-		}
 		if ( ignore == null ) {
 			ignore = DEFAULT_BEAN_PROP_NAME_IGNORE;
 		}
@@ -394,7 +395,7 @@ public final class ClassUtils {
 				}
 				result.put(propName, e.getValue());
 			}
-		} else {
+		} else if ( o != null ) {
 			BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(o);
 			PropertyDescriptor[] props = bean.getPropertyDescriptors();
 			for ( PropertyDescriptor prop : props ) {
@@ -449,7 +450,8 @@ public final class ClassUtils {
 	 *         if the resource cannot be loaded
 	 * @since 1.3
 	 */
-	public static String getResourceAsString(String resourceName, Class<?> clazz, Pattern skip) {
+	public static String getResourceAsString(String resourceName, Class<?> clazz,
+			@Nullable Pattern skip) {
 		try (InputStream in = clazz.getResourceAsStream(resourceName)) {
 			if ( in == null ) {
 				throw new RuntimeException(
@@ -479,8 +481,8 @@ public final class ClassUtils {
 		}
 	}
 
-	private static void addClassesToSetUnlessExcludedByPackagePrefix(Collection<Class<?>> classes,
-			Set<Class<?>> set, Set<String> excluding) {
+	private static void addClassesToSetUnlessExcludedByPackagePrefix(
+			@Nullable Collection<Class<?>> classes, Set<Class<?>> set, @Nullable Set<String> excluding) {
 		if ( classes == null ) {
 			return;
 		}
@@ -528,7 +530,8 @@ public final class ClassUtils {
 	 * @return the set of interfaces
 	 * @since 1.1
 	 */
-	public static Set<Class<?>> getAllInterfacesForClassAsSet(Class<?> clazz, Set<String> excluding) {
+	public static Set<Class<?>> getAllInterfacesForClassAsSet(@Nullable Class<?> clazz,
+			@Nullable Set<String> excluding) {
 		Set<Class<?>> interfaces = new LinkedHashSet<Class<?>>();
 		while ( clazz != null ) {
 			if ( clazz.isInterface() ) {

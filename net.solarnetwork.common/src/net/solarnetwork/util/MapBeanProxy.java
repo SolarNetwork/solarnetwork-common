@@ -1,21 +1,21 @@
 /* ==================================================================
  * MapBeanProxy.java - 9/05/2021 8:24:40 AM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -30,12 +30,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.ClassUtils;
 
 /**
  * Proxy {@link InvocationHandler} that treats keys in a {@link Map} as JavaBean
  * getter/setter methods.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.71
@@ -53,18 +54,18 @@ public class MapBeanProxy implements InvocationHandler {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param data
 	 *        the map data; a new map instance will be created if
 	 *        {@literal null}
 	 */
-	public MapBeanProxy(Map<String, ?> data) {
+	public MapBeanProxy(@Nullable Map<String, ?> data) {
 		this(data, true);
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param data
 	 *        the map data; a new map instance will be created if
 	 *        {@literal null}
@@ -72,7 +73,7 @@ public class MapBeanProxy implements InvocationHandler {
 	 *        {@literal true} to disallow setter method invocation to the data
 	 *        map
 	 */
-	public MapBeanProxy(Map<String, ?> data, boolean readOnly) {
+	public MapBeanProxy(@Nullable Map<String, ?> data, boolean readOnly) {
 		super();
 		this.data = (data != null ? data : readOnly ? Collections.emptyMap() : new LinkedHashMap<>());
 		this.readOnly = readOnly;
@@ -80,7 +81,7 @@ public class MapBeanProxy implements InvocationHandler {
 
 	/**
 	 * Create a new proxy instance.
-	 * 
+	 *
 	 * @param <T>
 	 *        the type to cast the result to
 	 * @param bean
@@ -92,7 +93,7 @@ public class MapBeanProxy implements InvocationHandler {
 	 *         {@code interfaces} or {@code bean}
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T createProxy(MapBeanProxy bean, Class<?>... interfaces) {
+	public static <T> T createProxy(MapBeanProxy bean, Class<?> @Nullable... interfaces) {
 		if ( interfaces == null ) {
 			interfaces = ClassUtils.getAllInterfaces(bean);
 		}
@@ -102,7 +103,7 @@ public class MapBeanProxy implements InvocationHandler {
 
 	/**
 	 * Create a new proxy instance.
-	 * 
+	 *
 	 * @param <T>
 	 *        the type to cast the result to
 	 * @param bean
@@ -117,7 +118,8 @@ public class MapBeanProxy implements InvocationHandler {
 	 *         {@code interfaces} or {@code bean}
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T createProxy(MapBeanProxy bean, ClassLoader classLoader, Class<?>... interfaces) {
+	public static <T> T createProxy(MapBeanProxy bean, @Nullable ClassLoader classLoader,
+			Class<?> @Nullable... interfaces) {
 		if ( interfaces == null ) {
 			interfaces = ClassUtils.getAllInterfaces(bean);
 		}
@@ -128,7 +130,8 @@ public class MapBeanProxy implements InvocationHandler {
 	}
 
 	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+	public @Nullable Object invoke(Object proxy, Method method, Object @Nullable [] args)
+			throws Throwable {
 		String methodName = method.getName();
 		Object result = null;
 		if ( args == null ) {
@@ -149,7 +152,7 @@ public class MapBeanProxy implements InvocationHandler {
 		return result;
 	}
 
-	private String keyForMethodName(Pattern pat, String methodName) {
+	private @Nullable String keyForMethodName(Pattern pat, String methodName) {
 		Matcher m = pat.matcher(methodName);
 		String k = (m.matches() ? m.group(1) : null);
 		if ( k != null ) {
@@ -161,7 +164,7 @@ public class MapBeanProxy implements InvocationHandler {
 		return k;
 	}
 
-	private Object get(String key) {
+	private @Nullable Object get(@Nullable String key) {
 		if ( key == null ) {
 			return null;
 		}
@@ -169,7 +172,7 @@ public class MapBeanProxy implements InvocationHandler {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void set(String key, Object val) {
+	private void set(@Nullable String key, @Nullable Object val) {
 		if ( key == null ) {
 			return;
 		}
@@ -178,7 +181,7 @@ public class MapBeanProxy implements InvocationHandler {
 
 	/**
 	 * Get the data map.
-	 * 
+	 *
 	 * @return the data
 	 */
 	public Map<String, ?> getData() {

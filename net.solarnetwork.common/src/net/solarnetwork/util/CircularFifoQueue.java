@@ -1,6 +1,6 @@
 /* Adapted from Apache Commons Collections
  * https://github.com/apache/commons-collections
- *  
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Queue;
+import org.jspecify.annotations.Nullable;
 
 /**
  * CircularFifoQueue is a first-in first-out queue with a fixed size that
@@ -290,7 +291,7 @@ public class CircularFifoQueue<E> extends AbstractCollection<E> implements Queue
 	}
 
 	@Override
-	public E poll() {
+	public @Nullable E poll() {
 		if ( isEmpty() ) {
 			return null;
 		}
@@ -299,14 +300,15 @@ public class CircularFifoQueue<E> extends AbstractCollection<E> implements Queue
 
 	@Override
 	public E element() {
-		if ( isEmpty() ) {
+		final E result = peek();
+		if ( result == null ) {
 			throw new NoSuchElementException("queue is empty");
 		}
-		return peek();
+		return result;
 	}
 
 	@Override
-	public E peek() {
+	public @Nullable E peek() {
 		if ( isEmpty() ) {
 			return null;
 		}

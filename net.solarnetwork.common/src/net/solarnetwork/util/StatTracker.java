@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.LongAccumulator;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.BiFunction;
 import java.util.function.LongSupplier;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import net.solarnetwork.service.Identifiable;
 
@@ -59,10 +60,10 @@ public class StatTracker implements Identifiable {
 
 	private final ConcurrentMap<String, LongAdder> counts;
 	private final ConcurrentMap<String, AccumulativeStats> accums;
-	private final Logger log;
+	private final @Nullable Logger log;
 	private final String name;
 	private int logFrequency;
-	private String uid;
+	private @Nullable String uid;
 
 	/**
 	 * Constructor.
@@ -78,7 +79,7 @@ public class StatTracker implements Identifiable {
 	 * @throws IllegalArgumentException
 	 *         if {@code name} is {@literal null}
 	 */
-	public StatTracker(String name, String uid, Logger log, int logFrequency) {
+	public StatTracker(String name, @Nullable String uid, @Nullable Logger log, int logFrequency) {
 		this(new ConcurrentHashMap<>(), name, uid, log, logFrequency);
 	}
 
@@ -98,8 +99,8 @@ public class StatTracker implements Identifiable {
 	 * @throws IllegalArgumentException
 	 *         if {@code counts} or {@code name} is {@literal null}
 	 */
-	public StatTracker(ConcurrentMap<String, LongAdder> counts, String name, String uid, Logger log,
-			int logFrequency) {
+	public StatTracker(ConcurrentMap<String, LongAdder> counts, String name, @Nullable String uid,
+			@Nullable Logger log, int logFrequency) {
 		this(counts, new ConcurrentHashMap<>(), name, uid, log, logFrequency);
 	}
 
@@ -124,8 +125,8 @@ public class StatTracker implements Identifiable {
 	 * @since 1.1
 	 */
 	public StatTracker(ConcurrentMap<String, LongAdder> counts,
-			ConcurrentMap<String, AccumulativeStats> accums, String name, String uid, Logger log,
-			int logFrequency) {
+			ConcurrentMap<String, AccumulativeStats> accums, String name, @Nullable String uid,
+			@Nullable Logger log, int logFrequency) {
 		super();
 		this.counts = requireNonNullArgument(counts, "counts");
 		this.accums = requireNonNullArgument(accums, "accums");
@@ -207,7 +208,7 @@ public class StatTracker implements Identifiable {
 		 * @return the value
 		 * @since 1.2
 		 */
-		default Number valueFor(AccumulationType type) {
+		default @Nullable Number valueFor(AccumulationType type) {
 			switch (type) {
 				case Count:
 					return count();
@@ -724,7 +725,7 @@ public class StatTracker implements Identifiable {
 	}
 
 	@Override
-	public String getGroupUid() {
+	public @Nullable String getGroupUid() {
 		return null;
 	}
 
@@ -753,7 +754,7 @@ public class StatTracker implements Identifiable {
 	}
 
 	@Override
-	public final String getUid() {
+	public final @Nullable String getUid() {
 		return uid;
 	}
 
@@ -763,7 +764,7 @@ public class StatTracker implements Identifiable {
 	 * @param uid
 	 *        the unique ID, or {@literal null} for none
 	 */
-	public final void setUid(String uid) {
+	public final void setUid(@Nullable String uid) {
 		this.uid = uid;
 	}
 

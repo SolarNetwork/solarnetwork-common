@@ -1,21 +1,21 @@
 /* ==================================================================
  * StatCounter.java - 23/08/2021 10:10:28 AM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,23 +23,24 @@
 package net.solarnetwork.util;
 
 import java.util.concurrent.atomic.AtomicLongArray;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 /**
  * Count statistic helper.
- * 
+ *
  * <p>
  * This class keeps track of an atomic array of {@code long} count values. It is
  * designed to help provide runtime operational information in a structured way,
  * so services can define a set of named counters they wish to track and expose
  * to users.
  * </p>
- * 
+ *
  * <p>
  * An {@code enum} that implements {@link StatCounter.Stat} can be used to make
  * the counter indexes have meaningful names in code.
  * </p>
- * 
+ *
  * <p>
  * This class supports a "base" set of statistics and a "non-base" set of
  * statistics. This design supports a common set of statistics that might be
@@ -48,7 +49,7 @@ import org.slf4j.Logger;
  * track a "base" set of message count statistics while one client service might
  * track specific message types differently than another client service.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.78
@@ -62,31 +63,31 @@ public class StatCounter {
 
 		/**
 		 * Get the statistic index.
-		 * 
+		 *
 		 * @return the statistic index
 		 */
 		int getIndex();
 
 		/**
 		 * Get a description of the statistic.
-		 * 
+		 *
 		 * @return the description
 		 */
 		String getDescription();
 	}
 
-	private final Logger log;
+	private final @Nullable Logger log;
 	private final String name;
 	private final Stat[] baseStats;
-	private final Stat[] stats;
+	private final Stat @Nullable [] stats;
 
 	private final AtomicLongArray counts;
 	private int logFrequency;
-	private String uid;
+	private @Nullable String uid;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param name
 	 *        the name to use (appears on logs)
 	 * @param uid
@@ -102,13 +103,14 @@ public class StatCounter {
 	 *         provided and the component type is assignable from the
 	 *         {@code baseStats} component type
 	 */
-	public StatCounter(String name, String uid, Logger log, int logFrequency, Stat[] baseStats) {
+	public StatCounter(String name, @Nullable String uid, @Nullable Logger log, int logFrequency,
+			Stat[] baseStats) {
 		this(name, uid, log, logFrequency, baseStats, null);
 	}
 
 	/**
 	 * Constructor without logging capability.
-	 * 
+	 *
 	 * @param name
 	 *        the name to use (appears on logs)
 	 * @param uid
@@ -122,13 +124,13 @@ public class StatCounter {
 	 *         provided and the component type is assignable from the
 	 *         {@code baseStats} component type
 	 */
-	public StatCounter(String name, String uid, Stat[] baseStats, Stat[] stats) {
+	public StatCounter(String name, @Nullable String uid, Stat[] baseStats, Stat @Nullable [] stats) {
 		this(name, uid, null, 0, baseStats, stats);
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param name
 	 *        the name to use (appears on logs)
 	 * @param uid
@@ -146,8 +148,8 @@ public class StatCounter {
 	 *         provided and the component type is assignable from the
 	 *         {@code baseStats} component type
 	 */
-	public StatCounter(String name, String uid, Logger log, int logFrequency, Stat[] baseStats,
-			Stat[] stats) {
+	public StatCounter(String name, @Nullable String uid, @Nullable Logger log, int logFrequency,
+			Stat[] baseStats, Stat @Nullable [] stats) {
 		super();
 		if ( name == null ) {
 			throw new IllegalArgumentException("The name argument must not be null.");
@@ -186,7 +188,7 @@ public class StatCounter {
 
 	/**
 	 * Get the log frequency.
-	 * 
+	 *
 	 * @return the log frequency
 	 */
 	public int getLogFrequency() {
@@ -195,7 +197,7 @@ public class StatCounter {
 
 	/**
 	 * Set the log frequency.
-	 * 
+	 *
 	 * @param logFrequency
 	 *        the frequency
 	 */
@@ -205,20 +207,20 @@ public class StatCounter {
 
 	/**
 	 * Get the unique ID.
-	 * 
+	 *
 	 * @return the unique ID
 	 */
-	public String getUid() {
+	public @Nullable String getUid() {
 		return uid;
 	}
 
 	/**
 	 * Set the unique ID.
-	 * 
+	 *
 	 * @param uid
 	 *        the unique ID, or {@literal null} for none
 	 */
-	public void setUid(String uid) {
+	public void setUid(@Nullable String uid) {
 		this.uid = uid;
 	}
 
@@ -240,7 +242,7 @@ public class StatCounter {
 
 	/**
 	 * Get a current count value.
-	 * 
+	 *
 	 * @param stat
 	 *        the statistic to get the count for
 	 * @return the current count value
@@ -253,6 +255,9 @@ public class StatCounter {
 	}
 
 	private void log(Stat stat, long count) {
+		if ( log == null ) {
+			return;
+		}
 		final String uid = getUid();
 		if ( uid != null && !uid.isEmpty() ) {
 			log.info("{} {} {}: {}", name, uid, stat.getDescription(), count);
@@ -263,7 +268,7 @@ public class StatCounter {
 
 	/**
 	 * Increment and get the current count value.
-	 * 
+	 *
 	 * @param stat
 	 *        the count to increment and get
 	 * @return the incremented count value
@@ -277,7 +282,7 @@ public class StatCounter {
 
 	/**
 	 * Increment and get the current count value.
-	 * 
+	 *
 	 * @param stat
 	 *        the count to increment and get
 	 * @param quiet
@@ -289,7 +294,7 @@ public class StatCounter {
 	 */
 	public long incrementAndGet(Stat stat, boolean quiet) {
 		long c = counts.incrementAndGet(countStatIndex(stat));
-		if ( !quiet && log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
+		if ( !quiet && log != null && log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
 			log(stat, c);
 		}
 		return c;
@@ -297,7 +302,7 @@ public class StatCounter {
 
 	/**
 	 * Add to and get the current count value.
-	 * 
+	 *
 	 * @param stat
 	 *        the count to add to and get
 	 * @param count
@@ -313,7 +318,7 @@ public class StatCounter {
 
 	/**
 	 * Add to and get the current count value.
-	 * 
+	 *
 	 * @param stat
 	 *        the count to add to and get
 	 * @param count
@@ -327,7 +332,7 @@ public class StatCounter {
 	 */
 	public long addAndGet(Stat stat, long count, boolean quiet) {
 		long c = counts.addAndGet(countStatIndex(stat), count);
-		if ( !quiet && log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
+		if ( !quiet && log != null && log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
 			log(stat, c);
 		}
 		return c;

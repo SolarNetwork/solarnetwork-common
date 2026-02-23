@@ -23,6 +23,7 @@
 package net.solarnetwork.util;
 
 import java.util.Collection;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utilities for dealing with objects.
@@ -67,7 +68,7 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@literal null}
 	 */
-	public static <T> T requireNonNullArgument(T arg, String argumentName) {
+	public static <T> T requireNonNullArgument(@Nullable T arg, String argumentName) {
 		if ( arg == null ) {
 			throw new IllegalArgumentException(
 					String.format("The %s argument must not be null.", argumentName));
@@ -164,7 +165,7 @@ public final class ObjectUtils {
 	 *         {@code l.compareTo(r)} equals 0
 	 * @since 1.2
 	 */
-	public static <T extends Comparable<T>> boolean comparativelyEqual(T l, T r) {
+	public static <T extends Comparable<T>> boolean comparativelyEqual(@Nullable T l, @Nullable T r) {
 		if ( l == r ) {
 			return true;
 		} else if ( l == null || r == null ) {

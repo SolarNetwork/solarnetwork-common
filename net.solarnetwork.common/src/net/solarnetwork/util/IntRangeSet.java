@@ -35,6 +35,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.SortedSet;
 import java.util.function.IntConsumer;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A {@code Set} implementation based on ordered and disjoint integer ranges.
@@ -418,35 +419,34 @@ public class IntRangeSet extends AbstractSet<Integer>
 	}
 
 	@Override
-	public Comparator<? super Integer> comparator() {
+	public @Nullable Comparator<? super Integer> comparator() {
 		return null;
 	}
 
 	@Override
-	public Integer first() {
+	public @Nullable Integer first() {
 		IntRange r = (ranges.isEmpty() ? null : ranges.get(0));
 		return (r != null ? r.getMin() : null);
 	}
 
 	@Override
-	public Integer last() {
+	public @Nullable Integer last() {
 		IntRange r = (ranges.isEmpty() ? null : ranges.get(ranges.size() - 1));
 		return (r != null ? r.getMax() : null);
 	}
 
 	@Override
-	public Integer min() {
-		// TODO Auto-generated method stub
+	public @Nullable Integer min() {
 		return first();
 	}
 
 	@Override
-	public Integer max() {
+	public @Nullable Integer max() {
 		return last();
 	}
 
 	@Override
-	public Integer lower(Integer e) {
+	public @Nullable Integer lower(Integer e) {
 		final int v = e;
 		for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
 			IntRange r = itr.next();
@@ -470,7 +470,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	}
 
 	@Override
-	public Integer floor(Integer e) {
+	public @Nullable Integer floor(Integer e) {
 		final int v = e;
 		for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
 			IntRange r = itr.next();
@@ -494,7 +494,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	}
 
 	@Override
-	public Integer ceiling(Integer e) {
+	public @Nullable Integer ceiling(Integer e) {
 		final int v = e;
 		final int len = ranges.size();
 		for ( ListIterator<IntRange> itr = ranges.listIterator(len); itr.hasPrevious(); ) {
@@ -519,7 +519,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	}
 
 	@Override
-	public Integer higher(Integer e) {
+	public @Nullable Integer higher(Integer e) {
 		final int v = e;
 		final int len = ranges.size();
 		for ( ListIterator<IntRange> itr = ranges.listIterator(len); itr.hasPrevious(); ) {
@@ -544,7 +544,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	}
 
 	@Override
-	public boolean remove(Object o) {
+	public boolean remove(@Nullable Object o) {
 		if ( immutable ) {
 			throw new UnsupportedOperationException("Set it immutable.");
 		}
@@ -578,7 +578,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	}
 
 	@Override
-	public boolean removeAll(Collection<?> c) {
+	public boolean removeAll(@Nullable Collection<?> c) {
 		if ( immutable ) {
 			throw new UnsupportedOperationException("Set it immutable.");
 		}
@@ -593,7 +593,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	}
 
 	@Override
-	public Integer pollFirst() {
+	public @Nullable Integer pollFirst() {
 		if ( immutable ) {
 			throw new UnsupportedOperationException("Set it immutable.");
 		}
@@ -612,7 +612,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	}
 
 	@Override
-	public Integer pollLast() {
+	public @Nullable Integer pollLast() {
 		if ( immutable ) {
 			throw new UnsupportedOperationException("Set it immutable.");
 		}
@@ -675,7 +675,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	private class IntegerIterator implements Iterator<Integer> {
 
 		private final Iterator<IntRange> rangeItr;
-		private IntRange curr;
+		private @Nullable IntRange curr;
 		private int next;
 
 		private IntegerIterator() {
@@ -699,7 +699,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 					break;
 				}
 			}
-			if ( !curr.contains(min) ) {
+			if ( curr != null && !curr.contains(min) ) {
 				curr = null;
 			}
 		}
@@ -732,7 +732,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	private class IntegerReverseIterator implements Iterator<Integer> {
 
 		private final ListIterator<IntRange> rangeItr;
-		private IntRange curr;
+		private @Nullable IntRange curr;
 		private int next;
 
 		private IntegerReverseIterator() {
@@ -756,7 +756,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 					break;
 				}
 			}
-			if ( !curr.contains(max) ) {
+			if ( curr != null && !curr.contains(max) ) {
 				curr = null;
 			}
 		}
@@ -796,7 +796,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 		}
 
 		@Override
-		public Comparator<? super Integer> comparator() {
+		public @Nullable Comparator<? super Integer> comparator() {
 			return null;
 		}
 
@@ -816,42 +816,42 @@ public class IntRangeSet extends AbstractSet<Integer>
 		}
 
 		@Override
-		public Integer first() {
+		public @Nullable Integer first() {
 			return delegate.last();
 		}
 
 		@Override
-		public Integer last() {
+		public @Nullable Integer last() {
 			return delegate.first();
 		}
 
 		@Override
-		public Integer lower(Integer e) {
+		public @Nullable Integer lower(Integer e) {
 			return delegate.higher(e);
 		}
 
 		@Override
-		public Integer floor(Integer e) {
+		public @Nullable Integer floor(Integer e) {
 			return delegate.ceiling(e);
 		}
 
 		@Override
-		public Integer ceiling(Integer e) {
+		public @Nullable Integer ceiling(Integer e) {
 			return delegate.floor(e);
 		}
 
 		@Override
-		public Integer higher(Integer e) {
+		public @Nullable Integer higher(Integer e) {
 			return delegate.lower(e);
 		}
 
 		@Override
-		public Integer pollFirst() {
+		public @Nullable Integer pollFirst() {
 			return delegate.pollLast();
 		}
 
 		@Override
-		public Integer pollLast() {
+		public @Nullable Integer pollLast() {
 			return delegate.pollFirst();
 		}
 
