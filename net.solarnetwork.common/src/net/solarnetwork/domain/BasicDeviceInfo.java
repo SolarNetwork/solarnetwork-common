@@ -25,6 +25,7 @@ package net.solarnetwork.domain;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -41,14 +42,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 		"deviceAddress", "nameplateRatings" })
 public class BasicDeviceInfo implements DeviceInfo {
 
-	private final String name;
-	private final String manufacturer;
-	private final String modelName;
-	private final String version;
-	private final String serialNumber;
-	private final LocalDate manufactureDate;
-	private final String deviceAddress;
-	private final Map<String, ?> nameplateRatings;
+	private final @Nullable String name;
+	private final @Nullable String manufacturer;
+	private final @Nullable String modelName;
+	private final @Nullable String version;
+	private final @Nullable String serialNumber;
+	private final @Nullable LocalDate manufactureDate;
+	private final @Nullable String deviceAddress;
+	private final @Nullable Map<String, ?> nameplateRatings;
 
 	/**
 	 * Constructor.
@@ -64,8 +65,9 @@ public class BasicDeviceInfo implements DeviceInfo {
 	 * @param manufactureDate
 	 *        the manufacture date
 	 */
-	public BasicDeviceInfo(String manufacturer, String modelName, String version, String serialNumber,
-			LocalDate manufactureDate) {
+	public BasicDeviceInfo(@Nullable String manufacturer, @Nullable String modelName,
+			@Nullable String version, @Nullable String serialNumber,
+			@Nullable LocalDate manufactureDate) {
 		this(manufacturer, modelName, version, serialNumber, manufactureDate, null);
 	}
 
@@ -86,8 +88,9 @@ public class BasicDeviceInfo implements DeviceInfo {
 	 *        the nameplate ratings
 	 * @since 1.1
 	 */
-	public BasicDeviceInfo(String manufacturer, String modelName, String version, String serialNumber,
-			LocalDate manufactureDate, Map<String, ?> nameplateRatings) {
+	public BasicDeviceInfo(@Nullable String manufacturer, @Nullable String modelName,
+			@Nullable String version, @Nullable String serialNumber, @Nullable LocalDate manufactureDate,
+			@Nullable Map<String, ?> nameplateRatings) {
 		// @formatter:off
 		this(builder().withManufacturer(manufacturer)
 				.withModelName(modelName)
@@ -110,10 +113,9 @@ public class BasicDeviceInfo implements DeviceInfo {
 		if ( this == obj ) {
 			return true;
 		}
-		if ( !(obj instanceof BasicDeviceInfo) ) {
+		if ( !(obj instanceof BasicDeviceInfo other) ) {
 			return false;
 		}
-		BasicDeviceInfo other = (BasicDeviceInfo) obj;
 		// @formatter:off
 		return Objects.equals(deviceAddress, other.deviceAddress)
 				&& Objects.equals(manufactureDate, other.manufactureDate)
@@ -210,14 +212,14 @@ public class BasicDeviceInfo implements DeviceInfo {
 	 */
 	public static final class Builder {
 
-		private String name;
-		private String manufacturer;
-		private String modelName;
-		private String version;
-		private String serialNumber;
-		private LocalDate manufactureDate;
-		private String deviceAddress;
-		private Map<String, ?> nameplateRatings;
+		private @Nullable String name;
+		private @Nullable String manufacturer;
+		private @Nullable String modelName;
+		private @Nullable String version;
+		private @Nullable String serialNumber;
+		private @Nullable LocalDate manufactureDate;
+		private @Nullable String deviceAddress;
+		private @Nullable Map<String, ?> nameplateRatings;
 
 		private Builder() {
 		}
@@ -240,7 +242,7 @@ public class BasicDeviceInfo implements DeviceInfo {
 		 *        the value to set
 		 * @return this instance
 		 */
-		public Builder withName(String name) {
+		public Builder withName(@Nullable String name) {
 			this.name = name;
 			return this;
 		}
@@ -252,7 +254,7 @@ public class BasicDeviceInfo implements DeviceInfo {
 		 *        the value to set
 		 * @return this instance
 		 */
-		public Builder withManufacturer(String manufacturer) {
+		public Builder withManufacturer(@Nullable String manufacturer) {
 			this.manufacturer = manufacturer;
 			return this;
 		}
@@ -264,7 +266,7 @@ public class BasicDeviceInfo implements DeviceInfo {
 		 *        the value to set
 		 * @return this instance
 		 */
-		public Builder withModelName(String modelName) {
+		public Builder withModelName(@Nullable String modelName) {
 			this.modelName = modelName;
 			return this;
 		}
@@ -276,7 +278,7 @@ public class BasicDeviceInfo implements DeviceInfo {
 		 *        the value to set
 		 * @return this instance
 		 */
-		public Builder withVersion(String version) {
+		public Builder withVersion(@Nullable String version) {
 			this.version = version;
 			return this;
 		}
@@ -288,7 +290,7 @@ public class BasicDeviceInfo implements DeviceInfo {
 		 *        the value to set
 		 * @return this instance
 		 */
-		public Builder withSerialNumber(String serialNumber) {
+		public Builder withSerialNumber(@Nullable String serialNumber) {
 			this.serialNumber = serialNumber;
 			return this;
 		}
@@ -300,7 +302,7 @@ public class BasicDeviceInfo implements DeviceInfo {
 		 *        the value to set
 		 * @return this instance
 		 */
-		public Builder withManufactureDate(LocalDate manufactureDate) {
+		public Builder withManufactureDate(@Nullable LocalDate manufactureDate) {
 			this.manufactureDate = manufactureDate;
 			return this;
 		}
@@ -312,7 +314,7 @@ public class BasicDeviceInfo implements DeviceInfo {
 		 *        the value to set
 		 * @return this instance
 		 */
-		public Builder withDeviceAddress(String deviceAddress) {
+		public Builder withDeviceAddress(@Nullable String deviceAddress) {
 			this.deviceAddress = deviceAddress;
 			return this;
 		}
@@ -325,7 +327,7 @@ public class BasicDeviceInfo implements DeviceInfo {
 		 * @return this instance
 		 * @since 1.1
 		 */
-		public Builder withNameplateRatings(Map<String, ?> nameplateRatings) {
+		public Builder withNameplateRatings(@Nullable Map<String, ?> nameplateRatings) {
 			this.nameplateRatings = nameplateRatings;
 			return this;
 		}
@@ -360,43 +362,43 @@ public class BasicDeviceInfo implements DeviceInfo {
 	}
 
 	@Override
-	public String getName() {
+	public @Nullable String getName() {
 		return name;
 	}
 
 	@Override
-	public String getManufacturer() {
+	public @Nullable String getManufacturer() {
 		return manufacturer;
 	}
 
 	@Override
-	public String getModelName() {
+	public @Nullable String getModelName() {
 		return modelName;
 	}
 
 	@Override
-	public String getVersion() {
+	public @Nullable String getVersion() {
 		return version;
 	}
 
 	@Override
-	public String getSerialNumber() {
+	public @Nullable String getSerialNumber() {
 		return serialNumber;
 	}
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	@Override
-	public LocalDate getManufactureDate() {
+	public @Nullable LocalDate getManufactureDate() {
 		return manufactureDate;
 	}
 
 	@Override
-	public String getDeviceAddress() {
+	public @Nullable String getDeviceAddress() {
 		return deviceAddress;
 	}
 
 	@Override
-	public final Map<String, ?> getNameplateRatings() {
+	public final @Nullable Map<String, ?> getNameplateRatings() {
 		return nameplateRatings;
 	}
 

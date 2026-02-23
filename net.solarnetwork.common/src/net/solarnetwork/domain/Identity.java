@@ -24,6 +24,8 @@
 
 package net.solarnetwork.domain;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Common API for identity information in SolarNetwork participating services.
  *
@@ -43,7 +45,7 @@ public interface Identity<K extends Comparable<K>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	default int compareTo(Identity<K> o) {
+	default int compareTo(@Nullable Identity<K> o) {
 		final K id = getId();
 		final K otherId = (o != null ? o.getId() : null);
 		if ( id == null && otherId == null ) {

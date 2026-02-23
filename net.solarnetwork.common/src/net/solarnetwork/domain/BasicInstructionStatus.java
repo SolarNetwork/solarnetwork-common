@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicInstructionStatus.java - Feb 28, 2011 11:28:09 AM
- * 
+ *
  * Copyright 2007-2011 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,10 +26,11 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic implementation of {@link InstructionStatus}.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 2.0
@@ -39,20 +40,20 @@ public class BasicInstructionStatus implements InstructionStatus, Serializable {
 	private static final long serialVersionUID = 5423487100585905801L;
 
 	/** The instruction ID. */
-	private final Long instructionId;
+	private final @Nullable Long instructionId;
 
 	/** The instruction state. */
-	private final InstructionState instructionState;
+	private final @Nullable InstructionState instructionState;
 
 	/** The status date. */
-	private final Instant statusDate;
+	private final @Nullable Instant statusDate;
 
 	/** The result parameters. */
-	private final Map<String, ?> resultParameters;
+	private final @Nullable Map<String, ?> resultParameters;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param instructionId
 	 *        the instruction ID
 	 * @param instructionState
@@ -60,14 +61,14 @@ public class BasicInstructionStatus implements InstructionStatus, Serializable {
 	 * @param statusDate
 	 *        the status date
 	 */
-	public BasicInstructionStatus(Long instructionId, InstructionState instructionState,
-			Instant statusDate) {
+	public BasicInstructionStatus(@Nullable Long instructionId,
+			@Nullable InstructionState instructionState, @Nullable Instant statusDate) {
 		this(instructionId, instructionState, statusDate, null);
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param instructionId
 	 *        the instruction ID
 	 * @param instructionState
@@ -77,8 +78,9 @@ public class BasicInstructionStatus implements InstructionStatus, Serializable {
 	 * @param resultParameters
 	 *        the result parameters
 	 */
-	public BasicInstructionStatus(Long instructionId, InstructionState instructionState,
-			Instant statusDate, Map<String, ?> resultParameters) {
+	public BasicInstructionStatus(@Nullable Long instructionId,
+			@Nullable InstructionState instructionState, @Nullable Instant statusDate,
+			@Nullable Map<String, ?> resultParameters) {
 		this.instructionId = instructionId;
 		this.instructionState = instructionState;
 		this.statusDate = statusDate;
@@ -91,7 +93,7 @@ public class BasicInstructionStatus implements InstructionStatus, Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj )
 			return true;
 		if ( obj == null )
@@ -134,28 +136,28 @@ public class BasicInstructionStatus implements InstructionStatus, Serializable {
 
 	@Override
 	public InstructionStatus newCopyWithState(InstructionState newState,
-			Map<String, ?> resultParameters) {
+			@Nullable Map<String, ?> resultParameters) {
 		return new BasicInstructionStatus(this.instructionId, newState, this.statusDate,
 				resultParameters);
 	}
 
 	@Override
-	public Long getInstructionId() {
+	public @Nullable Long getInstructionId() {
 		return instructionId;
 	}
 
 	@Override
-	public InstructionState getInstructionState() {
+	public @Nullable InstructionState getInstructionState() {
 		return instructionState;
 	}
 
 	@Override
-	public Instant getStatusDate() {
+	public @Nullable Instant getStatusDate() {
 		return statusDate;
 	}
 
 	@Override
-	public Map<String, ?> getResultParameters() {
+	public @Nullable Map<String, ?> getResultParameters() {
 		return resultParameters;
 	}
 

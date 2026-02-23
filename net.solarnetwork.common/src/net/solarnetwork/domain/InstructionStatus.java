@@ -1,21 +1,21 @@
 /* ==================================================================
  * InstructionStatus.java - Feb 28, 2011 10:50:38 AM
- * 
+ *
  * Copyright 2007 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -24,10 +24,11 @@ package net.solarnetwork.domain;
 
 import java.time.Instant;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Status information for a single Instruction.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 2.0
@@ -92,35 +93,39 @@ public interface InstructionStatus {
 
 	/**
 	 * Get the ID of the instruction this state is associated with.
-	 * 
+	 *
 	 * @return the primary key
 	 */
+	@Nullable
 	Long getInstructionId();
 
 	/**
 	 * Get the current instruction state.
-	 * 
+	 *
 	 * @return the current instruction state
 	 */
+	@Nullable
 	InstructionState getInstructionState();
 
 	/**
 	 * Get the date/time the instruction state was queried.
-	 * 
+	 *
 	 * @return the status date
 	 */
+	@Nullable
 	Instant getStatusDate();
 
 	/**
 	 * Get result parameters.
-	 * 
+	 *
 	 * @return the result parameters, or {@literal null} if none available
 	 */
+	@Nullable
 	Map<String, ?> getResultParameters();
 
 	/**
 	 * Create a new InstructionStatus copy with a new state.
-	 * 
+	 *
 	 * @param newState
 	 *        the new state
 	 * @return the new instance
@@ -132,7 +137,7 @@ public interface InstructionStatus {
 	/**
 	 * Create a new InstructionStatus copy with a new state and result
 	 * parameters.
-	 * 
+	 *
 	 * @param newState
 	 *        the new state
 	 * @param resultParameters
@@ -140,11 +145,12 @@ public interface InstructionStatus {
 	 * @return the new instance
 	 * @since 1.1
 	 */
-	InstructionStatus newCopyWithState(InstructionState newState, Map<String, ?> resultParameters);
+	InstructionStatus newCopyWithState(InstructionState newState,
+			@Nullable Map<String, ?> resultParameters);
 
 	/**
 	 * Create a new status for a given instruction.
-	 * 
+	 *
 	 * @param instruction
 	 *        the instruction, or {@literal null}
 	 * @param state
@@ -155,8 +161,8 @@ public interface InstructionStatus {
 	 *        the optional result parameters
 	 * @return the status, never {@literal null}
 	 */
-	static InstructionStatus createStatus(Instruction instruction, InstructionState state, Instant date,
-			Map<String, ?> resultParameters) {
+	static InstructionStatus createStatus(@Nullable Instruction instruction, InstructionState state,
+			@Nullable Instant date, @Nullable Map<String, ?> resultParameters) {
 		final InstructionStatus status = (instruction != null ? instruction.getStatus() : null);
 		return (status != null ? status.newCopyWithState(state, resultParameters)
 				: new BasicInstructionStatus(instruction != null ? instruction.getId() : null, state,

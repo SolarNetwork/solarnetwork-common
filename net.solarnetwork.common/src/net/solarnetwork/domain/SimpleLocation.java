@@ -1,21 +1,21 @@
 /* ==================================================================
  * SimpleLocation.java - 11/12/2020 2:10:13 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,10 +26,11 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.TimeZone;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Simple, mutable implementation of {@link Location}.
- * 
+ *
  * @author matt
  * @version 1.1
  * @since 1.67
@@ -39,37 +40,37 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 	private static final long serialVersionUID = 7734763057760648362L;
 
 	/** The name. */
-	private String name;
+	private @Nullable String name;
 
 	/** The country code. */
-	private String country;
+	private @Nullable String country;
 
 	/** The region name. */
-	private String region;
+	private @Nullable String region;
 
 	/** The state or province name. */
-	private String stateOrProvince;
+	private @Nullable String stateOrProvince;
 
 	/** The city/locality name. */
-	private String locality;
+	private @Nullable String locality;
 
 	/** The postal code. */
-	private String postalCode;
+	private @Nullable String postalCode;
 
 	/** The street address. */
-	private String street;
+	private @Nullable String street;
 
 	/** The GPS latitude. */
-	private BigDecimal latitude;
+	private @Nullable BigDecimal latitude;
 
 	/** The GPS longitude. */
-	private BigDecimal longitude;
+	private @Nullable BigDecimal longitude;
 
 	/** The elevation. */
-	private BigDecimal elevation;
+	private @Nullable BigDecimal elevation;
 
 	/** The time zone ID. */
-	private String timeZoneId;
+	private @Nullable String timeZoneId;
 
 	/**
 	 * Default constructor.
@@ -80,7 +81,7 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 
 	/**
 	 * Copy constructor for {@link Location} objects.
-	 * 
+	 *
 	 * @param loc
 	 *        the location to copy
 	 */
@@ -101,7 +102,7 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 
 	/**
 	 * Create a new location instance.
-	 * 
+	 *
 	 * @param name
 	 *        the name
 	 * @param country
@@ -120,9 +121,9 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 	 *        the time zone ID
 	 * @return the new location instance
 	 */
-	public static SimpleLocation locationOf(String name, String country, String region,
-			String stateOrProvince, String locality, String postalCode, String street,
-			String timeZoneId) {
+	public static SimpleLocation locationOf(@Nullable String name, @Nullable String country,
+			@Nullable String region, @Nullable String stateOrProvince, @Nullable String locality,
+			@Nullable String postalCode, @Nullable String street, @Nullable String timeZoneId) {
 		SimpleLocation l = new SimpleLocation();
 		l.setName(name);
 		l.setCountry(country);
@@ -137,7 +138,7 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 
 	/**
 	 * Create a new location instance.
-	 * 
+	 *
 	 * @param country
 	 *        the country
 	 * @param region
@@ -146,7 +147,8 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 	 *        the time zone ID
 	 * @return the new location instance
 	 */
-	public static SimpleLocation locationOf(String country, String region, String timeZoneId) {
+	public static SimpleLocation locationOf(@Nullable String country, @Nullable String region,
+			@Nullable String timeZoneId) {
 		SimpleLocation l = new SimpleLocation();
 		l.setCountry(country);
 		l.setRegion(region);
@@ -170,14 +172,13 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
-		if ( !(obj instanceof Location) ) {
+		if ( !(obj instanceof Location other) ) {
 			return false;
 		}
-		Location other = (Location) obj;
 		if ( elevation != null && other.getElevation() != null ) {
 			if ( elevation.compareTo(other.getElevation()) != 0 ) {
 				return false;
@@ -213,7 +214,7 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 
 	/**
 	 * Change values that are non-null but empty to null.
-	 * 
+	 *
 	 * <p>
 	 * This method is helpful for web form submission, to remove filter values
 	 * that are empty and would otherwise try to match on empty string values.
@@ -246,7 +247,7 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 		}
 	}
 
-	private static boolean hasText(String s) {
+	private static boolean hasText(@Nullable String s) {
 		if ( s == null || s.isEmpty() ) {
 			return false;
 		}
@@ -261,7 +262,7 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 
 	/**
 	 * Return a new SolarLocation with normalized values from another Location.
-	 * 
+	 *
 	 * @param loc
 	 *        the location to normalize
 	 * @return the normalized location
@@ -326,19 +327,19 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 
 	/**
 	 * Get a {@code SimpleLocation} for a {@code Location}.
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> if {@code location} is already a {@code SimpleLocation} then
 	 * it will be returned via a cast. Otherwise a new instance will be created.
 	 * </p>
-	 * 
+	 *
 	 * @param location
 	 *        the location to get as a {@code SimpleLocation}
 	 * @return the {@code SimpleLocation} instance, or {@literal null} if
 	 *         {@code location} is {@literal null}
 	 * @since 1.1
 	 */
-	public static SimpleLocation locationValue(Location location) {
+	public static @Nullable SimpleLocation locationValue(@Nullable Location location) {
 		return (location == null ? null
 				: location instanceof SimpleLocation ? (SimpleLocation) location
 						: new SimpleLocation(location));
@@ -372,167 +373,167 @@ public class SimpleLocation implements Location, Cloneable, Serializable {
 	}
 
 	@Override
-	public String getName() {
+	public final @Nullable String getName() {
 		return name;
 	}
 
 	/**
 	 * Set the name.
-	 * 
+	 *
 	 * @param name
 	 *        the name to set
 	 */
-	public void setName(String name) {
+	public final void setName(@Nullable String name) {
 		this.name = name;
 	}
 
 	@Override
-	public String getCountry() {
+	public final @Nullable String getCountry() {
 		return country;
 	}
 
 	/**
 	 * Set the country.
-	 * 
+	 *
 	 * @param country
 	 *        the country to set
 	 */
-	public void setCountry(String country) {
+	public final void setCountry(@Nullable String country) {
 		this.country = country;
 	}
 
 	@Override
-	public String getRegion() {
+	public final @Nullable String getRegion() {
 		return region;
 	}
 
 	/**
 	 * Set the region.
-	 * 
+	 *
 	 * @param region
 	 *        the region to set
 	 */
-	public void setRegion(String region) {
+	public final void setRegion(@Nullable String region) {
 		this.region = region;
 	}
 
 	@Override
-	public String getStateOrProvince() {
+	public final @Nullable String getStateOrProvince() {
 		return stateOrProvince;
 	}
 
 	/**
 	 * Set the state or province.
-	 * 
+	 *
 	 * @param stateOrProvince
 	 *        the state to set
 	 */
-	public void setStateOrProvince(String stateOrProvince) {
+	public final void setStateOrProvince(@Nullable String stateOrProvince) {
 		this.stateOrProvince = stateOrProvince;
 	}
 
 	@Override
-	public String getLocality() {
+	public final @Nullable String getLocality() {
 		return locality;
 	}
 
 	/**
 	 * Set the locality.
-	 * 
+	 *
 	 * @param locality
 	 *        the locality to set
 	 */
-	public void setLocality(String locality) {
+	public final void setLocality(@Nullable String locality) {
 		this.locality = locality;
 	}
 
 	@Override
-	public String getPostalCode() {
+	public final @Nullable String getPostalCode() {
 		return postalCode;
 	}
 
 	/**
 	 * Set the postal code.
-	 * 
+	 *
 	 * @param postalCode
 	 *        the postal code to set
 	 */
-	public void setPostalCode(String postalCode) {
+	public final void setPostalCode(@Nullable String postalCode) {
 		this.postalCode = postalCode;
 	}
 
 	@Override
-	public String getStreet() {
+	public final @Nullable String getStreet() {
 		return street;
 	}
 
 	/**
 	 * Set the street.
-	 * 
+	 *
 	 * @param street
 	 *        the street to set
 	 */
-	public void setStreet(String street) {
+	public final void setStreet(@Nullable String street) {
 		this.street = street;
 	}
 
 	@Override
-	public BigDecimal getLatitude() {
+	public final @Nullable BigDecimal getLatitude() {
 		return latitude;
 	}
 
 	/**
 	 * Set the latitude.
-	 * 
+	 *
 	 * @param latitude
 	 *        the latitude to set
 	 */
-	public void setLatitude(BigDecimal latitude) {
+	public final void setLatitude(@Nullable BigDecimal latitude) {
 		this.latitude = latitude;
 	}
 
 	@Override
-	public BigDecimal getLongitude() {
+	public final @Nullable BigDecimal getLongitude() {
 		return longitude;
 	}
 
 	/**
 	 * Set the longitude.
-	 * 
+	 *
 	 * @param longitude
 	 *        the longitude to set
 	 */
-	public void setLongitude(BigDecimal longitude) {
+	public final void setLongitude(@Nullable BigDecimal longitude) {
 		this.longitude = longitude;
 	}
 
 	@Override
-	public BigDecimal getElevation() {
+	public final @Nullable BigDecimal getElevation() {
 		return elevation;
 	}
 
 	/**
 	 * Set the elevation.
-	 * 
+	 *
 	 * @param elevation
 	 *        the elevation to set
 	 */
-	public void setElevation(BigDecimal elevation) {
+	public final void setElevation(@Nullable BigDecimal elevation) {
 		this.elevation = elevation;
 	}
 
 	@Override
-	public String getTimeZoneId() {
+	public final @Nullable String getTimeZoneId() {
 		return timeZoneId;
 	}
 
 	/**
 	 * Set the time zone ID.
-	 * 
+	 *
 	 * @param timeZoneId
 	 *        the ID to set
 	 */
-	public void setTimeZoneId(String timeZoneId) {
+	public final void setTimeZoneId(@Nullable String timeZoneId) {
 		this.timeZoneId = timeZoneId;
 	}
 

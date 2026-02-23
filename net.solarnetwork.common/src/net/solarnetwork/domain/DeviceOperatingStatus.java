@@ -24,6 +24,7 @@ package net.solarnetwork.domain;
 
 import java.util.Collections;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
@@ -47,7 +48,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class DeviceOperatingStatus<C extends Bitmaskable> {
 
 	private final DeviceOperatingState state;
-	private final Set<C> deviceStates;
+	private final @Nullable Set<C> deviceStates;
 
 	/**
 	 * Constructor.
@@ -59,7 +60,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	 * @param state
 	 *        the state
 	 */
-	public DeviceOperatingStatus(DeviceOperatingState state) {
+	public DeviceOperatingStatus(@Nullable DeviceOperatingState state) {
 		this(state, null);
 	}
 
@@ -71,7 +72,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	 * @param deviceStates
 	 *        device specific states ({@literal null} allowed)
 	 */
-	public DeviceOperatingStatus(DeviceOperatingState state, Set<C> deviceStates) {
+	public DeviceOperatingStatus(@Nullable DeviceOperatingState state, @Nullable Set<C> deviceStates) {
 		super();
 		this.state = (state != null ? state : DeviceOperatingState.Unknown);
 		this.deviceStates = (deviceStates == null || deviceStates.isEmpty() ? null
@@ -83,7 +84,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	 *
 	 * @return the state, never {@literal null}
 	 */
-	public DeviceOperatingState getState() {
+	public final DeviceOperatingState getState() {
 		return state;
 	}
 
@@ -92,7 +93,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	 *
 	 * @return the state code value
 	 */
-	public int getStateCode() {
+	public final int getStateCode() {
 		return state.getCode();
 	}
 
@@ -101,7 +102,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	 *
 	 * @return the immutable device states, or {@literal null}
 	 */
-	public Set<C> getDeviceStates() {
+	public final @Nullable Set<C> getDeviceStates() {
 		return deviceStates;
 	}
 
@@ -110,7 +111,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	 *
 	 * @return the device states bitmask value
 	 */
-	public int getDeviceStatesCode() {
+	public final int getDeviceStatesCode() {
 		return Bitmaskable.bitmaskValue(deviceStates);
 	}
 
@@ -128,8 +129,8 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	 */
 	public static final class Builder {
 
-		private DeviceOperatingState state;
-		private Set<GenericDeviceOperatingState> deviceStates = Collections.emptySet();
+		private @Nullable DeviceOperatingState state;
+		private @Nullable Set<GenericDeviceOperatingState> deviceStates = Collections.emptySet();
 
 		private Builder() {
 		}
@@ -141,7 +142,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 		 *        the state to set
 		 * @return this builder
 		 */
-		public Builder withState(DeviceOperatingState state) {
+		public Builder withState(@Nullable DeviceOperatingState state) {
 			this.state = state;
 			return this;
 		}
@@ -209,8 +210,8 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 	public static final class EnumBuilder<C extends Enum<C> & Bitmaskable> {
 
 		private final Class<C> clazz;
-		private DeviceOperatingState state;
-		private Set<C> deviceStates = Collections.emptySet();
+		private @Nullable DeviceOperatingState state;
+		private @Nullable Set<C> deviceStates = Collections.emptySet();
 
 		private EnumBuilder(Class<C> clazz) {
 			super();
@@ -224,7 +225,7 @@ public class DeviceOperatingStatus<C extends Bitmaskable> {
 		 *        the state to set
 		 * @return this builder
 		 */
-		public EnumBuilder<C> withState(DeviceOperatingState state) {
+		public EnumBuilder<C> withState(@Nullable DeviceOperatingState state) {
 			this.state = state;
 			return this;
 		}

@@ -25,6 +25,7 @@ package net.solarnetwork.domain;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -46,13 +47,13 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 	private static final long serialVersionUID = 8272531095755880837L;
 
 	/** The name. */
-	private String name;
+	private @Nullable String name;
 
 	/** The service identifier. */
-	private String serviceIdentifier;
+	private @Nullable String serviceIdentifier;
 
 	/** The service properties. */
-	private Map<String, Object> serviceProps;
+	private @Nullable Map<String, Object> serviceProps;
 
 	/**
 	 * Default constructor.
@@ -72,8 +73,8 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 	 *        the service properties
 	 * @since 1.3
 	 */
-	public BasicIdentifiableConfiguration(String name, String serviceIdentifier,
-			Map<String, Object> serviceProps) {
+	public BasicIdentifiableConfiguration(@Nullable String name, @Nullable String serviceIdentifier,
+			@Nullable Map<String, Object> serviceProps) {
 		super();
 		this.name = name;
 		this.serviceIdentifier = serviceIdentifier;
@@ -86,7 +87,7 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 	 * @param other
 	 *        the configuration to copy
 	 */
-	public BasicIdentifiableConfiguration(IdentifiableConfiguration other) {
+	public BasicIdentifiableConfiguration(@Nullable IdentifiableConfiguration other) {
 		super();
 		if ( other == null ) {
 			return;
@@ -124,17 +125,8 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 		return builder.toString();
 	}
 
-	/**
-	 * Get a name for this configuration
-	 *
-	 * <p>
-	 * This is meant to be configurable by end users.
-	 * </p>
-	 *
-	 * @return the configuration name
-	 */
 	@Override
-	public String getName() {
+	public @Nullable String getName() {
 		return name;
 	}
 
@@ -144,18 +136,12 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 	 * @param name
 	 *        the name to use
 	 */
-	public void setName(String name) {
+	public void setName(@Nullable String name) {
 		this.name = name;
 	}
 
-	/**
-	 * Get the unique identifier for the service this configuration is
-	 * associated with.
-	 *
-	 * @return the identifier of the service
-	 */
 	@Override
-	public String getServiceIdentifier() {
+	public @Nullable String getServiceIdentifier() {
 		return serviceIdentifier;
 	}
 
@@ -166,13 +152,13 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 	 * @param serviceIdentifier
 	 *        the identifier of the service to use
 	 */
-	public void setServiceIdentifier(String serviceIdentifier) {
+	public void setServiceIdentifier(@Nullable String serviceIdentifier) {
 		this.serviceIdentifier = serviceIdentifier;
 	}
 
 	@Override
 	@JsonIgnore
-	public Map<String, ?> getServiceProperties() {
+	public @Nullable Map<String, ?> getServiceProperties() {
 		return getServiceProps();
 	}
 
@@ -182,7 +168,7 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 	 * @return the properties
 	 */
 	@JsonGetter("serviceProperties")
-	public Map<String, Object> getServiceProps() {
+	public @Nullable Map<String, Object> getServiceProps() {
 		return serviceProps;
 	}
 
@@ -193,7 +179,7 @@ public class BasicIdentifiableConfiguration implements IdentifiableConfiguration
 	 *        the properties to set
 	 */
 	@JsonSetter("serviceProperties")
-	public void setServiceProps(Map<String, Object> serviceProps) {
+	public void setServiceProps(@Nullable Map<String, Object> serviceProps) {
 		this.serviceProps = serviceProps;
 	}
 

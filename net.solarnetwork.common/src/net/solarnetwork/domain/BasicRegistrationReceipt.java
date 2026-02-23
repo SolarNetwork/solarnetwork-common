@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicRegistrationReceipt.java - Dec 18, 2009 4:06:10 PM
- * 
+ *
  * Copyright 2007-2009 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -24,10 +24,11 @@ package net.solarnetwork.domain;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic implementation of {@link RegistrationReceipt}.
- * 
+ *
  * @author matt
  * @version 1.1
  */
@@ -36,10 +37,10 @@ public class BasicRegistrationReceipt implements RegistrationReceipt, Cloneable 
 	private static final long serialVersionUID = -8288922092122946581L;
 
 	/** The username. */
-	private String username;
+	private @Nullable String username;
 
 	/** The confirmation code. */
-	private String confirmationCode;
+	private @Nullable String confirmationCode;
 
 	/**
 	 * Default constructor.
@@ -50,30 +51,30 @@ public class BasicRegistrationReceipt implements RegistrationReceipt, Cloneable 
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param username
 	 *        the usenrame
 	 * @param confirmationCode
 	 *        the confirmation code
 	 */
-	public BasicRegistrationReceipt(String username, String confirmationCode) {
+	public BasicRegistrationReceipt(@Nullable String username, @Nullable String confirmationCode) {
 		super();
 		this.username = username;
 		this.confirmationCode = confirmationCode;
 	}
 
 	@Override
-	public String getConfirmationCode() {
+	public @Nullable String getConfirmationCode() {
 		return confirmationCode;
 	}
 
 	@Override
-	public String getUsername() {
+	public @Nullable String getUsername() {
 		return username;
 	}
 
 	@Override
-	public String getUsernameURLComponent() {
+	public @Nullable String getUsernameURLComponent() {
 		String result = getUsername();
 		try {
 			return (result == null ? null : URLEncoder.encode(result, "UTF-8"));
@@ -103,7 +104,7 @@ public class BasicRegistrationReceipt implements RegistrationReceipt, Cloneable 
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj )
 			return true;
 		if ( obj == null )
@@ -132,21 +133,21 @@ public class BasicRegistrationReceipt implements RegistrationReceipt, Cloneable 
 
 	/**
 	 * Set the username.
-	 * 
+	 *
 	 * @param username
 	 *        the username to set
 	 */
-	public void setUsername(String username) {
+	public void setUsername(@Nullable String username) {
 		this.username = username;
 	}
 
 	/**
 	 * Set the confirmation code.
-	 * 
+	 *
 	 * @param confirmationCode
 	 *        the confirmationCode to set
 	 */
-	public void setConfirmationCode(String confirmationCode) {
+	public void setConfirmationCode(@Nullable String confirmationCode) {
 		this.confirmationCode = confirmationCode;
 	}
 

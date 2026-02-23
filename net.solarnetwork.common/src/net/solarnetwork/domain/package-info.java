@@ -1,7 +1,7 @@
 /* ==================================================================
- * CopyingEntity.java - 13/08/2022 7:25:31 am
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2022 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,39 +20,5 @@
  * ==================================================================
  */
 
+@org.jspecify.annotations.NullMarked
 package net.solarnetwork.domain;
-
-import org.jspecify.annotations.Nullable;
-
-/**
- * API for an identity with copying support.
- *
- * @param <T>
- *        the identity type
- * @param <K>
- *        the primary key type
- * @author matt
- * @version 2.0
- * @since 2.9
- */
-public interface CopyingIdentity<T extends CopyingIdentity<T, K>, K extends Comparable<K>>
-		extends Identity<K> {
-
-	/**
-	 * Create a new copy of this identity with a given ID.
-	 *
-	 * @param id
-	 *        the ID to use in the copy
-	 * @return the new copy
-	 */
-	T copyWithId(@Nullable K id);
-
-	/**
-	 * Copy the properties of this identity into another entity.
-	 *
-	 * @param other
-	 *        the identity to copy the properties from this instance
-	 */
-	void copyTo(T other);
-
-}

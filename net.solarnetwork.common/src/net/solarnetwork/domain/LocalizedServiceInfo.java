@@ -25,6 +25,7 @@ package net.solarnetwork.domain;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * API for information about a service that has been localized.
@@ -56,7 +57,7 @@ public interface LocalizedServiceInfo extends Unique<String>, Comparable<Localiz
 		}
 
 		@Override
-		public int compare(LocalizedServiceInfo o1, LocalizedServiceInfo o2) {
+		public int compare(@Nullable LocalizedServiceInfo o1, @Nullable LocalizedServiceInfo o2) {
 			if ( o1 == o2 ) {
 				return 0;
 			}
@@ -97,6 +98,7 @@ public interface LocalizedServiceInfo extends Unique<String>, Comparable<Localiz
 	 *
 	 * @return the service name
 	 */
+	@Nullable
 	String getLocalizedName();
 
 	/**
@@ -104,6 +106,7 @@ public interface LocalizedServiceInfo extends Unique<String>, Comparable<Localiz
 	 *
 	 * @return the service description
 	 */
+	@Nullable
 	String getLocalizedDescription();
 
 	/**
@@ -117,10 +120,11 @@ public interface LocalizedServiceInfo extends Unique<String>, Comparable<Localiz
 	 *
 	 * @return a map of messages, never {@literal null}
 	 */
+	@Nullable
 	Map<String, String> getLocalizedInfoMessages();
 
 	@Override
-	default int compareTo(LocalizedServiceInfo o) {
+	default int compareTo(@Nullable LocalizedServiceInfo o) {
 		return SORT_BY_NAME.compare(this, o);
 	}
 

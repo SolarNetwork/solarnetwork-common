@@ -22,6 +22,8 @@
 
 package net.solarnetwork.domain;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Common API for uniquely identifiable information.
  *
@@ -38,6 +40,7 @@ public interface Unique<K> {
 	 *
 	 * @return the primary identifier
 	 */
+	@Nullable
 	K getId();
 
 	/**

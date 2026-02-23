@@ -24,6 +24,7 @@ package net.solarnetwork.domain;
 
 import java.util.Arrays;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
@@ -44,11 +45,11 @@ public class Result<T> {
 	 */
 	public static final Result<Void> OK = Result.success();
 
-	private final Boolean success;
-	private final String code;
-	private final String message;
-	private final List<ErrorDetail> errors;
-	private final T data;
+	private final @Nullable Boolean success;
+	private final @Nullable String code;
+	private final @Nullable String message;
+	private final @Nullable List<ErrorDetail> errors;
+	private final @Nullable T data;
 
 	/**
 	 * An error detail object.
@@ -56,9 +57,9 @@ public class Result<T> {
 	@JsonPropertyOrder({ "location", "code", "rejectedValue", "message" })
 	public static class ErrorDetail {
 
-		private final String location;
-		private final String code;
-		private final String rejectedValue;
+		private final @Nullable String location;
+		private final @Nullable String code;
+		private final @Nullable String rejectedValue;
 		private final String message;
 
 		/**
@@ -72,7 +73,7 @@ public class Result<T> {
 		 * @param message
 		 *        the error message
 		 */
-		public ErrorDetail(String location, String rejectedValue, String message) {
+		public ErrorDetail(@Nullable String location, @Nullable String rejectedValue, String message) {
 			this(location, null, rejectedValue, message);
 		}
 
@@ -89,7 +90,8 @@ public class Result<T> {
 		 * @param message
 		 *        the error message
 		 */
-		public ErrorDetail(String location, String code, String rejectedValue, String message) {
+		public ErrorDetail(@Nullable String location, @Nullable String code,
+				@Nullable String rejectedValue, String message) {
 			super();
 			this.location = location;
 			this.code = code;
@@ -102,7 +104,7 @@ public class Result<T> {
 		 *
 		 * @return the location
 		 */
-		public String getLocation() {
+		public final @Nullable String getLocation() {
 			return location;
 		}
 
@@ -111,7 +113,7 @@ public class Result<T> {
 		 *
 		 * @return the code
 		 */
-		public String getCode() {
+		public final @Nullable String getCode() {
 			return code;
 		}
 
@@ -120,7 +122,7 @@ public class Result<T> {
 		 *
 		 * @return the rejectedValue
 		 */
-		public String getRejectedValue() {
+		public final @Nullable String getRejectedValue() {
 			return rejectedValue;
 		}
 
@@ -164,7 +166,8 @@ public class Result<T> {
 	 * @param data
 	 *        optional data in the response
 	 */
-	public Result(Boolean success, String code, String message, T data) {
+	public Result(@Nullable Boolean success, @Nullable String code, @Nullable String message,
+			@Nullable T data) {
 		this(success, code, message, null, data);
 	}
 
@@ -183,7 +186,8 @@ public class Result<T> {
 	 *        optional data in the response
 	 * @since 1.2
 	 */
-	public Result(Boolean success, String code, String message, List<ErrorDetail> errors, T data) {
+	public Result(@Nullable Boolean success, @Nullable String code, @Nullable String message,
+			@Nullable List<ErrorDetail> errors, @Nullable T data) {
 		super();
 		this.success = success;
 		this.code = code;
@@ -208,7 +212,7 @@ public class Result<T> {
 	 * @return the result with {@code success} set to {@literal true}
 	 * @see #success(Object)
 	 */
-	public static <V> Result<V> result(V data) {
+	public static <V> Result<V> result(@Nullable V data) {
 		return success(data);
 	}
 
@@ -228,7 +232,7 @@ public class Result<T> {
 	 * @return the result with {@code success} set to {@literal true}
 	 * @since 1.2
 	 */
-	public static <V> Result<V> success(V data) {
+	public static <V> Result<V> success(@Nullable V data) {
 		return new Result<V>(Boolean.TRUE, null, null, null, data);
 	}
 
@@ -271,7 +275,7 @@ public class Result<T> {
 	 * @return the result
 	 * @since 1.2
 	 */
-	public static <V> Result<V> error(String message, List<ErrorDetail> errors) {
+	public static <V> Result<V> error(@Nullable String message, @Nullable List<ErrorDetail> errors) {
 		return new Result<V>(Boolean.FALSE, null, message, errors, null);
 	}
 
@@ -290,7 +294,8 @@ public class Result<T> {
 	 * @return the result
 	 * @since 1.2
 	 */
-	public static <V> Result<V> error(String code, String message, List<ErrorDetail> errors) {
+	public static <V> Result<V> error(@Nullable String code, @Nullable String message,
+			@Nullable List<ErrorDetail> errors) {
 		return new Result<V>(Boolean.FALSE, code, message, errors, null);
 	}
 
@@ -309,7 +314,8 @@ public class Result<T> {
 	 * @return the result
 	 * @since 1.2
 	 */
-	public static <V> Result<V> error(String code, String message, ErrorDetail... errors) {
+	public static <V> Result<V> error(@Nullable String code, @Nullable String message,
+			ErrorDetail @Nullable... errors) {
 		return new Result<V>(Boolean.FALSE, code, message,
 				(errors != null && errors.length > 0 ? Arrays.asList(errors) : null), null);
 	}
@@ -319,7 +325,7 @@ public class Result<T> {
 	 *
 	 * @return the success indicator, or {@literal null} if not known
 	 */
-	public Boolean getSuccess() {
+	public final @Nullable Boolean getSuccess() {
 		return success;
 	}
 
@@ -328,7 +334,7 @@ public class Result<T> {
 	 *
 	 * @return the code, or {@literal null}
 	 */
-	public String getCode() {
+	public final @Nullable String getCode() {
 		return code;
 	}
 
@@ -337,7 +343,7 @@ public class Result<T> {
 	 *
 	 * @return the message, or {@literal null}
 	 */
-	public String getMessage() {
+	public final @Nullable String getMessage() {
 		return message;
 	}
 
@@ -346,7 +352,7 @@ public class Result<T> {
 	 *
 	 * @return the error details, or {@literal null}
 	 */
-	public List<ErrorDetail> getErrors() {
+	public final @Nullable List<ErrorDetail> getErrors() {
 		return errors;
 	}
 
@@ -355,7 +361,7 @@ public class Result<T> {
 	 *
 	 * @return the data, or {@literal null}
 	 */
-	public T getData() {
+	public final @Nullable T getData() {
 		return data;
 	}
 

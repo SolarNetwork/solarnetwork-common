@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicLocation.java - Oct 22, 2014 12:06:47 PM
- * 
+ *
  * Copyright 2007-2014 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,11 +25,12 @@ package net.solarnetwork.domain;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Basic, immutable implementation of {@link Location}.
- * 
+ *
  * @author matt
  * @version 1.2
  */
@@ -39,41 +40,41 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 	private static final long serialVersionUID = -7249883372922528538L;
 
 	/** The location name. */
-	private final String name;
+	private final @Nullable String name;
 
 	/** The country code. */
-	private final String country;
+	private final @Nullable String country;
 
 	/** The region name. */
-	private final String region;
+	private final @Nullable String region;
 
 	/** The state or province name. */
-	private final String stateOrProvince;
+	private final @Nullable String stateOrProvince;
 
 	/** The city/locality name. */
-	private final String locality;
+	private final @Nullable String locality;
 
 	/** The postal code. */
-	private final String postalCode;
+	private final @Nullable String postalCode;
 
 	/** The street address. */
-	private final String street;
+	private final @Nullable String street;
 
 	/** The GPS latitude. */
-	private final BigDecimal latitude;
+	private final @Nullable BigDecimal latitude;
 
 	/** The GPS longitude. */
-	private final BigDecimal longitude;
+	private final @Nullable BigDecimal longitude;
 
 	/** The elevation. */
-	private final BigDecimal elevation;
+	private final @Nullable BigDecimal elevation;
 
 	/** The time zone ID. */
-	private final String timeZoneId;
+	private final @Nullable String timeZoneId;
 
 	/**
 	 * Copy constructor for {@link Location} objects.
-	 * 
+	 *
 	 * @param loc
 	 *        the location to copy
 	 */
@@ -85,7 +86,7 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param name
 	 *        the name
 	 * @param country
@@ -109,9 +110,10 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 	 * @param timeZoneId
 	 *        the time zone ID
 	 */
-	public BasicLocation(String name, String country, String region, String stateOrProvince,
-			String locality, String postalCode, String street, BigDecimal latitude, BigDecimal longitude,
-			BigDecimal elevation, String timeZoneId) {
+	public BasicLocation(@Nullable String name, @Nullable String country, @Nullable String region,
+			@Nullable String stateOrProvince, @Nullable String locality, @Nullable String postalCode,
+			@Nullable String street, @Nullable BigDecimal latitude, @Nullable BigDecimal longitude,
+			@Nullable BigDecimal elevation, @Nullable String timeZoneId) {
 		super();
 		this.name = name;
 		this.country = country;
@@ -128,7 +130,7 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 
 	/**
 	 * Create a new location instance.
-	 * 
+	 *
 	 * @param name
 	 *        the name
 	 * @param country
@@ -147,16 +149,16 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 	 *        the time zone ID
 	 * @return the new location instance
 	 */
-	public static BasicLocation locationOf(String name, String country, String region,
-			String stateOrProvince, String locality, String postalCode, String street,
-			String timeZoneId) {
+	public static BasicLocation locationOf(@Nullable String name, @Nullable String country,
+			@Nullable String region, @Nullable String stateOrProvince, @Nullable String locality,
+			@Nullable String postalCode, @Nullable String street, @Nullable String timeZoneId) {
 		return new BasicLocation(name, country, region, stateOrProvince, locality, postalCode, street,
 				null, null, null, timeZoneId);
 	}
 
 	/**
 	 * Create a new location instance.
-	 * 
+	 *
 	 * @param country
 	 *        the country
 	 * @param region
@@ -165,7 +167,8 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 	 *        the time zone ID
 	 * @return the new location instance
 	 */
-	public static BasicLocation locationOf(String country, String region, String timeZoneId) {
+	public static BasicLocation locationOf(@Nullable String country, @Nullable String region,
+			@Nullable String timeZoneId) {
 		return new BasicLocation(null, country, region, null, null, null, null, null, null, null,
 				timeZoneId);
 	}
@@ -186,14 +189,13 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
-		if ( !(obj instanceof Location) ) {
+		if ( !(obj instanceof Location other) ) {
 			return false;
 		}
-		Location other = (Location) obj;
 		if ( elevation != null && other.getElevation() != null ) {
 			if ( elevation.compareTo(other.getElevation()) != 0 ) {
 				return false;
@@ -229,7 +231,7 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 
 	/**
 	 * Return a new BasicLocation with normalized values from another Location.
-	 * 
+	 *
 	 * @param loc
 	 *        the location to normalize
 	 * @return the normalized location
@@ -309,19 +311,19 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 
 	/**
 	 * Get a {@code BasicLocation} for a {@code Location}.
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> if {@code location} is already a {@code BasicLocation} then
 	 * it will be returned via a cast. Otherwise a new instance will be created.
 	 * </p>
-	 * 
+	 *
 	 * @param location
 	 *        the location to get as a {@code BasicLocation}
 	 * @return the {@code BasicLocation} instance, or {@literal null} if
 	 *         {@code location} is {@literal null}
 	 * @since 1.1
 	 */
-	public static BasicLocation locationValue(Location location) {
+	public static @Nullable BasicLocation locationValue(@Nullable Location location) {
 		return (location == null ? null
 				: location instanceof BasicLocation ? (BasicLocation) location
 						: new BasicLocation(location));
@@ -355,57 +357,57 @@ public class BasicLocation implements Location, Cloneable, Serializable {
 	}
 
 	@Override
-	public String getName() {
+	public @Nullable String getName() {
 		return name;
 	}
 
 	@Override
-	public String getCountry() {
+	public @Nullable String getCountry() {
 		return country;
 	}
 
 	@Override
-	public String getRegion() {
+	public @Nullable String getRegion() {
 		return region;
 	}
 
 	@Override
-	public String getStateOrProvince() {
+	public @Nullable String getStateOrProvince() {
 		return stateOrProvince;
 	}
 
 	@Override
-	public String getLocality() {
+	public @Nullable String getLocality() {
 		return locality;
 	}
 
 	@Override
-	public String getPostalCode() {
+	public @Nullable String getPostalCode() {
 		return postalCode;
 	}
 
 	@Override
-	public String getStreet() {
+	public @Nullable String getStreet() {
 		return street;
 	}
 
 	@Override
-	public BigDecimal getLatitude() {
+	public @Nullable BigDecimal getLatitude() {
 		return latitude;
 	}
 
 	@Override
-	public BigDecimal getLongitude() {
+	public @Nullable BigDecimal getLongitude() {
 		return longitude;
 	}
 
 	@Override
-	public BigDecimal getElevation() {
+	public @Nullable BigDecimal getElevation() {
 		return elevation;
 	}
 
 	@Override
-	public String getTimeZoneId() {
+	public @Nullable String getTimeZoneId() {
 		return timeZoneId;
 	}
 

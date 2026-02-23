@@ -25,6 +25,7 @@ package net.solarnetwork.domain;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -41,22 +42,22 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	private static final long serialVersionUID = 1734756599885882478L;
 
 	/** The identify key. */
-	private String identityKey;
+	private @Nullable String identityKey;
 
 	/** The terms of service. */
-	private String termsOfService;
+	private @Nullable String termsOfService;
 
 	/** The host. */
-	private String host;
+	private @Nullable String host;
 
 	/** The port. */
-	private Integer port;
+	private @Nullable Integer port;
 
 	/** The "force TLS" flag. */
 	private boolean forceTLS;
 
 	/** Map of network service URLs. */
-	private Map<String, String> networkServiceURLs;
+	private @Nullable Map<String, String> networkServiceURLs;
 
 	/**
 	 * Default constructor.
@@ -80,38 +81,40 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 *        {@literal true} if TLS should be used on a port other than
 	 *        {@literal 443}
 	 */
-	public BasicNetworkIdentity(String identityKey, String termsOfService, String host, Integer port,
-			Boolean forceTLS) {
+	public BasicNetworkIdentity(@Nullable String identityKey, @Nullable String termsOfService,
+			@Nullable String host, @Nullable Integer port, @Nullable Boolean forceTLS) {
 		super();
 		setIdentityKey(identityKey);
 		setTermsOfService(termsOfService);
 		setHost(host);
 		setPort(port);
-		setForceTLS(forceTLS);
+		if ( forceTLS != null ) {
+			setForceTLS(forceTLS);
+		}
 	}
 
 	@Override
-	public String getIdentityKey() {
+	public final @Nullable String getIdentityKey() {
 		return identityKey;
 	}
 
 	@Override
-	public String getTermsOfService() {
+	public final @Nullable String getTermsOfService() {
 		return termsOfService;
 	}
 
 	@Override
-	public String getHost() {
+	public final @Nullable String getHost() {
 		return host;
 	}
 
 	@Override
-	public Integer getPort() {
+	public final @Nullable Integer getPort() {
 		return port;
 	}
 
 	@Override
-	public boolean isForceTLS() {
+	public final boolean isForceTLS() {
 		return forceTLS;
 	}
 
@@ -121,7 +124,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * @param identityKey
 	 *        the key to set
 	 */
-	public void setIdentityKey(String identityKey) {
+	public final void setIdentityKey(@Nullable String identityKey) {
 		this.identityKey = identityKey;
 	}
 
@@ -131,7 +134,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * @param termsOfService
 	 *        the terms to set
 	 */
-	public void setTermsOfService(String termsOfService) {
+	public final void setTermsOfService(@Nullable String termsOfService) {
 		this.termsOfService = termsOfService;
 	}
 
@@ -141,7 +144,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * @param host
 	 *        the host to set
 	 */
-	public void setHost(String host) {
+	public final void setHost(@Nullable String host) {
 		this.host = host;
 	}
 
@@ -151,7 +154,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * @param port
 	 *        the port to set
 	 */
-	public void setPort(Integer port) {
+	public final void setPort(@Nullable Integer port) {
 		this.port = port;
 	}
 
@@ -161,12 +164,12 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * @param forceTLS
 	 *        the flag to set
 	 */
-	public void setForceTLS(boolean forceTLS) {
+	public final void setForceTLS(boolean forceTLS) {
 		this.forceTLS = forceTLS;
 	}
 
 	@Override
-	public Map<String, String> getNetworkServiceURLs() {
+	public final @Nullable Map<String, String> getNetworkServiceURLs() {
 		return networkServiceURLs;
 	}
 
@@ -176,11 +179,11 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * @param networkServiceURLs
 	 *        the service URLs to set
 	 */
-	public void setNetworkServiceURLs(Map<String, String> networkServiceURLs) {
+	public final void setNetworkServiceURLs(@Nullable Map<String, String> networkServiceURLs) {
 		this.networkServiceURLs = networkServiceURLs;
 	}
 
-	private void putServiceURL(String key, String url) {
+	private void putServiceURL(@Nullable String key, @Nullable String url) {
 		if ( key == null ) {
 			return;
 		}
@@ -199,7 +202,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 		}
 	}
 
-	private String getServiceURL(String key) {
+	private @Nullable String getServiceURL(String key) {
 		return (networkServiceURLs == null ? null : networkServiceURLs.get(key));
 	}
 
@@ -210,7 +213,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * @param url
 	 *        The URL to set, or {@literal null} to remove.
 	 */
-	public void setSolarUserServiceURL(String url) {
+	public final void setSolarUserServiceURL(@Nullable String url) {
 		putServiceURL(SOLARUSER_NETWORK_SERVICE_KEY, url);
 	}
 
@@ -220,7 +223,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 *
 	 * @return the URL
 	 */
-	public String getSolarUserServiceURL() {
+	public final @Nullable String getSolarUserServiceURL() {
 		return getServiceURL(SOLARUSER_NETWORK_SERVICE_KEY);
 	}
 
@@ -231,7 +234,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * @param url
 	 *        The URL to set, or {@literal null} to remove.
 	 */
-	public void setSolarQueryServiceURL(String url) {
+	public final void setSolarQueryServiceURL(@Nullable String url) {
 		putServiceURL(SOLARQUERY_NETWORK_SERVICE_KEY, url);
 	}
 
@@ -241,7 +244,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 *
 	 * @return the URL
 	 */
-	public String getSolarQueryServiceURL() {
+	public final @Nullable String getSolarQueryServiceURL() {
 		return getServiceURL(SOLARQUERY_NETWORK_SERVICE_KEY);
 	}
 
@@ -252,7 +255,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 * @param url
 	 *        The URL to set, or {@literal null} to remove.
 	 */
-	public void setSolarInMqttServiceURL(String url) {
+	public final void setSolarInMqttServiceURL(@Nullable String url) {
 		putServiceURL(SOLARIN_MQTT_NETWORK_SERVICE_KEY, url);
 	}
 
@@ -262,7 +265,7 @@ public class BasicNetworkIdentity implements NetworkIdentity, Serializable {
 	 *
 	 * @return the URL
 	 */
-	public String getSolarInMqttServiceURL() {
+	public final @Nullable String getSolarInMqttServiceURL() {
 		return getServiceURL(SOLARIN_MQTT_NETWORK_SERVICE_KEY);
 	}
 

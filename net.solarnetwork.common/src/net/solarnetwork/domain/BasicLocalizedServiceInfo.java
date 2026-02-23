@@ -24,6 +24,7 @@ package net.solarnetwork.domain;
 
 import java.util.Locale;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic immutable implementation of {@link LocalizedServiceInfo}.
@@ -35,9 +36,9 @@ import java.util.Map;
 public class BasicLocalizedServiceInfo extends BasicUnique<String> implements LocalizedServiceInfo {
 
 	private final String locale;
-	private final String name;
-	private final String description;
-	private final Map<String, String> infoMessages;
+	private final @Nullable String name;
+	private final @Nullable String description;
+	private final @Nullable Map<String, String> infoMessages;
 
 	/**
 	 * Constructor.
@@ -53,8 +54,8 @@ public class BasicLocalizedServiceInfo extends BasicUnique<String> implements Lo
 	 * @param infoMessages
 	 *        the localized info messages
 	 */
-	public BasicLocalizedServiceInfo(String id, Locale locale, String name, String description,
-			Map<String, String> infoMessages) {
+	public BasicLocalizedServiceInfo(@Nullable String id, @Nullable Locale locale, @Nullable String name,
+			@Nullable String description, @Nullable Map<String, String> infoMessages) {
 		super(id);
 		this.locale = (locale != null ? locale : Locale.getDefault()).toLanguageTag();
 		this.name = name;
@@ -68,17 +69,17 @@ public class BasicLocalizedServiceInfo extends BasicUnique<String> implements Lo
 	}
 
 	@Override
-	public String getLocalizedName() {
+	public @Nullable String getLocalizedName() {
 		return name;
 	}
 
 	@Override
-	public String getLocalizedDescription() {
+	public @Nullable String getLocalizedDescription() {
 		return description;
 	}
 
 	@Override
-	public Map<String, String> getLocalizedInfoMessages() {
+	public @Nullable Map<String, String> getLocalizedInfoMessages() {
 		return infoMessages;
 	}
 

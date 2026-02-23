@@ -24,6 +24,7 @@ package net.solarnetwork.domain;
 
 import java.io.Serializable;
 import java.time.Instant;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -43,31 +44,31 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	private static final long serialVersionUID = -6264228260215100345L;
 
 	/** The confirmation key. */
-	private String confirmationKey;
+	private @Nullable String confirmationKey;
 
 	/** The username. */
-	private String username;
+	private @Nullable String username;
 
 	/** The expiration. */
-	private Instant expiration;
+	private @Nullable Instant expiration;
 
 	/** The security phrase. */
-	private String securityPhrase;
+	private @Nullable String securityPhrase;
 
 	/** The network ID. */
-	private Long networkId;
+	private @Nullable Long networkId;
 
 	/** The certificate. */
-	private String networkCertificate;
+	private @Nullable String networkCertificate;
 
 	/** The certificate status. */
-	private String networkCertificateStatus;
+	private @Nullable String networkCertificateStatus;
 
 	/** The certificate distinguished name. */
-	private String networkCertificateSubjectDN;
+	private @Nullable String networkCertificateSubjectDN;
 
 	/** The keystore password. */
-	private String keystorePassword;
+	private @Nullable String keystorePassword;
 
 	/**
 	 * Default constructor.
@@ -104,7 +105,8 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	 *        the keystore password
 	 * @since 1.1
 	 */
-	public NetworkAssociationDetails(String username, String confirmationKey, String keystorePassword) {
+	public NetworkAssociationDetails(@Nullable String username, @Nullable String confirmationKey,
+			@Nullable String keystorePassword) {
 		super();
 		setUsername(username);
 		setConfirmationKey(confirmationKey);
@@ -118,7 +120,7 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	}
 
 	@Override
-	public String getUsername() {
+	public final @Nullable String getUsername() {
 		return username;
 	}
 
@@ -128,7 +130,7 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	 * @param username
 	 *        the username to set
 	 */
-	public void setUsername(String username) {
+	public final void setUsername(@Nullable String username) {
 		this.username = username;
 	}
 
@@ -137,7 +139,7 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	 *
 	 * @return the expiration
 	 */
-	public Instant getExpiration() {
+	public final @Nullable Instant getExpiration() {
 		return expiration;
 	}
 
@@ -147,12 +149,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	 * @param expiration
 	 *        the expiration to set
 	 */
-	public void setExpiration(Instant expiration) {
+	public final void setExpiration(@Nullable Instant expiration) {
 		this.expiration = expiration;
 	}
 
 	@Override
-	public String getConfirmationKey() {
+	public final @Nullable String getConfirmationKey() {
 		return confirmationKey;
 	}
 
@@ -162,12 +164,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	 * @param confirmationKey
 	 *        the confirmation key to set
 	 */
-	public void setConfirmationKey(String confirmationKey) {
+	public final void setConfirmationKey(@Nullable String confirmationKey) {
 		this.confirmationKey = confirmationKey;
 	}
 
 	@Override
-	public String getSecurityPhrase() {
+	public final @Nullable String getSecurityPhrase() {
 		return securityPhrase;
 	}
 
@@ -177,12 +179,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	 * @param secretPhrase
 	 *        the phrase to set
 	 */
-	public void setSecurityPhrase(String secretPhrase) {
+	public final void setSecurityPhrase(@Nullable String secretPhrase) {
 		this.securityPhrase = secretPhrase;
 	}
 
 	@Override
-	public Long getNetworkId() {
+	public final @Nullable Long getNetworkId() {
 		return networkId;
 	}
 
@@ -192,12 +194,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	 * @param networkId
 	 *        the network ID to set
 	 */
-	public void setNetworkId(Long networkId) {
+	public final void setNetworkId(@Nullable Long networkId) {
 		this.networkId = networkId;
 	}
 
 	@Override
-	public String getNetworkCertificate() {
+	public final @Nullable String getNetworkCertificate() {
 		return networkCertificate;
 	}
 
@@ -207,12 +209,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	 * @param networkCertificate
 	 *        the network certificate to set
 	 */
-	public void setNetworkCertificate(String networkCertificate) {
+	public final void setNetworkCertificate(@Nullable String networkCertificate) {
 		this.networkCertificate = networkCertificate;
 	}
 
 	@Override
-	public String getNetworkCertificateStatus() {
+	public final @Nullable String getNetworkCertificateStatus() {
 		return networkCertificateStatus;
 	}
 
@@ -222,12 +224,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	 * @param networkCertificateStatus
 	 *        the status to set
 	 */
-	public void setNetworkCertificateStatus(String networkCertificateStatus) {
+	public final void setNetworkCertificateStatus(@Nullable String networkCertificateStatus) {
 		this.networkCertificateStatus = networkCertificateStatus;
 	}
 
 	@Override
-	public String getNetworkCertificateSubjectDN() {
+	public final @Nullable String getNetworkCertificateSubjectDN() {
 		return networkCertificateSubjectDN;
 	}
 
@@ -237,12 +239,12 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	 * @param networkCertificateSubjectDN
 	 *        the DN to set
 	 */
-	public void setNetworkCertificateSubjectDN(String networkCertificateSubjectDN) {
+	public final void setNetworkCertificateSubjectDN(@Nullable String networkCertificateSubjectDN) {
 		this.networkCertificateSubjectDN = networkCertificateSubjectDN;
 	}
 
 	@Override
-	public String getKeystorePassword() {
+	public final @Nullable String getKeystorePassword() {
 		return keystorePassword;
 	}
 
@@ -252,7 +254,7 @@ public class NetworkAssociationDetails extends BasicNetworkIdentity
 	 * @param keystorePassword
 	 *        the password to set
 	 */
-	public void setKeystorePassword(String keystorePassword) {
+	public final void setKeystorePassword(@Nullable String keystorePassword) {
 		this.keystorePassword = keystorePassword;
 	}
 

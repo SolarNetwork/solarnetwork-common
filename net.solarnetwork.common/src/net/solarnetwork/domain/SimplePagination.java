@@ -24,6 +24,7 @@ package net.solarnetwork.domain;
 
 import java.util.List;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Simple pagination characteristics.
@@ -37,9 +38,9 @@ import java.util.Objects;
  */
 public class SimplePagination implements Cloneable {
 
-	private List<SortDescriptor> sorts;
-	private Long offset;
-	private Integer max;
+	private @Nullable List<SortDescriptor> sorts;
+	private @Nullable Long offset;
+	private @Nullable Integer max;
 
 	/**
 	 * Constructor.
@@ -61,7 +62,8 @@ public class SimplePagination implements Cloneable {
 	 *         properties in this instance
 	 * @since 1.2
 	 */
-	public boolean matches(List<SortDescriptor> sorts, Long offset, Integer max) {
+	public boolean matches(@Nullable List<SortDescriptor> sorts, @Nullable Long offset,
+			@Nullable Integer max) {
 		// @formatter:off
 		return Objects.equals(this.sorts, sorts)
 				&& Objects.equals(this.offset, offset)
@@ -85,14 +87,13 @@ public class SimplePagination implements Cloneable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
-		if ( !(obj instanceof SimplePagination) ) {
+		if ( !(obj instanceof SimplePagination other) ) {
 			return false;
 		}
-		SimplePagination other = (SimplePagination) obj;
 		return Objects.equals(max, other.max) && Objects.equals(offset, other.offset)
 				&& Objects.equals(sorts, other.sorts);
 	}
@@ -102,7 +103,7 @@ public class SimplePagination implements Cloneable {
 	 *
 	 * @return the sorts
 	 */
-	public List<SortDescriptor> getSorts() {
+	public @Nullable List<SortDescriptor> getSorts() {
 		return sorts;
 	}
 
@@ -112,7 +113,7 @@ public class SimplePagination implements Cloneable {
 	 * @param sorts
 	 *        the sorts to set
 	 */
-	public void setSorts(List<SortDescriptor> sorts) {
+	public void setSorts(@Nullable List<SortDescriptor> sorts) {
 		this.sorts = sorts;
 	}
 
@@ -121,7 +122,7 @@ public class SimplePagination implements Cloneable {
 	 *
 	 * @return the offset, or {@literal null}
 	 */
-	public Long getOffset() {
+	public @Nullable Long getOffset() {
 		return offset;
 	}
 
@@ -131,7 +132,7 @@ public class SimplePagination implements Cloneable {
 	 * @param offset
 	 *        the offset to set
 	 */
-	public void setOffset(Long offset) {
+	public void setOffset(@Nullable Long offset) {
 		this.offset = offset;
 	}
 
@@ -140,7 +141,7 @@ public class SimplePagination implements Cloneable {
 	 *
 	 * @return the max, or {@literal null} for all results
 	 */
-	public Integer getMax() {
+	public @Nullable Integer getMax() {
 		return max;
 	}
 
@@ -150,7 +151,7 @@ public class SimplePagination implements Cloneable {
 	 * @param max
 	 *        the max to set
 	 */
-	public void setMax(Integer max) {
+	public void setMax(@Nullable Integer max) {
 		this.max = max;
 	}
 

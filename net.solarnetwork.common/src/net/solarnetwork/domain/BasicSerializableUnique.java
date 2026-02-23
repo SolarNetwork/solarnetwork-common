@@ -24,6 +24,7 @@ package net.solarnetwork.domain;
 
 import java.io.Serializable;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic immuntable implementation of {@link Unique}.
@@ -38,7 +39,7 @@ public class BasicSerializableUnique<K extends Serializable> implements Unique<K
 	private static final long serialVersionUID = -3308792199560978726L;
 
 	/** The primary key. */
-	private final K id;
+	private final @Nullable K id;
 
 	/**
 	 * Constructor.
@@ -46,13 +47,13 @@ public class BasicSerializableUnique<K extends Serializable> implements Unique<K
 	 * @param id
 	 *        the ID to use
 	 */
-	public BasicSerializableUnique(K id) {
+	public BasicSerializableUnique(@Nullable K id) {
 		super();
 		this.id = id;
 	}
 
 	@Override
-	public final K getId() {
+	public final @Nullable K getId() {
 		return id;
 	}
 

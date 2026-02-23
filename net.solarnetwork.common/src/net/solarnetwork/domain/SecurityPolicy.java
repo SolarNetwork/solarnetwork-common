@@ -24,6 +24,7 @@ package net.solarnetwork.domain;
 
 import java.time.Instant;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.datum.Aggregation;
 
 /**
@@ -47,6 +48,7 @@ public interface SecurityPolicy {
 	 *
 	 * @return set of node IDs, or {@code null}
 	 */
+	@Nullable
 	Set<Long> getNodeIds();
 
 	/**
@@ -54,6 +56,7 @@ public interface SecurityPolicy {
 	 *
 	 * @return set of source IDs
 	 */
+	@Nullable
 	Set<String> getSourceIds();
 
 	/**
@@ -61,6 +64,7 @@ public interface SecurityPolicy {
 	 *
 	 * @return set of aggregations
 	 */
+	@Nullable
 	Set<Aggregation> getAggregations();
 
 	/**
@@ -68,6 +72,7 @@ public interface SecurityPolicy {
 	 *
 	 * @return The minimum aggregation level.
 	 */
+	@Nullable
 	Aggregation getMinAggregation();
 
 	/**
@@ -75,6 +80,7 @@ public interface SecurityPolicy {
 	 *
 	 * @return set of precisions
 	 */
+	@Nullable
 	Set<LocationPrecision> getLocationPrecisions();
 
 	/**
@@ -82,6 +88,7 @@ public interface SecurityPolicy {
 	 *
 	 * @return The minimum location precision.
 	 */
+	@Nullable
 	LocationPrecision getMinLocationPrecision();
 
 	/**
@@ -90,6 +97,7 @@ public interface SecurityPolicy {
 	 * @return set of node metadata paths
 	 * @since 1.1
 	 */
+	@Nullable
 	Set<String> getNodeMetadataPaths();
 
 	/**
@@ -98,6 +106,7 @@ public interface SecurityPolicy {
 	 * @return set of user metadata paths
 	 * @since 1.1
 	 */
+	@Nullable
 	Set<String> getUserMetadataPaths();
 
 	/**
@@ -116,6 +125,7 @@ public interface SecurityPolicy {
 	 *         paths are allowed
 	 * @since 1.3
 	 */
+	@Nullable
 	Set<String> getApiPaths();
 
 	/**
@@ -124,6 +134,7 @@ public interface SecurityPolicy {
 	 * @return the expiry date, or {@literal null} for no expiration
 	 * @since 2.0
 	 */
+	@Nullable
 	Instant getNotAfter();
 
 	/**
@@ -144,6 +155,7 @@ public interface SecurityPolicy {
 	 *         otherwise
 	 * @since 1.2
 	 */
+	@Nullable
 	Boolean getRefreshAllowed();
 
 }

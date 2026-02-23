@@ -23,6 +23,7 @@
 package net.solarnetwork.domain;
 
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Location with an identity.
@@ -36,7 +37,7 @@ public class BasicIdentityLocation extends BasicLocation implements Identity<Lon
 	private static final long serialVersionUID = 3445970896204685365L;
 
 	/** The identity value. */
-	private final Long id;
+	private final @Nullable Long id;
 
 	/**
 	 * Constructor.
@@ -46,13 +47,13 @@ public class BasicIdentityLocation extends BasicLocation implements Identity<Lon
 	 * @param loc
 	 *        the location to copy the values from
 	 */
-	public BasicIdentityLocation(Long id, Location loc) {
+	public BasicIdentityLocation(@Nullable Long id, Location loc) {
 		super(loc);
 		this.id = id;
 	}
 
 	@Override
-	public Long getId() {
+	public @Nullable Long getId() {
 		return id;
 	}
 
@@ -70,17 +71,16 @@ public class BasicIdentityLocation extends BasicLocation implements Identity<Lon
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
 		if ( !super.equals(obj) ) {
 			return false;
 		}
-		if ( !(obj instanceof BasicIdentityLocation) ) {
+		if ( !(obj instanceof BasicIdentityLocation other) ) {
 			return false;
 		}
-		BasicIdentityLocation other = (BasicIdentityLocation) obj;
 		return Objects.equals(id, other.id);
 	}
 

@@ -23,6 +23,7 @@
 package net.solarnetwork.domain;
 
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic immutable implementation of {@link Unique}.
@@ -34,7 +35,7 @@ import java.util.Objects;
  */
 public class BasicUnique<K> implements Unique<K> {
 
-	private final K id;
+	private final @Nullable K id;
 
 	/**
 	 * Constructor.
@@ -42,13 +43,13 @@ public class BasicUnique<K> implements Unique<K> {
 	 * @param id
 	 *        the ID to use
 	 */
-	public BasicUnique(K id) {
+	public BasicUnique(@Nullable K id) {
 		super();
 		this.id = id;
 	}
 
 	@Override
-	public final K getId() {
+	public final @Nullable K getId() {
 		return id;
 	}
 
@@ -72,7 +73,7 @@ public class BasicUnique<K> implements Unique<K> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}

@@ -24,6 +24,7 @@ package net.solarnetwork.domain;
 
 import java.time.LocalDate;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Static information about a device, such as manufacturer name, model number,
@@ -48,6 +49,7 @@ public interface DeviceInfo {
 	 *
 	 * @return the name
 	 */
+	@Nullable
 	String getName();
 
 	/**
@@ -55,6 +57,7 @@ public interface DeviceInfo {
 	 *
 	 * @return the manufacturer
 	 */
+	@Nullable
 	String getManufacturer();
 
 	/**
@@ -62,6 +65,7 @@ public interface DeviceInfo {
 	 *
 	 * @return the model name
 	 */
+	@Nullable
 	String getModelName();
 
 	/**
@@ -69,6 +73,7 @@ public interface DeviceInfo {
 	 *
 	 * @return the version
 	 */
+	@Nullable
 	String getVersion();
 
 	/**
@@ -76,6 +81,7 @@ public interface DeviceInfo {
 	 *
 	 * @return the device serial number
 	 */
+	@Nullable
 	String getSerialNumber();
 
 	/**
@@ -83,6 +89,7 @@ public interface DeviceInfo {
 	 *
 	 * @return the manufacture date
 	 */
+	@Nullable
 	LocalDate getManufactureDate();
 
 	/**
@@ -91,6 +98,7 @@ public interface DeviceInfo {
 	 *
 	 * @return the device address
 	 */
+	@Nullable
 	String getDeviceAddress();
 
 	/**
@@ -104,7 +112,7 @@ public interface DeviceInfo {
 	 * @return the nameplate ratings
 	 * @since 1.1
 	 */
-	default Map<String, ?> getNameplateRatings() {
+	default @Nullable Map<String, ?> getNameplateRatings() {
 		return null;
 	}
 

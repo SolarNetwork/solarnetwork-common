@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain;
 
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
@@ -36,12 +37,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({ "controlId", "type", "propertyName", "value", "readonly", "unit" })
 public class BasicNodeControlInfo implements NodeControlInfo {
 
-	private final String controlId;
-	private final NodeControlPropertyType type;
-	private final String value;
-	private final Boolean readonly;
-	private final String unit;
-	private final String propertyName;
+	private final @Nullable String controlId;
+	private final @Nullable NodeControlPropertyType type;
+	private final @Nullable String value;
+	private final @Nullable Boolean readonly;
+	private final @Nullable String unit;
+	private final @Nullable String propertyName;
 
 	/**
 	 * Constructor.
@@ -59,8 +60,9 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 	 * @param propertyName
 	 *        the property name
 	 */
-	public BasicNodeControlInfo(String controlId, NodeControlPropertyType type, String value,
-			Boolean readonly, String unit, String propertyName) {
+	public BasicNodeControlInfo(@Nullable String controlId, @Nullable NodeControlPropertyType type,
+			@Nullable String value, @Nullable Boolean readonly, @Nullable String unit,
+			@Nullable String propertyName) {
 		this(builder().withControlId(controlId).withType(type).withValue(value).withReadonly(readonly)
 				.withUnit(unit).withPropertyName(propertyName));
 	}
@@ -100,12 +102,12 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 	 */
 	public static final class Builder {
 
-		private String controlId;
-		private NodeControlPropertyType type;
-		private String value;
-		private Boolean readonly;
-		private String unit;
-		private String propertyName;
+		private @Nullable String controlId;
+		private @Nullable NodeControlPropertyType type;
+		private @Nullable String value;
+		private @Nullable Boolean readonly;
+		private @Nullable String unit;
+		private @Nullable String propertyName;
 
 		private Builder() {
 			super();
@@ -128,7 +130,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 		 *        the control ID
 		 * @return this instance
 		 */
-		public Builder withControlId(String controlId) {
+		public Builder withControlId(@Nullable String controlId) {
 			this.controlId = controlId;
 			return this;
 		}
@@ -140,7 +142,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 		 *        the property type
 		 * @return this instance
 		 */
-		public Builder withType(NodeControlPropertyType type) {
+		public Builder withType(@Nullable NodeControlPropertyType type) {
 			this.type = type;
 			return this;
 		}
@@ -152,7 +154,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 		 *        the value
 		 * @return this instance
 		 */
-		public Builder withValue(String value) {
+		public Builder withValue(@Nullable String value) {
 			this.value = value;
 			return this;
 		}
@@ -164,7 +166,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 		 *        {@literal true} for a read-only property
 		 * @return this instance
 		 */
-		public Builder withReadonly(Boolean readonly) {
+		public Builder withReadonly(@Nullable Boolean readonly) {
 			this.readonly = readonly;
 			return this;
 		}
@@ -176,7 +178,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 		 *        the unit
 		 * @return this instance
 		 */
-		public Builder withUnit(String unit) {
+		public Builder withUnit(@Nullable String unit) {
 			this.unit = unit;
 			return this;
 		}
@@ -188,7 +190,7 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 		 *        the property name
 		 * @return this instance
 		 */
-		public Builder withPropertyName(String propertyName) {
+		public Builder withPropertyName(@Nullable String propertyName) {
 			this.propertyName = propertyName;
 			return this;
 		}
@@ -204,32 +206,32 @@ public class BasicNodeControlInfo implements NodeControlInfo {
 	}
 
 	@Override
-	public String getControlId() {
+	public @Nullable String getControlId() {
 		return controlId;
 	}
 
 	@Override
-	public String getPropertyName() {
+	public @Nullable String getPropertyName() {
 		return propertyName;
 	}
 
 	@Override
-	public NodeControlPropertyType getType() {
+	public @Nullable NodeControlPropertyType getType() {
 		return type;
 	}
 
 	@Override
-	public String getValue() {
+	public @Nullable String getValue() {
 		return value;
 	}
 
 	@Override
-	public Boolean getReadonly() {
+	public @Nullable Boolean getReadonly() {
 		return readonly;
 	}
 
 	@Override
-	public String getUnit() {
+	public @Nullable String getUnit() {
 		return unit;
 	}
 

@@ -1,21 +1,21 @@
 /* ==================================================================
  * GenericDeviceOperatingState.java - 18/02/2019 11:11:39 am
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -24,12 +24,13 @@ package net.solarnetwork.domain;
 
 import java.util.Objects;
 import java.util.stream.IntStream;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * A generic device operating state used when a vendor-specific implementation
  * is not known.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.50
@@ -40,7 +41,7 @@ public class GenericDeviceOperatingState implements Bitmaskable {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param code
 	 *        the code
 	 */
@@ -56,7 +57,7 @@ public class GenericDeviceOperatingState implements Bitmaskable {
 
 	/**
 	 * Get the code value.
-	 * 
+	 *
 	 * @return the code
 	 */
 	@JsonValue
@@ -66,7 +67,7 @@ public class GenericDeviceOperatingState implements Bitmaskable {
 
 	/**
 	 * Get an array of all possible values.
-	 * 
+	 *
 	 * @return array of values
 	 */
 	public static GenericDeviceOperatingState[] values() {
@@ -80,17 +81,16 @@ public class GenericDeviceOperatingState implements Bitmaskable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
 		if ( obj == null ) {
 			return false;
 		}
-		if ( !(obj instanceof GenericDeviceOperatingState) ) {
+		if ( !(obj instanceof GenericDeviceOperatingState other) ) {
 			return false;
 		}
-		GenericDeviceOperatingState other = (GenericDeviceOperatingState) obj;
 		return code == other.code;
 	}
 

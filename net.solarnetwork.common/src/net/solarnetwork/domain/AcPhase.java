@@ -1,30 +1,32 @@
 /* ==================================================================
  * AcPhase.java - Apr 2, 2014 10:05:08 AM
- * 
+ *
  * Copyright 2007-2014 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.domain;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Enumeration of AC phase values.
- * 
+ *
  * @author matt
  * @version 1.1
  */
@@ -52,13 +54,13 @@ public enum AcPhase {
 
 	/**
 	 * Get the integer based value of the phase.
-	 * 
+	 *
 	 * <p>
 	 * The {@code PhaseA}, {@code PhaseB}, and {@code PhaseC} phases are
 	 * numbered <em>1</em>, <em>2</em>, and <em>3</em>. The {{@code Total} phase
 	 * is numbered <em>0</em>.
 	 * </p>
-	 * 
+	 *
 	 * @return the phase number
 	 */
 	public int getNumber() {
@@ -67,11 +69,11 @@ public enum AcPhase {
 
 	/**
 	 * Get the key value of the phase.
-	 * 
+	 *
 	 * <p>
 	 * The keys are {@literal a}, {@literal b}, {@literal c}, and {@literal t}.
 	 * </p>
-	 * 
+	 *
 	 * @return the key value
 	 * @since 1.1
 	 */
@@ -81,29 +83,29 @@ public enum AcPhase {
 
 	/**
 	 * Get a string with a key suffix added.
-	 * 
+	 *
 	 * <p>
 	 * This will take {@code value} and append <i>_P</i>, where {@literal P} is
 	 * the key.
 	 * </p>
-	 * 
+	 *
 	 * @param value
 	 *        the value to append the key to
 	 * @return the value with a key suffix added
 	 * @since 1.1
 	 */
-	public String withKey(String value) {
+	public String withKey(@Nullable String value) {
 		return (value != null ? value : "") + '_' + key;
 	}
 
 	/**
 	 * Get a key value for a line phase, with this phase as the leading phase.
-	 * 
+	 *
 	 * <p>
 	 * The keys are {@literal ab}, {@literal bc}, {@literal ca}, and
 	 * {@literal t}.
 	 * </p>
-	 * 
+	 *
 	 * @return the line key
 	 * @since 1.1
 	 */
@@ -128,24 +130,24 @@ public enum AcPhase {
 
 	/**
 	 * Get a string with a line key suffix added.
-	 * 
+	 *
 	 * <p>
 	 * This will take {@code value} and append <i>_P</i>, where {@literal P} is
 	 * the line key.
 	 * </p>
-	 * 
+	 *
 	 * @param value
 	 *        the value to append the line key to
 	 * @return the value with a line key suffix added
 	 * @since 1.1
 	 */
-	public String withLineKey(String value) {
+	public String withLineKey(@Nullable String value) {
 		return (value != null ? value : "") + '_' + getLineKey();
 	}
 
 	/**
 	 * Get an AcPhase for a given number.
-	 * 
+	 *
 	 * @param n
 	 *        the number
 	 * @return the AcPhase
@@ -174,7 +176,7 @@ public enum AcPhase {
 
 	/**
 	 * Get an AcPhase for a given key.
-	 * 
+	 *
 	 * @param key
 	 *        the key
 	 * @return the AcPhase

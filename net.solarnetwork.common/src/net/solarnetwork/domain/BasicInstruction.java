@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicInstruction.java - Feb 28, 2011 10:36:05 AM
- * 
+ *
  * Copyright 2007-2011 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -29,10 +29,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Basic implementation of {@link Instruction}.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 2.0
@@ -42,23 +43,23 @@ public class BasicInstruction implements Instruction, Serializable {
 	private static final long serialVersionUID = 5522509637377814131L;
 
 	/** The instruction ID. */
-	private final Long id;
+	private final @Nullable Long id;
 
 	/** The topic name. */
-	private final String topic;
+	private final @Nullable String topic;
 
 	/** The instruction date. */
-	private final Instant instructionDate;
+	private final @Nullable Instant instructionDate;
 
 	/** The instruction status. */
-	private final InstructionStatus status;
+	private final @Nullable InstructionStatus status;
 
 	/** The instruction parameters. */
 	private final Map<String, List<String>> parameters;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the local instruction ID
 	 * @param topic
@@ -68,7 +69,8 @@ public class BasicInstruction implements Instruction, Serializable {
 	 * @param status
 	 *        the status, or {@literal null}
 	 */
-	public BasicInstruction(Long id, String topic, Instant instructionDate, InstructionStatus status) {
+	public BasicInstruction(@Nullable Long id, @Nullable String topic, @Nullable Instant instructionDate,
+			@Nullable InstructionStatus status) {
 		super();
 		this.id = id;
 		this.topic = topic;
@@ -79,7 +81,7 @@ public class BasicInstruction implements Instruction, Serializable {
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the instruction to copy
 	 * @param id
@@ -87,9 +89,8 @@ public class BasicInstruction implements Instruction, Serializable {
 	 * @param status
 	 *        if provided, the new status to use
 	 */
-	public BasicInstruction(Instruction other, Long id, InstructionStatus status) {
+	public BasicInstruction(Instruction other, @Nullable Long id, @Nullable InstructionStatus status) {
 		this((id != null ? id : other.getId()), other.getTopic(), other.getInstructionDate(),
-
 				(status != null ? status : other.getStatus()));
 		Map<String, List<String>> otherParams = other.getParameterMultiMap();
 		if ( otherParams != null ) {
@@ -99,13 +100,13 @@ public class BasicInstruction implements Instruction, Serializable {
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the instruction to copy
 	 * @param status
 	 *        if provided, the new status to use
 	 */
-	public BasicInstruction(Instruction other, InstructionStatus status) {
+	public BasicInstruction(Instruction other, @Nullable InstructionStatus status) {
 		this(other, null, status);
 	}
 
@@ -123,17 +124,17 @@ public class BasicInstruction implements Instruction, Serializable {
 	}
 
 	@Override
-	public Long getId() {
+	public @Nullable Long getId() {
 		return id;
 	}
 
 	@Override
-	public String getTopic() {
+	public @Nullable String getTopic() {
 		return topic;
 	}
 
 	@Override
-	public Instant getInstructionDate() {
+	public @Nullable Instant getInstructionDate() {
 		return instructionDate;
 	}
 
@@ -149,13 +150,13 @@ public class BasicInstruction implements Instruction, Serializable {
 	}
 
 	@Override
-	public String getParameterValue(String parameterName) {
+	public @Nullable String getParameterValue(String parameterName) {
 		List<String> values = parameters.get(parameterName);
 		return values == null ? null : values.get(0);
 	}
 
 	@Override
-	public String[] getAllParameterValues(String parameterName) {
+	public String @Nullable [] getAllParameterValues(String parameterName) {
 		List<String> values = parameters.get(parameterName);
 		if ( values != null ) {
 			return values.toArray(new String[values.size()]);
@@ -164,13 +165,13 @@ public class BasicInstruction implements Instruction, Serializable {
 	}
 
 	@Override
-	public InstructionStatus getStatus() {
+	public @Nullable InstructionStatus getStatus() {
 		return status;
 	}
 
 	/**
 	 * Add a new parameter value.
-	 * 
+	 *
 	 * @param name
 	 *        the parameter name
 	 * @param value
@@ -188,7 +189,7 @@ public class BasicInstruction implements Instruction, Serializable {
 
 	/**
 	 * Add a list of parameter values.
-	 * 
+	 *
 	 * @param name
 	 *        the parameter name
 	 * @param values
