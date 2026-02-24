@@ -18,6 +18,7 @@
 package net.solarnetwork.common.mqtt.netty.client;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import org.jspecify.annotations.Nullable;
@@ -41,17 +42,12 @@ final class RetransmissionHandler<T extends MqttMessage> {
 	private volatile boolean keepGoing;
 
 	void start(final EventLoop eventLoop) {
-		if ( eventLoop == null ) {
-			throw new IllegalStateException("The eventLoop property is not configured.");
-		}
-		final BiConsumer<MqttFixedHeader, T> handler = this.handler;
-		if ( handler == null ) {
-			throw new IllegalStateException("The handler property is not configured.");
-		}
+		final EventLoop loop = requireNonNullArgument(eventLoop, "eventLoop");
+		final BiConsumer<MqttFixedHeader, T> handler = requireNonNullProperty(this.handler, "Handler");
 		this.timeout = 10;
 		this.keepGoing = true;
 		// requireNonNullArgument() used to avoid NullAway warning
-		this.startTimer(eventLoop, requireNonNullArgument(handler, "handler"));
+		this.startTimer(loop, requireNonNullArgument(handler, "handler"));
 	}
 
 	private void startTimer(final EventLoop eventLoop, final BiConsumer<MqttFixedHeader, T> handler) {

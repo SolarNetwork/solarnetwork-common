@@ -18,6 +18,7 @@
 package net.solarnetwork.common.mqtt.netty.client;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -568,11 +569,7 @@ final class MqttClientImpl implements MqttClient {
 	}
 
 	private Channel requireChannel() {
-		final Channel ch = this.channel;
-		if ( ch == null ) {
-			throw new IllegalStateException("Channel is not configured.");
-		}
-		return ch;
+		return requireNonNullProperty(this.channel, "Channel");
 	}
 
 	private Future<Void> createSubscription(String topic, MqttMessageHandler handler, boolean once,

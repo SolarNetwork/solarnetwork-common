@@ -17,6 +17,7 @@
 
 package net.solarnetwork.common.mqtt.netty.client;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 import io.netty.buffer.ByteBuf;
@@ -104,10 +105,8 @@ final class MqttPendingPublish {
 	}
 
 	void startPublishRetransmissionTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
-		final RetransmissionHandler<MqttPublishMessage> publishRetransmissionHandler = this.publishRetransmissionHandler;
-		if ( publishRetransmissionHandler == null ) {
-			throw new IllegalStateException("Retransmission not available.");
-		}
+		final RetransmissionHandler<MqttPublishMessage> publishRetransmissionHandler = requireNonNullProperty(
+				this.publishRetransmissionHandler, "Retransmission");
 		publishRetransmissionHandler.setHandler(
 				((fixedHeader, originalMessage) -> sendPacket.accept(new MqttPublishMessage(fixedHeader,
 						originalMessage.variableHeader(), this.payload.retain()))));
@@ -127,10 +126,8 @@ final class MqttPendingPublish {
 	}
 
 	void startPubrelRetransmissionTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
-		final RetransmissionHandler<MqttMessage> pubrelRetransmissionHandler = this.pubrelRetransmissionHandler;
-		if ( pubrelRetransmissionHandler == null ) {
-			throw new IllegalStateException("Retransmission not available.");
-		}
+		final RetransmissionHandler<MqttMessage> pubrelRetransmissionHandler = requireNonNullProperty(
+				this.pubrelRetransmissionHandler, "Retransmission");
 		pubrelRetransmissionHandler.setHandler((fixedHeader, originalMessage) -> sendPacket
 				.accept(new MqttMessage(fixedHeader, originalMessage.variableHeader())));
 		pubrelRetransmissionHandler.start(eventLoop);
