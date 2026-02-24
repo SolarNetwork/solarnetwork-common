@@ -17,7 +17,9 @@
 
 package net.solarnetwork.common.mqtt.netty.client;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.Random;
+import org.jspecify.annotations.Nullable;
 import io.netty.channel.Channel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.mqtt.MqttProperties;
@@ -34,7 +36,7 @@ import io.netty.handler.ssl.SslContext;
  */
 public final class MqttClientConfig {
 
-	private final SslContext sslContext;
+	private final @Nullable SslContext sslContext;
 	private final String randomClientId;
 	private final MqttProperties connectionProperties = new MqttProperties();
 
@@ -43,10 +45,10 @@ public final class MqttClientConfig {
 	private int readTimeoutSeconds = -1;
 	private int writeTimeoutSeconds = -1;
 	private MqttVersion protocolVersion = MqttVersion.MQTT_3_1;
-	private String username = null;
-	private String password = null;
+	private @Nullable String username;
+	private @Nullable String password;
 	private boolean cleanSession = true;
-	private MqttLastWill lastWill;
+	private @Nullable MqttLastWill lastWill;
 	private Class<? extends Channel> channelClass = NioSocketChannel.class;
 
 	private boolean reconnect = true;
@@ -66,7 +68,7 @@ public final class MqttClientConfig {
 	 * @param sslContext
 	 *        the optional SSL context
 	 */
-	public MqttClientConfig(SslContext sslContext) {
+	public MqttClientConfig(@Nullable SslContext sslContext) {
 		this.sslContext = sslContext;
 		Random random = new Random();
 		String id = "netty-mqtt/";
@@ -185,10 +187,7 @@ public final class MqttClientConfig {
 	 *        the protocol version to use
 	 */
 	public void setProtocolVersion(MqttVersion protocolVersion) {
-		if ( protocolVersion == null ) {
-			throw new NullPointerException("protocolVersion");
-		}
-		this.protocolVersion = protocolVersion;
+		this.protocolVersion = requireNonNullArgument(protocolVersion, "protocolVersion");
 	}
 
 	/**
@@ -196,7 +195,7 @@ public final class MqttClientConfig {
 	 *
 	 * @return the username
 	 */
-	public String getUsername() {
+	public @Nullable String getUsername() {
 		return username;
 	}
 
@@ -206,7 +205,7 @@ public final class MqttClientConfig {
 	 * @param username
 	 *        the username to set
 	 */
-	public void setUsername(String username) {
+	public void setUsername(@Nullable String username) {
 		this.username = username;
 	}
 
@@ -215,7 +214,7 @@ public final class MqttClientConfig {
 	 *
 	 * @return the password
 	 */
-	public String getPassword() {
+	public @Nullable String getPassword() {
 		return password;
 	}
 
@@ -225,7 +224,7 @@ public final class MqttClientConfig {
 	 * @param password
 	 *        the password to set
 	 */
-	public void setPassword(String password) {
+	public void setPassword(@Nullable String password) {
 		this.password = password;
 	}
 
@@ -253,7 +252,7 @@ public final class MqttClientConfig {
 	 *
 	 * @return the last will
 	 */
-	public MqttLastWill getLastWill() {
+	public @Nullable MqttLastWill getLastWill() {
 		return lastWill;
 	}
 
@@ -263,7 +262,7 @@ public final class MqttClientConfig {
 	 * @param lastWill
 	 *        the last will object
 	 */
-	public void setLastWill(MqttLastWill lastWill) {
+	public void setLastWill(@Nullable MqttLastWill lastWill) {
 		this.lastWill = lastWill;
 	}
 
@@ -283,7 +282,7 @@ public final class MqttClientConfig {
 	 *        the class to use
 	 */
 	public void setChannelClass(Class<? extends Channel> channelClass) {
-		this.channelClass = channelClass;
+		this.channelClass = requireNonNullArgument(channelClass, "channelClass");
 	}
 
 	/**
@@ -291,7 +290,7 @@ public final class MqttClientConfig {
 	 *
 	 * @return the SSL context
 	 */
-	public SslContext getSslContext() {
+	public @Nullable SslContext getSslContext() {
 		return sslContext;
 	}
 
@@ -369,7 +368,7 @@ public final class MqttClientConfig {
 	/**
 	 * Get the MQTT connection properties.
 	 *
-	 * @return the propertes, never {@literal null}
+	 * @return the propertes, never {@code null}
 	 * @since 1.1
 	 */
 	public MqttProperties getConnectionProperties() {
@@ -385,8 +384,7 @@ public final class MqttClientConfig {
 	 * @since 1.1
 	 */
 	public void setMaximumTopicAliases(int max) {
-		connectionProperties.add(
-				new IntegerProperty(MqttProperties.MqttPropertyType.TOPIC_ALIAS_MAXIMUM.value(), max));
+		connectionProperties.add(new IntegerProperty(MqttProperties.TOPIC_ALIAS_MAXIMUM, max));
 	}
 
 	/**
@@ -398,8 +396,7 @@ public final class MqttClientConfig {
 	 */
 	public int getMaximumTopicAliases() {
 		@SuppressWarnings("rawtypes")
-		MqttProperty prop = connectionProperties
-				.getProperty(MqttProperties.MqttPropertyType.TOPIC_ALIAS_MAXIMUM.value());
+		MqttProperty prop = connectionProperties.getProperty(MqttProperties.TOPIC_ALIAS_MAXIMUM);
 		return (prop instanceof IntegerProperty ? ((IntegerProperty) prop).value() : 0);
 	}
 

@@ -22,6 +22,7 @@
 
 package net.solarnetwork.common.mqtt.netty;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Instant;
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeoutException;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
+import org.jspecify.annotations.Nullable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import io.netty.buffer.Unpooled;
@@ -86,7 +88,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 	private int ioThreadCount = DEFAULT_IO_THREAD_COUNT;
 	private boolean wireLogging = DEFAULT_WIRE_LOGGING;
 
-	private volatile MqttClient client;
+	private volatile @Nullable MqttClient client;
 
 	/**
 	 * Constructor.
@@ -111,7 +113,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 	 *        the config to use
 	 */
 	public NettyMqttConnection(Executor executor, TaskScheduler scheduler,
-			MqttConnectionConfig connectionConfig) {
+			@Nullable MqttConnectionConfig connectionConfig) {
 		super(executor, scheduler, connectionConfig);
 		this.ioThreadCount = DEFAULT_IO_THREAD_COUNT;
 	}
@@ -184,7 +186,8 @@ public class NettyMqttConnection extends BaseMqttConnection
 						s.increment(MqttBasicCount.ConnectionAttempts);
 					}
 					log.info("Connecting to MQTT server {}...", connectionConfig.getServerUri());
-					Future<MqttConnectResult> f = client.connect(connectionConfig.getHost(),
+					Future<MqttConnectResult> f = client.connect(
+							requireNonNullArgument(connectionConfig.getHost(), "host"),
 							connectionConfig.getPort());
 					r = f.get(connectionConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS);
 					if ( r.isSuccess() ) {
@@ -227,7 +230,8 @@ public class NettyMqttConnection extends BaseMqttConnection
 			}
 		}
 
-		private void connectComplete(MqttClient client, MqttConnectResult result, Throwable t) {
+		private void connectComplete(@Nullable MqttClient client, @Nullable MqttConnectResult result,
+				@Nullable Throwable t) {
 			synchronized ( NettyMqttConnection.this ) {
 				NettyMqttConnection.this.client = client;
 				if ( connectFuture != null ) {
@@ -251,7 +255,8 @@ public class NettyMqttConnection extends BaseMqttConnection
 		}
 	}
 
-	private MqttConnectReturnCode returnCode(io.netty.handler.codec.mqtt.MqttConnectReturnCode other) {
+	private @Nullable MqttConnectReturnCode returnCode(
+			io.netty.handler.codec.mqtt.@Nullable MqttConnectReturnCode other) {
 		if ( other == null ) {
 			return null;
 		}
@@ -302,7 +307,8 @@ public class NettyMqttConnection extends BaseMqttConnection
 		return new ConnectScheduledTask(future);
 	}
 
-	private MqttClientConfig createClientConfig(final MqttConnectionConfig connConfig) {
+	private @Nullable MqttClientConfig createClientConfig(
+			final @Nullable MqttConnectionConfig connConfig) {
 		if ( connConfig == null ) {
 			return null;
 		}
@@ -356,7 +362,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 		return config;
 	}
 
-	private SslContext createSslContext(SSLService sslService) {
+	private SslContext createSslContext(@Nullable SSLService sslService) {
 		try {
 			SslContextBuilder builder = SslContextBuilder.forClient();
 			if ( sslService != null ) {
@@ -412,7 +418,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 	}
 
 	@Override
-	public void connectionLost(Throwable cause) {
+	public void connectionLost(@Nullable Throwable cause) {
 		String msg = (cause instanceof ChannelClosedException ? "closed"
 				: cause != null ? cause.toString() : "unknown cause");
 		log.warn("Connection lost to MQTT server {}: {}", connectionConfig.getServerUri(), msg);
@@ -434,10 +440,10 @@ public class NettyMqttConnection extends BaseMqttConnection
 
 	private final class ConnectionLostTask implements Runnable {
 
-		private final Throwable cause;
+		private final @Nullable Throwable cause;
 		private final MqttConnectionObserver observer;
 
-		private ConnectionLostTask(Throwable cause, MqttConnectionObserver observer) {
+		private ConnectionLostTask(@Nullable Throwable cause, MqttConnectionObserver observer) {
 			this.cause = cause;
 			this.observer = observer;
 		}
@@ -655,7 +661,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 	}
 
 	@Override
-	public Future<?> subscribe(String topic, MqttQos qosLevel, MqttMessageHandler handler) {
+	public Future<?> subscribe(String topic, MqttQos qosLevel, @Nullable MqttMessageHandler handler) {
 		MqttClient c = this.client;
 		if ( c == null ) {
 			CompletableFuture<Void> f = new CompletableFuture<>();
@@ -667,7 +673,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 	}
 
 	@Override
-	public Future<?> unsubscribe(String topic, MqttMessageHandler handler) {
+	public Future<?> unsubscribe(String topic, @Nullable MqttMessageHandler handler) {
 		MqttClient c = this.client;
 		if ( c == null ) {
 			CompletableFuture<Void> f = new CompletableFuture<>();

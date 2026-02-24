@@ -17,8 +17,10 @@
 
 package net.solarnetwork.common.mqtt.netty.client;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.netty.channel.EventLoop;
@@ -31,55 +33,69 @@ final class RetransmissionHandler<T extends MqttMessage> {
 
 	private static final Logger log = LoggerFactory.getLogger(RetransmissionHandler.class);
 
-	private ScheduledFuture<?> timer;
+	private @Nullable ScheduledFuture<?> timer;
 	private int timeout = 10;
-	private BiConsumer<MqttFixedHeader, T> handler;
-	private T originalMessage;
+	private @Nullable BiConsumer<MqttFixedHeader, T> handler;
+	private @Nullable T originalMessage;
 
-	void start(EventLoop eventLoop) {
+	private volatile boolean keepGoing;
+
+	void start(final EventLoop eventLoop) {
 		if ( eventLoop == null ) {
-			throw new NullPointerException("eventLoop");
+			throw new IllegalStateException("The eventLoop property is not configured.");
 		}
-		if ( this.handler == null ) {
-			throw new NullPointerException("handler");
+		final BiConsumer<MqttFixedHeader, T> handler = this.handler;
+		if ( handler == null ) {
+			throw new IllegalStateException("The handler property is not configured.");
 		}
 		this.timeout = 10;
-		this.startTimer(eventLoop);
+		this.keepGoing = true;
+		// requireNonNullArgument() used to avoid NullAway warning
+		this.startTimer(eventLoop, requireNonNullArgument(handler, "handler"));
 	}
 
-	private void startTimer(EventLoop eventLoop) {
+	private void startTimer(final EventLoop eventLoop, final BiConsumer<MqttFixedHeader, T> handler) {
 		this.timer = eventLoop.schedule(() -> {
-			if ( log.isDebugEnabled() ) {
-				MqttMessageIdVariableHeader idHeader = (this.originalMessage
-						.variableHeader() instanceof MqttMessageIdVariableHeader
-								? (MqttMessageIdVariableHeader) this.originalMessage.variableHeader()
-								: null);
-				log.debug("Retransmitting {} message ID {} after timeout of {} seconds",
-						this.originalMessage.fixedHeader().messageType(),
-						idHeader != null ? idHeader.messageId() : "?", this.timeout);
+			final T originalMessage = this.originalMessage;
+			if ( originalMessage != null ) {
+				if ( log.isDebugEnabled() ) {
+					MqttMessageIdVariableHeader idHeader = (originalMessage
+							.variableHeader() instanceof MqttMessageIdVariableHeader
+									? (MqttMessageIdVariableHeader) originalMessage.variableHeader()
+									: null);
+					log.debug("Retransmitting {} message ID {} after timeout of {} seconds",
+							originalMessage.fixedHeader().messageType(),
+							idHeader != null ? idHeader.messageId() : "?", this.timeout);
+				}
+				this.timeout += 5;
+				MqttFixedHeader fixedHeader = new MqttFixedHeader(
+						originalMessage.fixedHeader().messageType(), true,
+						originalMessage.fixedHeader().qosLevel(),
+						originalMessage.fixedHeader().isRetain(),
+						originalMessage.fixedHeader().remainingLength());
+				handler.accept(fixedHeader, originalMessage);
 			}
-			this.timeout += 5;
-			MqttFixedHeader fixedHeader = new MqttFixedHeader(
-					this.originalMessage.fixedHeader().messageType(), true,
-					this.originalMessage.fixedHeader().qosLevel(),
-					this.originalMessage.fixedHeader().isRetain(),
-					this.originalMessage.fixedHeader().remainingLength());
-			handler.accept(fixedHeader, originalMessage);
-			startTimer(eventLoop);
+			if ( keepGoing ) {
+				startTimer(eventLoop, handler);
+			}
 		}, timeout, TimeUnit.SECONDS);
 	}
 
 	void stop() {
-		if ( this.timer != null ) {
-			this.timer.cancel(true);
+		this.keepGoing = false;
+		final ScheduledFuture<?> timer = this.timer;
+		if ( timer != null && !timer.isDone() ) {
+			timer.cancel(true);
+			this.timer = null;
 		}
 	}
 
 	void setHandler(BiConsumer<MqttFixedHeader, T> runnable) {
-		this.handler = runnable;
+		this.handler = requireNonNullArgument(runnable, "runnable");
 	}
 
 	void setOriginalMessage(T originalMessage) {
-		this.originalMessage = originalMessage;
+		this.originalMessage = requireNonNullArgument(originalMessage, "originalMessage");
 	}
+
 }

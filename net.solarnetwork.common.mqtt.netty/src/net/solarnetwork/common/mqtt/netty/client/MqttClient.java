@@ -18,6 +18,7 @@
 package net.solarnetwork.common.mqtt.netty.client;
 
 import java.net.URI;
+import org.jspecify.annotations.Nullable;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -38,7 +39,7 @@ import net.solarnetwork.common.mqtt.MqttTopicAliases;
  * </p>
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public interface MqttClient {
 
@@ -94,9 +95,10 @@ public interface MqttClient {
 	/**
 	 * Get the URI for the connected MQTT server, if available.
 	 *
-	 * @return the server URI, or {@literal null} if
+	 * @return the server URI, or {@code null} if
 	 *         {@link #connect(String, int)} has not previously been called
 	 */
+	@Nullable
 	URI getServerUri();
 
 	/**
@@ -113,9 +115,27 @@ public interface MqttClient {
 	/**
 	 * Retrieve the Netty {@link EventLoopGroup} we are using.
 	 *
-	 * @return The Netty {@link EventLoopGroup} we use for the connection
+	 * @return The Netty {@link EventLoopGroup} we use for the connection, or
+	 *         {@code null} if not initialized yet
 	 */
+	@Nullable
 	EventLoopGroup getEventLoop();
+
+	/**
+	 * Get the configured event loop.
+	 *
+	 * @return the event loop, never {@code null}
+	 * @throws IllegalStateException
+	 *         if the event loop has not already been configured
+	 * @since 1.2
+	 */
+	default EventLoopGroup requireEventLoop() throws IllegalStateException {
+		final EventLoopGroup eventLoop = getEventLoop();
+		if ( eventLoop == null ) {
+			throw new IllegalStateException("Event loop not available.");
+		}
+		return eventLoop;
+	}
 
 	/**
 	 * Set a custom {@link EventLoopGroup}.
@@ -316,12 +336,12 @@ public interface MqttClient {
 	 *        true if you want to retain the message on the server, false
 	 *        otherwise
 	 * @param properties
-	 *        properties, or {@literal null}
+	 *        properties, or {@code null}
 	 * @return A future which will be completed when the message is delivered to
 	 *         the server
 	 */
 	Future<Void> publish(String topic, ByteBuf payload, MqttQoS qos, boolean retain,
-			MqttProperties properties);
+			@Nullable MqttProperties properties);
 
 	/**
 	 * Retrieve the MqttClient configuration.
@@ -343,9 +363,9 @@ public interface MqttClient {
 	 * @param defaultHandler
 	 *        The handler for incoming messages that do not match any topic
 	 *        subscriptions
-	 * @return the client, never {@literal null}
+	 * @return the client, never {@code null}
 	 */
-	static MqttClient create(MqttClientConfig config, MqttMessageHandler defaultHandler) {
+	static MqttClient create(MqttClientConfig config, @Nullable MqttMessageHandler defaultHandler) {
 		return new MqttClientImpl(config, defaultHandler);
 	}
 
@@ -372,12 +392,12 @@ public interface MqttClient {
 	 * @param callback
 	 *        The callback to be set
 	 */
-	void setCallback(MqttClientCallback callback);
+	void setCallback(@Nullable MqttClientCallback callback);
 
 	/**
 	 * Get the topic aliases.
 	 *
-	 * @return the topic aliases, never {@literal null}
+	 * @return the topic aliases, never {@code null}
 	 * @since 1.1
 	 */
 	MqttTopicAliases getTopicAliases();

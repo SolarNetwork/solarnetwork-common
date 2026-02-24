@@ -18,6 +18,7 @@
 package net.solarnetwork.common.mqtt.netty.client;
 
 import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.EventLoop;
 import io.netty.handler.codec.mqtt.MqttMessage;
@@ -27,7 +28,7 @@ import io.netty.util.concurrent.Promise;
 
 /**
  * An in-flight publish message.
- * 
+ *
  * @version 1.1
  */
 final class MqttPendingPublish {
@@ -39,8 +40,8 @@ final class MqttPendingPublish {
 	private final MqttQoS qos;
 	private final long date;
 
-	private final RetransmissionHandler<MqttPublishMessage> publishRetransmissionHandler;
-	private final RetransmissionHandler<MqttMessage> pubrelRetransmissionHandler;
+	private final @Nullable RetransmissionHandler<MqttPublishMessage> publishRetransmissionHandler;
+	private final @Nullable RetransmissionHandler<MqttMessage> pubrelRetransmissionHandler;
 
 	private boolean sent = false;
 
@@ -94,7 +95,7 @@ final class MqttPendingPublish {
 
 	/**
 	 * Get the instance creation date.
-	 * 
+	 *
 	 * @return the instance creation date
 	 * @since 1.1
 	 */
@@ -103,43 +104,55 @@ final class MqttPendingPublish {
 	}
 
 	void startPublishRetransmissionTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
-		this.publishRetransmissionHandler.setHandler(
+		final RetransmissionHandler<MqttPublishMessage> publishRetransmissionHandler = this.publishRetransmissionHandler;
+		if ( publishRetransmissionHandler == null ) {
+			throw new IllegalStateException("Retransmission not available.");
+		}
+		publishRetransmissionHandler.setHandler(
 				((fixedHeader, originalMessage) -> sendPacket.accept(new MqttPublishMessage(fixedHeader,
 						originalMessage.variableHeader(), this.payload.retain()))));
-		this.publishRetransmissionHandler.start(eventLoop);
+		publishRetransmissionHandler.start(eventLoop);
 	}
 
 	void onPubackReceived() {
 		if ( publishRetransmissionHandler != null ) {
-			this.publishRetransmissionHandler.stop();
+			publishRetransmissionHandler.stop();
 		}
 	}
 
 	void setPubrelMessage(MqttMessage pubrelMessage) {
-		this.pubrelRetransmissionHandler.setOriginalMessage(pubrelMessage);
+		if ( pubrelRetransmissionHandler != null ) {
+			pubrelRetransmissionHandler.setOriginalMessage(pubrelMessage);
+		}
 	}
 
 	void startPubrelRetransmissionTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
-		this.pubrelRetransmissionHandler.setHandler((fixedHeader, originalMessage) -> sendPacket
+		final RetransmissionHandler<MqttMessage> pubrelRetransmissionHandler = this.pubrelRetransmissionHandler;
+		if ( pubrelRetransmissionHandler == null ) {
+			throw new IllegalStateException("Retransmission not available.");
+		}
+		pubrelRetransmissionHandler.setHandler((fixedHeader, originalMessage) -> sendPacket
 				.accept(new MqttMessage(fixedHeader, originalMessage.variableHeader())));
-		this.pubrelRetransmissionHandler.start(eventLoop);
+		pubrelRetransmissionHandler.start(eventLoop);
 	}
 
 	void onPubcompReceived() {
-		this.pubrelRetransmissionHandler.stop();
+		if ( pubrelRetransmissionHandler != null ) {
+			pubrelRetransmissionHandler.stop();
+		}
 	}
 
 	/**
 	 * Stop all retransmission.
-	 * 
+	 *
 	 * @since 1.1
 	 */
 	void stop() {
-		if ( this.publishRetransmissionHandler != null ) {
-			this.publishRetransmissionHandler.stop();
+		if ( publishRetransmissionHandler != null ) {
+			publishRetransmissionHandler.stop();
 		}
-		if ( this.pubrelRetransmissionHandler != null ) {
-			this.pubrelRetransmissionHandler.stop();
+		if ( pubrelRetransmissionHandler != null ) {
+			pubrelRetransmissionHandler.stop();
 		}
 	}
 }

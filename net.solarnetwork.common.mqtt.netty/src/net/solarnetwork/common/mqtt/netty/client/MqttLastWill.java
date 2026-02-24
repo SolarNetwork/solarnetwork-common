@@ -17,6 +17,8 @@
 
 package net.solarnetwork.common.mqtt.netty.client;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import org.jspecify.annotations.Nullable;
 import io.netty.handler.codec.mqtt.MqttQoS;
 
 /**
@@ -45,19 +47,10 @@ public final class MqttLastWill {
 	 *        the QoS level
 	 */
 	public MqttLastWill(String topic, String message, boolean retain, MqttQoS qos) {
-		if ( topic == null ) {
-			throw new NullPointerException("topic");
-		}
-		if ( message == null ) {
-			throw new NullPointerException("message");
-		}
-		if ( qos == null ) {
-			throw new NullPointerException("qos");
-		}
-		this.topic = topic;
-		this.message = message;
+		this.topic = requireNonNullArgument(topic, "topic");
+		this.message = requireNonNullArgument(message, "message");
 		this.retain = retain;
-		this.qos = qos;
+		this.qos = requireNonNullArgument(qos, "qos");
 	}
 
 	/**
@@ -110,10 +103,10 @@ public final class MqttLastWill {
 	 */
 	public static final class Builder {
 
-		private String topic;
-		private String message;
+		private @Nullable String topic;
+		private @Nullable String message;
 		private boolean retain;
-		private MqttQoS qos;
+		private @Nullable MqttQoS qos;
 
 		/**
 		 * Constructor.
@@ -127,7 +120,7 @@ public final class MqttLastWill {
 		 *
 		 * @return the topic
 		 */
-		public String getTopic() {
+		public @Nullable String getTopic() {
 			return topic;
 		}
 
@@ -139,10 +132,7 @@ public final class MqttLastWill {
 		 * @return this object
 		 */
 		public Builder setTopic(String topic) {
-			if ( topic == null ) {
-				throw new NullPointerException("topic");
-			}
-			this.topic = topic;
+			this.topic = requireNonNullArgument(topic, "topic");
 			return this;
 		}
 
@@ -151,7 +141,7 @@ public final class MqttLastWill {
 		 *
 		 * @return the message
 		 */
-		public String getMessage() {
+		public @Nullable String getMessage() {
 			return message;
 		}
 
@@ -163,10 +153,7 @@ public final class MqttLastWill {
 		 * @return this object
 		 */
 		public Builder setMessage(String message) {
-			if ( message == null ) {
-				throw new NullPointerException("message");
-			}
-			this.message = message;
+			this.message = requireNonNullArgument(message, "message");
 			return this;
 		}
 
@@ -196,7 +183,7 @@ public final class MqttLastWill {
 		 *
 		 * @return the quality of service level
 		 */
-		public MqttQoS getQos() {
+		public @Nullable MqttQoS getQos() {
 			return qos;
 		}
 
@@ -208,10 +195,8 @@ public final class MqttLastWill {
 		 * @return this object
 		 */
 		public Builder setQos(MqttQoS qos) {
-			if ( qos == null ) {
-				throw new NullPointerException("qos");
-			}
-			this.qos = qos;
+			this.qos = requireNonNullArgument(qos, "qos");
+			;
 			return this;
 		}
 
@@ -221,25 +206,32 @@ public final class MqttLastWill {
 		 * @return the new instance
 		 */
 		public MqttLastWill build() {
-			return new MqttLastWill(topic, message, retain, qos);
+			return new MqttLastWill(requireNonNullArgument(topic, "topic"),
+					requireNonNullArgument(message, "message"), retain,
+					requireNonNullArgument(qos, "qos"));
 		}
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if ( this == o )
+	public boolean equals(@Nullable Object o) {
+		if ( this == o ) {
 			return true;
-		if ( o == null || getClass() != o.getClass() )
+		}
+		if ( o == null || getClass() != o.getClass() ) {
 			return false;
+		}
 
 		MqttLastWill that = (MqttLastWill) o;
 
-		if ( retain != that.retain )
+		if ( retain != that.retain ) {
 			return false;
-		if ( !topic.equals(that.topic) )
+		}
+		if ( !topic.equals(that.topic) ) {
 			return false;
-		if ( !message.equals(that.message) )
+		}
+		if ( !message.equals(that.message) ) {
 			return false;
+		}
 		return qos == that.qos;
 
 	}

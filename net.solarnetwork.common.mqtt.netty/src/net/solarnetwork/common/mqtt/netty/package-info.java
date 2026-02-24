@@ -1,7 +1,7 @@
 /* ==================================================================
- * package-info.java - 26/11/2019 9:42:44 am
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2019 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,14 +21,8 @@
  */
 
 /**
- * This package has been adapted from the
- * <a href="https://github.com/thingsboard/netty-mqtt">Thingsboard MQTT
- * client</a>, itself adapted from the
- * <a href="https://github.com/jk-5/netty-mqtt">J5 MQTT client</a>.
- *
- * @author matt
- * @version 1.0
+ * Package info.
  */
 
 @org.jspecify.annotations.NullMarked
-package net.solarnetwork.common.mqtt.netty.client;
+package net.solarnetwork.common.mqtt.netty;

@@ -17,8 +17,10 @@
 
 package net.solarnetwork.common.mqtt.netty.client;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.common.mqtt.MqttMessageHandler;
 
 final class MqttSubscription {
@@ -36,14 +38,8 @@ final class MqttSubscription {
 	private boolean called;
 
 	MqttSubscription(String topic, MqttMessageHandler handler, boolean once) {
-		if ( topic == null ) {
-			throw new NullPointerException("topic");
-		}
-		if ( handler == null ) {
-			throw new NullPointerException("handler");
-		}
-		this.topic = topic;
-		this.handler = handler;
+		this.topic = requireNonNullArgument(topic, "topic");
+		this.handler = requireNonNullArgument(handler, "handler");
 		this.once = once;
 		Matcher shareMatch = SHARE_SUBSCRIPTION_PREFIX.matcher(topic);
 		if ( shareMatch.matches() ) {
@@ -73,11 +69,13 @@ final class MqttSubscription {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if ( this == o )
+	public boolean equals(@Nullable Object o) {
+		if ( this == o ) {
 			return true;
-		if ( o == null || getClass() != o.getClass() )
+		}
+		if ( o == null || getClass() != o.getClass() ) {
 			return false;
+		}
 
 		MqttSubscription that = (MqttSubscription) o;
 

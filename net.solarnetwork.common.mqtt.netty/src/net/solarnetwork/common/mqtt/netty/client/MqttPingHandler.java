@@ -18,6 +18,7 @@
 package net.solarnetwork.common.mqtt.netty.client;
 
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.Nullable;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -35,7 +36,7 @@ final class MqttPingHandler extends ChannelInboundHandlerAdapter {
 	private final int keepaliveSeconds;
 	private final boolean closeOnReaderIdle;
 
-	private ScheduledFuture<?> pingRespTimeout;
+	private @Nullable ScheduledFuture<?> pingRespTimeout;
 
 	MqttPingHandler(int keepaliveSeconds) {
 		this(keepaliveSeconds, true);
@@ -80,7 +81,7 @@ final class MqttPingHandler extends ChannelInboundHandlerAdapter {
 						ctx.close();
 					} else {
 						// perhaps a publish-only connection, so just push a PINGREQ to ensure the connection
-						// is actually fully open 
+						// is actually fully open
 						this.sendPingReq(ctx.channel());
 					}
 					break;

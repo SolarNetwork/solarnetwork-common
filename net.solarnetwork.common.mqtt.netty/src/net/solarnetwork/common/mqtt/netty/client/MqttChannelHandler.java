@@ -127,8 +127,8 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				config.getLastWill() != null
 						? config.getLastWill().getTopic()
 						: null,
-				config.getLastWill() != null 
-						? config.getLastWill().getMessage().getBytes(CharsetUtil.UTF_8) 
+				config.getLastWill() != null
+						? config.getLastWill().getMessage().getBytes(CharsetUtil.UTF_8)
 						: null,
 				config.getUsername(),
 				config.getPassword() != null
@@ -155,46 +155,56 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
 		// decode topic alias if provided
 		final String msgTopic = message.variableHeader().topicName();
-		MqttProperties props = message.variableHeader().properties();
+		final MqttProperties props = message.variableHeader().properties();
 		Integer topicAlias = null;
 		if ( props != null ) {
 			@SuppressWarnings("rawtypes")
-			MqttProperty prop = props.getProperty(MqttProperties.MqttPropertyType.TOPIC_ALIAS.value());
+			MqttProperty prop = props.getProperty(MqttProperties.TOPIC_ALIAS);
 			if ( prop instanceof MqttProperties.IntegerProperty ) {
 				topicAlias = ((MqttProperties.IntegerProperty) prop).value();
 			}
 		}
-
-		final String topic = serverAliases.aliasedTopic(msgTopic, topicAlias);
-		if ( log.isDebugEnabled() && topicAlias != null ) {
-			log.debug("Received message {} resolved topic [{}] with alias {} as [{}]",
-					message.variableHeader().packetId(), msgTopic, topicAlias, topic);
-		}
-
-		for ( MqttSubscription subscription : new LinkedHashSet<>(this.client.getSubscriptions().values()
-				.stream().flatMap(List::stream).collect(toList())) ) {
-			if ( subscription.matches(topic) ) {
-				if ( subscription.isOnce() && subscription.isCalled() ) {
-					continue;
+		try {
+			final String topic;
+			if ( topicAlias != null ) {
+				topic = serverAliases.aliasedTopic(msgTopic, topicAlias);
+				if ( topic == null ) {
+					throw new IllegalStateException("Could not resolve topic alias " + topicAlias);
 				}
-				message.payload().markReaderIndex();
-				subscription.setCalled(true);
-				subscription.getHandler()
+				if ( log.isDebugEnabled() ) {
+					log.debug("Received message {} resolved topic [{}] with alias {} as [{}]",
+							message.variableHeader().packetId(), msgTopic, topicAlias, topic);
+				}
+			} else {
+				topic = msgTopic;
+			}
+
+			for ( MqttSubscription subscription : new LinkedHashSet<>(this.client.getSubscriptions()
+					.values().stream().flatMap(List::stream).collect(toList())) ) {
+				if ( subscription.matches(topic) ) {
+					if ( subscription.isOnce() && subscription.isCalled() ) {
+						continue;
+					}
+					message.payload().markReaderIndex();
+					subscription.setCalled(true);
+					subscription.getHandler()
+							.onMqttMessage(new NettyMqttMessage(topic, message.fixedHeader().isRetain(),
+									message.fixedHeader().qosLevel(), message.payload()));
+					if ( subscription.isOnce() ) {
+						this.client.off(subscription.getTopic(), subscription.getHandler());
+					}
+					message.payload().resetReaderIndex();
+					handlerInvoked = true;
+				}
+			}
+			if ( !handlerInvoked && client.getDefaultHandler() != null ) {
+				client.getDefaultHandler()
 						.onMqttMessage(new NettyMqttMessage(topic, message.fixedHeader().isRetain(),
 								message.fixedHeader().qosLevel(), message.payload()));
-				if ( subscription.isOnce() ) {
-					this.client.off(subscription.getTopic(), subscription.getHandler());
-				}
-				message.payload().resetReaderIndex();
-				handlerInvoked = true;
 			}
+		} finally {
+			message.payload().release();
 		}
-		if ( !handlerInvoked && client.getDefaultHandler() != null ) {
-			client.getDefaultHandler()
-					.onMqttMessage(new NettyMqttMessage(topic, message.fixedHeader().isRetain(),
-							message.fixedHeader().qosLevel(), message.payload()));
-		}
-		message.payload().release();
 	}
 
 	private void handleConack(Channel channel, MqttConnAckMessage message) {
@@ -202,8 +212,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		int maxPublishTopicAliases = 0;
 		if ( props != null ) {
 			@SuppressWarnings("rawtypes")
-			MqttProperty prop = props
-					.getProperty(MqttProperties.MqttPropertyType.TOPIC_ALIAS_MAXIMUM.value());
+			MqttProperty prop = props.getProperty(MqttProperties.TOPIC_ALIAS_MAXIMUM);
 			if ( prop instanceof MqttProperties.IntegerProperty ) {
 				Integer max = ((MqttProperties.IntegerProperty) prop).value();
 				if ( max != null ) {
@@ -299,7 +308,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 					.getSubscriptions()
 					.computeIfAbsent(pendingSubscription.getTopic(), k -> new CopyOnWriteArrayList<>());
 			l.addIfAbsent(subscription);
-			l = (CopyOnWriteArrayList<MqttSubscription>) this.client.getHandlerToSubscribtion()
+			l = (CopyOnWriteArrayList<MqttSubscription>) this.client.getHandlerToSubscription()
 					.computeIfAbsent(handler.getHandler(), k -> new CopyOnWriteArrayList<>());
 			l.addIfAbsent(subscription);
 		}
@@ -342,7 +351,8 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 					this.client.getQos2PendingIncomingPublishes()
 							.put(message.variableHeader().packetId(), incomingQos2Publish);
 					message.payload().retain();
-					incomingQos2Publish.startPubrecRetransmitTimer(this.client.getEventLoop().next(),
+
+					incomingQos2Publish.startPubrecRetransmitTimer(this.client.requireEventLoop().next(),
 							this.client::sendAndFlushPacket);
 
 					channel.writeAndFlush(pubrecMessage);
@@ -407,19 +417,23 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 	}
 
 	private void handlePubrec(Channel channel, MqttMessage message) {
-		MqttPendingPublish pendingPublish = this.client.getPendingPublishes()
-				.get(((MqttMessageIdVariableHeader) message.variableHeader()).messageId());
+		final MqttMessageIdVariableHeader variableHeader = (MqttMessageIdVariableHeader) message
+				.variableHeader();
+		final MqttPendingPublish pendingPublish = this.client.getPendingPublishes()
+				.get(variableHeader.messageId());
+		if ( pendingPublish == null ) {
+			log.warn("Pending publish state not found for message {}", variableHeader.messageId());
+			return;
+		}
 		pendingPublish.onPubackReceived();
 
 		MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBREL, false,
 				MqttQoS.AT_LEAST_ONCE, false, 0);
-		MqttMessageIdVariableHeader variableHeader = (MqttMessageIdVariableHeader) message
-				.variableHeader();
 		MqttMessage pubrelMessage = new MqttMessage(fixedHeader, variableHeader);
 		channel.writeAndFlush(pubrelMessage);
 
 		pendingPublish.setPubrelMessage(pubrelMessage);
-		pendingPublish.startPubrelRetransmissionTimer(this.client.getEventLoop().next(),
+		pendingPublish.startPubrelRetransmissionTimer(this.client.requireEventLoop().next(),
 				this.client::sendAndFlushPacket);
 	}
 
@@ -441,10 +455,15 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 	}
 
 	private void handlePubcomp(MqttMessage message) {
-		MqttMessageIdVariableHeader variableHeader = (MqttMessageIdVariableHeader) message
+		final MqttMessageIdVariableHeader variableHeader = (MqttMessageIdVariableHeader) message
 				.variableHeader();
-		MqttPendingPublish pendingPublish = this.client.getPendingPublishes()
+		final MqttPendingPublish pendingPublish = this.client.getPendingPublishes()
 				.get(variableHeader.messageId());
+		if ( pendingPublish == null ) {
+			log.warn("Pending publish state not found for message {}",
+					((MqttMessageIdVariableHeader) message.variableHeader()).messageId());
+			return;
+		}
 		pendingPublish.getFuture().setSuccess(null);
 		this.client.getPendingPublishes().remove(variableHeader.messageId());
 		pendingPublish.getPayload().release();
