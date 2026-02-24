@@ -22,6 +22,9 @@
 
 package net.solarnetwork.util.test;
 
+import static net.solarnetwork.test.CommonTestUtils.randomString;
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -40,7 +43,7 @@ import net.solarnetwork.util.ObjectUtils;
  * Test cases for the {@link ObjectUtils} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class ObjectUtilsTests {
 
@@ -172,6 +175,88 @@ public class ObjectUtilsTests {
 		assertThat("Decimals compare not as equal", l.compareTo(r), is(lessThan(0)));
 		assertThat("Comparing different instances that are comparatively not equal is false",
 				ObjectUtils.comparativelyEqual(l, r), is(false));
+	}
+
+	@Test
+	public void requireNonNullProperty_nonNull() {
+		// GIVEN
+		final String arg = randomString();
+
+		// THEN
+		// @formatter:off
+		then(ObjectUtils.requireNonNullProperty(arg, "Foo"))
+			.as("Non-null argument is returned as-is")
+			.isEqualTo(arg)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void requireNonNullProperty_null() {
+		// GIVEN
+		final String arg = null;
+
+		// THEN
+		// @formatter:off
+		thenThrownBy(() -> {
+				ObjectUtils.requireNonNullProperty(arg, "FooService");
+			})
+			.as("IllegalStateException is thrown")
+			.isInstanceOf(IllegalStateException.class)
+			.as("Name is included at start of exception message")
+			.hasMessageStartingWith("FooService ")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void requireNonEmptyArgument_string_notEmpty() {
+		// GIVEN
+		final String arg = randomString();
+
+		// THEN
+		// @formatter:off
+		then(ObjectUtils.requireNonEmptyArgument(arg, "fooBar"))
+			.as("Non-empty argument is returned as-is")
+			.isEqualTo(arg)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void requireNonEmptyArgument_string_null() {
+		// GIVEN
+		final String arg = null;
+
+		// THEN
+		// @formatter:off
+		thenThrownBy(() -> {
+				ObjectUtils.requireNonEmptyArgument(arg, "fooBar");
+			})
+			.as("IllegalArgumentException is thrown for null input")
+			.isInstanceOf(IllegalArgumentException.class)
+			.as("Message formatted with argumentName")
+			.hasMessage("The fooBar argument must not be empty.")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void requireNonEmptyArgument_string_empty() {
+		// GIVEN
+		final String arg = "";
+
+		// THEN
+		// @formatter:off
+		thenThrownBy(() -> {
+				ObjectUtils.requireNonEmptyArgument(arg, "fooBar");
+			})
+			.as("IllegalArgumentException is thrown for empty string input")
+			.isInstanceOf(IllegalArgumentException.class)
+			.as("Message formatted with argumentName")
+			.hasMessage("The fooBar argument must not be empty.")
+			;
+		// @formatter:on
 	}
 
 }

@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
  * Utilities for dealing with objects.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public final class ObjectUtils {
 
@@ -68,12 +68,50 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null}
 	 */
-	public static <T> T requireNonNullArgument(@Nullable T arg, String argumentName) {
+	public static <T> T requireNonNullArgument(@Nullable T arg, String argumentName)
+			throws IllegalArgumentException {
 		if ( arg == null ) {
 			throw new IllegalArgumentException(
 					String.format("The %s argument must not be null.", argumentName));
 		}
 		return arg;
+	}
+
+	/**
+	 * Require a non-null property.
+	 *
+	 * <p>
+	 * This is similar to
+	 * {@link java.util.Objects#requireNonNull(Object, String)} except
+	 * {@code name} is just the name of the required property and an
+	 * {@link IllegalStateException} is thrown instead of a
+	 * {@code NullPointerException}. Example use:
+	 * </p>
+	 *
+	 * <!-- @formatter:off -->
+	 * <blockquote><pre>
+	 * ObjectUtils.requireNonNullProperty(bar, "BarService").tap();
+	 * </pre></blockquote>
+	 * <!-- @formatter:on -->
+	 *
+	 * @param <T>
+	 *        the argument type
+	 * @param prop
+	 *        the value to require to be non-null
+	 * @param name
+	 *        the name of {@code prop} to report in the
+	 *        {@link IllegalStateException} if {@code arg} is {@code null}
+	 * @return {@code prop}
+	 * @throws IllegalStateException
+	 *         if {@code arg} is {@code null}
+	 * @since 1.3
+	 */
+	public static <T> T requireNonNullProperty(@Nullable T prop, String name)
+			throws IllegalStateException {
+		if ( prop == null ) {
+			throw new IllegalStateException(String.format("%s is not available.", name));
+		}
+		return prop;
 	}
 
 	/**
@@ -106,7 +144,8 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null} or empty
 	 */
-	public static <T> T[] requireNonEmptyArgument(T[] arg, String argumentName) {
+	public static <T> T[] requireNonEmptyArgument(T[] arg, String argumentName)
+			throws IllegalArgumentException {
 		if ( arg == null || arg.length < 1 ) {
 			throw new IllegalArgumentException(
 					String.format("The %s argument must not be empty.", argumentName));
@@ -144,8 +183,49 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null} or empty
 	 */
-	public static <T extends Collection<?>> T requireNonEmptyArgument(T arg, String argumentName) {
+	public static <T extends Collection<?>> T requireNonEmptyArgument(T arg, String argumentName)
+			throws IllegalArgumentException {
 		if ( arg == null || arg.size() < 1 ) {
+			throw new IllegalArgumentException(
+					String.format("The %s argument must not be empty.", argumentName));
+		}
+		return arg;
+	}
+
+	/**
+	 * Require a non-empty string method argument.
+	 *
+	 * <p>
+	 * This is similar to
+	 * {@link java.util.Objects#requireNonNull(Object, String)} except
+	 * the character sequence must not be empty and
+	 * {@code argumentName} is just the name of the required argument and an
+	 * {@link IllegalArgumentException} is thrown instead of a
+	 * {@code NullPointerException}. Example use:
+	 * </p>
+	 *
+	 * <!-- @formatter:off -->
+	 * <blockquote><pre>
+	 * public Foo(String bar) {
+	 * 	this.bar = ObjectUtils.requireNonEmptyArgument(bar, "bar");
+	 * }
+	 * </pre></blockquote>
+	 * <!-- @formatter:on -->
+	 *
+	 * @param <T>
+	 *        the argument type
+	 * @param arg
+	 *        the argument to require to be non-{@code null} and non-empty
+	 * @param argumentName
+	 *        the name of {@code arg} to report in the
+	 *        {@link IllegalArgumentException} if {@code arg} is {@code null}
+	 * @return {@code arg}
+	 * @throws IllegalArgumentException
+	 *         if {@code arg} is {@code null} or empty
+	 */
+	public static <T extends CharSequence> T requireNonEmptyArgument(T arg, String argumentName)
+			throws IllegalArgumentException {
+		if ( arg == null || arg.isEmpty() ) {
 			throw new IllegalArgumentException(
 					String.format("The %s argument must not be empty.", argumentName));
 		}
