@@ -31,13 +31,25 @@ import net.solarnetwork.settings.SettingSpecifierProviderFactory;
  * Basic implementation of {@link SettingSpecifierProviderFactory}.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicSettingSpecifierProviderFactory implements SettingSpecifierProviderFactory {
 
-	private String factoryUid;
+	private String factoryUid; // in 2.0, make this final
 	private @Nullable String displayName;
 	private @Nullable MessageSource messageSource;
+
+	/**
+	 * Constructor.
+	 *
+	 * @deprecated since 1.1 use
+	 *             {@link #BasicSettingSpecifierProviderFactory(String)}
+	 */
+	@SuppressWarnings("NullAway")
+	@Deprecated
+	public BasicSettingSpecifierProviderFactory() {
+		super();
+	}
 
 	/**
 	 * Constructor.
@@ -46,6 +58,7 @@ public class BasicSettingSpecifierProviderFactory implements SettingSpecifierPro
 	 *        the factory UID
 	 * @throws IllegalArgumentException
 	 *         if any argument is {@code null}
+	 * @since 1.1
 	 */
 	public BasicSettingSpecifierProviderFactory(String factoryUid) {
 		super();
