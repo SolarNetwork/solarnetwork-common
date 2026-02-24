@@ -20,5 +20,9 @@
  * ==================================================================
  */
 
+/**
+ * Package info.
+ */
+
 @org.jspecify.annotations.NullMarked
 package net.solarnetwork.domain.datum;
