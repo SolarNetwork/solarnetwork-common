@@ -1,19 +1,19 @@
 /* ===================================================================
  * XmlSupport.java
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ===================================================================
  */
@@ -44,6 +44,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
@@ -55,32 +56,32 @@ import org.w3c.dom.Node;
 
 /**
  * A class to support services that use XML.
- * 
+ *
  * <p>
  * The configurable properties of this class are:
  * </p>
- * 
+ *
  * <dl class="class-properties">
  * <dt>docBuilderFactory</dt>
  * <dd>A JAXP {@link DocumentBuilderFactory} to use. If not configured, the
  * {@link DocumentBuilderFactory#newInstance()} method will be used to create a
  * default one.</dd>
- * 
+ *
  * <dt>transformerFactory</dt>
  * <dd>A JAXP {@link TransformerFactory} for handling XSLT transformations with.
  * If not configured, the {@link TransformerFactory#newInstance()} method will
  * be used to create a default one.</dd>
- * 
+ *
  * <dt>xpathFactory</dt>
  * <dd>A JAXP {@link XPathFactory} for handling XPath operations with. If not
  * configured the {@link XPathFactory#newInstance()} method will be used to
  * create a default one.</dd>
- * 
+ *
  * <dt>nsContext</dt>
  * <dd>An optional {@link NamespaceContext} to use for proper XML namespace
  * handling in some contexts, such as XPath.</dd>
  * </dl>
- * 
+ *
  * @author matt
  * @version 1.2
  */
@@ -89,10 +90,10 @@ public class XmlSupport {
 	/** A class-level logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
-	private NamespaceContext nsContext = null;
-	private DocumentBuilderFactory docBuilderFactory = null;
-	private XPathFactory xpathFactory = null;
-	private TransformerFactory transformerFactory = null;
+	private @Nullable NamespaceContext nsContext;
+	private @Nullable DocumentBuilderFactory docBuilderFactory;
+	private @Nullable XPathFactory xpathFactory;
+	private @Nullable TransformerFactory transformerFactory;
 
 	/**
 	 * Constructor.
@@ -103,13 +104,13 @@ public class XmlSupport {
 
 	/**
 	 * Compile XPathExpression mappings from String XPath expressions.
-	 * 
+	 *
 	 * @param xpathMap
 	 *        the XPath string expressions
 	 * @return the XPathExperssion mapping
 	 */
 	public Map<String, XPathExpression> getXPathExpressionMap(Map<String, String> xpathMap) {
-		Map<String, XPathExpression> datumXPathMap = new LinkedHashMap<String, XPathExpression>();
+		Map<String, XPathExpression> datumXPathMap = new LinkedHashMap<>();
 		for ( Map.Entry<String, String> me : xpathMap.entrySet() ) {
 			try {
 				datumXPathMap.put(me.getKey(), getXPathExpression(me.getValue()));
@@ -124,15 +125,21 @@ public class XmlSupport {
 	 * Compile a single XPathExpression from a String XPath expression. The
 	 * {@link #getNsContext()} will be configured on the resulting
 	 * XPathExpression, if available.
-	 * 
+	 *
 	 * @param xpath
 	 *        the XPath to compile
 	 * @return the compiled XPath
 	 * @throws XPathExpressionException
 	 *         if the XPath cannot be compiled
+	 * @throws IllegalStateException
+	 *         if no {@code XPathFactory} is configured
 	 */
 	public XPathExpression getXPathExpression(String xpath) throws XPathExpressionException {
-		XPath xp = getXpathFactory().newXPath();
+		final XPathFactory xpf = getXpathFactory();
+		if ( xpf == null ) {
+			throw new IllegalStateException("XPathFactory not configured.");
+		}
+		XPath xp = xpf.newXPath();
 		if ( getNsContext() != null ) {
 			xp.setNamespaceContext(getNsContext());
 		}
@@ -141,13 +148,18 @@ public class XmlSupport {
 
 	/**
 	 * Get an XSLT Templates object from an XSLT Resource.
-	 * 
+	 *
 	 * @param resource
 	 *        the XSLT Resource to load
 	 * @return the compiled Templates
+	 * @throws IllegalStateException
+	 *         if no {@code TransformerFactory} is configured
 	 */
 	public Templates getTemplates(Resource resource) {
-		TransformerFactory tf = TransformerFactory.newInstance();
+		final TransformerFactory tf = getTransformerFactory();
+		if ( tf == null ) {
+			throw new IllegalStateException("TransformerFactory is not configured.");
+		}
 		try {
 			return tf.newTemplates(new StreamSource(resource.getInputStream()));
 		} catch ( TransformerConfigurationException e ) {
@@ -160,34 +172,40 @@ public class XmlSupport {
 	/**
 	 * Turn an object into a simple XML Document, supporting custom property
 	 * editors.
-	 * 
+	 *
 	 * <p>
 	 * The returned XML will be a document with a single element with all
 	 * JavaBean properties turned into attributes. For example:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * &lt;powerDatum
 	 *   id="123"
 	 *   pvVolts="123.123"
 	 *   ... /&gt;
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * {@link PropertyEditor} instances can be registered with the supplied
 	 * {@link BeanWrapper} for custom handling of properties, e.g. dates.
 	 * </p>
-	 * 
+	 *
 	 * @param bean
 	 *        the object to turn into XML
 	 * @param elementName
 	 *        the name of the XML element
 	 * @return the element, as an XML DOM Document
+	 * @throws IllegalStateException
+	 *         if no {@code DocumentBuilderFactory} is configured
 	 */
-	public Document getDocument(BeanWrapper bean, String elementName) {
+	public @Nullable Document getDocument(BeanWrapper bean, String elementName) {
+		final DocumentBuilderFactory dbf = getDocBuilderFactory();
+		if ( dbf == null ) {
+			throw new IllegalStateException("DocumentBuilderFactory not configured.");
+		}
 		Document dom = null;
 		try {
-			dom = getDocBuilderFactory().newDocumentBuilder().newDocument();
+			dom = dbf.newDocumentBuilder().newDocument();
 			dom.appendChild(getElement(bean, elementName, dom));
 		} catch ( ParserConfigurationException e ) {
 			throw new RuntimeException(e);
@@ -198,32 +216,32 @@ public class XmlSupport {
 	/**
 	 * Turn an object into a simple XML Element, supporting custom property
 	 * editors.
-	 * 
+	 *
 	 * <p>
 	 * The returned XML will be a single element with all JavaBean properties
 	 * turned into attributes and the element named after the bean object's
 	 * class name. For example:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * &lt;PowerDatum
 	 *   id="123"
 	 *   pvVolts="123.123"
 	 *   ... /&gt;
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * {@link PropertyEditor} instances can be registered with the supplied
 	 * {@link BeanWrapper} for custom handling of properties, e.g. dates.
 	 * </p>
-	 * 
+	 *
 	 * @param bean
 	 *        the object to turn into XML
 	 * @param dom
 	 *        the document
 	 * @return the element, as an XML DOM Document
 	 */
-	public Element getElement(BeanWrapper bean, Document dom) {
+	public @Nullable Element getElement(BeanWrapper bean, Document dom) {
 		String elementName = bean.getWrappedInstance().getClass().getSimpleName();
 		return getElement(bean, elementName, dom);
 	}
@@ -231,24 +249,24 @@ public class XmlSupport {
 	/**
 	 * Turn an object into a simple XML Element, supporting custom property
 	 * editors.
-	 * 
+	 *
 	 * <p>
 	 * The returned XML will be a single element with all JavaBean properties
 	 * turned into attributes. For example:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * &lt;powerDatum
 	 *   id="123"
 	 *   pvVolts="123.123"
 	 *   ... /&gt;
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * {@link PropertyEditor} instances can be registered with the supplied
 	 * {@link BeanWrapper} for custom handling of properties, e.g. dates.
 	 * </p>
-	 * 
+	 *
 	 * @param bean
 	 *        the object to turn into XML
 	 * @param elementName
@@ -257,7 +275,7 @@ public class XmlSupport {
 	 *        the document
 	 * @return the element, as an XML DOM Element
 	 */
-	public Element getElement(BeanWrapper bean, String elementName, Document dom) {
+	public @Nullable Element getElement(BeanWrapper bean, String elementName, Document dom) {
 		PropertyDescriptor[] props = bean.getPropertyDescriptors();
 		Element root = null;
 		root = dom.createElement(elementName);
@@ -292,19 +310,19 @@ public class XmlSupport {
 	/**
 	 * Turn an object into a simple XML Document, supporting custom property
 	 * editors.
-	 * 
+	 *
 	 * <p>
 	 * The returned XML will be a single element with all JavaBean properties
 	 * turned into attributed. For example:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * &lt;powerDatum
 	 *   id="123"
 	 *   pvVolts="123.123"
 	 *   ... /&gt;
 	 * </pre>
-	 * 
+	 *
 	 * @param bean
 	 *        the object to turn into XML
 	 * @param elementName
@@ -312,23 +330,23 @@ public class XmlSupport {
 	 * @return the element, as XSLT Source
 	 * @see #getDocument(BeanWrapper, String)
 	 */
-	public Source getSource(BeanWrapper bean, String elementName) {
+	public @Nullable Source getSource(BeanWrapper bean, String elementName) {
 		Document dom = getDocument(bean, elementName);
 		return getSource(dom);
 	}
 
 	/**
 	 * Turn a Document into a Source.
-	 * 
+	 *
 	 * <p>
 	 * This method will log the XML document at the FINEST level.
 	 * </p>
-	 * 
+	 *
 	 * @param dom
 	 *        the Document to turn into XSLT source
 	 * @return the document, as XSLT Source
 	 */
-	public Source getSource(Document dom) {
+	public Source getSource(@Nullable Document dom) {
 		DOMSource result = new DOMSource(dom);
 		if ( log.isDebugEnabled() ) {
 			log.debug("XML: " + getXmlAsString(result, true));
@@ -338,17 +356,23 @@ public class XmlSupport {
 
 	/**
 	 * Turn an XML Source into a String.
-	 * 
+	 *
 	 * @param source
 	 *        the XML Source
 	 * @param indent
 	 *        if {@literal true} then indent the result
 	 * @return the XML, as a String
+	 * @throws IllegalStateException
+	 *         if no {@code TransformerFactory} is configured
 	 */
 	public String getXmlAsString(Source source, boolean indent) {
+		final TransformerFactory tf = getTransformerFactory();
+		if ( tf == null ) {
+			throw new IllegalStateException("TransformerFactory is not configured.");
+		}
 		ByteArrayOutputStream byos = new ByteArrayOutputStream();
 		try {
-			Transformer xform = getTransformerFactory().newTransformer();
+			Transformer xform = tf.newTransformer();
 			if ( indent ) {
 				xform.setOutputProperty(OutputKeys.INDENT, "yes");
 				xform.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -364,7 +388,7 @@ public class XmlSupport {
 
 	/**
 	 * Populate JavaBean properties via XPath extraction.
-	 * 
+	 *
 	 * @param bean
 	 *        the object to set properties on
 	 * @param xml
@@ -384,7 +408,7 @@ public class XmlSupport {
 
 	/**
 	 * Extract a String value via an XPath expression.
-	 * 
+	 *
 	 * @param xml
 	 *        the XML
 	 * @param xpath
@@ -402,29 +426,29 @@ public class XmlSupport {
 
 	/**
 	 * Get the namespace context.
-	 * 
+	 *
 	 * @return the context
 	 */
-	public NamespaceContext getNsContext() {
+	public @Nullable NamespaceContext getNsContext() {
 		return nsContext;
 	}
 
 	/**
 	 * Set the namespace context.
-	 * 
+	 *
 	 * @param nsContext
 	 *        the context to set
 	 */
-	public void setNsContext(NamespaceContext nsContext) {
+	public void setNsContext(@Nullable NamespaceContext nsContext) {
 		this.nsContext = nsContext;
 	}
 
 	/**
 	 * Get a document builder factory.
-	 * 
+	 *
 	 * @return the factory
 	 */
-	public DocumentBuilderFactory getDocBuilderFactory() {
+	public @Nullable DocumentBuilderFactory getDocBuilderFactory() {
 		DocumentBuilderFactory result = this.docBuilderFactory;
 		if ( result == null ) {
 			result = DocumentBuilderFactory.newInstance();
@@ -436,20 +460,20 @@ public class XmlSupport {
 
 	/**
 	 * Set the document builder factor.
-	 * 
+	 *
 	 * @param docBuilderFactory
 	 *        the factory to set
 	 */
-	public void setDocBuilderFactory(DocumentBuilderFactory docBuilderFactory) {
+	public void setDocBuilderFactory(@Nullable DocumentBuilderFactory docBuilderFactory) {
 		this.docBuilderFactory = docBuilderFactory;
 	}
 
 	/**
 	 * Get an XPath factory.
-	 * 
+	 *
 	 * @return the factory
 	 */
-	public XPathFactory getXpathFactory() {
+	public @Nullable XPathFactory getXpathFactory() {
 		XPathFactory result = this.xpathFactory;
 		if ( result == null ) {
 			// work around Oracle JDK issues loading XPathFactory, see
@@ -473,20 +497,20 @@ public class XmlSupport {
 
 	/**
 	 * Set the XPath factory.
-	 * 
+	 *
 	 * @param xpathFactory
 	 *        the factory to set
 	 */
-	public void setXpathFactory(XPathFactory xpathFactory) {
+	public void setXpathFactory(@Nullable XPathFactory xpathFactory) {
 		this.xpathFactory = xpathFactory;
 	}
 
 	/**
 	 * Get a transformer factory.
-	 * 
+	 *
 	 * @return the factory
 	 */
-	public TransformerFactory getTransformerFactory() {
+	public @Nullable TransformerFactory getTransformerFactory() {
 		TransformerFactory result = this.transformerFactory;
 		if ( result == null ) {
 			// work around Oracle JDK issues loading XPathFactory, see
@@ -505,11 +529,11 @@ public class XmlSupport {
 
 	/**
 	 * Set the transformer factory.
-	 * 
+	 *
 	 * @param transformerFactory
 	 *        the factory to set
 	 */
-	public void setTransformerFactory(TransformerFactory transformerFactory) {
+	public void setTransformerFactory(@Nullable TransformerFactory transformerFactory) {
 		this.transformerFactory = transformerFactory;
 	}
 

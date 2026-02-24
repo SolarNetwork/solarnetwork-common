@@ -1,21 +1,21 @@
 /* ==================================================================
  * TemplatedMessageSource.java - Jul 22, 2013 3:27:31 PM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,6 +25,7 @@ package net.solarnetwork.support;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.HierarchicalMessageSource;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceResolvable;
@@ -33,7 +34,7 @@ import org.springframework.context.NoSuchMessageException;
 /**
  * Delegating {@link MessageSource} that dynamically extracts a pre-configured
  * regular expression match from all message codes.
- * 
+ *
  * <p>
  * The inspiration for this class was to support messages for objects that might
  * be nested in other objects used in
@@ -42,16 +43,16 @@ import org.springframework.context.NoSuchMessageException;
  * be used to dynamically re-map message codes. For example a code
  * <code>mapProperty['url']</code> could be re-mapped to <code>url</code>.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.43
  */
 public class TemplatedMessageSource implements MessageSource, HierarchicalMessageSource {
 
-	private String regex;
-	private Pattern pat;
-	private MessageSource delegate;
+	private @Nullable String regex;
+	private @Nullable Pattern pat;
+	private @Nullable MessageSource delegate;
 
 	/**
 	 * Constructor.
@@ -79,7 +80,11 @@ public class TemplatedMessageSource implements MessageSource, HierarchicalMessag
 	}
 
 	@Override
-	public String getMessage(String code, Object[] args, String defaultMessage, Locale locale) {
+	public @Nullable String getMessage(String code, Object @Nullable [] args,
+			@Nullable String defaultMessage, Locale locale) {
+		if ( delegate == null ) {
+			throw new NoSuchMessageException(code, locale);
+		}
 		if ( pat != null ) {
 			Matcher m = pat.matcher(code);
 			final int count = m.groupCount();
@@ -96,7 +101,11 @@ public class TemplatedMessageSource implements MessageSource, HierarchicalMessag
 	}
 
 	@Override
-	public String getMessage(String code, Object[] args, Locale locale) throws NoSuchMessageException {
+	public String getMessage(String code, Object @Nullable [] args, Locale locale)
+			throws NoSuchMessageException {
+		if ( delegate == null ) {
+			throw new NoSuchMessageException(code, locale);
+		}
 		if ( pat != null ) {
 			Matcher m = pat.matcher(code);
 			final int count = m.groupCount();
@@ -115,6 +124,9 @@ public class TemplatedMessageSource implements MessageSource, HierarchicalMessag
 	@Override
 	public String getMessage(final MessageSourceResolvable resolvable, Locale locale)
 			throws NoSuchMessageException {
+		if ( delegate == null ) {
+			throw new NoSuchMessageException(resolvable.getCodes()[0], locale);
+		}
 		final String[] codes = resolvable.getCodes();
 		if ( pat != null ) {
 			for ( int i = 0; i < codes.length; i++ ) {
@@ -151,25 +163,25 @@ public class TemplatedMessageSource implements MessageSource, HierarchicalMessag
 
 	/**
 	 * Get the configured regular expression.
-	 * 
+	 *
 	 * @return the regular expression
 	 */
-	public String getRegex() {
+	public @Nullable String getRegex() {
 		return regex;
 	}
 
 	/**
 	 * Set the regular expression to match against message codes.
-	 * 
+	 *
 	 * <p>
 	 * The regular expression must provide at least one capture group; all
 	 * capture groups are combined into the final message code.
 	 * </p>
-	 * 
+	 *
 	 * @param regex
 	 *        the regular expression to use
 	 */
-	public void setRegex(String regex) {
+	public void setRegex(@Nullable String regex) {
 		this.regex = regex;
 		if ( regex != null && regex.length() > 0 ) {
 			pat = Pattern.compile(regex);
@@ -180,25 +192,25 @@ public class TemplatedMessageSource implements MessageSource, HierarchicalMessag
 
 	/**
 	 * Get the delegate message source.
-	 * 
+	 *
 	 * @return the delegate
 	 */
-	public MessageSource getDelegate() {
+	public @Nullable MessageSource getDelegate() {
 		return delegate;
 	}
 
 	/**
 	 * Set the {@link MessageSource} to delegate to.
-	 * 
+	 *
 	 * <p>
 	 * If that object implements {@link HierarchicalMessageSource} then those
 	 * methods will be supported by instances of this class as well.
 	 * </p>
-	 * 
+	 *
 	 * @param delegate
 	 *        the delegate message source to use
 	 */
-	public void setDelegate(MessageSource delegate) {
+	public void setDelegate(@Nullable MessageSource delegate) {
 		this.delegate = delegate;
 	}
 

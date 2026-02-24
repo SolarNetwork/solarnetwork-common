@@ -1,23 +1,23 @@
 /* ===================================================================
  * CloningPropertyEditorRegistrar.java
- * 
+ *
  * Created Aug 3, 2009 3:29:02 PM
- * 
+ *
  * Copyright (c) 2009 Solarnetwork.net Dev Team.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ===================================================================
  */
@@ -29,31 +29,32 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.PropertyEditorRegistry;
 
 /**
  * PropertyEditorRegistrar implementation that creates new PropertyEditor
  * instances by cloning the ones configured on this class.
- * 
+ *
  * <p>
  * This implementation makes it easy to cofnigure PropertyEditors that are wired
  * up to Spring components but need to be used in a thread-safe manner. Each
  * PropertyEditor must provide a no-argument <code>clone()</code> method to
  * create fully-configured copy of itself.
  * </p>
- * 
+ *
  * <p>
  * The configurable properties of this class are:
  * </p>
- * 
+ *
  * <dl class="class-properties">
  * <dt>propertyEditors</dt>
  * <dd>Map of property names to associated PropertyEditor instances.</dd>
- * 
+ *
  * <dt>classEditors</dt>
  * <dd>Map of Class objects to associated PropertyEditor instances.</dd>
- * 
+ *
  * <dt>lenient</dt>
  * <dd>If {@literal true} (the default) then if a configured PropertyEditor does
  * not provide a public {@code clone()} method, this will configure the
@@ -66,8 +67,8 @@ import org.springframework.beans.PropertyEditorRegistry;
  */
 public class CloningPropertyEditorRegistrar implements PropertyEditorRegistrar {
 
-	private Map<String, PropertyEditor> propertyEditors = null;
-	private Map<Class<?>, PropertyEditor> classEditors = null;
+	private @Nullable Map<String, PropertyEditor> propertyEditors;
+	private @Nullable Map<Class<?>, PropertyEditor> classEditors;
 	private boolean lenient = true;
 
 	/**
@@ -79,7 +80,7 @@ public class CloningPropertyEditorRegistrar implements PropertyEditorRegistrar {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.springframework.beans.PropertyEditorRegistrar#registerCustomEditors(
 	 * org.springframework.beans.PropertyEditorRegistry)
@@ -100,7 +101,7 @@ public class CloningPropertyEditorRegistrar implements PropertyEditorRegistrar {
 
 	/**
 	 * Set a {@link PropertyEditor} for a specific key.
-	 * 
+	 *
 	 * @param key
 	 *        the key (property name)
 	 * @param editor
@@ -115,7 +116,7 @@ public class CloningPropertyEditorRegistrar implements PropertyEditorRegistrar {
 
 	/**
 	 * Set a {@link PropertyEditor} for a specific Class.
-	 * 
+	 *
 	 * @param clazz
 	 *        the Class
 	 * @param editor
@@ -162,26 +163,26 @@ public class CloningPropertyEditorRegistrar implements PropertyEditorRegistrar {
 
 	/**
 	 * Get the property editors.
-	 * 
+	 *
 	 * @return the property editors
 	 */
-	public Map<String, PropertyEditor> getPropertyEditors() {
+	public @Nullable Map<String, PropertyEditor> getPropertyEditors() {
 		return propertyEditors;
 	}
 
 	/**
 	 * Set the property editors.
-	 * 
+	 *
 	 * @param propertyEditors
 	 *        the property editors to set
 	 */
-	public void setPropertyEditors(Map<String, PropertyEditor> propertyEditors) {
+	public void setPropertyEditors(@Nullable Map<String, PropertyEditor> propertyEditors) {
 		this.propertyEditors = propertyEditors;
 	}
 
 	/**
 	 * Get the lenient flag.
-	 * 
+	 *
 	 * @return the lenient
 	 */
 	public boolean isLenient() {
@@ -190,7 +191,7 @@ public class CloningPropertyEditorRegistrar implements PropertyEditorRegistrar {
 
 	/**
 	 * Set the lenient flag.
-	 * 
+	 *
 	 * @param lenient
 	 *        the lenient flag to set
 	 */
@@ -200,20 +201,20 @@ public class CloningPropertyEditorRegistrar implements PropertyEditorRegistrar {
 
 	/**
 	 * Get the class editors.
-	 * 
+	 *
 	 * @return the class editors
 	 */
-	public Map<Class<?>, PropertyEditor> getClassEditors() {
+	public @Nullable Map<Class<?>, PropertyEditor> getClassEditors() {
 		return classEditors;
 	}
 
 	/**
 	 * Set the class editors.
-	 * 
+	 *
 	 * @param classEditors
 	 *        the class editors to set
 	 */
-	public void setClassEditors(Map<Class<?>, PropertyEditor> classEditors) {
+	public void setClassEditors(@Nullable Map<Class<?>, PropertyEditor> classEditors) {
 		this.classEditors = classEditors;
 	}
 

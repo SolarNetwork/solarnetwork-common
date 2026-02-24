@@ -1,21 +1,21 @@
 /* ==================================================================
  * PrefixedMessageSource.java - Mar 25, 2012 3:27:31 PM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,6 +25,7 @@ package net.solarnetwork.support;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.HierarchicalMessageSource;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceResolvable;
@@ -33,7 +34,7 @@ import org.springframework.context.NoSuchMessageException;
 /**
  * Delegating {@link MessageSource} that dynamically removes a pre-configured
  * prefix from all message codes.
- * 
+ *
  * <p>
  * The inspiration for this class was to support messages for objects that might
  * be nested in other objects used in
@@ -42,12 +43,17 @@ import org.springframework.context.NoSuchMessageException;
  * be used to dynamically re-map message codes. For example a code
  * <code>delegate.url</code> could be re-mapped to <code>url</code>.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.43
  */
 public class PrefixedMessageSource implements MessageSource, HierarchicalMessageSource {
+
+	private @Nullable String singlePrefix = "";
+	private @Nullable MessageSource singleDelegate;
+	private Map<String, MessageSource> delegates = new LinkedHashMap<String, MessageSource>(2);
+	private @Nullable MessageSource parent;
 
 	/**
 	 * Constructor.
@@ -56,19 +62,13 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 		super();
 	}
 
-	private String singlePrefix = "";
-	private MessageSource singleDelegate;
-	private Map<String, MessageSource> delegates = new LinkedHashMap<String, MessageSource>(2);
-
-	private MessageSource parent;
-
 	@Override
-	public void setParentMessageSource(MessageSource parent) {
+	public void setParentMessageSource(@Nullable MessageSource parent) {
 		this.parent = parent;
 		setupParentMessageSource(parent);
 	}
 
-	private void setupParentMessageSource(MessageSource parent) {
+	private void setupParentMessageSource(@Nullable MessageSource parent) {
 		for ( MessageSource delegate : delegates.values() ) {
 			if ( delegate instanceof HierarchicalMessageSource ) {
 				((HierarchicalMessageSource) delegate).setParentMessageSource(parent);
@@ -77,12 +77,13 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 	}
 
 	@Override
-	public MessageSource getParentMessageSource() {
+	public @Nullable MessageSource getParentMessageSource() {
 		return parent;
 	}
 
 	@Override
-	public String getMessage(String code, Object[] args, String defaultMessage, Locale locale) {
+	public @Nullable String getMessage(String code, Object @Nullable [] args,
+			@Nullable String defaultMessage, Locale locale) {
 		if ( delegates == null || delegates.isEmpty() ) {
 			return defaultMessage;
 		}
@@ -114,7 +115,8 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 	}
 
 	@Override
-	public String getMessage(String code, Object[] args, Locale locale) throws NoSuchMessageException {
+	public String getMessage(String code, Object @Nullable [] args, Locale locale)
+			throws NoSuchMessageException {
 		if ( delegates == null || delegates.isEmpty() ) {
 			throw new NoSuchMessageException(code, locale);
 		}
@@ -149,7 +151,7 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 	public String getMessage(final MessageSourceResolvable resolvable, Locale locale)
 			throws NoSuchMessageException {
 		if ( delegates == null || delegates.isEmpty() ) {
-			return null;
+			throw new NoSuchMessageException(resolvable.getCodes()[0], locale);
 		}
 		for ( Map.Entry<String, MessageSource> me : delegates.entrySet() ) {
 			String prefix = me.getKey();
@@ -192,56 +194,56 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 				// skip
 			}
 		}
-		return null;
+		throw new NoSuchMessageException(resolvable.getCodes()[0], locale);
 	}
 
 	/**
 	 * Get the singular message code prefix to dynamically remove from all
 	 * message codes.
-	 * 
+	 *
 	 * @return the singular message code prefix
 	 * @see #getDelegate()
 	 */
-	public String getPrefix() {
+	public @Nullable String getPrefix() {
 		return this.singlePrefix;
 	}
 
 	/**
 	 * Set the singular message code prefix to dynamically remove from all
 	 * message codes.
-	 * 
+	 *
 	 * <p>
 	 * This prefix will only be used with the singular delegate configured via
 	 * {@link #setDelegate(MessageSource)}.
 	 * </p>
-	 * 
+	 *
 	 * @param prefix
 	 *        the singular message code prefix
 	 * @see #setDelegate(MessageSource)
 	 */
-	public void setPrefix(String prefix) {
+	public void setPrefix(@Nullable String prefix) {
 		this.singlePrefix = prefix;
 		delegates.put(prefix, this.singleDelegate);
 	}
 
 	/**
 	 * Get the singular {@link MessageSource} to use with the singular prefix.
-	 * 
+	 *
 	 * @return the singular message source delegate
 	 */
-	public MessageSource getDelegate() {
+	public @Nullable MessageSource getDelegate() {
 		return singleDelegate;
 	}
 
 	/**
 	 * Set the singular {@link MessageSource} to use with the singular prefix.
-	 * 
+	 *
 	 * <p>
 	 * Note when this method is used, then messages found in this delegate under
 	 * un-prefixed keys will be returned without consulting any parent source
 	 * first.
 	 * </p>
-	 * 
+	 *
 	 * @param delegate
 	 *        the singular delegate to use
 	 */
@@ -255,7 +257,7 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 
 	/**
 	 * Get the multi-prefix delegate mapping.
-	 * 
+	 *
 	 * @return a mapping of message code prefixes to associated
 	 *         {@link MessageSource} delegates
 	 */
@@ -265,12 +267,12 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 
 	/**
 	 * Set the multi-prefix delegate mapping.
-	 * 
+	 *
 	 * <p>
 	 * This configures any number of {@link MessageSource} delegates to handle
 	 * specific message codes with associated prefix values.
 	 * </p>
-	 * 
+	 *
 	 * @param delegates
 	 *        the message code prefix mapping
 	 */
