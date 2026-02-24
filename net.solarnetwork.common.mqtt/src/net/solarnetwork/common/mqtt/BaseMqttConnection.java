@@ -22,6 +22,7 @@
 
 package net.solarnetwork.common.mqtt;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Instant;
@@ -33,6 +34,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.TaskScheduler;
@@ -69,15 +71,15 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	protected final BasicMqttConnectionConfig connectionConfig;
 
 	/** The message handler. */
-	protected volatile MqttMessageHandler messageHandler;
+	protected volatile @Nullable MqttMessageHandler messageHandler;
 
 	/** The connection observer. */
-	protected volatile MqttConnectionObserver connectionObserver;
+	protected volatile @Nullable MqttConnectionObserver connectionObserver;
 
 	private boolean closed;
 
-	private CompletableFuture<MqttConnectReturnCode> connectFuture;
-	private CompletableFuture<Void> reconfigureFuture;
+	private @Nullable CompletableFuture<MqttConnectReturnCode> connectFuture;
+	private @Nullable CompletableFuture<Void> reconfigureFuture;
 
 	/**
 	 * Constructor.
@@ -86,6 +88,8 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	 *        the executor
 	 * @param scheduler
 	 *        the task scheduler
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public BaseMqttConnection(Executor executor, TaskScheduler scheduler) {
 		this(executor, scheduler, new BasicMqttConnectionConfig());
@@ -101,12 +105,14 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	 * @param connectionConfig
 	 *        initial connection configuration, or {@literal null} to use a
 	 *        default
+	 * @throws IllegalArgumentException
+	 *         if {@code executor} or {@code taskScheduler} is {@code null}
 	 */
 	public BaseMqttConnection(Executor executor, TaskScheduler scheduler,
-			MqttConnectionConfig connectionConfig) {
+			@Nullable MqttConnectionConfig connectionConfig) {
 		super();
-		this.executor = executor;
-		this.scheduler = scheduler;
+		this.executor = requireNonNullArgument(executor, "executor");
+		this.scheduler = requireNonNullArgument(scheduler, "scheduler");
 		this.closed = false;
 		this.connectionConfig = connectionConfig instanceof BasicMqttConnectionConfig
 				? (BasicMqttConnectionConfig) connectionConfig
@@ -125,7 +131,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	}
 
 	@Override
-	public synchronized void configurationChanged(Map<String, Object> properties) {
+	public synchronized void configurationChanged(@Nullable Map<String, Object> properties) {
 		reconfigure();
 	}
 
@@ -181,7 +187,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 				}
 			}
 
-			private void complete(Throwable t) {
+			private void complete(@Nullable Throwable t) {
 				synchronized ( BaseMqttConnection.this ) {
 					reconfigureFuture = null;
 				}
@@ -231,7 +237,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	 *
 	 * @return the future, or {@literal null}
 	 */
-	protected CompletableFuture<MqttConnectReturnCode> connectFuture() {
+	protected @Nullable CompletableFuture<MqttConnectReturnCode> connectFuture() {
 		return connectFuture;
 	}
 
@@ -240,7 +246,7 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	 *
 	 * @return the future, or {@literal null}
 	 */
-	protected CompletableFuture<Void> reconfigureFuture() {
+	protected @Nullable CompletableFuture<Void> reconfigureFuture() {
 		return reconfigureFuture;
 	}
 
@@ -274,12 +280,12 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	}
 
 	@Override
-	public final void setMessageHandler(MqttMessageHandler handler) {
+	public final void setMessageHandler(@Nullable MqttMessageHandler handler) {
 		this.messageHandler = handler;
 	}
 
 	@Override
-	public final void setConnectionObserver(MqttConnectionObserver observer) {
+	public final void setConnectionObserver(@Nullable MqttConnectionObserver observer) {
 		this.connectionObserver = observer;
 	}
 
@@ -346,8 +352,8 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 	}
 
 	@Override
-	public void setUid(String uid) {
-		connectionConfig.setUid(uid);
+	public void setUid(@Nullable String uid) {
+		connectionConfig.setUid(requireNonNullArgument(uid, "uid"));
 	}
 
 	/**

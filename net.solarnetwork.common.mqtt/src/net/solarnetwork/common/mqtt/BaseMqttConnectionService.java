@@ -22,12 +22,14 @@
 
 package net.solarnetwork.common.mqtt;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.IOException;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.solarnetwork.service.PingTest;
@@ -57,7 +59,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 
 	private MqttQos publishQos = DEFAULT_PUBLISH_QOS;
 	private MqttQos subscribeQos = DEFAULT_SUBSCRIBE_QOS;
-	private MqttConnection connection;
+	private @Nullable MqttConnection connection;
 
 	/**
 	 * Constructor.
@@ -66,10 +68,13 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	 *        the factory to use for {@link MqttConnection} instances
 	 * @param mqttStats
 	 *        the optional statistics to use
+	 * @throws IllegalArgumentException
+	 *         if {@code connectionFactory} is {@code null}
 	 */
-	public BaseMqttConnectionService(MqttConnectionFactory connectionFactory, StatTracker mqttStats) {
+	public BaseMqttConnectionService(MqttConnectionFactory connectionFactory,
+			@Nullable StatTracker mqttStats) {
 		super();
-		this.connectionFactory = connectionFactory;
+		this.connectionFactory = requireNonNullArgument(connectionFactory, "connectionFactory");
 		mqttConfig = new BasicMqttConnectionConfig();
 		mqttConfig.setStats(mqttStats);
 	}
@@ -155,7 +160,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	 *
 	 * @return the connection
 	 */
-	protected MqttConnection connection() {
+	protected @Nullable MqttConnection connection() {
 		return connection;
 	}
 
@@ -214,10 +219,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	 *         if {@code publishQos} is {@literal null}
 	 */
 	public void setPublishQos(MqttQos publishQos) {
-		if ( publishQos == null ) {
-			throw new IllegalArgumentException("The publishQos value must not be null.");
-		}
-		this.publishQos = publishQos;
+		this.publishQos = requireNonNullArgument(publishQos, "publishQos");
 	}
 
 	/**
@@ -261,10 +263,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	 *         if {@code subscribeQos} is {@literal null}
 	 */
 	public void setSubscribeQos(MqttQos subscribeQos) {
-		if ( subscribeQos == null ) {
-			throw new IllegalArgumentException("The subscribeQos value must not be null.");
-		}
-		this.subscribeQos = subscribeQos;
+		this.subscribeQos = requireNonNullArgument(subscribeQos, "subscribeQos");
 	}
 
 	/**
@@ -295,7 +294,7 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	 *
 	 * @return the statistics
 	 */
-	public StatTracker getMqttStats() {
+	public @Nullable StatTracker getMqttStats() {
 		return mqttConfig.getStats();
 	}
 
@@ -309,9 +308,9 @@ public abstract class BaseMqttConnectionService extends BasicIdentifiable implem
 	}
 
 	@Override
-	public void setUid(String uid) {
+	public void setUid(@Nullable String uid) {
 		super.setUid(uid);
-		mqttConfig.setUid(uid);
+		mqttConfig.setUid(requireNonNullArgument(uid, "uid"));
 	}
 
 }

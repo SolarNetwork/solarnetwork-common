@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicMqttProperty.java - 2/05/2021 8:38:37 AM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,10 +23,12 @@
 package net.solarnetwork.common.mqtt;
 
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
+import net.solarnetwork.util.ObjectUtils;
 
 /**
  * Basic implementation of {@link MqttProperty}.
- * 
+ *
  * @param <T>
  *        the property type
  * @author matt
@@ -36,11 +38,11 @@ import java.util.Objects;
 public class BasicMqttProperty<T> implements MqttProperty<T> {
 
 	private final MqttPropertyType type;
-	private final T value;
+	private final @Nullable T value;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param type
 	 *        the type
 	 * @param value
@@ -48,12 +50,9 @@ public class BasicMqttProperty<T> implements MqttProperty<T> {
 	 * @throws IllegalArgumentException
 	 *         if {@code type} is {@literal null}
 	 */
-	public BasicMqttProperty(MqttPropertyType type, T value) {
+	public BasicMqttProperty(MqttPropertyType type, @Nullable T value) {
 		super();
-		this.type = type;
-		if ( type == null ) {
-			throw new IllegalArgumentException("The type argument must not be null.");
-		}
+		this.type = ObjectUtils.requireNonNullArgument(type, "type");
 		this.value = value;
 	}
 
@@ -63,7 +62,7 @@ public class BasicMqttProperty<T> implements MqttProperty<T> {
 	}
 
 	@Override
-	public T getValue() {
+	public @Nullable T getValue() {
 		return value;
 	}
 
@@ -77,10 +76,9 @@ public class BasicMqttProperty<T> implements MqttProperty<T> {
 		if ( this == obj ) {
 			return true;
 		}
-		if ( !(obj instanceof BasicMqttProperty) ) {
+		if ( !(obj instanceof BasicMqttProperty other) ) {
 			return false;
 		}
-		BasicMqttProperty<?> other = (BasicMqttProperty<?>) obj;
 		return type == other.type && Objects.equals(value, other.value);
 	}
 

@@ -1,7 +1,7 @@
 /* ==================================================================
- * MqttMessageEntity.java - 10/06/2021 5:37:02 PM
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2021 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,32 +20,9 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.mqtt.dao;
-
-import org.jspecify.annotations.Nullable;
-import net.solarnetwork.common.mqtt.MqttMessage;
-import net.solarnetwork.dao.Entity;
-
 /**
- * An entity version of {@link MqttMessage} using a Long primary key.
- *
- * @author matt
- * @version 1.0
- * @since 2.5
+ * Package info.
  */
-public interface MqttMessageEntity extends MqttMessage, Entity<Long> {
 
-	/**
-	 * Get a unique destination identifier for this message.
-	 *
-	 * <p>
-	 * This could be a URL, for example, to uniquely identify where this message
-	 * is intended for.
-	 * </p>
-	 *
-	 * @return the destination
-	 */
-	@Nullable
-	String getDestination();
-
-}
+@org.jspecify.annotations.NullMarked
+package net.solarnetwork.common.mqtt;

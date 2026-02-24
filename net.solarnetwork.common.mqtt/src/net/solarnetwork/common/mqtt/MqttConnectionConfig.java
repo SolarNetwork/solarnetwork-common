@@ -24,6 +24,7 @@ package net.solarnetwork.common.mqtt;
 
 import java.net.URI;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.common.mqtt.MqttProperties.MutableMqttProperties;
 import net.solarnetwork.service.SSLService;
 import net.solarnetwork.util.StatTracker;
@@ -58,6 +59,7 @@ public interface MqttConnectionConfig extends WireLoggingSupport {
 	 *
 	 * @return the server URI
 	 */
+	@Nullable
 	URI getServerUri();
 
 	/**
@@ -79,6 +81,7 @@ public interface MqttConnectionConfig extends WireLoggingSupport {
 	 *
 	 * @return the SSL service, or {@literal null} for an unencrypted connection
 	 */
+	@Nullable
 	SSLService getSslService();
 
 	/**
@@ -86,6 +89,7 @@ public interface MqttConnectionConfig extends WireLoggingSupport {
 	 *
 	 * @return the client ID
 	 */
+	@Nullable
 	String getClientId();
 
 	/**
@@ -93,6 +97,7 @@ public interface MqttConnectionConfig extends WireLoggingSupport {
 	 *
 	 * @return the username
 	 */
+	@Nullable
 	String getUsername();
 
 	/**
@@ -100,6 +105,7 @@ public interface MqttConnectionConfig extends WireLoggingSupport {
 	 *
 	 * @return the password
 	 */
+	@Nullable
 	String getPassword();
 
 	/**
@@ -114,6 +120,7 @@ public interface MqttConnectionConfig extends WireLoggingSupport {
 	 *
 	 * @return the last will, or {@literal null}
 	 */
+	@Nullable
 	MqttMessage getLastWill();
 
 	/**
@@ -179,6 +186,7 @@ public interface MqttConnectionConfig extends WireLoggingSupport {
 	 *
 	 * @return the statistics object, or {@literal null}
 	 */
+	@Nullable
 	StatTracker getStats();
 
 	/**
@@ -187,6 +195,7 @@ public interface MqttConnectionConfig extends WireLoggingSupport {
 	 * @return the properties, or {@literal null}
 	 * @since 1.1
 	 */
+	@Nullable
 	MqttProperties getProperties();
 
 	/**
@@ -199,7 +208,7 @@ public interface MqttConnectionConfig extends WireLoggingSupport {
 	 * @return the property, or {@literal null}
 	 */
 	@SuppressWarnings("unchecked")
-	default <T> MqttProperty<T> getProperty(MqttPropertyType type) {
+	default <T> @Nullable MqttProperty<T> getProperty(MqttPropertyType type) {
 		MqttProperties props = getProperties();
 		if ( props != null ) {
 			return (MqttProperty<T>) props.getProperty(type);

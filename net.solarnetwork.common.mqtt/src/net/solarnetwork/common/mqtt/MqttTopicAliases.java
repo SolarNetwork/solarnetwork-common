@@ -1,21 +1,21 @@
 /* ==================================================================
  * MqttTopicAliases.java - 1/05/2021 4:40:15 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,14 +23,15 @@
 package net.solarnetwork.common.mqtt;
 
 import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
 
 /**
  * API for managing MQTT 5+ topic aliaes.
- * 
+ *
  * <p>
  * Implementations of this API are meant to be thread-safe.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.1
  * @since 2.2
@@ -39,20 +40,20 @@ public interface MqttTopicAliases {
 
 	/**
 	 * Get the maximum number of topic aliases supported by this instance.
-	 * 
+	 *
 	 * @return the count, zero or more
 	 */
 	int getMaximumAliasCount();
 
 	/**
 	 * Set the maximum number of topic aliases supported by this instance.
-	 * 
+	 *
 	 * <p>
 	 * If {@code maximumAliasCount} is smaller than the number of currently
 	 * aliased topics, the aliases should be cleared, as if {@link #clear()}
 	 * were also called.
 	 * </p>
-	 * 
+	 *
 	 * @param maximumAliasCount
 	 *        the count, zero or more
 	 */
@@ -65,7 +66,7 @@ public interface MqttTopicAliases {
 
 	/**
 	 * Get a topic alias.
-	 * 
+	 *
 	 * <p>
 	 * Call this method to acquire or create a topic alias. If a topic alias for
 	 * {@code topic} has not been assigned and confirmed yet, this method will
@@ -73,12 +74,12 @@ public interface MqttTopicAliases {
 	 * Once the alias has been confirmed via {@link #confirmTopicAlias(String)}
 	 * then {@code aliasConsumer} will be invoked with the assigned alias.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * No alias will be assigned if the maximum alias count is {@literal 0} or
 	 * the maximum number of aliases have been assigned.
 	 * </p>
-	 * 
+	 *
 	 * @param topic
 	 *        the topic to get an alias for
 	 * @param aliasConsumer
@@ -92,12 +93,12 @@ public interface MqttTopicAliases {
 
 	/**
 	 * Confirm that a topic alias is allowed.
-	 * 
+	 *
 	 * <p>
 	 * This should be invoked once confirmation from the MQTT broker has been
 	 * received, or immediately after receiving an alias from the broker.
 	 * </p>
-	 * 
+	 *
 	 * @param topic
 	 *        the topic to confirm
 	 * @return {@literal true} if the given topic had an alias and was
@@ -108,28 +109,30 @@ public interface MqttTopicAliases {
 
 	/**
 	 * Get the topic for an alias.
-	 * 
+	 *
 	 * @param topic
 	 *        the given topic
 	 * @param alias
 	 *        the given alias
 	 * @return the topic for the given alias
 	 */
-	String aliasedTopic(String topic, Integer alias);
+	@Nullable
+	String aliasedTopic(@Nullable String topic, Integer alias);
 
 	/**
 	 * Get a {@link MqttProperties} that includes a topic alias property.
-	 * 
+	 *
 	 * @param alias
 	 *        the topic alias
 	 * @return the properties, or {@literal null} if {@code alias} is not
 	 *         already aliased
 	 */
+	@Nullable
 	MqttProperties propertiesForAliasedTopic(Integer alias);
 
 	/**
 	 * Convenience method to create a new message with a topic alias.
-	 * 
+	 *
 	 * @param topic
 	 *        the topic
 	 * @param retained

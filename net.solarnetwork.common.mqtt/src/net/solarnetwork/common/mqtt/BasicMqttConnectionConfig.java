@@ -22,9 +22,11 @@
 
 package net.solarnetwork.common.mqtt;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.service.OptionalService;
 import net.solarnetwork.service.SSLService;
 import net.solarnetwork.service.StaticOptionalService;
@@ -64,22 +66,22 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	public static final MqttVersion DEFAULT_VERSION = MqttVersion.Mqtt311;
 
 	private String uid;
-	private URI serverUri;
+	private @Nullable URI serverUri;
 	private MqttVersion version;
-	private OptionalService<SSLService> optionalSslService;
-	private String clientId;
-	private String username;
-	private String password;
+	private @Nullable OptionalService<SSLService> optionalSslService;
+	private @Nullable String clientId;
+	private @Nullable String username;
+	private @Nullable String password;
 	private boolean cleanSession;
 	private int connectTimeoutSeconds;
 	private boolean reconnect;
 	private int reconnectDelaySeconds;
-	private MqttMessage lastWill;
+	private @Nullable MqttMessage lastWill;
 	private int maximumMessageSize;
 	private int keepAliveSeconds;
 	private int readTimeoutSeconds = -1;
 	private int writeTimeoutSeconds = -1;
-	private StatTracker stats;
+	private @Nullable StatTracker stats;
 	private boolean wireLoggingEnabled;
 	private final BasicMutableMqttProperties properties;
 
@@ -105,7 +107,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 * @param other
 	 *        the configuration to copy, or {@literal null}
 	 */
-	public BasicMqttConnectionConfig(MqttConnectionConfig other) {
+	public BasicMqttConnectionConfig(@Nullable MqttConnectionConfig other) {
 		this();
 		if ( other == null ) {
 			return;
@@ -151,7 +153,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	}
 
 	@Override
-	public URI getServerUri() {
+	public @Nullable URI getServerUri() {
 		return serverUri;
 	}
 
@@ -161,7 +163,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 * @param serverUri
 	 *        the server URI
 	 */
-	public void setServerUri(URI serverUri) {
+	public void setServerUri(@Nullable URI serverUri) {
 		this.serverUri = serverUri;
 	}
 
@@ -170,7 +172,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 *
 	 * @return the URI value, or {@literal null} if one has not been set
 	 */
-	public String getServerUriValue() {
+	public @Nullable String getServerUriValue() {
 		URI uri = getServerUri();
 		return (uri != null ? uri.toString() : null);
 	}
@@ -207,7 +209,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 *
 	 * @return the host name, or {@literal null}
 	 */
-	public String getHost() {
+	public @Nullable String getHost() {
 		URI uri = getServerUri();
 		return (uri != null ? uri.getHost() : null);
 	}
@@ -240,14 +242,11 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 *         if {@code version} is {@literal null}
 	 */
 	public void setVersion(MqttVersion version) {
-		if ( version == null ) {
-			throw new IllegalArgumentException("The version value must not be null.");
-		}
-		this.version = version;
+		this.version = requireNonNullArgument(version, "version");
 	}
 
 	@Override
-	public SSLService getSslService() {
+	public @Nullable SSLService getSslService() {
 		return (optionalSslService != null ? optionalSslService.service() : null);
 	}
 
@@ -263,8 +262,8 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 * @param sslService
 	 *        the sslService to set
 	 */
-	public void setSslService(SSLService sslService) {
-		setOptionalSslService(new StaticOptionalService<>(sslService));
+	public void setSslService(@Nullable SSLService sslService) {
+		setOptionalSslService(sslService != null ? new StaticOptionalService<>(sslService) : null);
 	}
 
 	/**
@@ -272,7 +271,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 *
 	 * @return the optional service
 	 */
-	public OptionalService<SSLService> getOptionalSslService() {
+	public @Nullable OptionalService<SSLService> getOptionalSslService() {
 		return optionalSslService;
 	}
 
@@ -282,12 +281,12 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 * @param optionalSslService
 	 *        the optional service
 	 */
-	public void setOptionalSslService(OptionalService<SSLService> optionalSslService) {
+	public void setOptionalSslService(@Nullable OptionalService<SSLService> optionalSslService) {
 		this.optionalSslService = optionalSslService;
 	}
 
 	@Override
-	public String getClientId() {
+	public @Nullable String getClientId() {
 		return clientId;
 	}
 
@@ -297,12 +296,12 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 * @param clientId
 	 *        the clientId to set
 	 */
-	public void setClientId(String clientId) {
+	public void setClientId(@Nullable String clientId) {
 		this.clientId = clientId;
 	}
 
 	@Override
-	public String getUsername() {
+	public @Nullable String getUsername() {
 		return username;
 	}
 
@@ -312,12 +311,12 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 * @param username
 	 *        the username to set
 	 */
-	public void setUsername(String username) {
+	public void setUsername(@Nullable String username) {
 		this.username = username;
 	}
 
 	@Override
-	public String getPassword() {
+	public @Nullable String getPassword() {
 		return password;
 	}
 
@@ -327,7 +326,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 * @param password
 	 *        the password to set
 	 */
-	public void setPassword(String password) {
+	public void setPassword(@Nullable String password) {
 		this.password = password;
 	}
 
@@ -377,7 +376,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	}
 
 	@Override
-	public MqttMessage getLastWill() {
+	public @Nullable MqttMessage getLastWill() {
 		return lastWill;
 	}
 
@@ -387,7 +386,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 * @param lastWill
 	 *        the lastWill to set
 	 */
-	public void setLastWill(MqttMessage lastWill) {
+	public void setLastWill(@Nullable MqttMessage lastWill) {
 		this.lastWill = lastWill;
 	}
 
@@ -455,7 +454,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	}
 
 	@Override
-	public StatTracker getStats() {
+	public @Nullable StatTracker getStats() {
 		return stats;
 	}
 
@@ -469,7 +468,7 @@ public class BasicMqttConnectionConfig implements MqttConnectionConfig {
 	 * @param stats
 	 *        the statistics object
 	 */
-	public void setStats(StatTracker stats) {
+	public void setStats(@Nullable StatTracker stats) {
 		this.stats = stats;
 		if ( stats != null && uid != null ) {
 			stats.setUid(uid);
