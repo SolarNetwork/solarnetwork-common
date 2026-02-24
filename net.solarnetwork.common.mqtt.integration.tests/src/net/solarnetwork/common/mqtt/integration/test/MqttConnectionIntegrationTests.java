@@ -22,13 +22,14 @@
 
 package net.solarnetwork.common.mqtt.integration.test;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.requireNonNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.startsWith;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -43,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
@@ -56,7 +58,7 @@ import net.solarnetwork.common.mqtt.MqttMessageHandler;
 import net.solarnetwork.common.mqtt.MqttQos;
 import net.solarnetwork.common.mqtt.ReconfigurableMqttConnection;
 import net.solarnetwork.test.mqtt.MqttServerSupport;
-import net.solarnetwork.test.mqtt.TestingInterceptHandler;
+import net.solarnetwork.test.mqtt.TestingInterceptHandler;;
 
 /**
  * Common integration tests for {@link MqttConnection} implementations.
@@ -73,23 +75,22 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 	private static final String TEST_CLIENT_ID = "solarnet.test";
 	private static final int TIMEOUT_SECS = 20;
-	private static final Charset UTF8 = Charset.forName("UTF-8");
 
-	protected BasicMqttConnectionConfig config;
-	private MqttConnection service;
+	protected @Nullable BasicMqttConnectionConfig config;
+	private @Nullable MqttConnection service;
 
 	public static final class CountDownConnectionObserver implements MqttConnectionObserver {
 
 		private final CountDownLatch latch;
-		private final AtomicInteger lostCounter;
-		private final AtomicInteger estCounter;
+		private final @Nullable AtomicInteger lostCounter;
+		private final @Nullable AtomicInteger estCounter;
 
 		private CountDownConnectionObserver(CountDownLatch latch) {
 			this(latch, null, null);
 		}
 
-		private CountDownConnectionObserver(CountDownLatch latch, AtomicInteger lostCounter,
-				AtomicInteger estCounter) {
+		private CountDownConnectionObserver(CountDownLatch latch, @Nullable AtomicInteger lostCounter,
+				@Nullable AtomicInteger estCounter) {
 			this.latch = latch;
 			this.lostCounter = lostCounter;
 			this.estCounter = estCounter;
@@ -97,7 +98,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		@Override
 		public void onMqttServerConnectionLost(MqttConnection connection, boolean willReconnect,
-				Throwable cause) {
+				@Nullable Throwable cause) {
 			if ( lostCounter != null ) {
 				lostCounter.incrementAndGet();
 			}
@@ -116,11 +117,12 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 	public void setup() throws Exception {
 		setupMqttServer();
 
-		config = new BasicMqttConnectionConfig();
+		var config = new BasicMqttConnectionConfig();
 		config.setServerUriValue("mqtt://localhost:" + getMqttServerPort());
 		config.setClientId(TEST_CLIENT_ID);
 		config.setConnectTimeoutSeconds(1);
 		config.setReconnectDelaySeconds(1);
+		this.config = config;
 	}
 
 	/**
@@ -138,17 +140,19 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
 
 		// when
-		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+		requireNonNull(service).open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
 		stopMqttServer(); // to flush messages
 
 		// then
-		TestingInterceptHandler session = getTestingInterceptHandler();
+		TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 		assertThat("Connected to broker", session.connectMessages, hasSize(1));
 
 		InterceptConnectMessage connMsg = session.connectMessages.get(0);
@@ -163,6 +167,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -174,7 +180,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		stopMqttServer(); // to flush messages
 
 		// then
-		TestingInterceptHandler session = getTestingInterceptHandler();
+		TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 		assertThat("Connected to broker", session.connectMessages, hasSize(1));
 
 		InterceptConnectMessage connMsg = session.connectMessages.get(0);
@@ -189,6 +195,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(true);
@@ -199,7 +207,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		stopMqttServer(); // to flush messages
 
 		// then
-		TestingInterceptHandler session = getTestingInterceptHandler();
+		TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 		assertThat("Connected to broker", session.connectMessages, hasSize(1));
 
 		InterceptConnectMessage connMsg = session.connectMessages.get(0);
@@ -217,6 +225,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(true);
@@ -251,7 +261,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		stopMqttServer(); // to flush messages
 
 		// then
-		TestingInterceptHandler session = getTestingInterceptHandler();
+		TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 		assertThat("Connected to broker", session.connectMessages, hasSize(1));
 
 		InterceptConnectMessage connMsg = session.connectMessages.get(0);
@@ -266,12 +276,14 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(true);
 		config.setReconnectDelaySeconds(1);
 
-		final TestingInterceptHandler session = getTestingInterceptHandler();
+		final TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 
 		// when
 		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
@@ -315,11 +327,13 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(true);
 
-		final TestingInterceptHandler session = getTestingInterceptHandler();
+		final TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 
 		// when
 		final CountDownLatch connectLatch = new CountDownLatch(2);
@@ -363,6 +377,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -371,13 +387,13 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
 		final String msg = "Hello, world.";
-		service.publish(new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce, msg.getBytes(UTF8)))
+		service.publish(new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce, msg.getBytes(UTF_8)))
 				.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
 		stopMqttServer(); // to flush messages
 
 		// then
-		TestingInterceptHandler session = getTestingInterceptHandler();
+		TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 		assertThat("Published a message", session.publishMessages, hasSize(1));
 
 		String result = session.getPublishPayloadStringAtIndex(0);
@@ -389,6 +405,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -399,7 +417,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		final String msg = "Hello, world.";
 		try {
 			service.publish(
-					new BasicMqttMessage("bad/#/topic", false, MqttQos.AtLeastOnce, msg.getBytes(UTF8)))
+					new BasicMqttMessage("bad/#/topic", false, MqttQos.AtLeastOnce, msg.getBytes(UTF_8)))
 					.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 		} catch ( ExecutionException e ) {
 			assertThat("Invalid topic results in IllegalArgumentException", e.getCause(),
@@ -409,7 +427,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		stopMqttServer(); // to flush messages
 
 		// then
-		TestingInterceptHandler session = getTestingInterceptHandler();
+		TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 		assertThat("Published no message", session.publishMessages, hasSize(0));
 	}
 
@@ -418,6 +436,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -428,7 +448,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg = "Hello, world. This message is too long.";
 		try {
-			service.publish(new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce, msg.getBytes(UTF8)))
+			service.publish(new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce, msg.getBytes(UTF_8)))
 					.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 		} catch ( ExecutionException e ) {
 			assertThat("Maximum message size exceeded results in IllegalArgumentException", e.getCause(),
@@ -438,7 +458,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		stopMqttServer(); // to flush messages
 
 		// then
-		TestingInterceptHandler session = getTestingInterceptHandler();
+		TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 		assertThat("Published no message", session.publishMessages, hasSize(0));
 	}
 
@@ -446,6 +466,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -467,7 +489,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 					@Override
 					public void run() {
 						Future<?> f = service.publish(new BasicMqttMessage("foo", false, qos,
-								String.format(msg, count).getBytes(UTF8)));
+								String.format(msg, count).getBytes(UTF_8)));
 						publishFutures.add(f);
 					}
 				});
@@ -496,7 +518,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// then
 		assertThat("All messages completed publishing", publishFutures, hasSize(0));
 
-		TestingInterceptHandler session = getTestingInterceptHandler();
+		TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 		assertThat("Published " + msgCount + " messages", session.publishMessages, hasSize(msgCount));
 
 		String result = session.getPublishPayloadStringAtIndex(0);
@@ -518,6 +540,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -539,7 +563,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg = "Hello, world.";
 		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
-				msg.getBytes(UTF8));
+				msg.getBytes(UTF_8));
 		f = service.publish(tx);
 		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
@@ -553,7 +577,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		MqttMessage rx = messages.get(0);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg));
 	}
 
 	@Test
@@ -561,6 +585,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -580,7 +606,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg = "Hello, world.";
 		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
-				msg.getBytes(UTF8));
+				msg.getBytes(UTF_8));
 		f = service.publish(tx);
 		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
@@ -594,7 +620,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		MqttMessage rx = messages.get(0);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg));
 	}
 
 	@Test
@@ -602,6 +628,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -631,7 +659,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg = "Hello, world.";
 		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
-				msg.getBytes(UTF8));
+				msg.getBytes(UTF_8));
 		service.publish(tx).get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
 		// give a little time for broker to publish to subscriber
@@ -645,7 +673,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		MqttMessage rx = messages.get(0);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg));
 	}
 
 	@Test
@@ -653,6 +681,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -674,7 +704,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg = "Hello, world.";
 		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
-				msg.getBytes(UTF8));
+				msg.getBytes(UTF_8));
 		f = service.publish(tx);
 		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
@@ -696,7 +726,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		MqttMessage rx = messages.get(0);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg));
 	}
 
 	@Test
@@ -704,6 +734,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -724,7 +756,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg = "Hello, world.";
 		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
-				msg.getBytes(UTF8));
+				msg.getBytes(UTF_8));
 		f = service.publish(tx);
 		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
@@ -746,7 +778,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		MqttMessage rx = messages.get(0);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg));
 	}
 
 	@Test
@@ -754,6 +786,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -778,7 +812,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg = "Hello, world.";
 		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
-				msg.getBytes(UTF8));
+				msg.getBytes(UTF_8));
 		service.publish(tx).get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
 		// give a little time for broker to publish to subscriber
@@ -786,7 +820,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg2 = "Goodbye, world.";
 		final MqttMessage tx2 = new BasicMqttMessage("bar", false, MqttQos.AtLeastOnce,
-				msg2.getBytes(UTF8));
+				msg2.getBytes(UTF_8));
 		service.publish(tx2).get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
 		// give a little time for broker to publish to subscriber
@@ -799,12 +833,12 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		MqttMessage rx = messages.get(0);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg));
 
 		rx = messages.get(1);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx2.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg2));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg2));
 	}
 
 	@Test
@@ -812,6 +846,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(false);
@@ -836,7 +872,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg = "Hello, world.";
 		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
-				msg.getBytes(UTF8));
+				msg.getBytes(UTF_8));
 		service.publish(tx).get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
 		// give a little time for broker to publish to subscriber
@@ -844,7 +880,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg2 = "Goodbye, world.";
 		final MqttMessage tx2 = new BasicMqttMessage("bar", false, MqttQos.AtLeastOnce,
-				msg2.getBytes(UTF8));
+				msg2.getBytes(UTF_8));
 		service.publish(tx2).get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
 		// give a little time for broker to publish to subscriber
@@ -871,17 +907,17 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		MqttMessage rx = messages.get(0);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg));
 
 		rx = messages.get(1);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx2.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg2));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg2));
 
 		rx = messages.get(2);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx2.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg2));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg2));
 	}
 
 	@Test
@@ -890,11 +926,13 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(true);
 
-		final TestingInterceptHandler session = getTestingInterceptHandler();
+		final TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 
 		// when
 		final CountDownLatch connectLatch = new CountDownLatch(2);
@@ -916,7 +954,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg = "Hello, world.";
 		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
-				msg.getBytes(UTF8));
+				msg.getBytes(UTF_8));
 		service.publish(tx).get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
 		// give a little time for broker to publish to subscriber
@@ -936,7 +974,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg2 = "Goodbye, world.";
 		final MqttMessage tx2 = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
-				msg2.getBytes(UTF8));
+				msg2.getBytes(UTF_8));
 		f = service.publish(tx2);
 		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
@@ -963,7 +1001,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		MqttMessage rx = messages.get(0);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg));
 	}
 
 	@Test
@@ -972,11 +1010,13 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// given
 		final String username = UUID.randomUUID().toString();
 		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
 		config.setUsername(username);
 		config.setPassword(password);
 		config.setReconnect(true);
 
-		final TestingInterceptHandler session = getTestingInterceptHandler();
+		final TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
 
 		// when
 		final AtomicInteger lostCounter = new AtomicInteger(0);
@@ -986,7 +1026,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 			@Override
 			public void onMqttServerConnectionLost(MqttConnection connection, boolean willReconnect,
-					Throwable cause) {
+					@Nullable Throwable cause) {
 				lostCounter.incrementAndGet();
 			}
 
@@ -1012,7 +1052,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg = "Hello, world.";
 		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
-				msg.getBytes(UTF8));
+				msg.getBytes(UTF_8));
 		service.publish(tx).get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
 		// give a little time for broker to publish to subscriber
@@ -1032,7 +1072,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 
 		final String msg2 = "Goodbye, world.";
 		final MqttMessage tx2 = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
-				msg2.getBytes(UTF8));
+				msg2.getBytes(UTF_8));
 		Future<?> f = service.publish(tx2);
 		f.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 
@@ -1066,12 +1106,12 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		MqttMessage rx = messages.get(0);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg));
 
 		rx = messages.get(1);
 		assertThat("Message topic", rx.getTopic(), equalTo(tx2.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
-		assertThat("Message payload", new String(rx.getPayload(), UTF8), equalTo(msg2));
+		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg2));
 	}
 
 }
