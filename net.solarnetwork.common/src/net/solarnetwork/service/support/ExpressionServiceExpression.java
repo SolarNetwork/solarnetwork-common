@@ -1,34 +1,35 @@
 /* ==================================================================
  * ExpressionServiceExpression.java - 6/02/2019 8:22:25 am
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.service.support;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import org.springframework.expression.Expression;
 import net.solarnetwork.service.ExpressionService;
 
 /**
  * An {@link Expression} paired with the {@link ExpressionService} it can be
  * used with.
- * 
+ *
  * @author matt
  * @version 2.0
  * @since 1.49
@@ -40,24 +41,24 @@ public class ExpressionServiceExpression {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param service
 	 *        the service
 	 * @param expression
 	 *        the expression
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public ExpressionServiceExpression(ExpressionService service, Expression expression) {
 		super();
-		if ( service == null || expression == null ) {
-			throw new IllegalArgumentException("An ExpressionService and Expression are both required");
-		}
-		this.service = service;
-		this.expression = expression;
+		this.service = requireNonNullArgument(service, "service");
+		this.expression = requireNonNullArgument(expression, "expression");
+		;
 	}
 
 	/**
 	 * Get the expression service.
-	 * 
+	 *
 	 * @return the service
 	 */
 	public ExpressionService getService() {
@@ -66,7 +67,7 @@ public class ExpressionServiceExpression {
 
 	/**
 	 * Get the expression.
-	 * 
+	 *
 	 * @return the expression
 	 */
 	public Expression getExpression() {

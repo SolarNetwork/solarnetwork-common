@@ -1,21 +1,21 @@
 /* ==================================================================
  * SettingUtils.java - 16/04/2018 9:32:39 AM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.settings.GroupSettingSpecifier;
 import net.solarnetwork.settings.KeyedSettingSpecifier;
 import net.solarnetwork.settings.MappableSpecifier;
@@ -46,7 +47,7 @@ import net.solarnetwork.settings.ToggleSettingSpecifier;
 
 /**
  * Helper utilities for settings.
- * 
+ *
  * @author matt
  * @version 1.2
  * @since 1.43
@@ -59,7 +60,7 @@ public final class SettingUtils {
 
 	/**
 	 * API to map a list element into a set of {@link SettingSpecifier} objects.
-	 * 
+	 *
 	 * @param <T>
 	 *        The collection type.
 	 */
@@ -68,7 +69,7 @@ public final class SettingUtils {
 		/**
 		 * Map a single list element value into one or more
 		 * {@link SettingSpecifier} objects.
-		 * 
+		 *
 		 * @param value
 		 *        The list element value.
 		 * @param index
@@ -77,13 +78,13 @@ public final class SettingUtils {
 		 *        An indexed key prefix to use for the grouped settings.
 		 * @return The settings.
 		 */
-		public Collection<SettingSpecifier> mapListSettingKey(T value, int index, String key);
+		public Collection<SettingSpecifier> mapListSettingKey(@Nullable T value, int index, String key);
 
 	}
 
 	/**
 	 * Get a dynamic list {@link GroupSettingSpecifier}.
-	 * 
+	 *
 	 * @param <T>
 	 *        the group item type
 	 * @param key
@@ -117,20 +118,20 @@ public final class SettingUtils {
 
 	/**
 	 * Get a set of setting keys that require secure handling.
-	 * 
+	 *
 	 * <p>
 	 * This method considers the following settings for secure handling :
 	 * </p>
-	 * 
+	 *
 	 * <ol>
 	 * <li>{@link TextFieldSettingSpecifier#isSecureTextEntry()} that returns
 	 * {@literal true}</li>
 	 * </ol>
-	 * 
+	 *
 	 * <p>
 	 * The returned set maintains the same iteration order as {@code settings}.
 	 * </p>
-	 * 
+	 *
 	 * @param settings
 	 *        the settings to check ({@code null} allowed)
 	 * @return the set of secure entry keys, never {@code null}
@@ -157,13 +158,13 @@ public final class SettingUtils {
 
 	/**
 	 * Add a prefix to the keys of all {@link MappableSpecifier} settings.
-	 * 
+	 *
 	 * @param settings
 	 *        the settings to map
 	 * @param prefix
 	 *        the prefix to add to all {@link MappableSpecifier} settings
-	 * @return list of mapped settings, or {@code null} if {@code settings}
-	 *         is {@code null}
+	 * @return list of mapped settings, or {@code null} if {@code settings} is
+	 *         {@code null}
 	 * @since 1.1
 	 */
 	public static List<SettingSpecifier> mappedWithPrefix(List<SettingSpecifier> settings,
@@ -185,13 +186,13 @@ public final class SettingUtils {
 	/**
 	 * Extract all {@link KeyedSettingSpecifier} keys and associated default
 	 * values from a list of settings.
-	 * 
+	 *
 	 * <p>
 	 * Both {@link GroupSettingSpecifier#getGroupSettings()} and
 	 * {@link ParentSettingSpecifier#getChildSettings()} will be included in the
 	 * returned map.
 	 * </p>
-	 * 
+	 *
 	 * @param settings
 	 *        the settings to extract the keyed defaults from
 	 * @return a map of keyed setting keys to associated default values, never
@@ -227,13 +228,13 @@ public final class SettingUtils {
 	/**
 	 * Create a simple template data structure representing all setting
 	 * specifiers of a setting specifier provider.
-	 * 
+	 *
 	 * <p>
 	 * The data structure is designed to be a basic representation of all
 	 * {@link SettingSpecifier} instances returned by
 	 * {@link SettingSpecifierProvider#templateSettingSpecifiers()}.
 	 * </p>
-	 * 
+	 *
 	 * @param provider
 	 *        the provider to generate the template specification for
 	 * @param callback
@@ -257,7 +258,7 @@ public final class SettingUtils {
 	/**
 	 * Add a template specification for a given {@link SettingSpecifier} to a
 	 * result list.
-	 * 
+	 *
 	 * @param spec
 	 *        the specifier to create the template specification for
 	 * @param result
@@ -365,7 +366,7 @@ public final class SettingUtils {
 	/**
 	 * Create a new template specification with only the base
 	 * {@link SettingSpecifier} properties populated.
-	 * 
+	 *
 	 * @param spec
 	 *        the specifier to create the specification map for
 	 * @param capacity

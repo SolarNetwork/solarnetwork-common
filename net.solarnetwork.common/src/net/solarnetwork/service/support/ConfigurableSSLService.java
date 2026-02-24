@@ -1,21 +1,21 @@
 /* ==================================================================
  * ConfigurableSSLService.java - 2/04/2017 10:19:45 AM
- * 
+ *
  * Copyright 2007-2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -45,6 +45,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.solarnetwork.service.CertificateException;
@@ -54,7 +55,7 @@ import net.solarnetwork.service.SSLService;
  * Basic implementation of {@link SSLService} that allows configuring a keystore
  * and truststore to use for the {@code SSLSocketFactory} returned by
  * {@link #getSSLSocketFactory()}.
- * 
+ *
  * @author matt
  * @version 2.0
  */
@@ -70,12 +71,12 @@ public class ConfigurableSSLService implements SSLService {
 	public static final String DEFAULT_PASSWORD = "changeit";
 
 	private String keyStorePath = DEFAULT_KEY_STORE_PATH;
-	private String keyStorePassword = DEFAULT_PASSWORD;
+	private @Nullable String keyStorePassword = DEFAULT_PASSWORD;
 	private String trustStorePath = DEFAULT_TRUST_STORE_PATH;
 	private String trustStorePassword = DEFAULT_PASSWORD;
 	private String jreTrustStorePassword = DEFAULT_PASSWORD;
 
-	private SSLSocketFactory socketFactory;
+	private @Nullable SSLSocketFactory socketFactory;
 
 	/** A class-level logger to use. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -89,7 +90,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Load a keystore from an {@code InputStream}.
-	 * 
+	 *
 	 * @param type
 	 *        The keystore type, e.g. {@code KeyStore.getDefaultType()}.
 	 * @param in
@@ -100,7 +101,8 @@ public class ConfigurableSSLService implements SSLService {
 	 * @throws CertificateException
 	 *         if any error occurs
 	 */
-	public static final KeyStore loadKeyStore(String type, InputStream in, String password) {
+	public static final KeyStore loadKeyStore(String type, @Nullable InputStream in,
+			@Nullable String password) {
 		if ( password == null ) {
 			password = "";
 		}
@@ -132,7 +134,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Serialize a {@code KeyStore} to an output stream.
-	 * 
+	 *
 	 * @param keyStore
 	 *        The keystore to serialize.
 	 * @param password
@@ -142,7 +144,8 @@ public class ConfigurableSSLService implements SSLService {
 	 * @throws CertificateException
 	 *         if any error occurs
 	 */
-	public static final void saveKeyStore(KeyStore keyStore, String password, OutputStream out) {
+	public static final void saveKeyStore(KeyStore keyStore, @Nullable String password,
+			OutputStream out) {
 		if ( password == null ) {
 			password = "";
 		}
@@ -170,7 +173,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Load the key store.
-	 * 
+	 *
 	 * @return the key store
 	 * @throws CertificateException
 	 *         if an IO error occurs
@@ -191,7 +194,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Load the trust store.
-	 * 
+	 *
 	 * @return the trust store
 	 * @throws CertificateException
 	 *         if an IO error occurs
@@ -256,7 +259,7 @@ public class ConfigurableSSLService implements SSLService {
 	}
 
 	@Override
-	public KeyManagerFactory getKeyManagerFactory() {
+	public @Nullable KeyManagerFactory getKeyManagerFactory() {
 		try {
 			File ksFile = new File(keyStorePath);
 			if ( ksFile.isFile() ) {
@@ -315,7 +318,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Get the path to the keystore.
-	 * 
+	 *
 	 * @return the keyStorePath
 	 */
 	public String getKeyStorePath() {
@@ -324,7 +327,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Set the path to the keystore.
-	 * 
+	 *
 	 * @param keyStorePath
 	 *        the keyStorePath to set
 	 */
@@ -334,7 +337,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Get the path to the truststore.
-	 * 
+	 *
 	 * @return the trustStorePath
 	 */
 	public String getTrustStorePath() {
@@ -343,7 +346,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Set the path to the truststore.
-	 * 
+	 *
 	 * @param trustStorePath
 	 *        the trustStorePath to set
 	 */
@@ -353,7 +356,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Get the truststore password.
-	 * 
+	 *
 	 * @return the trustStorePassword
 	 */
 	protected String getTrustStorePassword() {
@@ -362,7 +365,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Set the truststore password.
-	 * 
+	 *
 	 * @param trustStorePassword
 	 *        the trustStorePassword to set
 	 */
@@ -372,7 +375,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Get the JRE truststore password.
-	 * 
+	 *
 	 * @return the jreTrustStorePassword
 	 */
 	protected String getJreTrustStorePassword() {
@@ -381,7 +384,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Set the JRE truststore password.
-	 * 
+	 *
 	 * @param jreTrustStorePassword
 	 *        the jreTrustStorePassword to set
 	 */
@@ -391,7 +394,7 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Get the keystore password.
-	 * 
+	 *
 	 * @return The keystore password.
 	 */
 	protected String getKeyStorePassword() {
@@ -404,11 +407,11 @@ public class ConfigurableSSLService implements SSLService {
 
 	/**
 	 * Set the keystore password.
-	 * 
+	 *
 	 * @param keyStorePassword
 	 *        the keyStorePassword to set
 	 */
-	public void setKeyStorePassword(String keyStorePassword) {
+	public void setKeyStorePassword(@Nullable String keyStorePassword) {
 		this.keyStorePassword = keyStorePassword;
 	}
 

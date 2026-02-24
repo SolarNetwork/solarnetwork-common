@@ -25,6 +25,7 @@ package net.solarnetwork.service.support;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -47,7 +48,7 @@ public abstract class BaseLocalizedServiceInfoProvider extends BasicUnique<Strin
 	/** A class-level logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
-	private MessageSource messageSource;
+	private @Nullable MessageSource messageSource;
 
 	/**
 	 * Constructor.
@@ -55,12 +56,12 @@ public abstract class BaseLocalizedServiceInfoProvider extends BasicUnique<Strin
 	 * @param id
 	 *        the identity of this provider
 	 */
-	public BaseLocalizedServiceInfoProvider(String id) {
+	public BaseLocalizedServiceInfoProvider(@Nullable String id) {
 		super(id);
 	}
 
 	@Override
-	public LocalizedServiceInfo getLocalizedServiceInfo(Locale locale) {
+	public LocalizedServiceInfo getLocalizedServiceInfo(@Nullable Locale locale) {
 		locale = (locale != null ? locale : Locale.getDefault());
 		String id = (getId() != null ? getId().toString() : "");
 		String title = null;
@@ -83,10 +84,11 @@ public abstract class BaseLocalizedServiceInfoProvider extends BasicUnique<Strin
 	 * </p>
 	 *
 	 * @param locale
-	 *        the locale to resolve mesages for
+	 *        the locale to resolve messages for, or {@code null} to use the
+	 *        system default
 	 * @return the map, never {@code null}
 	 */
-	protected Map<String, String> resolveInfoMessages(Locale locale) {
+	protected Map<String, String> resolveInfoMessages(@Nullable Locale locale) {
 		return Collections.emptyMap();
 	}
 
@@ -95,7 +97,7 @@ public abstract class BaseLocalizedServiceInfoProvider extends BasicUnique<Strin
 	 *
 	 * @return the message source
 	 */
-	public MessageSource getMessageSource() {
+	public @Nullable MessageSource getMessageSource() {
 		return messageSource;
 	}
 
@@ -105,7 +107,7 @@ public abstract class BaseLocalizedServiceInfoProvider extends BasicUnique<Strin
 	 * @param messageSource
 	 *        the message source
 	 */
-	public void setMessageSource(MessageSource messageSource) {
+	public void setMessageSource(@Nullable MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
 

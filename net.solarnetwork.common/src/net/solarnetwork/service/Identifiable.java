@@ -78,6 +78,7 @@ public interface Identifiable {
 	 *
 	 * @return a display name
 	 */
+	@Nullable
 	String getDisplayName();
 
 }

@@ -1,7 +1,7 @@
 /* ==================================================================
- * BasicEvaluationConfiguration.java - 6/02/2019 7:13:13 am
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2019 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,37 +20,5 @@
  * ==================================================================
  */
 
+@org.jspecify.annotations.NullMarked
 package net.solarnetwork.service.support;
-
-import java.util.Map;
-import org.jspecify.annotations.Nullable;
-import net.solarnetwork.service.ExpressionService.EvaluationConfiguration;
-
-/**
- * Basic implementation of {@link EvaluationConfiguration}.
- *
- * @author matt
- * @version 2.0
- * @since 1.49
- */
-public class BasicEvaluationConfiguration implements EvaluationConfiguration {
-
-	private final @Nullable Map<String, Object> options;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param options
-	 *        the options
-	 */
-	public BasicEvaluationConfiguration(@Nullable Map<String, Object> options) {
-		super();
-		this.options = options;
-	}
-
-	@Override
-	public @Nullable Map<String, Object> getOptions() {
-		return options;
-	}
-
-}
