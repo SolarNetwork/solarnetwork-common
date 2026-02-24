@@ -68,7 +68,7 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null}
 	 */
-	public static <T> T requireNonNullArgument(@Nullable T arg, String argumentName)
+	public static <T> T requireNonNullArgument(final @Nullable T arg, final String argumentName)
 			throws IllegalArgumentException {
 		if ( arg == null ) {
 			throw new IllegalArgumentException(
@@ -106,7 +106,7 @@ public final class ObjectUtils {
 	 *         if {@code arg} is {@code null}
 	 * @since 1.3
 	 */
-	public static <T> T requireNonNullProperty(@Nullable T prop, String name)
+	public static <T> T requireNonNullProperty(final @Nullable T prop, final String name)
 			throws IllegalStateException {
 		if ( prop == null ) {
 			throw new IllegalStateException(String.format("%s is not available.", name));
@@ -144,7 +144,7 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null} or empty
 	 */
-	public static <T> T[] requireNonEmptyArgument(T[] arg, String argumentName)
+	public static <T> T[] requireNonEmptyArgument(final T @Nullable [] arg, final String argumentName)
 			throws IllegalArgumentException {
 		if ( arg == null || arg.length < 1 ) {
 			throw new IllegalArgumentException(
@@ -183,8 +183,8 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null} or empty
 	 */
-	public static <T extends Collection<?>> T requireNonEmptyArgument(T arg, String argumentName)
-			throws IllegalArgumentException {
+	public static <T extends Collection<?>> T requireNonEmptyArgument(final @Nullable T arg,
+			final String argumentName) throws IllegalArgumentException {
 		if ( arg == null || arg.size() < 1 ) {
 			throw new IllegalArgumentException(
 					String.format("The %s argument must not be empty.", argumentName));
@@ -223,8 +223,8 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null} or empty
 	 */
-	public static <T extends CharSequence> T requireNonEmptyArgument(T arg, String argumentName)
-			throws IllegalArgumentException {
+	public static <T extends CharSequence> T requireNonEmptyArgument(final @Nullable T arg,
+			final String argumentName) throws IllegalArgumentException {
 		if ( arg == null || arg.isEmpty() ) {
 			throw new IllegalArgumentException(
 					String.format("The %s argument must not be empty.", argumentName));
@@ -245,7 +245,8 @@ public final class ObjectUtils {
 	 *         {@code l.compareTo(r)} equals 0
 	 * @since 1.2
 	 */
-	public static <T extends Comparable<T>> boolean comparativelyEqual(@Nullable T l, @Nullable T r) {
+	public static <T extends Comparable<T>> boolean comparativelyEqual(final @Nullable T l,
+			final @Nullable T r) {
 		if ( l == r ) {
 			return true;
 		} else if ( l == null || r == null ) {
