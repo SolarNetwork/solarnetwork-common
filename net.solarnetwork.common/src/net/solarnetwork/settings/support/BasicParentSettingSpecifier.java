@@ -42,7 +42,7 @@ public class BasicParentSettingSpecifier extends BaseSettingSpecifier implements
 	 * Constructor.
 	 */
 	public BasicParentSettingSpecifier() {
-		super();
+		this(null);
 	}
 
 	/**
@@ -52,8 +52,10 @@ public class BasicParentSettingSpecifier extends BaseSettingSpecifier implements
 	 *        the desired child settings
 	 * @since 1.1
 	 */
+	@SuppressWarnings("NullAway")
 	public BasicParentSettingSpecifier(@Nullable List<SettingSpecifier> childSettings) {
 		super();
+		// following sets this.childSettings to non-null value, but NullAway can not see that
 		setChildSettings(childSettings);
 	}
 

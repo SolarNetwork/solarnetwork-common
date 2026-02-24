@@ -80,7 +80,8 @@ public class BasicTitleSettingSpecifier extends BaseKeyedSettingSpecifier<String
 	 *        the markup flag value
 	 * @since 1.2
 	 */
-	public BasicTitleSettingSpecifier(String key, String defaultValue, boolean trans, boolean markup) {
+	public BasicTitleSettingSpecifier(String key, @Nullable String defaultValue, boolean trans,
+			boolean markup) {
 		super(key, defaultValue, trans);
 		this.markup = markup;
 	}

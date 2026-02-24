@@ -36,8 +36,8 @@ import net.solarnetwork.settings.ToggleSettingSpecifier;
 public class BasicToggleSettingSpecifier extends BaseKeyedSettingSpecifier<Object>
 		implements ToggleSettingSpecifier {
 
-	private Object trueValue = Boolean.TRUE;
-	private Object falseValue = Boolean.FALSE;
+	private @Nullable Object trueValue = Boolean.TRUE;
+	private @Nullable Object falseValue = Boolean.FALSE;
 
 	/**
 	 * Constructor.

@@ -22,6 +22,7 @@
 
 package net.solarnetwork.settings.support;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSource;
 import net.solarnetwork.settings.SettingSpecifierProviderFactory;
@@ -40,9 +41,15 @@ public class BasicSettingSpecifierProviderFactory implements SettingSpecifierPro
 
 	/**
 	 * Constructor.
+	 *
+	 * @param factoryUid
+	 *        the factory UID
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
-	public BasicSettingSpecifierProviderFactory() {
+	public BasicSettingSpecifierProviderFactory(String factoryUid) {
 		super();
+		this.factoryUid = requireNonNullArgument(factoryUid, "factoryUid");
 	}
 
 	@Override
@@ -65,9 +72,11 @@ public class BasicSettingSpecifierProviderFactory implements SettingSpecifierPro
 	 *
 	 * @param factoryUid
 	 *        the UID to set
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
-	public void setFactoryUid(@Nullable String factoryUid) {
-		this.factoryUid = factoryUid;
+	public void setFactoryUid(String factoryUid) {
+		this.factoryUid = requireNonNullArgument(factoryUid, "factoryUid");
 	}
 
 	/**

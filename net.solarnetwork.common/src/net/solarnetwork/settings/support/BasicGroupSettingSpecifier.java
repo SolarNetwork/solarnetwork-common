@@ -126,9 +126,9 @@ public class BasicGroupSettingSpecifier extends BaseSettingSpecifier implements 
 	@Override
 	public SettingSpecifier mappedWithPlaceholer(final String template) {
 		List<SettingSpecifier> gSettings = getGroupSettings();
-		List<SettingSpecifier> mappedGroupSettings = null;
+		List<SettingSpecifier> mappedGroupSettings = Collections.emptyList();
 		if ( gSettings != null ) {
-			mappedGroupSettings = new ArrayList<SettingSpecifier>(gSettings.size());
+			mappedGroupSettings = new ArrayList<>(gSettings.size());
 			for ( SettingSpecifier s : gSettings ) {
 				if ( s instanceof MappableSpecifier ) {
 					MappableSpecifier ms = (MappableSpecifier) s;
@@ -154,9 +154,9 @@ public class BasicGroupSettingSpecifier extends BaseSettingSpecifier implements 
 	@Override
 	public SettingSpecifier mappedWithMapper(final Mapper mapper) {
 		List<SettingSpecifier> gSettings = getGroupSettings();
-		List<SettingSpecifier> mappedGroupSettings = null;
+		List<SettingSpecifier> mappedGroupSettings = Collections.emptyList();
 		if ( gSettings != null ) {
-			mappedGroupSettings = new ArrayList<SettingSpecifier>(gSettings.size());
+			mappedGroupSettings = new ArrayList<>(gSettings.size());
 			for ( SettingSpecifier s : gSettings ) {
 				if ( s instanceof MappableSpecifier ) {
 					MappableSpecifier ms = (MappableSpecifier) s;

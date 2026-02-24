@@ -24,6 +24,7 @@ package net.solarnetwork.settings.support;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSource;
 import net.solarnetwork.settings.FactorySettingSpecifierProvider;
 import net.solarnetwork.settings.SettingSpecifier;
@@ -64,12 +65,12 @@ public class BasicFactorySettingSpecifierProvider implements FactorySettingSpeci
 	}
 
 	@Override
-	public String getDisplayName() {
+	public @Nullable String getDisplayName() {
 		return delegate.getDisplayName();
 	}
 
 	@Override
-	public MessageSource getMessageSource() {
+	public @Nullable MessageSource getMessageSource() {
 		return delegate.getMessageSource();
 	}
 
@@ -89,7 +90,7 @@ public class BasicFactorySettingSpecifierProvider implements FactorySettingSpeci
 	}
 
 	@Override
-	public <T> T unwrap(Class<T> type) {
+	public <T> @Nullable T unwrap(Class<T> type) {
 		T result = FactorySettingSpecifierProvider.super.unwrap(type);
 		if ( result == null ) {
 			result = delegate.unwrap(type);
