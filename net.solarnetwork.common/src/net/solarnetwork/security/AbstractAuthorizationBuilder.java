@@ -1,21 +1,21 @@
 /* ==================================================================
  * AbstractAuthorizationBuilder.java - 28/08/2021 5:14:56 PM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -27,31 +27,34 @@ import static net.solarnetwork.security.AuthorizationUtils.AUTHORIZATION_TIMESTA
 import static net.solarnetwork.security.AuthorizationUtils.computeHmacSha256;
 import static net.solarnetwork.security.AuthorizationUtils.computeHmacSha256Hex;
 import static net.solarnetwork.security.AuthorizationUtils.semiColonDelimitedList;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 /**
  * Base class for SolarNetwork authorization builder support.
- * 
+ *
  * <p>
  * This builder supports an HMAC-SHA256 style digest authentication scheme in
  * the spirit of the AWS S3 Signature v4 scheme, but adapted for SolarNetwork.
  * In this scheme, a generated authorization credential takes the form of an
  * HTTP {@literal Authorization} header:
  * </p>
- * 
+ *
  * <pre>
  * SCHEME Credential=C,SignedHeaders=H,Signature=S
  * </pre>
- * 
+ *
  * <p>
  * The {@literal SCHEME} is provided by {#link {@link #schemeName()}}. The
  * credential {@literal C} is the {@code identifier} provided to the
@@ -60,14 +63,14 @@ import org.springframework.util.MultiValueMap;
  * computing the signature {@literal S}. The signature {@literal S} is a
  * hex-encoded HMAC-SHA256 digest.
  * </p>
- * 
+ *
  * <p>
  * The <em>signing key</em> used to sign the HMAC-SHA256 signature {@literal S}
  * is a value derived from a provided secret (i.e. password or token secret) by
  * computing a HMAC-SHA256 digest that uses a specific date (usually the current
  * date). See {@link #computeSigningKey(Instant, String)} for more details.
  * </p>
- * 
+ *
  * <p>
  * The <em>signing message</em> used in the HMAC-SHA256 signature {@literal S}
  * is a value derived from the configurable properties of this class: a date,
@@ -76,7 +79,7 @@ import org.springframework.util.MultiValueMap;
  * {@link #computeCanonicalRequestMessage(String[])} method. See the
  * {@link #computeSignatureData(Instant, String)} method for more details.
  * </p>
- * 
+ *
  * @param <T>
  *        the implementation type
  * @author matt
@@ -94,52 +97,60 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	public static final String AUTHORIZATION_COMPONENT_SIGNATURE = "Signature";
 
 	private final String identifier;
-	private MultiValueMap<String, String> headers;
-	private String verb;
-	private String requestPath;
+	private @Nullable MultiValueMap<String, String> headers;
+	private @Nullable String verb;
+	private @Nullable String requestPath;
 	private Instant date;
-	private byte[] signingKey;
-	private byte[] contentSha256;
+	private byte @Nullable [] signingKey;
+	private byte @Nullable [] contentSha256;
 
 	/**
 	 * Construct with a credential.
-	 * 
+	 *
 	 * <p>
 	 * The builder will be initialized and then {@link #reset()} will be called
 	 * so default values are configured.
 	 * </p>
-	 * 
+	 *
 	 * @param identifier
 	 *        the bearer's identifier, such as a token ID or username
+	 * @throws IllegalArgumentException
+	 *         if {@code identifier} is {@code null}
 	 */
+	@SuppressWarnings("NullAway")
 	public AbstractAuthorizationBuilder(String identifier) {
 		super();
-		this.identifier = identifier;
-		reset();
+		this.identifier = requireNonNullArgument(identifier, "identifier");
+		reset(); // this will populate date, but NullAway misses
 	}
 
 	/**
 	 * Reset all values to their defaults.
-	 * 
+	 *
 	 * <p>
 	 * All properties will be set to {@code null} except the following:
 	 * </p>
-	 * 
+	 *
 	 * <dl>
 	 * <dt>verb</dt>
 	 * <dd>will be set to {@literal GET}</dd>
-	 * 
+	 *
 	 * <dt>path</dt>
 	 * <dd>Will be set to {@literal /}</dd>
-	 * 
+	 *
 	 * <dt>date</dt>
 	 * <dd>will be set to the current time</dd>
-	 * 
+	 *
 	 * <dt>signingKey</dt>
 	 * <dd>this value will <b>not</b> be changed</dd>
 	 * </dl>
-	 * 
-	 * @return The builder.
+	 *
+	 * <p>
+	 * <b>Note:</b> extending classes should invoke this method if overriding
+	 * this method, by calling {@code super.reset()}.
+	 * </p>
+	 *
+	 * @return this builder
 	 */
 	public T reset() {
 		contentSha256 = null;
@@ -149,19 +160,19 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Set the request date.
-	 * 
+	 *
 	 * <p>
 	 * This will also set the {@literal date} header with the date's formatted
 	 * value.
 	 * </p>
-	 * 
+	 *
 	 * @param date
-	 *        the date to use, or {@code null} for the current system time
-	 *        via {@code Instant.now()}; will be truncated to second resolution
+	 *        the date to use, or {@code null} for the current system time via
+	 *        {@code Instant.now()}; will be truncated to second resolution
 	 * @return this builder
 	 */
 	@SuppressWarnings("unchecked")
-	public T date(Instant date) {
+	public T date(@Nullable Instant date) {
 		Instant d = (date == null ? Instant.now() : date).truncatedTo(ChronoUnit.SECONDS);
 		this.date = d;
 		return (T) this;
@@ -169,7 +180,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Get the date.
-	 * 
+	 *
 	 * @return the date
 	 */
 	public Instant getDate() {
@@ -178,12 +189,12 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Set the verb.
-	 * 
+	 *
 	 * <p>
 	 * The meaning of the verb depends on the communication protocol being used,
 	 * such as a HTTP method or STOMP command.
 	 * </p>
-	 * 
+	 *
 	 * @param verb
 	 *        the verb
 	 * @return this builder
@@ -192,25 +203,22 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 */
 	@SuppressWarnings("unchecked")
 	public T verb(String verb) {
-		if ( verb == null ) {
-			throw new IllegalArgumentException("The verb argument must not be null.");
-		}
-		this.verb = verb;
+		this.verb = requireNonNullArgument(verb, "verb");
 		return (T) this;
 	}
 
 	/**
 	 * Get the verb.
-	 * 
+	 *
 	 * @return the verb
 	 */
-	public String getVerb() {
+	public @Nullable String getVerb() {
 		return verb;
 	}
 
 	/**
 	 * Set the request path.
-	 * 
+	 *
 	 * @param path
 	 *        the request path to use
 	 * @return this builder
@@ -219,30 +227,27 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 */
 	@SuppressWarnings("unchecked")
 	public T path(String path) {
-		if ( verb == null ) {
-			throw new IllegalArgumentException("The path argument must not be null.");
-		}
-		this.requestPath = path;
+		this.requestPath = requireNonNullArgument(path, "path");
 		return (T) this;
 	}
 
 	/**
 	 * Get the request path.
-	 * 
+	 *
 	 * @return the path
 	 */
-	public String getPath() {
+	public @Nullable String getPath() {
 		return requestPath;
 	}
 
 	/**
 	 * Set the host.
-	 * 
+	 *
 	 * <p>
 	 * This is a shortcut for calling {@code #header(String, String)} with a
 	 * {@literal host} key.
 	 * </p>
-	 * 
+	 *
 	 * @param host
 	 *        the host value
 	 * @return this builder
@@ -253,14 +258,14 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Set the body content SHA-256 digest value.
-	 * 
+	 *
 	 * @param digest
-	 *        the digest value to use or {@code null} for none; if provided,
-	 *        the array must have a length of {@literal 32} and will be copied
+	 *        the digest value to use or {@code null} for none; if provided, the
+	 *        array must have a length of {@literal 32} and will be copied
 	 * @return this builder
 	 */
 	@SuppressWarnings("unchecked")
-	public T contentSha256(byte[] digest) {
+	public T contentSha256(byte @Nullable [] digest) {
 		byte[] copy = null;
 		if ( digest != null && digest.length >= 32 ) {
 			copy = new byte[32];
@@ -272,28 +277,28 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Get the content SHA-256 value.
-	 * 
+	 *
 	 * @return the content SHA 256
 	 */
-	public byte[] getContentSha256() {
+	public byte @Nullable [] getContentSha256() {
 		return contentSha256;
 	}
 
 	/**
 	 * Append the content SHA 256 value to a string buffer.
-	 * 
+	 *
 	 * @param buf
 	 *        the buffer to append to
 	 */
 	protected void appendContentSha256(StringBuilder buf) {
-		final byte[] digest = contentSha256;
+		final byte @Nullable [] digest = contentSha256;
 		buf.append(digest == null || digest.length < 1 ? AuthorizationUtils.EMPTY_STRING_SHA256_HEX
 				: Hex.encodeHexString(digest));
 	}
 
 	/**
 	 * Append a list of header name and value pairs.
-	 * 
+	 *
 	 * @param headerNames
 	 *        the header names to append
 	 * @param buf
@@ -321,34 +326,34 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Set the headers.
-	 * 
+	 *
 	 * @param headers
 	 *        the headers to use
 	 * @return this builder
 	 */
 	@SuppressWarnings("unchecked")
-	public T headers(MultiValueMap<String, String> headers) {
+	public T headers(@Nullable MultiValueMap<String, String> headers) {
 		this.headers = headers;
 		return (T) this;
 	}
 
 	/**
 	 * Get the headers.
-	 * 
+	 *
 	 * @return the headers
 	 */
-	public MultiValueMap<String, String> getHeaders() {
+	public @Nullable MultiValueMap<String, String> getHeaders() {
 		return headers;
 	}
 
 	/**
 	 * Set a header value.
-	 * 
+	 *
 	 * <p>
 	 * Header values are <b>replaced</b> if a given {@code headerName} is passed
 	 * more than once.
 	 * </p>
-	 * 
+	 *
 	 * @param headerName
 	 *        the header name to set; this will be stored in lower-case
 	 * @param headerValue
@@ -367,37 +372,37 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 		if ( headers == null ) {
 			headers = new LinkedMultiValueMap<>(4);
 		}
-		headers.put(headerName.toLowerCase(), Arrays.asList(headerValue));
+		headers.put(headerName.toLowerCase(Locale.ROOT), Arrays.asList(headerValue));
 		return (T) this;
 	}
 
 	/**
 	 * Get the first available header value.
-	 * 
+	 *
 	 * @param headerName
 	 *        the name of the header to get the first value for
 	 * @return the header value, or {@code null} if the header does not exist
 	 */
-	public String headerValue(String headerName) {
+	public @Nullable String headerValue(String headerName) {
 		List<String> values = headerValues(headerName);
 		return (values != null && !values.isEmpty() ? values.get(0) : null);
 	}
 
 	/**
 	 * Get all available header values.
-	 * 
+	 *
 	 * @param headerName
 	 *        the name of the header to get the values for
-	 * @return the header values, or {@code null} if the header does not
-	 *         exist
+	 * @return the header values, or {@code null} if the header does not exist
 	 */
-	public List<String> headerValues(String headerName) {
-		return (headerName != null && headers != null ? headers.get(headerName.toLowerCase()) : null);
+	public @Nullable List<String> headerValues(String headerName) {
+		return (headerName != null && headers != null ? headers.get(headerName.toLowerCase(Locale.ROOT))
+				: null);
 	}
 
 	/**
 	 * Compute and cache the signing key.
-	 * 
+	 *
 	 * <p>
 	 * Signing keys are derived from the a secret value and valid for 7 days, so
 	 * this method can be used to compute a signing key so that {@link #build()}
@@ -405,7 +410,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * currently configured via {@link #date(Instant)}, which defaults to the
 	 * current time for newly created builder instances.
 	 * </p>
-	 * 
+	 *
 	 * @param secret
 	 *        the secret to sign the digest with
 	 * @return this builder
@@ -420,67 +425,68 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Set the signing key directly.
-	 * 
+	 *
 	 * <p>
 	 * Use this method if a signing key has been computed externally. The effect
 	 * is the same as in {@link #saveSigningKey(String)} in that the
 	 * {@link #build()} method can then be called to compute the authorization
 	 * value using this key.
 	 * </p>
-	 * 
+	 *
 	 * @param key
-	 *        the signing key to set
+	 *        the signing key to set, or {@code null} to remove a previously
+	 *        saved value
 	 * @return this builder
 	 */
 	@SuppressWarnings("unchecked")
-	public T signingKey(byte[] key) {
+	public T signingKey(byte @Nullable [] key) {
 		signingKey = key;
 		return (T) this;
 	}
 
 	/**
 	 * Get the signing key, encoded as hex.
-	 * 
-	 * @return the computed or saved signing key encoded as hex, or
-	 *         {@code null} if none computed or saved yet
+	 *
+	 * @return the computed or saved signing key encoded as hex, or {@code null}
+	 *         if none computed or saved yet
 	 */
-	public String signingKeyHex() {
-		final byte[] k = this.signingKey;
+	public @Nullable String signingKeyHex() {
+		final byte @Nullable [] k = this.signingKey;
 		return (k != null ? Hex.encodeHexString(k) : null);
 	}
 
 	/**
 	 * Get the signing key message.
-	 * 
+	 *
 	 * @return the signing key message
 	 */
 	protected abstract String signingKeyMessageLiteral();
 
 	/**
 	 * Compute a signing key from a secret key and date.
-	 * 
+	 *
 	 * <p>
 	 * A signing key is derived from {@code key} and {@code date} using the
 	 * following algorithm:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 * HmacSha256(HmacSha256("SCHEME"+secret, "YYYYMMDD"), "SIGNING_KEY_MESSAGE_LITERAL")
 	 * </code>
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * The {@code HmacSha256(key, message)} function computes a HMAC+SHA256
 	 * digest value. The {@literal YYYYMMDD} value is {@code date} formatted in
 	 * the UTC time zone.
 	 * </p>
-	 * 
+	 *
 	 * @param date
 	 *        the signing date
 	 * @param secret
 	 *        the secret to derive the signing key from
-	 * 
+	 *
 	 * @return the signing key
 	 * @throws IllegalArgumentException
 	 *         if any argument is {@code null}
@@ -496,7 +502,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Get all configured header names as a sorted array of lower-case values.
-	 * 
+	 *
 	 * @return the sorted array, never {@code null}
 	 */
 	public String[] sortedHeaderNames() {
@@ -506,7 +512,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 		if ( h != null ) {
 			for ( String k : h.keySet() ) {
 				if ( k != null ) {
-					headerNames.add(k.toLowerCase());
+					headerNames.add(k.toLowerCase(Locale.ROOT));
 					count++;
 				}
 			}
@@ -516,7 +522,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Compute the canonical request message.
-	 * 
+	 *
 	 * @return the message content, never {@code null}
 	 * @see #computeCanonicalRequestMessage(String[])
 	 */
@@ -526,7 +532,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Compute the canonical request message.
-	 * 
+	 *
 	 * @param headerNames
 	 *        the header names to include in the signature
 	 * @return the canonical request message
@@ -535,11 +541,11 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Compute the final signature data.
-	 * 
+	 *
 	 * <p>
 	 * The message is computed using the following algorithm:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 * SCHEME_NAME-HMAC-SHA256\n
@@ -547,12 +553,12 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * Hex(Sha256(canonicalRequestMessage))
 	 * </code>
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * The date is formatted using the
 	 * {@link AuthorizationUtils#AUTHORIZATION_TIMESTAMP_FORMATTER}.
 	 * </p>
-	 * 
+	 *
 	 * @param date
 	 *        the request date
 	 * @param canonicalRequestMessage
@@ -562,7 +568,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 */
 	public String computeSignatureData(Instant date, String canonicalRequestMessage) {
 		// @formatter:off
-		return schemeName() +"-HMAC-SHA256\n" 
+		return schemeName() +"-HMAC-SHA256\n"
 				+ AUTHORIZATION_TIMESTAMP_FORMATTER.format(date) + "\n"
 				+ Hex.encodeHexString(DigestUtils.sha256(canonicalRequestMessage));
 		// @formatter:on
@@ -572,17 +578,17 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * Compute an {@literal Authorization} header value from the configured
 	 * properties on the builder, using a signing key created from a previous
 	 * call to {@link #saveSigningKey(String)} or {@link #signingKey(byte[])}.
-	 * 
+	 *
 	 * <p>
 	 * The message is formatted using the following structure:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 * SNS Credential=identifier,SignedHeaders=headerList,Signature=Hex(HmacSha256(signingKey,signatureData))
 	 * </code>
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * Where {@code identifier} is the identifier passed to the constructor,
 	 * {@code headerList} is a semicolon-delimited list of
@@ -592,19 +598,19 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * computed signature data via
 	 * {@link #computeSignatureData(Instant, String)}.
 	 * </p>
-	 * 
+	 *
 	 * @return the header value
 	 * @throws SecurityException
 	 *         if any error occurs computing the header value
 	 */
 	public String build() {
-		return build(signingKey);
+		return build(requireNonNullArgument(signingKey, "signingKey"));
 	}
 
 	/**
 	 * Compute an {@literal Authorization} header value from the configured
 	 * properties on the builder, using the provided secret.
-	 * 
+	 *
 	 * @param secret
 	 *        the secret to sign the digest with; will use the configured date
 	 *        to compute the singing key
@@ -620,7 +626,7 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 
 	/**
 	 * Get the authorization scheme name.
-	 * 
+	 *
 	 * @return the scheme name
 	 */
 	protected abstract String schemeName();
@@ -640,23 +646,23 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * Compute a signature value from the configured properties on the builder,
 	 * using a signing key created from a previous call to
 	 * {@link #saveSigningKey(String)} or {@link #signingKey(byte[])}.
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> this method returns just the signature value, not a complete
 	 * {@literal Authorization} header value. Use the {@link #build()} method to
 	 * generate a complete header value.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * The signature is computed using the following algorithm:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * <code>
 	 * Hex(HmacSha256(signingKey,signatureData))
 	 * </code>
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * Where {@code signingKey} is the signing key set via
 	 * {@link #signingKey(byte[])} or computed via
@@ -664,25 +670,25 @@ public abstract class AbstractAuthorizationBuilder<T extends AbstractAuthorizati
 	 * computed signature data via
 	 * {@link #computeSignatureData(Instant, String)}.
 	 * </p>
-	 * 
+	 *
 	 * @return the signature value
 	 * @throws SecurityException
 	 *         if any error occurs computing the header value
 	 */
 	public String buildSignature() {
-		return buildSignature(signingKey, sortedHeaderNames());
+		return buildSignature(requireNonNullArgument(signingKey, "signingKey"), sortedHeaderNames());
 	}
 
 	/**
 	 * Compute a signature value from the configured properties on the builder,
 	 * using the provided secret.
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> this method returns just the signature value, not a complete
 	 * {@literal Authorization} header value. Use the {@link #build(String)}
 	 * method to generate a complete header value.
 	 * </p>
-	 * 
+	 *
 	 * @param secret
 	 *        the secret to sign the digest with; will use the configured date
 	 *        to compute the singing key

@@ -1,21 +1,21 @@
 /* ==================================================================
  * AuthorizationException.java - Dec 18, 2009 4:00:06 PM
- * 
+ *
  * Copyright 2007-2009 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,10 +23,11 @@
 package net.solarnetwork.security;
 
 import java.util.Arrays;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Exception thrown when authorization to some resource fails.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.60
@@ -67,23 +68,23 @@ public class AuthorizationException extends SecurityException {
 	}
 
 	/** The reason. */
-	private final Reason reason;
+	private final @Nullable Reason reason;
 
 	/** The email. */
-	private final String email;
+	private final @Nullable String email;
 
 	/** The ID. */
-	private final Object id;
+	private final @Nullable Object id;
 
 	/**
 	 * Construct authorization exception.
-	 * 
+	 *
 	 * @param username
 	 *        the attempted login
 	 * @param reason
 	 *        the reason for the exception
 	 */
-	public AuthorizationException(String username, Reason reason) {
+	public AuthorizationException(@Nullable String username, @Nullable Reason reason) {
 		super();
 		this.reason = reason;
 		this.email = username;
@@ -92,13 +93,13 @@ public class AuthorizationException extends SecurityException {
 
 	/**
 	 * Construct authorization exception related to some primary key
-	 * 
+	 *
 	 * @param reason
 	 *        the reason for the exception
 	 * @param id
 	 *        the object ID
 	 */
-	public AuthorizationException(Reason reason, Object id) {
+	public AuthorizationException(@Nullable Reason reason, @Nullable Object id) {
 		super();
 		this.reason = reason;
 		this.email = null;
@@ -107,33 +108,33 @@ public class AuthorizationException extends SecurityException {
 
 	/**
 	 * Get the attempted login.
-	 * 
+	 *
 	 * @return login value (or {@code null} if not available)
 	 */
-	public String getEmail() {
+	public @Nullable String getEmail() {
 		return email;
 	}
 
 	/**
 	 * Get the primary key.
-	 * 
+	 *
 	 * @return the primary key (or {@code null} if not available)
 	 */
-	public Object getId() {
+	public @Nullable Object getId() {
 		return id;
 	}
 
 	/**
 	 * Get the authorization exception reason.
-	 * 
+	 *
 	 * @return reason
 	 */
-	public Reason getReason() {
+	public @Nullable Reason getReason() {
 		return reason;
 	}
 
 	@Override
-	public String getMessage() {
+	public @Nullable String getMessage() {
 		return (reason == null ? null
 				: reason.toString() + " [" + (email == null
 						? (id != null && id.getClass().isArray() ? Arrays.toString((Object[]) id) : id)

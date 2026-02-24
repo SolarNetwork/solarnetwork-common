@@ -1,34 +1,35 @@
 /* ==================================================================
  * AuthorizationInfo.java - 16/08/2021 8:59:48 AM
- * 
+ *
  * Copyright 2021 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.security;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import static org.springframework.util.StringUtils.delimitedListToStringArray;
 import java.util.Map;
 import net.solarnetwork.util.StringUtils;
 
 /**
  * SNS authorization info
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -42,7 +43,7 @@ public class SnsAuthorizationInfo {
 	/**
 	 * Parse an authorization header value into a {@link SnsAuthorizationInfo}
 	 * instance.
-	 * 
+	 *
 	 * @param authorizationHeader
 	 *        the header to parse
 	 * @return the instance
@@ -88,7 +89,7 @@ public class SnsAuthorizationInfo {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param scheme
 	 *        the schema (i.e. {@literal SNS}
 	 * @param identifier
@@ -103,27 +104,15 @@ public class SnsAuthorizationInfo {
 	public SnsAuthorizationInfo(String scheme, String identifier, String[] headerNames,
 			String signature) {
 		super();
-		if ( scheme == null ) {
-			throw new IllegalArgumentException("The scheme argument must not be null.");
-		}
-		this.scheme = scheme;
-		if ( identifier == null ) {
-			throw new IllegalArgumentException("The identifier argument must not be null.");
-		}
-		this.identifier = identifier;
-		if ( headerNames == null ) {
-			throw new IllegalArgumentException("The headerNames argument must not be null.");
-		}
-		this.headerNames = headerNames;
-		if ( signature == null ) {
-			throw new IllegalArgumentException("The signature argument must not be null.");
-		}
-		this.signature = signature;
+		this.scheme = requireNonNullArgument(scheme, "scheme");
+		this.identifier = requireNonNullArgument(identifier, "identifier");
+		this.headerNames = requireNonNullArgument(headerNames, "headerNames");
+		this.signature = requireNonNullArgument(signature, "signature");
 	}
 
 	/**
 	 * Get the authorization scheme.
-	 * 
+	 *
 	 * @return the scheme, never {@code null}
 	 */
 	public String getScheme() {
@@ -132,7 +121,7 @@ public class SnsAuthorizationInfo {
 
 	/**
 	 * Get the identifier (credential).
-	 * 
+	 *
 	 * @return the identifier, never {@code null}
 	 */
 	public String getIdentifier() {
@@ -141,7 +130,7 @@ public class SnsAuthorizationInfo {
 
 	/**
 	 * Get the header name list.
-	 * 
+	 *
 	 * @return the header names, never {@code null}
 	 */
 	public String[] getHeaderNames() {
@@ -150,7 +139,7 @@ public class SnsAuthorizationInfo {
 
 	/**
 	 * Get the signature.
-	 * 
+	 *
 	 * @return the signature as a hex-encoded string, never {@code null}
 	 */
 	public String getSignature() {

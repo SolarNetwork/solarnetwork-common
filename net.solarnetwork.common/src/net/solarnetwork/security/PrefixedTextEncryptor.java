@@ -22,14 +22,15 @@
 
 package net.solarnetwork.security;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import static org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm.GCM;
 import java.util.Base64;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 import org.springframework.security.crypto.encrypt.BytesEncryptor;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import net.solarnetwork.service.PasswordEncoder;
-import net.solarnetwork.util.ObjectUtils;
 
 /**
  * Implementation of {@link PasswordEncoder} using <b>symmetric</b> encryption.
@@ -81,12 +82,12 @@ public final class PrefixedTextEncryptor implements TextEncryptor, BytesEncrypto
 	 */
 	public PrefixedTextEncryptor(String prefix, BytesEncryptor encryptor) {
 		super();
-		this.prefix = ObjectUtils.requireNonNullArgument(prefix, "prefix");
-		this.encryptor = ObjectUtils.requireNonNullArgument(encryptor, "encryptor");
+		this.prefix = requireNonNullArgument(prefix, "prefix");
+		this.encryptor = requireNonNullArgument(encryptor, "encryptor");
 	}
 
 	@Override
-	public String encrypt(String text) {
+	public @Nullable String encrypt(@Nullable String text) {
 		if ( text == null ) {
 			return null;
 		}
@@ -100,7 +101,7 @@ public final class PrefixedTextEncryptor implements TextEncryptor, BytesEncrypto
 	}
 
 	@Override
-	public String decrypt(String encryptedText) {
+	public @Nullable String decrypt(@Nullable String encryptedText) {
 		if ( encryptedText == null ) {
 			return null;
 		}

@@ -23,6 +23,7 @@
 package net.solarnetwork.security;
 
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.service.PasswordEncoder;
 import net.solarnetwork.util.ObjectUtils;
 
@@ -76,8 +77,8 @@ public class SpringSecurityPasswordEncoder
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
-		if ( encoders == null || encoders.isEmpty() ) {
+	public String encode(@Nullable CharSequence rawPassword) {
+		if ( encoders.isEmpty() ) {
 			throw new RuntimeException("No password encoders configured");
 		}
 		Map.Entry<String, org.springframework.security.crypto.password.PasswordEncoder> entry = encoders
@@ -86,7 +87,7 @@ public class SpringSecurityPasswordEncoder
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+	public boolean matches(@Nullable CharSequence rawPassword, @Nullable String encodedPassword) {
 		if ( encodedPassword == null || rawPassword == null ) {
 			return false;
 		}
