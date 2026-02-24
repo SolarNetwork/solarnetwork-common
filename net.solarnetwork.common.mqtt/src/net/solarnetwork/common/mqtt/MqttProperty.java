@@ -22,8 +22,6 @@
 
 package net.solarnetwork.common.mqtt;
 
-import org.jspecify.annotations.Nullable;
-
 /**
  * An MQTT message property.
  *
@@ -47,7 +45,6 @@ public interface MqttProperty<T> {
 	 *
 	 * @return the value
 	 */
-	@Nullable
 	T getValue();
 
 }

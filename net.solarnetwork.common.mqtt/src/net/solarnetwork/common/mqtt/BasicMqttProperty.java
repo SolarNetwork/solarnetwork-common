@@ -23,7 +23,6 @@
 package net.solarnetwork.common.mqtt;
 
 import java.util.Objects;
-import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.ObjectUtils;
 
 /**
@@ -38,7 +37,7 @@ import net.solarnetwork.util.ObjectUtils;
 public class BasicMqttProperty<T> implements MqttProperty<T> {
 
 	private final MqttPropertyType type;
-	private final @Nullable T value;
+	private final T value;
 
 	/**
 	 * Constructor.
@@ -50,7 +49,7 @@ public class BasicMqttProperty<T> implements MqttProperty<T> {
 	 * @throws IllegalArgumentException
 	 *         if {@code type} is {@literal null}
 	 */
-	public BasicMqttProperty(MqttPropertyType type, @Nullable T value) {
+	public BasicMqttProperty(MqttPropertyType type, T value) {
 		super();
 		this.type = ObjectUtils.requireNonNullArgument(type, "type");
 		this.value = value;
@@ -62,7 +61,7 @@ public class BasicMqttProperty<T> implements MqttProperty<T> {
 	}
 
 	@Override
-	public @Nullable T getValue() {
+	public T getValue() {
 		return value;
 	}
 
