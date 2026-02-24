@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -58,7 +59,7 @@ public class SpelExpressionService implements ExpressionService {
 	public static final EvaluationContext DEFAULT_EVALUATION_CONTEXT = evaluationContext(null);
 
 	private final ExpressionParser parser;
-	private String groupUid;
+	private @Nullable String groupUid;
 	private URI languageReferenceLink = DEFAULT_LANG_REF_LINK;
 
 	private static final URI defaultLangRefLink() {
@@ -106,8 +107,8 @@ public class SpelExpressionService implements ExpressionService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EvaluationContext createEvaluationContext(EvaluationConfiguration configuration,
-			Object root) {
+	public EvaluationContext createEvaluationContext(@Nullable EvaluationConfiguration configuration,
+			@Nullable Object root) {
 		// NOTE configuration is not used
 		if ( root == null ) {
 			return DEFAULT_EVALUATION_CONTEXT;
@@ -115,7 +116,7 @@ public class SpelExpressionService implements ExpressionService {
 		return evaluationContext(root);
 	}
 
-	private static RestrictedEvaluationContext evaluationContext(Object root) {
+	private static RestrictedEvaluationContext evaluationContext(@Nullable Object root) {
 		RestrictedEvaluationContext ctx = (root == null ? new RestrictedEvaluationContext()
 				: new RestrictedEvaluationContext(root));
 		ctx.addPropertyAccessor(new MapAccessor()); // inserts before default Reflective
@@ -149,8 +150,9 @@ public class SpelExpressionService implements ExpressionService {
 	}
 
 	@Override
-	public <T> T evaluateExpression(Expression expression, Map<String, Object> variables, Object root,
-			EvaluationContext context, Class<T> resultClass) {
+	public <T> @Nullable T evaluateExpression(Expression expression,
+			@Nullable Map<String, Object> variables, @Nullable Object root, EvaluationContext context,
+			Class<T> resultClass) {
 		if ( context == null ) {
 			context = createEvaluationContext(null, root);
 		}
@@ -166,8 +168,8 @@ public class SpelExpressionService implements ExpressionService {
 	}
 
 	@Override
-	public <T> T evaluateExpression(String expression, Map<String, Object> variables, Object root,
-			EvaluationContext context, Class<T> resultClass) {
+	public <T> @Nullable T evaluateExpression(String expression, @Nullable Map<String, Object> variables,
+			@Nullable Object root, EvaluationContext context, Class<T> resultClass) {
 		return evaluateExpression(parseExpression(expression), variables, root, context, resultClass);
 	}
 
@@ -187,17 +189,17 @@ public class SpelExpressionService implements ExpressionService {
 	}
 
 	@Override
-	public String getDisplayName() {
+	public @Nullable String getDisplayName() {
 		return "Spel";
 	}
 
 	@Override
-	public String getUid() {
+	public @Nullable String getUid() {
 		return this.getClass().getName();
 	}
 
 	@Override
-	public String getGroupUid() {
+	public @Nullable String getGroupUid() {
 		return groupUid;
 	}
 
@@ -207,7 +209,7 @@ public class SpelExpressionService implements ExpressionService {
 	 * @param groupUid
 	 *        the group UID to set
 	 */
-	public void setGroupUid(String groupUid) {
+	public void setGroupUid(@Nullable String groupUid) {
 		this.groupUid = groupUid;
 	}
 

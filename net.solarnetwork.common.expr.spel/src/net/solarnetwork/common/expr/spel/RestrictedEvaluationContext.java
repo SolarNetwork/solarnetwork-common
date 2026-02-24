@@ -23,6 +23,7 @@
 package net.solarnetwork.common.expr.spel;
 
 import static java.util.Collections.emptyList;
+import org.jspecify.annotations.Nullable;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 /**
@@ -50,7 +51,7 @@ public class RestrictedEvaluationContext extends StandardEvaluationContext {
 	 * @param rootObject
 	 *        the optional root object
 	 */
-	public RestrictedEvaluationContext(Object rootObject) {
+	public RestrictedEvaluationContext(@Nullable Object rootObject) {
 		super(rootObject);
 
 		// prevent construction of objects
