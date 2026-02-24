@@ -31,6 +31,7 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.service.PasswordEncoder;
 
 /**
@@ -102,13 +103,13 @@ public class BCPBKDF2PasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean isPasswordEncrypted(CharSequence password) {
+	public boolean isPasswordEncrypted(@Nullable CharSequence password) {
 		return (password != null && password.length() > 0
 				&& ENCODING_PATTERN.matcher(password).matches());
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+	public boolean matches(@Nullable CharSequence rawPassword, @Nullable String encodedPassword) {
 		if ( rawPassword == null || encodedPassword == null || encodedPassword.isEmpty() ) {
 			return false;
 		}
