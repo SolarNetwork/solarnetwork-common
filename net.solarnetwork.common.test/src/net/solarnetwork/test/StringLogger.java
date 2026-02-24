@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.helpers.MarkerIgnoringBase;
 
 /**
@@ -75,7 +76,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 		private final long date;
 		private final StringLogger.Level level;
 		private final String message;
-		private final Object[] args;
+		private final Object @Nullable [] args;
 
 		/**
 		 * Constructor.
@@ -87,7 +88,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 		 * @param args
 		 *        the arguments
 		 */
-		public Entry(StringLogger.Level level, String message, Object[] args) {
+		public Entry(StringLogger.Level level, String message, Object @Nullable [] args) {
 			super();
 			this.date = System.currentTimeMillis();
 			this.level = level;
@@ -106,7 +107,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 			while ( m.find() ) {
 				int curr = m.start();
 				buf.append(message.substring(prev, curr));
-				if ( idx < args.length ) {
+				if ( args != null && idx < args.length ) {
 					buf.append(args[idx++]);
 				}
 				prev = m.end();
@@ -150,7 +151,7 @@ public final class StringLogger extends MarkerIgnoringBase {
 		 *
 		 * @return the args
 		 */
-		public Object[] getArgs() {
+		public Object @Nullable [] getArgs() {
 			return args;
 		}
 

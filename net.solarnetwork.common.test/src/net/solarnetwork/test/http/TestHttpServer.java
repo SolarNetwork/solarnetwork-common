@@ -25,6 +25,7 @@ package net.solarnetwork.test.http;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.jspecify.annotations.Nullable;
 
 /**
  * HTTP server wrapper for testing.
@@ -35,10 +36,10 @@ import org.eclipse.jetty.server.ServerConnector;
  */
 public class TestHttpServer {
 
-	private Server httpServer;
+	private @Nullable Server httpServer;
 	private int httpServerPort;
-	private String httpServerBaseUrl;
-	private Handler.Sequence httpServerHandlers;
+	private @Nullable String httpServerBaseUrl;
+	private Handler.@Nullable Sequence httpServerHandlers;
 
 	/**
 	 * Constructor.
@@ -94,7 +95,9 @@ public class TestHttpServer {
 	 *         if an error occurs
 	 */
 	public synchronized void stop() throws Exception {
-		httpServer.stop();
+		if ( httpServer != null ) {
+			httpServer.stop();
+		}
 	}
 
 	/**
@@ -103,7 +106,10 @@ public class TestHttpServer {
 	 * @param handler
 	 *        the handler to register
 	 */
-	public void addHandler(Handler handler) {
+	public synchronized void addHandler(Handler handler) {
+		if ( httpServerHandlers == null ) {
+			throw new IllegalStateException("Server must be started before adding a handler.");
+		}
 		httpServerHandlers.addHandler(handler);
 	}
 
@@ -113,8 +119,10 @@ public class TestHttpServer {
 	 * @param handler
 	 *        the handler to unregister
 	 */
-	public void removeHandler(Handler handler) {
-		httpServerHandlers.removeHandler(handler);
+	public synchronized void removeHandler(Handler handler) {
+		if ( httpServerHandlers != null ) {
+			httpServerHandlers.removeHandler(handler);
+		}
 	}
 
 	/**
@@ -131,7 +139,7 @@ public class TestHttpServer {
 	 *
 	 * @return the base URL (without any path) to the HTTP server
 	 */
-	public String getHttpServerBaseUrl() {
+	public @Nullable String getHttpServerBaseUrl() {
 		return httpServerBaseUrl;
 	}
 

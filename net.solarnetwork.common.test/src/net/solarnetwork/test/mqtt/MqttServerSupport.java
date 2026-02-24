@@ -33,6 +33,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.jspecify.annotations.Nullable;
 import org.junit.After;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,13 +60,13 @@ public class MqttServerSupport {
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
 	/** The MQTT server. */
-	protected Server mqttServer;
+	protected @Nullable Server mqttServer;
 
 	/** The MQTT client. */
-	protected MqttClient mqttClient;
+	protected @Nullable MqttClient mqttClient;
 
-	private Properties mqttServerProperties;
-	private TestingInterceptHandler testingHandler;
+	private @Nullable Properties mqttServerProperties;
+	private @Nullable TestingInterceptHandler testingHandler;
 
 	/**
 	 * Constructor.
@@ -125,8 +126,9 @@ public class MqttServerSupport {
 	 * @param port
 	 *        the listen port
 	 */
-	public void setupMqttServer(List<InterceptHandler> handlers, IAuthenticator authenticator,
-			IAuthorizatorPolicy authorizator, int port) {
+	public void setupMqttServer(@Nullable List<InterceptHandler> handlers,
+			@Nullable IAuthenticator authenticator, @Nullable IAuthorizatorPolicy authorizator,
+			int port) {
 		testingHandler = null;
 		if ( handlers == null ) {
 			testingHandler = new TestingInterceptHandler();
@@ -167,7 +169,7 @@ public class MqttServerSupport {
 	 *
 	 * @return the testing handler
 	 */
-	public TestingInterceptHandler getTestingInterceptHandler() {
+	public @Nullable TestingInterceptHandler getTestingInterceptHandler() {
 		return testingHandler;
 	}
 
@@ -187,7 +189,7 @@ public class MqttServerSupport {
 	 *
 	 * @return the server
 	 */
-	public Server getServer() {
+	public @Nullable Server getServer() {
 		return mqttServer;
 	}
 
@@ -196,7 +198,7 @@ public class MqttServerSupport {
 	 *
 	 * @return the client
 	 */
-	public IMqttClient getClient() {
+	public @Nullable IMqttClient getClient() {
 		return mqttClient;
 	}
 

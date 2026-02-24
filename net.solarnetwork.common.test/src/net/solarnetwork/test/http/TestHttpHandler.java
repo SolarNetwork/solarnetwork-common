@@ -42,6 +42,7 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
@@ -64,7 +65,7 @@ public abstract class TestHttpHandler extends Handler.Abstract {
 			Pattern.CASE_INSENSITIVE);
 
 	private boolean handled = false;
-	private Throwable exception;
+	private @Nullable Throwable exception;
 
 	/**
 	 * Constructor.

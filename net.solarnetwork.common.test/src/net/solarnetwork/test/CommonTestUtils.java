@@ -206,8 +206,8 @@ public final class CommonTestUtils {
 	 *        the desired number of bytes
 	 * @return random bytes, of length {@code len}
 	 */
-	public static byte[] randomBytes(int len) {
-		byte[] bytes = new byte[len];
+	public static byte[] randomBytes(final int len) {
+		byte[] bytes = new byte[len >= 0 ? len : 0];
 		RNG.nextBytes(bytes);
 		return bytes;
 	}

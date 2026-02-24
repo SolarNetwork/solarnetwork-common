@@ -1,7 +1,7 @@
 /* ==================================================================
- * EasyMockUtils.java - 25/01/2018 8:06:06 AM
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2018 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,34 +20,9 @@
  * ==================================================================
  */
 
-package net.solarnetwork.test;
-
-import org.easymock.EasyMock;
-import org.jspecify.annotations.Nullable;
-
 /**
- * Utilities to help with EasyMock.
- *
- * @author matt
- * @version 1.0
+ * Package info.
  */
-public final class EasyMockUtils {
 
-	private EasyMockUtils() {
-		// not available
-	}
-
-	/**
-	 * Verify an argument matches an {@link Assertion}.
-	 *
-	 * @param <E>
-	 *        the argument type
-	 * @param assertion
-	 *        the assertion to use
-	 * @return {@literal null}
-	 */
-	public static <E> @Nullable E assertWith(Assertion<E> assertion) {
-		EasyMock.reportMatcher(new EasyMockArgumentAssertionMatcher<E>(assertion));
-		return null;
-	}
-}
+@org.jspecify.annotations.NullMarked
+package net.solarnetwork.test.mqtt;

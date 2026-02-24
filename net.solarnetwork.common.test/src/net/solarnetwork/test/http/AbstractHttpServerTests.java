@@ -22,6 +22,7 @@
 
 package net.solarnetwork.test.http;
 
+import static java.util.Objects.requireNonNull;
 import org.eclipse.jetty.server.Handler;
 import org.junit.After;
 import org.junit.Before;
@@ -178,7 +179,7 @@ public abstract class AbstractHttpServerTests {
 				throw new RuntimeException(e);
 			}
 		}
-		return httpServer.getHttpServerBaseUrl();
+		return requireNonNull(requireNonNull(httpServer).getHttpServerBaseUrl());
 	}
 
 }

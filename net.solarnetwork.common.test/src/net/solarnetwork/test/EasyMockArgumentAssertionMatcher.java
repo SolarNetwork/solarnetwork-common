@@ -23,6 +23,7 @@
 package net.solarnetwork.test;
 
 import org.easymock.IArgumentMatcher;
+import org.jspecify.annotations.Nullable;
 
 /**
  * EasyMock argument matcher that uses an {@link Assertion} to perform matching.
@@ -35,7 +36,7 @@ import org.easymock.IArgumentMatcher;
 public class EasyMockArgumentAssertionMatcher<E> implements IArgumentMatcher {
 
 	private final Assertion<E> assertion;
-	private Throwable throwable;
+	private @Nullable Throwable throwable;
 
 	/**
 	 * Constructor.

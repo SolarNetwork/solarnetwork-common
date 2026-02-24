@@ -22,6 +22,7 @@
 
 package net.solarnetwork.test;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
@@ -50,7 +51,7 @@ public class CallingThreadExecutorService extends AbstractExecutorService {
 
 	@Override
 	public List<Runnable> shutdownNow() {
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override

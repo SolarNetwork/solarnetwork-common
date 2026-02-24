@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.jspecify.annotations.Nullable;
 import io.moquette.interception.AbstractInterceptHandler;
 import io.moquette.interception.InterceptHandler;
 import io.moquette.interception.messages.InterceptAcknowledgedMessage;
@@ -87,7 +88,7 @@ public class TestingInterceptHandler extends AbstractInterceptHandler {
 
 	}
 
-	private Callback callback;
+	private @Nullable Callback callback;
 
 	/**
 	 * Constructor.
@@ -207,7 +208,7 @@ public class TestingInterceptHandler extends AbstractInterceptHandler {
 	 *
 	 * @return the callback
 	 */
-	public Callback getCallback() {
+	public @Nullable Callback getCallback() {
 		return callback;
 	}
 
