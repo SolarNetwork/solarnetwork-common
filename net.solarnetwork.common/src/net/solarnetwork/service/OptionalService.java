@@ -1,21 +1,21 @@
 /* ==================================================================
  * ServiceTracker.java - Dec 3, 2012 7:02:45 AM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,16 +23,17 @@
 package net.solarnetwork.service;
 
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * API for an "optional" service.
- * 
+ *
  * <p>
  * This API is like a simplified OSGi ServiceTracker. Calling the
  * {@link #service()} method will return the first available matching service,
  * or {@code null} if none available.
  * </p>
- * 
+ *
  * @param <T>
  *        the tracked service type
  * @author matt
@@ -42,7 +43,7 @@ public interface OptionalService<T> {
 
 	/**
 	 * A convenient configurable optional service.
-	 * 
+	 *
 	 * @param <T>
 	 *        the tracked service type
 	 */
@@ -52,19 +53,20 @@ public interface OptionalService<T> {
 
 	/**
 	 * Get the configured service, or {@code null} if none available.
-	 * 
+	 *
 	 * @return the service, or {@code null}
 	 */
+	@Nullable
 	T service();
 
 	/**
 	 * Resolve an optional service.
-	 * 
+	 *
 	 * <p>
 	 * This method is a convenient way to deal with a possibly null
 	 * {@code OptionalService}.
 	 * </p>
-	 * 
+	 *
 	 * @param <T>
 	 *        the service type
 	 * @param optional
@@ -72,18 +74,18 @@ public interface OptionalService<T> {
 	 * @return the resolved service, or {@code null}
 	 * @since 1.1
 	 */
-	static <T> T service(OptionalService<T> optional) {
+	static <T> @Nullable T service(@Nullable OptionalService<T> optional) {
 		return service(optional, null);
 	}
 
 	/**
 	 * Resolve an optional service with a fallback.
-	 * 
+	 *
 	 * <p>
 	 * This method is a convenient way to deal with a possibly null
 	 * {@code OptionalService}.
 	 * </p>
-	 * 
+	 *
 	 * @param <T>
 	 *        the service type
 	 * @param optional
@@ -94,7 +96,7 @@ public interface OptionalService<T> {
 	 * @return the resolved service, or {@code fallback}
 	 * @since 1.1
 	 */
-	static <T> T service(OptionalService<T> optional, T fallback) {
+	static <T> @Nullable T service(@Nullable OptionalService<T> optional, @Nullable T fallback) {
 		T service = (optional != null ? optional.service() : null);
 		return (service != null ? service : fallback);
 	}
@@ -102,7 +104,7 @@ public interface OptionalService<T> {
 	/**
 	 * Resolve a required optional service, throwing an exception if not
 	 * available.
-	 * 
+	 *
 	 * @param <T>
 	 *        the service type
 	 * @param optional
@@ -112,14 +114,14 @@ public interface OptionalService<T> {
 	 *         if the service can not be resolved
 	 * @since 2.0
 	 */
-	static <T> T requiredService(OptionalService<T> optional) {
+	static <T> T requiredService(@Nullable OptionalService<T> optional) {
 		return requiredService(optional, null);
 	}
 
 	/**
 	 * Resolve a required optional service, throwing an exception if not
 	 * available.
-	 * 
+	 *
 	 * @param <T>
 	 *        the service type
 	 * @param optional
@@ -132,7 +134,7 @@ public interface OptionalService<T> {
 	 *         if the service can not be resolved
 	 * @since 2.0
 	 */
-	static <T> T requiredService(OptionalService<T> optional, String description) {
+	static <T> T requiredService(@Nullable OptionalService<T> optional, @Nullable String description) {
 		T service = null;
 		Exception t = null;
 		try {
@@ -161,6 +163,7 @@ public interface OptionalService<T> {
 			msg.append(" available");
 		}
 		msg.append('.');
+		// t can not be null here, but add requireNonNullArgument() to avoid NullAway warning
 		throw new OptionalServiceNotAvailableException(msg.toString(), t);
 	}
 

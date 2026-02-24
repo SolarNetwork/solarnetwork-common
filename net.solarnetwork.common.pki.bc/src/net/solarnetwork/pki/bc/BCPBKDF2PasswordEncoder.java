@@ -109,7 +109,7 @@ public class BCPBKDF2PasswordEncoder implements PasswordEncoder {
 
 	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		if ( encodedPassword == null || encodedPassword.length() == 0 ) {
+		if ( rawPassword == null || encodedPassword == null || encodedPassword.isEmpty() ) {
 			return false;
 		}
 

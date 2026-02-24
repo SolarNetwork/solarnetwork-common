@@ -25,6 +25,7 @@ package net.solarnetwork.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.LocalizedServiceInfo;
 
 /**
@@ -40,10 +41,11 @@ public interface LocalizedServiceInfoProvider {
 	 * Get localized information for a specific locale.
 	 *
 	 * @param locale
-	 *        the locale to get localized information for
+	 *        the locale to get localized information for, or {@code null} to
+	 *        use the system default
 	 * @return the localized info, never {@code null}
 	 */
-	LocalizedServiceInfo getLocalizedServiceInfo(Locale locale);
+	LocalizedServiceInfo getLocalizedServiceInfo(@Nullable Locale locale);
 
 	/**
 	 * Get localized service info for a collection of service info providers.
@@ -51,12 +53,12 @@ public interface LocalizedServiceInfoProvider {
 	 * @param services
 	 *        the service info providers to get the info for
 	 * @param locale
-	 *        the desired locale
+	 *        the desired locale, or {@code null} to use the system default
 	 * @return list of localized service info, never {@code null}
 	 * @since 1.1
 	 */
 	static List<LocalizedServiceInfo> localizedServiceSettings(
-			Iterable<? extends LocalizedServiceInfoProvider> services, Locale locale) {
+			Iterable<? extends LocalizedServiceInfoProvider> services, @Nullable Locale locale) {
 		List<LocalizedServiceInfo> result = new ArrayList<>(10);
 		if ( services != null ) {
 			for ( LocalizedServiceInfoProvider s : services ) {

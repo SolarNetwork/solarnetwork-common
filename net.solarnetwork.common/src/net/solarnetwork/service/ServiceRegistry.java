@@ -24,6 +24,7 @@ package net.solarnetwork.service;
 
 import java.util.Collection;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * API for a dynamic runtime service registry.
@@ -42,10 +43,10 @@ public interface ServiceRegistry {
 	 *        an optional LDAP-style search filter
 	 * @return the resolved services, never {@code null}
 	 * @throws IllegalArgumentException
-	 *         if {@code clazz} is {@code null} or {@code filter} has an
-	 *         invalid syntax
+	 *         if {@code clazz} is {@code null} or {@code filter} has an invalid
+	 *         syntax
 	 */
-	Collection<?> services(String filter);
+	Collection<?> services(@Nullable String filter);
 
 	/**
 	 * Get a collection of available services, optionally matching a filter or
@@ -59,10 +60,10 @@ public interface ServiceRegistry {
 	 *        an optional LDAP-style search filter
 	 * @return the resolved services, never {@code null}
 	 * @throws IllegalArgumentException
-	 *         if {@code clazz} is {@code null} or {@code filter} has an
-	 *         invalid syntax
+	 *         if {@code clazz} is {@code null} or {@code filter} has an invalid
+	 *         syntax
 	 */
-	<S> Collection<S> services(Class<S> clazz, String filter);
+	<S> Collection<S> services(Class<S> clazz, @Nullable String filter);
 
 	/**
 	 * Register a service.
@@ -80,7 +81,8 @@ public interface ServiceRegistry {
 	 * @throws IllegalArgumentException
 	 *         if {@code service} is {@code null}
 	 */
-	<S> RegisteredService<S> registerService(S service, Map<String, ?> properties, Class<?>... classes);
+	<S> RegisteredService<S> registerService(S service, @Nullable Map<String, ?> properties,
+			@Nullable Class<?>... classes);
 
 	/**
 	 * Unregister a previously registered service.

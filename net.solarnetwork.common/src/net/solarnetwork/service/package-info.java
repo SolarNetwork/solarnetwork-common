@@ -1,7 +1,7 @@
 /* ==================================================================
- * RegisteredService.java - 6/07/2024 7:27:43 am
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2024 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,27 +20,5 @@
  * ==================================================================
  */
 
+@org.jspecify.annotations.NullMarked
 package net.solarnetwork.service;
-
-import java.util.Map;
-import org.jspecify.annotations.Nullable;
-
-/**
- * A reference to a registered service.
- *
- * @param <S>
- *        the service type
- * @see ServiceRegistry
- */
-public interface RegisteredService<S> {
-
-	/**
-	 * Get a copy of the properties of the service referenced by this
-	 * {@code ServiceReference} object.
-	 *
-	 * @return A copy of the properties of the service referenced by this
-	 *         {@code ServiceReference} object
-	 */
-	public @Nullable Map<String, Object> properties();
-
-}

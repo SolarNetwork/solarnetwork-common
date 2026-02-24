@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.MimeType;
 import net.solarnetwork.domain.Identity;
 
@@ -59,18 +60,18 @@ public interface TemplateRenderer extends Identity<String> {
 	/**
 	 * Render the template.
 	 *
-	 * @param parameters
-	 *        the input parameters
 	 * @param mimeType
 	 *        the desired MIME type
 	 * @param locale
 	 *        the desired locale
+	 * @param parameters
+	 *        the input parameters
 	 * @param out
 	 *        the destination
 	 * @throws IOException
 	 *         if any error occurs
 	 */
-	void render(Locale locale, MimeType mimeType, Map<String, ?> parameters, OutputStream out)
-			throws IOException;
+	void render(@Nullable Locale locale, MimeType mimeType, @Nullable Map<String, ?> parameters,
+			OutputStream out) throws IOException;
 
 }

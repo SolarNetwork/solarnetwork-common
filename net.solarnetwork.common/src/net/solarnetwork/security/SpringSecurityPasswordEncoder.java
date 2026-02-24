@@ -63,7 +63,7 @@ public class SpringSecurityPasswordEncoder
 	}
 
 	@Override
-	public boolean isPasswordEncrypted(CharSequence password) {
+	public boolean isPasswordEncrypted(@Nullable CharSequence password) {
 		if ( encoders == null || password == null ) {
 			return false;
 		}
@@ -77,7 +77,7 @@ public class SpringSecurityPasswordEncoder
 	}
 
 	@Override
-	public String encode(@Nullable CharSequence rawPassword) {
+	public String encode(CharSequence rawPassword) {
 		if ( encoders.isEmpty() ) {
 			throw new RuntimeException("No password encoders configured");
 		}

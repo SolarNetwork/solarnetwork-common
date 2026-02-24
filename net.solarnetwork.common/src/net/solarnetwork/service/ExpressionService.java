@@ -1,21 +1,21 @@
 /* ==================================================================
  * ExpressionService.java - 5/02/2019 4:11:08 pm
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
+import org.jspecify.annotations.Nullable;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
@@ -35,12 +36,12 @@ import org.springframework.expression.Expression;
 /**
  * API for a service that uses the {@link Expression} API for evaluating dynamic
  * expressions.
- * 
+ *
  * <p>
  * This API extends {@link Identifiable}; each implementation must define their
  * own unique identifier so they can be differentiated at runtime.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.49
@@ -49,48 +50,51 @@ public interface ExpressionService extends Identifiable {
 
 	/**
 	 * API for configuration of the expression runtime.
-	 * 
+	 *
 	 * @version 1.0
 	 */
 	interface EvaluationConfiguration {
 
 		/**
 		 * Get custom implementation-specific options.
-		 * 
+		 *
 		 * @return the options
 		 */
+		@Nullable
 		Map<String, Object> getOptions();
 	}
 
 	/**
 	 * Get a unique identifier for the language this expression service
 	 * supports.
-	 * 
+	 *
 	 * <p>
 	 * This identifier is meant to be stored alongside an expressions managed by
 	 * users, so they might be able to choose from all languages supported by
 	 * the system.
 	 * </p>
-	 * 
+	 *
 	 * @return a unique identifier
 	 */
 	@Override
+	@Nullable
 	String getUid();
 
 	/**
 	 * Get a link to a language reference guide.
-	 * 
+	 *
 	 * @return a link to a reference guide for the language supported by this
 	 *         service
 	 */
+	@Nullable
 	URI getLanguageReferenceLink();
 
 	/**
 	 * Get a link to a general expression service guide.
-	 * 
+	 *
 	 * @return a link to a general guide
 	 */
-	static URI getGeneralExpressionReferenceLink() {
+	static @Nullable URI getGeneralExpressionReferenceLink() {
 		String result = "https://github.com/SolarNetwork/solarnetwork/wiki/Expression-Languages";
 		Properties props = new Properties();
 		try (InputStream in = ExpressionService.class
@@ -117,23 +121,24 @@ public interface ExpressionService extends Identifiable {
 
 	/**
 	 * Create a reusable evaluation context.
-	 * 
+	 *
 	 * <p>
 	 * Creating a context can be an expensive operation, so this method can be
 	 * called to create a thread-safe and reusable context instance.
 	 * </p>
-	 * 
+	 *
 	 * @param configuration
 	 *        optional configuration to apply to the context
 	 * @param root
 	 *        an optional root object to use during expression evaluation
 	 * @return the newly created context
 	 */
-	EvaluationContext createEvaluationContext(EvaluationConfiguration configuration, Object root);
+	EvaluationContext createEvaluationContext(@Nullable EvaluationConfiguration configuration,
+			@Nullable Object root);
 
 	/**
 	 * Parse an expression.
-	 * 
+	 *
 	 * @param expression
 	 *        the expression to parse
 	 * @return the parsed expression
@@ -142,7 +147,7 @@ public interface ExpressionService extends Identifiable {
 
 	/**
 	 * Evaluate an expression.
-	 * 
+	 *
 	 * <p>
 	 * Calling this method, instead of
 	 * {@link #evaluateExpression(String, Map, Object, EvaluationContext, Class)},
@@ -152,7 +157,7 @@ public interface ExpressionService extends Identifiable {
 	 * {@link #evaluateExpression(String, Map, Object, EvaluationContext, Class)}
 	 * can be more convenient.
 	 * </p>
-	 * 
+	 *
 	 * @param <T>
 	 *        the result type
 	 * @param expression
@@ -171,12 +176,12 @@ public interface ExpressionService extends Identifiable {
 	 * @throws EvaluationException
 	 *         if any error occurs
 	 */
-	<T> T evaluateExpression(Expression expression, Map<String, Object> variables, Object root,
-			EvaluationContext context, Class<T> resultClass);
+	<T> @Nullable T evaluateExpression(Expression expression, @Nullable Map<String, Object> variables,
+			@Nullable Object root, EvaluationContext context, Class<T> resultClass);
 
 	/**
 	 * Evaluate an expression.
-	 * 
+	 *
 	 * @param <T>
 	 *        the result type
 	 * @param expression
@@ -195,7 +200,7 @@ public interface ExpressionService extends Identifiable {
 	 * @throws EvaluationException
 	 *         if any error occurs
 	 */
-	<T> T evaluateExpression(String expression, Map<String, Object> variables, Object root,
-			EvaluationContext context, Class<T> resultClass);
+	<T> @Nullable T evaluateExpression(String expression, @Nullable Map<String, Object> variables,
+			@Nullable Object root, EvaluationContext context, Class<T> resultClass);
 
 }

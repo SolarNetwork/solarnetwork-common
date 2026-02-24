@@ -1,21 +1,21 @@
 /* ==================================================================
  * PingTestResult.java - 25/05/2015 10:23:21 am
- * 
+ *
  * Copyright 2007-2015 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,10 +23,11 @@
 package net.solarnetwork.service;
 
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A results object for a single {@link PingTest} result.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.52
@@ -34,12 +35,12 @@ import java.util.Map;
 public class PingTestResult implements PingTest.Result {
 
 	private final boolean success;
-	private final String message;
-	private final Map<String, ?> properties;
+	private final @Nullable String message;
+	private final @Nullable Map<String, ?> properties;
 
 	/**
 	 * Construct values.
-	 * 
+	 *
 	 * @param success
 	 *        The success flag.
 	 * @param message
@@ -47,7 +48,8 @@ public class PingTestResult implements PingTest.Result {
 	 * @param properties
 	 *        Optional properties.
 	 */
-	public PingTestResult(boolean success, String message, Map<String, ?> properties) {
+	public PingTestResult(boolean success, @Nullable String message,
+			@Nullable Map<String, ?> properties) {
 		super();
 		this.success = success;
 		this.message = message;
@@ -56,18 +58,18 @@ public class PingTestResult implements PingTest.Result {
 
 	/**
 	 * Construct with status flag and message.
-	 * 
+	 *
 	 * @param success
 	 *        The success flag.
 	 * @param message
 	 *        The message.
 	 */
-	public PingTestResult(boolean success, String message) {
+	public PingTestResult(boolean success, @Nullable String message) {
 		this(success, message, null);
 	}
 
 	@Override
-	public String getMessage() {
+	public @Nullable String getMessage() {
 		return message;
 	}
 
@@ -77,7 +79,7 @@ public class PingTestResult implements PingTest.Result {
 	}
 
 	@Override
-	public Map<String, ?> getProperties() {
+	public @Nullable Map<String, ?> getProperties() {
 		return properties;
 	}
 

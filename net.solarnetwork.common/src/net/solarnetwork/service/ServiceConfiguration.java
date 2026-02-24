@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.NumberUtils;
 import net.solarnetwork.util.StringUtils;
 
@@ -49,6 +50,7 @@ public interface ServiceConfiguration {
 	 *
 	 * @return the runtime properties to pass to the service
 	 */
+	@Nullable
 	Map<String, ?> getServiceProperties();
 
 	/**
@@ -66,7 +68,7 @@ public interface ServiceConfiguration {
 		if ( val == null ) {
 			return false;
 		}
-		if ( val instanceof String && ((String) val).isEmpty() ) {
+		if ( val instanceof String s && s.isEmpty() ) {
 			return false;
 		}
 		return true;
@@ -83,8 +85,8 @@ public interface ServiceConfiguration {
 	 *        the type of the value
 	 * @return {@literal true} if the service property value exists and can be
 	 *         returned as the given type and if a string value is not empty, or
-	 *         {@code null} if not available or cannot be converted to the
-	 *         given type
+	 *         {@code null} if not available or cannot be converted to the given
+	 *         type
 	 */
 	default <T> boolean hasServiceProperty(String key, Class<T> type) {
 		assert key != null && type != null;
@@ -100,12 +102,12 @@ public interface ServiceConfiguration {
 	 *        the service property key to get the value for
 	 * @param type
 	 *        the type of the value
-	 * @return the service property value, or {@code null} if not available
-	 *         or cannot be converted to the given type or if a string value is
+	 * @return the service property value, or {@code null} if not available or
+	 *         cannot be converted to the given type or if a string value is
 	 *         empty
 	 */
 	@SuppressWarnings("unchecked")
-	default <T> T serviceProperty(String key, Class<T> type) {
+	default <T> @Nullable T serviceProperty(String key, Class<T> type) {
 		assert key != null && type != null;
 		Map<String, ?> props = getServiceProperties();
 		Object val = (props != null ? props.get(key) : null);
@@ -119,8 +121,8 @@ public interface ServiceConfiguration {
 			return (T) val;
 		} else if ( Number.class.isAssignableFrom(type) ) {
 			try {
-				if ( val instanceof Number ) {
-					return (T) NumberUtils.convertNumber((Number) val, (Class<? extends Number>) type);
+				if ( val instanceof Number n ) {
+					return (T) NumberUtils.convertNumber(n, (Class<? extends Number>) type);
 				}
 				return (T) NumberUtils.parseNumber(val.toString(), (Class<? extends Number>) type);
 			} catch ( IllegalArgumentException e ) {
@@ -139,7 +141,7 @@ public interface ServiceConfiguration {
 	 * @since 1.1
 	 */
 	@SuppressWarnings("unchecked")
-	default Map<String, String> servicePropertyStringMap(String key) {
+	default @Nullable Map<String, String> servicePropertyStringMap(@Nullable String key) {
 		if ( key == null ) {
 			return null;
 		}
@@ -165,7 +167,8 @@ public interface ServiceConfiguration {
 	 * @return the mapping, or {@code null}
 	 * @since 1.1
 	 */
-	static Map<String, String> servicePropertyStringMap(ServiceConfiguration configuration, String key) {
+	static @Nullable Map<String, String> servicePropertyStringMap(
+			@Nullable ServiceConfiguration configuration, @Nullable String key) {
 		if ( configuration == null || key == null ) {
 			return null;
 		}
@@ -186,7 +189,7 @@ public interface ServiceConfiguration {
 	 * @since 1.1
 	 */
 	@SuppressWarnings("unchecked")
-	default List<String> servicePropertyStringList(String key) {
+	default @Nullable List<String> servicePropertyStringList(@Nullable String key) {
 		if ( key == null ) {
 			return null;
 		}
@@ -239,7 +242,8 @@ public interface ServiceConfiguration {
 	 * @return the list, or {@code null}
 	 * @since 1.1
 	 */
-	static List<String> servicePropertyStringList(ServiceConfiguration configuration, String key) {
+	static @Nullable List<String> servicePropertyStringList(@Nullable ServiceConfiguration configuration,
+			@Nullable String key) {
 		if ( configuration == null || key == null ) {
 			return null;
 		}
