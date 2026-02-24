@@ -22,6 +22,8 @@
 
 package net.solarnetwork.settings;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A read-write string setting.
  *
@@ -44,7 +46,7 @@ public interface TextFieldSettingSpecifier extends TitleSettingSpecifier {
 	 *
 	 * @return the related service filter, or {@code null}
 	 */
-	default String getRelatedServiceFilter() {
+	default @Nullable String getRelatedServiceFilter() {
 		return null;
 	}
 

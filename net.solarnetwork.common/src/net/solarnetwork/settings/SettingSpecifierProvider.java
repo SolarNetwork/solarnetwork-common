@@ -24,6 +24,7 @@ package net.solarnetwork.settings;
 
 import java.util.List;
 import java.util.Locale;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSource;
 import net.solarnetwork.settings.support.BasicSettingSpecifierProviderInfo;
 
@@ -53,6 +54,7 @@ public interface SettingSpecifierProvider {
 	 *
 	 * @return non-localized display name
 	 */
+	@Nullable
 	String getDisplayName();
 
 	/**
@@ -65,6 +67,7 @@ public interface SettingSpecifierProvider {
 	 *
 	 * @return the MessageSource, or {@code null}
 	 */
+	@Nullable
 	MessageSource getMessageSource();
 
 	/**
@@ -107,8 +110,8 @@ public interface SettingSpecifierProvider {
 	 * @return the settings, or {@code null} if not available
 	 * @since 1.1
 	 */
-	static List<SettingSpecifier> settingsForService(String id,
-			Iterable<? extends SettingSpecifierProvider> providers) {
+	static @Nullable List<SettingSpecifier> settingsForService(String id,
+			@Nullable Iterable<? extends SettingSpecifierProvider> providers) {
 		if ( providers == null ) {
 			return null;
 		}
@@ -134,10 +137,11 @@ public interface SettingSpecifierProvider {
 	 *         if any argument except {@code groupUid} is {@code null}
 	 * @since 2.2
 	 */
-	default SettingSpecifierProviderInfo localizedInfo(Locale locale, String uid, String groupUid) {
+	default SettingSpecifierProviderInfo localizedInfo(@Nullable Locale locale, String uid,
+			@Nullable String groupUid) {
 		final String settingUid = getSettingUid();
 		String displayName = getDisplayName();
-		MessageSource messageSource = getMessageSource();
+		final MessageSource messageSource = getMessageSource();
 		if ( messageSource != null ) {
 			displayName = messageSource.getMessage("title", null, displayName, locale);
 		}
@@ -156,7 +160,7 @@ public interface SettingSpecifierProvider {
 	 * @since 2.2
 	 */
 	@SuppressWarnings("unchecked")
-	default <T> T unwrap(Class<T> type) {
+	default <T> @Nullable T unwrap(Class<T> type) {
 		if ( type.isAssignableFrom(getClass()) ) {
 			return (T) this;
 		}

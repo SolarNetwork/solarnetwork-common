@@ -22,6 +22,7 @@
 
 package net.solarnetwork.settings.support;
 
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.settings.SettingSpecifierProviderInfo;
 
 /**
@@ -34,9 +35,9 @@ import net.solarnetwork.settings.SettingSpecifierProviderInfo;
 public class BasicSettingSpecifierProviderInfo implements SettingSpecifierProviderInfo {
 
 	private final String settingUid;
-	private final String displayName;
-	private final String uid;
-	private final String groupUid;
+	private final @Nullable String displayName;
+	private final @Nullable String uid;
+	private final @Nullable String groupUid;
 
 	/**
 	 * Constructor.
@@ -50,8 +51,8 @@ public class BasicSettingSpecifierProviderInfo implements SettingSpecifierProvid
 	 * @param groupUid
 	 *        the identifiable group UID
 	 */
-	public BasicSettingSpecifierProviderInfo(String settingUid, String displayName, String uid,
-			String groupUid) {
+	public BasicSettingSpecifierProviderInfo(String settingUid, @Nullable String displayName,
+			@Nullable String uid, @Nullable String groupUid) {
 		super();
 		this.settingUid = settingUid;
 		this.displayName = displayName;
@@ -92,17 +93,17 @@ public class BasicSettingSpecifierProviderInfo implements SettingSpecifierProvid
 	}
 
 	@Override
-	public String getDisplayName() {
+	public @Nullable String getDisplayName() {
 		return displayName;
 	}
 
 	@Override
-	public final String getUid() {
+	public final @Nullable String getUid() {
 		return uid;
 	}
 
 	@Override
-	public final String getGroupUid() {
+	public final @Nullable String getGroupUid() {
 		return groupUid;
 	}
 

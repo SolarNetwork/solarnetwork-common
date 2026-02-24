@@ -22,12 +22,14 @@
 
 package net.solarnetwork.settings.support;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSource;
 import net.solarnetwork.domain.LocalizedServiceInfo;
 import net.solarnetwork.service.LocalizedServiceInfoProvider;
@@ -55,23 +57,23 @@ public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider
 	 *        the identity of this provider
 	 */
 	public BaseSettingsSpecifierLocalizedServiceInfoProvider(String id) {
-		super(id);
+		super(requireNonNullArgument(id, "id"));
 	}
 
 	@Override
 	public String getSettingUid() {
-		return getId();
+		return requireNonNullArgument(getId(), "id");
 	}
 
 	@Override
-	public LocalizedServiceInfo getLocalizedServiceInfo(Locale locale) {
+	public LocalizedServiceInfo getLocalizedServiceInfo(@Nullable Locale locale) {
 		return new BasicConfigurableLocalizedServiceInfo(
 				super.getLocalizedServiceInfo(locale != null ? locale : Locale.getDefault()),
 				getSettingSpecifiers());
 	}
 
 	@Override
-	protected Map<String, String> resolveInfoMessages(Locale locale) {
+	protected Map<String, String> resolveInfoMessages(@Nullable Locale locale) {
 		locale = (locale != null ? locale : Locale.getDefault());
 		List<SettingSpecifier> specs = getSettingSpecifiers();
 		MessageSource ms = getMessageSource();
@@ -81,15 +83,17 @@ public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider
 				&& (desc == null || desc.isEmpty())) ) {
 			return Collections.emptyMap();
 		}
-		Map<String, String> msgs = new LinkedHashMap<>(specs.size() * 2 + 2);
+		Map<String, String> msgs = new LinkedHashMap<>((specs != null ? specs.size() : 0) * 2 + 2);
 		if ( title != null ) {
 			msgs.put("title", title);
 		}
 		if ( desc != null ) {
 			msgs.put("desc", desc);
 		}
-		for ( SettingSpecifier spec : specs ) {
-			populateInfoMessages(locale, spec, msgs, ms);
+		if ( specs != null ) {
+			for ( SettingSpecifier spec : specs ) {
+				populateInfoMessages(locale, spec, msgs, ms);
+			}
 		}
 		return msgs;
 	}
@@ -113,8 +117,8 @@ public abstract class BaseSettingsSpecifierLocalizedServiceInfoProvider
 	 * @param ms
 	 *        the message source to resolve messages with
 	 */
-	protected void populateInfoMessages(Locale locale, SettingSpecifier spec, Map<String, String> msgs,
-			MessageSource ms) {
+	protected void populateInfoMessages(@Nullable Locale locale, SettingSpecifier spec,
+			Map<String, String> msgs, MessageSource ms) {
 		if ( spec instanceof KeyedSettingSpecifier<?> ) {
 			KeyedSettingSpecifier<?> ks = (KeyedSettingSpecifier<?>) spec;
 			String key = ks.getKey();

@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicConfigurableLocalizedServiceInfo.java - 13/04/2018 7:08:08 AM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BasicLocalizedServiceInfo;
 import net.solarnetwork.domain.LocalizedServiceInfo;
 import net.solarnetwork.settings.ConfigurableLocalizedServiceInfo;
@@ -33,7 +34,7 @@ import net.solarnetwork.settings.SettingSpecifier;
 
 /**
  * Basic immutable implementation of {@link ConfigurableLocalizedServiceInfo}.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 1.43
@@ -45,7 +46,7 @@ public class BasicConfigurableLocalizedServiceInfo extends BasicLocalizedService
 
 	/**
 	 * Construct without any settings.
-	 * 
+	 *
 	 * @param id
 	 *        the unique service identifier
 	 * @param locale
@@ -57,14 +58,15 @@ public class BasicConfigurableLocalizedServiceInfo extends BasicLocalizedService
 	 * @param infoMessages
 	 *        the localized info messages
 	 */
-	public BasicConfigurableLocalizedServiceInfo(String id, Locale locale, String name,
-			String description, Map<String, String> infoMessages) {
-		this(id, locale, name, description, infoMessages, Collections.<SettingSpecifier> emptyList());
+	public BasicConfigurableLocalizedServiceInfo(@Nullable String id, @Nullable Locale locale,
+			@Nullable String name, @Nullable String description,
+			@Nullable Map<String, String> infoMessages) {
+		this(id, locale, name, description, infoMessages, null);
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the unique service identifier
 	 * @param locale
@@ -78,15 +80,16 @@ public class BasicConfigurableLocalizedServiceInfo extends BasicLocalizedService
 	 * @param settings
 	 *        the settings
 	 */
-	public BasicConfigurableLocalizedServiceInfo(String id, Locale locale, String name,
-			String description, Map<String, String> infoMessages, List<SettingSpecifier> settings) {
+	public BasicConfigurableLocalizedServiceInfo(@Nullable String id, @Nullable Locale locale,
+			@Nullable String name, @Nullable String description,
+			@Nullable Map<String, String> infoMessages, @Nullable List<SettingSpecifier> settings) {
 		super(id, locale, name, description, infoMessages);
-		this.settings = settings;
+		this.settings = (settings != null ? settings : Collections.emptyList());
 	}
 
 	/**
 	 * Copy constructor from another {@link LocalizedServiceInfo} instance.
-	 * 
+	 *
 	 * @param info
 	 *        the info to copy
 	 * @param settings

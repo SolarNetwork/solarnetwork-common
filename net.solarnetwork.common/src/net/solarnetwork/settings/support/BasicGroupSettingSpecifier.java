@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicGroupSettingSpecifier.java - Mar 12, 2012 9:58:03 AM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -25,27 +25,28 @@ package net.solarnetwork.settings.support;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.settings.GroupSettingSpecifier;
 import net.solarnetwork.settings.MappableSpecifier;
 import net.solarnetwork.settings.SettingSpecifier;
 
 /**
  * Basic implementation of {@link GroupSettingSpecifier}.
- * 
+ *
  * @author matt
  * @version 1.0
  */
 public class BasicGroupSettingSpecifier extends BaseSettingSpecifier implements GroupSettingSpecifier {
 
-	private final String key;
-	private final String footerText;
+	private final @Nullable String key;
+	private final @Nullable String footerText;
 	private final List<SettingSpecifier> groupSettings;
 	private final boolean dynamic;
 
 	/**
 	 * Construct without a key. The {@code dynamic} property will be set to
 	 * {@literal false}.
-	 * 
+	 *
 	 * @param settings
 	 *        The group settings.
 	 */
@@ -56,19 +57,19 @@ public class BasicGroupSettingSpecifier extends BaseSettingSpecifier implements 
 	/**
 	 * Construct with the group settings. The {@code dynamic} property will be
 	 * set to {@literal false}.
-	 * 
+	 *
 	 * @param groupKey
 	 *        The key for the entire group.
 	 * @param settings
 	 *        The group settings.
 	 */
-	public BasicGroupSettingSpecifier(String groupKey, List<SettingSpecifier> settings) {
+	public BasicGroupSettingSpecifier(@Nullable String groupKey, List<SettingSpecifier> settings) {
 		this(groupKey, settings, false, null);
 	}
 
 	/**
 	 * Construct with settings and dynamic flag.
-	 * 
+	 *
 	 * @param groupKey
 	 *        The key for the entire group.
 	 * @param settings
@@ -76,14 +77,14 @@ public class BasicGroupSettingSpecifier extends BaseSettingSpecifier implements 
 	 * @param dynamic
 	 *        The dynamic flag.
 	 */
-	public BasicGroupSettingSpecifier(String groupKey, List<SettingSpecifier> settings,
+	public BasicGroupSettingSpecifier(@Nullable String groupKey, List<SettingSpecifier> settings,
 			boolean dynamic) {
 		this(groupKey, settings, dynamic, null);
 	}
 
 	/**
 	 * Construct with values.
-	 * 
+	 *
 	 * @param groupKey
 	 *        The key for the entire group.
 	 * @param settings
@@ -93,8 +94,8 @@ public class BasicGroupSettingSpecifier extends BaseSettingSpecifier implements 
 	 * @param footerText
 	 *        The footer text.
 	 */
-	public BasicGroupSettingSpecifier(String groupKey, List<SettingSpecifier> settings, boolean dynamic,
-			String footerText) {
+	public BasicGroupSettingSpecifier(@Nullable String groupKey, List<SettingSpecifier> settings,
+			boolean dynamic, @Nullable String footerText) {
 		super();
 		this.key = groupKey;
 		this.groupSettings = Collections.unmodifiableList(settings);
@@ -103,7 +104,7 @@ public class BasicGroupSettingSpecifier extends BaseSettingSpecifier implements 
 	}
 
 	@Override
-	public String getFooterText() {
+	public @Nullable String getFooterText() {
 		return this.footerText;
 	}
 
@@ -118,7 +119,7 @@ public class BasicGroupSettingSpecifier extends BaseSettingSpecifier implements 
 	}
 
 	@Override
-	public String getKey() {
+	public @Nullable String getKey() {
 		return key;
 	}
 

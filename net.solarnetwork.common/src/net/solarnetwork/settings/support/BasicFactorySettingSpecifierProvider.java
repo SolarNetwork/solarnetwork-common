@@ -22,6 +22,7 @@
 
 package net.solarnetwork.settings.support;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.List;
 import org.springframework.context.MessageSource;
 import net.solarnetwork.settings.FactorySettingSpecifierProvider;
@@ -47,12 +48,14 @@ public class BasicFactorySettingSpecifierProvider implements FactorySettingSpeci
 	 *        the factory instance UID
 	 * @param delegate
 	 *        the delegate
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public BasicFactorySettingSpecifierProvider(String factoryInstanceUID,
 			SettingSpecifierProvider delegate) {
 		super();
-		this.factoryInstanceUID = factoryInstanceUID;
-		this.delegate = delegate;
+		this.factoryInstanceUID = requireNonNullArgument(factoryInstanceUID, "factoryInstanceUID");
+		this.delegate = requireNonNullArgument(delegate, "delegate");
 	}
 
 	@Override

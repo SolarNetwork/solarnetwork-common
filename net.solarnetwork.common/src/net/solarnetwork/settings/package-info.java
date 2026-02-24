@@ -1,7 +1,7 @@
 /* ==================================================================
- * ToggleSettingSpecifier.java - Mar 12, 2012 9:25:52 AM
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,40 +20,5 @@
  * ==================================================================
  */
 
+@org.jspecify.annotations.NullMarked
 package net.solarnetwork.settings;
-
-import org.jspecify.annotations.Nullable;
-
-/**
- * A logically boolean toggle setting.
- *
- * @author matt
- * @version 1.0
- */
-public interface ToggleSettingSpecifier extends KeyedSettingSpecifier<Object> {
-
-	/**
-	 * Get the "true" value for this setting.
-	 *
-	 * <p>
-	 * If this returns {@code null} then {@link Boolean#TRUE} is assumed.
-	 * </p>
-	 *
-	 * @return the "true" value
-	 */
-	@Nullable
-	Object getTrueValue();
-
-	/**
-	 * Get the "false" value for this setting
-	 *
-	 * <p>
-	 * If this returns {@code null} then {@link Boolean#FALSE} is assumed.
-	 * </p>
-	 *
-	 * @return the "false" value
-	 */
-	@Nullable
-	Object getFalseValue();
-
-}

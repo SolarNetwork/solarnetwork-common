@@ -1,34 +1,35 @@
 /* ==================================================================
  * BasicToggleSettingSpecifier.java - Mar 12, 2012 10:09:37 AM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.settings.support;
 
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.settings.MappableSpecifier;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.ToggleSettingSpecifier;
 
 /**
  * Basic implementation of {@link ToggleSettingSpecifier}.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -40,19 +41,19 @@ public class BasicToggleSettingSpecifier extends BaseKeyedSettingSpecifier<Objec
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param key
 	 *        the key
 	 * @param defaultValue
 	 *        the default value
 	 */
-	public BasicToggleSettingSpecifier(String key, Object defaultValue) {
+	public BasicToggleSettingSpecifier(String key, @Nullable Object defaultValue) {
 		super(key, defaultValue);
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param key
 	 *        the key
 	 * @param defaultValue
@@ -60,17 +61,17 @@ public class BasicToggleSettingSpecifier extends BaseKeyedSettingSpecifier<Objec
 	 * @param trans
 	 *        the transient flag value
 	 */
-	public BasicToggleSettingSpecifier(String key, Object defaultValue, boolean trans) {
+	public BasicToggleSettingSpecifier(String key, @Nullable Object defaultValue, boolean trans) {
 		super(key, defaultValue, trans);
 	}
 
 	@Override
-	public Object getTrueValue() {
+	public @Nullable Object getTrueValue() {
 		return this.trueValue;
 	}
 
 	@Override
-	public Object getFalseValue() {
+	public @Nullable Object getFalseValue() {
 		return this.falseValue;
 	}
 
@@ -96,21 +97,21 @@ public class BasicToggleSettingSpecifier extends BaseKeyedSettingSpecifier<Objec
 
 	/**
 	 * Set the "true" value.
-	 * 
+	 *
 	 * @param trueValue
 	 *        the value to set
 	 */
-	public void setTrueValue(Object trueValue) {
+	public void setTrueValue(@Nullable Object trueValue) {
 		this.trueValue = trueValue;
 	}
 
 	/**
 	 * Set the "false" value.
-	 * 
+	 *
 	 * @param falseValue
 	 *        the value to set
 	 */
-	public void setFalseValue(Object falseValue) {
+	public void setFalseValue(@Nullable Object falseValue) {
 		this.falseValue = falseValue;
 	}
 

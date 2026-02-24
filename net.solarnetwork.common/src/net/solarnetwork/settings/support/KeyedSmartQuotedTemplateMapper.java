@@ -1,21 +1,21 @@
 /* ==================================================================
  * KeyedSmartQuotedTemplateMapper.java - Mar 24, 2014 8:21:04 PM
- * 
+ *
  * Copyright 2007-2014 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,13 +28,13 @@ import net.solarnetwork.settings.MappableSpecifier.Mapper;
 
 /**
  * Dynamically maps property keys to support nested collections.
- * 
+ *
  * <p>
  * Only if the key passed to {@link #mapKey(String)} is a <em>simple</em>
  * property, it will be quoted. A simple property is one named with only
  * letters, numbers, and underscore characters.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -70,8 +70,8 @@ public class KeyedSmartQuotedTemplateMapper implements Mapper {
 
 	/**
 	 * Get the template.
-	 * 
-	 * @return the template
+	 *
+	 * @return the template; defaults to {@link #DEFAULT_TEMPLATE}
 	 */
 	public String getTemplate() {
 		return template;
@@ -80,12 +80,13 @@ public class KeyedSmartQuotedTemplateMapper implements Mapper {
 	/**
 	 * Set a format template that accepts a single parameter to be within the
 	 * template quote.
-	 * 
+	 *
 	 * @param template
-	 *        the format template to use; defaults to {@link #DEFAULT_TEMPLATE}
+	 *        the format template to use; if {@code null} then
+	 *        {@link #DEFAULT_TEMPLATE} will be used
 	 */
 	public void setTemplate(String template) {
-		this.template = template;
+		this.template = (template != null ? template : DEFAULT_TEMPLATE);
 	}
 
 }

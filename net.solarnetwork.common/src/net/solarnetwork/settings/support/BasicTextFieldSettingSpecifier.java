@@ -22,6 +22,7 @@
 
 package net.solarnetwork.settings.support;
 
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.settings.MappableSpecifier;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.TextFieldSettingSpecifier;
@@ -36,7 +37,7 @@ public class BasicTextFieldSettingSpecifier extends BasicTitleSettingSpecifier
 		implements TextFieldSettingSpecifier {
 
 	private boolean secureTextEntry;
-	private String relatedServiceFilter;
+	private @Nullable String relatedServiceFilter;
 
 	/**
 	 * Constructor.
@@ -46,7 +47,7 @@ public class BasicTextFieldSettingSpecifier extends BasicTitleSettingSpecifier
 	 * @param defaultValue
 	 *        the default value
 	 */
-	public BasicTextFieldSettingSpecifier(String key, String defaultValue) {
+	public BasicTextFieldSettingSpecifier(String key, @Nullable String defaultValue) {
 		this(key, defaultValue, false, null);
 	}
 
@@ -60,7 +61,8 @@ public class BasicTextFieldSettingSpecifier extends BasicTitleSettingSpecifier
 	 * @param secureTextEntry
 	 *        {@literal true} if the text should be hidden when editing.
 	 */
-	public BasicTextFieldSettingSpecifier(String key, String defaultValue, boolean secureTextEntry) {
+	public BasicTextFieldSettingSpecifier(String key, @Nullable String defaultValue,
+			boolean secureTextEntry) {
 		this(key, defaultValue, secureTextEntry, null);
 	}
 
@@ -77,8 +79,8 @@ public class BasicTextFieldSettingSpecifier extends BasicTitleSettingSpecifier
 	 *        the related service filter
 	 * @since 1.5
 	 */
-	public BasicTextFieldSettingSpecifier(String key, String defaultValue, boolean secureTextEntry,
-			String relatedServiceFilter) {
+	public BasicTextFieldSettingSpecifier(String key, @Nullable String defaultValue,
+			boolean secureTextEntry, @Nullable String relatedServiceFilter) {
 		super(key, defaultValue);
 		this.secureTextEntry = secureTextEntry;
 		this.relatedServiceFilter = relatedServiceFilter;
@@ -114,7 +116,7 @@ public class BasicTextFieldSettingSpecifier extends BasicTitleSettingSpecifier
 	}
 
 	@Override
-	public String getRelatedServiceFilter() {
+	public @Nullable String getRelatedServiceFilter() {
 		return relatedServiceFilter;
 	}
 

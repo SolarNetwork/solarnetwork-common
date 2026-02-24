@@ -96,13 +96,13 @@ public final class SettingUtils {
 	 * @return The resulting {@link GroupSettingSpecifier}.
 	 */
 	public static <T> BasicGroupSettingSpecifier dynamicListSettingSpecifier(String key,
-			Collection<T> collection, KeyedListCallback<T> mapper) {
+			@Nullable Collection<T> collection, KeyedListCallback<T> mapper) {
 		List<SettingSpecifier> listStringGroupSettings;
 		if ( collection == null ) {
 			listStringGroupSettings = Collections.emptyList();
 		} else {
 			final int len = collection.size();
-			listStringGroupSettings = new ArrayList<SettingSpecifier>(len);
+			listStringGroupSettings = new ArrayList<>(len);
 			int i = 0;
 			for ( T value : collection ) {
 				Collection<SettingSpecifier> res = mapper.mapListSettingKey(value, i,
@@ -136,7 +136,7 @@ public final class SettingUtils {
 	 *        the settings to check ({@code null} allowed)
 	 * @return the set of secure entry keys, never {@code null}
 	 */
-	public static Set<String> secureKeys(List<SettingSpecifier> settings) {
+	public static Set<String> secureKeys(@Nullable List<SettingSpecifier> settings) {
 		if ( settings == null || settings.isEmpty() ) {
 			return Collections.emptySet();
 		}
@@ -153,7 +153,7 @@ public final class SettingUtils {
 				}
 			}
 		}
-		return (secureProps != null ? secureProps : Collections.<String> emptySet());
+		return (secureProps != null ? secureProps : Collections.emptySet());
 	}
 
 	/**
@@ -167,8 +167,8 @@ public final class SettingUtils {
 	 *         {@code null}
 	 * @since 1.1
 	 */
-	public static List<SettingSpecifier> mappedWithPrefix(List<SettingSpecifier> settings,
-			String prefix) {
+	public static @Nullable List<SettingSpecifier> mappedWithPrefix(
+			@Nullable List<SettingSpecifier> settings, @Nullable String prefix) {
 		if ( settings == null || settings.isEmpty() || prefix == null || prefix.isEmpty() ) {
 			return settings;
 		}
@@ -199,7 +199,7 @@ public final class SettingUtils {
 	 *         {@code null}
 	 * @since 1.1
 	 */
-	public static Map<String, Object> keyedSettingDefaults(List<SettingSpecifier> settings) {
+	public static Map<String, Object> keyedSettingDefaults(@Nullable List<SettingSpecifier> settings) {
 		if ( settings == null || settings.isEmpty() ) {
 			return Collections.emptyMap();
 		}
@@ -208,7 +208,7 @@ public final class SettingUtils {
 		return result;
 	}
 
-	private static void addKeyedSettingDefaults(List<SettingSpecifier> settings,
+	private static void addKeyedSettingDefaults(@Nullable List<SettingSpecifier> settings,
 			Map<String, Object> result) {
 		if ( settings == null || settings.isEmpty() ) {
 			return;
@@ -246,7 +246,7 @@ public final class SettingUtils {
 	 */
 	public static List<Map<String, Object>> templateSpecification(
 			final SettingSpecifierProvider provider,
-			final BiConsumer<SettingSpecifier, Map<String, Object>> callback) {
+			final @Nullable BiConsumer<SettingSpecifier, Map<String, Object>> callback) {
 		List<SettingSpecifier> specs = provider.templateSettingSpecifiers();
 		List<Map<String, Object>> resultSettings = new ArrayList<>(specs.size());
 		for ( SettingSpecifier spec : specs ) {
@@ -270,7 +270,7 @@ public final class SettingUtils {
 	 */
 	public static void populateTemplateSpecification(final SettingSpecifier spec,
 			final List<Map<String, Object>> result,
-			final BiConsumer<SettingSpecifier, Map<String, Object>> callback) {
+			final @Nullable BiConsumer<SettingSpecifier, Map<String, Object>> callback) {
 		Map<String, Object> props = null;
 		if ( spec instanceof GroupSettingSpecifier ) {
 			GroupSettingSpecifier group = (GroupSettingSpecifier) spec;

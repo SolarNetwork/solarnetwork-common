@@ -1,21 +1,21 @@
 /* ==================================================================
  * SecureEntryMaskingIdentifiableConfiguration.java - 15/04/2018 7:40:21 AM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -31,10 +31,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.ClassUtils;
 import net.solarnetwork.service.IdentifiableConfiguration;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.TextFieldSettingSpecifier;
+import net.solarnetwork.util.ObjectUtils;
 import net.solarnetwork.util.StringUtils;
 
 /**
@@ -42,7 +44,7 @@ import net.solarnetwork.util.StringUtils;
  * {@link IdentifiableConfiguration} properties that contain sensitive
  * information based on a set of {@link SettingSpecifier} objects associated
  * with the configuration.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -57,16 +59,18 @@ public class SecureEntryMaskingIdentifiableConfiguration implements InvocationHa
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param delegate
 	 *        the configuration to delegate to
 	 * @param settings
 	 *        the settings that define secure entry properties
+	 * @throws IllegalArgumentException
+	 *         if {@code delegate} is {@code null}
 	 */
 	public SecureEntryMaskingIdentifiableConfiguration(IdentifiableConfiguration delegate,
-			List<SettingSpecifier> settings) {
+			@Nullable List<SettingSpecifier> settings) {
 		super();
-		this.delegate = delegate;
+		this.delegate = ObjectUtils.requireNonNullArgument(delegate, "delegate");
 		if ( settings == null || settings.isEmpty() ) {
 			secureSettings = Collections.emptySet();
 			secureServiceProperties = Collections.emptySet();
@@ -74,8 +78,7 @@ public class SecureEntryMaskingIdentifiableConfiguration implements InvocationHa
 			Set<String> secure = null;
 			Set<String> secureProps = null;
 			for ( SettingSpecifier setting : settings ) {
-				if ( setting instanceof TextFieldSettingSpecifier ) {
-					TextFieldSettingSpecifier text = (TextFieldSettingSpecifier) setting;
+				if ( setting instanceof TextFieldSettingSpecifier text ) {
 					if ( text.isSecureTextEntry() ) {
 						String key = text.getKey();
 						if ( key != null && !key.isEmpty() ) {
@@ -98,14 +101,13 @@ public class SecureEntryMaskingIdentifiableConfiguration implements InvocationHa
 					}
 				}
 			}
-			secureSettings = (secure != null ? secure : Collections.<String> emptySet());
-			secureServiceProperties = (secureProps != null ? secureProps
-					: Collections.<String> emptySet());
+			secureSettings = (secure != null ? secure : Collections.emptySet());
+			secureServiceProperties = (secureProps != null ? secureProps : Collections.emptySet());
 		}
 	}
 
 	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+	public Object invoke(Object proxy, Method method, Object @Nullable [] args) throws Throwable {
 		String methodName = method.getName();
 		Method delegateMethod = delegate.getClass().getMethod(methodName, method.getParameterTypes());
 		Object res = delegateMethod.invoke(delegate, args);
@@ -136,7 +138,7 @@ public class SecureEntryMaskingIdentifiableConfiguration implements InvocationHa
 	/**
 	 * Create a new proxy instance that masks the secure entry settings of an
 	 * existing configuration object.
-	 * 
+	 *
 	 * @param configuration
 	 *        the configuration to mask the secure settings on
 	 * @param settings
@@ -146,7 +148,7 @@ public class SecureEntryMaskingIdentifiableConfiguration implements InvocationHa
 	 *         {@code configuration}
 	 */
 	public static IdentifiableConfiguration createProxy(IdentifiableConfiguration configuration,
-			List<SettingSpecifier> settings) {
+			@Nullable List<SettingSpecifier> settings) {
 		Class<?>[] interfaces = ClassUtils.getAllInterfaces(configuration);
 		Object proxy = Proxy.newProxyInstance(configuration.getClass().getClassLoader(), interfaces,
 				new SecureEntryMaskingIdentifiableConfiguration(configuration, settings));
