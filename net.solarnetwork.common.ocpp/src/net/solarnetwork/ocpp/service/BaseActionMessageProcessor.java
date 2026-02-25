@@ -181,6 +181,8 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 * @throws UnsupportedOperationException
 	 *         unless overriden by extending classes
 	 * @since 1.2
+	 * @see #processActionMessageWithClientIdentifier(ActionMessage,
+	 *      ActionMessageResultHandler, ErrorCode)
 	 */
 	protected void handleActionMessageWithClientIdentifier(ActionMessage<T> message,
 			ActionMessageResultHandler<T, R> resultHandler, String clientIdentifier, T msg) {
@@ -196,11 +198,11 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 *        the result handler
 	 * @param clientIdentifier
 	 *        the client identifier
-	 * @param msg
-	 *        the message content
 	 * @throws UnsupportedOperationException
 	 *         unless overriden by extending classes
 	 * @since 1.2
+	 * @see #processActionMessageWithClientIdentifier(ActionMessage,
+	 *      ActionMessageResultHandler, ErrorCode)
 	 */
 	protected void handleActionMessageWithClientIdentifier(ActionMessage<T> message,
 			ActionMessageResultHandler<T, R> resultHandler, String clientIdentifier) {
