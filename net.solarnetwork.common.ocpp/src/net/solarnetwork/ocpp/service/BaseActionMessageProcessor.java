@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ErrorCode;
 import net.solarnetwork.ocpp.domain.ErrorCodeException;
 import net.solarnetwork.util.ObjectUtils;
@@ -118,7 +119,7 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 * </p>
 	 * <p>
 	 * Then, if {@code emptyMessageAllowed} is {@code true}, the
-	 * {@link #handleActionMessageWithClientIdentifier(ActionMessage, ActionMessageResultHandler, String)}
+	 * {@link #handleActionMessageWithClientIdentifier(ActionMessage, ActionMessageResultHandler, ChargePointIdentity)}
 	 * will be invoked (which extending classes must implement), passing the
 	 * non-{@code null} client identifier.
 	 * </p>
@@ -128,7 +129,7 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 * it is {@code null} the result handler will be invoked, passing an
 	 * {@link ErrorCodeException} configured with the given {@code errorCode}.
 	 * Otherwise, the
-	 * {@link #handleActionMessageWithClientIdentifier(ActionMessage, ActionMessageResultHandler, String, Object)}
+	 * {@link #handleActionMessageWithClientIdentifier(ActionMessage, ActionMessageResultHandler, ChargePointIdentity, Object)}
 	 * method will be invoked (which extending classes must implement), passing
 	 * the non-{@code null} client identifier and message content.
 	 * </p>
@@ -141,21 +142,23 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 *        the error code to use if either the message or
 	 *        {@code message.clientId.identifier} is {@code null}
 	 * @see #handleActionMessageWithClientIdentifier(ActionMessage,
-	 *      ActionMessageResultHandler, String)
+	 *      ActionMessageResultHandler, ChargePointIdentity)
+	 * @see #handleActionMessageWithClientIdentifier(ActionMessage,
+	 *      ActionMessageResultHandler, ChargePointIdentity, Object)
 	 * @since 1.2
 	 */
 	protected void processActionMessageWithClientIdentifier(ActionMessage<T> message,
 			ActionMessageResultHandler<T, R> resultHandler, ErrorCode errorCode) {
-		final String clientIdent;
+		final ChargePointIdentity identity;
 		try {
-			clientIdent = requireNonNullArgument(message.getClientId(), "clientId").getIdentifier();
+			identity = requireNonNullArgument(message.getClientId(), "clientId");
 		} catch ( IllegalArgumentException e ) {
-			ErrorCodeException err = new ErrorCodeException(errorCode, "Missing client identifier.");
+			ErrorCodeException err = new ErrorCodeException(errorCode, "Missing identity.");
 			resultHandler.handleActionMessageResult(message, null, err);
 			return;
 		}
 		if ( emptyMessageAllowed ) {
-			handleActionMessageWithClientIdentifier(message, resultHandler, clientIdent);
+			handleActionMessageWithClientIdentifier(message, resultHandler, identity);
 		} else {
 			T msg = message.getMessage();
 			if ( msg == null ) {
@@ -163,7 +166,7 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 				resultHandler.handleActionMessageResult(message, null, err);
 				return;
 			}
-			handleActionMessageWithClientIdentifier(message, resultHandler, clientIdent, msg);
+			handleActionMessageWithClientIdentifier(message, resultHandler, identity, msg);
 		}
 	}
 
@@ -174,8 +177,8 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 *        the message
 	 * @param resultHandler
 	 *        the result handler
-	 * @param clientIdentifier
-	 *        the client identifier
+	 * @param identity
+	 *        the charge point identity
 	 * @param msg
 	 *        the message content
 	 * @throws UnsupportedOperationException
@@ -185,7 +188,7 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 *      ActionMessageResultHandler, ErrorCode)
 	 */
 	protected void handleActionMessageWithClientIdentifier(ActionMessage<T> message,
-			ActionMessageResultHandler<T, R> resultHandler, String clientIdentifier, T msg) {
+			ActionMessageResultHandler<T, R> resultHandler, ChargePointIdentity identity, T msg) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -196,8 +199,8 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 *        the message
 	 * @param resultHandler
 	 *        the result handler
-	 * @param clientIdentifier
-	 *        the client identifier
+	 * @param identity
+	 *        the charge point identity
 	 * @throws UnsupportedOperationException
 	 *         unless overriden by extending classes
 	 * @since 1.2
@@ -205,7 +208,7 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 *      ActionMessageResultHandler, ErrorCode)
 	 */
 	protected void handleActionMessageWithClientIdentifier(ActionMessage<T> message,
-			ActionMessageResultHandler<T, R> resultHandler, String clientIdentifier) {
+			ActionMessageResultHandler<T, R> resultHandler, ChargePointIdentity identity) {
 		throw new UnsupportedOperationException();
 	}
 

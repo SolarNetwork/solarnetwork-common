@@ -78,14 +78,15 @@ public class BaseActionMessageProcessorTests {
 
 			@Override
 			protected void handleActionMessageWithClientIdentifier(ActionMessage<Object> message,
-					ActionMessageResultHandler<Object, Boolean> resultHandler, String clientIdentifier,
-					Object msg) {
+					ActionMessageResultHandler<Object, Boolean> resultHandler,
+					ChargePointIdentity identity, Object msg) {
 				resultHandler.handleActionMessageResult(message, Boolean.TRUE, null);
 			}
 
 			@Override
 			protected void handleActionMessageWithClientIdentifier(ActionMessage<Object> message,
-					ActionMessageResultHandler<Object, Boolean> resultHandler, String clientIdentifier) {
+					ActionMessageResultHandler<Object, Boolean> resultHandler,
+					ChargePointIdentity identity) {
 				resultHandler.handleActionMessageResult(message, Boolean.FALSE, null);
 			}
 
@@ -115,7 +116,7 @@ public class BaseActionMessageProcessorTests {
 			then(error)
 				.as("ErrorCodeException provided")
 				.asInstanceOf(throwable(ErrorCodeException.class))
-				.hasMessage("Missing client identifier.")
+				.hasMessage("Missing identity.")
 				.returns(Fail.Refuse, from(ErrorCodeException::getErrorCode))
 				;
 			// @formatter:on
