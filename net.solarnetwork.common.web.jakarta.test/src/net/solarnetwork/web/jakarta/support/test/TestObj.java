@@ -1,7 +1,7 @@
 /* ==================================================================
- * Request.java - Nov 20, 2012 7:04:41 AM
+ * SimpleXmlHttpMessageConverterTests.java - 24/02/2020 7:28:15 am
  *
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2020 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,32 +20,33 @@
  * ==================================================================
  */
 
-package net.solarnetwork.web.jakarta.domain;
+package net.solarnetwork.web.jakarta.support.test;
 
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A web request envelope object.
- *
- * @author matt
- * @version 1.1
+ * Helper test class.
  */
-public class Request extends net.solarnetwork.domain.Request {
+public final class TestObj {
+
+	@Nullable
+	Map<String, Object> data;
 
 	/**
 	 * Constructor.
-	 *
-	 * @param username
-	 *        the username
-	 * @param password
-	 *        the password
-	 * @param data
-	 *        the data
 	 */
-	public Request(@Nullable String username, @Nullable String password,
-			@Nullable Map<String, Object> data) {
-		super(username, password, data);
+	TestObj() {
+		super();
+	}
+
+	/**
+	 * Get the data.
+	 *
+	 * @return the data
+	 */
+	public @Nullable Map<String, Object> getData() {
+		return data;
 	}
 
 }

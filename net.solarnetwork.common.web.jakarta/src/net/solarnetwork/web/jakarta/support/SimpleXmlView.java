@@ -1,23 +1,23 @@
 /* ===================================================================
  * SimpleXmlView.java
- * 
+ *
  * Created Aug 14, 2008 5:07:50 PM
- * 
+ *
  * Copyright (c) 2008 Solarnetwork.net Dev Team.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ===================================================================
  */
@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.solarnetwork.util.ClassUtils;
@@ -46,12 +47,12 @@ import net.solarnetwork.util.ClassUtils;
 /**
  * Spring {@link org.springframework.web.servlet.View} for turning objects into
  * XML through JavaBean introspection.
- * 
+ *
  * <p>
  * The character encoding of the output must be specified in the
  * {@link #setContentType(String)} (e.g. {@literal text/xml;charset=UTF-8}).
  * </p>
- * 
+ *
  * @author matt
  * @version 1.4
  */
@@ -72,9 +73,9 @@ public class SimpleXmlView extends AbstractView {
 	private String rootElementName = DEFAULT_ROOT_ELEMENT_NAME;
 	private boolean singleBeanAsRoot = true;
 	private boolean useModelTimeZoneForDates = true;
-	private String modelKey = null;
-	private ViewResponseAugmentor rootElementAugmentor = null;
-	private Set<String> classNamesAllowedForNesting = null;
+	private @Nullable String modelKey;
+	private @Nullable ViewResponseAugmentor rootElementAugmentor;
+	private @Nullable Set<String> classNamesAllowedForNesting;
 
 	/**
 	 * Constructor.
@@ -127,7 +128,7 @@ public class SimpleXmlView extends AbstractView {
 	/**
 	 * Create a {@link SimpleDateFormat} and cache on the {@link #SDF}
 	 * ThreadLocal to re-use for all dates within a single response.
-	 * 
+	 *
 	 * @param model
 	 *        the model, to look for a TimeZone to format the dates in
 	 * @return the model to use
@@ -161,8 +162,8 @@ public class SimpleXmlView extends AbstractView {
 		return result;
 	}
 
-	private void outputObject(Object o, String name, Writer out, ViewResponseAugmentor augmentor)
-			throws IOException {
+	private void outputObject(Object o, @Nullable String name, Writer out,
+			@Nullable ViewResponseAugmentor augmentor) throws IOException {
 		if ( o instanceof Collection ) {
 			Collection<?> col = (Collection<?>) o;
 			outputCollection(col, name, out, augmentor);
@@ -181,15 +182,17 @@ public class SimpleXmlView extends AbstractView {
 			List<Object> list = Arrays.asList(array);
 			outputCollection(list, name, out, augmentor);
 		} else {
-			String elementName = (o == null ? name
-					: org.springframework.util.ClassUtils.getShortName(o.getClass()));
+			String elementName = (o != null
+					? org.springframework.util.ClassUtils.getShortName(o.getClass())
+					: name != null ? name : "object");
 			writeElement(elementName, o, out, true, augmentor);
 		}
 	}
 
-	private void outputMap(Map<?, ?> map, String name, Writer out, ViewResponseAugmentor augmentor)
-			throws IOException {
-		writeElement(name, null, out, false, augmentor);
+	private void outputMap(Map<?, ?> map, @Nullable String name, Writer out,
+			@Nullable ViewResponseAugmentor augmentor) throws IOException {
+		final String n = (name != null ? name : "map");
+		writeElement(n, null, out, false, augmentor);
 
 		// for each entry, write an <entry> element
 		for ( Map.Entry<?, ?> me : map.entrySet() ) {
@@ -199,9 +202,9 @@ public class SimpleXmlView extends AbstractView {
 			out.write("\">");
 
 			Object value = me.getValue();
-			if ( value instanceof Collection ) {
+			if ( value instanceof Collection<?> c ) {
 				// special collection case, we don't add nested element
-				for ( Object o : (Collection<?>) value ) {
+				for ( Object o : c ) {
 					outputObject(o, "value", out, augmentor);
 				}
 			} else if ( value != null && value.getClass().isArray() ) {
@@ -216,20 +219,21 @@ public class SimpleXmlView extends AbstractView {
 			closeElement("entry", out);
 		}
 
-		closeElement(name, out);
+		closeElement(n, out);
 	}
 
-	private void outputCollection(Collection<?> col, String name, Writer out,
-			ViewResponseAugmentor augmentor) throws IOException {
-		writeElement(name, null, out, false, augmentor);
+	private void outputCollection(Collection<?> col, @Nullable String name, Writer out,
+			@Nullable ViewResponseAugmentor augmentor) throws IOException {
+		final String n = (name != null ? name : "list");
+		writeElement(n, null, out, false, augmentor);
 		for ( Object o : col ) {
 			outputObject(o, null, out, null);
 		}
-		closeElement(name, out);
+		closeElement(n, out);
 	}
 
-	private void writeElement(String name, Map<?, ?> props, Writer out, boolean close,
-			ViewResponseAugmentor augmentor) throws IOException {
+	private void writeElement(String name, @Nullable Map<?, ?> props, Writer out, boolean close,
+			@Nullable ViewResponseAugmentor augmentor) throws IOException {
 		out.write('<');
 		out.write(name);
 		if ( augmentor != null ) {
@@ -244,11 +248,10 @@ public class SimpleXmlView extends AbstractView {
 					val = getPropertySerializerRegistrar().serializeProperty(name, val.getClass(), props,
 							val);
 				}
-				if ( val instanceof Date ) {
+				if ( val instanceof Date date ) {
 					SimpleDateFormat sdf = SDF.get();
 					// SimpleDateFormat has no way to create xs:dateTime with tz,
 					// so use trick here to insert required colon for non GMT dates
-					Date date = (Date) val;
 					StringBuilder buf = new StringBuilder(sdf.format(date));
 					if ( buf.charAt(buf.length() - 1) != 'Z' ) {
 						buf.insert(buf.length() - 2, ':');
@@ -256,21 +259,22 @@ public class SimpleXmlView extends AbstractView {
 					val = buf.toString();
 				} else if ( val instanceof Collection ) {
 					if ( nested == null ) {
-						nested = new LinkedHashMap<String, Object>(5);
+						nested = new LinkedHashMap<>(5);
 					}
 					nested.put(key, val);
 					val = null;
 				} else if ( val instanceof Map<?, ?> ) {
 					if ( nested == null ) {
-						nested = new LinkedHashMap<String, Object>(5);
+						nested = new LinkedHashMap<>(5);
 					}
 					nested.put(key, val);
 					val = null;
-				} else if ( classNamesAllowedForNesting != null && !(val instanceof Enum<?>) ) {
+				} else if ( val != null && classNamesAllowedForNesting != null
+						&& !(val instanceof Enum<?>) ) {
 					for ( String prefix : classNamesAllowedForNesting ) {
 						if ( val.getClass().getName().startsWith(prefix) ) {
 							if ( nested == null ) {
-								nested = new LinkedHashMap<String, Object>(5);
+								nested = new LinkedHashMap<>(5);
 							}
 							nested.put(key, val);
 							val = null;
@@ -336,8 +340,8 @@ public class SimpleXmlView extends AbstractView {
 		}
 	}
 
-	private void writeElement(String name, Object bean, Writer out, boolean close,
-			ViewResponseAugmentor augmentor) throws IOException {
+	private void writeElement(String name, @Nullable Object bean, Writer out, boolean close,
+			@Nullable ViewResponseAugmentor augmentor) throws IOException {
 		if ( getPropertySerializerRegistrar() != null && bean != null ) {
 			// try whole-bean serialization first
 			Object o = getPropertySerializerRegistrar().serializeProperty(name, bean.getClass(), bean,
@@ -361,7 +365,7 @@ public class SimpleXmlView extends AbstractView {
 
 	/**
 	 * Get the root XML element name to use.
-	 * 
+	 *
 	 * @return the root name; defaults to {@link #DEFAULT_ROOT_ELEMENT_NAME}
 	 */
 	public String getRootElementName() {
@@ -370,12 +374,12 @@ public class SimpleXmlView extends AbstractView {
 
 	/**
 	 * A root XML element name to use for the view output.
-	 * 
+	 *
 	 * <p>
 	 * See {@link #setSingleBeanAsRoot(boolean)} which can be used to render a
 	 * single view object as the root element name instead of this value.
 	 * </p>
-	 * 
+	 *
 	 * @param rootElementName
 	 *        the root element name to use
 	 */
@@ -385,7 +389,7 @@ public class SimpleXmlView extends AbstractView {
 
 	/**
 	 * Get the single-bean-as-root setting.
-	 * 
+	 *
 	 * @return {@literal true} to treat models with a single object as the root
 	 *         element, otherwise {@code #getRootElementName()} should be used;
 	 *         defaults to {@literal true}
@@ -396,13 +400,13 @@ public class SimpleXmlView extends AbstractView {
 
 	/**
 	 * Toggle the single-bean-as-root setting.
-	 * 
+	 *
 	 * <p>
 	 * When {@literal true} then if the model is a single object, it will be
 	 * used as the output root element. Otherwise {@link #getRootElementName()}
 	 * will be used as the root element.
 	 * </p>
-	 * 
+	 *
 	 * @param singleBeanAsRoot
 	 *        the single bean as root setting to use
 	 */
@@ -412,7 +416,7 @@ public class SimpleXmlView extends AbstractView {
 
 	/**
 	 * Get the model time zone settings.
-	 * 
+	 *
 	 * @return {@literal true} to use a {@link TimeZone} from the model for
 	 *         rendered dates, {@literal false} to use {@code UTC}; defaults to
 	 *         {@literal true}
@@ -423,13 +427,13 @@ public class SimpleXmlView extends AbstractView {
 
 	/**
 	 * Toggle the use of a model-specific time zone for date values.
-	 * 
+	 *
 	 * <p>
 	 * When {@literal true}, if a {@link TimeZone} is found as a model value, it
 	 * will be used to render dates to string values. Otherwise {@code UTC} will
 	 * be used.
 	 * </p>
-	 * 
+	 *
 	 * @param useModelTimeZoneForDates
 	 *        the setting to use
 	 */
@@ -439,60 +443,59 @@ public class SimpleXmlView extends AbstractView {
 
 	/**
 	 * Get a specific model key to render into XML.
-	 * 
-	 * @return the model key to use for the output XML, or {@literal null} to
-	 *         use the entire model
+	 *
+	 * @return the model key to use for the output XML, or {@code null} to use
+	 *         the entire model
 	 */
-	public String getModelKey() {
+	public @Nullable String getModelKey() {
 		return modelKey;
 	}
 
 	/**
 	 * Set the model key to use as the object to render to XML.
-	 * 
+	 *
 	 * @param modelKey
-	 *        the model key to use, or {@literal null} to render the entire
-	 *        model
+	 *        the model key to use, or {@code null} to render the entire model
 	 */
-	public void setModelKey(String modelKey) {
+	public void setModelKey(@Nullable String modelKey) {
 		this.modelKey = modelKey;
 	}
 
 	/**
 	 * Get the root element response augementor.
-	 * 
+	 *
 	 * @return the augmentor
 	 */
-	public ViewResponseAugmentor getRootElementAugmentor() {
+	public @Nullable ViewResponseAugmentor getRootElementAugmentor() {
 		return rootElementAugmentor;
 	}
 
 	/**
 	 * Set the root element response augmentor.
-	 * 
+	 *
 	 * @param rootElementAugmentor
 	 *        the augmentor to set
 	 */
-	public void setRootElementAugmentor(ViewResponseAugmentor rootElementAugmentor) {
+	public void setRootElementAugmentor(@Nullable ViewResponseAugmentor rootElementAugmentor) {
 		this.rootElementAugmentor = rootElementAugmentor;
 	}
 
 	/**
 	 * Get the class names allowed for nesting.
-	 * 
+	 *
 	 * @return the class names
 	 */
-	public Set<String> getClassNamesAllowedForNesting() {
+	public @Nullable Set<String> getClassNamesAllowedForNesting() {
 		return classNamesAllowedForNesting;
 	}
 
 	/**
 	 * Set the class names allowed for nesting.
-	 * 
+	 *
 	 * @param classNamesAllowedForNesting
 	 *        the class names
 	 */
-	public void setClassNamesAllowedForNesting(Set<String> classNamesAllowedForNesting) {
+	public void setClassNamesAllowedForNesting(@Nullable Set<String> classNamesAllowedForNesting) {
 		this.classNamesAllowedForNesting = classNamesAllowedForNesting;
 	}
 

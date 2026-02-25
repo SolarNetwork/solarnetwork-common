@@ -1,27 +1,28 @@
 /* ==================================================================
  * AuthenticationDataTokenChannelInterceptor.java - 18/11/2017 7:21:21 AM
- * 
+ *
  * Copyright 2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.web.jakarta.security;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -39,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -79,12 +81,12 @@ import net.solarnetwork.web.jakarta.support.RequestInfoHandshakeInterceptor;
 /**
  * Authentication filter for {@link AuthenticationData} style token
  * authentication on a STOMP message channel.
- * 
+ *
  * <p>
  * This class depends on the {@link RequestInfoHandshakeInterceptor} to provide
  * access to some data required for authentication.
  * </p>
- * 
+ *
  * @author matt
  * @version 2.0
  * @since 1.14
@@ -99,19 +101,19 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param userDetailsService
 	 *        the user details service to use
 	 */
 	public AuthenticationDataTokenChannelInterceptor(UserDetailsService userDetailsService) {
 		super();
-		this.userDetailsService = userDetailsService;
+		this.userDetailsService = requireNonNullArgument(userDetailsService, "userDetailsService");
 		this.authenticationDetailsSource = new WebAuthenticationDetailsSource();
 	}
 
 	/**
 	 * Configure the maximum allowable date skew.
-	 * 
+	 *
 	 * @param maxDateSkew
 	 *        the maximum date skew, in milliseconds; defaults to 15 minutes
 	 */
@@ -134,7 +136,7 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		return message;
 	}
 
-	private Authentication authenticateUser(SimpMessageHeaderAccessor accessor) {
+	private @Nullable Authentication authenticateUser(SimpMessageHeaderAccessor accessor) {
 		HttpServletRequest request = new MessageHttpServletRequestAdapter(accessor);
 		Authentication authenticatedUser = null;
 		SecurityHttpServletRequestWrapper secRequest = new SecurityHttpServletRequestWrapper(request,
@@ -178,9 +180,9 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 
 	private static final class MessageHttpServletRequestAdapter implements HttpServletRequest {
 
-		private final HttpMethod requestMethod;
-		private final URI requestUri;
-		private final HttpHeaders requestHeaders;
+		private final @Nullable HttpMethod requestMethod;
+		private final @Nullable URI requestUri;
+		private final @Nullable HttpHeaders requestHeaders;
 		private final HttpHeaders nativeHeaders;
 		private final String requestId;
 
@@ -199,7 +201,7 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@SuppressWarnings("unchecked")
-		private <T> T getSessionAttribute(SimpMessageHeaderAccessor accessor, String name,
+		private <T> @Nullable T getSessionAttribute(SimpMessageHeaderAccessor accessor, String name,
 				Class<T> requiredType) {
 			Map<String, Object> sessionAttr = accessor.getSessionAttributes();
 			if ( sessionAttr != null ) {
@@ -222,22 +224,22 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public ServletConnection getServletConnection() {
+		public @Nullable ServletConnection getServletConnection() {
 			return null;
 		}
 
 		@Override
-		public Object getAttribute(String name) {
+		public @Nullable Object getAttribute(String name) {
 			return null;
 		}
 
 		@Override
 		public Enumeration<String> getAttributeNames() {
-			return null;
+			return Collections.emptyEnumeration();
 		}
 
 		@Override
-		public String getCharacterEncoding() {
+		public @Nullable String getCharacterEncoding() {
 			return null;
 		}
 
@@ -256,7 +258,7 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public String getContentType() {
+		public @Nullable String getContentType() {
 			return null;
 		}
 
@@ -286,17 +288,17 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public String getParameter(String name) {
+		public @Nullable String getParameter(String name) {
 			return null;
 		}
 
 		@Override
 		public Enumeration<String> getParameterNames() {
-			return new IteratorEnumeration<String>(Collections.<String> emptyIterator());
+			return new IteratorEnumeration<>(Collections.emptyIterator());
 		}
 
 		@Override
-		public String[] getParameterValues(String name) {
+		public String @Nullable [] getParameterValues(String name) {
 			return null;
 		}
 
@@ -306,17 +308,17 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public String getProtocol() {
+		public @Nullable String getProtocol() {
 			return null;
 		}
 
 		@Override
-		public String getScheme() {
+		public @Nullable String getScheme() {
 			return (requestUri != null ? requestUri.getScheme() : "http");
 		}
 
 		@Override
-		public String getServerName() {
+		public @Nullable String getServerName() {
 			return (requestUri != null ? requestUri.getHost() : null);
 		}
 
@@ -324,7 +326,7 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		public int getServerPort() {
 			int port = (requestUri != null ? requestUri.getPort() : -1);
 			if ( port < 1 ) {
-				String scheme = requestUri.getScheme();
+				String scheme = (requestUri != null ? requestUri.getScheme() : null);
 				port = ("https".equals(scheme) ? 443 : 80);
 			}
 			return port;
@@ -336,12 +338,12 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public String getRemoteAddr() {
+		public @Nullable String getRemoteAddr() {
 			return null;
 		}
 
 		@Override
-		public String getRemoteHost() {
+		public @Nullable String getRemoteHost() {
 			return null;
 		}
 
@@ -355,12 +357,12 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 
 		@Override
 		public Locale getLocale() {
-			return null;
+			return Locale.getDefault();
 		}
 
 		@Override
 		public Enumeration<Locale> getLocales() {
-			return null;
+			return Collections.enumeration(Collections.singleton(Locale.getDefault()));
 		}
 
 		@Override
@@ -369,7 +371,7 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public RequestDispatcher getRequestDispatcher(String path) {
+		public @Nullable RequestDispatcher getRequestDispatcher(String path) {
 			return null;
 		}
 
@@ -379,12 +381,12 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public String getLocalName() {
+		public @Nullable String getLocalName() {
 			return null;
 		}
 
 		@Override
-		public String getLocalAddr() {
+		public @Nullable String getLocalAddr() {
 			return null;
 		}
 
@@ -394,18 +396,18 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public ServletContext getServletContext() {
+		public @Nullable ServletContext getServletContext() {
 			return null;
 		}
 
 		@Override
-		public AsyncContext startAsync() throws IllegalStateException {
+		public @Nullable AsyncContext startAsync() throws IllegalStateException {
 			return null;
 		}
 
 		@Override
-		public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
-				throws IllegalStateException {
+		public @Nullable AsyncContext startAsync(ServletRequest servletRequest,
+				ServletResponse servletResponse) throws IllegalStateException {
 			return null;
 		}
 
@@ -420,22 +422,22 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public AsyncContext getAsyncContext() {
+		public @Nullable AsyncContext getAsyncContext() {
 			return null;
 		}
 
 		@Override
-		public DispatcherType getDispatcherType() {
+		public @Nullable DispatcherType getDispatcherType() {
 			return null;
 		}
 
 		@Override
-		public String getAuthType() {
+		public @Nullable String getAuthType() {
 			return null;
 		}
 
 		@Override
-		public Cookie[] getCookies() {
+		public Cookie @Nullable [] getCookies() {
 			return null;
 		}
 
@@ -449,7 +451,7 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public String getHeader(String name) {
+		public @Nullable String getHeader(String name) {
 			String value = nativeHeaders.getFirst(name);
 			if ( value == null && requestHeaders != null ) {
 				value = requestHeaders.getFirst(name);
@@ -466,24 +468,23 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 				} else {
 					List<String> reqStr = requestHeaders.get(name);
 					if ( reqStr != null ) {
-						str = new ArrayList<String>(str);
+						str = new ArrayList<>(str);
 						str.addAll(reqStr);
 					}
 				}
 			}
-			return new IteratorEnumeration<String>(
-					str != null ? str.iterator() : Collections.<String> emptyIterator());
+			return new IteratorEnumeration<>(str != null ? str.iterator() : Collections.emptyIterator());
 		}
 
 		@Override
 		public Enumeration<String> getHeaderNames() {
 			Set<String> keys = nativeHeaders.keySet();
 			if ( requestHeaders != null ) {
-				keys = new LinkedHashSet<String>(keys);
+				keys = new LinkedHashSet<>(keys);
 				keys.addAll(requestHeaders.keySet());
 			}
-			return new IteratorEnumeration<String>(
-					keys != null ? keys.iterator() : Collections.<String> emptyIterator());
+			return new IteratorEnumeration<>(
+					keys != null ? keys.iterator() : Collections.emptyIterator());
 		}
 
 		@Override
@@ -493,32 +494,32 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public String getMethod() {
+		public @Nullable String getMethod() {
 			return (requestMethod == null ? HttpMethod.GET.toString() : requestMethod.toString());
 		}
 
 		@Override
-		public String getPathInfo() {
+		public @Nullable String getPathInfo() {
 			return null;
 		}
 
 		@Override
-		public String getPathTranslated() {
+		public @Nullable String getPathTranslated() {
 			return null;
 		}
 
 		@Override
-		public String getContextPath() {
+		public @Nullable String getContextPath() {
 			return null;
 		}
 
 		@Override
-		public String getQueryString() {
+		public @Nullable String getQueryString() {
 			return null;
 		}
 
 		@Override
-		public String getRemoteUser() {
+		public @Nullable String getRemoteUser() {
 			return null;
 		}
 
@@ -528,22 +529,22 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public Principal getUserPrincipal() {
+		public @Nullable Principal getUserPrincipal() {
 			return null;
 		}
 
 		@Override
-		public String getRequestedSessionId() {
+		public @Nullable String getRequestedSessionId() {
 			return null;
 		}
 
 		@Override
-		public String getRequestURI() {
+		public @Nullable String getRequestURI() {
 			return (requestUri != null ? requestUri.getRawPath() : "/");
 		}
 
 		@Override
-		public StringBuffer getRequestURL() {
+		public @Nullable StringBuffer getRequestURL() {
 			return null;
 		}
 
@@ -553,17 +554,17 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		}
 
 		@Override
-		public HttpSession getSession(boolean create) {
+		public @Nullable HttpSession getSession(boolean create) {
 			return null;
 		}
 
 		@Override
-		public HttpSession getSession() {
+		public @Nullable HttpSession getSession() {
 			return null;
 		}
 
 		@Override
-		public String changeSessionId() {
+		public @Nullable String changeSessionId() {
 			return null;
 		}
 
@@ -597,16 +598,16 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 
 		@Override
 		public Collection<Part> getParts() throws IOException, ServletException {
+			return Collections.emptyList();
+		}
+
+		@Override
+		public @Nullable Part getPart(String name) throws IOException, ServletException {
 			return null;
 		}
 
 		@Override
-		public Part getPart(String name) throws IOException, ServletException {
-			return null;
-		}
-
-		@Override
-		public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
+		public <T extends HttpUpgradeHandler> @Nullable T upgrade(Class<T> handlerClass)
 				throws IOException, ServletException {
 			return null;
 		}

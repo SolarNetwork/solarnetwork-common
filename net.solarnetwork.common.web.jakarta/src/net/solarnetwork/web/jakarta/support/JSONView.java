@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.PropertyEditorRegistrar;
@@ -85,7 +86,7 @@ public class JSONView extends AbstractView {
 
 	private int indentAmount = 0;
 	private boolean includeParentheses = false;
-	private PropertyEditorRegistrar propertyEditorRegistrar = null;
+	private @Nullable PropertyEditorRegistrar propertyEditorRegistrar;
 
 	/**
 	 * Default constructor.
@@ -119,10 +120,11 @@ public class JSONView extends AbstractView {
 		JsonGenerator json = JsonFactory.builder().build()
 				.createGenerator(new ObjectWriteContext.Base() {
 
-					final PrettyPrinter pp = (indentAmount > 0 ? new DefaultPrettyPrinter() : null);
+					final @Nullable PrettyPrinter pp = (indentAmount > 0 ? new DefaultPrettyPrinter()
+							: null);
 
 					@Override
-					public PrettyPrinter getPrettyPrinter() {
+					public @Nullable PrettyPrinter getPrettyPrinter() {
 						return pp;
 					}
 
@@ -149,12 +151,12 @@ public class JSONView extends AbstractView {
 		return result;
 	}
 
-	private void writeJsonValue(JsonGenerator json, String key, Object val,
-			PropertyEditorRegistrar registrar) throws JacksonException, IOException {
+	private void writeJsonValue(JsonGenerator json, @Nullable String key, @Nullable Object val,
+			@Nullable PropertyEditorRegistrar registrar) throws JacksonException, IOException {
 		if ( val instanceof Collection<?> || (val != null && val.getClass().isArray()) ) {
 			Collection<?> col;
-			if ( val instanceof Collection<?> ) {
-				col = (Collection<?>) val;
+			if ( val instanceof Collection<?> c ) {
+				col = c;
 			} else if ( !val.getClass().getComponentType().isPrimitive() ) {
 				col = Arrays.asList((Object[]) val);
 			} else {
@@ -170,12 +172,12 @@ public class JSONView extends AbstractView {
 			}
 
 			json.writeEndArray();
-		} else if ( val instanceof Map<?, ?> ) {
+		} else if ( val instanceof Map<?, ?> m ) {
 			if ( key != null ) {
 				json.writeName(key);
 			}
 			json.writeStartObject();
-			for ( Map.Entry<?, ?> me : ((Map<?, ?>) val).entrySet() ) {
+			for ( Map.Entry<?, ?> me : m.entrySet() ) {
 				Object propName = me.getKey();
 				if ( propName == null ) {
 					continue;
@@ -183,59 +185,59 @@ public class JSONView extends AbstractView {
 				writeJsonValue(json, propName.toString(), me.getValue(), registrar);
 			}
 			json.writeEndObject();
-		} else if ( val instanceof Double ) {
+		} else if ( val instanceof Double n ) {
 			if ( key == null ) {
-				json.writeNumber((Double) val);
+				json.writeNumber(n);
 			} else {
-				json.writeNumberProperty(key, (Double) val);
+				json.writeNumberProperty(key, n);
 			}
-		} else if ( val instanceof Integer ) {
+		} else if ( val instanceof Integer n ) {
 			if ( key == null ) {
-				json.writeNumber((Integer) val);
+				json.writeNumber(n);
 			} else {
-				json.writeNumberProperty(key, (Integer) val);
+				json.writeNumberProperty(key, n);
 			}
-		} else if ( val instanceof Short ) {
+		} else if ( val instanceof Short n ) {
 			if ( key == null ) {
-				json.writeNumber(((Short) val).intValue());
+				json.writeNumber(n.intValue());
 			} else {
-				json.writeNumberProperty(key, ((Short) val).intValue());
+				json.writeNumberProperty(key, n.intValue());
 			}
-		} else if ( val instanceof Float ) {
+		} else if ( val instanceof Float n ) {
 			if ( key == null ) {
-				json.writeNumber((Float) val);
+				json.writeNumber(n);
 			} else {
-				json.writeNumberProperty(key, (Float) val);
+				json.writeNumberProperty(key, n);
 			}
-		} else if ( val instanceof Long ) {
+		} else if ( val instanceof Long n ) {
 			if ( key == null ) {
-				json.writeNumber((Long) val);
+				json.writeNumber(n);
 			} else {
-				json.writeNumberProperty(key, (Long) val);
+				json.writeNumberProperty(key, n);
 			}
-		} else if ( val instanceof BigDecimal ) {
+		} else if ( val instanceof BigDecimal n ) {
 			if ( key == null ) {
-				json.writeNumber((BigDecimal) val);
+				json.writeNumber(n);
 			} else {
-				json.writeNumberProperty(key, (BigDecimal) val);
+				json.writeNumberProperty(key, n);
 			}
-		} else if ( val instanceof BigInteger ) {
+		} else if ( val instanceof BigInteger n ) {
 			if ( key == null ) {
-				json.writeNumber((BigInteger) val);
+				json.writeNumber(n);
 			} else {
-				json.writeNumberProperty(key, new BigDecimal((BigInteger) val));
+				json.writeNumberProperty(key, new BigDecimal(n));
 			}
-		} else if ( val instanceof Boolean ) {
+		} else if ( val instanceof Boolean b ) {
 			if ( key == null ) {
-				json.writeBoolean((Boolean) val);
+				json.writeBoolean(b);
 			} else {
-				json.writeBooleanProperty(key, (Boolean) val);
+				json.writeBooleanProperty(key, b);
 			}
-		} else if ( val instanceof String ) {
+		} else if ( val instanceof String s ) {
 			if ( key == null ) {
-				json.writeString((String) val);
+				json.writeString(s);
 			} else {
-				json.writeStringProperty(key, (String) val);
+				json.writeStringProperty(key, s);
 			}
 		} else {
 			// create a JSON object from bean properties
@@ -254,8 +256,8 @@ public class JSONView extends AbstractView {
 		}
 	}
 
-	private void generateJavaBeanObject(JsonGenerator json, String key, Object bean,
-			PropertyEditorRegistrar registrar) throws JacksonException, IOException {
+	private void generateJavaBeanObject(JsonGenerator json, @Nullable String key, @Nullable Object bean,
+			@Nullable PropertyEditorRegistrar registrar) throws JacksonException, IOException {
 		if ( key != null ) {
 			json.writeName(key);
 		}
@@ -293,8 +295,9 @@ public class JSONView extends AbstractView {
 							propVal = editor.getAsText();
 						}
 					}
-					if ( propVal instanceof Enum<?> || getJavaBeanTreatAsStringValues() != null
-							&& getJavaBeanTreatAsStringValues().contains(propVal.getClass()) ) {
+					if ( propVal instanceof Enum<?>
+							|| (propVal != null && getJavaBeanTreatAsStringValues() != null
+									&& getJavaBeanTreatAsStringValues().contains(propVal.getClass())) ) {
 						propVal = propVal.toString();
 					}
 					writeJsonValue(json, name, propVal, registrar);
@@ -304,7 +307,7 @@ public class JSONView extends AbstractView {
 		json.writeEndObject();
 	}
 
-	private BeanWrapper getPropertyAccessor(Object obj, PropertyEditorRegistrar registrar) {
+	private BeanWrapper getPropertyAccessor(Object obj, @Nullable PropertyEditorRegistrar registrar) {
 		BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(obj);
 		if ( registrar != null ) {
 			registrar.registerCustomEditors(bean);
@@ -362,7 +365,7 @@ public class JSONView extends AbstractView {
 	 *
 	 * @return the registrar
 	 */
-	public PropertyEditorRegistrar getPropertyEditorRegistrar() {
+	public @Nullable PropertyEditorRegistrar getPropertyEditorRegistrar() {
 		return propertyEditorRegistrar;
 	}
 
@@ -377,7 +380,7 @@ public class JSONView extends AbstractView {
 	 * @param propertyEditorRegistrar
 	 *        the registrar to set
 	 */
-	public void setPropertyEditorRegistrar(PropertyEditorRegistrar propertyEditorRegistrar) {
+	public void setPropertyEditorRegistrar(@Nullable PropertyEditorRegistrar propertyEditorRegistrar) {
 		this.propertyEditorRegistrar = propertyEditorRegistrar;
 	}
 

@@ -1,21 +1,21 @@
 /* ==================================================================
  * BasicAuthHttpRequestCustomizerService.java - 2/04/2023 6:27:19 am
- * 
+ *
  * Copyright 2023 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpRequest;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
@@ -33,22 +34,22 @@ import net.solarnetwork.util.ByteList;
 
 /**
  * HTTP request customizer for basic authorization.
- * 
+ *
  * <p>
  * The {@link #configurationChanged(Map)} must be invoked after configuring the
  * credentials on this class because the encoded HTTP Authorization header value
  * will be computed then and cached.
  * </p>
- * 
+ *
  * <p>
  * Alternatively the credentials can be provided dynamically by passing the
  * {@link #USERNAME_PARAM} and {@link #PASSWORD_PARAM} parameters.
  * </p>
- * 
+ *
  * <p>
  * The credentials are encoded using the UTF-8 character encoding.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -60,10 +61,10 @@ public class BasicAuthHttpRequestCustomizerService extends AbstractAuthHttpReque
 	/** A parameter key for the password to use. */
 	public static final String PASSWORD_PARAM = "password";
 
-	private String username;
-	private String password;
+	private @Nullable String username;
+	private @Nullable String password;
 
-	private String auth;
+	private @Nullable String auth;
 
 	/**
 	 * Constructor.
@@ -73,13 +74,14 @@ public class BasicAuthHttpRequestCustomizerService extends AbstractAuthHttpReque
 	}
 
 	@Override
-	public void configurationChanged(Map<String, Object> properties) {
+	public void configurationChanged(@Nullable Map<String, Object> properties) {
 		// cache the authorization value
 		auth = encodeAuth(username, password);
 	}
 
 	@Override
-	public HttpRequest customize(HttpRequest request, ByteList body, Map<String, ?> parameters) {
+	public HttpRequest customize(HttpRequest request, @Nullable ByteList body,
+			@Nullable Map<String, ?> parameters) {
 		String auth = auth(parameters);
 		if ( auth == null ) {
 			return request;
@@ -88,7 +90,7 @@ public class BasicAuthHttpRequestCustomizerService extends AbstractAuthHttpReque
 		return request;
 	}
 
-	private String auth(Map<String, ?> parameters) {
+	private @Nullable String auth(@Nullable Map<String, ?> parameters) {
 		if ( parameters != null && parameters.containsKey(USERNAME_PARAM)
 				&& parameters.containsKey(PASSWORD_PARAM) ) {
 			String auth = encodeAuth(parameters.get(USERNAME_PARAM).toString(),
@@ -100,7 +102,7 @@ public class BasicAuthHttpRequestCustomizerService extends AbstractAuthHttpReque
 		return this.auth;
 	}
 
-	private static String encodeAuth(String username, String password) {
+	private static @Nullable String encodeAuth(@Nullable String username, @Nullable String password) {
 		if ( username == null || username.trim().isEmpty() || password == null
 				|| password.trim().isEmpty() ) {
 			return null;
@@ -124,39 +126,39 @@ public class BasicAuthHttpRequestCustomizerService extends AbstractAuthHttpReque
 
 	/**
 	 * Get the username.
-	 * 
+	 *
 	 * @return the username
 	 */
-	public String getUsername() {
+	public @Nullable String getUsername() {
 		return username;
 	}
 
 	/**
 	 * Set the username.
-	 * 
+	 *
 	 * @param username
 	 *        the username to set
 	 */
-	public void setUsername(String username) {
+	public void setUsername(@Nullable String username) {
 		this.username = username;
 	}
 
 	/**
 	 * Get the password.
-	 * 
+	 *
 	 * @return the password
 	 */
-	public String getPassword() {
+	public @Nullable String getPassword() {
 		return password;
 	}
 
 	/**
 	 * Set the password.
-	 * 
+	 *
 	 * @param password
 	 *        the password to set
 	 */
-	public void setPassword(String password) {
+	public void setPassword(@Nullable String password) {
 		this.password = password;
 	}
 

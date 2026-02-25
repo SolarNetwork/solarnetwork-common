@@ -22,9 +22,13 @@
 
 package net.solarnetwork.web.jakarta.security;
 
+import static net.solarnetwork.codec.jackson.JsonUtils.getJSONString;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,8 +40,6 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import net.solarnetwork.codec.jackson.JsonUtils;
-import net.solarnetwork.util.ByteUtils;
 import net.solarnetwork.web.jakarta.domain.Response;
 
 /**
@@ -52,7 +54,7 @@ public class SecurityTokenAuthenticationEntryPoint
 
 	private int order = Integer.MAX_VALUE;
 	private Map<String, String> httpHeaders = defaultHttpHeaders();
-	private HandlerExceptionResolver handlerExceptionResolver;
+	private @Nullable HandlerExceptionResolver handlerExceptionResolver;
 
 	private static Map<String, String> defaultHttpHeaders() {
 		Map<String, String> headers = new HashMap<String, String>(2);
@@ -114,8 +116,8 @@ public class SecurityTokenAuthenticationEntryPoint
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		Response<Void> responseObj = new Response<>(Boolean.FALSE, String.valueOf(statusCode),
 				authException.getMessage(), null);
-		byte[] responseJson = JsonUtils.getJSONString(responseObj, "{\"success\":false}")
-				.getBytes(ByteUtils.UTF8);
+		byte[] responseJson = requireNonNullProperty(getJSONString(responseObj, "{\"success\":false}"),
+				"Response JSON").getBytes(StandardCharsets.UTF_8);
 		response.setContentLength(responseJson.length);
 		response.getOutputStream().write(responseJson);
 	}

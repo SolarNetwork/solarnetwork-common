@@ -29,10 +29,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
-import net.solarnetwork.service.DatumFilterService;
 import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.support.BasicGroupSettingSpecifier;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
@@ -51,8 +51,8 @@ import net.solarnetwork.web.jakarta.service.HttpRequestCustomizerService;
  * service UIDs that should be applied when
  * {@link #customize(HttpRequest, ByteList, Map)} is invoked. If a service for a
  * given UID is not available, no error will be generated and the next
- * configured service will be invoked. If any service returns {@literal null}
- * then iteration over the service UIDs will cease and {@literal null} will be
+ * configured service will be invoked. If any service returns {@code null}
+ * then iteration over the service UIDs will cease and {@code null} will be
  * returned.
  * </p>
  *
@@ -67,7 +67,7 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 			16, 0.9f, 2);
 
 	private final List<HttpRequestCustomizerService> services;
-	private String[] serviceUids;
+	private String @Nullable [] serviceUids;
 
 	/**
 	 * Constructor.
@@ -75,7 +75,7 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 	 * @param services
 	 *        the list of possible services to choose from
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public ChainHttpRequestCustomizerService(List<HttpRequestCustomizerService> services) {
 		super();
@@ -83,12 +83,13 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 	}
 
 	@Override
-	public void configurationChanged(Map<String, Object> properties) {
+	public void configurationChanged(@Nullable Map<String, Object> properties) {
 		// nothing
 	}
 
 	@Override
-	public HttpRequest customize(HttpRequest request, ByteList body, Map<String, ?> parameters) {
+	public HttpRequest customize(HttpRequest request, @Nullable ByteList body,
+			@Nullable Map<String, ?> parameters) {
 		HttpRequest result = request;
 		final String[] uids = getServiceUids();
 		if ( uids != null ) {
@@ -127,8 +128,8 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 				uidsList, new SettingUtils.KeyedListCallback<String>() {
 
 					@Override
-					public Collection<SettingSpecifier> mapListSettingKey(String value, int index,
-							String key) {
+					public Collection<SettingSpecifier> mapListSettingKey(@Nullable String value,
+							int index, String key) {
 						return Collections.singletonList(new BasicTextFieldSettingSpecifier(key, ""));
 					}
 				});
@@ -162,7 +163,7 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 	 *
 	 * @return the service UIDs.
 	 */
-	public String[] getServiceUids() {
+	public String @Nullable [] getServiceUids() {
 		return serviceUids;
 	}
 
@@ -170,14 +171,14 @@ public class ChainHttpRequestCustomizerService extends AbstractHttpRequestCustom
 	 * Set the service UIDs to use.
 	 *
 	 * <p>
-	 * This list defines the {@link DatumFilterService} instances to apply, from
-	 * the list of available services.
+	 * This list defines the {@link HttpRequestCustomizerService} instances to
+	 * apply, from the list of available services.
 	 * </p>
 	 *
 	 * @param serviceUids
 	 *        the UIDs to set
 	 */
-	public void setServiceUids(String[] serviceUids) {
+	public void setServiceUids(String @Nullable [] serviceUids) {
 		this.serviceUids = serviceUids;
 	}
 

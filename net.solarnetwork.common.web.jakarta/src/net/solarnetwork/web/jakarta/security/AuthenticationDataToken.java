@@ -35,6 +35,7 @@ import java.util.TimeZone;
 import org.apache.commons.codec.binary.Base64;
 import jakarta.servlet.http.Cookie;
 import net.solarnetwork.codec.jackson.JsonUtils;
+import net.solarnetwork.util.ObjectUtils;
 import tools.jackson.core.JacksonException;
 
 /**
@@ -242,7 +243,8 @@ public class AuthenticationDataToken {
 			throw new IllegalArgumentException("Unsupported token sign algorithm");
 		}
 
-		map = JsonUtils.getStringMap(new String(decoder.decode(components[1]), UTF_8));
+		map = ObjectUtils.requireNonNullProperty(
+				JsonUtils.getStringMap(new String(decoder.decode(components[1]), UTF_8)), "Token data");
 
 		if ( map.containsKey(CLAIM_SUBJECT) ) {
 			result.put(CLAIM_SUBJECT, map.get(CLAIM_SUBJECT));

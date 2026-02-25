@@ -22,6 +22,7 @@
 
 package net.solarnetwork.web.jakarta.support;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.Instant;
@@ -35,6 +36,7 @@ import java.util.Set;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -58,8 +60,8 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 	public static final String DEFAULT_XML_CONTENT_TYPE = "text/xml;charset=UTF-8";
 
 	private XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-	private Set<String> classNamesAllowedForNesting = null;
-	private PropertySerializerRegistrar propertySerializerRegistrar = null;
+	private @Nullable Set<String> classNamesAllowedForNesting;
+	private @Nullable PropertySerializerRegistrar propertySerializerRegistrar;
 
 	/**
 	 * Default constructor.
@@ -99,7 +101,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 		}
 	}
 
-	private void outputObject(Object o, String name, XMLStreamWriter writer)
+	private void outputObject(@Nullable Object o, @Nullable String name, XMLStreamWriter writer)
 			throws IOException, XMLStreamException {
 		if ( o != null && o.getClass().isArray() ) {
 			o = Arrays.asList((Object[]) o);
@@ -118,13 +120,14 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 			params.put("value", o);
 			writeElement("value", params, writer, true);
 		} else {
-			String elementName = (o == null ? name
-					: org.springframework.util.ClassUtils.getShortName(o.getClass()));
+			String elementName = (o != null
+					? org.springframework.util.ClassUtils.getShortName(o.getClass())
+					: name != null ? name : "object");
 			writeElement(elementName, o, writer, true);
 		}
 	}
 
-	private void outputMap(Map<?, ?> map, String name, XMLStreamWriter writer)
+	private void outputMap(Map<?, ?> map, @Nullable String name, XMLStreamWriter writer)
 			throws IOException, XMLStreamException {
 		writeElement(name != null ? name : "map", null, writer, false);
 
@@ -153,7 +156,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 		writer.writeEndElement();
 	}
 
-	private void outputCollection(Collection<?> col, String name, XMLStreamWriter writer)
+	private void outputCollection(Collection<?> col, @Nullable String name, XMLStreamWriter writer)
 			throws IOException, XMLStreamException {
 		writeElement(name != null ? name : "list", null, writer, false);
 		for ( Object o : col ) {
@@ -162,8 +165,8 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 		writer.writeEndElement();
 	}
 
-	private void writeElement(String name, Map<?, ?> props, XMLStreamWriter writer, boolean close)
-			throws IOException, XMLStreamException {
+	private void writeElement(String name, @Nullable Map<?, ?> props, XMLStreamWriter writer,
+			boolean close) throws IOException, XMLStreamException {
 		writer.writeStartElement(name);
 		Map<String, Object> nested = null;
 		if ( props != null ) {
@@ -177,13 +180,11 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 				if ( val != null && val.getClass().isArray() ) {
 					val = Arrays.asList((Object[]) val);
 				}
-				if ( val instanceof Date ) {
-					Date date = (Date) val;
+				if ( val instanceof Date date ) {
 					val = DateTimeFormatter.ISO_INSTANT.format(date.toInstant());
-				} else if ( val instanceof Instant ) {
-					Instant date = (Instant) val;
+				} else if ( val instanceof Instant date ) {
 					val = DateTimeFormatter.ISO_INSTANT.format(date);
-				} else if ( val instanceof Collection ) {
+				} else if ( val instanceof Collection<?> ) {
 					if ( nested == null ) {
 						nested = new LinkedHashMap<>(5);
 					}
@@ -195,7 +196,8 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 					}
 					nested.put(key, val);
 					val = null;
-				} else if ( classNamesAllowedForNesting != null && !(val instanceof Enum<?>) ) {
+				} else if ( val != null && classNamesAllowedForNesting != null
+						&& !(val instanceof Enum<?>) ) {
 					for ( String prefix : classNamesAllowedForNesting ) {
 						if ( val.getClass().getName().startsWith(prefix) ) {
 							if ( nested == null ) {
@@ -223,7 +225,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 		}
 	}
 
-	private void writeElement(String name, Object bean, XMLStreamWriter writer, boolean close)
+	private void writeElement(String name, @Nullable Object bean, XMLStreamWriter writer, boolean close)
 			throws IOException, XMLStreamException {
 		if ( propertySerializerRegistrar != null && bean != null ) { // try whole-bean serialization first
 			Object o = propertySerializerRegistrar.serializeProperty(name, bean.getClass(), bean, bean);
@@ -244,7 +246,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 	 *
 	 * @return the class names
 	 */
-	public Set<String> getClassNamesAllowedForNesting() {
+	public @Nullable Set<String> getClassNamesAllowedForNesting() {
 		return classNamesAllowedForNesting;
 	}
 
@@ -254,7 +256,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 	 * @param classNamesAllowedForNesting
 	 *        the class names
 	 */
-	public void setClassNamesAllowedForNesting(Set<String> classNamesAllowedForNesting) {
+	public void setClassNamesAllowedForNesting(@Nullable Set<String> classNamesAllowedForNesting) {
 		this.classNamesAllowedForNesting = classNamesAllowedForNesting;
 	}
 
@@ -263,15 +265,17 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 	 *
 	 * @param xmlOutputFactory
 	 *        the factory to set
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public void setXmlOutputFactory(XMLOutputFactory xmlOutputFactory) {
-		this.xmlOutputFactory = xmlOutputFactory;
+		this.xmlOutputFactory = requireNonNullArgument(xmlOutputFactory, "xmlOutputFactory");
 	}
 
 	/**
 	 * Get the XML output factory.
 	 *
-	 * @return the factory
+	 * @return the factory, never {@code null}
 	 */
 	public XMLOutputFactory getXmlOutputFactory() {
 		return xmlOutputFactory;
@@ -282,7 +286,7 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 	 *
 	 * @return the registrar
 	 */
-	public PropertySerializerRegistrar getPropertySerializerRegistrar() {
+	public @Nullable PropertySerializerRegistrar getPropertySerializerRegistrar() {
 		return propertySerializerRegistrar;
 	}
 
@@ -292,7 +296,8 @@ public class SimpleXmlHttpMessageConverter extends AbstractHttpMessageConverter<
 	 * @param propertySerializerRegistrar
 	 *        the registrar to set
 	 */
-	public void setPropertySerializerRegistrar(PropertySerializerRegistrar propertySerializerRegistrar) {
+	public void setPropertySerializerRegistrar(
+			@Nullable PropertySerializerRegistrar propertySerializerRegistrar) {
 		this.propertySerializerRegistrar = propertySerializerRegistrar;
 	}
 

@@ -22,6 +22,8 @@
 
 package net.solarnetwork.web.jakarta.support;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -70,10 +72,12 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 	 *
 	 * @param credentialsProvider
 	 *        the API token credentials provider
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null]
 	 */
 	public AuthorizationV2RequestInterceptor(AuthorizationCredentialsProvider credentialsProvider) {
 		super();
-		this.credentialsProvider = credentialsProvider;
+		this.credentialsProvider = requireNonNullArgument(credentialsProvider, "credentialsProvider");
 	}
 
 	@Override
@@ -133,7 +137,8 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 					builder.computeCanonicalRequestMessage()));
 		}
 		headers.set(HttpHeaders.AUTHORIZATION, signKey != null ? builder.build()
-				: builder.build(credentialsProvider.getAuthorizationSecret()));
+				: builder.build(requireNonNullProperty(credentialsProvider.getAuthorizationSecret(),
+						"Authorization secret")));
 		return execution.execute(request, body);
 	}
 

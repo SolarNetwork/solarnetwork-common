@@ -1,27 +1,28 @@
 /* ==================================================================
  * PingController.java - 25/05/2015 10:19:49 am
- * 
+ *
  * Copyright 2007-2015 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.web.jakarta.support;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +35,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.ui.Model;
@@ -49,7 +51,7 @@ import net.solarnetwork.web.jakarta.domain.Response;
 /**
  * A web controller for running a set of {@link PingTest} tests and returning
  * the results.
- * 
+ *
  * @author matt
  * @version 1.0
  * @since 2.3
@@ -60,7 +62,7 @@ public class PingController {
 	private static final ExecutorService EXECUTOR = Executors
 			.newCachedThreadPool(new CustomizableThreadFactory("Ping-"));
 
-	private List<PingTest> tests = null;
+	private @Nullable List<PingTest> tests;
 
 	/**
 	 * Constructor.
@@ -105,7 +107,8 @@ public class PingController {
 					}
 					pingTestResult = new PingTestResult(false, "Exception: " + root.toString());
 				} finally {
-					results.put(t.getPingTestId(), new PingTestResultDisplay(t, pingTestResult, start));
+					results.put(t.getPingTestId(), new PingTestResultDisplay(t,
+							requireNonNullProperty(pingTestResult, "PingTest result"), start));
 				}
 			}
 		}
@@ -114,7 +117,7 @@ public class PingController {
 
 	/**
 	 * Execute all available ping tests, returning JSON.
-	 * 
+	 *
 	 * @return the JSON result
 	 */
 	@RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -125,7 +128,7 @@ public class PingController {
 
 	/**
 	 * Execute all available ping tests, returning HTML.
-	 * 
+	 *
 	 * @param model
 	 *        the model
 	 * @return the HTML view: {@literal ping}
@@ -149,13 +152,13 @@ public class PingController {
 
 		/**
 		 * Construct with values.
-		 * 
+		 *
 		 * @param date
 		 *        The date the tests were executed at.
 		 * @param results
-		 *        The test results (or {@literal null} if none available).
+		 *        The test results (or {@code null} if none available).
 		 */
-		public PingResults(Instant date, Map<String, PingTestResultDisplay> results) {
+		public PingResults(Instant date, @Nullable Map<String, PingTestResultDisplay> results) {
 			super();
 			this.date = date;
 			boolean allOK = true;
@@ -176,7 +179,7 @@ public class PingController {
 
 		/**
 		 * Get a map of test ID to test results.
-		 * 
+		 *
 		 * @return All test results.
 		 */
 		public Map<String, PingTestResultDisplay> getResults() {
@@ -185,7 +188,7 @@ public class PingController {
 
 		/**
 		 * Get the date the tests were executed.
-		 * 
+		 *
 		 * @return The date.
 		 */
 		public Instant getDate() {
@@ -195,7 +198,7 @@ public class PingController {
 		/**
 		 * Return <em>true</em> if there are test results available and all the
 		 * results return <em>true</em> for {@link PingTestResult#isSuccess()}.
-		 * 
+		 *
 		 * @return Boolean flag.
 		 */
 		public boolean isAllGood() {
@@ -206,20 +209,20 @@ public class PingController {
 
 	/**
 	 * Get the configured tests.
-	 * 
+	 *
 	 * @return the tests
 	 */
-	public List<PingTest> getTests() {
+	public @Nullable List<PingTest> getTests() {
 		return tests;
 	}
 
 	/**
 	 * Set the tests.
-	 * 
+	 *
 	 * @param tests
 	 *        the tests
 	 */
-	public void setTests(List<PingTest> tests) {
+	public void setTests(@Nullable List<PingTest> tests) {
 		this.tests = tests;
 	}
 

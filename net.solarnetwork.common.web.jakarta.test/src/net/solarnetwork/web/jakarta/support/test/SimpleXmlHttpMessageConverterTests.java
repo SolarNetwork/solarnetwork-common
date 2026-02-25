@@ -22,8 +22,8 @@
 
 package net.solarnetwork.web.jakarta.support.test;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.Test;
@@ -53,16 +53,6 @@ public class SimpleXmlHttpMessageConverterTests {
 				+ "<array><value type=\"String\" value=\"one\"></value><value type=\"String\" value=\"two\"></value><value type=\"String\" value=\"three\"></value></array>"));
 	}
 
-	public static final class TestObj {
-
-		private Map<String, Object> data;
-
-		public Map<String, Object> getData() {
-			return data;
-		}
-
-	}
-
 	@Test
 	public void renderDatumSamplesWithTags() throws Exception {
 		MockHttpServletResponse res = new MockHttpServletResponse();
@@ -72,7 +62,7 @@ public class SimpleXmlHttpMessageConverterTests {
 		converter.write(samples, MediaType.APPLICATION_XML, new ServletServerHttpResponse(res));
 
 		assertThat("Output XML", res.getContentAsString(), equalTo(XML_PREAMBLE
-				+ "<SimpleXmlHttpMessageConverterTests.TestObj><data><entry key=\"tags\"><value type=\"String\" value=\"a\"></value><value type=\"String\" value=\"b\"></value></entry></data></SimpleXmlHttpMessageConverterTests.TestObj>"));
+				+ "<TestObj><data><entry key=\"tags\"><value type=\"String\" value=\"a\"></value><value type=\"String\" value=\"b\"></value></entry></data></TestObj>"));
 	}
 
 	@Test
@@ -89,7 +79,7 @@ public class SimpleXmlHttpMessageConverterTests {
 		converter.write(obj, MediaType.APPLICATION_XML, new ServletServerHttpResponse(res));
 
 		assertThat("Output XML", res.getContentAsString(), equalTo(XML_PREAMBLE
-				+ "<SimpleXmlHttpMessageConverterTests.TestObj><data><entry key=\"resultParameters\"><map><entry key=\"result\"><value type=\"String\" value=\"foo\"></value></entry></map></entry></data></SimpleXmlHttpMessageConverterTests.TestObj>"));
+				+ "<TestObj><data><entry key=\"resultParameters\"><map><entry key=\"result\"><value type=\"String\" value=\"foo\"></value></entry></map></entry></data></TestObj>"));
 	}
 
 }

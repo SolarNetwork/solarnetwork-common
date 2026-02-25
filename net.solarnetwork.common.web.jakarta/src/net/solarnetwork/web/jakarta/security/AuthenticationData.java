@@ -29,6 +29,7 @@ import java.util.Date;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.BadCredentialsException;
 import jakarta.servlet.http.HttpServletRequest;
 import net.solarnetwork.security.AuthorizationUtils;
@@ -132,7 +133,7 @@ public abstract class AuthenticationData {
 		}
 	}
 
-	private static void validateContentDigest(DigestAlgorithm alg, String providedDigestString,
+	private static void validateContentDigest(DigestAlgorithm alg, @Nullable String providedDigestString,
 			SecurityHttpServletRequestWrapper request) throws IOException {
 		byte[] computedDigest = null;
 		byte[] providedDigest = null;
@@ -163,10 +164,10 @@ public abstract class AuthenticationData {
 			throw new BadCredentialsException("Content too large", e);
 		}
 		try {
-			if ( providedDigestString.length() == hexLength ) {
+			if ( providedDigestString != null && providedDigestString.length() == hexLength ) {
 				// treat as hex
 				providedDigest = Hex.decodeHex(providedDigestString.toCharArray());
-			} else {
+			} else if ( providedDigestString != null ) {
 				// treat as Base64
 				providedDigest = Base64.decodeBase64(providedDigestString);
 			}

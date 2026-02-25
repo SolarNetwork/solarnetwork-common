@@ -34,6 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.http.HttpInputMessage;
@@ -67,10 +68,10 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 	 */
 	public static final Class<?>[] DEFAULT_JAVA_BEAN_STRING_VALUES = new Class<?>[] { Class.class, };
 
-	private PropertySerializerRegistrar propertySerializerRegistrar = null;
-	private Set<String> javaBeanIgnoreProperties = new LinkedHashSet<String>(
+	private @Nullable PropertySerializerRegistrar propertySerializerRegistrar;
+	private @Nullable Set<String> javaBeanIgnoreProperties = new LinkedHashSet<>(
 			Arrays.asList(DEFAULT_JAVA_BEAN_IGNORE_PROPERTIES));
-	private Set<Class<?>> javaBeanTreatAsStringValues = new LinkedHashSet<Class<?>>(
+	private @Nullable Set<Class<?>> javaBeanTreatAsStringValues = new LinkedHashSet<>(
 			Arrays.asList(DEFAULT_JAVA_BEAN_STRING_VALUES));
 	private boolean includeHeader = true;
 
@@ -162,9 +163,9 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 		}
 	}
 
-	private List<String> getCSVFields(Object row, final Collection<String> fieldOrder) {
+	private List<String> getCSVFields(Object row, final @Nullable Collection<String> fieldOrder) {
 		assert row != null;
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		if ( row instanceof Map ) {
 			Map<?, ?> map = (Map<?, ?>) row;
 			if ( fieldOrder != null ) {
@@ -248,7 +249,8 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 		}
 	}
 
-	private Object getRowPropertyValue(Object row, String name, Object val, BeanWrapper wrapper) {
+	private @Nullable Object getRowPropertyValue(Object row, String name, @Nullable Object val,
+			@Nullable BeanWrapper wrapper) {
 		if ( val != null ) {
 			if ( getPropertySerializerRegistrar() != null ) {
 				val = getPropertySerializerRegistrar().serializeProperty(name, val.getClass(), row, val);
@@ -260,8 +262,8 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 					val = editor.getAsText();
 				}
 			}
-			if ( val instanceof Enum<?> || javaBeanTreatAsStringValues != null
-					&& javaBeanTreatAsStringValues.contains(val.getClass()) ) {
+			if ( val instanceof Enum<?> || (val != null && javaBeanTreatAsStringValues != null
+					&& javaBeanTreatAsStringValues.contains(val.getClass())) ) {
 				val = val.toString();
 			}
 		}
@@ -273,7 +275,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 	 *
 	 * @return the registrar
 	 */
-	public PropertySerializerRegistrar getPropertySerializerRegistrar() {
+	public @Nullable PropertySerializerRegistrar getPropertySerializerRegistrar() {
 		return propertySerializerRegistrar;
 	}
 
@@ -283,7 +285,8 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 	 * @param propertySerializerRegistrar
 	 *        the registrar to set
 	 */
-	public void setPropertySerializerRegistrar(PropertySerializerRegistrar propertySerializerRegistrar) {
+	public void setPropertySerializerRegistrar(
+			@Nullable PropertySerializerRegistrar propertySerializerRegistrar) {
 		this.propertySerializerRegistrar = propertySerializerRegistrar;
 	}
 
@@ -292,7 +295,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 	 *
 	 * @return the properties
 	 */
-	public Set<String> getJavaBeanIgnoreProperties() {
+	public @Nullable Set<String> getJavaBeanIgnoreProperties() {
 		return javaBeanIgnoreProperties;
 	}
 
@@ -302,7 +305,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 	 * @param javaBeanIgnoreProperties
 	 *        the properties
 	 */
-	public void setJavaBeanIgnoreProperties(Set<String> javaBeanIgnoreProperties) {
+	public void setJavaBeanIgnoreProperties(@Nullable Set<String> javaBeanIgnoreProperties) {
 		this.javaBeanIgnoreProperties = javaBeanIgnoreProperties;
 	}
 
@@ -311,7 +314,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 	 *
 	 * @return the class set
 	 */
-	public Set<Class<?>> getJavaBeanTreatAsStringValues() {
+	public @Nullable Set<Class<?>> getJavaBeanTreatAsStringValues() {
 		return javaBeanTreatAsStringValues;
 	}
 
@@ -321,7 +324,7 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 	 * @param javaBeanTreatAsStringValues
 	 *        the class set
 	 */
-	public void setJavaBeanTreatAsStringValues(Set<Class<?>> javaBeanTreatAsStringValues) {
+	public void setJavaBeanTreatAsStringValues(@Nullable Set<Class<?>> javaBeanTreatAsStringValues) {
 		this.javaBeanTreatAsStringValues = javaBeanTreatAsStringValues;
 	}
 

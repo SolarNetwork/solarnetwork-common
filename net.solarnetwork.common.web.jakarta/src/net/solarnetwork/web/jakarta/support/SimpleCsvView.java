@@ -23,6 +23,7 @@
 package net.solarnetwork.web.jakarta.support;
 
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.server.ServletServerHttpResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,7 +60,7 @@ public class SimpleCsvView extends AbstractView {
 	public static final String DEFAULT_FIELD_ORDER_KEY = "fieldOrder";
 
 	private SimpleCsvHttpMessageConverter converter = new SimpleCsvHttpMessageConverter();
-	private String dataModelKey = DEFAULT_DATA_MODEL_KEY;
+	private @Nullable String dataModelKey = DEFAULT_DATA_MODEL_KEY;
 
 	/**
 	 * Default constructor.
@@ -95,7 +96,7 @@ public class SimpleCsvView extends AbstractView {
 	 *
 	 * @return the key to set
 	 */
-	public String getDataModelKey() {
+	public @Nullable String getDataModelKey() {
 		return dataModelKey;
 	}
 
@@ -103,7 +104,7 @@ public class SimpleCsvView extends AbstractView {
 	 * Set the data model key.
 	 *
 	 * <p>
-	 * If not {@literal null}, then use this model key as the data object to
+	 * If not {@code null}, then use this model key as the data object to
 	 * render as CSV. Otherwise, export just the first available key's
 	 * associated object. Defaults to {@link #DEFAULT_DATA_MODEL_KEY}.
 	 * </p>
@@ -111,7 +112,7 @@ public class SimpleCsvView extends AbstractView {
 	 * @param dataModelKey
 	 *        the key to set
 	 */
-	public void setDataModelKey(String dataModelKey) {
+	public void setDataModelKey(@Nullable String dataModelKey) {
 		this.dataModelKey = dataModelKey;
 	}
 
@@ -122,7 +123,7 @@ public class SimpleCsvView extends AbstractView {
 	 * @deprecated this value is no longer supported
 	 */
 	@Deprecated
-	public String getFieldOrderKey() {
+	public @Nullable String getFieldOrderKey() {
 		return null;
 	}
 
@@ -134,7 +135,7 @@ public class SimpleCsvView extends AbstractView {
 	 * @deprecated this value is no longer supported
 	 */
 	@Deprecated
-	public void setFieldOrderKey(String fieldOrderKey) {
+	public void setFieldOrderKey(@Nullable String fieldOrderKey) {
 		// ignored
 	}
 

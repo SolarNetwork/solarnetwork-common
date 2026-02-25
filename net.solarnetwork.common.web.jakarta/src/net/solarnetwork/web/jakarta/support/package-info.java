@@ -1,7 +1,7 @@
 /* ==================================================================
- * Request.java - Nov 20, 2012 7:04:41 AM
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2007-2012 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,32 +20,9 @@
  * ==================================================================
  */
 
-package net.solarnetwork.web.jakarta.domain;
-
-import java.util.Map;
-import org.jspecify.annotations.Nullable;
-
 /**
- * A web request envelope object.
- *
- * @author matt
- * @version 1.1
+ * Package info.
  */
-public class Request extends net.solarnetwork.domain.Request {
 
-	/**
-	 * Constructor.
-	 *
-	 * @param username
-	 *        the username
-	 * @param password
-	 *        the password
-	 * @param data
-	 *        the data
-	 */
-	public Request(@Nullable String username, @Nullable String password,
-			@Nullable Map<String, Object> data) {
-		super(username, password, data);
-	}
-
-}
+@org.jspecify.annotations.NullMarked
+package net.solarnetwork.web.jakarta.support;

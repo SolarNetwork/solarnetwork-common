@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import java.util.zip.DeflaterInputStream;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.codec.binary.Hex;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -72,7 +73,7 @@ import org.springframework.web.client.HttpStatusCodeException;
  * </ol>
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class LoggingHttpRequestInterceptor implements ClientHttpRequestInterceptor {
 
@@ -133,8 +134,8 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 	 * @since 1.3
 	 */
 	public LoggingHttpRequestInterceptor(final boolean dynamicUrlLoggers,
-			final Function<String, Logger> dynamicLoggerProvider,
-			Function<HttpRequest, String> requestIdProvider) {
+			final @Nullable Function<String, Logger> dynamicLoggerProvider,
+			final @Nullable Function<HttpRequest, String> requestIdProvider) {
 		super();
 		this.dynamicUrlLoggers = dynamicUrlLoggers;
 		this.dynamicLoggerProvider = dynamicLoggerProvider != null ? dynamicLoggerProvider
@@ -173,7 +174,7 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 	 * @return a new request factory
 	 */
 	public static ClientHttpRequestFactory requestFactory() {
-		return requestFactory(false, null);
+		return requestFactory(false);
 	}
 
 	/**
@@ -191,13 +192,36 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 	 *        {@code true} to dynamically add URL components to the resolved
 	 *        request/response loggers
 	 * @param dynamicLoggerProvider
-	 *        function to supply dynamic loggers, or {@code null} for default
-	 *        provider
+	 *        unused
 	 * @return a new request factory
 	 * @since 1.3
+	 * @deprecated since 1.4, use
+	 *             {@link LoggingHttpRequestInterceptor#requestFactory(boolean)}
 	 */
+	@Deprecated
 	public static ClientHttpRequestFactory requestFactory(final boolean dynamicUrlLoggers,
-			final Function<String, Logger> dynamicLoggerProvider) {
+			final @Nullable Function<String, Logger> dynamicLoggerProvider) {
+		return requestFactory(new SimpleClientHttpRequestFactory(), dynamicUrlLoggers);
+	}
+
+	/**
+	 * Get a client request factory with logging support if either request or
+	 * response logging is enabled.
+	 *
+	 * <p>
+	 * This method will check if either {@code REQ_LOG} or {@code RES_LOG} have
+	 * {@literal TRACE} level logging enabled, and if so return a
+	 * {@link BufferingClientHttpRequestFactory} suitable for logging. Otherwise
+	 * the default {@link SimpleClientHttpRequestFactory} is returned.
+	 * </p>
+	 *
+	 * @param dynamicUrlLoggers
+	 *        {@code true} to dynamically add URL components to the resolved
+	 *        request/response loggers
+	 * @return a new request factory
+	 * @since 1.4
+	 */
+	public static ClientHttpRequestFactory requestFactory(final boolean dynamicUrlLoggers) {
 		return requestFactory(new SimpleClientHttpRequestFactory(), dynamicUrlLoggers);
 	}
 
@@ -266,7 +290,7 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 		return (reqFactory instanceof BufferingClientHttpRequestFactory);
 	}
 
-	private String dynamicLoggerName(URI uri) {
+	private @Nullable String dynamicLoggerName(URI uri) {
 		if ( !dynamicUrlLoggers ) {
 			return null;
 		}
@@ -380,8 +404,9 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 		}
 	}
 
-	private void traceResponse(Logger log, String exchangeId, Object statusCode, String statusText,
-			HttpHeaders headers, InputStream in, Throwable exception) throws IOException {
+	private void traceResponse(Logger log, String exchangeId, @Nullable Object statusCode,
+			@Nullable String statusText, @Nullable HttpHeaders headers, @Nullable InputStream in,
+			@Nullable Throwable exception) throws IOException {
 		final StringBuilder buf = new StringBuilder("Request response:\n");
 		buf.append("<<<<<<<<<< response begin ").append(exchangeId)
 				.append(" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
@@ -406,8 +431,8 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 		log.trace(buf.toString());
 	}
 
-	private void traceResponseBody(HttpHeaders headers, InputStream in, final StringBuilder buf)
-			throws IOException, UnsupportedEncodingException {
+	private void traceResponseBody(final @Nullable HttpHeaders headers, @Nullable InputStream in,
+			final @Nullable StringBuilder buf) throws IOException, UnsupportedEncodingException {
 		if ( headers == null || in == null || buf == null ) {
 			return;
 		}

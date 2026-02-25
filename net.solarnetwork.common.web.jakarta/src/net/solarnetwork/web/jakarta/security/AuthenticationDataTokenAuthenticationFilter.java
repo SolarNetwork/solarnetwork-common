@@ -1,21 +1,21 @@
 /* ==================================================================
  * AuthenticationDataTokenAuthenticationFilter.java - 27/04/2017 7:37:01 AM
- * 
+ *
  * Copyright 2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,16 +23,14 @@
 package net.solarnetwork.web.jakarta.security;
 
 import static net.solarnetwork.security.AuthorizationUtils.computeMacDigest;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -46,17 +44,22 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.filter.OncePerRequestFilter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Authentication filter for {@link AuthenticationData} style token
  * authentication.
- * 
+ *
  * This filter supports the {@literal SolarNetworkWS} and {@literal SNWS2} HTTP
  * authorization schemes. In addition, a JWT encoded cookie named
  * {@literal sntoken} can be generated if a request parameter
  * {@literal sntoken-cookie=true} is passed with the request. That cookie can
  * then be presented on subsequent requests instead of the HTTP authorization.
- * 
+ *
  * @author matt
  * @version 2.0
  */
@@ -71,10 +74,10 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 	/** The name of the cookie used for cookie based tokens. */
 	public static final String COOKIE_NAME_AUTH_TOKEN = "sntoken";
 
-	private UserDetailsService userDetailsService;
+	private @Nullable UserDetailsService userDetailsService;
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
-	private AuthenticationEntryPoint authenticationEntryPoint;
+	private @Nullable AuthenticationEntryPoint authenticationEntryPoint;
 	private long maxDateSkew = 15 * 60 * 1000; // 15 minutes default
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
@@ -88,13 +91,15 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 
 	/**
 	 * Construct with a {@link UserDetailsService}.
-	 * 
+	 *
 	 * @param userDetailsService
 	 *        The service to use.
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public AuthenticationDataTokenAuthenticationFilter(UserDetailsService userDetailsService) {
 		super();
-		this.userDetailsService = userDetailsService;
+		this.userDetailsService = requireNonNullArgument(userDetailsService, "userDetailsService");
 	}
 
 	@Override
@@ -123,7 +128,8 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 		AuthenticationData data = AuthenticationDataFactory
 				.authenticationDataForAuthorizationHeader(secRequest);
 		if ( data != null ) {
-			UserDetails user = userDetailsService.loadUserByUsername(data.getAuthTokenId());
+			UserDetails user = requireNonNullArgument(userDetailsService, "userDetailsService")
+					.loadUserByUsername(data.getAuthTokenId());
 			final String computedDigest = data.computeSignatureDigest(user.getPassword());
 			if ( computedDigest.equals(data.getSignatureDigest()) ) {
 				if ( data.isDateValid(maxDateSkew) ) {
@@ -162,8 +168,8 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 					if ( COOKIE_NAME_AUTH_TOKEN.equals(cookie.getName()) ) {
 						try {
 							AuthenticationDataToken tokenCookie = new AuthenticationDataToken(cookie);
-							UserDetails user = userDetailsService
-									.loadUserByUsername(tokenCookie.getIdentity());
+							UserDetails user = requireNonNullProperty(userDetailsService,
+									"UserDetailsService").loadUserByUsername(tokenCookie.getIdentity());
 							byte[] secret = computeJWTSigningKey(user.getPassword(),
 									tokenCookie.getIssued() * 1000);
 							tokenCookie.verify(secret);
@@ -203,7 +209,7 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 
 	private byte[] computeJWTSigningKey(String secret, long date) {
 		/*- signing key is like:
-		 
+		
 		HMACSHA256(HMACSHA256("SNWS"+secretKey, "20160301"), "sntoken")
 		*/
 		GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
@@ -232,40 +238,45 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 
 	/**
 	 * Set the details service.
-	 * 
+	 *
 	 * The service must return users with valid token identifiers and plain-text
 	 * token secret passwords via {@link UserDetails#getUsername()} and
 	 * {@link UserDetails#getPassword()}, respectfully.
-	 * 
+	 *
 	 * After validating the request authentication, this filter will authorize
 	 * the user with Spring Security by calling
 	 * {@code SecurityContextHolder.getContext().setAuthentication()}.
-	 * 
+	 *
 	 * @param userDetailsService
 	 *        the user details service to use
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
+		this.userDetailsService = requireNonNullArgument(userDetailsService, "userDetailsService");
 	}
 
 	/**
 	 * Set the details source to use.
-	 * 
+	 *
 	 * This defaults to a {@link WebAuthenticationDetailsSource}.
-	 * 
+	 *
 	 * @param authenticationDetailsSource
 	 *        the details source to use
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public void setAuthenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
-		this.authenticationDetailsSource = authenticationDetailsSource;
+		this.authenticationDetailsSource = requireNonNullArgument(authenticationDetailsSource,
+				"authenticationDetailsSource");
 	}
 
 	/**
 	 * Set the maximum amount of difference in the supplied HTTP {@code Date}
 	 * (or {@literal X-SN-Date}) header value with the current time as reported
 	 * by the system. If this difference is exceeded, authorization fails.
-	 * 
+	 *
 	 * @param maxDateSkew
 	 *        the maximum allowable skew, in milliseconds
 	 */
@@ -275,11 +286,11 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 
 	/**
 	 * Set an {@link AuthenticationEntryPoint} to handle authentication errors.
-	 * 
+	 *
 	 * If this is configured, any {@link AuthenticationException} thrown during
 	 * processing will be directed to the configured instance. Otherwise those
 	 * exceptions will be re-thrown.
-	 * 
+	 *
 	 * @param authenticationEntryPoint
 	 *        the authenticationEntryPoint to set
 	 */

@@ -22,14 +22,17 @@
 
 package net.solarnetwork.web.jakarta.security;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -64,7 +67,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 	/** The token component for the signature. */
 	public static final String TOKEN_COMPONENT_KEY_SIGNATURE = "Signature";
 
-	private final String explicitHost;
+	private final @Nullable String explicitHost;
 	private final String authTokenId;
 	private final String signatureDigest;
 	private final Set<String> signedHeaderNames;
@@ -95,42 +98,49 @@ public class AuthenticationDataV2 extends AuthenticationData {
 	 *        the {@literal Authorization} HTTP header value
 	 * @param explicitHost
 	 *        a fixed value to use instead of the {@literal Host} HTTP header
-	 *        value, or {@literal null} to use the header value; this can be
+	 *        value, or {@code null} to use the header value; this can be
 	 *        useful when sitting behind a proxy
 	 * @throws IOException
 	 *         if any IO error occurs
 	 * @since 1.3
 	 */
 	public AuthenticationDataV2(SecurityHttpServletRequestWrapper request, String headerValue,
-			String explicitHost) throws IOException {
+			@Nullable String explicitHost) throws IOException {
 		super(AuthenticationScheme.V2, request, headerValue);
 		this.explicitHost = explicitHost;
 
 		// the header must be in the form Credential=TOKEN-ID,SignedHeaders=x;y;z,Signature=HMAC-SHA1-SIGNATURE
 
-		Map<String, String> tokenData = tokenStringToMap(headerValue);
-		authTokenId = tokenData.get(TOKEN_COMPONENT_KEY_CREDENTIAL);
+		final Map<String, String> tokenData = tokenStringToMap(headerValue);
+
+		final String authTokenId = tokenData.get(TOKEN_COMPONENT_KEY_CREDENTIAL);
 		if ( authTokenId == null ) {
 			throw new BadCredentialsException("Invalid " + TOKEN_COMPONENT_KEY_CREDENTIAL + " value");
 		}
-		signatureDigest = tokenData.get(TOKEN_COMPONENT_KEY_SIGNATURE);
+		this.authTokenId = authTokenId;
+
+		final String signatureDigest = tokenData.get(TOKEN_COMPONENT_KEY_SIGNATURE);
 		if ( signatureDigest == null || signatureDigest.length() != SIGNATURE_HEX_LENGTH ) {
 			throw new BadCredentialsException("Invalid " + TOKEN_COMPONENT_KEY_SIGNATURE + " value");
 		}
+		this.signatureDigest = signatureDigest;
 
-		String signedHeaders = tokenData.get(TOKEN_COMPONENT_KEY_SIGNED_HEADERS);
-		signedHeaderNames = StringUtils.delimitedStringToSet(signedHeaders, ";");
+		final String signedHeaders = tokenData.get(TOKEN_COMPONENT_KEY_SIGNED_HEADERS);
+		final Set<String> signedHeaderNames = StringUtils.delimitedStringToSet(signedHeaders, ";");
 		if ( signedHeaderNames == null || signedHeaderNames.size() < 2 ) {
 			// a minimum of Host + (Date | X-SN-Date) must be provided
 			throw new BadCredentialsException(
 					"Invalid " + TOKEN_COMPONENT_KEY_SIGNED_HEADERS + " value");
 		}
+		this.signedHeaderNames = signedHeaderNames;
 
-		sortedSignedHeaderNames = signedHeaderNames.toArray(new String[signedHeaderNames.size()]);
+		final String[] sortedSignedHeaderNames = signedHeaderNames
+				.toArray(new String[signedHeaderNames.size()]);
 		for ( int i = 0; i < sortedSignedHeaderNames.length; i++ ) {
 			sortedSignedHeaderNames[i] = sortedSignedHeaderNames[i].toLowerCase();
 		}
 		Arrays.sort(sortedSignedHeaderNames);
+		this.sortedSignedHeaderNames = sortedSignedHeaderNames;
 
 		validateSignedHeaderNames(request);
 
@@ -140,11 +150,11 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		setupBuilder(request);
 	}
 
-	private static Map<String, String> tokenStringToMap(final String headerValue) {
+	private static Map<String, String> tokenStringToMap(final @Nullable String headerValue) {
 		if ( headerValue == null || headerValue.length() < 1 ) {
-			return null;
+			return Collections.emptyMap();
 		}
-		final Map<String, String> map = new LinkedHashMap<String, String>();
+		final Map<String, String> map = new LinkedHashMap<>();
 		final String delimitedString = headerValue + ',';
 		int prevDelimIdx = 0;
 		int delimIdx;
@@ -198,7 +208,8 @@ public class AuthenticationDataV2 extends AuthenticationData {
 			}
 			signDate = signDate.minus(1, ChronoUnit.DAYS);
 		}
-		return result;
+		// result should never be null here, but check to avoid NullAway warning
+		return requireNonNullProperty(result, "Computed signature");
 	}
 
 	private void setupBuilder(SecurityHttpServletRequestWrapper request) throws IOException {
@@ -311,7 +322,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 	/**
 	 * Get the set of signed header names.
 	 *
-	 * @return The signed header names, or {@literal null}.
+	 * @return The signed header names, or {@code null}.
 	 */
 	public Set<String> getSignedHeaderNames() {
 		return signedHeaderNames;

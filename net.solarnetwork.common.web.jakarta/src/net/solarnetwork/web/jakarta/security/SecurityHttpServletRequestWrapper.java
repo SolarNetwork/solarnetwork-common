@@ -1,21 +1,21 @@
 /* ==================================================================
  * SecurityHttpServletRequestWrapper.java - Oct 4, 2014 3:54:59 PM
- * 
+ *
  * Copyright 2007-2014 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,6 +23,7 @@
 package net.solarnetwork.web.jakarta.security;
 
 import static java.nio.file.Files.createTempFile;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -38,6 +39,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.StreamUtils;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
@@ -47,7 +49,7 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 /**
  * {@link HttpServletRequestWrapper} to aid in computing hash values for the
  * request content.
- * 
+ *
  * @author matt
  * @version 2.0
  * @since 1.11
@@ -59,14 +61,14 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 
 	/**
 	 * The {@code minimumSpoolLength} property default value.
-	 * 
+	 *
 	 * @since 1.2
 	 */
 	public static final int DEFAULT_MINIMUM_SPOOL_LENGTH = 1024 * 64;
 
 	/**
 	 * The {@code compressibleContentTypePattern} property default value.
-	 * 
+	 *
 	 * @since 1.2
 	 */
 	public static final Pattern DEFAULT_COMPRESSIBLE_CONTENT_PATTERN = Pattern.compile(
@@ -90,17 +92,17 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 
 	private boolean requestBodyCached;
 	private boolean cachedRequestBodyCompressed;
-	private byte[] cachedRequestBody;
-	private Path cachedRequestFile;
+	private byte @Nullable [] cachedRequestBody;
+	private @Nullable Path cachedRequestFile;
 
-	private byte[] cachedMD5 = null;
-	private byte[] cachedSHA1 = null;
-	private byte[] cachedSHA256 = null;
-	private byte[] cachedSHA512 = null;
+	private byte @Nullable [] cachedMD5;
+	private byte @Nullable [] cachedSHA1;
+	private byte @Nullable [] cachedSHA256;
+	private byte @Nullable [] cachedSHA512;
 
 	/**
 	 * Construct from a request.
-	 * 
+	 *
 	 * @param request
 	 *        the request to wrap
 	 * @param maxLength
@@ -112,7 +114,7 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 
 	/**
 	 * Construct from a request.
-	 * 
+	 *
 	 * @param request
 	 *        the request to wrap
 	 * @param maxLength
@@ -129,14 +131,14 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 
 	/**
 	 * Construct from a request.
-	 * 
+	 *
 	 * <p>
 	 * The {@link #DEFAULT_COMPRESSIBLE_CONTENT_PATTERN} pattern will be used
 	 * and the {@link #DEFAULT_MINIMUM_SPOOL_LENGTH} value will be used with the
 	 * default spool directory set to the value of the {@literal java.io.tmpdir}
 	 * system property.
 	 * </p>
-	 * 
+	 *
 	 * @param request
 	 *        the request to wrap
 	 * @param maxLength
@@ -158,7 +160,7 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 
 	/**
 	 * Construct from a request.
-	 * 
+	 *
 	 * @param request
 	 *        the request to wrap
 	 * @param maxLength
@@ -171,13 +173,13 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 	 *        compressing it.
 	 * @param compressibleContentTypePattern
 	 *        A pattern to match against content type values to allow
-	 *        compressing, or {@literal null} to compress anything.
+	 *        compressing, or {@code null} to compress anything.
 	 * @param minimumSpoolLength
 	 *        The minimum size (in bytes) a request body must be before spooling
 	 *        to content to disk.
 	 * @param spoolDirectory
 	 *        the directory to create spooled (temporary) files, or
-	 *        {@literal null} to never spool to disk
+	 *        {@code null} to never spool to disk
 	 * @since 1.2
 	 */
 	public SecurityHttpServletRequestWrapper(HttpServletRequest request, int maxLength,
@@ -319,8 +321,8 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 
 	/**
 	 * Compute the MD5 hash of the request body.
-	 * 
-	 * @return the MD5 hash, or {@literal null} if there is no request content
+	 *
+	 * @return the MD5 hash
 	 * @throws IOException
 	 *         if an IO exception occurs
 	 * @throws SecurityException
@@ -332,13 +334,13 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 			return cachedMD5;
 		}
 		cacheRequestBody();
-		return cachedMD5;
+		return requireNonNullProperty(cachedMD5, "MD5");
 	}
 
 	/**
 	 * Compute the SHA1 hash of the request body.
-	 * 
-	 * @return the SHA1 hash, or {@literal null} if there is no request content
+	 *
+	 * @return the SHA1 hash
 	 * @throws IOException
 	 *         if an IO exception occurs
 	 * @throws SecurityException
@@ -350,13 +352,13 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 			return cachedSHA1;
 		}
 		cacheRequestBody();
-		return cachedSHA1;
+		return requireNonNullProperty(cachedSHA1, "SHA-1");
 	}
 
 	/**
 	 * Compute the SHA-256 hash of the request body.
-	 * 
-	 * @return the SHA-256 hash, or {@literal null} if there is no request
+	 *
+	 * @return the SHA-256 hash, or {@code null} if there is no request
 	 *         content
 	 * @throws IOException
 	 *         if an IO exception occurs
@@ -369,13 +371,13 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 			return cachedSHA256;
 		}
 		cacheRequestBody();
-		return cachedSHA256;
+		return requireNonNullProperty(cachedSHA256, "SHA-256");
 	}
 
 	/**
 	 * Compute the SHA-512 hash of the request body.
-	 * 
-	 * @return the SHA-512 hash, or {@literal null} if there is no request
+	 *
+	 * @return the SHA-512 hash, or {@code null} if there is no request
 	 *         content
 	 * @throws IOException
 	 *         if an IO exception occurs
@@ -389,7 +391,7 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 			return cachedSHA512;
 		}
 		cacheRequestBody();
-		return cachedSHA512;
+		return requireNonNullProperty(cachedSHA512, "SHA-512");
 	}
 
 	private InputStream cachedRequestInputStream() throws IOException {
@@ -446,7 +448,7 @@ public class SecurityHttpServletRequestWrapper extends HttpServletRequestWrapper
 
 	/**
 	 * Immediately delete any cached request body content.
-	 * 
+	 *
 	 * @throws IOException
 	 *         if any IO error occurs
 	 */

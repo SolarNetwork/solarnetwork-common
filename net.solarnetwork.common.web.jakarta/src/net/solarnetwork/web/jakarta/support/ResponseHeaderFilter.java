@@ -1,23 +1,23 @@
 /* ===================================================================
  * ResponseHeaderFilter.java
- * 
+ *
  * Created Aug 13, 2008 1:56:29 PM
- * 
+ *
  * Copyright (c) 2008 Solarnetwork.net Dev Team.
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ===================================================================
  * $Id$
@@ -26,8 +26,10 @@
 
 package net.solarnetwork.web.jakarta.support;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.io.IOException;
 import java.util.Enumeration;
+import org.jspecify.annotations.Nullable;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -39,19 +41,19 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Filter for adding arbitrary HTTP headers to requests, to add cache headers to
  * static files.
- * 
+ *
  * <p>
  * Adapted from
  * http://www.jspinsider.com/content/dev/afessh/another-filter-every
  * -site-should-have.html
  * </p>
- * 
+ *
  * @author matt
  * @version 1.0
  */
 public class ResponseHeaderFilter implements Filter {
 
-	private FilterConfig fc;
+	private @Nullable FilterConfig fc;
 
 	/**
 	 * Constructor.
@@ -68,7 +70,8 @@ public class ResponseHeaderFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		final HttpServletResponse httpResponse = (HttpServletResponse) response;
+		final FilterConfig fc = requireNonNullProperty(this.fc, "FilterConfig");
 		// set the provided HTTP response parameters
 		for ( Enumeration<String> e = fc.getInitParameterNames(); e.hasMoreElements(); ) {
 			String headerName = e.nextElement();

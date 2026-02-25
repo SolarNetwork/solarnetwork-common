@@ -1,30 +1,32 @@
 /* ==================================================================
  * Response.java - Nov 20, 2012 6:55:06 AM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.web.jakarta.domain;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A simple service response envelope object.
- * 
+ *
  * @author matt
  * @version 1.1
  * @param <T>
@@ -41,17 +43,17 @@ public class Response<T> extends net.solarnetwork.domain.Result<T> {
 
 	/**
 	 * Construct a successful response with just data.
-	 * 
+	 *
 	 * @param data
 	 *        the data
 	 */
-	public Response(T data) {
+	public Response(@Nullable T data) {
 		this(Boolean.TRUE, null, null, data);
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param success
 	 *        flag of success
 	 * @param code
@@ -61,7 +63,8 @@ public class Response<T> extends net.solarnetwork.domain.Result<T> {
 	 * @param data
 	 *        optional data in the response
 	 */
-	public Response(Boolean success, String code, String message, T data) {
+	public Response(@Nullable Boolean success, @Nullable String code, @Nullable String message,
+			@Nullable T data) {
 		super(success, code, message, data);
 	}
 
@@ -70,14 +73,14 @@ public class Response<T> extends net.solarnetwork.domain.Result<T> {
 	 * If you import this static method, then in your code you can write
 	 * {@code return response(myData)} instead of
 	 * {@code new Response&lt;Object&gt;(myData)}.
-	 * 
+	 *
 	 * @param <V>
 	 *        the response data type
 	 * @param data
 	 *        the data
 	 * @return the response
 	 */
-	public static <V> Response<V> response(V data) {
+	public static <V> Response<V> response(@Nullable V data) {
 		return new Response<V>(data);
 	}
 

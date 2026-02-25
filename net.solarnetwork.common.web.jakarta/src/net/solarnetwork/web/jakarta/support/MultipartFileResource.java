@@ -53,7 +53,7 @@ public class MultipartFileResource extends AbstractResource implements Resource,
 	 * @param multipart
 	 *        the multipart file to delegate to
 	 * @throws IllegalArgumentException
-	 *         if {@code multipart} is {@literal null}
+	 *         if {@code multipart} is {@code null}
 	 */
 	public MultipartFileResource(MultipartFile multipart) {
 		super();
