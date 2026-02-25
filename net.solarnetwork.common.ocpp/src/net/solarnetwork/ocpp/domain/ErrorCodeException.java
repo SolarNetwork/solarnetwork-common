@@ -66,7 +66,7 @@ public class ErrorCodeException extends RuntimeException implements ErrorHolder 
 	 * @throws IllegalArgumentException
 	 *         if {@code errorCode} is {@code null}
 	 */
-	public ErrorCodeException(ErrorCode errorCode, String message) {
+	public ErrorCodeException(ErrorCode errorCode, @Nullable String message) {
 		super(message);
 		this.errorCode = requireNonNullArgument(errorCode, "errorCode");
 		this.errorDetails = null;
@@ -102,8 +102,8 @@ public class ErrorCodeException extends RuntimeException implements ErrorHolder 
 	 * @throws IllegalArgumentException
 	 *         if {@code errorCode} is {@code null}
 	 */
-	public ErrorCodeException(ErrorCode errorCode, @Nullable Map<String, ?> errorDetails, String message,
-			@Nullable Throwable cause) {
+	public ErrorCodeException(ErrorCode errorCode, @Nullable Map<String, ?> errorDetails,
+			@Nullable String message, @Nullable Throwable cause) {
 		super(message, cause);
 		this.errorCode = requireNonNullArgument(errorCode, "errorCode");
 		this.errorDetails = errorDetails;

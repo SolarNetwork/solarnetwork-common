@@ -121,8 +121,8 @@ public interface ChargeSessionManager extends Identifiable {
 	 *        the readings to add
 	 * @since 2.3
 	 */
-	void addChargingSessionReadings(ChargePointIdentity chargePointId, Integer evseId,
-			Integer connectorId, Iterable<SampledValue> readings);
+	void addChargingSessionReadings(ChargePointIdentity chargePointId, @Nullable Integer evseId,
+			@Nullable Integer connectorId, Iterable<SampledValue> readings);
 
 	/**
 	 * End a charging session.

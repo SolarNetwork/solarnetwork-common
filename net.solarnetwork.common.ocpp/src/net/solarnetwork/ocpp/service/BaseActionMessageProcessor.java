@@ -106,6 +106,83 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	}
 
 	/**
+	 * Process a message with default empty message handling.
+	 *
+	 * <p>
+	 * If {@code emptyMessageAllowed} this method will invoke
+	 * {@link #handleActionMessage(ActionMessage, ActionMessageResultHandler)}.
+	 * </p>
+	 * <p>
+	 * If {@code emptyMessageAllowed} is false, this method will verify that
+	 * {@code message.message} is not {@code null}. If it is {@code null} the
+	 * result handler will be invoked, passing an {@link ErrorCodeException}
+	 * configured with the given {@code errorCode}. Otherwise
+	 * {@link #handleActionMessage(ActionMessage, ActionMessageResultHandler, Object)}
+	 * will be invoked (which extending classes must implement), passing the
+	 * non-{@code null} message content.
+	 * </p>
+	 *
+	 * @param message
+	 *        the message
+	 * @param resultHandler
+	 *        the handler
+	 * @param errorCode
+	 *        the error code to use if {@code message.message} is {@code null}
+	 * @since 1.2
+	 * @see #handleActionMessage(ActionMessage, ActionMessageResultHandler)
+	 * @see #handleActionMessage(ActionMessage, ActionMessageResultHandler,
+	 *      Object)
+	 */
+	protected void defaultProcessActionMessage(ActionMessage<T> message,
+			ActionMessageResultHandler<T, R> resultHandler, ErrorCode errorCode) {
+		if ( emptyMessageAllowed ) {
+			handleActionMessage(message, resultHandler);
+		} else {
+			T msg = message.getMessage();
+			if ( msg == null ) {
+				ErrorCodeException err = new ErrorCodeException(errorCode, "Missing message content.");
+				resultHandler.handleActionMessageResult(message, null, err);
+				return;
+			}
+			handleActionMessage(message, resultHandler, msg);
+		}
+	}
+
+	/**
+	 * Handle a message with optional content.
+	 *
+	 * @param message
+	 *        the message
+	 * @param resultHandler
+	 *        the handler
+	 * @since 1.2
+	 * @see #defaultProcessActionMessage(ActionMessage,
+	 *      ActionMessageResultHandler, ErrorCode)
+	 */
+	protected void handleActionMessage(ActionMessage<T> message,
+			ActionMessageResultHandler<T, R> resultHandler) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Handle a message with non-{@code null} content.
+	 *
+	 * @param message
+	 *        the message
+	 * @param resultHandler
+	 *        the handler
+	 * @param msg
+	 *        the message content
+	 * @since 1.2
+	 * @see #defaultProcessActionMessage(ActionMessage,
+	 *      ActionMessageResultHandler, ErrorCode)
+	 */
+	protected void handleActionMessage(ActionMessage<T> message,
+			ActionMessageResultHandler<T, R> resultHandler, T msg) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
 	 * Process a message with a required client identifier.
 	 *
 	 * <p>
@@ -171,7 +248,8 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	}
 
 	/**
-	 * Handle a message with a verified client identifier and message content.
+	 * Handle a message with non-{@code null} client identifier and message
+	 * content.
 	 *
 	 * @param message
 	 *        the message
@@ -193,7 +271,7 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	}
 
 	/**
-	 * Handle a message with a verified client identifier.
+	 * Handle a message with a non-{@code null} client identifier.
 	 *
 	 * @param message
 	 *        the message
