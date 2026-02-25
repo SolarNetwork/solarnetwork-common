@@ -22,12 +22,15 @@
 
 package net.solarnetwork.ocpp.service;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
+import net.solarnetwork.ocpp.domain.ErrorCode;
+import net.solarnetwork.ocpp.domain.ErrorCodeException;
 import net.solarnetwork.util.ObjectUtils;
 
 /**
@@ -38,7 +41,7 @@ import net.solarnetwork.util.ObjectUtils;
  * @param <R>
  *        the result type
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageProcessor<T, R> {
 
@@ -99,6 +102,109 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	@Override
 	public final Set<Action> getSupportedActions() {
 		return supportedActions;
+	}
+
+	/**
+	 * Process a message with a required client identifier.
+	 *
+	 * <p>
+	 * This method can be called from
+	 * {@link ActionMessageProcessor#processActionMessage(ActionMessage, ActionMessageResultHandler)}
+	 * by extending classes, to simplify handling messages that require a
+	 * non-null client identifier value. This method will verify that
+	 * {@code message.clientId.identifier} is not {@code null}. If it is
+	 * {@code null} the result handler will be invoked, passing an
+	 * {@link ErrorCodeException} configured with the given {@code errorCode}.
+	 * </p>
+	 * <p>
+	 * Then, if {@code emptyMessageAllowed} is {@code true}, the
+	 * {@link #handleActionMessageWithClientIdentifier(ActionMessage, ActionMessageResultHandler, String)}
+	 * will be invoked (which extending classes must implement), passing the
+	 * non-{@code null} client identifier.
+	 * </p>
+	 * <p>
+	 * When {@code emptyMessageAllowed} is {@code false}, the
+	 * {@code message.message} value is then verified to not be {@code null}. If
+	 * it is {@code null} the result handler will be invoked, passing an
+	 * {@link ErrorCodeException} configured with the given {@code errorCode}.
+	 * Otherwise, the
+	 * {@link #handleActionMessageWithClientIdentifier(ActionMessage, ActionMessageResultHandler, String, Object)}
+	 * method will be invoked (which extending classes must implement), passing
+	 * the non-{@code null} client identifier and message content.
+	 * </p>
+	 *
+	 * @param message
+	 *        the message
+	 * @param resultHandler
+	 *        the result handler
+	 * @param errorCode
+	 *        the error code to use if either the message or
+	 *        {@code message.clientId.identifier} is {@code null}
+	 * @see #handleActionMessageWithClientIdentifier(ActionMessage,
+	 *      ActionMessageResultHandler, String)
+	 * @since 1.2
+	 */
+	protected void processActionMessageWithClientIdentifier(ActionMessage<T> message,
+			ActionMessageResultHandler<T, R> resultHandler, ErrorCode errorCode) {
+		final String clientIdent;
+		try {
+			clientIdent = requireNonNullArgument(message.getClientId(), "clientId").getIdentifier();
+		} catch ( IllegalArgumentException e ) {
+			ErrorCodeException err = new ErrorCodeException(errorCode, "Missing client identifier.");
+			resultHandler.handleActionMessageResult(message, null, err);
+			return;
+		}
+		if ( emptyMessageAllowed ) {
+			handleActionMessageWithClientIdentifier(message, resultHandler, clientIdent);
+		} else {
+			T msg = message.getMessage();
+			if ( msg == null ) {
+				ErrorCodeException err = new ErrorCodeException(errorCode, "Missing message content.");
+				resultHandler.handleActionMessageResult(message, null, err);
+				return;
+			}
+			handleActionMessageWithClientIdentifier(message, resultHandler, clientIdent, msg);
+		}
+	}
+
+	/**
+	 * Handle a message with a verified client identifier and message content.
+	 *
+	 * @param message
+	 *        the message
+	 * @param resultHandler
+	 *        the result handler
+	 * @param clientIdentifier
+	 *        the client identifier
+	 * @param msg
+	 *        the message content
+	 * @throws UnsupportedOperationException
+	 *         unless overriden by extending classes
+	 * @since 1.2
+	 */
+	protected void handleActionMessageWithClientIdentifier(ActionMessage<T> message,
+			ActionMessageResultHandler<T, R> resultHandler, String clientIdentifier, T msg) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Handle a message with a verified client identifier.
+	 *
+	 * @param message
+	 *        the message
+	 * @param resultHandler
+	 *        the result handler
+	 * @param clientIdentifier
+	 *        the client identifier
+	 * @param msg
+	 *        the message content
+	 * @throws UnsupportedOperationException
+	 *         unless overriden by extending classes
+	 * @since 1.2
+	 */
+	protected void handleActionMessageWithClientIdentifier(ActionMessage<T> message,
+			ActionMessageResultHandler<T, R> resultHandler, String clientIdentifier) {
+		throw new UnsupportedOperationException();
 	}
 
 	/**
