@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
@@ -81,7 +82,7 @@ public class TransactionEventProcessor
 	 * @param chargeSessionManager
 	 *        the session manager
 	 * @throws IllegalArgumentException
-	 *         if any parameter is {@literal null}
+	 *         if any parameter is {@code null}
 	 */
 	public TransactionEventProcessor(ChargeSessionManager chargeSessionManager) {
 		super(TransactionEventRequest.class, TransactionEventResponse.class, SUPPORTED_ACTIONS);
@@ -91,29 +92,29 @@ public class TransactionEventProcessor
 	@Override
 	public void processActionMessage(final ActionMessage<TransactionEventRequest> message,
 			final ActionMessageResultHandler<TransactionEventRequest, TransactionEventResponse> resultHandler) {
-		final ChargePointIdentity chargePointId = message.getClientId();
-		final TransactionEventRequest req = message.getMessage();
-		if ( req == null || chargePointId == null ) {
-			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormatViolation,
-					"Missing StartTransactionRequest message.");
-			resultHandler.handleActionMessageResult(message, null, err);
-			return;
-		}
+		processActionMessageWithClientIdentifier(message, resultHandler,
+				ActionErrorCode.FormatViolation);
+	}
 
+	@Override
+	protected void handleActionMessageWithClientIdentifier(
+			final ActionMessage<TransactionEventRequest> message,
+			final ActionMessageResultHandler<TransactionEventRequest, TransactionEventResponse> resultHandler,
+			final ChargePointIdentity identity, final TransactionEventRequest req) {
 		final TransactionEventEnum eventType = req.getEventType();
 		try {
 
 			switch (eventType) {
 				case STARTED:
-					processStartTransaction(message, resultHandler, chargePointId, req);
+					processStartTransaction(message, resultHandler, identity, req);
 					break;
 
 				case UPDATED:
-					processUpdateTransaction(message, resultHandler, chargePointId, req);
+					processUpdateTransaction(message, resultHandler, identity, req);
 					break;
 
 				case ENDED:
-					processEndTransaction(message, resultHandler, chargePointId, req);
+					processEndTransaction(message, resultHandler, identity, req);
 					break;
 			}
 		} catch ( AuthorizationException e ) {
@@ -132,7 +133,7 @@ public class TransactionEventProcessor
 	 * Process the start transaction event.
 	 *
 	 * @param message
-	 *        the message to process, never {@literal null}
+	 *        the message to process, never {@code null}
 	 * @param resultHandler
 	 *        the handler to provider the results to
 	 * @param chargePointId
@@ -193,7 +194,7 @@ public class TransactionEventProcessor
 	 * Process the update transaction event.
 	 *
 	 * @param message
-	 *        the message to process, never {@literal null}
+	 *        the message to process, never {@code null}
 	 * @param resultHandler
 	 *        the handler to provider the results to
 	 * @param chargePointId
@@ -232,7 +233,7 @@ public class TransactionEventProcessor
 	 * Process the end transaction event.
 	 *
 	 * @param message
-	 *        the message to process, never {@literal null}
+	 *        the message to process, never {@code null}
 	 * @param resultHandler
 	 *        the handler to provider the results to
 	 * @param chargePointId
@@ -314,8 +315,8 @@ public class TransactionEventProcessor
 		return 0;
 	}
 
-	private List<net.solarnetwork.ocpp.domain.SampledValue> sampledValues(UUID chargeSessionId,
-			List<MeterValue> transactionData) {
+	private @Nullable List<net.solarnetwork.ocpp.domain.SampledValue> sampledValues(
+			@Nullable UUID chargeSessionId, @Nullable List<MeterValue> transactionData) {
 		List<net.solarnetwork.ocpp.domain.SampledValue> result = null;
 		if ( transactionData != null && !transactionData.isEmpty() ) {
 			for ( MeterValue v : transactionData ) {

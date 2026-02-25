@@ -22,6 +22,7 @@
 
 package net.solarnetwork.ocpp.v201.service;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.Collections;
 import java.util.Set;
 import net.solarnetwork.ocpp.domain.ActionMessage;
@@ -60,28 +61,25 @@ public class StatusNotificationProcessor
 	 * @param chargePointManager
 	 *        the charge point manager
 	 * @throws IllegalArgumentException
-	 *         if {@code chargePointConnectorDao} is {@literal null}
+	 *         if {@code chargePointConnectorDao} is {@code null}
 	 */
 	public StatusNotificationProcessor(ChargePointManager chargePointManager) {
 		super(StatusNotificationRequest.class, StatusNotificationResponse.class, SUPPORTED_ACTIONS);
-		if ( chargePointManager == null ) {
-			throw new IllegalArgumentException("The chargePointManager parameter must not be null.");
-		}
-		this.chargePointManager = chargePointManager;
+		this.chargePointManager = requireNonNullArgument(chargePointManager, "chargePointManager");
 	}
 
 	@Override
-	public void processActionMessage(ActionMessage<StatusNotificationRequest> message,
-			ActionMessageResultHandler<StatusNotificationRequest, StatusNotificationResponse> resultHandler) {
-		final ChargePointIdentity identity = message.getClientId();
-		final StatusNotificationRequest req = message.getMessage();
-		if ( req == null || identity == null ) {
-			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormatViolation,
-					"Missing StatusNotificationRequest message.");
-			resultHandler.handleActionMessageResult(message, null, err);
-			return;
-		}
+	public void processActionMessage(final ActionMessage<StatusNotificationRequest> message,
+			final ActionMessageResultHandler<StatusNotificationRequest, StatusNotificationResponse> resultHandler) {
+		processActionMessageWithClientIdentifier(message, resultHandler,
+				ActionErrorCode.FormatViolation);
+	}
 
+	@Override
+	protected void handleActionMessageWithClientIdentifier(
+			final ActionMessage<StatusNotificationRequest> message,
+			final ActionMessageResultHandler<StatusNotificationRequest, StatusNotificationResponse> resultHandler,
+			final ChargePointIdentity identity, final StatusNotificationRequest req) {
 		// @formatter:off
 		StatusNotification info = StatusNotification.builder()
 				.withEvseId(req.getEvseId())

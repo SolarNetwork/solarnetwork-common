@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -233,8 +234,8 @@ public final class OcppUtils {
 	 * @see #parseOcppMessage(String, boolean, String, JsonSchemaFactory,
 	 *      ObjectMapper)
 	 */
-	public static Object parseOcppMessage(final String action, final boolean request,
-			final String message, SchemaRegistry registry) throws IOException {
+	public static @Nullable Object parseOcppMessage(final String action, final boolean request,
+			final @Nullable String message, final @Nullable SchemaRegistry registry) throws IOException {
 		return parseOcppMessage(action, request, message, registry, OBJECT_MAPPER);
 	}
 
@@ -264,9 +265,9 @@ public final class OcppUtils {
 	 *      ObjectMapper)
 	 * @since 1.1
 	 */
-	public static Object parseOcppMessage(final String action, final boolean request,
-			final String message, SchemaRegistry registry, ObjectMapper objectMapper)
-			throws IOException {
+	public static @Nullable Object parseOcppMessage(final String action, final boolean request,
+			final @Nullable String message, final @Nullable SchemaRegistry registry,
+			final ObjectMapper objectMapper) throws IOException {
 		JsonNode jsonNode = objectMapper.readTree(message);
 		ObjectNode jsonPayload;
 		if ( jsonNode.isNull() ) {
@@ -300,8 +301,8 @@ public final class OcppUtils {
 	 * @see #parseOcppMessage(String, boolean, ObjectNode, JsonSchemaFactory,
 	 *      ObjectMapper)
 	 */
-	public static Object parseOcppMessage(final String action, final boolean request,
-			final ObjectNode message, SchemaRegistry registry) {
+	public static @Nullable Object parseOcppMessage(final String action, final boolean request,
+			final @Nullable ObjectNode message, final @Nullable SchemaRegistry registry) {
 		return parseOcppMessage(action, request, message, registry, OBJECT_MAPPER);
 	}
 
@@ -327,8 +328,9 @@ public final class OcppUtils {
 	 *         if validation fails
 	 * @since 1.1
 	 */
-	public static Object parseOcppMessage(final String action, final boolean request,
-			final ObjectNode message, SchemaRegistry registry, ObjectMapper objectMapper) {
+	public static @Nullable Object parseOcppMessage(final String action, final boolean request,
+			final @Nullable ObjectNode message, final @Nullable SchemaRegistry registry,
+			final ObjectMapper objectMapper) {
 		String actionClassName = actionClassName(action, request);
 		Class<?> actionClass = OCPP_ACTION_CLASSES.get(actionClassName);
 		if ( actionClass == null ) {
@@ -361,7 +363,7 @@ public final class OcppUtils {
 	 *
 	 * @param status
 	 *        the status to translate
-	 * @return the status, never {@literal null}
+	 * @return the status, never {@code null}
 	 */
 	public static ocpp.v201.AuthorizationStatusEnum statusForStatus(AuthorizationStatus status) {
 		switch (status) {
@@ -394,9 +396,9 @@ public final class OcppUtils {
 	 *        the timestamp associated with the sample
 	 * @param value
 	 *        the value to translate
-	 * @return the value, never {@literal null}
+	 * @return the value, never {@code null}
 	 */
-	public static SampledValue sampledValue(UUID chargeSessionId, Instant timestamp,
+	public static SampledValue sampledValue(@Nullable UUID chargeSessionId, Instant timestamp,
 			ocpp.v201.SampledValue value) {
 		// @formatter:off
 		SampledValue.Builder result = SampledValue.builder()
@@ -422,7 +424,7 @@ public final class OcppUtils {
 	 *
 	 * @param unit
 	 *        the unit to translate
-	 * @return the unit, never {@literal null}
+	 * @return the unit, never {@code null}
 	 */
 	public static UnitOfMeasure unit(ocpp.v201.UnitOfMeasure unit) {
 		try {
@@ -437,9 +439,9 @@ public final class OcppUtils {
 	 *
 	 * @param phase
 	 *        the phase to translate
-	 * @return the phase, never {@literal null}
+	 * @return the phase, or {@code null} if {@code phase} is {@code null}
 	 */
-	public static Phase phase(ocpp.v201.PhaseEnum phase) {
+	public static @Nullable Phase phase(ocpp.v201.PhaseEnum phase) {
 		if ( phase == null ) {
 			return null;
 		}
@@ -455,7 +457,7 @@ public final class OcppUtils {
 	 *
 	 * @param measurand
 	 *        the measurand to translate
-	 * @return the measurand, never {@literal null}
+	 * @return the measurand, never {@code null}
 	 */
 	public static Measurand measurand(ocpp.v201.MeasurandEnum measurand) {
 		try {
@@ -470,7 +472,7 @@ public final class OcppUtils {
 	 *
 	 * @param location
 	 *        the location to translate
-	 * @return the location, never {@literal null}
+	 * @return the location, never {@code null}
 	 */
 	public static Location location(ocpp.v201.LocationEnum location) {
 		try {
@@ -487,7 +489,7 @@ public final class OcppUtils {
 	 *
 	 * @param context
 	 *        the context to translate
-	 * @return the context, never {@literal null}
+	 * @return the context, never {@code null}
 	 */
 	public static ReadingContext readingContext(ocpp.v201.ReadingContextEnum context) {
 		try {
@@ -503,7 +505,7 @@ public final class OcppUtils {
 	 *
 	 * @param reason
 	 *        the reason to translate
-	 * @return the reason, never {@literal null}
+	 * @return the reason, never {@code null}
 	 */
 	public static ChargeSessionEndReason reason(ReasonEnum reason) {
 		if ( reason == null ) {

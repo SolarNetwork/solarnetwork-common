@@ -1,21 +1,21 @@
 /* ==================================================================
  * AuthorizeProcessor.java - 14/02/2020 11:23:03 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -41,7 +41,7 @@ import ocpp.v201.IdTokenInfo;
 
 /**
  * Process {@link AuthorizeRequest} action messages.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -55,7 +55,7 @@ public class AuthorizeProcessor extends BaseActionMessageProcessor<AuthorizeRequ
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param authService
 	 *        the authorization service to use
 	 */
@@ -65,15 +65,15 @@ public class AuthorizeProcessor extends BaseActionMessageProcessor<AuthorizeRequ
 	}
 
 	@Override
-	public void processActionMessage(ActionMessage<AuthorizeRequest> message,
-			ActionMessageResultHandler<AuthorizeRequest, AuthorizeResponse> resultHandler) {
-		AuthorizeRequest req = message.getMessage();
-		if ( req == null ) {
-			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormatViolation,
-					"Missing AuthorizeRequest message.");
-			resultHandler.handleActionMessageResult(message, null, err);
-			return;
-		}
+	public void processActionMessage(final ActionMessage<AuthorizeRequest> message,
+			final ActionMessageResultHandler<AuthorizeRequest, AuthorizeResponse> resultHandler) {
+		defaultProcessActionMessage(message, resultHandler, ActionErrorCode.FormatViolation);
+	}
+
+	@Override
+	protected void handleActionMessage(final ActionMessage<AuthorizeRequest> message,
+			final ActionMessageResultHandler<AuthorizeRequest, AuthorizeResponse> resultHandler,
+			final AuthorizeRequest req) {
 		try {
 			AuthorizationInfo info = authService.authorize(message.getClientId(),
 					req.getIdToken().getIdToken());

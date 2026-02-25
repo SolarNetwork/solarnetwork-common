@@ -23,11 +23,12 @@
 package net.solarnetwork.ocpp.v201.util;
 
 import static net.solarnetwork.ocpp.v201.util.OcppUtils.parseOcppMessage;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.IOException;
+import org.jspecify.annotations.Nullable;
 import com.networknt.schema.SchemaRegistry;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
-import net.solarnetwork.util.ObjectUtils;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
@@ -41,7 +42,7 @@ import tools.jackson.databind.node.ObjectNode;
  */
 public class ActionPayloadDecoder implements net.solarnetwork.ocpp.json.ActionPayloadDecoder {
 
-	private final SchemaRegistry registry;
+	private final @Nullable SchemaRegistry registry;
 	private final ObjectMapper objectMapper;
 
 	/**
@@ -58,7 +59,7 @@ public class ActionPayloadDecoder implements net.solarnetwork.ocpp.json.ActionPa
 	 *        the optional registry to use
 	 * @since 2.0
 	 */
-	public ActionPayloadDecoder(SchemaRegistry registry) {
+	public ActionPayloadDecoder(@Nullable SchemaRegistry registry) {
 		this(OcppUtils.newObjectMapper(), registry);
 	}
 
@@ -70,17 +71,17 @@ public class ActionPayloadDecoder implements net.solarnetwork.ocpp.json.ActionPa
 	 * @param registry
 	 *        the optional validator to use
 	 * @throws IllegalArgumentException
-	 *         if {@code mapper} is {@literal null}
+	 *         if {@code mapper} is {@code null}
 	 * @since 2.0
 	 */
-	public ActionPayloadDecoder(ObjectMapper objectMapper, SchemaRegistry registry) {
+	public ActionPayloadDecoder(ObjectMapper objectMapper, @Nullable SchemaRegistry registry) {
 		super();
-		this.objectMapper = ObjectUtils.requireNonNullArgument(objectMapper, "objectMapper");
+		this.objectMapper = requireNonNullArgument(objectMapper, "objectMapper");
 		this.registry = registry;
 	}
 
 	@Override
-	public <T> T decodeActionPayload(Action action, boolean forResult, JsonNode payload)
+	public <T> @Nullable T decodeActionPayload(Action action, boolean forResult, JsonNode payload)
 			throws IOException {
 		if ( payload.isNull() ) {
 			return null;

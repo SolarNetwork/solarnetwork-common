@@ -63,7 +63,7 @@ public class MeterValuesProcessor
 	 * @param chargeSessionManager
 	 *        the session manager
 	 * @throws IllegalArgumentException
-	 *         if any parameter is {@literal null}
+	 *         if any parameter is {@code null}
 	 */
 	public MeterValuesProcessor(ChargeSessionManager chargeSessionManager) {
 		super(MeterValuesRequest.class, MeterValuesResponse.class, SUPPORTED_ACTIONS);
@@ -71,17 +71,17 @@ public class MeterValuesProcessor
 	}
 
 	@Override
-	public void processActionMessage(ActionMessage<MeterValuesRequest> message,
-			ActionMessageResultHandler<MeterValuesRequest, MeterValuesResponse> resultHandler) {
-		final ChargePointIdentity chargePointId = message.getClientId();
-		final MeterValuesRequest req = message.getMessage();
-		if ( req == null || chargePointId == null ) {
-			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormatViolation,
-					"Missing MeterValuesRequest message.");
-			resultHandler.handleActionMessageResult(message, null, err);
-			return;
-		}
+	public void processActionMessage(final ActionMessage<MeterValuesRequest> message,
+			final ActionMessageResultHandler<MeterValuesRequest, MeterValuesResponse> resultHandler) {
+		processActionMessageWithClientIdentifier(message, resultHandler,
+				ActionErrorCode.FormatViolation);
+	}
 
+	@Override
+	protected void handleActionMessageWithClientIdentifier(
+			final ActionMessage<MeterValuesRequest> message,
+			final ActionMessageResultHandler<MeterValuesRequest, MeterValuesResponse> resultHandler,
+			final ChargePointIdentity identity, final MeterValuesRequest req) {
 		if ( log.isTraceEnabled() ) {
 			log.trace("Received MeterValues req: {}", JsonUtils.getJSONString(req, "{}"));
 		}
@@ -97,9 +97,9 @@ public class MeterValuesProcessor
 				}
 			}
 			if ( !newReadings.isEmpty() ) {
-				log.debug("Saving charge point {} EVSE {} readings: {}", chargePointId, req.getEvseId(),
+				log.debug("Saving charge point {} EVSE {} readings: {}", identity, req.getEvseId(),
 						newReadings);
-				chargeSessionManager.addChargingSessionReadings(chargePointId, req.getEvseId(), null,
+				chargeSessionManager.addChargingSessionReadings(identity, req.getEvseId(), null,
 						newReadings);
 			}
 
