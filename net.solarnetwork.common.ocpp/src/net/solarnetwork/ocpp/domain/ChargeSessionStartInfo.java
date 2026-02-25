@@ -1,48 +1,50 @@
 /* ==================================================================
  * ChargeSessionStartInfo.java - 14/02/2020 2:03:03 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.ocpp.domain;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.Instant;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Information about a charging session, at the start of a session.
- * 
+ *
  * @author matt
  * @version 1.2
  */
 public class ChargeSessionStartInfo {
 
 	private final ChargePointIdentity chargePointId;
-	private final String authorizationId;
-	private final String transactionId;
+	private final @Nullable String authorizationId;
+	private final @Nullable String transactionId;
 	private final int evseId;
 	private final int connectorId;
-	private final Instant timestampStart;
+	private final @Nullable Instant timestampStart;
 	private final long meterStart;
-	private final Integer reservationId;
+	private final @Nullable Integer reservationId;
 
 	private ChargeSessionStartInfo(Builder builder) {
-		this.chargePointId = builder.chargePointId;
+		this.chargePointId = requireNonNullArgument(builder.chargePointId, "chargePointId");
 		this.authorizationId = builder.authorizationId;
 		this.transactionId = builder.transactionId;
 		this.evseId = builder.evseId;
@@ -94,93 +96,93 @@ public class ChargeSessionStartInfo {
 
 	/**
 	 * Get the Charge Point ID.
-	 * 
+	 *
 	 * @return the Charge Point ID
 	 */
-	public ChargePointIdentity getChargePointId() {
+	public final ChargePointIdentity getChargePointId() {
 		return chargePointId;
 	}
 
 	/**
 	 * Get the authorization ID, e.g. RFID value.
-	 * 
+	 *
 	 * @return the authorization ID
 	 */
-	public String getAuthorizationId() {
+	public final @Nullable String getAuthorizationId() {
 		return authorizationId;
 	}
 
 	/**
 	 * Get the transaction ID.
-	 * 
+	 *
 	 * @return the transaction ID
 	 * @since 1.2
 	 */
-	public String getTransactionId() {
+	public final @Nullable String getTransactionId() {
 		return transactionId;
 	}
 
 	/**
 	 * Get the EVSE ID.
-	 * 
+	 *
 	 * @return the EVSE ID
 	 * @since 1.1
 	 */
-	public int getEvseId() {
+	public final int getEvseId() {
 		return evseId;
 	}
 
 	/**
 	 * Get the charge point connector ID.
-	 * 
+	 *
 	 * @return the connector ID
 	 */
-	public int getConnectorId() {
+	public final int getConnectorId() {
 		return connectorId;
 	}
 
 	/**
 	 * Get the timestamp the session started at.
-	 * 
+	 *
 	 * @return the starting timestamp
 	 */
-	public Instant getTimestampStart() {
+	public final @Nullable Instant getTimestampStart() {
 		return timestampStart;
 	}
 
 	/**
 	 * Get the meter reading at the time the session started.
-	 * 
+	 *
 	 * @return the meter reading, in WH
 	 */
-	public long getMeterStart() {
+	public final long getMeterStart() {
 		return meterStart;
 	}
 
 	/**
 	 * Get the optional reservation ID.
-	 * 
+	 *
 	 * @return the reservation ID
 	 */
-	public Integer getReservationId() {
+	public final @Nullable Integer getReservationId() {
 		return reservationId;
 	}
 
 	/**
 	 * Get a builder, populated with this instance's values.
-	 * 
+	 *
 	 * @return a pre-populated builder
 	 */
-	public Builder toBuilder() {
+	public final Builder toBuilder() {
 		return new Builder(this);
 	}
 
 	/**
 	 * Creates builder to build {@link ChargeSessionStartInfo}.
-	 * 
+	 *
 	 * @return created builder
 	 */
-	public static Builder builder() {
+	public final static Builder builder() {
 		return new Builder();
 	}
 
@@ -189,14 +191,14 @@ public class ChargeSessionStartInfo {
 	 */
 	public static final class Builder {
 
-		private ChargePointIdentity chargePointId;
-		private String authorizationId;
-		private String transactionId;
+		private @Nullable ChargePointIdentity chargePointId;
+		private @Nullable String authorizationId;
+		private @Nullable String transactionId;
 		private int evseId;
 		private int connectorId;
-		private Instant timestampStart;
+		private @Nullable Instant timestampStart;
 		private long meterStart;
-		private Integer reservationId;
+		private @Nullable Integer reservationId;
 
 		private Builder() {
 		}
@@ -214,7 +216,7 @@ public class ChargeSessionStartInfo {
 
 		/**
 		 * Configure the charge point ID.
-		 * 
+		 *
 		 * @param chargePointId
 		 *        the charge point ID
 		 * @return this instance
@@ -226,32 +228,32 @@ public class ChargeSessionStartInfo {
 
 		/**
 		 * Configure the authorization ID.
-		 * 
+		 *
 		 * @param authorizationId
 		 *        the authorization ID
 		 * @return this instance
 		 */
-		public Builder withAuthorizationId(String authorizationId) {
+		public Builder withAuthorizationId(@Nullable String authorizationId) {
 			this.authorizationId = authorizationId;
 			return this;
 		}
 
 		/**
 		 * Configure the transaction ID.
-		 * 
+		 *
 		 * @param transactionId
 		 *        the transaction ID
 		 * @return this instance
 		 * @since 1.2
 		 */
-		public Builder withTransactionId(String transactionId) {
+		public Builder withTransactionId(@Nullable String transactionId) {
 			this.transactionId = transactionId;
 			return this;
 		}
 
 		/**
 		 * Configure the EVSE ID.
-		 * 
+		 *
 		 * @param evseId
 		 *        the EVSE ID
 		 * @return this instance
@@ -263,7 +265,7 @@ public class ChargeSessionStartInfo {
 
 		/**
 		 * Configure the connector ID.
-		 * 
+		 *
 		 * @param connectorId
 		 *        the connector ID
 		 * @return this instance
@@ -275,19 +277,19 @@ public class ChargeSessionStartInfo {
 
 		/**
 		 * Configure the start timestamp.
-		 * 
+		 *
 		 * @param timestampStart
 		 *        the start timestamp
 		 * @return this instance
 		 */
-		public Builder withTimestampStart(Instant timestampStart) {
+		public Builder withTimestampStart(@Nullable Instant timestampStart) {
 			this.timestampStart = timestampStart;
 			return this;
 		}
 
 		/**
 		 * Configure the starting meter value.
-		 * 
+		 *
 		 * @param meterStart
 		 *        the start value
 		 * @return this instance
@@ -299,20 +301,22 @@ public class ChargeSessionStartInfo {
 
 		/**
 		 * Configure the reservation ID.
-		 * 
+		 *
 		 * @param reservationId
 		 *        the reservation ID
 		 * @return this instance
 		 */
-		public Builder withReservationId(Integer reservationId) {
+		public Builder withReservationId(@Nullable Integer reservationId) {
 			this.reservationId = reservationId;
 			return this;
 		}
 
 		/**
 		 * Build a new instance from this builder.
-		 * 
+		 *
 		 * @return the new instance
+		 * @throws IllegalArgumentException
+		 *         if {@code chargePointId} is {@code null}
 		 */
 		public ChargeSessionStartInfo build() {
 			return new ChargeSessionStartInfo(this);

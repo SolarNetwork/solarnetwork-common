@@ -1,7 +1,7 @@
 /* ==================================================================
- * ChargePointAuthorizationDetails.java - 24/05/2024 6:51:03 am
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2024 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,33 +20,9 @@
  * ==================================================================
  */
 
-package net.solarnetwork.ocpp.domain;
-
-import org.jspecify.annotations.Nullable;
-
 /**
- * Charge point authorization details used during connection establishment.
- *
- * @author matt
- * @version 1.0
- * @since 4.0
+ * Package info.
  */
-public interface ChargePointAuthorizationDetails {
 
-	/**
-	 * Get the presented username.
-	 *
-	 * @return the username
-	 */
-	@Nullable
-	String getUsername();
-
-	/**
-	 * Get the presented password.
-	 *
-	 * @return the password
-	 */
-	@Nullable
-	String getPassword();
-
-}
+@org.jspecify.annotations.NullMarked
+package net.solarnetwork.ocpp.domain;

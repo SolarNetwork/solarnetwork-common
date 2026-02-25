@@ -1,21 +1,21 @@
 /* ==================================================================
  * ChargePointInfo.java - 7/02/2020 7:36:53 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,25 +23,26 @@
 package net.solarnetwork.ocpp.domain;
 
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Information about a Charge Point.
- * 
+ *
  * @author matt
  * @version 1.0
  */
 public class ChargePointInfo {
 
-	private String id;
-	private String chargePointVendor;
-	private String chargePointModel;
-	private String chargePointSerialNumber;
-	private String chargeBoxSerialNumber;
-	private String firmwareVersion;
-	private String iccid;
-	private String imsi;
-	private String meterType;
-	private String meterSerialNumber;
+	private @Nullable String id;
+	private @Nullable String chargePointVendor;
+	private @Nullable String chargePointModel;
+	private @Nullable String chargePointSerialNumber;
+	private @Nullable String chargeBoxSerialNumber;
+	private @Nullable String firmwareVersion;
+	private @Nullable String iccid;
+	private @Nullable String imsi;
+	private @Nullable String meterType;
+	private @Nullable String meterSerialNumber;
 
 	/**
 	 * Constructor.
@@ -52,7 +53,7 @@ public class ChargePointInfo {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the ID to use
 	 */
@@ -63,7 +64,7 @@ public class ChargePointInfo {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the ID to use
 	 * @param chargePointVendor
@@ -73,14 +74,14 @@ public class ChargePointInfo {
 	 */
 	public ChargePointInfo(String id, String chargePointVendor, String chargePointModel) {
 		super();
-		setId(id);
-		setChargePointVendor(chargePointVendor);
-		setChargePointModel(chargePointModel);
+		this.id = id;
+		this.chargePointVendor = chargePointVendor;
+		this.chargePointModel = chargePointModel;
 	}
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the info to copy
 	 */
@@ -91,11 +92,11 @@ public class ChargePointInfo {
 
 	/**
 	 * Copy the properties of another info onto this instance.
-	 * 
+	 *
 	 * @param other
 	 *        the properties to copy
 	 */
-	public void copyFrom(ChargePointInfo other) {
+	public void copyFrom(@Nullable ChargePointInfo other) {
 		if ( other == null ) {
 			return;
 		}
@@ -113,17 +114,17 @@ public class ChargePointInfo {
 
 	/**
 	 * Test if the properties of another info are the same as in this instance.
-	 * 
+	 *
 	 * <p>
 	 * The {@code id} properties are not compared by this method.
 	 * </p>
-	 * 
+	 *
 	 * @param other
 	 *        the other info to compare to
 	 * @return {@literal true} if the properties of this instance are equal to
 	 *         the other
 	 */
-	public boolean isSameAs(ChargePointInfo other) {
+	public boolean isSameAs(@Nullable ChargePointInfo other) {
 		if ( other == null ) {
 			return false;
 		}
@@ -199,191 +200,191 @@ public class ChargePointInfo {
 
 	/**
 	 * Get the unique ID of the charge point.
-	 * 
+	 *
 	 * @return the id
 	 */
-	public String getId() {
+	public final @Nullable String getId() {
 		return id;
 	}
 
 	/**
 	 * Set the unique ID of the charge point.
-	 * 
+	 *
 	 * @param id
 	 *        the id to set
 	 */
-	public void setId(String id) {
+	public final void setId(@Nullable String id) {
 		this.id = id;
 	}
 
 	/**
 	 * Get the charge point vendor.
-	 * 
+	 *
 	 * @return the vendor
 	 */
-	public String getChargePointVendor() {
+	public final @Nullable String getChargePointVendor() {
 		return chargePointVendor;
 	}
 
 	/**
 	 * Set the charge point vendor.
-	 * 
+	 *
 	 * @param chargePointVendor
 	 *        the vendor to set
 	 */
-	public void setChargePointVendor(String chargePointVendor) {
+	public final void setChargePointVendor(@Nullable String chargePointVendor) {
 		this.chargePointVendor = chargePointVendor;
 	}
 
 	/**
 	 * Get the charge point model.
-	 * 
+	 *
 	 * @return the model
 	 */
-	public String getChargePointModel() {
+	public final @Nullable String getChargePointModel() {
 		return chargePointModel;
 	}
 
 	/**
 	 * Set the charge point model.
-	 * 
+	 *
 	 * @param chargePointModel
 	 *        the model to set
 	 */
-	public void setChargePointModel(String chargePointModel) {
+	public final void setChargePointModel(@Nullable String chargePointModel) {
 		this.chargePointModel = chargePointModel;
 	}
 
 	/**
 	 * Get the charge point serial number.
-	 * 
+	 *
 	 * @return the serial number
 	 */
-	public String getChargePointSerialNumber() {
+	public final @Nullable String getChargePointSerialNumber() {
 		return chargePointSerialNumber;
 	}
 
 	/**
 	 * Set the charge point serial number.
-	 * 
+	 *
 	 * @param chargePointSerialNumber
 	 *        the serial number to set
 	 */
-	public void setChargePointSerialNumber(String chargePointSerialNumber) {
+	public final void setChargePointSerialNumber(@Nullable String chargePointSerialNumber) {
 		this.chargePointSerialNumber = chargePointSerialNumber;
 	}
 
 	/**
 	 * Get the charge box serial number.
-	 * 
+	 *
 	 * @return the serial number
 	 */
-	public String getChargeBoxSerialNumber() {
+	public final @Nullable String getChargeBoxSerialNumber() {
 		return chargeBoxSerialNumber;
 	}
 
 	/**
 	 * Set the charge box serial number.
-	 * 
+	 *
 	 * @param chargeBoxSerialNumber
 	 *        the serial number to set
 	 */
-	public void setChargeBoxSerialNumber(String chargeBoxSerialNumber) {
+	public final void setChargeBoxSerialNumber(@Nullable String chargeBoxSerialNumber) {
 		this.chargeBoxSerialNumber = chargeBoxSerialNumber;
 	}
 
 	/**
 	 * Get the firmware version.
-	 * 
+	 *
 	 * @return the firmware version
 	 */
-	public String getFirmwareVersion() {
+	public final @Nullable String getFirmwareVersion() {
 		return firmwareVersion;
 	}
 
 	/**
 	 * Set the firmware version.
-	 * 
+	 *
 	 * @param firmwareVersion
 	 *        the firmware version to set
 	 */
-	public void setFirmwareVersion(String firmwareVersion) {
+	public final void setFirmwareVersion(@Nullable String firmwareVersion) {
 		this.firmwareVersion = firmwareVersion;
 	}
 
 	/**
 	 * Get the ICC ID.
-	 * 
+	 *
 	 * @return the ID
 	 */
-	public String getIccid() {
+	public final @Nullable String getIccid() {
 		return iccid;
 	}
 
 	/**
 	 * Set the ICC ID.
-	 * 
+	 *
 	 * @param iccid
 	 *        the ID to set
 	 */
-	public void setIccid(String iccid) {
+	public final void setIccid(@Nullable String iccid) {
 		this.iccid = iccid;
 	}
 
 	/**
 	 * Get the IMSI.
-	 * 
+	 *
 	 * @return the imsi
 	 */
-	public String getImsi() {
+	public final @Nullable String getImsi() {
 		return imsi;
 	}
 
 	/**
 	 * Set the IMSI.
-	 * 
+	 *
 	 * @param imsi
 	 *        the imsi to set
 	 */
-	public void setImsi(String imsi) {
+	public final void setImsi(@Nullable String imsi) {
 		this.imsi = imsi;
 	}
 
 	/**
 	 * Get the meter type.
-	 * 
+	 *
 	 * @return the meterType
 	 */
-	public String getMeterType() {
+	public final @Nullable String getMeterType() {
 		return meterType;
 	}
 
 	/**
 	 * Set the meter type.
-	 * 
+	 *
 	 * @param meterType
 	 *        the meterType to set
 	 */
-	public void setMeterType(String meterType) {
+	public final void setMeterType(@Nullable String meterType) {
 		this.meterType = meterType;
 	}
 
 	/**
 	 * Get the meter serial number.
-	 * 
+	 *
 	 * @return the serial number
 	 */
-	public String getMeterSerialNumber() {
+	public final @Nullable String getMeterSerialNumber() {
 		return meterSerialNumber;
 	}
 
 	/**
 	 * Set the meter serial number.
-	 * 
+	 *
 	 * @param meterSerialNumber
 	 *        the serial number to set
 	 */
-	public void setMeterSerialNumber(String meterSerialNumber) {
+	public final void setMeterSerialNumber(@Nullable String meterSerialNumber) {
 		this.meterSerialNumber = meterSerialNumber;
 	}
 

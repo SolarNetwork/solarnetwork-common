@@ -1,48 +1,50 @@
 /* ==================================================================
  * ChargeSessionEndInfo.java - 14/02/2020 3:44:29 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.ocpp.domain;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.Instant;
 import java.util.Collections;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Information about a charging session, at the end of the session.
- * 
+ *
  * @author matt
  * @version 1.1
  */
 public class ChargeSessionEndInfo {
 
 	private final ChargePointIdentity chargePointId;
-	private final String authorizationId;
-	private final String transactionId;
-	private final Instant timestampEnd;
+	private final @Nullable String authorizationId;
+	private final @Nullable String transactionId;
+	private final @Nullable Instant timestampEnd;
 	private final long meterEnd;
-	private final ChargeSessionEndReason reason;
-	private final Iterable<SampledValue> transactionData;
+	private final @Nullable ChargeSessionEndReason reason;
+	private final @Nullable Iterable<SampledValue> transactionData;
 
 	private ChargeSessionEndInfo(Builder builder) {
-		this.chargePointId = builder.chargePointId;
+		this.chargePointId = requireNonNullArgument(builder.chargePointId, "chargePointId");
 		this.authorizationId = builder.authorizationId;
 		this.transactionId = builder.transactionId;
 		this.timestampEnd = builder.timestampEnd;
@@ -93,82 +95,82 @@ public class ChargeSessionEndInfo {
 
 	/**
 	 * The Charge Point ID.
-	 * 
+	 *
 	 * @return the Charge Point ID
 	 */
-	public ChargePointIdentity getChargePointId() {
+	public final ChargePointIdentity getChargePointId() {
 		return chargePointId;
 	}
 
 	/**
 	 * The authorization ID.
-	 * 
+	 *
 	 * @return the authorization ID
 	 */
-	public String getAuthorizationId() {
+	public final @Nullable String getAuthorizationId() {
 		return authorizationId;
 	}
 
 	/**
 	 * The transaction ID.
-	 * 
+	 *
 	 * @return the transaction ID
 	 */
-	public String getTransactionId() {
+	public final @Nullable String getTransactionId() {
 		return transactionId;
 	}
 
 	/**
 	 * The time the session ended.
-	 * 
+	 *
 	 * @return the end timestamp
 	 */
-	public Instant getTimestampEnd() {
+	public final @Nullable Instant getTimestampEnd() {
 		return timestampEnd;
 	}
 
 	/**
 	 * The final meter reading at the end of the session.
-	 * 
+	 *
 	 * @return the ending meter reading, in Wh
 	 */
-	public long getMeterEnd() {
+	public final long getMeterEnd() {
 		return meterEnd;
 	}
 
 	/**
 	 * The reason for the session end.
-	 * 
+	 *
 	 * @return the reason the reason
 	 */
-	public ChargeSessionEndReason getReason() {
+	public final @Nullable ChargeSessionEndReason getReason() {
 		return reason;
 	}
 
 	/**
 	 * Optional transaction data.
-	 * 
+	 *
 	 * @return the transaction data, or {@code null}
 	 */
-	public Iterable<SampledValue> getTransactionData() {
+	public final @Nullable Iterable<SampledValue> getTransactionData() {
 		return transactionData;
 	}
 
 	/**
 	 * Creates builder to build {@link ChargeSessionEndInfo}.
-	 * 
+	 *
 	 * @return created builder
 	 */
-	public static Builder builder() {
+	public final static Builder builder() {
 		return new Builder();
 	}
 
 	/**
 	 * Get a builder, populated with this instance's values.
-	 * 
+	 *
 	 * @return a pre-populated builder
 	 */
-	public Builder toBuilder() {
+	public final Builder toBuilder() {
 		return new Builder(this);
 	}
 
@@ -177,13 +179,13 @@ public class ChargeSessionEndInfo {
 	 */
 	public static final class Builder {
 
-		private ChargePointIdentity chargePointId;
-		private String authorizationId;
-		private String transactionId;
-		private Instant timestampEnd;
+		private @Nullable ChargePointIdentity chargePointId;
+		private @Nullable String authorizationId;
+		private @Nullable String transactionId;
+		private @Nullable Instant timestampEnd;
 		private long meterEnd;
-		private ChargeSessionEndReason reason;
-		private Iterable<SampledValue> transactionData = Collections.emptyList();
+		private @Nullable ChargeSessionEndReason reason;
+		private @Nullable Iterable<SampledValue> transactionData = Collections.emptyList();
 
 		private Builder() {
 		}
@@ -200,7 +202,7 @@ public class ChargeSessionEndInfo {
 
 		/**
 		 * Configure the charge point ID.
-		 * 
+		 *
 		 * @param chargePointId
 		 *        the charge point ID
 		 * @return this instance
@@ -212,43 +214,43 @@ public class ChargeSessionEndInfo {
 
 		/**
 		 * Configure the authorization ID.
-		 * 
+		 *
 		 * @param authorizationId
 		 *        the authorization ID
 		 * @return this instance
 		 */
-		public Builder withAuthorizationId(String authorizationId) {
+		public Builder withAuthorizationId(@Nullable String authorizationId) {
 			this.authorizationId = authorizationId;
 			return this;
 		}
 
 		/**
 		 * Configure the transaction ID.
-		 * 
+		 *
 		 * @param transactionId
 		 *        the transaction ID
 		 * @return this instance
 		 */
-		public Builder withTransactionId(String transactionId) {
+		public Builder withTransactionId(@Nullable String transactionId) {
 			this.transactionId = transactionId;
 			return this;
 		}
 
 		/**
 		 * Configure the ending timestamp.
-		 * 
+		 *
 		 * @param timestampEnd
 		 *        the end time
 		 * @return this instance
 		 */
-		public Builder withTimestampEnd(Instant timestampEnd) {
+		public Builder withTimestampEnd(@Nullable Instant timestampEnd) {
 			this.timestampEnd = timestampEnd;
 			return this;
 		}
 
 		/**
 		 * Configure the final meter value.
-		 * 
+		 *
 		 * @param meterEnd
 		 *        the final meter value
 		 * @return this instance
@@ -260,32 +262,34 @@ public class ChargeSessionEndInfo {
 
 		/**
 		 * Configure the end reason.
-		 * 
+		 *
 		 * @param reason
 		 *        the reason
 		 * @return this instance
 		 */
-		public Builder withReason(ChargeSessionEndReason reason) {
+		public Builder withReason(@Nullable ChargeSessionEndReason reason) {
 			this.reason = reason;
 			return this;
 		}
 
 		/**
 		 * Configure the transaction data.
-		 * 
+		 *
 		 * @param transactionData
 		 *        the transaction data
 		 * @return this instance
 		 */
-		public Builder withTransactionData(Iterable<SampledValue> transactionData) {
+		public Builder withTransactionData(@Nullable Iterable<SampledValue> transactionData) {
 			this.transactionData = transactionData;
 			return this;
 		}
 
 		/**
 		 * Create a new instance from this builder.
-		 * 
+		 *
 		 * @return the new instance
+		 * @throws IllegalArgumentException
+		 *         if {@code chargePointId} is {@code null}
 		 */
 		public ChargeSessionEndInfo build() {
 			return new ChargeSessionEndInfo(this);

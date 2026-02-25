@@ -1,21 +1,21 @@
 /* ==================================================================
  * ChargeSession.java - 10/02/2020 8:03:23 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -24,12 +24,13 @@ package net.solarnetwork.ocpp.domain;
 
 import java.time.Instant;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.dao.BasicUuidEntity;
 
 /**
  * An entity for tracking an OCPP transaction, which represents a single
  * charging cycle from authorization to end of charging.
- * 
+ *
  * @author matt
  * @version 2.0
  */
@@ -53,20 +54,20 @@ public class ChargeSession extends BasicUuidEntity {
 	private final String transactionId;
 
 	/** The end date. */
-	private Instant ended;
+	private @Nullable Instant ended;
 
 	/** The end authorization ID. */
-	private String endAuthId;
+	private @Nullable String endAuthId;
 
 	/** The end reason. */
-	private ChargeSessionEndReason endReason;
+	private @Nullable ChargeSessionEndReason endReason;
 
 	/** The date posted to the Central System. */
-	private Instant posted;
+	private @Nullable Instant posted;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param authId
 	 *        the authorization ID
 	 * @param chargePointId
@@ -83,7 +84,7 @@ public class ChargeSession extends BasicUuidEntity {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param authId
 	 *        the authorization ID
 	 * @param chargePointId
@@ -103,7 +104,7 @@ public class ChargeSession extends BasicUuidEntity {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the primary key
 	 * @param created
@@ -118,14 +119,14 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the transactionID
 	 * @since 2.0
 	 */
-	public ChargeSession(UUID id, Instant created, String authId, long chargePointId, int connectorId,
-			String transactionId) {
+	public ChargeSession(@Nullable UUID id, @Nullable Instant created, String authId, long chargePointId,
+			int connectorId, String transactionId) {
 		this(id, created, authId, chargePointId, 0, connectorId, transactionId);
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id
 	 *        the primary key
 	 * @param created
@@ -142,8 +143,8 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the transactionID
 	 * @since 2.0
 	 */
-	public ChargeSession(UUID id, Instant created, String authId, long chargePointId, int evseId,
-			int connectorId, String transactionId) {
+	public ChargeSession(@Nullable UUID id, @Nullable Instant created, String authId, long chargePointId,
+			int evseId, int connectorId, String transactionId) {
 		super(id, created);
 		this.authId = authId;
 		this.chargePointId = chargePointId;
@@ -178,128 +179,128 @@ public class ChargeSession extends BasicUuidEntity {
 
 	/**
 	 * Get the {@link Authorization} ID.
-	 * 
+	 *
 	 * @return the authorization ID
 	 */
-	public String getAuthId() {
+	public final String getAuthId() {
 		return authId;
 	}
 
 	/**
 	 * Get the Charge Point ID.
-	 * 
+	 *
 	 * @return the Charge Point ID
 	 */
-	public long getChargePointId() {
+	public final long getChargePointId() {
 		return chargePointId;
 	}
 
 	/**
 	 * Get the EVSE ID.
-	 * 
+	 *
 	 * @return the EVSE ID
 	 * @since 1.2
 	 */
-	public int getEvseId() {
+	public final int getEvseId() {
 		return evseId;
 	}
 
 	/**
 	 * Get the Charge Point connection ID.
-	 * 
+	 *
 	 * @return the Charge Point connection ID
 	 */
-	public int getConnectorId() {
+	public final int getConnectorId() {
 		return connectorId;
 	}
 
 	/**
 	 * Get the assigned transaction ID.
-	 * 
+	 *
 	 * @return the transaction ID
 	 */
-	public String getTransactionId() {
+	public final String getTransactionId() {
 		return transactionId;
 	}
 
 	/**
 	 * Get the session end date.
-	 * 
+	 *
 	 * @return the ended the end date, or {@code null} if not ended
 	 */
-	public Instant getEnded() {
+	public final @Nullable Instant getEnded() {
 		return ended;
 	}
 
 	/**
 	 * Set the session end date.
-	 * 
+	 *
 	 * @param ended
 	 *        the end date to set
 	 */
-	public void setEnded(Instant ended) {
+	public final void setEnded(@Nullable Instant ended) {
 		this.ended = ended;
 	}
 
 	/**
 	 * Get the session end reason.
-	 * 
+	 *
 	 * @return the the end reason
 	 */
-	public ChargeSessionEndReason getEndReason() {
+	public final @Nullable ChargeSessionEndReason getEndReason() {
 		return endReason;
 	}
 
 	/**
 	 * Set the session end reason.
-	 * 
+	 *
 	 * @param endReason
 	 *        the reason to set
 	 */
-	public void setEndReason(ChargeSessionEndReason endReason) {
+	public final void setEndReason(@Nullable ChargeSessionEndReason endReason) {
 		this.endReason = endReason;
 	}
 
 	/**
 	 * The authorization ID used to end the transaction.
-	 * 
+	 *
 	 * @return the ending authorization ID, or {@code null}
 	 */
-	public String getEndAuthId() {
+	public final @Nullable String getEndAuthId() {
 		return endAuthId;
 	}
 
 	/**
 	 * Set the authorization ID used to end the transaction.
-	 * 
+	 *
 	 * @param endAuthId
 	 *        the ending authorization ID to set
 	 */
-	public void setEndAuthId(String endAuthId) {
+	public final void setEndAuthId(@Nullable String endAuthId) {
 		this.endAuthId = endAuthId;
 	}
 
 	/**
 	 * Get the session posted date.
-	 * 
+	 *
 	 * <p>
 	 * The posted date represents a date when this transaction has been posted
 	 * to some external service.
 	 * </p>
-	 * 
+	 *
 	 * @return the posted date or {@code null} if not posted
 	 */
-	public Instant getPosted() {
+	public final @Nullable Instant getPosted() {
 		return posted;
 	}
 
 	/**
 	 * Set the session posted date.
-	 * 
+	 *
 	 * @param posted
 	 *        the posted to set
 	 */
-	public void setPosted(Instant posted) {
+	public final void setPosted(@Nullable Instant posted) {
 		this.posted = posted;
 	}
 

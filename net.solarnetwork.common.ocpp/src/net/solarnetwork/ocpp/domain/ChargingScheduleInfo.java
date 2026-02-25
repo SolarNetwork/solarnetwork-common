@@ -1,27 +1,28 @@
 /* ==================================================================
  * ChargingScheduleInfo.java - 18/02/2020 3:17:19 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.ocpp.domain;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
@@ -31,26 +32,27 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.Differentiable;
 import net.solarnetwork.util.DateUtils;
 
 /**
  * Information about a charging schedule.
- * 
+ *
  * @author matt
  * @version 1.0
  */
 public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo> {
 
-	private Duration duration;
-	private Instant start;
+	private @Nullable Duration duration;
+	private @Nullable Instant start;
 	private UnitOfMeasure rateUnit;
-	private BigDecimal minRate;
-	private List<ChargingSchedulePeriodInfo> periods;
+	private @Nullable BigDecimal minRate;
+	private @Nullable List<ChargingSchedulePeriodInfo> periods;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param rateUnit
 	 *        the rate unit
 	 * @throws IllegalArgumentException
@@ -58,12 +60,12 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	 */
 	public ChargingScheduleInfo(UnitOfMeasure rateUnit) {
 		super();
-		setRateUnit(rateUnit);
+		this.rateUnit = requireNonNullArgument(rateUnit, "rateUnit");
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param duration
 	 *        the schedule duration
 	 * @param start
@@ -75,8 +77,8 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	 * @throws IllegalArgumentException
 	 *         if {@code rateUnit} is {@code null}
 	 */
-	public ChargingScheduleInfo(Duration duration, Instant start, UnitOfMeasure rateUnit,
-			BigDecimal minRate) {
+	public ChargingScheduleInfo(@Nullable Duration duration, @Nullable Instant start,
+			UnitOfMeasure rateUnit, @Nullable BigDecimal minRate) {
 		this(rateUnit);
 		this.duration = duration;
 		this.start = start;
@@ -85,7 +87,7 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the info to copy
 	 */
@@ -99,13 +101,13 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	/**
 	 * Test if the properties of another entity are the same as in this
 	 * instance.
-	 * 
+	 *
 	 * @param other
 	 *        the other entity to compare to
 	 * @return {@literal true} if the properties of this instance are equal to
 	 *         the other
 	 */
-	public boolean isSameAs(ChargingScheduleInfo other) {
+	public boolean isSameAs(@Nullable ChargingScheduleInfo other) {
 		if ( other == null ) {
 			return false;
 		}
@@ -119,7 +121,7 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	}
 
 	@Override
-	public boolean differsFrom(ChargingScheduleInfo other) {
+	public boolean differsFrom(@Nullable ChargingScheduleInfo other) {
 		return !isSameAs(other);
 	}
 
@@ -157,84 +159,85 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 
 	/**
 	 * Get the duration.
-	 * 
+	 *
 	 * @return the duration
 	 */
-	public Duration getDuration() {
+	public final @Nullable Duration getDuration() {
 		return duration;
 	}
 
 	/**
 	 * Set the duration.
-	 * 
+	 *
 	 * @param duration
 	 *        the duration to set
 	 */
-	public void setDuration(Duration duration) {
+	public final void setDuration(@Nullable Duration duration) {
 		this.duration = duration;
 	}
 
 	/**
 	 * Get the duration, as seconds.
-	 * 
+	 *
 	 * @return the duration seconds
 	 */
-	public int getDurationSeconds() {
+	public final int getDurationSeconds() {
 		Duration d = getDuration();
 		return (d != null ? (int) d.getSeconds() : 0);
 	}
 
 	/**
 	 * Set the duration, as seconds.
-	 * 
+	 *
 	 * <p>
 	 * If {@code seconds} is less than {@literal 1} then a {@code null}
 	 * {@link Duration} will be set.
 	 * </p>
-	 * 
+	 *
 	 * @param seconds
 	 *        the duration
 	 */
-	public void setDurationSeconds(int seconds) {
+	public final void setDurationSeconds(int seconds) {
 		setDuration(seconds > 0 ? Duration.ofSeconds(seconds) : null);
 	}
 
 	/**
 	 * Get the start time.
-	 * 
+	 *
 	 * @return the start
 	 */
-	public Instant getStart() {
+	public final @Nullable Instant getStart() {
 		return start;
 	}
 
 	/**
 	 * Set the start time.
-	 * 
+	 *
 	 * @param start
 	 *        the start to set
 	 */
-	public void setStart(Instant start) {
+	public final void setStart(@Nullable Instant start) {
 		this.start = start;
 	}
 
 	/**
 	 * Get the start date as a formatted instant.
-	 * 
-	 * @return the date, as an ISO 8601 formatted string
+	 *
+	 * @return the date, as an ISO 8601 formatted string, or {@code null} if
+	 *         {@code start} is {@code null}
 	 */
-	public String getStartValue() {
+	public final @Nullable String getStartValue() {
 		Instant ts = getStart();
 		return (ts != null ? DateUtils.ISO_DATE_OPT_TIME_ALT_LOCAL.format(ts) : null);
 	}
 
 	/**
 	 * Set the start date as an ISO 8601 formatted timestamp.
-	 * 
+	 *
 	 * @param value
 	 *        the date string
 	 */
-	public void setStartValue(String value) {
+	public final void setStartValue(@Nullable String value) {
 		Instant ts = null;
 		if ( value != null ) {
 			ZonedDateTime date = DateUtils.parseIsoAltTimestamp(value, ZoneId.systemDefault());
@@ -248,64 +251,61 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	/**
 	 * Get the charging rate unit to use for the configured
 	 * {@link #getPeriods()}.
-	 * 
+	 *
 	 * @return the unit, never {@code null}
 	 */
-	public UnitOfMeasure getRateUnit() {
+	public final UnitOfMeasure getRateUnit() {
 		return rateUnit;
 	}
 
 	/**
 	 * Set the charging rate unit to use for the configured
 	 * {@link #getPeriods()}.
-	 * 
+	 *
 	 * @param rateUnit
 	 *        the unit to set
 	 * @throws IllegalArgumentException
-	 *         if {@code rateUnit} is {@code null}
+	 *         if any argument is {@code null}
 	 */
-	public void setRateUnit(UnitOfMeasure rateUnit) {
-		if ( rateUnit == null ) {
-			throw new IllegalArgumentException("The rateUnit parameter must not be null.");
-		}
-		this.rateUnit = rateUnit;
+	public final void setRateUnit(UnitOfMeasure rateUnit) {
+		this.rateUnit = requireNonNullArgument(rateUnit, "rateUnit");
 	}
 
 	/**
 	 * Get the charging rate unit, as a code value.
-	 * 
+	 *
 	 * @return the rate code
 	 */
-	public int getRateUnitCode() {
+	public final int getRateUnitCode() {
 		return getRateUnit().getCode();
 	}
 
 	/**
 	 * Set the rate unit as a code value.
-	 * 
+	 *
 	 * @param code
 	 *        the code value
 	 */
-	public void setRateUnitCode(int code) {
+	public final void setRateUnitCode(int code) {
 		setRateUnit(UnitOfMeasure.forCode(code));
 	}
 
 	/**
 	 * Get the minimum rate.
-	 * 
+	 *
 	 * @return the rate
 	 */
-	public BigDecimal getMinRate() {
+	public final @Nullable BigDecimal getMinRate() {
 		return minRate;
 	}
 
 	/**
 	 * Set the minimum rate.
-	 * 
+	 *
 	 * @param minRate
 	 *        the rate to set
 	 */
-	public void setMinRate(BigDecimal minRate) {
+	public final void setMinRate(@Nullable BigDecimal minRate) {
 		if ( minRate != null && minRate.scale() != 1 ) {
 			minRate = minRate.setScale(1, RoundingMode.HALF_UP);
 		}
@@ -314,11 +314,11 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 
 	/**
 	 * Add a period.
-	 * 
+	 *
 	 * @param period
 	 *        the period to add
 	 */
-	public void addPeriod(ChargingSchedulePeriodInfo period) {
+	public final void addPeriod(ChargingSchedulePeriodInfo period) {
 		List<ChargingSchedulePeriodInfo> list = getPeriods();
 		if ( list == null ) {
 			list = new ArrayList<>(4);
@@ -329,43 +329,43 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 
 	/**
 	 * Get the periods list.
-	 * 
+	 *
 	 * @return the periods
 	 */
-	public List<ChargingSchedulePeriodInfo> getPeriods() {
+	public final @Nullable List<ChargingSchedulePeriodInfo> getPeriods() {
 		return periods;
 	}
 
 	/**
 	 * Set the periods list.
-	 * 
+	 *
 	 * @param periods
 	 *        the periods to set
 	 */
-	public void setPeriods(List<ChargingSchedulePeriodInfo> periods) {
+	public final void setPeriods(@Nullable List<ChargingSchedulePeriodInfo> periods) {
 		this.periods = periods;
 	}
 
 	/**
 	 * Get the count of entity entities.
-	 * 
+	 *
 	 * @return the configuration count
 	 */
-	public synchronized int getPeriodsCount() {
+	public final int getPeriodsCount() {
 		List<ChargingSchedulePeriodInfo> periods = getPeriods();
 		return (periods != null ? periods.size() : 0);
 	}
 
 	/**
 	 * Adjust the number of configured entity entities.
-	 * 
+	 *
 	 * @param count
 	 *        the desired number of elements
 	 */
-	public void setPeriodsCount(int count) {
+	public final void setPeriodsCount(int count) {
 		List<ChargingSchedulePeriodInfo> infos = getPeriods();
 		int currCount = (infos != null ? infos.size() : 0);
-		if ( currCount == count ) {
+		if ( currCount == count || infos == null ) {
 			return;
 		}
 		while ( currCount < count ) {

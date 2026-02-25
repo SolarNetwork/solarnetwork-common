@@ -22,8 +22,9 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.Objects;
-import net.solarnetwork.util.ObjectUtils;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A unique identity for a charge point session in SolarNetwork.
@@ -54,8 +55,8 @@ public class ChargePointSessionIdentity implements Comparable<ChargePointSession
 	 */
 	public ChargePointSessionIdentity(ChargePointIdentity identity, String sessionId) {
 		super();
-		this.identity = ObjectUtils.requireNonNullArgument(identity, "identity");
-		this.sessionId = ObjectUtils.requireNonNullArgument(sessionId, "sessionId");
+		this.identity = requireNonNullArgument(identity, "identity");
+		this.sessionId = requireNonNullArgument(sessionId, "sessionId");
 	}
 
 	/**
@@ -78,7 +79,7 @@ public class ChargePointSessionIdentity implements Comparable<ChargePointSession
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
@@ -116,7 +117,7 @@ public class ChargePointSessionIdentity implements Comparable<ChargePointSession
 	 *
 	 * @return the identifier; never {@code null}
 	 */
-	public String getIdentifier() {
+	public final String getIdentifier() {
 		return identity.getIdentifier();
 	}
 
@@ -125,7 +126,7 @@ public class ChargePointSessionIdentity implements Comparable<ChargePointSession
 	 *
 	 * @return the user identifier; never {@code null}
 	 */
-	public Object getUserIdentifier() {
+	public final Object getUserIdentifier() {
 		return identity.getUserIdentifier();
 	}
 

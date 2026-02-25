@@ -24,6 +24,7 @@ package net.solarnetwork.ocpp.domain;
 
 import java.time.Instant;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
@@ -40,12 +41,12 @@ public class StatusNotification {
 
 	private final int evseId;
 	private final int connectorId;
-	private final ChargePointStatus status;
-	private final ChargePointErrorCode errorCode;
-	private final String info;
-	private final Instant timestamp;
-	private final String vendorId;
-	private final String vendorErrorCode;
+	private final @Nullable ChargePointStatus status;
+	private final @Nullable ChargePointErrorCode errorCode;
+	private final @Nullable String info;
+	private final @Nullable Instant timestamp;
+	private final @Nullable String vendorId;
+	private final @Nullable String vendorErrorCode;
 
 	/**
 	 * Constructor.
@@ -65,8 +66,9 @@ public class StatusNotification {
 	 * @param vendorErrorCode
 	 *        the vendor error code
 	 */
-	public StatusNotification(int connectorId, ChargePointStatus status, ChargePointErrorCode errorCode,
-			String info, Instant timestamp, String vendorId, String vendorErrorCode) {
+	public StatusNotification(int connectorId, @Nullable ChargePointStatus status,
+			@Nullable ChargePointErrorCode errorCode, @Nullable String info, @Nullable Instant timestamp,
+			@Nullable String vendorId, @Nullable String vendorErrorCode) {
 		this(0, connectorId, status, errorCode, info, timestamp, vendorId, vendorErrorCode);
 	}
 
@@ -91,9 +93,9 @@ public class StatusNotification {
 	 *        the vendor error code
 	 * @since 1.1
 	 */
-	public StatusNotification(int evseId, int connectorId, ChargePointStatus status,
-			ChargePointErrorCode errorCode, String info, Instant timestamp, String vendorId,
-			String vendorErrorCode) {
+	public StatusNotification(int evseId, int connectorId, @Nullable ChargePointStatus status,
+			@Nullable ChargePointErrorCode errorCode, @Nullable String info, @Nullable Instant timestamp,
+			@Nullable String vendorId, @Nullable String vendorErrorCode) {
 		super();
 		this.evseId = evseId;
 		this.connectorId = connectorId;
@@ -117,7 +119,7 @@ public class StatusNotification {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
@@ -175,7 +177,7 @@ public class StatusNotification {
 	 * @return the EVSE ID
 	 * @since 1.1
 	 */
-	public int getEvseId() {
+	public final int getEvseId() {
 		return evseId;
 	}
 
@@ -184,7 +186,7 @@ public class StatusNotification {
 	 *
 	 * @return the connector ID
 	 */
-	public int getConnectorId() {
+	public final int getConnectorId() {
 		return connectorId;
 	}
 
@@ -193,7 +195,7 @@ public class StatusNotification {
 	 *
 	 * @return the status
 	 */
-	public ChargePointStatus getStatus() {
+	public final @Nullable ChargePointStatus getStatus() {
 		return status;
 	}
 
@@ -202,7 +204,7 @@ public class StatusNotification {
 	 *
 	 * @return the errorCode
 	 */
-	public ChargePointErrorCode getErrorCode() {
+	public final @Nullable ChargePointErrorCode getErrorCode() {
 		return errorCode;
 	}
 
@@ -211,7 +213,7 @@ public class StatusNotification {
 	 *
 	 * @return the info
 	 */
-	public String getInfo() {
+	public final @Nullable String getInfo() {
 		return info;
 	}
 
@@ -220,7 +222,7 @@ public class StatusNotification {
 	 *
 	 * @return the timestamp
 	 */
-	public Instant getTimestamp() {
+	public final @Nullable Instant getTimestamp() {
 		return timestamp;
 	}
 
@@ -229,7 +231,7 @@ public class StatusNotification {
 	 *
 	 * @return the vendor ID
 	 */
-	public String getVendorId() {
+	public final @Nullable String getVendorId() {
 		return vendorId;
 	}
 
@@ -238,7 +240,7 @@ public class StatusNotification {
 	 *
 	 * @return the error code
 	 */
-	public String getVendorErrorCode() {
+	public final @Nullable String getVendorErrorCode() {
 		return vendorErrorCode;
 	}
 
@@ -256,7 +258,7 @@ public class StatusNotification {
 	 * @return {@literal true} if the properties of this instance are equal to
 	 *         the other
 	 */
-	public boolean isSameAs(StatusNotification other) {
+	public boolean isSameAs(@Nullable StatusNotification other) {
 		if ( other == null ) {
 			return false;
 		}
@@ -296,12 +298,12 @@ public class StatusNotification {
 
 		private int evseId;
 		private int connectorId;
-		private ChargePointStatus status;
-		private ChargePointErrorCode errorCode;
-		private String info;
-		private Instant timestamp;
-		private String vendorId;
-		private String vendorErrorCode;
+		private @Nullable ChargePointStatus status;
+		private @Nullable ChargePointErrorCode errorCode;
+		private @Nullable String info;
+		private @Nullable Instant timestamp;
+		private @Nullable String vendorId;
+		private @Nullable String vendorErrorCode;
 
 		private Builder() {
 		}
@@ -349,7 +351,7 @@ public class StatusNotification {
 		 *        the status
 		 * @return this instance
 		 */
-		public Builder withStatus(ChargePointStatus status) {
+		public Builder withStatus(@Nullable ChargePointStatus status) {
 			this.status = status;
 			return this;
 		}
@@ -361,7 +363,7 @@ public class StatusNotification {
 		 *        the error code
 		 * @return this instance
 		 */
-		public Builder withErrorCode(ChargePointErrorCode errorCode) {
+		public Builder withErrorCode(@Nullable ChargePointErrorCode errorCode) {
 			this.errorCode = errorCode;
 			return this;
 		}
@@ -373,7 +375,7 @@ public class StatusNotification {
 		 *        the info
 		 * @return this instance
 		 */
-		public Builder withInfo(String info) {
+		public Builder withInfo(@Nullable String info) {
 			this.info = info;
 			return this;
 		}
@@ -385,7 +387,7 @@ public class StatusNotification {
 		 *        the timestamp
 		 * @return this instance
 		 */
-		public Builder withTimestamp(Instant timestamp) {
+		public Builder withTimestamp(@Nullable Instant timestamp) {
 			this.timestamp = timestamp;
 			return this;
 		}
@@ -397,7 +399,7 @@ public class StatusNotification {
 		 *        the vendor ID
 		 * @return this instance
 		 */
-		public Builder withVendorId(String vendorId) {
+		public Builder withVendorId(@Nullable String vendorId) {
 			this.vendorId = vendorId;
 			return this;
 		}
@@ -409,7 +411,7 @@ public class StatusNotification {
 		 *        the error code
 		 * @return this instance
 		 */
-		public Builder withVendorErrorCode(String vendorErrorCode) {
+		public Builder withVendorErrorCode(@Nullable String vendorErrorCode) {
 			this.vendorErrorCode = vendorErrorCode;
 			return this;
 		}

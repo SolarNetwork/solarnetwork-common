@@ -1,37 +1,39 @@
 /* ==================================================================
  * ChargingProfileInfo.java - 18/02/2020 3:17:04 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.ocpp.domain;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.Differentiable;
 import net.solarnetwork.util.DateUtils;
 
 /**
  * Information about a charging profile.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -39,14 +41,14 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 
 	private ChargingProfilePurpose purpose;
 	private ChargingProfileKind kind;
-	private ChargingScheduleRecurrency recurrency;
-	private Instant validFrom;
-	private Instant validTo;
+	private @Nullable ChargingScheduleRecurrency recurrency;
+	private @Nullable Instant validFrom;
+	private @Nullable Instant validTo;
 	private ChargingScheduleInfo schedule;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param purpose
 	 *        the purpose
 	 * @param kind
@@ -54,20 +56,19 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	 * @param schedule
 	 *        the schedule
 	 * @throws IllegalArgumentException
-	 *         if {@code purpose}, {@code kind}, or {@code schedule} are
-	 *         {@code null}
+	 *         if any argument is {@code null}
 	 */
 	public ChargingProfileInfo(ChargingProfilePurpose purpose, ChargingProfileKind kind,
 			ChargingScheduleInfo schedule) {
 		super();
-		setPurpose(purpose);
-		setKind(kind);
-		setSchedule(schedule);
+		this.purpose = requireNonNullArgument(purpose, "purpose");
+		this.kind = requireNonNullArgument(kind, "kind");
+		this.schedule = requireNonNullArgument(schedule, "schedule");
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param purpose
 	 *        the purpose
 	 * @param kind
@@ -85,8 +86,8 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	 *         {@code null}
 	 */
 	public ChargingProfileInfo(ChargingProfilePurpose purpose, ChargingProfileKind kind,
-			ChargingScheduleRecurrency recurrency, Instant validFrom, Instant validTo,
-			ChargingScheduleInfo schedule) {
+			@Nullable ChargingScheduleRecurrency recurrency, @Nullable Instant validFrom,
+			@Nullable Instant validTo, ChargingScheduleInfo schedule) {
 		this(purpose, kind, schedule);
 		this.recurrency = recurrency;
 		this.validFrom = validFrom;
@@ -95,7 +96,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the info to copy
 	 */
@@ -107,13 +108,13 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	/**
 	 * Test if the properties of another entity are the same as in this
 	 * instance.
-	 * 
+	 *
 	 * @param other
 	 *        the other entity to compare to
 	 * @return {@literal true} if the properties of this instance are equal to
 	 *         the other
 	 */
-	public boolean isSameAs(ChargingProfileInfo other) {
+	public boolean isSameAs(@Nullable ChargingProfileInfo other) {
 		if ( other == null ) {
 			return false;
 		}
@@ -128,7 +129,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	}
 
 	@Override
-	public boolean differsFrom(ChargingProfileInfo other) {
+	public boolean differsFrom(@Nullable ChargingProfileInfo other) {
 		return !isSameAs(other);
 	}
 
@@ -171,115 +172,109 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 
 	/**
 	 * Get the purpose.
-	 * 
+	 *
 	 * @return the purpose; never {@code null}
 	 */
-	public ChargingProfilePurpose getPurpose() {
+	public final ChargingProfilePurpose getPurpose() {
 		return purpose;
 	}
 
 	/**
 	 * Set the purpose.
-	 * 
+	 *
 	 * @param purpose
 	 *        the purpose to set
 	 * @throws IllegalArgumentException
-	 *         if {@code purpose} is {@code null}
+	 *         if any argument is {@code null}
 	 */
-	public void setPurpose(ChargingProfilePurpose purpose) {
-		if ( purpose == null ) {
-			throw new IllegalArgumentException("The purpose parameter must not be null.");
-		}
-		this.purpose = purpose;
+	public final void setPurpose(ChargingProfilePurpose purpose) {
+		this.purpose = requireNonNullArgument(purpose, "purpose");
 	}
 
 	/**
 	 * Get the purpose as a code value.
-	 * 
+	 *
 	 * @return the purpose code
 	 */
-	public int getPurposeCode() {
+	public final int getPurposeCode() {
 		return getPurpose().getCode();
 	}
 
 	/**
 	 * Set the purpose as a code value.
-	 * 
+	 *
 	 * @param code
 	 *        the purpose code
 	 */
-	public void setPurposeCode(int code) {
+	public final void setPurposeCode(int code) {
 		setPurpose(ChargingProfilePurpose.forCode(code));
 	}
 
 	/**
 	 * Get the profile kind.
-	 * 
+	 *
 	 * @return the kind; never {@code null}
 	 */
-	public ChargingProfileKind getKind() {
+	public final ChargingProfileKind getKind() {
 		return kind;
 	}
 
 	/**
 	 * Set the profile kind.
-	 * 
+	 *
 	 * @param kind
 	 *        the kind to set
 	 * @throws IllegalArgumentException
-	 *         if {@code kind} is {@code null}
+	 *         if any argument is {@code null}
 	 */
-	public void setKind(ChargingProfileKind kind) {
-		if ( kind == null ) {
-			throw new IllegalArgumentException("The kind parameter must not be null.");
-		}
-		this.kind = kind;
+	public final void setKind(ChargingProfileKind kind) {
+		this.kind = requireNonNullArgument(kind, "kind");
 	}
 
 	/**
 	 * Get the profile kind as a code value.
-	 * 
+	 *
 	 * @return the kind code
 	 */
-	public int getKindCode() {
+	public final int getKindCode() {
 		return getKind().getCode();
 	}
 
 	/**
 	 * Set the profile kind as a code value.
-	 * 
+	 *
 	 * @param code
 	 *        the kind code
 	 */
-	public void setKindCode(int code) {
+	public final void setKindCode(int code) {
 		setKind(ChargingProfileKind.forCode(code));
 	}
 
 	/**
 	 * Get the recurrency.
-	 * 
+	 *
 	 * @return the recurrency
 	 */
-	public ChargingScheduleRecurrency getRecurrency() {
+	public final @Nullable ChargingScheduleRecurrency getRecurrency() {
 		return recurrency;
 	}
 
 	/**
 	 * Set the recurrency.
-	 * 
+	 *
 	 * @param recurrency
 	 *        the recurrency to set
 	 */
-	public void setRecurrency(ChargingScheduleRecurrency recurrency) {
+	public final void setRecurrency(@Nullable ChargingScheduleRecurrency recurrency) {
 		this.recurrency = recurrency;
 	}
 
 	/**
 	 * Get the recurrency as a code value.
-	 * 
+	 *
 	 * @return the recurrency code
 	 */
-	public int getRecurrencyCode() {
+	public final int getRecurrencyCode() {
 		ChargingScheduleRecurrency r = getRecurrency();
 		if ( r == null ) {
 			r = ChargingScheduleRecurrency.Unknown;
@@ -289,50 +284,51 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 
 	/**
 	 * Set the recurrency as a code value.
-	 * 
+	 *
 	 * @param code
 	 *        the recurrency code
 	 */
-	public void setRecurrencyCode(int code) {
+	public final void setRecurrencyCode(int code) {
 		setRecurrency(ChargingScheduleRecurrency.forCode(code));
 	}
 
 	/**
 	 * Get the valid from date.
-	 * 
+	 *
 	 * @return the date
 	 */
-	public Instant getValidFrom() {
+	public final @Nullable Instant getValidFrom() {
 		return validFrom;
 	}
 
 	/**
 	 * Set the valid from date.
-	 * 
+	 *
 	 * @param validFrom
 	 *        the date to set
 	 */
-	public void setValidFrom(Instant validFrom) {
+	public final void setValidFrom(@Nullable Instant validFrom) {
 		this.validFrom = validFrom;
 	}
 
 	/**
 	 * Get the valid from date as a formatted instant.
-	 * 
-	 * @return the date, as an ISO 8601 formatted string
+	 *
+	 * @return the date, as an ISO 8601 formatted string, or {@code null} if
+	 *         {@code validFrom} is {@code null}
 	 */
-	public String getValidFromValue() {
+	public final @Nullable String getValidFromValue() {
 		Instant ts = getValidFrom();
 		return (ts != null ? DateUtils.ISO_DATE_OPT_TIME_ALT_LOCAL.format(ts) : null);
 	}
 
 	/**
 	 * Set the valid from date as an ISO 8601 formatted timestamp.
-	 * 
+	 *
 	 * @param value
 	 *        the date string
 	 */
-	public void setValidFromValue(String value) {
+	public final void setValidFromValue(@Nullable String value) {
 		Instant ts = null;
 		if ( value != null ) {
 			ZonedDateTime date = DateUtils.parseIsoAltTimestamp(value, ZoneId.systemDefault());
@@ -345,40 +341,41 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 
 	/**
 	 * Get the valid to date.
-	 * 
+	 *
 	 * @return the date
 	 */
-	public Instant getValidTo() {
+	public final @Nullable Instant getValidTo() {
 		return validTo;
 	}
 
 	/**
 	 * Set the valid to date.
-	 * 
+	 *
 	 * @param validTo
 	 *        the date to set
 	 */
-	public void setValidTo(Instant validTo) {
+	public final void setValidTo(@Nullable Instant validTo) {
 		this.validTo = validTo;
 	}
 
 	/**
 	 * Get the valid to date as a formatted instant.
-	 * 
-	 * @return the date, as an ISO 8601 formatted string
+	 *
+	 * @return the date, as an ISO 8601 formatted string, or {@code null} if
+	 *         {@code validTo} is {@code null}
 	 */
-	public String getValidToValue() {
+	public final @Nullable String getValidToValue() {
 		Instant ts = getValidTo();
 		return (ts != null ? DateUtils.ISO_DATE_OPT_TIME_ALT_LOCAL.format(ts) : null);
 	}
 
 	/**
 	 * Set the valid to date as an ISO 8601 formatted timestamp.
-	 * 
+	 *
 	 * @param value
 	 *        the date string
 	 */
-	public void setValidToValue(String value) {
+	public final void setValidToValue(@Nullable String value) {
 		Instant ts = null;
 		if ( value != null ) {
 			ZonedDateTime date = DateUtils.parseIsoAltTimestamp(value, ZoneId.systemDefault());
@@ -391,26 +388,23 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 
 	/**
 	 * Get the schedule.
-	 * 
+	 *
 	 * @return the schedule
 	 */
-	public ChargingScheduleInfo getSchedule() {
+	public final ChargingScheduleInfo getSchedule() {
 		return schedule;
 	}
 
 	/**
 	 * Set the schedule.
-	 * 
+	 *
 	 * @param schedule
 	 *        the schedule to set
 	 * @throws IllegalArgumentException
-	 *         if {@code schedule} is {@code null}
+	 *         if any argument is {@code null}
 	 */
-	public void setSchedule(ChargingScheduleInfo schedule) {
-		if ( schedule == null ) {
-			throw new IllegalArgumentException("The schedule parameter must not be null.");
-		}
-		this.schedule = schedule;
+	public final void setSchedule(ChargingScheduleInfo schedule) {
+		this.schedule = requireNonNullArgument(schedule, "schedule");
 	}
 
 }

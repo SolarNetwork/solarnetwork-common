@@ -22,8 +22,10 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.Instant;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.solarnetwork.dao.BasicLongEntity;
@@ -57,6 +59,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	public ChargePoint() {
 		super();
 		this.info = new ChargePointInfo();
+		this.registrationStatus = RegistrationStatus.Pending;
 	}
 
 	/**
@@ -65,7 +68,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @param id
 	 *        the primary key
 	 */
-	public ChargePoint(Long id) {
+	public ChargePoint(@Nullable Long id) {
 		this(id, Instant.now());
 	}
 
@@ -77,7 +80,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @param created
 	 *        the created date
 	 */
-	public ChargePoint(Long id, Instant created) {
+	public ChargePoint(@Nullable Long id, @Nullable Instant created) {
 		this(id, created, new ChargePointInfo());
 	}
 
@@ -93,13 +96,10 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @throws IllegalArgumentException
 	 *         if {@code info} is {@code null}
 	 */
-	public ChargePoint(Long id, Instant created, ChargePointInfo info) {
+	public ChargePoint(@Nullable Long id, @Nullable Instant created, ChargePointInfo info) {
 		super(id, created);
-		if ( info == null ) {
-			throw new IllegalArgumentException("The info parameter must not be null.");
-		}
-		setRegistrationStatus(RegistrationStatus.Pending);
-		this.info = info;
+		this.info = requireNonNullArgument(info, "info");
+		this.registrationStatus = RegistrationStatus.Pending;
 	}
 
 	/**
@@ -114,7 +114,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @param chargePointModel
 	 *        the model
 	 */
-	public ChargePoint(Instant created, String identifier, String chargePointVendor,
+	public ChargePoint(@Nullable Instant created, String identifier, String chargePointVendor,
 			String chargePointModel) {
 		this(null, created, new ChargePointInfo(identifier, chargePointVendor, chargePointModel));
 	}
@@ -143,7 +143,8 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @return the new identity, never {@code null}
 	 */
 	public ChargePointIdentity chargePointIdentity() {
-		return new ChargePointIdentity(getInfo().getId(), ChargePointIdentity.ANY_USER);
+		return new ChargePointIdentity(requireNonNullArgument(getInfo().getId(), "info.id"),
+				ChargePointIdentity.ANY_USER);
 	}
 
 	/**
@@ -160,7 +161,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @return {@literal true} if the properties of this instance are equal to
 	 *         the other
 	 */
-	public boolean isSameAs(ChargePoint other) {
+	public boolean isSameAs(@Nullable ChargePoint other) {
 		if ( other == null ) {
 			return false;
 		}
@@ -173,7 +174,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	}
 
 	@Override
-	public boolean differsFrom(ChargePoint other) {
+	public boolean differsFrom(@Nullable ChargePoint other) {
 		return !isSameAs(other);
 	}
 
@@ -207,7 +208,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @param info
 	 *        the properties to copy
 	 */
-	public void copyInfoFrom(ChargePointInfo info) {
+	public void copyInfoFrom(@Nullable ChargePointInfo info) {
 		this.info.copyFrom(info);
 	}
 
@@ -218,7 +219,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 */
 	@JsonProperty
 	@JsonMerge
-	public ChargePointInfo getInfo() {
+	public final ChargePointInfo getInfo() {
 		return info;
 	}
 
@@ -227,7 +228,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 *
 	 * @return the enabled flag
 	 */
-	public boolean isEnabled() {
+	public final boolean isEnabled() {
 		return enabled;
 	}
 
@@ -237,7 +238,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @param enabled
 	 *        the enabled flag to set
 	 */
-	public void setEnabled(boolean enabled) {
+	public final void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
 
@@ -246,7 +247,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 *
 	 * @return the registrationStatus
 	 */
-	public RegistrationStatus getRegistrationStatus() {
+	public final RegistrationStatus getRegistrationStatus() {
 		return registrationStatus;
 	}
 
@@ -255,9 +256,11 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 *
 	 * @param registrationStatus
 	 *        the registrationStatus to set
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
-	public void setRegistrationStatus(RegistrationStatus registrationStatus) {
-		this.registrationStatus = registrationStatus;
+	public final void setRegistrationStatus(RegistrationStatus registrationStatus) {
+		this.registrationStatus = requireNonNullArgument(registrationStatus, "registrationStatus");
 	}
 
 	/**
@@ -265,7 +268,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 *
 	 * @return the total number of connectors, or {@literal 0} if not known
 	 */
-	public int getConnectorCount() {
+	public final int getConnectorCount() {
 		return connectorCount;
 	}
 
@@ -275,7 +278,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @param connectorCount
 	 *        the count to set, or {@literal 0} if not known
 	 */
-	public void setConnectorCount(int connectorCount) {
+	public final void setConnectorCount(int connectorCount) {
 		this.connectorCount = connectorCount;
 	}
 

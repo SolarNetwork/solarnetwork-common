@@ -1,36 +1,38 @@
 /* ==================================================================
  * ChargingSchedulePeriodInfo.java - 18/02/2020 3:18:46 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.ocpp.domain;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.Differentiable;
 
 /**
  * Information about a charging schedule period.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -38,11 +40,11 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 
 	private Duration startOffset;
 	private BigDecimal rateLimit;
-	private Integer numPhases;
+	private @Nullable Integer numPhases;
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * <p>
 	 * This rate limit is set to zero.
 	 * </p>
@@ -53,13 +55,13 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param startOffset
 	 *        the start offset from the start of the schedule
 	 * @param rateLimit
 	 *        the rate limit
 	 * @throws IllegalArgumentException
-	 *         if {@code startOffset} or {@code rateLimit} are {@code null}
+	 *         if any argument is {@code null}
 	 */
 	public ChargingSchedulePeriodInfo(Duration startOffset, BigDecimal rateLimit) {
 		super();
@@ -69,7 +71,7 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param startOffset
 	 *        the start offset from the start of the schedule
 	 * @param rateLimit
@@ -79,14 +81,15 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 	 * @throws IllegalArgumentException
 	 *         if {@code startOffset} or {@code rateLimit} are {@code null}
 	 */
-	public ChargingSchedulePeriodInfo(Duration startOffset, BigDecimal rateLimit, Integer numPhases) {
+	public ChargingSchedulePeriodInfo(Duration startOffset, BigDecimal rateLimit,
+			@Nullable Integer numPhases) {
 		this(startOffset, rateLimit);
 		this.numPhases = numPhases;
 	}
 
 	/**
 	 * Copy constructor.
-	 * 
+	 *
 	 * @param other
 	 *        the other info to copy
 	 */
@@ -97,13 +100,13 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 	/**
 	 * Test if the properties of another entity are the same as in this
 	 * instance.
-	 * 
+	 *
 	 * @param other
 	 *        the other entity to compare to
 	 * @return {@literal true} if the properties of this instance are equal to
 	 *         the other
 	 */
-	public boolean isSameAs(ChargingSchedulePeriodInfo other) {
+	public boolean isSameAs(@Nullable ChargingSchedulePeriodInfo other) {
 		if ( other == null ) {
 			return false;
 		}
@@ -115,7 +118,7 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 	}
 
 	@Override
-	public boolean differsFrom(ChargingSchedulePeriodInfo other) {
+	public boolean differsFrom(@Nullable ChargingSchedulePeriodInfo other) {
 		return !isSameAs(other);
 	}
 
@@ -125,7 +128,7 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
@@ -161,65 +164,64 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 
 	/**
 	 * Get the start offset.
-	 * 
+	 *
 	 * @return the offset from the start of the schedule; never {@code null}
 	 */
-	public Duration getStartOffset() {
+	public final Duration getStartOffset() {
 		return startOffset;
 	}
 
 	/**
 	 * Set the start offset.
-	 * 
+	 *
 	 * @param startOffset
 	 *        the offset from the start of the schedule to set
 	 * @throws IllegalArgumentException
 	 *         if {@code startOffset} is {@code null}
 	 */
-	public void setStartOffset(Duration startOffset) {
-		this.startOffset = startOffset;
+	public final void setStartOffset(Duration startOffset) {
+		this.startOffset = requireNonNullArgument(startOffset, "startOffset");
+		;
 	}
 
 	/**
 	 * Get the start offset, in seconds.
-	 * 
+	 *
 	 * @return the offset from the start of the schedule
 	 */
-	public int getStartOffsetSeconds() {
+	public final int getStartOffsetSeconds() {
 		return (int) getStartOffset().getSeconds();
 	}
 
 	/**
 	 * Set the start offset, in seconds.
-	 * 
+	 *
 	 * @param seconds
 	 *        the seconds
 	 */
-	public void setStartOffsetSeconds(int seconds) {
+	public final void setStartOffsetSeconds(int seconds) {
 		setStartOffset(Duration.ofSeconds(seconds));
 	}
 
 	/**
 	 * Get the rate limit.
-	 * 
+	 *
 	 * @return the limit; never {@code null}
 	 */
-	public BigDecimal getRateLimit() {
+	public final BigDecimal getRateLimit() {
 		return rateLimit;
 	}
 
 	/**
 	 * Set the rate limit.
-	 * 
+	 *
 	 * @param rateLimit
 	 *        the limit to set
 	 * @throws IllegalArgumentException
 	 *         if {@code rateLimit} is {@code null}
 	 */
-	public void setRateLimit(BigDecimal rateLimit) {
-		if ( rateLimit == null ) {
-			throw new IllegalArgumentException("The rateLimit parameter must not be null.");
-		}
+	public final void setRateLimit(BigDecimal rateLimit) {
+		rateLimit = requireNonNullArgument(rateLimit, "rateLimit");
 		if ( rateLimit.scale() != 1 ) {
 			rateLimit = rateLimit.setScale(1, RoundingMode.HALF_UP);
 		}
@@ -228,21 +230,21 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 
 	/**
 	 * Get the number of phases.
-	 * 
+	 *
 	 * @return the phase count, or {@code null} if not applicable (e.g. DC
 	 *         charging)
 	 */
-	public Integer getNumPhases() {
+	public final @Nullable Integer getNumPhases() {
 		return numPhases;
 	}
 
 	/**
 	 * Set the number of phases.
-	 * 
+	 *
 	 * @param numPhases
 	 *        the phase count to set
 	 */
-	public void setNumPhases(Integer numPhases) {
+	public final void setNumPhases(@Nullable Integer numPhases) {
 		this.numPhases = numPhases;
 	}
 

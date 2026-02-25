@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.dao.BasicLongEntity;
 import net.solarnetwork.domain.Differentiable;
 import net.solarnetwork.util.StringUtils;
@@ -44,13 +45,13 @@ public class SystemUser extends BasicLongEntity
 	private static final long serialVersionUID = -8412183373239562934L;
 
 	/** The username. */
-	private String username;
+	private @Nullable String username;
 
 	/** The password. */
-	private String password;
+	private @Nullable String password;
 
 	/** The allowed charge point identifiers. */
-	private Set<String> allowedChargePoints;
+	private @Nullable Set<String> allowedChargePoints;
 
 	/**
 	 * Default constructor.
@@ -67,7 +68,7 @@ public class SystemUser extends BasicLongEntity
 	 * @param created
 	 *        the creation date
 	 */
-	public SystemUser(Long id, Instant created) {
+	public SystemUser(@Nullable Long id, @Nullable Instant created) {
 		super(id, created);
 	}
 
@@ -81,7 +82,7 @@ public class SystemUser extends BasicLongEntity
 	 * @param password
 	 *        the password
 	 */
-	public SystemUser(Instant created, String username, String password) {
+	public SystemUser(@Nullable Instant created, @Nullable String username, @Nullable String password) {
 		super(null, created);
 		setUsername(username);
 		setPassword(password);
@@ -104,7 +105,7 @@ public class SystemUser extends BasicLongEntity
 	}
 
 	/**
-	 * Create a charge point identity based on this system user.
+	 * Create a charge point identity for any user.
 	 *
 	 * <p>
 	 * This implementation uses {@link ChargePointIdentity#ANY_USER} for the
@@ -133,7 +134,7 @@ public class SystemUser extends BasicLongEntity
 	 * @return {@literal true} if the properties of this instance are equal to
 	 *         the other
 	 */
-	public boolean isSameAs(SystemUser other) {
+	public boolean isSameAs(@Nullable SystemUser other) {
 		if ( other == null ) {
 			return false;
 		}
@@ -147,7 +148,7 @@ public class SystemUser extends BasicLongEntity
 	}
 
 	@Override
-	public boolean differsFrom(SystemUser other) {
+	public boolean differsFrom(@Nullable SystemUser other) {
 		return !isSameAs(other);
 	}
 
@@ -168,13 +169,8 @@ public class SystemUser extends BasicLongEntity
 		return builder.toString();
 	}
 
-	/**
-	 * Get the username.
-	 *
-	 * @return the username
-	 */
 	@Override
-	public String getUsername() {
+	public final @Nullable String getUsername() {
 		return username;
 	}
 
@@ -184,17 +180,12 @@ public class SystemUser extends BasicLongEntity
 	 * @param username
 	 *        the username to set
 	 */
-	public void setUsername(String username) {
+	public final void setUsername(@Nullable String username) {
 		this.username = username;
 	}
 
-	/**
-	 * Get the password.
-	 *
-	 * @return the password
-	 */
 	@Override
-	public String getPassword() {
+	public final @Nullable String getPassword() {
 		return password;
 	}
 
@@ -204,7 +195,7 @@ public class SystemUser extends BasicLongEntity
 	 * @param password
 	 *        the password to set
 	 */
-	public void setPassword(String password) {
+	public final void setPassword(@Nullable String password) {
 		this.password = password;
 	}
 
@@ -213,7 +204,7 @@ public class SystemUser extends BasicLongEntity
 	 *
 	 * @return the allowed charge points
 	 */
-	public Set<String> getAllowedChargePoints() {
+	public final @Nullable Set<String> getAllowedChargePoints() {
 		return allowedChargePoints;
 	}
 
@@ -224,7 +215,7 @@ public class SystemUser extends BasicLongEntity
 	 *        the allowed charge points to set
 	 */
 	@JsonDeserialize(as = LinkedHashSet.class)
-	public void setAllowedChargePoints(Set<String> allowedChargePoints) {
+	public final void setAllowedChargePoints(@Nullable Set<String> allowedChargePoints) {
 		this.allowedChargePoints = allowedChargePoints;
 	}
 
@@ -233,7 +224,7 @@ public class SystemUser extends BasicLongEntity
 	 *
 	 * @return the allowed charge points list value
 	 */
-	public String getAllowedChargePointsValue() {
+	public final @Nullable String getAllowedChargePointsValue() {
 		return StringUtils.commaDelimitedStringFromCollection(getAllowedChargePoints());
 	}
 
@@ -243,7 +234,7 @@ public class SystemUser extends BasicLongEntity
 	 * @param list
 	 *        the list to set
 	 */
-	public void setAllowedChargePointsValue(String list) {
+	public final void setAllowedChargePointsValue(@Nullable String list) {
 		setAllowedChargePoints(StringUtils.commaDelimitedStringToSet(list));
 	}
 
@@ -252,7 +243,7 @@ public class SystemUser extends BasicLongEntity
 	 *
 	 * @return the allowed charge points array, or {@code null}
 	 */
-	public String[] getAllowedChargePointsArray() {
+	public final String @Nullable [] getAllowedChargePointsArray() {
 		Set<String> allowed = getAllowedChargePoints();
 		return (allowed != null ? allowed.toArray(new String[allowed.size()]) : null);
 	}
@@ -263,7 +254,7 @@ public class SystemUser extends BasicLongEntity
 	 * @param array
 	 *        the array to set
 	 */
-	public void setAllowedChargePointsArray(String[] array) {
+	public final void setAllowedChargePointsArray(String @Nullable [] array) {
 		setAllowedChargePoints(array != null ? new LinkedHashSet<>(Arrays.asList(array)) : null);
 	}
 

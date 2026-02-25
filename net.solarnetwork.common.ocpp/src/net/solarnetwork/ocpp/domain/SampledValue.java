@@ -25,6 +25,7 @@ package net.solarnetwork.ocpp.domain;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 /**
@@ -36,14 +37,14 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = SampledValue.Builder.class)
 public class SampledValue implements Comparable<SampledValue> {
 
-	private final UUID sessionId;
-	private final Instant timestamp;
-	private final String value;
-	private final ReadingContext context;
-	private final Measurand measurand;
-	private final Phase phase;
-	private final Location location;
-	private final UnitOfMeasure unit;
+	private final @Nullable UUID sessionId;
+	private final @Nullable Instant timestamp;
+	private final @Nullable String value;
+	private final @Nullable ReadingContext context;
+	private final @Nullable Measurand measurand;
+	private final @Nullable Phase phase;
+	private final @Nullable Location location;
+	private final @Nullable UnitOfMeasure unit;
 
 	/**
 	 * Constructor.
@@ -65,8 +66,9 @@ public class SampledValue implements Comparable<SampledValue> {
 	 * @param unit
 	 *        the unit
 	 */
-	public SampledValue(UUID sessionId, Instant timestamp, String value, ReadingContext context,
-			Measurand measurand, Phase phase, Location location, UnitOfMeasure unit) {
+	public SampledValue(@Nullable UUID sessionId, @Nullable Instant timestamp, @Nullable String value,
+			@Nullable ReadingContext context, @Nullable Measurand measurand, @Nullable Phase phase,
+			@Nullable Location location, @Nullable UnitOfMeasure unit) {
 		super();
 		this.sessionId = sessionId;
 		this.timestamp = timestamp;
@@ -89,14 +91,13 @@ public class SampledValue implements Comparable<SampledValue> {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
-		if ( !(obj instanceof SampledValue) ) {
+		if ( !(obj instanceof SampledValue other) ) {
 			return false;
 		}
-		SampledValue other = (SampledValue) obj;
 		return context == other.context && location == other.location && measurand == other.measurand
 				&& phase == other.phase && Objects.equals(sessionId, other.sessionId)
 				&& Objects.equals(timestamp, other.timestamp);
@@ -104,9 +105,17 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	@Override
 	public int compareTo(SampledValue o) {
-		int result = timestamp.compareTo(o.timestamp);
-		if ( result != 0 ) {
-			return result;
+		int result = 0;
+		if ( timestamp != o.timestamp ) {
+			if ( timestamp == null ) {
+				return -1;
+			} else if ( o.timestamp == null ) {
+				return 1;
+			}
+			result = timestamp.compareTo(o.timestamp);
+			if ( result != 0 ) {
+				return result;
+			}
 		}
 		if ( context != o.context ) {
 			if ( context == null ) {
@@ -153,34 +162,34 @@ public class SampledValue implements Comparable<SampledValue> {
 
 	@Override
 	public String toString() {
-		StringBuilder builder2 = new StringBuilder();
-		builder2.append("SampledValue{");
+		StringBuilder builder = new StringBuilder();
+		builder.append("SampledValue{");
 		if ( timestamp != null ) {
-			builder2.append("timestamp=");
-			builder2.append(timestamp);
-			builder2.append(", ");
+			builder.append("timestamp=");
+			builder.append(timestamp);
+			builder.append(", ");
 		}
 		if ( context != null ) {
-			builder2.append("context=");
-			builder2.append(context);
-			builder2.append(", ");
+			builder.append("context=");
+			builder.append(context);
+			builder.append(", ");
 		}
 		if ( location != null ) {
-			builder2.append("location=");
-			builder2.append(location);
-			builder2.append(", ");
+			builder.append("location=");
+			builder.append(location);
+			builder.append(", ");
 		}
 		if ( measurand != null ) {
-			builder2.append("measurand=");
-			builder2.append(measurand);
-			builder2.append(", ");
+			builder.append("measurand=");
+			builder.append(measurand);
+			builder.append(", ");
 		}
 		if ( value != null ) {
-			builder2.append("value=");
-			builder2.append(value);
+			builder.append("value=");
+			builder.append(value);
 		}
-		builder2.append("}");
-		return builder2.toString();
+		builder.append("}");
+		return builder.toString();
 	}
 
 	/**
@@ -188,7 +197,7 @@ public class SampledValue implements Comparable<SampledValue> {
 	 *
 	 * @return the session ID
 	 */
-	public UUID getSessionId() {
+	public final @Nullable UUID getSessionId() {
 		return sessionId;
 	}
 
@@ -197,7 +206,7 @@ public class SampledValue implements Comparable<SampledValue> {
 	 *
 	 * @return the timestamp
 	 */
-	public Instant getTimestamp() {
+	public final @Nullable Instant getTimestamp() {
 		return timestamp;
 	}
 
@@ -206,7 +215,7 @@ public class SampledValue implements Comparable<SampledValue> {
 	 *
 	 * @return the value the value
 	 */
-	public String getValue() {
+	public final @Nullable String getValue() {
 		return value;
 	}
 
@@ -215,7 +224,7 @@ public class SampledValue implements Comparable<SampledValue> {
 	 *
 	 * @return the context
 	 */
-	public ReadingContext getContext() {
+	public final @Nullable ReadingContext getContext() {
 		return context;
 	}
 
@@ -224,7 +233,7 @@ public class SampledValue implements Comparable<SampledValue> {
 	 *
 	 * @return the measurand
 	 */
-	public Measurand getMeasurand() {
+	public final @Nullable Measurand getMeasurand() {
 		return measurand;
 	}
 
@@ -233,7 +242,7 @@ public class SampledValue implements Comparable<SampledValue> {
 	 *
 	 * @return the phase
 	 */
-	public Phase getPhase() {
+	public final @Nullable Phase getPhase() {
 		return phase;
 	}
 
@@ -242,7 +251,7 @@ public class SampledValue implements Comparable<SampledValue> {
 	 *
 	 * @return the location
 	 */
-	public Location getLocation() {
+	public final @Nullable Location getLocation() {
 		return location;
 	}
 
@@ -251,7 +260,7 @@ public class SampledValue implements Comparable<SampledValue> {
 	 *
 	 * @return the unit
 	 */
-	public UnitOfMeasure getUnit() {
+	public final @Nullable UnitOfMeasure getUnit() {
 		return unit;
 	}
 
@@ -278,14 +287,14 @@ public class SampledValue implements Comparable<SampledValue> {
 	 */
 	public static final class Builder {
 
-		private UUID sessionId;
-		private Instant timestamp;
-		private String value;
-		private ReadingContext context;
-		private Measurand measurand;
-		private Phase phase;
-		private Location location;
-		private UnitOfMeasure unit;
+		private @Nullable UUID sessionId;
+		private @Nullable Instant timestamp;
+		private @Nullable String value;
+		private @Nullable ReadingContext context;
+		private @Nullable Measurand measurand;
+		private @Nullable Phase phase;
+		private @Nullable Location location;
+		private @Nullable UnitOfMeasure unit;
 
 		private Builder() {
 			super();
@@ -310,7 +319,7 @@ public class SampledValue implements Comparable<SampledValue> {
 		 *        the session ID
 		 * @return this instance
 		 */
-		public Builder withSessionId(UUID sessionId) {
+		public Builder withSessionId(@Nullable UUID sessionId) {
 			this.sessionId = sessionId;
 			return this;
 		}
@@ -322,7 +331,7 @@ public class SampledValue implements Comparable<SampledValue> {
 		 *        the timestamp
 		 * @return this instance
 		 */
-		public Builder withTimestamp(Instant timestamp) {
+		public Builder withTimestamp(@Nullable Instant timestamp) {
 			this.timestamp = timestamp;
 			return this;
 		}
@@ -334,7 +343,7 @@ public class SampledValue implements Comparable<SampledValue> {
 		 *        the value
 		 * @return this instance
 		 */
-		public Builder withValue(String value) {
+		public Builder withValue(@Nullable String value) {
 			this.value = value;
 			return this;
 		}
@@ -346,7 +355,7 @@ public class SampledValue implements Comparable<SampledValue> {
 		 *        the context
 		 * @return this instance
 		 */
-		public Builder withContext(ReadingContext context) {
+		public Builder withContext(@Nullable ReadingContext context) {
 			this.context = context;
 			return this;
 		}
@@ -358,7 +367,7 @@ public class SampledValue implements Comparable<SampledValue> {
 		 *        the measurand
 		 * @return this instance
 		 */
-		public Builder withMeasurand(Measurand measurand) {
+		public Builder withMeasurand(@Nullable Measurand measurand) {
 			this.measurand = measurand;
 			return this;
 		}
@@ -370,7 +379,7 @@ public class SampledValue implements Comparable<SampledValue> {
 		 *        the phase
 		 * @return this instance
 		 */
-		public Builder withPhase(Phase phase) {
+		public Builder withPhase(@Nullable Phase phase) {
 			this.phase = phase;
 			return this;
 		}
@@ -382,7 +391,7 @@ public class SampledValue implements Comparable<SampledValue> {
 		 *        the location
 		 * @return this instance
 		 */
-		public Builder withLocation(Location location) {
+		public Builder withLocation(@Nullable Location location) {
 			this.location = location;
 			return this;
 		}
@@ -394,7 +403,7 @@ public class SampledValue implements Comparable<SampledValue> {
 		 *        the unit
 		 * @return this instance
 		 */
-		public Builder withUnit(UnitOfMeasure unit) {
+		public Builder withUnit(@Nullable UnitOfMeasure unit) {
 			this.unit = unit;
 			return this;
 		}

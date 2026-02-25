@@ -22,7 +22,9 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.Instant;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 /**
@@ -36,8 +38,8 @@ public class AuthorizationInfo {
 
 	private final String id;
 	private final AuthorizationStatus status;
-	private final Instant expiryDate;
-	private final String parentId;
+	private final @Nullable Instant expiryDate;
+	private final @Nullable String parentId;
 
 	/**
 	 * Constructor.
@@ -63,8 +65,8 @@ public class AuthorizationInfo {
 	 * @param parentId
 	 *        a parent ID
 	 */
-	public AuthorizationInfo(String id, AuthorizationStatus status, Instant expiryDate,
-			String parentId) {
+	public AuthorizationInfo(String id, AuthorizationStatus status, @Nullable Instant expiryDate,
+			@Nullable String parentId) {
 		super();
 		this.id = id;
 		this.status = status;
@@ -73,7 +75,8 @@ public class AuthorizationInfo {
 	}
 
 	private AuthorizationInfo(Builder builder) {
-		this(builder.id, builder.status, builder.expiryDate, builder.parentId);
+		this(requireNonNullArgument(builder.id, "id"), requireNonNullArgument(builder.status, "status"),
+				builder.expiryDate, builder.parentId);
 	}
 
 	@Override
@@ -108,7 +111,7 @@ public class AuthorizationInfo {
 	 *
 	 * @return the ID
 	 */
-	public String getId() {
+	public final String getId() {
 		return id;
 	}
 
@@ -117,7 +120,7 @@ public class AuthorizationInfo {
 	 *
 	 * @return the status.
 	 */
-	public AuthorizationStatus getStatus() {
+	public final AuthorizationStatus getStatus() {
 		return status;
 	}
 
@@ -126,7 +129,7 @@ public class AuthorizationInfo {
 	 *
 	 * @return the expiration date
 	 */
-	public Instant getExpiryDate() {
+	public final @Nullable Instant getExpiryDate() {
 		return expiryDate;
 	}
 
@@ -135,7 +138,7 @@ public class AuthorizationInfo {
 	 *
 	 * @return the parent ID
 	 */
-	public String getParentId() {
+	public final @Nullable String getParentId() {
 		return parentId;
 	}
 
@@ -162,10 +165,10 @@ public class AuthorizationInfo {
 	 */
 	public static final class Builder {
 
-		private String id;
-		private AuthorizationStatus status;
-		private Instant expiryDate;
-		private String parentId;
+		private @Nullable String id;
+		private @Nullable AuthorizationStatus status;
+		private @Nullable Instant expiryDate;
+		private @Nullable String parentId;
 
 		private Builder() {
 			super();
@@ -210,7 +213,7 @@ public class AuthorizationInfo {
 		 *        the expiration date
 		 * @return this instance
 		 */
-		public Builder withExpiryDate(Instant expiryDate) {
+		public Builder withExpiryDate(@Nullable Instant expiryDate) {
 			this.expiryDate = expiryDate;
 			return this;
 		}
@@ -222,7 +225,7 @@ public class AuthorizationInfo {
 		 *        the parent ID
 		 * @return this instance
 		 */
-		public Builder withParentId(String parentId) {
+		public Builder withParentId(@Nullable String parentId) {
 			this.parentId = parentId;
 			return this;
 		}
