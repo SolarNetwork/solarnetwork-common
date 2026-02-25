@@ -33,7 +33,7 @@ public interface Message {
 	/**
 	 * Get the message type.
 	 * 
-	 * @return the message type, never {@literal null}
+	 * @return the message type, never {@code null}
 	 */
 	MessageType getMessageType();
 

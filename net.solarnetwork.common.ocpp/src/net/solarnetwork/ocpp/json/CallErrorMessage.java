@@ -46,14 +46,14 @@ public interface CallErrorMessage extends Message {
 	/**
 	 * Get the unique ID of the {@link CallMessage} this is a response to.
 	 * 
-	 * @return the unique ID, never {@literal null}
+	 * @return the unique ID, never {@code null}
 	 */
 	String getMessageId();
 
 	/**
 	 * Get the error code.
 	 * 
-	 * @return the error code, never {@literal null}
+	 * @return the error code, never {@code null}
 	 */
 	ErrorCode getErrorCode();
 

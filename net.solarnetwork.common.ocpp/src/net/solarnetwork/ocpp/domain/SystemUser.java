@@ -113,7 +113,7 @@ public class SystemUser extends BasicLongEntity
 	 *
 	 * @param identifier
 	 *        the charge point identifier
-	 * @return the new identity, never {@literal null}
+	 * @return the new identity, never {@code null}
 	 */
 	public ChargePointIdentity chargePointIdentity(String identifier) {
 		return new ChargePointIdentity(identifier, ChargePointIdentity.ANY_USER);
@@ -250,7 +250,7 @@ public class SystemUser extends BasicLongEntity
 	/**
 	 * Get the allowed charge points as an array.
 	 *
-	 * @return the allowed charge points array, or {@literal null}
+	 * @return the allowed charge points array, or {@code null}
 	 */
 	public String[] getAllowedChargePointsArray() {
 		Set<String> allowed = getAllowedChargePoints();

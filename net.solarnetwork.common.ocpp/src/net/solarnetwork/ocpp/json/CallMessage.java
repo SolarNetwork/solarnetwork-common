@@ -59,21 +59,21 @@ public interface CallMessage extends Message {
 	 * be used in a future corresponding {@link CallResultMessage}.
 	 * </p>
 	 * 
-	 * @return the unique ID, never {@literal null}
+	 * @return the unique ID, never {@code null}
 	 */
 	String getMessageId();
 
 	/**
 	 * Get the message action (verb).
 	 * 
-	 * @return the message action, never {@literal null}
+	 * @return the message action, never {@code null}
 	 */
 	Action getAction();
 
 	/**
 	 * Get the message content.
 	 * 
-	 * @return the message content, or {@literal null} if there isn't any
+	 * @return the message content, or {@code null} if there isn't any
 	 */
 	Object getPayload();
 

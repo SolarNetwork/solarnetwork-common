@@ -153,7 +153,7 @@ public enum ChargeSessionEndReason implements CodedValue {
 	 * 
 	 * @param code
 	 *        the code
-	 * @return the status, never {@literal null} and set to {@link #Unknown} if
+	 * @return the status, never {@code null} and set to {@link #Unknown} if
 	 *         not any other valid code
 	 */
 	public static ChargeSessionEndReason forCode(int code) {

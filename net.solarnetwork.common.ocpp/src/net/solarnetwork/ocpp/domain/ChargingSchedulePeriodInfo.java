@@ -59,7 +59,7 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 	 * @param rateLimit
 	 *        the rate limit
 	 * @throws IllegalArgumentException
-	 *         if {@code startOffset} or {@code rateLimit} are {@literal null}
+	 *         if {@code startOffset} or {@code rateLimit} are {@code null}
 	 */
 	public ChargingSchedulePeriodInfo(Duration startOffset, BigDecimal rateLimit) {
 		super();
@@ -77,7 +77,7 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 	 * @param numPhases
 	 *        the optional number of phases
 	 * @throws IllegalArgumentException
-	 *         if {@code startOffset} or {@code rateLimit} are {@literal null}
+	 *         if {@code startOffset} or {@code rateLimit} are {@code null}
 	 */
 	public ChargingSchedulePeriodInfo(Duration startOffset, BigDecimal rateLimit, Integer numPhases) {
 		this(startOffset, rateLimit);
@@ -162,7 +162,7 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 	/**
 	 * Get the start offset.
 	 * 
-	 * @return the offset from the start of the schedule; never {@literal null}
+	 * @return the offset from the start of the schedule; never {@code null}
 	 */
 	public Duration getStartOffset() {
 		return startOffset;
@@ -174,7 +174,7 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 	 * @param startOffset
 	 *        the offset from the start of the schedule to set
 	 * @throws IllegalArgumentException
-	 *         if {@code startOffset} is {@literal null}
+	 *         if {@code startOffset} is {@code null}
 	 */
 	public void setStartOffset(Duration startOffset) {
 		this.startOffset = startOffset;
@@ -202,7 +202,7 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 	/**
 	 * Get the rate limit.
 	 * 
-	 * @return the limit; never {@literal null}
+	 * @return the limit; never {@code null}
 	 */
 	public BigDecimal getRateLimit() {
 		return rateLimit;
@@ -214,7 +214,7 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 	 * @param rateLimit
 	 *        the limit to set
 	 * @throws IllegalArgumentException
-	 *         if {@code rateLimit} is {@literal null}
+	 *         if {@code rateLimit} is {@code null}
 	 */
 	public void setRateLimit(BigDecimal rateLimit) {
 		if ( rateLimit == null ) {
@@ -229,7 +229,7 @@ public class ChargingSchedulePeriodInfo implements Differentiable<ChargingSchedu
 	/**
 	 * Get the number of phases.
 	 * 
-	 * @return the phase count, or {@literal null} if not applicable (e.g. DC
+	 * @return the phase count, or {@code null} if not applicable (e.g. DC
 	 *         charging)
 	 */
 	public Integer getNumPhases() {

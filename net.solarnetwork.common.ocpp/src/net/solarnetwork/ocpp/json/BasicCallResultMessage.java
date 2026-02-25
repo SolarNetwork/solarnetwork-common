@@ -37,9 +37,9 @@ public class BasicCallResultMessage extends BaseMessage implements CallResultMes
 	 * Constructor.
 	 * 
 	 * @param messageId
-	 *        a unique ID for this message; must not be {@literal null}
+	 *        a unique ID for this message; must not be {@code null}
 	 * @throws IllegalArgumentException
-	 *         if {@code messageId} is {@literal null}
+	 *         if {@code messageId} is {@code null}
 	 */
 	public BasicCallResultMessage(String messageId) {
 		this(messageId, null);
@@ -49,11 +49,11 @@ public class BasicCallResultMessage extends BaseMessage implements CallResultMes
 	 * Constructor.
 	 * 
 	 * @param messageId
-	 *        a unique ID for this message; must not be {@literal null}
+	 *        a unique ID for this message; must not be {@code null}
 	 * @param payload
 	 *        the optional message content
 	 * @throws IllegalArgumentException
-	 *         if {@code messageId} is {@literal null}
+	 *         if {@code messageId} is {@code null}
 	 */
 	public BasicCallResultMessage(String messageId, Object payload) {
 		super();

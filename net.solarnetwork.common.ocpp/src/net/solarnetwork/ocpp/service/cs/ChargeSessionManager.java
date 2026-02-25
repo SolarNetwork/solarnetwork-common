@@ -90,8 +90,8 @@ public interface ChargeSessionManager extends Identifiable {
 	 * 
 	 * @param chargePointId
 	 *        the charge point identifier to get sessions for, or
-	 *        {@literal null} for all sessions for all charge points
-	 * @return the active sessions, never {@literal null}
+	 *        {@code null} for all sessions for all charge points
+	 * @return the active sessions, never {@code null}
 	 */
 	Collection<ChargeSession> getActiveChargingSessions(ChargePointIdentity chargePointId);
 
@@ -100,7 +100,7 @@ public interface ChargeSessionManager extends Identifiable {
 	 * 
 	 * @param sessionId
 	 *        the charge session ID
-	 * @return the readings, never {@literal null}
+	 * @return the readings, never {@code null}
 	 */
 	Collection<SampledValue> getChargingSessionReadings(UUID sessionId);
 
@@ -109,12 +109,12 @@ public interface ChargeSessionManager extends Identifiable {
 	 * 
 	 * @param chargePointId
 	 *        the charge point identifier to get sessions for, or
-	 *        {@literal null} for all sessions for all charge points
+	 *        {@code null} for all sessions for all charge points
 	 * @param evseId
-	 *        the EVSE ID, or {@literal null} to use the active charge session's
+	 *        the EVSE ID, or {@code null} to use the active charge session's
 	 *        information
 	 * @param connectorId
-	 *        the connector ID, or {@literal null} to use the active charge
+	 *        the connector ID, or {@code null} to use the active charge
 	 *        session's information
 	 * @param readings
 	 *        the readings to add
@@ -128,7 +128,7 @@ public interface ChargeSessionManager extends Identifiable {
 	 * 
 	 * @param info
 	 *        the end charging session info
-	 * @return info if needed, otherwise {@literal null}
+	 * @return info if needed, otherwise {@code null}
 	 */
 	AuthorizationInfo endChargingSession(ChargeSessionEndInfo info);
 

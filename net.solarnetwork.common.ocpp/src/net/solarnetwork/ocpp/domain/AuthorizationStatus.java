@@ -110,7 +110,7 @@ public enum AuthorizationStatus implements CodedValue {
 	 *
 	 * @param code
 	 *        the code
-	 * @return the status, never {@literal null} and set to {@link #None} if not
+	 * @return the status, never {@code null} and set to {@link #None} if not
 	 *         any other valid code
 	 */
 	public static AuthorizationStatus forCode(int code) {

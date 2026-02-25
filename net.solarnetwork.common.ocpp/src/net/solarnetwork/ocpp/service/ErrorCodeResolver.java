@@ -39,7 +39,7 @@ public interface ErrorCodeResolver {
 	 * 
 	 * @param rpcError
 	 *        the RPC error
-	 * @return the error code, never {@literal null}
+	 * @return the error code, never {@code null}
 	 */
 	ErrorCode errorCodeForRpcError(RpcError rpcError);
 
@@ -48,7 +48,7 @@ public interface ErrorCodeResolver {
 	 * 
 	 * @param name
 	 *        the name to resolve
-	 * @return the error, never {@literal null}
+	 * @return the error, never {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code name} is not a valid error value
 	 */

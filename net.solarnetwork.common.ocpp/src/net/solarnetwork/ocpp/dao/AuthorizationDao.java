@@ -38,7 +38,7 @@ public interface AuthorizationDao extends GenericDao<Authorization, Long> {
 	 * 
 	 * @param token
 	 *        the token to look for
-	 * @return the matching authorization, or {@literal null} if not found
+	 * @return the matching authorization, or {@code null} if not found
 	 */
 	Authorization getForToken(String token);
 

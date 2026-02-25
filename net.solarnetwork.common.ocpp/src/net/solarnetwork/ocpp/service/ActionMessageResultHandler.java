@@ -48,10 +48,10 @@ public interface ActionMessageResultHandler<T, R> {
 	 * @param message
 	 *        the source message the result is for
 	 * @param result
-	 *        the successful result, or {@literal null} if no result is
+	 *        the successful result, or {@code null} if no result is
 	 *        available
 	 * @param error
-	 *        the error result, or {@literal null} if no error occurred; can
+	 *        the error result, or {@code null} if no error occurred; can
 	 *        implement {@link net.solarnetwork.ocpp.domain.ErrorHolder} to pass specific details
 	 * @return {@literal true} if the result was handled, {@literal false}
 	 *         otherwise

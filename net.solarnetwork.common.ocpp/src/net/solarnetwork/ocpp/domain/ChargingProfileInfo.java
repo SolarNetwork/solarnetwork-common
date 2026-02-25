@@ -55,7 +55,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	 *        the schedule
 	 * @throws IllegalArgumentException
 	 *         if {@code purpose}, {@code kind}, or {@code schedule} are
-	 *         {@literal null}
+	 *         {@code null}
 	 */
 	public ChargingProfileInfo(ChargingProfilePurpose purpose, ChargingProfileKind kind,
 			ChargingScheduleInfo schedule) {
@@ -82,7 +82,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	 *        the schedule
 	 * @throws IllegalArgumentException
 	 *         if {@code purpose}, {@code kind}, or {@code schedule} are
-	 *         {@literal null}
+	 *         {@code null}
 	 */
 	public ChargingProfileInfo(ChargingProfilePurpose purpose, ChargingProfileKind kind,
 			ChargingScheduleRecurrency recurrency, Instant validFrom, Instant validTo,
@@ -172,7 +172,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	/**
 	 * Get the purpose.
 	 * 
-	 * @return the purpose; never {@literal null}
+	 * @return the purpose; never {@code null}
 	 */
 	public ChargingProfilePurpose getPurpose() {
 		return purpose;
@@ -184,7 +184,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	 * @param purpose
 	 *        the purpose to set
 	 * @throws IllegalArgumentException
-	 *         if {@code purpose} is {@literal null}
+	 *         if {@code purpose} is {@code null}
 	 */
 	public void setPurpose(ChargingProfilePurpose purpose) {
 		if ( purpose == null ) {
@@ -215,7 +215,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	/**
 	 * Get the profile kind.
 	 * 
-	 * @return the kind; never {@literal null}
+	 * @return the kind; never {@code null}
 	 */
 	public ChargingProfileKind getKind() {
 		return kind;
@@ -227,7 +227,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	 * @param kind
 	 *        the kind to set
 	 * @throws IllegalArgumentException
-	 *         if {@code kind} is {@literal null}
+	 *         if {@code kind} is {@code null}
 	 */
 	public void setKind(ChargingProfileKind kind) {
 		if ( kind == null ) {
@@ -404,7 +404,7 @@ public class ChargingProfileInfo implements Differentiable<ChargingProfileInfo> 
 	 * @param schedule
 	 *        the schedule to set
 	 * @throws IllegalArgumentException
-	 *         if {@code schedule} is {@literal null}
+	 *         if {@code schedule} is {@code null}
 	 */
 	public void setSchedule(ChargingScheduleInfo schedule) {
 		if ( schedule == null ) {

@@ -48,7 +48,7 @@ public class PendingActionMessage {
 	 * @param handler
 	 *        the handler
 	 * @throws IllegalArgumentException
-	 *         if {@code message} or {@code handler} are {@literal null}
+	 *         if {@code message} or {@code handler} are {@code null}
 	 */
 	public PendingActionMessage(ActionMessage<Object> message,
 			ActionMessageResultHandler<Object, Object> handler) {
@@ -72,7 +72,7 @@ public class PendingActionMessage {
 	 * @param message
 	 *        the message
 	 * @throws IllegalArgumentException
-	 *         if {@code message} is {@literal null}
+	 *         if {@code message} is {@code null}
 	 */
 	public PendingActionMessage(ActionMessage<Object> message) {
 		super();
@@ -107,7 +107,7 @@ public class PendingActionMessage {
 	/**
 	 * Get the message.
 	 * 
-	 * @return the message; never {@literal null}
+	 * @return the message; never {@code null}
 	 */
 	public ActionMessage<Object> getMessage() {
 		return message;
@@ -116,7 +116,7 @@ public class PendingActionMessage {
 	/**
 	 * Get the result handler.
 	 * 
-	 * @return the handler; never {@literal null}
+	 * @return the handler; never {@code null}
 	 */
 	public ActionMessageResultHandler<Object, Object> getHandler() {
 		return handler;

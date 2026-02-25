@@ -54,14 +54,14 @@ public interface ActionMessage<T> {
 	/**
 	 * Get the action (verb) to perform.
 	 * 
-	 * @return the action; never {@literal null}
+	 * @return the action; never {@code null}
 	 */
 	Action getAction();
 
 	/**
 	 * Get the message (content).
 	 * 
-	 * @return the message, or {@literal null}
+	 * @return the message, or {@code null}
 	 */
 	T getMessage();
 

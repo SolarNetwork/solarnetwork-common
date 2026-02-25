@@ -39,7 +39,7 @@ public interface ChargePointDao extends GenericDao<ChargePoint, Long> {
 	 * 
 	 * @param identity
 	 *        the charge point identity to look for
-	 * @return the matching charge point, or {@literal null} if not found
+	 * @return the matching charge point, or {@code null} if not found
 	 */
 	ChargePoint getForIdentity(ChargePointIdentity identity);
 

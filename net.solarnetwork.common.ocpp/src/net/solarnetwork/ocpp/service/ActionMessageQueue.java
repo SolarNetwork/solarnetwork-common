@@ -51,7 +51,7 @@ public interface ActionMessageQueue {
 	 * 
 	 * @param clientId
 	 *        the client ID
-	 * @return the queue, never {@literal null}
+	 * @return the queue, never {@code null}
 	 */
 	Deque<PendingActionMessage> pendingMessageQueue(ChargePointIdentity clientId);
 
@@ -91,7 +91,7 @@ public interface ActionMessageQueue {
 	 * 
 	 * @param clientId
 	 *        the ID of the client
-	 * @return the found message, or {@literal null} if no messages available
+	 * @return the found message, or {@code null} if no messages available
 	 */
 	PendingActionMessage pollPendingMessage(final ChargePointIdentity clientId);
 
@@ -109,14 +109,14 @@ public interface ActionMessageQueue {
 	 *        the ID of the client
 	 * @param messageId
 	 *        the ID to find
-	 * @return the found message, or {@literal null} if not found
+	 * @return the found message, or {@code null} if not found
 	 */
 	PendingActionMessage pollPendingMessage(final ChargePointIdentity clientId, final String messageId);
 
 	/**
 	 * Get an iterable for all available queues.
 	 * 
-	 * @return the iterable, never {@literal null}
+	 * @return the iterable, never {@code null}
 	 */
 	Iterable<Entry<ChargePointIdentity, Deque<PendingActionMessage>>> allQueues();
 }

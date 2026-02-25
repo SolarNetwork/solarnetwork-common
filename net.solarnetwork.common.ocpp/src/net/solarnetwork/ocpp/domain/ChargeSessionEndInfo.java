@@ -148,7 +148,7 @@ public class ChargeSessionEndInfo {
 	/**
 	 * Optional transaction data.
 	 * 
-	 * @return the transaction data, or {@literal null}
+	 * @return the transaction data, or {@code null}
 	 */
 	public Iterable<SampledValue> getTransactionData() {
 		return transactionData;

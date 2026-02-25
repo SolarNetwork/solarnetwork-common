@@ -91,7 +91,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @param info
 	 *        the info
 	 * @throws IllegalArgumentException
-	 *         if {@code info} is {@literal null}
+	 *         if {@code info} is {@code null}
 	 */
 	public ChargePoint(Long id, Instant created, ChargePointInfo info) {
 		super(id, created);
@@ -140,7 +140,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * resolved username.
 	 * </p>
 	 *
-	 * @return the new identity, never {@literal null}
+	 * @return the new identity, never {@code null}
 	 */
 	public ChargePointIdentity chargePointIdentity() {
 		return new ChargePointIdentity(getInfo().getId(), ChargePointIdentity.ANY_USER);
@@ -214,7 +214,7 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	/**
 	 * Get the Charge Point information.
 	 *
-	 * @return the info; never {@literal null}
+	 * @return the info; never {@code null}
 	 */
 	@JsonProperty
 	@JsonMerge

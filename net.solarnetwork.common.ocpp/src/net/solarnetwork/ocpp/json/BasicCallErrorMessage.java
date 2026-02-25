@@ -42,11 +42,11 @@ public class BasicCallErrorMessage extends BaseMessage implements CallErrorMessa
 	 * Constructor.
 	 * 
 	 * @param messageId
-	 *        a unique ID for this message; must not be {@literal null}
+	 *        a unique ID for this message; must not be {@code null}
 	 * @param errorCode
-	 *        the error code; must not be {@literal null}
+	 *        the error code; must not be {@code null}
 	 * @throws IllegalArgumentException
-	 *         if {@code messageId} or {@code errorCode} are {@literal null}
+	 *         if {@code messageId} or {@code errorCode} are {@code null}
 	 */
 	public BasicCallErrorMessage(String messageId, ErrorCode errorCode) {
 		this(messageId, errorCode, null, null);
@@ -56,15 +56,15 @@ public class BasicCallErrorMessage extends BaseMessage implements CallErrorMessa
 	 * Constructor.
 	 * 
 	 * @param messageId
-	 *        a unique ID for this message; must not be {@literal null}
+	 *        a unique ID for this message; must not be {@code null}
 	 * @param errorCode
-	 *        the error code; must not be {@literal null}
+	 *        the error code; must not be {@code null}
 	 * @param errorDescription
 	 *        an optional description of the error
 	 * @param errorDetails
 	 *        optional implementation-specific error detail properties
 	 * @throws IllegalArgumentException
-	 *         if {@code messageId} or {@code errorCode} are {@literal null}
+	 *         if {@code messageId} or {@code errorCode} are {@code null}
 	 */
 	public BasicCallErrorMessage(String messageId, ErrorCode errorCode, String errorDescription,
 			Map<String, ?> errorDetails) {

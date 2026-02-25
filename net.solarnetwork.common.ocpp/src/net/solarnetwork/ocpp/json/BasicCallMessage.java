@@ -42,13 +42,13 @@ public class BasicCallMessage extends BaseMessage implements CallMessage {
 	 * 
 	 * @param clientId
 	 *        the ID of the client that initiated this message; must not be
-	 *        {@literal null}
+	 *        {@code null}
 	 * @param messageId
-	 *        a unique ID for this message; must not be {@literal null}
+	 *        a unique ID for this message; must not be {@code null}
 	 * @param action
-	 *        the message action; must not be {@literal null}
+	 *        the message action; must not be {@code null}
 	 * @throws IllegalArgumentException
-	 *         if {@code messageId} or {@code action} are {@literal null}
+	 *         if {@code messageId} or {@code action} are {@code null}
 	 */
 	public BasicCallMessage(String clientId, String messageId, Action action) {
 		this(clientId, messageId, action, null);
@@ -59,15 +59,15 @@ public class BasicCallMessage extends BaseMessage implements CallMessage {
 	 * 
 	 * @param clientId
 	 *        the ID of the client that initiated this message; must not be
-	 *        {@literal null}
+	 *        {@code null}
 	 * @param messageId
-	 *        a unique ID for this message; must not be {@literal null}
+	 *        a unique ID for this message; must not be {@code null}
 	 * @param action
-	 *        the message action; must not be {@literal null}
+	 *        the message action; must not be {@code null}
 	 * @param payload
 	 *        the optional message content
 	 * @throws IllegalArgumentException
-	 *         if {@code messageId} or {@code action} are {@literal null}
+	 *         if {@code messageId} or {@code action} are {@code null}
 	 */
 	public BasicCallMessage(String clientId, String messageId, Action action, Object payload) {
 		super();

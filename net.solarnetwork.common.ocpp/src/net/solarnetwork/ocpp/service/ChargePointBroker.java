@@ -40,7 +40,7 @@ public interface ChargePointBroker {
 	 * otherwise know to this broker.
 	 * 
 	 * @return the set of available charge point identifiers, never
-	 *         {@literal null}
+	 *         {@code null}
 	 */
 	Set<ChargePointIdentity> availableChargePointsIds();
 
@@ -78,7 +78,7 @@ public interface ChargePointBroker {
 	 * @param <R>
 	 *        the result type
 	 * @param message
-	 *        the message to process, never {@literal null}
+	 *        the message to process, never {@code null}
 	 * @param resultHandler
 	 *        the handler to provider the results to
 	 * @return {@literal true} if the message client ID is known to the broker

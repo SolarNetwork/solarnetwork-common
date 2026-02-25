@@ -51,7 +51,7 @@ public interface ChargePointManager extends Identifiable {
 	 *        the client ID making the request
 	 * @param info
 	 *        the details to register
-	 * @return the resulting charge point, never {@literal null}
+	 * @return the resulting charge point, never {@code null}
 	 */
 	ChargePoint registerChargePoint(ChargePointIdentity identity, ChargePointInfo info);
 

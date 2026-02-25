@@ -41,7 +41,7 @@ public interface ActionMessageProcessor<T, R> {
 	/**
 	 * Get the set of supported actions.
 	 * 
-	 * @return the set of supported actions; never {@literal null}
+	 * @return the set of supported actions; never {@code null}
 	 */
 	Set<Action> getSupportedActions();
 
@@ -61,7 +61,7 @@ public interface ActionMessageProcessor<T, R> {
 	 * {@link ActionMessageResultHandler}.
 	 * 
 	 * @param message
-	 *        the message to process, never {@literal null}
+	 *        the message to process, never {@code null}
 	 * @param resultHandler
 	 *        the handler to provider the results to
 	 */

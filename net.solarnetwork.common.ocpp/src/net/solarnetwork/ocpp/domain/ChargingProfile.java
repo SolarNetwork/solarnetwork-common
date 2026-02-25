@@ -91,7 +91,7 @@ public class ChargingProfile extends BasicUuidEntity implements Differentiable<C
 	 *        the created date
 	 * @param info
 	 *        the info * @throws IllegalArgumentException if {@code info} is
-	 *        {@literal null} Ill
+	 *        {@code null} Ill
 	 */
 	public ChargingProfile(UUID id, Instant created, ChargingProfileInfo info) {
 		super(id, created);
@@ -155,7 +155,7 @@ public class ChargingProfile extends BasicUuidEntity implements Differentiable<C
 	/**
 	 * Get the charging profile info.
 	 * 
-	 * @return the info, never {@literal null}
+	 * @return the info, never {@code null}
 	 */
 	public ChargingProfileInfo getInfo() {
 		return info;
@@ -167,7 +167,7 @@ public class ChargingProfile extends BasicUuidEntity implements Differentiable<C
 	 * @param info
 	 *        the info to set
 	 * @throws IllegalArgumentException
-	 *         if {@code info} is {@literal null}
+	 *         if {@code info} is {@code null}
 	 */
 	public void setInfo(ChargingProfileInfo info) {
 		if ( info == null ) {

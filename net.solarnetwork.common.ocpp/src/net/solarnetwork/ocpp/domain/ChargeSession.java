@@ -225,7 +225,7 @@ public class ChargeSession extends BasicUuidEntity {
 	/**
 	 * Get the session end date.
 	 * 
-	 * @return the ended the end date, or {@literal null} if not ended
+	 * @return the ended the end date, or {@code null} if not ended
 	 */
 	public Instant getEnded() {
 		return ended;
@@ -263,7 +263,7 @@ public class ChargeSession extends BasicUuidEntity {
 	/**
 	 * The authorization ID used to end the transaction.
 	 * 
-	 * @return the ending authorization ID, or {@literal null}
+	 * @return the ending authorization ID, or {@code null}
 	 */
 	public String getEndAuthId() {
 		return endAuthId;
@@ -287,7 +287,7 @@ public class ChargeSession extends BasicUuidEntity {
 	 * to some external service.
 	 * </p>
 	 * 
-	 * @return the posted date or {@literal null} if not posted
+	 * @return the posted date or {@code null} if not posted
 	 */
 	public Instant getPosted() {
 		return posted;

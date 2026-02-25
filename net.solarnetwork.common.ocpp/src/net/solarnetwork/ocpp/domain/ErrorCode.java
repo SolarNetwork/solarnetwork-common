@@ -33,7 +33,7 @@ public interface ErrorCode {
 	/**
 	 * Get the error code name.
 	 * 
-	 * @return the name, never {@literal null}
+	 * @return the name, never {@code null}
 	 */
 	String getName();
 

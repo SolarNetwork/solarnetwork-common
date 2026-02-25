@@ -39,7 +39,7 @@ public interface ChargePointRouter {
 	 * otherwise know to all available brokers.
 	 * 
 	 * @return the set of available charge point identifiers, never
-	 *         {@literal null}
+	 *         {@code null}
 	 */
 	Set<ChargePointIdentity> availableChargePointsIds();
 
@@ -60,7 +60,7 @@ public interface ChargePointRouter {
 	 * 
 	 * @param identity
 	 *        the ID of the Charge Point
-	 * @return the broker, or {@literal null} if not available
+	 * @return the broker, or {@code null} if not available
 	 */
 	ChargePointBroker brokerForChargePoint(ChargePointIdentity identity);
 

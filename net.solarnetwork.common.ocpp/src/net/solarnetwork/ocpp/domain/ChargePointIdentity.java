@@ -60,7 +60,7 @@ public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 	 *        support; all {@code java.lang.Integer} instances will be converted
 	 *        to {@code java.lang.Long} values
 	 * @throws IllegalArgumentException
-	 *         if any parameter is {@literal null}
+	 *         if any parameter is {@code null}
 	 */
 	@JsonCreator
 	public ChargePointIdentity(@JsonProperty("identifier") String identifier,
@@ -127,7 +127,7 @@ public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 	/**
 	 * Get the charge point identifier.
 	 * 
-	 * @return the identifier; never {@literal null}
+	 * @return the identifier; never {@code null}
 	 */
 	public String getIdentifier() {
 		return identifier;
@@ -136,7 +136,7 @@ public class ChargePointIdentity implements Comparable<ChargePointIdentity> {
 	/**
 	 * Get the user identifier.
 	 * 
-	 * @return the user identifier; never {@literal null}
+	 * @return the user identifier; never {@code null}
 	 */
 	public Object getUserIdentifier() {
 		return userIdentifier;

@@ -68,7 +68,7 @@ public enum Location implements CodedValue {
 	 * 
 	 * @param code
 	 *        the code
-	 * @return the status, never {@literal null} and set to {@link #Outlet} if
+	 * @return the status, never {@code null} and set to {@link #Outlet} if
 	 *         not any other valid code
 	 */
 	public static Location forCode(int code) {

@@ -35,21 +35,21 @@ public interface ErrorHolder {
 	/**
 	 * Get the OCPP error code.
 	 * 
-	 * @return the error code, never {@literal null}
+	 * @return the error code, never {@code null}
 	 */
 	ErrorCode getErrorCode();
 
 	/**
 	 * Get an optional description of the error.
 	 * 
-	 * @return the description, or {@literal null}
+	 * @return the description, or {@code null}
 	 */
 	String getErrorDescription();
 
 	/**
 	 * Get an optional map of error details.
 	 * 
-	 * @return the error details, or {@literal null}
+	 * @return the error details, or {@code null}
 	 */
 	Map<String, ?> getErrorDetails();
 

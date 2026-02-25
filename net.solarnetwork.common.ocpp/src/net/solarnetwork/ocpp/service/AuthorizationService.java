@@ -48,7 +48,7 @@ public interface AuthorizationService extends Identifiable {
 	 *        the ID of the client making the request
 	 * @param identifier
 	 *        the identifier to authorize, e.g. RFID value
-	 * @return the authorization result, never {@literal null}
+	 * @return the authorization result, never {@code null}
 	 */
 	AuthorizationInfo authorize(ChargePointIdentity clientId, String identifier);
 

@@ -63,7 +63,7 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 * @param supportedActions
 	 *        the supported actions
 	 * @throws IllegalArgumentException
-	 *         if {@code supportedActions} is {@literal null}
+	 *         if {@code supportedActions} is {@code null}
 	 */
 	public BaseActionMessageProcessor(Class<T> messageType, Class<R> resultType,
 			Set<Action> supportedActions) {
@@ -80,9 +80,9 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 * @param supportedActions
 	 *        the supported actions
 	 * @param emptyMessageAllowed
-	 *        {@literal true} if a {@literal null} message is allowed
+	 *        {@literal true} if a {@code null} message is allowed
 	 * @throws IllegalArgumentException
-	 *         if {@code supportedActions} is {@literal null}
+	 *         if {@code supportedActions} is {@code null}
 	 * @since 1.1
 	 */
 	public BaseActionMessageProcessor(Class<T> messageType, Class<R> resultType,
@@ -110,10 +110,10 @@ public abstract class BaseActionMessageProcessor<T, R> implements ActionMessageP
 	 * </p>
 	 * 
 	 * <ol>
-	 * <li>The {@code messageType} is {@literal null} or
+	 * <li>The {@code messageType} is {@code null} or
 	 * {@code emptyMessageAllowed} is {@literal true} and the
-	 * {@code message.getMessage()} is also {@literal null}.</li>
-	 * <li>The {@code messageType} is not {@literal null} and is assignable from
+	 * {@code message.getMessage()} is also {@code null}.</li>
+	 * <li>The {@code messageType} is not {@code null} and is assignable from
 	 * {@code message.getMessage().getClass()}.</li>
 	 * </ol>
 	 * 

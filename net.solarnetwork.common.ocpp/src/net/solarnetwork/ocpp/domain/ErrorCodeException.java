@@ -44,7 +44,7 @@ public class ErrorCodeException extends RuntimeException implements ErrorHolder 
 	 * Constructor.
 	 * 
 	 * @param errorCode
-	 *        the error code; must not be {@literal null}
+	 *        the error code; must not be {@code null}
 	 */
 	public ErrorCodeException(ErrorCode errorCode) {
 		super();
@@ -56,7 +56,7 @@ public class ErrorCodeException extends RuntimeException implements ErrorHolder 
 	 * Constructor.
 	 * 
 	 * @param errorCode
-	 *        the error code; must not be {@literal null}
+	 *        the error code; must not be {@code null}
 	 * @param message
 	 *        a message
 	 */
@@ -70,7 +70,7 @@ public class ErrorCodeException extends RuntimeException implements ErrorHolder 
 	 * Constructor.
 	 * 
 	 * @param errorCode
-	 *        the error code; must not be {@literal null}
+	 *        the error code; must not be {@code null}
 	 * @param cause
 	 *        the cause
 	 */
@@ -84,7 +84,7 @@ public class ErrorCodeException extends RuntimeException implements ErrorHolder 
 	 * Constructor.
 	 * 
 	 * @param errorCode
-	 *        the error code; must not be {@literal null}
+	 *        the error code; must not be {@code null}
 	 * @param errorDetails
 	 *        the details
 	 * @param message

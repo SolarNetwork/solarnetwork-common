@@ -70,7 +70,7 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 *        the charge point ID to look for
 	 * @param transactionId
 	 *        the transaction ID to look for
-	 * @return the first available incomplete charge session, or {@literal null}
+	 * @return the first available incomplete charge session, or {@code null}
 	 *         if not found
 	 */
 	ChargeSession getIncompleteChargeSessionForTransaction(long chargePointId, String transactionId);
@@ -86,7 +86,7 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 *        the EVSE ID to look for
 	 * @param connectorId
 	 *        the connectorId ID to look for
-	 * @return the first available incomplete charge session, or {@literal null}
+	 * @return the first available incomplete charge session, or {@code null}
 	 *         if not found
 	 * @since 1.3
 	 */
@@ -103,7 +103,7 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 *        the EVSE ID to look for
 	 * @param connectorId
 	 *        the connectorId ID to look for
-	 * @return the incomplete charge sessions, never {@literal null}
+	 * @return the incomplete charge sessions, never {@code null}
 	 * @since 1.3
 	 */
 	Collection<ChargeSession> getIncompleteChargeSessionsForConnector(long chargePointId, int evseId,
@@ -116,7 +116,7 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 * @param chargePointId
 	 *        the charge point ID to look for
 	 * @return all available incomplete charge session for the given charge
-	 *         point, never {@literal null}
+	 *         point, never {@code null}
 	 */
 	Collection<ChargeSession> getIncompleteChargeSessionsForChargePoint(long chargePointId);
 
@@ -124,7 +124,7 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 * Get all <em>incomplete</em> charge sessions. An <em>incomplete</em>
 	 * session is one that has no {@code ended} date.
 	 * 
-	 * @return all available incomplete charge sessions, never {@literal null}
+	 * @return all available incomplete charge sessions, never {@code null}
 	 */
 	Collection<ChargeSession> getIncompleteChargeSessions();
 
@@ -155,7 +155,7 @@ public interface ChargeSessionDao extends GenericDao<ChargeSession, UUID> {
 	 * a given date.
 	 * 
 	 * @param expirationDate
-	 *        the {@code posted} date to delete up to, or {@literal null} to use
+	 *        the {@code posted} date to delete up to, or {@code null} to use
 	 *        the current time
 	 * @return the number of charge sessions deleted
 	 */

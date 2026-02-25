@@ -54,7 +54,7 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	 * @param rateUnit
 	 *        the rate unit
 	 * @throws IllegalArgumentException
-	 *         if {@code rateUnit} is {@literal null}
+	 *         if {@code rateUnit} is {@code null}
 	 */
 	public ChargingScheduleInfo(UnitOfMeasure rateUnit) {
 		super();
@@ -73,7 +73,7 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	 * @param minRate
 	 *        the minimum charge rate
 	 * @throws IllegalArgumentException
-	 *         if {@code rateUnit} is {@literal null}
+	 *         if {@code rateUnit} is {@code null}
 	 */
 	public ChargingScheduleInfo(Duration duration, Instant start, UnitOfMeasure rateUnit,
 			BigDecimal minRate) {
@@ -188,7 +188,7 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	 * Set the duration, as seconds.
 	 * 
 	 * <p>
-	 * If {@code seconds} is less than {@literal 1} then a {@literal null}
+	 * If {@code seconds} is less than {@literal 1} then a {@code null}
 	 * {@link Duration} will be set.
 	 * </p>
 	 * 
@@ -249,7 +249,7 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	 * Get the charging rate unit to use for the configured
 	 * {@link #getPeriods()}.
 	 * 
-	 * @return the unit, never {@literal null}
+	 * @return the unit, never {@code null}
 	 */
 	public UnitOfMeasure getRateUnit() {
 		return rateUnit;
@@ -262,7 +262,7 @@ public class ChargingScheduleInfo implements Differentiable<ChargingScheduleInfo
 	 * @param rateUnit
 	 *        the unit to set
 	 * @throws IllegalArgumentException
-	 *         if {@code rateUnit} is {@literal null}
+	 *         if {@code rateUnit} is {@code null}
 	 */
 	public void setRateUnit(UnitOfMeasure rateUnit) {
 		if ( rateUnit == null ) {

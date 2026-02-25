@@ -37,14 +37,14 @@ public interface ConfigurationKey {
 	/**
 	 * Get the configuration type.
 	 * 
-	 * @return the type, never {@literal null}
+	 * @return the type, never {@code null}
 	 */
 	ConfigurationType getType();
 
 	/**
 	 * Get the configuration key name.
 	 * 
-	 * @return the name, never {@literal null}, at most {@literal 50} characters
+	 * @return the name, never {@code null}, at most {@literal 50} characters
 	 */
 	String getName();
 

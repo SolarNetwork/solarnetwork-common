@@ -216,7 +216,7 @@ public class Authorization extends BasicLongEntity implements Differentiable<Aut
 	/**
 	 * Get the expiration date.
 	 * 
-	 * @return the expiration date, or {@literal null} for no expiration
+	 * @return the expiration date, or {@code null} for no expiration
 	 */
 	public Instant getExpiryDate() {
 		return expiryDate;
@@ -226,7 +226,7 @@ public class Authorization extends BasicLongEntity implements Differentiable<Aut
 	 * Set the expiration date.
 	 * 
 	 * @param expiryDate
-	 *        the expiration date to set, or {@literal null} for no expiration
+	 *        the expiration date to set, or {@code null} for no expiration
 	 */
 	public void setExpiryDate(Instant expiryDate) {
 		this.expiryDate = expiryDate;
@@ -235,7 +235,7 @@ public class Authorization extends BasicLongEntity implements Differentiable<Aut
 	/**
 	 * Get the ID of a parent authorization.
 	 * 
-	 * @return the parent ID, or {@literal null} if there is no parent
+	 * @return the parent ID, or {@code null} if there is no parent
 	 */
 	public String getParentId() {
 		return parentId;
@@ -245,7 +245,7 @@ public class Authorization extends BasicLongEntity implements Differentiable<Aut
 	 * Set the ID of a parent authorization.
 	 * 
 	 * @param parentId
-	 *        the parent ID to set, or {@literal null} if there is no parent
+	 *        the parent ID to set, or {@code null} if there is no parent
 	 */
 	public void setParentId(String parentId) {
 		this.parentId = parentId;

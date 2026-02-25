@@ -43,7 +43,7 @@ public interface SystemUserDao extends GenericDao<SystemUser, Long> {
 	 * 
 	 * @param username
 	 *        the username to look for
-	 * @return the matching system user, or {@literal null} if not found
+	 * @return the matching system user, or {@code null} if not found
 	 */
 	SystemUser getForUsername(String username);
 
@@ -62,7 +62,7 @@ public interface SystemUserDao extends GenericDao<SystemUser, Long> {
 	 *        the username to look for
 	 * @param chargePointIdentifier
 	 *        the associated charge point to restrict to
-	 * @return the matching system user, or {@literal null} if not found
+	 * @return the matching system user, or {@code null} if not found
 	 * @since 1.1
 	 */
 	SystemUser getForUsernameAndChargePoint(String username, String chargePointIdentifier);

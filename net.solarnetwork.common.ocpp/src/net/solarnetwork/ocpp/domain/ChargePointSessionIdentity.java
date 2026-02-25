@@ -50,7 +50,7 @@ public class ChargePointSessionIdentity implements Comparable<ChargePointSession
 	 * @param sessionId
 	 *        the session ID
 	 * @throws IllegalArgumentException
-	 *         if any parameter is {@literal null}
+	 *         if any parameter is {@code null}
 	 */
 	public ChargePointSessionIdentity(ChargePointIdentity identity, String sessionId) {
 		super();
@@ -66,7 +66,7 @@ public class ChargePointSessionIdentity implements Comparable<ChargePointSession
 	 *        the identity
 	 * @return the new instance
 	 * @throws IllegalArgumentException
-	 *         if any parameter is {@literal null}
+	 *         if any parameter is {@code null}
 	 */
 	public static ChargePointSessionIdentity boundaryKey(ChargePointIdentity identity) {
 		return new ChargePointSessionIdentity(identity, "");
@@ -114,7 +114,7 @@ public class ChargePointSessionIdentity implements Comparable<ChargePointSession
 	/**
 	 * Get the charge point identifier.
 	 *
-	 * @return the identifier; never {@literal null}
+	 * @return the identifier; never {@code null}
 	 */
 	public String getIdentifier() {
 		return identity.getIdentifier();
@@ -123,7 +123,7 @@ public class ChargePointSessionIdentity implements Comparable<ChargePointSession
 	/**
 	 * Get the user identifier.
 	 *
-	 * @return the user identifier; never {@literal null}
+	 * @return the user identifier; never {@code null}
 	 */
 	public Object getUserIdentifier() {
 		return identity.getUserIdentifier();
@@ -132,7 +132,7 @@ public class ChargePointSessionIdentity implements Comparable<ChargePointSession
 	/**
 	 * Get the identity.
 	 *
-	 * @return the identity; never {@literal null}
+	 * @return the identity; never {@code null}
 	 */
 	public final ChargePointIdentity getIdentity() {
 		return identity;
@@ -141,7 +141,7 @@ public class ChargePointSessionIdentity implements Comparable<ChargePointSession
 	/**
 	 * Get the session ID
 	 *
-	 * @return the sessionId; never {@literal null}
+	 * @return the sessionId; never {@code null}
 	 */
 	public final String getSessionId() {
 		return sessionId;
