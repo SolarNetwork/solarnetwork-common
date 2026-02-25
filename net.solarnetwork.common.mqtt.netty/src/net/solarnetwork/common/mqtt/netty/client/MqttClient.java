@@ -17,6 +17,7 @@
 
 package net.solarnetwork.common.mqtt.netty.client;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.net.URI;
 import org.jspecify.annotations.Nullable;
 import io.netty.buffer.ByteBuf;
@@ -95,8 +96,8 @@ public interface MqttClient {
 	/**
 	 * Get the URI for the connected MQTT server, if available.
 	 *
-	 * @return the server URI, or {@code null} if
-	 *         {@link #connect(String, int)} has not previously been called
+	 * @return the server URI, or {@code null} if {@link #connect(String, int)}
+	 *         has not previously been called
 	 */
 	@Nullable
 	URI getServerUri();
@@ -130,11 +131,7 @@ public interface MqttClient {
 	 * @since 1.2
 	 */
 	default EventLoopGroup requireEventLoop() throws IllegalStateException {
-		final EventLoopGroup eventLoop = getEventLoop();
-		if ( eventLoop == null ) {
-			throw new IllegalStateException("Event loop not available.");
-		}
-		return eventLoop;
+		return requireNonNullProperty(getEventLoop(), "Event loop");
 	}
 
 	/**
