@@ -93,6 +93,32 @@ public class BaseActionMessageProcessorTests {
 		};
 	}
 
+	private BaseActionMessageProcessor<Object, Boolean> testDefaultProcessor(
+			boolean emptyMessageAllowed) {
+		return new BaseActionMessageProcessor<Object, Boolean>(Object.class, Boolean.class,
+				Set.of(Work.LazeAbout), emptyMessageAllowed) {
+
+			@Override
+			public void processActionMessage(ActionMessage<Object> message,
+					ActionMessageResultHandler<Object, Boolean> resultHandler) {
+				defaultProcessActionMessage(message, resultHandler, Fail.Refuse);
+			}
+
+			@Override
+			protected void handleActionMessage(ActionMessage<Object> message,
+					ActionMessageResultHandler<Object, Boolean> resultHandler, Object msg) {
+				resultHandler.handleActionMessageResult(message, Boolean.TRUE, null);
+			}
+
+			@Override
+			protected void handleActionMessage(ActionMessage<Object> message,
+					ActionMessageResultHandler<Object, Boolean> resultHandler) {
+				resultHandler.handleActionMessageResult(message, Boolean.FALSE, null);
+			}
+
+		};
+	}
+
 	@Test
 	public void processWithClientIdentifier_noChargePointIdentity() {
 		// GIVEN
@@ -204,6 +230,95 @@ public class BaseActionMessageProcessorTests {
 
 			then(result)
 				.as("Result provided because of provided identifier but optional content")
+				.isFalse()
+				;
+
+			then(error)
+				.as("No exception generated")
+				.isNull()
+				;
+			// @formatter:on
+			return true;
+		});
+	}
+
+	@Test
+	public void defaultProcess_noContent() {
+		// GIVEN
+		final var processor = testDefaultProcessor(false);
+		final var message = new BasicActionMessage<>(null, Work.LazeAbout, null);
+
+		// WHEN
+		processor.processActionMessage(message, (msg, result, error) -> {
+			// THEN
+			// @formatter:off
+			then(msg)
+				.as("Handler passed original message")
+				.isSameAs(message)
+				;
+
+			then(result)
+				.as("Result not provided because of missing message content")
+				.isNull()
+				;
+
+			then(error)
+				.as("ErrorCodeException provided")
+				.asInstanceOf(throwable(ErrorCodeException.class))
+				.hasMessage("Missing message content.")
+				.returns(Fail.Refuse, from(ErrorCodeException::getErrorCode))
+				;
+			// @formatter:on
+			return true;
+		});
+	}
+
+	@Test
+	public void defaultProcess() {
+		// GIVEN
+		final var processor = testDefaultProcessor(false);
+		final var message = new BasicActionMessage<>(null, Work.LazeAbout, new Object());
+
+		// WHEN
+		processor.processActionMessage(message, (msg, result, error) -> {
+			// THEN
+			// @formatter:off
+			then(msg)
+				.as("Handler passed original message")
+				.isSameAs(message)
+				;
+
+			then(result)
+				.as("Result provided because of provided message content")
+				.isTrue()
+				;
+
+			then(error)
+				.as("No exception generated")
+				.isNull()
+				;
+			// @formatter:on
+			return true;
+		});
+	}
+
+	@Test
+	public void defaultProcess_optionalContent() {
+		// GIVEN
+		final var processor = testDefaultProcessor(true);
+		final var message = new BasicActionMessage<>(null, Work.LazeAbout, null);
+
+		// WHEN
+		processor.processActionMessage(message, (msg, result, error) -> {
+			// THEN
+			// @formatter:off
+			then(msg)
+				.as("Handler passed original message")
+				.isSameAs(message)
+				;
+
+			then(result)
+				.as("Result provided because of optional message content")
 				.isFalse()
 				;
 
