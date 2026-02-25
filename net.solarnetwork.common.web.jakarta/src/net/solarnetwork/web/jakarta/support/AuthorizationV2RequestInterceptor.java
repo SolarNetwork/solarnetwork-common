@@ -73,7 +73,7 @@ public class AuthorizationV2RequestInterceptor implements ClientHttpRequestInter
 	 * @param credentialsProvider
 	 *        the API token credentials provider
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@code null]
+	 *         if any argument is {@code null}
 	 */
 	public AuthorizationV2RequestInterceptor(AuthorizationCredentialsProvider credentialsProvider) {
 		super();
