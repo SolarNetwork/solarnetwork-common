@@ -1,27 +1,28 @@
 /* ==================================================================
  * SimpleActionMessageQueue.java - 12/02/2020 10:26:16 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.ocpp.service;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
@@ -29,12 +30,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.PendingActionMessage;
 
 /**
  * Simple in-memory implementation of {@link ActionMessageQueue}.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -51,14 +53,16 @@ public class SimpleActionMessageQueue implements ActionMessageQueue {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param pendingMessages
 	 *        the pending message queue map
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public SimpleActionMessageQueue(
 			Map<ChargePointIdentity, Deque<PendingActionMessage>> pendingMessages) {
 		super();
-		this.pendingMessages = pendingMessages;
+		this.pendingMessages = requireNonNullArgument(pendingMessages, "pendingMessages");
 	}
 
 	@Override
@@ -67,8 +71,10 @@ public class SimpleActionMessageQueue implements ActionMessageQueue {
 	}
 
 	@Override
-	public void addPendingMessage(PendingActionMessage msg, Consumer<Deque<PendingActionMessage>> fn) {
-		ChargePointIdentity clientId = msg.getMessage().getClientId();
+	public void addPendingMessage(final PendingActionMessage msg,
+			final @Nullable Consumer<Deque<PendingActionMessage>> fn) {
+		ChargePointIdentity clientId = requireNonNullArgument(msg.getMessage().getClientId(),
+				"msg.message.clientId");
 		Deque<PendingActionMessage> q = pendingMessageQueue(clientId);
 		synchronized ( q ) {
 			// enqueue the call
@@ -80,7 +86,7 @@ public class SimpleActionMessageQueue implements ActionMessageQueue {
 	}
 
 	@Override
-	public PendingActionMessage pollPendingMessage(ChargePointIdentity clientId) {
+	public @Nullable PendingActionMessage pollPendingMessage(ChargePointIdentity clientId) {
 		PendingActionMessage msg = null;
 		Deque<PendingActionMessage> q = pendingMessages.get(clientId);
 		if ( q != null ) {
@@ -92,7 +98,7 @@ public class SimpleActionMessageQueue implements ActionMessageQueue {
 	}
 
 	@Override
-	public PendingActionMessage pollPendingMessage(final ChargePointIdentity clientId,
+	public @Nullable PendingActionMessage pollPendingMessage(final ChargePointIdentity clientId,
 			final String messageId) {
 		PendingActionMessage msg = null;
 		Deque<PendingActionMessage> q = pendingMessages.get(clientId);

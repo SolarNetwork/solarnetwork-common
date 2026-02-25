@@ -24,6 +24,7 @@ package net.solarnetwork.ocpp.domain;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 
 /**
@@ -78,7 +79,8 @@ public class PendingActionMessage {
 		this(message, PendingActionMessage::noop);
 	}
 
-	private static boolean noop(ActionMessage<Object> message, Object result, Throwable error) {
+	private static boolean noop(ActionMessage<Object> message, @Nullable Object result,
+			@Nullable Throwable error) {
 		// ignore
 		return true;
 	}

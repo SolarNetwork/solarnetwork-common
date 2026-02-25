@@ -22,8 +22,10 @@
 
 package net.solarnetwork.ocpp.util;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.IOException;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
 import net.solarnetwork.ocpp.json.ActionPayloadDecoder;
@@ -75,11 +77,12 @@ public final class OcppInstructionUtils {
 		 * @param jsonPayload
 		 *        the raw JSON message, or {@code null} if an error occurred
 		 * @param payload
-		 *        the decoded OCPP message payload, or {@code null} if an
-		 *        error occurred
+		 *        the decoded OCPP message payload, or {@code null} if an error
+		 *        occurred
 		 * @return the result
 		 */
-		T handleMessage(Exception e, ObjectNode jsonPayload, Object payload);
+		T handleMessage(@Nullable Exception e, @Nullable ObjectNode jsonPayload,
+				@Nullable Object payload);
 	}
 
 	/**
@@ -108,12 +111,11 @@ public final class OcppInstructionUtils {
 	 *        a handler for the results
 	 * @return the handler result
 	 */
-	public static <T> T decodeJsonOcppInstructionMessage(ObjectMapper objectMapper, Action action,
-			Map<String, String> params, ActionPayloadDecoder chargePointActionPayloadDecoder,
-			JsonOcppInstructionMessageHandler<T> handler) {
-		if ( handler == null ) {
-			throw new IllegalArgumentException("The handler argument must be provided.");
-		}
+	public static <T> T decodeJsonOcppInstructionMessage(final ObjectMapper objectMapper,
+			final Action action, final Map<String, String> params,
+			final ActionPayloadDecoder chargePointActionPayloadDecoder,
+			final JsonOcppInstructionMessageHandler<T> handler) {
+		requireNonNullArgument(handler, "handler");
 		ObjectNode jsonPayload;
 		Object payload;
 		try {
@@ -121,8 +123,8 @@ public final class OcppInstructionUtils {
 				JsonNode jsonNode = objectMapper.readTree(params.get(OCPP_MESSAGE_PARAM));
 				if ( jsonNode.isNull() ) {
 					jsonPayload = null;
-				} else if ( jsonNode instanceof ObjectNode ) {
-					jsonPayload = (ObjectNode) jsonNode;
+				} else if ( jsonNode instanceof ObjectNode o ) {
+					jsonPayload = o;
 				} else {
 					throw new IOException(
 							"OCPP " + OCPP_MESSAGE_PARAM + " parameter must be a JSON object.");
@@ -130,7 +132,7 @@ public final class OcppInstructionUtils {
 			} else {
 				jsonPayload = objectMapper.valueToTree(params);
 			}
-			if ( chargePointActionPayloadDecoder != null ) {
+			if ( chargePointActionPayloadDecoder != null && jsonPayload != null ) {
 				payload = chargePointActionPayloadDecoder.decodeActionPayload(action, false,
 						jsonPayload);
 			} else {

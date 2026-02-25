@@ -1,7 +1,7 @@
 /* ==================================================================
- * CallResultMessage.java - 31/01/2020 7:41:39 am
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2020 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,41 +20,9 @@
  * ==================================================================
  */
 
-package net.solarnetwork.ocpp.json;
-
-import org.jspecify.annotations.Nullable;
-
 /**
- * A call result message.
- *
- * <p>
- * This type of message represents a response to a {@link CallMessage} initiated
- * by a client.
- * </p>
- *
- * @author matt
- * @version 1.0
+ * Package info.
  */
-public interface CallResultMessage extends Message {
 
-	@Override
-	default MessageType getMessageType() {
-		return MessageType.CallResult;
-	}
-
-	/**
-	 * Get the unique ID of the {@link CallMessage} this is a response to.
-	 *
-	 * @return the unique ID, never {@code null}
-	 */
-	String getMessageId();
-
-	/**
-	 * Get the message content.
-	 *
-	 * @return the message content, or {@code null} if there isn't any
-	 */
-	@Nullable
-	Object getPayload();
-
-}
+@org.jspecify.annotations.NullMarked
+package net.solarnetwork.ocpp.util;

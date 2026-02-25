@@ -1,21 +1,21 @@
 /* ==================================================================
  * ChargeSessionManager.java - 14/02/2020 1:44:37 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -24,6 +24,7 @@ package net.solarnetwork.ocpp.service.cs;
 
 import java.util.Collection;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargeSession;
@@ -37,7 +38,7 @@ import net.solarnetwork.service.Identifiable;
  * This API represents the set of functionality required by an OCPP Central
  * System to manage charging sessions (OCPP transactions) for Charge Point
  * clients.
- * 
+ *
  * @author matt
  * @version 3.0
  */
@@ -45,13 +46,13 @@ public interface ChargeSessionManager extends Identifiable {
 
 	/**
 	 * Start a charging session.
-	 * 
+	 *
 	 * <p>
 	 * If no {@code transactionId} is provided, this method must generate a new
 	 * transaction ID value that is an unsigned 16-bit integer value in the
 	 * range 1-65535, returned as a base-10 string.
 	 * </p>
-	 * 
+	 *
 	 * @param info
 	 *        the start charging session info
 	 * @return the new charge session
@@ -62,11 +63,11 @@ public interface ChargeSessionManager extends Identifiable {
 
 	/**
 	 * Get an active charging session for a transaction ID.
-	 * 
+	 *
 	 * <p>
 	 * An <em>active</em> charging session is one that has not ended yet.
 	 * </p>
-	 * 
+	 *
 	 * @param chargePointId
 	 *        the charge point ID
 	 * @param transactionId
@@ -83,21 +84,21 @@ public interface ChargeSessionManager extends Identifiable {
 	/**
 	 * Get active charging sessions, optionally limited to a specific charge
 	 * point ID.
-	 * 
+	 *
 	 * <p>
 	 * An <em>active</em> charging session is one that has not ended yet.
 	 * </p>
-	 * 
+	 *
 	 * @param chargePointId
-	 *        the charge point identifier to get sessions for, or
-	 *        {@code null} for all sessions for all charge points
+	 *        the charge point identifier to get sessions for, or {@code null}
+	 *        for all sessions for all charge points
 	 * @return the active sessions, never {@code null}
 	 */
 	Collection<ChargeSession> getActiveChargingSessions(ChargePointIdentity chargePointId);
 
 	/**
 	 * Get all available charge session readings.
-	 * 
+	 *
 	 * @param sessionId
 	 *        the charge session ID
 	 * @return the readings, never {@code null}
@@ -106,10 +107,10 @@ public interface ChargeSessionManager extends Identifiable {
 
 	/**
 	 * Add charge session readings.
-	 * 
+	 *
 	 * @param chargePointId
-	 *        the charge point identifier to get sessions for, or
-	 *        {@code null} for all sessions for all charge points
+	 *        the charge point identifier to get sessions for, or {@code null}
+	 *        for all sessions for all charge points
 	 * @param evseId
 	 *        the EVSE ID, or {@code null} to use the active charge session's
 	 *        information
@@ -125,11 +126,12 @@ public interface ChargeSessionManager extends Identifiable {
 
 	/**
 	 * End a charging session.
-	 * 
+	 *
 	 * @param info
 	 *        the end charging session info
 	 * @return info if needed, otherwise {@code null}
 	 */
+	@Nullable
 	AuthorizationInfo endChargingSession(ChargeSessionEndInfo info);
 
 }
