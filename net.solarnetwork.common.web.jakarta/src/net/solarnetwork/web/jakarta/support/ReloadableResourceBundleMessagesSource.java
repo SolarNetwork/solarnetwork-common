@@ -28,7 +28,6 @@ import java.util.Locale;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 
 /**
@@ -85,16 +84,16 @@ public class ReloadableResourceBundleMessagesSource extends ReloadableResourceBu
 	}
 
 	@Override
-	protected String getMessageInternal(@Nullable String code, Object @Nullable [] args,
-			@Nullable Locale locale) throws NoSuchMessageException {
+	protected @Nullable String getMessageInternal(@Nullable String code, Object @Nullable [] args,
+			@Nullable Locale locale) {
 		String msg = super.getMessageInternal(code, args, locale);
 		if ( msg != null ) {
 			return msg;
 		}
 		if ( parent != null ) {
-			return parent.getMessage(code, args, locale);
+			return parent.getMessage(code, args, null, locale);
 		}
-		throw new NoSuchMessageException(code, locale);
+		return null;
 	}
 
 	/**
