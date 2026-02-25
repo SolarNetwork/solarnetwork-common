@@ -9,34 +9,32 @@ Automatic-Module-Name: net.solarnetwork.common.ocpp.v16.jakarta
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
  net.solarnetwork.ocpp.v16.jakarta;version="1.1.0";
-  uses:="net.solarnetwork.ocpp.json,
-   net.solarnetwork.ocpp.service,
-   net.solarnetwork.ocpp.domain",
+  uses:="net.solarnetwork.ocpp.domain,
+   net.solarnetwork.ocpp.json,
+   net.solarnetwork.ocpp.service",
  net.solarnetwork.ocpp.v16.jakarta.cp.json;version="2.1.0";
-  uses:="ocpp.v16.jakarta.cp,
-   net.solarnetwork.ocpp.domain,
-   com.fasterxml.jackson.databind,
-   net.solarnetwork.ocpp.v16.jakarta.json",
+  uses:="net.solarnetwork.ocpp.domain,
+   net.solarnetwork.ocpp.v16.jakarta.json,
+   ocpp.v16.jakarta.cp,
+   tools.jackson.databind",
  net.solarnetwork.ocpp.v16.jakarta.cs;version="1.1.0";
-  uses:="net.solarnetwork.ocpp.service,
+  uses:="net.solarnetwork.ocpp.domain,
+   net.solarnetwork.ocpp.service,
    net.solarnetwork.ocpp.service.cs,
-   ocpp.v16.jakarta.cs,
-   net.solarnetwork.ocpp.domain",
+   ocpp.v16.jakarta.cs",
  net.solarnetwork.ocpp.v16.jakarta.cs.json;version="2.1.0";
-  uses:="ocpp.v16.jakarta.cs,
-   net.solarnetwork.ocpp.domain,
-   com.fasterxml.jackson.databind,
-   net.solarnetwork.ocpp.v16.jakarta.json",
+  uses:="net.solarnetwork.ocpp.domain,
+   net.solarnetwork.ocpp.v16.jakarta.json,
+   ocpp.v16.jakarta.cs,
+   tools.jackson.databind",
  net.solarnetwork.ocpp.v16.jakarta.json;version="2.1.0";
   uses:="jakarta.xml.bind,
    net.solarnetwork.ocpp.json,
    net.solarnetwork.ocpp.xml.jakarta.support,
-   com.fasterxml.jackson.databind",
+   tools.jackson.databind",
  net.solarnetwork.ocpp.xml.jakarta.support;version="2.1.0";
-  uses:="javax.xml.validation,
-   jakarta.xml.bind,
-   javax.xml.namespace,
-   javax.xml.datatype"
+  uses:="jakarta.xml.bind,
+   javax.xml.datatype,javax.xml.validation"
 Import-Package: 
  com.fasterxml.jackson.annotation;version="[2.19,3.0)",
  jakarta.activation,
