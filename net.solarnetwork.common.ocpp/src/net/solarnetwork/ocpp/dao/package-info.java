@@ -1,7 +1,7 @@
 /* ==================================================================
- * ChargePointDao.java - 7/02/2020 9:43:12 am
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2020 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,29 +20,9 @@
  * ==================================================================
  */
 
-package net.solarnetwork.ocpp.dao;
-
-import org.jspecify.annotations.Nullable;
-import net.solarnetwork.dao.GenericDao;
-import net.solarnetwork.ocpp.domain.ChargePoint;
-import net.solarnetwork.ocpp.domain.ChargePointIdentity;
-
 /**
- * Data Access Object API for {@link ChargePoint} entities.
- *
- * @author matt
- * @version 1.0
+ * Package info.
  */
-public interface ChargePointDao extends GenericDao<ChargePoint, Long> {
 
-	/**
-	 * Get a charge point by its unique identity.
-	 *
-	 * @param identity
-	 *        the charge point identity to look for
-	 * @return the matching charge point, or {@code null} if not found
-	 */
-	@Nullable
-	ChargePoint getForIdentity(ChargePointIdentity identity);
-
-}
+@org.jspecify.annotations.NullMarked
+package net.solarnetwork.ocpp.dao;
