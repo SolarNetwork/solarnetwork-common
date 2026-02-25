@@ -23,6 +23,7 @@
 package net.solarnetwork.ocpp.json;
 
 import java.io.IOException;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.ocpp.domain.Action;
 import tools.jackson.databind.JsonNode;
 
@@ -53,6 +54,7 @@ public interface ActionPayloadDecoder {
 	 * @throws UnsupportedOperationException
 	 *         if {@code action} is not supported
 	 */
-	<T> T decodeActionPayload(Action action, boolean forResult, JsonNode payload) throws IOException;
+	<T> @Nullable T decodeActionPayload(Action action, boolean forResult, JsonNode payload)
+			throws IOException;
 
 }
