@@ -23,6 +23,7 @@
 package net.solarnetwork.ocpp.v16.jakarta.cp.json;
 
 import java.io.IOException;
+import org.jspecify.annotations.Nullable;
 import jakarta.xml.bind.JAXBElement;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
@@ -109,7 +110,7 @@ public class ChargePointActionPayloadDecoder extends BaseActionPayloadDecoder {
 	}
 
 	@Override
-	public <T> T decodeActionPayload(final Action action, final boolean forResult,
+	public <T> @Nullable T decodeActionPayload(final Action action, final boolean forResult,
 			final JsonNode payload) throws IOException {
 		// in OCPP spec, JSON null OR empty object payload means "no payload"
 		if ( payload == null || payload.isNull() || (payload.isObject() && payload.isEmpty()) ) {
@@ -117,7 +118,10 @@ public class ChargePointActionPayloadDecoder extends BaseActionPayloadDecoder {
 		}
 		final ChargePointAction a = action instanceof ChargePointAction ? (ChargePointAction) action
 				: ChargePointAction.valueOf(action.getName());
-		Class<T> clazz = messageClassForAction(a, forResult);
+		final Class<T> clazz = messageClassForAction(a, forResult);
+		if ( clazz == null ) {
+			throw new SchemaValidationException(payload, "Action %s not supported.".formatted(a));
+		}
 		T result;
 		try {
 			result = mapper.treeToValue(payload, clazz);
@@ -130,7 +134,8 @@ public class ChargePointActionPayloadDecoder extends BaseActionPayloadDecoder {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> Class<T> messageClassForAction(final ChargePointAction action, final boolean forResult) {
+	private <T> @Nullable Class<T> messageClassForAction(final ChargePointAction action,
+			final boolean forResult) {
 		Class<T> clazz = null;
 		switch (action) {
 			case CancelReservation:
@@ -224,9 +229,6 @@ public class ChargePointActionPayloadDecoder extends BaseActionPayloadDecoder {
 						: UpdateFirmwareRequest.class);
 				break;
 
-			default:
-				throw new UnsupportedOperationException(
-						"Action " + action.getName() + " not supported.");
 		}
 		return clazz;
 	}

@@ -1,32 +1,34 @@
 /* ==================================================================
  * BootNotificationProcessor.java - 6/02/2020 5:08:50 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.ocpp.v16.jakarta.cs;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.Collections;
 import java.util.Set;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePoint;
+import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.domain.ChargePointInfo;
 import net.solarnetwork.ocpp.domain.ErrorCodeException;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
@@ -41,7 +43,7 @@ import ocpp.v16.jakarta.cs.RegistrationStatus;
 
 /**
  * Process {@link BootNotificationRequest} action messages.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -60,32 +62,30 @@ public class BootNotificationProcessor
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param chargePointManager
 	 *        the {@link ChargePointManager} to notify
 	 * @throws IllegalArgumentException
-	 *         if {@code chargePointManager} is {@literal null}
+	 *         if {@code chargePointManager} is {@code null}
 	 */
 	public BootNotificationProcessor(ChargePointManager chargePointManager) {
 		super(BootNotificationRequest.class, BootNotificationResponse.class, SUPPORTED_ACTIONS);
-		if ( chargePointManager == null ) {
-			throw new IllegalArgumentException("The chargePointManager parameter must not be null.");
-		}
-		this.chargePointManager = chargePointManager;
+		this.chargePointManager = requireNonNullArgument(chargePointManager, "chargePointManager");
 	}
 
 	@Override
-	public void processActionMessage(ActionMessage<BootNotificationRequest> message,
-			ActionMessageResultHandler<BootNotificationRequest, BootNotificationResponse> resultHandler) {
-		BootNotificationRequest req = message.getMessage();
-		if ( req == null ) {
-			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormationViolation,
-					"Missing BootNotificationRequest message.");
-			resultHandler.handleActionMessageResult(message, null, err);
-			return;
-		}
+	public void processActionMessage(final ActionMessage<BootNotificationRequest> message,
+			final ActionMessageResultHandler<BootNotificationRequest, BootNotificationResponse> resultHandler) {
+		processActionMessageWithClientIdentifier(message, resultHandler,
+				ActionErrorCode.FormationViolation);
+	}
 
-		ChargePointInfo info = new ChargePointInfo(message.getClientId().getIdentifier());
+	@Override
+	protected void handleActionMessageWithClientIdentifier(
+			final ActionMessage<BootNotificationRequest> message,
+			final ActionMessageResultHandler<BootNotificationRequest, BootNotificationResponse> resultHandler,
+			final ChargePointIdentity identity, final BootNotificationRequest req) {
+		ChargePointInfo info = new ChargePointInfo(identity.getIdentifier());
 		info.setChargePointVendor(req.getChargePointVendor());
 		info.setChargePointModel(req.getChargePointModel());
 		info.setChargePointSerialNumber(req.getChargePointSerialNumber());
@@ -97,7 +97,7 @@ public class BootNotificationProcessor
 		info.setMeterSerialNumber(req.getMeterSerialNumber());
 
 		try {
-			ChargePoint cp = chargePointManager.registerChargePoint(message.getClientId(), info);
+			ChargePoint cp = chargePointManager.registerChargePoint(identity, info);
 
 			BootNotificationResponse res = new BootNotificationResponse();
 			res.setCurrentTime(XmlDateUtils.newXmlCalendar());
@@ -129,7 +129,7 @@ public class BootNotificationProcessor
 
 	/**
 	 * Get the heartbeat interval.
-	 * 
+	 *
 	 * @return the interval, in seconds
 	 */
 	public int getHeartbeatIntervalSeconds() {
@@ -138,7 +138,7 @@ public class BootNotificationProcessor
 
 	/**
 	 * Set the heartbeat interval.
-	 * 
+	 *
 	 * @param heartbeatIntervalSeconds
 	 *        the interval to set, in seconds
 	 */

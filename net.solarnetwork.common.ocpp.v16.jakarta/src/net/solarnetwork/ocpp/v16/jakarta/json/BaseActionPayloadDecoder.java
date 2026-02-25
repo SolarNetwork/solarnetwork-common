@@ -22,6 +22,7 @@
 
 package net.solarnetwork.ocpp.v16.jakarta.json;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -85,10 +86,7 @@ public abstract class BaseActionPayloadDecoder implements ActionPayloadDecoder {
 	public BaseActionPayloadDecoder(ObjectMapper mapper, Class<?> jaxbRegistry, String wsdlResource,
 			ClassLoader classLoader) {
 		super();
-		if ( mapper == null ) {
-			throw new IllegalArgumentException("The mapper parameter must not be null.");
-		}
-		this.mapper = mapper;
+		this.mapper = requireNonNullArgument(mapper, "mapper");
 		try {
 			this.jaxbContext = JaxbUtils.jaxbContextForRegistry(jaxbRegistry);
 		} catch ( JAXBException e ) {

@@ -22,6 +22,8 @@
 
 package net.solarnetwork.ocpp.v16.jakarta.cs;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,55 +67,51 @@ public class MeterValuesProcessor
 	 * @param chargeSessionManager
 	 *        the session manager
 	 * @throws IllegalArgumentException
-	 *         if any parameter is {@literal null}
+	 *         if any parameter is {@code null}
 	 */
 	public MeterValuesProcessor(ChargeSessionManager chargeSessionManager) {
 		super(MeterValuesRequest.class, MeterValuesResponse.class, SUPPORTED_ACTIONS);
-		if ( chargeSessionManager == null ) {
-			throw new IllegalArgumentException("The chargeSessionManager parameter must not be null.");
-		}
-		this.chargeSessionManager = chargeSessionManager;
+		this.chargeSessionManager = requireNonNullArgument(chargeSessionManager, "chargeSessionManager");
 	}
 
 	@Override
-	public void processActionMessage(ActionMessage<MeterValuesRequest> message,
-			ActionMessageResultHandler<MeterValuesRequest, MeterValuesResponse> resultHandler) {
-		final ChargePointIdentity chargePointId = message.getClientId();
-		final MeterValuesRequest req = message.getMessage();
-		if ( req == null || chargePointId == null ) {
-			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormationViolation,
-					"Missing MeterValuesRequest message.");
-			resultHandler.handleActionMessageResult(message, null, err);
-			return;
-		}
+	public void processActionMessage(final ActionMessage<MeterValuesRequest> message,
+			final ActionMessageResultHandler<MeterValuesRequest, MeterValuesResponse> resultHandler) {
+		processActionMessageWithClientIdentifier(message, resultHandler,
+				ActionErrorCode.FormationViolation);
+	}
 
+	@Override
+	protected void handleActionMessageWithClientIdentifier(
+			final ActionMessage<MeterValuesRequest> message,
+			final ActionMessageResultHandler<MeterValuesRequest, MeterValuesResponse> resultHandler,
+			final ChargePointIdentity identity, final MeterValuesRequest req) {
 		if ( log.isTraceEnabled() ) {
 			log.trace("Received MeterValues req: {}", JsonUtils.getJSONString(req, "{}"));
 		}
 
 		try {
-			final ChargeSession session = (req.getTransactionId() != null
-					? chargeSessionManager.getActiveChargingSession(chargePointId,
-							req.getTransactionId().toString())
-					: null);
+			final ChargeSession session = (req.getTransactionId() != null ? chargeSessionManager
+					.getActiveChargingSession(identity, req.getTransactionId().toString()) : null);
 
 			List<MeterValue> values = req.getMeterValue();
 			List<SampledValue> newReadings = new ArrayList<>();
 			if ( values != null && !values.isEmpty() ) {
 				for ( MeterValue mv : values ) {
-					Instant ts = XmlDateUtils.timestamp(mv.getTimestamp(), Instant::now);
+					Instant ts = requireNonNullProperty(
+							XmlDateUtils.timestamp(mv.getTimestamp(), Instant::now),
+							"MeterValue.timestamp");
 					mv.getSampledValue().stream().map(v -> {
 						return CentralSystemUtils.sampledValue(session != null ? session.getId() : null,
-								ts, v);
+								ts, requireNonNullProperty(v, "SampleValue"));
 					}).forEach(newReadings::add);
 				}
 			}
 			if ( !newReadings.isEmpty() ) {
 				log.debug("Saving charge point {} connector {} readings for session {} (txId {}): {}",
-						chargePointId, req.getConnectorId(), session, req.getTransactionId(),
+						identity, req.getConnectorId(), session, req.getTransactionId(), newReadings);
+				chargeSessionManager.addChargingSessionReadings(identity, null, req.getConnectorId(),
 						newReadings);
-				chargeSessionManager.addChargingSessionReadings(chargePointId, null,
-						req.getConnectorId(), newReadings);
 			}
 
 			resultHandler.handleActionMessageResult(message, new MeterValuesResponse(), null);

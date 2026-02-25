@@ -1,21 +1,21 @@
 /* ==================================================================
  * XmlDateUtils.java - 31/01/2020 12:12:29 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -30,10 +30,11 @@ import java.util.function.Supplier;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utilities for working with {@link XMLGregorianCalendar} dates.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -60,7 +61,7 @@ public final class XmlDateUtils {
 	/**
 	 * Get a {@link XMLGregorianCalendar} for the current time, set to the UTC
 	 * time zone.
-	 * 
+	 *
 	 * @return a new calendar instance
 	 */
 	public static XMLGregorianCalendar newXmlCalendar() {
@@ -70,7 +71,7 @@ public final class XmlDateUtils {
 	/**
 	 * Get a {@link XMLGregorianCalendar} for a specific time, set to the UTC
 	 * time zone, using the {@link #DATATYPE_FACTORY}.
-	 * 
+	 *
 	 * @param date
 	 *        the date, in milliseconds since the epoch
 	 * @return a new calendar instance
@@ -82,7 +83,7 @@ public final class XmlDateUtils {
 	/**
 	 * Get a {@link XMLGregorianCalendar} for a specific time, set to the UTC
 	 * time zone.
-	 * 
+	 *
 	 * @param datatypeFactory
 	 *        the factory to use
 	 * @param date
@@ -98,7 +99,7 @@ public final class XmlDateUtils {
 	/**
 	 * Get a {@link XMLGregorianCalendar} for a specific time, set to the UTC
 	 * time zone, using the {@link #DATATYPE_FACTORY}.
-	 * 
+	 *
 	 * @param year
 	 *        the year
 	 * @param month
@@ -123,7 +124,7 @@ public final class XmlDateUtils {
 	/**
 	 * Get a {@link XMLGregorianCalendar} for a specific time, set to the UTC
 	 * time zone, using the {@link #DATATYPE_FACTORY}.
-	 * 
+	 *
 	 * @param datatypeFactory
 	 *        the factory to use
 	 * @param year
@@ -152,21 +153,22 @@ public final class XmlDateUtils {
 
 	/**
 	 * Get an {@link Instant} from an XML date/time.
-	 * 
+	 *
 	 * <p>
 	 * You can use the current system time for the default value by passing
 	 * {@code Instant::now} as the {@code defaultSupplier} parameter.
 	 * </p>
-	 * 
+	 *
 	 * @param cal
-	 *        the XML calendar value, or {@literal null}
+	 *        the XML calendar value, or {@code null}
 	 * @param defaultSupplier
-	 *        if {@code xmlCal} is {@literal null}, a supplier to provide the
-	 *        resulting value, or {@literal null} to return {@literal null}
-	 * @return the instant, or {@literal null} if {@code defaultSupplier}
-	 *         returns {@literal null} or was itself {@literal null}
+	 *        if {@code xmlCal} is {@code null}, a supplier to provide the
+	 *        resulting value, or {@code null} to return {@code null}
+	 * @return the instant, or {@code null} if {@code defaultSupplier} returns
+	 *         {@code null} or was itself {@code null}
 	 */
-	public static Instant timestamp(XMLGregorianCalendar cal, Supplier<Instant> defaultSupplier) {
+	public static @Nullable Instant timestamp(XMLGregorianCalendar cal,
+			@Nullable Supplier<Instant> defaultSupplier) {
 		return cal != null ? Instant.ofEpochMilli(cal.toGregorianCalendar().getTimeInMillis())
 				: defaultSupplier != null ? defaultSupplier.get() : null;
 	}

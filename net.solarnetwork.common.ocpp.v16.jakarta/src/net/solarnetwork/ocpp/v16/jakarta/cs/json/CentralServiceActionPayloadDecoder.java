@@ -23,6 +23,7 @@
 package net.solarnetwork.ocpp.v16.jakarta.cs.json;
 
 import java.io.IOException;
+import org.jspecify.annotations.Nullable;
 import jakarta.xml.bind.JAXBElement;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.SchemaValidationException;
@@ -91,7 +92,7 @@ public class CentralServiceActionPayloadDecoder extends BaseActionPayloadDecoder
 	}
 
 	@Override
-	public <T> T decodeActionPayload(final Action action, final boolean forResult,
+	public <T> @Nullable T decodeActionPayload(final Action action, final boolean forResult,
 			final JsonNode payload) throws IOException {
 		// in OCPP spec, JSON null OR empty object payload means "no payload"
 		if ( payload == null || payload.isNull() || (payload.isObject() && payload.isEmpty()) ) {
@@ -100,7 +101,10 @@ public class CentralServiceActionPayloadDecoder extends BaseActionPayloadDecoder
 		final CentralSystemAction a = action instanceof CentralSystemAction
 				? (CentralSystemAction) action
 				: CentralSystemAction.valueOf(action.getName());
-		Class<T> clazz = messageClassForAction(a, forResult);
+		final Class<T> clazz = messageClassForAction(a, forResult);
+		if ( clazz == null ) {
+			throw new SchemaValidationException(payload, "Action %s not supported.".formatted(a));
+		}
 		T result;
 		try {
 			result = mapper.treeToValue(payload, clazz);
@@ -112,7 +116,7 @@ public class CentralServiceActionPayloadDecoder extends BaseActionPayloadDecoder
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> Class<T> messageClassForAction(final CentralSystemAction action,
+	private <T> @Nullable Class<T> messageClassForAction(final CentralSystemAction action,
 			final boolean forResult) {
 		Class<T> clazz = null;
 		switch (action) {
@@ -162,9 +166,6 @@ public class CentralServiceActionPayloadDecoder extends BaseActionPayloadDecoder
 						: StopTransactionRequest.class);
 				break;
 
-			default:
-				throw new UnsupportedOperationException(
-						"Action " + action.getName() + " not supported.");
 		}
 		return clazz;
 	}

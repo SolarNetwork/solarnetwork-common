@@ -28,6 +28,7 @@ import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.service.BaseActionMessageProcessor;
+import net.solarnetwork.ocpp.v16.jakarta.ActionErrorCode;
 import net.solarnetwork.ocpp.v16.jakarta.CentralSystemAction;
 import ocpp.v16.jakarta.cs.DataTransferRequest;
 import ocpp.v16.jakarta.cs.DataTransferResponse;
@@ -59,9 +60,15 @@ public class DataTransferProcessor
 	}
 
 	@Override
-	public void processActionMessage(ActionMessage<DataTransferRequest> message,
-			ActionMessageResultHandler<DataTransferRequest, DataTransferResponse> resultHandler) {
-		DataTransferRequest req = message.getMessage();
+	public void processActionMessage(final ActionMessage<DataTransferRequest> message,
+			final ActionMessageResultHandler<DataTransferRequest, DataTransferResponse> resultHandler) {
+		defaultProcessActionMessage(message, resultHandler, ActionErrorCode.FormationViolation);
+	}
+
+	@Override
+	protected void handleActionMessage(final ActionMessage<DataTransferRequest> message,
+			final ActionMessageResultHandler<DataTransferRequest, DataTransferResponse> resultHandler,
+			final DataTransferRequest req) {
 		log.debug("OCPP DataTransfer received from {}; message ID = {}; vendor ID = {}; data = {}",
 				message.getClientId(), req.getMessageId(), req.getVendorId(), req.getData());
 		DataTransferResponse res = new DataTransferResponse();

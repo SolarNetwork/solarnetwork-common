@@ -82,7 +82,7 @@ public final class JaxbUtils {
 	 * @param registryClass
 	 *        the class, annotated with {@link XmlRegistry}, to create a context
 	 *        for
-	 * @return the array of JAXB classes discovered; never {@literal null}
+	 * @return the array of JAXB classes discovered; never {@code null}
 	 */
 	public static Class<?>[] jaxbClassesForRegistry(Class<?> registryClass) {
 		if ( !registryClass.isAnnotationPresent(XmlRegistry.class) ) {

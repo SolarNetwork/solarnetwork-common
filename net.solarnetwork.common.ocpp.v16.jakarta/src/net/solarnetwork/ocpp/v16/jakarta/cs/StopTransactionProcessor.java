@@ -1,33 +1,36 @@
 /* ==================================================================
  * StopTransactionProcessor.java - 14/02/2020 4:06:24 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.ocpp.v16.jakarta.cs;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.ocpp.domain.Action;
 import net.solarnetwork.ocpp.domain.ActionMessage;
 import net.solarnetwork.ocpp.domain.AuthorizationInfo;
@@ -52,7 +55,7 @@ import ocpp.v16.jakarta.cs.StopTransactionResponse;
 
 /**
  * Process {@link StopTransactionRequest} action messages.
- * 
+ *
  * @author matt
  * @version 2.0
  */
@@ -67,31 +70,29 @@ public class StopTransactionProcessor
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param chargeSessionManager
 	 *        the session manager
 	 * @throws IllegalArgumentException
-	 *         if any parameter is {@literal null}
+	 *         if any parameter is {@code null}
 	 */
 	public StopTransactionProcessor(ChargeSessionManager chargeSessionManager) {
 		super(StopTransactionRequest.class, StopTransactionResponse.class, SUPPORTED_ACTIONS);
-		if ( chargeSessionManager == null ) {
-			throw new IllegalArgumentException("The chargeSessionManager parameter must not be null.");
-		}
-		this.chargeSessionManager = chargeSessionManager;
+		this.chargeSessionManager = requireNonNullArgument(chargeSessionManager, "chargeSessionManager");
 	}
 
 	@Override
-	public void processActionMessage(ActionMessage<StopTransactionRequest> message,
-			ActionMessageResultHandler<StopTransactionRequest, StopTransactionResponse> resultHandler) {
-		final ChargePointIdentity chargePointId = message.getClientId();
-		final StopTransactionRequest req = message.getMessage();
-		if ( req == null || chargePointId == null ) {
-			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormationViolation,
-					"Missing StopTransactionRequest message.");
-			resultHandler.handleActionMessageResult(message, null, err);
-			return;
-		} else if ( req.getTransactionId() < 1 ) {
+	public void processActionMessage(final ActionMessage<StopTransactionRequest> message,
+			final ActionMessageResultHandler<StopTransactionRequest, StopTransactionResponse> resultHandler) {
+		processActionMessageWithClientIdentifier(message, resultHandler,
+				ActionErrorCode.FormationViolation);
+	}
+
+	@Override
+	protected void handleActionMessageWithClientIdentifier(ActionMessage<StopTransactionRequest> message,
+			final ActionMessageResultHandler<StopTransactionRequest, StopTransactionResponse> resultHandler,
+			final ChargePointIdentity identity, final StopTransactionRequest req) {
+		if ( req.getTransactionId() < 1 ) {
 			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.PropertyConstraintViolation,
 					"The transaction ID must be greater than 0.");
 			resultHandler.handleActionMessageResult(message, null, err);
@@ -101,7 +102,7 @@ public class StopTransactionProcessor
 		final String txId = String.valueOf(req.getTransactionId());
 
 		try {
-			ChargeSession session = chargeSessionManager.getActiveChargingSession(chargePointId, txId);
+			ChargeSession session = chargeSessionManager.getActiveChargingSession(identity, txId);
 
 			if ( session == null ) {
 				resultHandler.handleActionMessageResult(message, new StopTransactionResponse(), null);
@@ -110,7 +111,7 @@ public class StopTransactionProcessor
 
 			// @formatter:off
 			ChargeSessionEndInfo info = ChargeSessionEndInfo.builder()
-					.withChargePointId(chargePointId)
+					.withChargePointId(identity)
 					.withAuthorizationId(req.getIdTag())
 					.withTransactionId(txId)
 					.withMeterEnd(req.getMeterStop())
@@ -157,14 +158,16 @@ public class StopTransactionProcessor
 		}
 	}
 
-	private List<SampledValue> sampledValues(UUID chargeSessionId, List<MeterValue> transactionData) {
+	private @Nullable List<SampledValue> sampledValues(@Nullable UUID chargeSessionId,
+			@Nullable List<MeterValue> transactionData) {
 		List<SampledValue> result = null;
 		if ( transactionData != null && !transactionData.isEmpty() ) {
 			for ( MeterValue v : transactionData ) {
 				if ( v.getSampledValue() == null || v.getSampledValue().isEmpty() ) {
 					continue;
 				}
-				Instant ts = XmlDateUtils.timestamp(v.getTimestamp(), Instant::now);
+				final Instant ts = requireNonNullProperty(
+						XmlDateUtils.timestamp(v.getTimestamp(), Instant::now), "MeterValue.timestamp");
 				for ( ocpp.v16.jakarta.cs.SampledValue sv : v.getSampledValue() ) {
 					if ( result == null ) {
 						result = new ArrayList<>(16);

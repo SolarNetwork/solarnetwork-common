@@ -3,33 +3,36 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OCPP 1.6 Core Support (Jakarta EE)
 Bundle-Description: Support for OCPP 1.6 service implementations using Jakarta EE.
 Bundle-SymbolicName: net.solarnetwork.common.ocpp.v16.jakarta
-Bundle-Version: 6.0.0
+Bundle-Version: 6.1.0
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.ocpp.v16.jakarta
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
- net.solarnetwork.ocpp.v16.jakarta;version="1.0.0";uses:="net.solarnetwork.ocpp.json,net.solarnetwork.ocpp.service,net.solarnetwork.ocpp.domain",
- net.solarnetwork.ocpp.v16.jakarta.cp.json;version="2.0.0";
+ net.solarnetwork.ocpp.v16.jakarta;version="1.1.0";
+  uses:="net.solarnetwork.ocpp.json,
+   net.solarnetwork.ocpp.service,
+   net.solarnetwork.ocpp.domain",
+ net.solarnetwork.ocpp.v16.jakarta.cp.json;version="2.1.0";
   uses:="ocpp.v16.jakarta.cp,
    net.solarnetwork.ocpp.domain,
    com.fasterxml.jackson.databind,
    net.solarnetwork.ocpp.v16.jakarta.json",
- net.solarnetwork.ocpp.v16.jakarta.cs;version="1.0.2";
+ net.solarnetwork.ocpp.v16.jakarta.cs;version="1.1.0";
   uses:="net.solarnetwork.ocpp.service,
    net.solarnetwork.ocpp.service.cs,
    ocpp.v16.jakarta.cs,
    net.solarnetwork.ocpp.domain",
- net.solarnetwork.ocpp.v16.jakarta.cs.json;version="2.0.0";
+ net.solarnetwork.ocpp.v16.jakarta.cs.json;version="2.1.0";
   uses:="ocpp.v16.jakarta.cs,
    net.solarnetwork.ocpp.domain,
    com.fasterxml.jackson.databind,
    net.solarnetwork.ocpp.v16.jakarta.json",
- net.solarnetwork.ocpp.v16.jakarta.json;version="2.0.0";
+ net.solarnetwork.ocpp.v16.jakarta.json;version="2.1.0";
   uses:="jakarta.xml.bind,
    net.solarnetwork.ocpp.json,
    net.solarnetwork.ocpp.xml.jakarta.support,
    com.fasterxml.jackson.databind",
- net.solarnetwork.ocpp.xml.jakarta.support;version="2.0.0";
+ net.solarnetwork.ocpp.xml.jakarta.support;version="2.1.0";
   uses:="javax.xml.validation,
    jakarta.xml.bind,
    javax.xml.namespace,
@@ -46,17 +49,19 @@ Import-Package:
  javax.xml.namespace,
  javax.xml.parsers,
  javax.xml.validation,
- net.solarnetwork.codec.jackson;version="[1.0,2.0)",
- net.solarnetwork.dao;version="[2.0,4.0)",
- net.solarnetwork.domain;version="[3.4,4.0)",
- net.solarnetwork.ocpp.dao;version="[3.0,4.0)",
- net.solarnetwork.ocpp.domain;version="[4.0,5.0)",
- net.solarnetwork.ocpp.json;version="[2.0,3.0)",
- net.solarnetwork.ocpp.service;version="[2.2.1,3.0)",
- net.solarnetwork.ocpp.service.cs;version="[3.0,4.0)",
- net.solarnetwork.security;version="[2.0,3.0)",
+ net.solarnetwork.codec.jackson;version="[1.2,2.0)",
+ net.solarnetwork.dao;version="[3.1,4.0)",
+ net.solarnetwork.domain;version="[3.5,4.0)",
+ net.solarnetwork.ocpp.dao;version="[3.1,4.0)",
+ net.solarnetwork.ocpp.domain;version="[4.1,5.0)",
+ net.solarnetwork.ocpp.json;version="[2.1,3.0)",
+ net.solarnetwork.ocpp.service;version="[2.3,3.0)",
+ net.solarnetwork.ocpp.service.cs;version="[3.1,4.0)",
+ net.solarnetwork.security;version="[2.2,3.0)",
+ net.solarnetwork.util;version="[2.23,3.0)",
  ocpp.v16.jakarta.cp;version="[1.0,2.0)",
  ocpp.v16.jakarta.cs;version="[1.0,2.0)",
+ org.jspecify.annotations;version="[1.0,2.0)",
  org.slf4j;version="[1.7,2.0)",
  org.w3c.dom,
  org.w3c.dom.bootstrap,

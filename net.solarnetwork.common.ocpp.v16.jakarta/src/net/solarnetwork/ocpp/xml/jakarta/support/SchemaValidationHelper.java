@@ -1,27 +1,29 @@
 /* ==================================================================
  * SchemaValidationHelper.java - 3/02/2020 1:34:47 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.ocpp.xml.jakarta.support;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonEmptyArgument;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,6 +43,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -60,7 +63,7 @@ import net.solarnetwork.ocpp.domain.SchemaValidationException;
 
 /**
  * XML Schema validation helper.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -70,11 +73,11 @@ public class SchemaValidationHelper {
 
 	/**
 	 * Extract an XML schema that is embedded in a WSDL document.
-	 * 
+	 *
 	 * <p>
 	 * Adapted from https://stackoverflow.com/a/51132383.
 	 * </p>
-	 * 
+	 *
 	 * @param wsdlResource
 	 *        the WSDL classpath resource to parse
 	 * @param classLoader
@@ -151,7 +154,7 @@ public class SchemaValidationHelper {
 		factory.setResourceResolver(new LSResourceResolver() {
 
 			@Override
-			public LSInput resolveResource(String type, String namespaceURI, String publicId,
+			public @Nullable LSInput resolveResource(String type, String namespaceURI, String publicId,
 					String systemId, String baseURI) {
 				Source xmlSource = sources.get(namespaceURI);
 				if ( xmlSource != null ) {
@@ -186,7 +189,7 @@ public class SchemaValidationHelper {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param schemaResource
 	 *        a classpath resource schema to load
 	 * @param classLoader
@@ -194,15 +197,10 @@ public class SchemaValidationHelper {
 	 */
 	public SchemaValidationHelper(String schemaResource, ClassLoader classLoader) {
 		super();
-		if ( schemaResource == null || schemaResource.isEmpty() ) {
-			throw new IllegalArgumentException("The schemaResource parameter must not be null.");
-		}
-		if ( classLoader == null ) {
-			throw new IllegalArgumentException("The classLoader parameter must not be null.");
-		}
 		SchemaFactory f = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		try {
-			schema = f.newSchema(new StreamSource(classLoader.getResourceAsStream(schemaResource)));
+			schema = f.newSchema(new StreamSource(requireNonNullArgument(classLoader, "classLoader")
+					.getResourceAsStream(requireNonEmptyArgument(schemaResource, "schemaResource"))));
 		} catch ( SAXException e ) {
 			throw new RuntimeException(
 					"Error parsing XML schema " + schemaResource + ": " + e.getMessage(), e);
@@ -211,21 +209,18 @@ public class SchemaValidationHelper {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param schema
 	 *        the schema to use for validation
 	 */
 	public SchemaValidationHelper(Schema schema) {
 		super();
-		if ( schema == null ) {
-			throw new IllegalArgumentException("The schema parameter must not be null.");
-		}
-		this.schema = schema;
+		this.schema = requireNonNullArgument(schema, "shcmea");
 	}
 
 	/**
 	 * Validate a JAXB object.
-	 * 
+	 *
 	 * <p>
 	 * Note if the object is not annotated with
 	 * {@code jakarta.xml.bind.annotation.XmlRootElement} then it must be
@@ -233,7 +228,7 @@ public class SchemaValidationHelper {
 	 * can be accomplished via methods in the {@code ObjectFactory} class
 	 * created by the JAXB generator.
 	 * </p>
-	 * 
+	 *
 	 * @param jaxbContext
 	 *        the context the JAXB object is from
 	 * @param object

@@ -71,7 +71,7 @@ public class StartTransactionProcessor
 	 * @param chargeSessionManager
 	 *        the session manager
 	 * @throws IllegalArgumentException
-	 *         if any parameter is {@literal null}
+	 *         if any parameter is {@code null}
 	 */
 	public StartTransactionProcessor(ChargeSessionManager chargeSessionManager) {
 		super(StartTransactionRequest.class, StartTransactionResponse.class, SUPPORTED_ACTIONS);

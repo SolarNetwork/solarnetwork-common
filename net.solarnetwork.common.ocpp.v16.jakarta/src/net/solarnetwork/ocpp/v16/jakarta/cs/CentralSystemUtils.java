@@ -24,6 +24,7 @@ package net.solarnetwork.ocpp.v16.jakarta.cs;
 
 import java.time.Instant;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.ocpp.domain.AuthorizationStatus;
 import net.solarnetwork.ocpp.domain.Location;
 import net.solarnetwork.ocpp.domain.Measurand;
@@ -50,7 +51,7 @@ public final class CentralSystemUtils {
 	 *
 	 * @param status
 	 *        the status to translate
-	 * @return the status, never {@literal null}
+	 * @return the status, never {@code null}
 	 */
 	public static ocpp.v16.jakarta.cs.AuthorizationStatus statusForStatus(AuthorizationStatus status) {
 		switch (status) {
@@ -81,9 +82,9 @@ public final class CentralSystemUtils {
 	 *        the timestamp associated with the sample
 	 * @param value
 	 *        the value to translate
-	 * @return the value, never {@literal null}
+	 * @return the value, never {@code null}
 	 */
-	public static SampledValue sampledValue(UUID chargeSessionId, Instant timestamp,
+	public static SampledValue sampledValue(@Nullable UUID chargeSessionId, Instant timestamp,
 			ocpp.v16.jakarta.cs.SampledValue value) {
 		// @formatter:off
 		SampledValue.Builder result = SampledValue.builder()
@@ -105,7 +106,7 @@ public final class CentralSystemUtils {
 	 *
 	 * @param unit
 	 *        the unit to translate
-	 * @return the unit, never {@literal null}
+	 * @return the unit, never {@code null}
 	 */
 	@SuppressWarnings("deprecation")
 	public static UnitOfMeasure unit(ocpp.v16.jakarta.cs.UnitOfMeasure unit) {
@@ -125,9 +126,9 @@ public final class CentralSystemUtils {
 	 *
 	 * @param phase
 	 *        the phase to translate
-	 * @return the phase, never {@literal null}
+	 * @return the phase, or {@code null} if {@code phase} is {@code null}
 	 */
-	public static Phase phase(ocpp.v16.jakarta.cs.Phase phase) {
+	public static @Nullable Phase phase(ocpp.v16.jakarta.cs.Phase phase) {
 		if ( phase == null ) {
 			return null;
 		}
@@ -143,7 +144,7 @@ public final class CentralSystemUtils {
 	 *
 	 * @param measurand
 	 *        the measurand to translate
-	 * @return the measurand, never {@literal null}
+	 * @return the measurand, never {@code null}
 	 */
 	public static Measurand measurand(ocpp.v16.jakarta.cs.Measurand measurand) {
 		try {
@@ -158,7 +159,7 @@ public final class CentralSystemUtils {
 	 *
 	 * @param location
 	 *        the location to translate
-	 * @return the location, never {@literal null}
+	 * @return the location, never {@code null}
 	 */
 	public static Location location(ocpp.v16.jakarta.cs.Location location) {
 		try {
@@ -175,7 +176,7 @@ public final class CentralSystemUtils {
 	 *
 	 * @param context
 	 *        the context to translate
-	 * @return the context, never {@literal null}
+	 * @return the context, never {@code null}
 	 */
 	public static ReadingContext readingContext(ocpp.v16.jakarta.cs.ReadingContext context) {
 		try {
