@@ -32,9 +32,16 @@ import net.solarnetwork.io.SimpleResourceMetadata;
  * Immutable implementation of {@link S3ObjectMetadata}.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMetadata {
+
+	/**
+	 * The {@code storageClass} default value.
+	 *
+	 * @since 1.3
+	 */
+	public static final String DEFAULT_STORAGE_CLASS = "STANDARD";
 
 	private final long size;
 	private final String storageClass;
@@ -81,7 +88,7 @@ public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMeta
 			@Nullable Map<String, ?> extendedMetadata) {
 		super(modified, contentType, extendedMetadata);
 		this.size = size;
-		this.storageClass = "STANDARD";
+		this.storageClass = DEFAULT_STORAGE_CLASS;
 	}
 
 	/**
@@ -92,17 +99,17 @@ public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMeta
 	 * @param modified
 	 *        the modified date
 	 * @param storageClass
-	 *        the storage class
+	 *        the storage class, or {@code null} to use the default class
 	 * @param contentType
 	 *        the content type
 	 * @param extendedMetadata
 	 *        extended metadata
 	 */
-	public S3ObjectMeta(long size, @Nullable Date modified, String storageClass,
+	public S3ObjectMeta(long size, @Nullable Date modified, @Nullable String storageClass,
 			@Nullable MimeType contentType, @Nullable Map<String, ?> extendedMetadata) {
 		super(modified, contentType, extendedMetadata);
 		this.size = size;
-		this.storageClass = storageClass;
+		this.storageClass = (storageClass != null ? storageClass : DEFAULT_STORAGE_CLASS);
 	}
 
 	@Override

@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Date;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.MimeType;
 import net.solarnetwork.common.s3.S3Object;
 import net.solarnetwork.common.s3.S3ObjectMetadata;
@@ -74,7 +75,7 @@ public class Sdk2S3Object implements S3Object, S3ObjectMetadata {
 	}
 
 	@Override
-	public Date getModified() {
+	public @Nullable Date getModified() {
 		Instant ts = response.response().lastModified();
 		return (ts != null ? Date.from(ts) : null);
 	}

@@ -22,6 +22,7 @@
 
 package net.solarnetwork.common.s3.sdk2;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -39,6 +40,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.solarnetwork.common.s3.S3Client;
@@ -52,7 +54,6 @@ import net.solarnetwork.settings.SettingSpecifier;
 import net.solarnetwork.settings.SettingsChangeObserver;
 import net.solarnetwork.settings.support.BaseSettingsSpecifierLocalizedServiceInfoProvider;
 import net.solarnetwork.settings.support.BasicTextFieldSettingSpecifier;
-import net.solarnetwork.util.ObjectUtils;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
@@ -103,16 +104,16 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 
 	private final ExecutorService executorService;
 
-	private String accessToken;
-	private String accessSecret;
-	private String bucketName;
+	private @Nullable String accessToken;
+	private @Nullable String accessSecret;
+	private @Nullable String bucketName;
 	private String regionName = DEFAULT_REGION_NAME;
 	private int maximumKeysPerRequest = DEFAULT_MAXIMUM_KEYS_PER_REQUEST;
-	private AwsCredentialsProvider credentialsProvider;
+	private @Nullable AwsCredentialsProvider credentialsProvider;
 
-	private AwsCredentialsProvider tokenCredentialsProvider;
-	private S3AsyncClient s3Client;
-	private S3TransferManager s3TransferManager;
+	private @Nullable AwsCredentialsProvider tokenCredentialsProvider;
+	private @Nullable S3AsyncClient s3Client;
+	private @Nullable S3TransferManager s3TransferManager;
 
 	/**
 	 * Constructor.
@@ -134,11 +135,11 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	 */
 	public Sdk2S3Client(ExecutorService executorService, String id) {
 		super(id);
-		this.executorService = ObjectUtils.requireNonNullArgument(executorService, "executorService");
+		this.executorService = requireNonNullArgument(executorService, "executorService");
 	}
 
 	@Override
-	public synchronized void configurationChanged(Map<String, Object> properties) {
+	public synchronized void configurationChanged(@Nullable Map<String, Object> properties) {
 		if ( accessToken != null && accessSecret != null ) {
 			tokenCredentialsProvider = StaticCredentialsProvider
 					.create(AwsBasicCredentials.create(accessToken, accessSecret));
@@ -213,7 +214,7 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	}
 
 	@Override
-	public Set<S3ObjectReference> listObjects(String prefix) throws IOException {
+	public Set<S3ObjectReference> listObjects(@Nullable String prefix) throws IOException {
 		Set<S3ObjectReference> result = new LinkedHashSet<>(100);
 		return performAction("listing S3 objects at " + prefix, (client, xfer) -> {
 			final ListObjectsV2Request.Builder req = ListObjectsV2Request.builder().bucket(bucketName)
@@ -272,8 +273,8 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	}
 
 	@Override
-	public <P> S3Object getObject(String key, ProgressListener<P> progressListener, P progressContext)
-			throws IOException {
+	public <P> @Nullable S3Object getObject(String key, @Nullable ProgressListener<P> progressListener,
+			@Nullable P progressContext) throws IOException {
 		return performAction("getting S3 object at " + key, (client, xfer) -> {
 			final URL url = client.utilities().getUrl(r -> r.bucket(bucketName).key(key));
 
@@ -298,7 +299,8 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 
 	@Override
 	public <P> S3ObjectReference putObject(String key, InputStream in, S3ObjectMetadata objectMetadata,
-			ProgressListener<P> progressListener, P progressContext) throws IOException {
+			@Nullable ProgressListener<P> progressListener, @Nullable P progressContext)
+			throws IOException {
 		return performAction("putting S3 object at " + key, (client, xfer) -> {
 			final URL url = client.utilities().getUrl(r -> r.bucket(bucketName).key(key));
 
@@ -431,7 +433,7 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	 * @param bucketName
 	 *        the bucketName to set
 	 */
-	public void setBucketName(String bucketName) {
+	public void setBucketName(@Nullable String bucketName) {
 		this.bucketName = bucketName;
 	}
 
@@ -441,8 +443,8 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	 * @param regionName
 	 *        the region name to set; defaults to us-west-2
 	 */
-	public void setRegionName(String regionName) {
-		this.regionName = regionName;
+	public void setRegionName(@Nullable String regionName) {
+		this.regionName = (regionName != null ? regionName : DEFAULT_REGION_NAME);
 	}
 
 	/**
@@ -461,7 +463,7 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	 * @param accessToken
 	 *        the access token to set
 	 */
-	public void setAccessToken(String accessToken) {
+	public void setAccessToken(@Nullable String accessToken) {
 		this.accessToken = accessToken;
 	}
 
@@ -471,7 +473,7 @@ public class Sdk2S3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvi
 	 * @param accessSecret
 	 *        the access secret to set
 	 */
-	public void setAccessSecret(String accessSecret) {
+	public void setAccessSecret(@Nullable String accessSecret) {
 		this.accessSecret = accessSecret;
 	}
 

@@ -23,6 +23,7 @@
 package net.solarnetwork.common.s3.sdk2;
 
 import java.util.OptionalDouble;
+import org.jspecify.annotations.Nullable;
 import net.solarnetwork.service.ProgressListener;
 import net.solarnetwork.util.ObjectUtils;
 import software.amazon.awssdk.transfer.s3.progress.TransferListener;
@@ -43,7 +44,7 @@ import software.amazon.awssdk.transfer.s3.progress.TransferListener.Context.Tran
 public class Sdk2TransferListenerAdapter<T> implements TransferListener {
 
 	private final ProgressListener<T> delegate;
-	private final T context;
+	private final @Nullable T context;
 
 	/**
 	 * Constructor.
@@ -52,11 +53,13 @@ public class Sdk2TransferListenerAdapter<T> implements TransferListener {
 	 *        the listener delegate
 	 * @param context
 	 *        the listener context
+	 * @throws IllegalArgumentException
+	 *         if {@code delegate} is {@code null}
 	 */
-	public Sdk2TransferListenerAdapter(ProgressListener<T> delegate, T context) {
+	public Sdk2TransferListenerAdapter(ProgressListener<T> delegate, @Nullable T context) {
 		super();
 		this.delegate = ObjectUtils.requireNonNullArgument(delegate, "delegate");
-		this.context = ObjectUtils.requireNonNullArgument(context, "context");
+		this.context = context;
 	}
 
 	private void handleTransfer(TransferInitiated context) {
