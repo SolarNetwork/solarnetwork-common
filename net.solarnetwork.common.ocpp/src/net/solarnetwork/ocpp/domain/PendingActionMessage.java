@@ -43,7 +43,7 @@ public class PendingActionMessage {
 	private final AtomicBoolean processed;
 
 	/**
-	 * Constructor for inbound message response.
+	 * Constructor for outbound message response.
 	 *
 	 * @param message
 	 *        the message
@@ -54,13 +54,7 @@ public class PendingActionMessage {
 	 */
 	public PendingActionMessage(ActionMessage<Object> message,
 			ActionMessageResultHandler<Object, Object> handler) {
-		super();
-		this.message = requireNonNullArgument(message, "message");
-		this.handler = requireNonNullArgument(handler, "handler");
-		;
-		this.date = System.currentTimeMillis();
-		this.outbound = true;
-		this.processed = new AtomicBoolean(false);
+		this(message, handler, true);
 	}
 
 	/**
@@ -76,7 +70,17 @@ public class PendingActionMessage {
 	 *         if any argument is {@code null}
 	 */
 	public PendingActionMessage(ActionMessage<Object> message) {
-		this(message, PendingActionMessage::noop);
+		this(message, PendingActionMessage::noop, false);
+	}
+
+	private PendingActionMessage(ActionMessage<Object> message,
+			ActionMessageResultHandler<Object, Object> handler, boolean outbound) {
+		super();
+		this.message = requireNonNullArgument(message, "message");
+		this.handler = requireNonNullArgument(handler, "handler");
+		this.date = System.currentTimeMillis();
+		this.outbound = outbound;
+		this.processed = new AtomicBoolean(false);
 	}
 
 	private static boolean noop(ActionMessage<Object> message, @Nullable Object result,
