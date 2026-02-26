@@ -26,6 +26,8 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -44,6 +46,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.springframework.core.io.Resource;
@@ -51,6 +54,7 @@ import org.springframework.util.MimeType;
 import net.solarnetwork.io.ResourceMetadata;
 import net.solarnetwork.io.ResourceMetadataHolder;
 import net.solarnetwork.service.OptionalService;
+import net.solarnetwork.service.OptionalServiceNotAvailableException;
 import net.solarnetwork.service.ProgressListener;
 import net.solarnetwork.service.ResourceStorageService;
 import net.solarnetwork.settings.SettingSpecifier;
@@ -70,12 +74,12 @@ import net.solarnetwork.settings.support.SettingUtils;
 public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServiceInfoProvider
 		implements ResourceStorageService, SettingSpecifierProvider, SettingsChangeObserver {
 
-	private String uid;
-	private String groupUid;
-	private S3Client s3Client;
+	private @Nullable String uid;
+	private @Nullable String groupUid;
+	private @Nullable S3Client s3Client;
 	private Executor executor;
-	private String objectKeyPrefix;
-	private OptionalService<EventAdmin> eventAdmin;
+	private @Nullable String objectKeyPrefix;
+	private @Nullable OptionalService<EventAdmin> eventAdmin;
 
 	/**
 	 * Constructor.
@@ -83,7 +87,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @param executor
 	 *        the executor to use
 	 * @throws IllegalArgumentException
-	 *         if {@code executor} is {@literal null}
+	 *         if {@code executor} is {@code null}
 	 */
 	public S3ResourceStorageService(Executor executor) {
 		this(S3ResourceStorageService.class.getName(), executor);
@@ -97,11 +101,11 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @param executor
 	 *        the executor to use
 	 * @throws IllegalArgumentException
-	 *         if {@code executor} is {@literal null}
+	 *         if {@code executor} is {@code null}
 	 */
 	public S3ResourceStorageService(String id, Executor executor) {
 		super(id);
-		setExecutor(executor);
+		this.executor = requireNonNullArgument(executor, "executor");
 	}
 
 	/**
@@ -112,14 +116,14 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	}
 
 	@Override
-	public void configurationChanged(Map<String, Object> properties) {
-		S3Client client = getS3Client();
+	public void configurationChanged(@Nullable Map<String, Object> properties) {
+		final S3Client client = getS3Client();
 		if ( client instanceof SettingsChangeObserver ) {
 			((SettingsChangeObserver) client).configurationChanged(properties);
 		}
 	}
 
-	private String mapPathPrefix(String prefix, String path) {
+	private @Nullable String mapPathPrefix(@Nullable String prefix, @Nullable String path) {
 		if ( path != null && prefix != null && !path.startsWith(prefix) ) {
 			return prefix + path;
 		}
@@ -133,7 +137,8 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 	@Override
 	public boolean isConfigured() {
-		return s3Client.isConfigured();
+		final S3Client client = getS3Client();
+		return (client != null && client.isConfigured());
 	}
 
 	/**
@@ -176,14 +181,14 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	}
 
 	@Override
-	public CompletableFuture<Iterable<Resource>> listResources(String pathPrefix) {
+	public CompletableFuture<Iterable<Resource>> listResources(@Nullable String pathPrefix) {
 		final String prefix = mapPathPrefix(objectKeyPrefix, pathPrefix);
 		final CompletableFuture<Iterable<Resource>> result = new CompletableFuture<>();
 		execute(result, new Callable<Iterable<Resource>>() {
 
 			@Override
 			public Iterable<Resource> call() throws Exception {
-				S3Client c = getS3Client();
+				S3Client c = s3Client();
 				Set<S3ObjectReference> refs = c.listObjects(prefix);
 				return refs.stream().map(r -> new S3ClientResource(c, r)).collect(toList());
 			}
@@ -193,21 +198,25 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	}
 
 	@Override
-	public URL resourceStorageUrl(String path) {
-		S3Client c = getS3Client();
-		return c.getObjectURL(mapPathPrefix(objectKeyPrefix, path));
+	public @Nullable URL resourceStorageUrl(String path) {
+		final String p = mapPathPrefix(objectKeyPrefix, path);
+		if ( p == null ) {
+			return null;
+		}
+		final S3Client c = s3Client();
+		return (c != null ? c.getObjectURL(p) : null);
 	}
 
 	@Override
 	public CompletableFuture<Boolean> saveResource(String path, Resource resource, boolean replace,
-			ProgressListener<Resource> progressListener) {
-		final String p = mapPathPrefix(objectKeyPrefix, path);
+			@Nullable ProgressListener<Resource> progressListener) {
+		final String p = requireNonNullProperty(mapPathPrefix(objectKeyPrefix, path), "Path");
 		final CompletableFuture<Boolean> result = new CompletableFuture<>();
 		execute(result, new Callable<Boolean>() {
 
 			@Override
 			public Boolean call() throws Exception {
-				S3Client c = getS3Client();
+				final S3Client c = s3Client();
 				if ( !replace ) {
 					S3Object o = c.getObject(p, null, null);
 					if ( o != null ) {
@@ -257,7 +266,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 		return result;
 	}
 
-	private static <T> Set<T> asSet(Iterable<T> iterable) {
+	private static <T> Set<T> asSet(@Nullable Iterable<T> iterable) {
 		if ( iterable == null ) {
 			return Collections.emptySet();
 		}
@@ -276,8 +285,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 
 			@Override
 			public Set<String> call() throws Exception {
-				S3Client c = getS3Client();
-
+				final S3Client c = s3Client();
 				Set<String> deletedPaths = c.deleteObjects(p);
 				postResourcesDeletedEvent(paths);
 				Set<String> notDeleted = new LinkedHashSet<>(asSet(p));
@@ -314,10 +322,11 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 *        the resource to create the event for
 	 * @param path
 	 *        the resource path
-	 * @return the new Event instance, or {@literal null} if {@code resource} is
-	 *         {@literal null} or cannot be resolved to a URL
+	 * @return the new Event instance, or {@code null} if {@code resource} is
+	 *         {@code null} or cannot be resolved to a URL
 	 */
-	protected Event createResourceSavedEvent(Resource resource, String path) {
+	protected @Nullable Event createResourceSavedEvent(@Nullable Resource resource,
+			@Nullable String path) {
 		if ( resource == null ) {
 			return null;
 		}
@@ -349,7 +358,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @param paths
 	 *        the paths that have been deleted
 	 */
-	protected final void postResourcesDeletedEvent(Iterable<String> paths) {
+	protected final void postResourcesDeletedEvent(@Nullable Iterable<String> paths) {
 		Event event = createResourcesDeletedEvent(paths);
 		postEvent(event);
 	}
@@ -360,10 +369,10 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 *
 	 * @param paths
 	 *        the paths that have been deleted
-	 * @return the new Event instance, or {@literal null} if {@code paths} is
-	 *         {@literal null}
+	 * @return the new Event instance, or {@code null} if {@code paths} is
+	 *         {@code null}
 	 */
-	protected Event createResourcesDeletedEvent(Iterable<String> paths) {
+	protected @Nullable Event createResourcesDeletedEvent(@Nullable Iterable<String> paths) {
 		if ( paths == null ) {
 			return null;
 		}
@@ -395,12 +404,12 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @param event
 	 *        the event to post
 	 */
-	protected final void postEvent(Event event) {
+	protected final void postEvent(@Nullable Event event) {
 		if ( event == null ) {
 			return;
 		}
-		EventAdmin ea = (eventAdmin == null ? null : eventAdmin.service());
-		if ( ea == null || event == null ) {
+		final EventAdmin ea = OptionalService.service(eventAdmin);
+		if ( ea == null ) {
 			return;
 		}
 		ea.postEvent(event);
@@ -428,14 +437,22 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 		return result;
 	}
 
+	private S3Client s3Client() {
+		final S3Client client = getS3Client();
+		if ( client == null ) {
+			throw new OptionalServiceNotAvailableException("S3Client not available.");
+		}
+		return client;
+	}
+
 	// Accessors
 
 	/**
 	 * Get the S3 client.
 	 *
-	 * @return the client, never {@literal null}
+	 * @return the client, or {@code null} if not configured
 	 */
-	public S3Client getS3Client() {
+	public final @Nullable S3Client getS3Client() {
 		return s3Client;
 	}
 
@@ -445,21 +462,18 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @param s3Client
 	 *        the client to set
 	 * @throws IllegalArgumentException
-	 *         if {@code s3Client} is {@literal null}
+	 *         if {@code s3Client} is {@code null}
 	 */
-	public void setS3Client(S3Client s3Client) {
-		if ( s3Client == null ) {
-			throw new IllegalArgumentException("The S3 client argument must not be null.");
-		}
-		this.s3Client = s3Client;
+	public final void setS3Client(S3Client s3Client) {
+		this.s3Client = requireNonNullArgument(s3Client, "s3Client");
 	}
 
 	/**
 	 * Get the executor that handles asynchronous operations.
 	 *
-	 * @return the executor, never {@literal null}
+	 * @return the executor, never {@code null}
 	 */
-	public Executor getExecutor() {
+	public final Executor getExecutor() {
 		return executor;
 	}
 
@@ -469,21 +483,18 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @param executor
 	 *        the executor to set
 	 * @throws IllegalArgumentException
-	 *         if {@code Executor} is {@literal null}
+	 *         if {@code Executor} is {@code null}
 	 */
-	public void setExecutor(Executor executor) {
-		if ( executor == null ) {
-			throw new IllegalArgumentException("The executor argument must not be null.");
-		}
-		this.executor = executor;
+	public final void setExecutor(Executor executor) {
+		this.executor = requireNonNullArgument(executor, "executor");
 	}
 
 	/**
 	 * Get the S3 object key prefix.
 	 *
-	 * @return the prefix to use, or {@literal null}
+	 * @return the prefix to use, or {@code null}
 	 */
-	public String getObjectKeyPrefix() {
+	public final @Nullable String getObjectKeyPrefix() {
 		return objectKeyPrefix;
 	}
 
@@ -497,14 +508,14 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * </p>
 	 *
 	 * @param objectKeyPrefix
-	 *        the object key prefix to set, or {@literal null} for no prefix
+	 *        the object key prefix to set, or {@code null} for no prefix
 	 */
-	public void setObjectKeyPrefix(String objectKeyPrefix) {
+	public final void setObjectKeyPrefix(@Nullable String objectKeyPrefix) {
 		this.objectKeyPrefix = objectKeyPrefix;
 	}
 
 	@Override
-	public String getUid() {
+	public final @Nullable String getUid() {
 		return uid;
 	}
 
@@ -514,12 +525,12 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @param uid
 	 *        the UID to set
 	 */
-	public void setUid(String uid) {
+	public final void setUid(@Nullable String uid) {
 		this.uid = uid;
 	}
 
 	@Override
-	public String getGroupUid() {
+	public final @Nullable String getGroupUid() {
 		return groupUid;
 	}
 
@@ -529,7 +540,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @param groupUid
 	 *        the group UID to set
 	 */
-	public void setGroupUid(String groupUid) {
+	public final void setGroupUid(@Nullable String groupUid) {
 		this.groupUid = groupUid;
 	}
 
@@ -540,7 +551,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @deprecated since 2.0 use {@link #getUid()}
 	 */
 	@Deprecated
-	public String getUID() {
+	public final @Nullable String getUID() {
 		return getUid();
 	}
 
@@ -556,7 +567,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @deprecated since 2.0 use {@link #setUid(String)}
 	 */
 	@Deprecated
-	public void setUID(String uid) {
+	public final void setUID(@Nullable String uid) {
 		setUid(uid);
 	}
 
@@ -567,7 +578,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @deprecated use {@link #getGroupUid()}
 	 */
 	@Deprecated
-	public String getGroupUID() {
+	public final @Nullable String getGroupUID() {
 		return getGroupUid();
 	}
 
@@ -583,7 +594,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @deprecated since 2.0 use {@link #setGroupUid(String)}
 	 */
 	@Deprecated
-	public void setGroupUID(String groupUid) {
+	public final void setGroupUID(@Nullable String groupUid) {
 		setGroupUid(groupUid);
 	}
 
@@ -592,7 +603,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 *
 	 * @return the eventAdmin the service
 	 */
-	public OptionalService<EventAdmin> getEventAdmin() {
+	public @Nullable OptionalService<EventAdmin> getEventAdmin() {
 		return eventAdmin;
 	}
 
@@ -602,7 +613,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 	 * @param eventAdmin
 	 *        the service to set
 	 */
-	public void setEventAdmin(OptionalService<EventAdmin> eventAdmin) {
+	public void setEventAdmin(@Nullable OptionalService<EventAdmin> eventAdmin) {
 		this.eventAdmin = eventAdmin;
 	}
 

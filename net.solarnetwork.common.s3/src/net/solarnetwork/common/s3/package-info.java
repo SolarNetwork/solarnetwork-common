@@ -1,7 +1,7 @@
 /* ==================================================================
- * S3ObjectReference.java - 15/10/2019 10:52:43 am
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2019 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,48 +20,9 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.s3;
-
-import java.net.URL;
-import java.util.Date;
-import org.jspecify.annotations.Nullable;
-
 /**
- * API for information about an S3 object.
- *
- * @author matt
- * @version 1.0
+ * Package info.
  */
-public interface S3ObjectReference {
 
-	/**
-	 * Get the object key.
-	 *
-	 * @return the key
-	 */
-	String getKey();
-
-	/**
-	 * Get the object size.
-	 *
-	 * @return the size, in bytes
-	 */
-	long getSize();
-
-	/**
-	 * Get the modification date.
-	 *
-	 * @return the modified date, if known
-	 */
-	@Nullable
-	Date getModified();
-
-	/**
-	 * Get a URL for this object reference.
-	 *
-	 * @return a URL for this object, if known
-	 */
-	@Nullable
-	URL getURL();
-
-}
+@org.jspecify.annotations.NullMarked
+package net.solarnetwork.common.s3;

@@ -1,21 +1,21 @@
 /* ==================================================================
  * S3ObjectRef.java - 3/10/2017 2:54:27 PM
- * 
+ *
  * Copyright 2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -24,10 +24,11 @@ package net.solarnetwork.common.s3;
 
 import java.net.URL;
 import java.util.Date;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An immutable reference to an S3 object.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -35,12 +36,12 @@ public class S3ObjectRef implements S3ObjectReference {
 
 	private final String key;
 	private final long size;
-	private final Date modified;
-	private final URL url;
+	private final @Nullable Date modified;
+	private final @Nullable URL url;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param key
 	 *        the key
 	 */
@@ -50,7 +51,7 @@ public class S3ObjectRef implements S3ObjectReference {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param key
 	 *        the key
 	 * @param size
@@ -60,7 +61,7 @@ public class S3ObjectRef implements S3ObjectReference {
 	 * @param url
 	 *        the URL
 	 */
-	public S3ObjectRef(String key, long size, Date modified, URL url) {
+	public S3ObjectRef(String key, long size, @Nullable Date modified, @Nullable URL url) {
 		super();
 		this.key = key;
 		this.size = size;
@@ -88,12 +89,12 @@ public class S3ObjectRef implements S3ObjectReference {
 	}
 
 	@Override
-	public Date getModified() {
+	public @Nullable Date getModified() {
 		return modified;
 	}
 
 	@Override
-	public URL getURL() {
+	public @Nullable URL getURL() {
 		return url;
 	}
 
@@ -107,25 +108,24 @@ public class S3ObjectRef implements S3ObjectReference {
 
 	/**
 	 * Test for equality.
-	 * 
+	 *
 	 * <p>
 	 * Only the {@code key} property is compared for equality.
 	 * </p>
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if ( this == obj ) {
 			return true;
 		}
 		if ( obj == null ) {
 			return false;
 		}
-		if ( !(obj instanceof S3ObjectRef) ) {
+		if ( !(obj instanceof S3ObjectRef other) ) {
 			return false;
 		}
-		S3ObjectRef other = (S3ObjectRef) obj;
 		if ( key == null ) {
 			if ( other.key != null ) {
 				return false;

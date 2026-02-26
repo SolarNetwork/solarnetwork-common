@@ -24,6 +24,7 @@ package net.solarnetwork.common.s3;
 
 import java.util.Date;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.MimeType;
 import net.solarnetwork.io.SimpleResourceMetadata;
 
@@ -46,7 +47,7 @@ public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMeta
 	 * @param modified
 	 *        the modified date
 	 */
-	public S3ObjectMeta(long size, Date modified) {
+	public S3ObjectMeta(long size, @Nullable Date modified) {
 		this(size, modified, DEFAULT_CONTENT_TYPE, null);
 	}
 
@@ -60,7 +61,7 @@ public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMeta
 	 * @param contentType
 	 *        the content type
 	 */
-	public S3ObjectMeta(long size, Date modified, MimeType contentType) {
+	public S3ObjectMeta(long size, @Nullable Date modified, @Nullable MimeType contentType) {
 		this(size, modified, contentType, null);
 	}
 
@@ -76,8 +77,8 @@ public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMeta
 	 * @param extendedMetadata
 	 *        extended metadata
 	 */
-	public S3ObjectMeta(long size, Date modified, MimeType contentType,
-			Map<String, ?> extendedMetadata) {
+	public S3ObjectMeta(long size, @Nullable Date modified, @Nullable MimeType contentType,
+			@Nullable Map<String, ?> extendedMetadata) {
 		super(modified, contentType, extendedMetadata);
 		this.size = size;
 		this.storageClass = "STANDARD";
@@ -97,8 +98,8 @@ public class S3ObjectMeta extends SimpleResourceMetadata implements S3ObjectMeta
 	 * @param extendedMetadata
 	 *        extended metadata
 	 */
-	public S3ObjectMeta(long size, Date modified, String storageClass, MimeType contentType,
-			Map<String, ?> extendedMetadata) {
+	public S3ObjectMeta(long size, @Nullable Date modified, String storageClass,
+			@Nullable MimeType contentType, @Nullable Map<String, ?> extendedMetadata) {
 		super(modified, contentType, extendedMetadata);
 		this.size = size;
 		this.storageClass = storageClass;
