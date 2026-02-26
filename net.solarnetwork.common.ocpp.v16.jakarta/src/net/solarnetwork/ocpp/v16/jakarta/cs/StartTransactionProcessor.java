@@ -1,27 +1,28 @@
 /* ==================================================================
  * StartTransactionProcessor.java - 14/02/2020 1:46:00 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.ocpp.v16.jakarta.cs;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
@@ -45,14 +46,14 @@ import ocpp.v16.jakarta.cs.StartTransactionResponse;
 
 /**
  * Process {@link StartTransactionRequest} action messages.
- * 
+ *
  * <p>
  * If an authorization exception occurs the resulting
  * {@link StartTransactionResponse} will have its {@code transactionId} set to
  * {@link AuthorizationException#getTransactionId()} if available, otherwise
  * {@literal 0}.
  * </p>
- * 
+ *
  * @author matt
  * @version 2.0
  */
@@ -67,7 +68,7 @@ public class StartTransactionProcessor
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param chargeSessionManager
 	 *        the session manager
 	 * @throws IllegalArgumentException
@@ -75,27 +76,24 @@ public class StartTransactionProcessor
 	 */
 	public StartTransactionProcessor(ChargeSessionManager chargeSessionManager) {
 		super(StartTransactionRequest.class, StartTransactionResponse.class, SUPPORTED_ACTIONS);
-		if ( chargeSessionManager == null ) {
-			throw new IllegalArgumentException("The chargeSessionManager parameter must not be null.");
-		}
-		this.chargeSessionManager = chargeSessionManager;
+		this.chargeSessionManager = requireNonNullArgument(chargeSessionManager, "chargeSessionManager");
 	}
 
 	@Override
-	public void processActionMessage(ActionMessage<StartTransactionRequest> message,
-			ActionMessageResultHandler<StartTransactionRequest, StartTransactionResponse> resultHandler) {
-		final ChargePointIdentity chargePointId = message.getClientId();
-		final StartTransactionRequest req = message.getMessage();
-		if ( req == null || chargePointId == null ) {
-			ErrorCodeException err = new ErrorCodeException(ActionErrorCode.FormationViolation,
-					"Missing StartTransactionRequest message.");
-			resultHandler.handleActionMessageResult(message, null, err);
-			return;
-		}
+	public void processActionMessage(final ActionMessage<StartTransactionRequest> message,
+			final ActionMessageResultHandler<StartTransactionRequest, StartTransactionResponse> resultHandler) {
+		processActionMessageWithClientIdentifier(message, resultHandler,
+				ActionErrorCode.FormationViolation);
+	}
 
+	@Override
+	protected void handleActionMessageWithClientIdentifier(
+			final ActionMessage<StartTransactionRequest> message,
+			final ActionMessageResultHandler<StartTransactionRequest, StartTransactionResponse> resultHandler,
+			final ChargePointIdentity identity, final StartTransactionRequest req) {
 		// @formatter:off
 		ChargeSessionStartInfo info = ChargeSessionStartInfo.builder()
-				.withChargePointId(chargePointId)
+				.withChargePointId(identity)
 				.withAuthorizationId(req.getIdTag())
 				.withConnectorId(req.getConnectorId())
 				.withMeterStart(req.getMeterStart())

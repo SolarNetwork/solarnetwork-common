@@ -57,8 +57,7 @@ public class DiagnosticsStatusNotificationProcessor extends
 	@Override
 	public void processActionMessage(final ActionMessage<DiagnosticsStatusNotificationRequest> message,
 			final ActionMessageResultHandler<DiagnosticsStatusNotificationRequest, DiagnosticsStatusNotificationResponse> resultHandler) {
-		processActionMessageWithClientIdentifier(message, resultHandler,
-				ActionErrorCode.FormationViolation);
+		defaultProcessActionMessage(message, resultHandler, ActionErrorCode.FormationViolation);
 	}
 
 	@Override
