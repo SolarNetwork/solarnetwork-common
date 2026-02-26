@@ -101,7 +101,6 @@ public class BigDecimalStringSerializer extends StdSerializer<BigDecimal> {
 		typeSer.writeTypeSuffix(gen, typeIdDef);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
 		return createSchemaNode("string", true);
