@@ -23,6 +23,7 @@
 package net.solarnetwork.ocpp.web.jakarta.json;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -46,6 +47,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.task.AsyncTaskExecutor;
@@ -125,7 +127,7 @@ import tools.jackson.databind.ObjectMapper;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 3.1
+ * @version 3.2
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler implements WebSocketHandler, SubProtocolCapable,
@@ -163,6 +165,25 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 */
 	public static final String PARTIAL_MESSAGE_BUFFER_SESSION_KEY = "PartialMessageBuffer";
 
+	/**
+	 * An {@link ActionPayloadDecoder} that does nothing.
+	 *
+	 * @param <T>
+	 *        the expected result type
+	 * @param action
+	 *        the action
+	 * @param forResult
+	 *        {@code true} for a result object
+	 * @param payload
+	 *        the payload
+	 * @return {@code null}
+	 * @since 3.2
+	 */
+	public static <T> @Nullable T noopActionPayloadDecoder(Action action, boolean forResult,
+			JsonNode payload) {
+		return null;
+	}
+
 	/** A class logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -187,7 +208,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	private final ActionMessageQueue pendingMessages;
 	private final ObjectMapper mapper;
 	private final List<String> subProtocols;
-	private TaskScheduler taskScheduler;
+	private @Nullable TaskScheduler taskScheduler;
 	private ActionPayloadDecoder centralServiceActionPayloadDecoder;
 	private ActionPayloadDecoder chargePointActionPayloadDecoder;
 	private long pendingMessageTimeout = DEFAULT_PENDING_MESSAGE_TIMEOUT;
@@ -200,9 +221,9 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	private OverflowStrategy sendOverflowStrategy = DEFAULT_SEND_OVERFLOW_STRATEGY;
 
 	private boolean started;
-	private Future<?> startupTask;
-	private ScheduledFuture<?> pendingTimeoutChore;
-	private ScheduledFuture<?> pingChore;
+	private @Nullable Future<?> startupTask;
+	private @Nullable ScheduledFuture<?> pendingTimeoutChore;
+	private @Nullable ScheduledFuture<?> pingChore;
 
 	/**
 	 * Constructor.
@@ -262,13 +283,15 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		this.chargePointActionClass = chargePointActionClass;
 		this.centralSystemActionClass = centralSystemActionClass;
 		this.errorCodeResolver = errorCodeResolver;
-		this.executor = executor;
+		this.executor = requireNonNullArgument(executor, "executor");
 		this.processors = new ConcurrentHashMap<>(16, 0.9f, 1);
 		this.clientSessions = new ConcurrentSkipListMap<>();
 		this.pendingMessages = new SimpleActionMessageQueue();
 		this.mapper = mapper;
 		this.subProtocols = Arrays.asList(subProtocols != null ? subProtocols
 				: new String[] { WebSocketSubProtocol.OCPP_V16.getValue() });
+		this.centralServiceActionPayloadDecoder = OcppWebSocketHandler::noopActionPayloadDecoder;
+		this.chargePointActionPayloadDecoder = OcppWebSocketHandler::noopActionPayloadDecoder;
 	}
 
 	/**
@@ -353,8 +376,10 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		this.pendingMessages = requireNonNullArgument(pendingMessageQueue, "pendingMessageQueue");
 		this.processors = new ConcurrentHashMap<>(16, 0.9f, 1);
 		this.clientSessions = new ConcurrentSkipListMap<>();
-		setCentralServiceActionPayloadDecoder(centralServiceActionPayloadDecoder);
-		setChargePointActionPayloadDecoder(chargePointActionPayloadDecoder);
+		this.centralServiceActionPayloadDecoder = requireNonNullArgument(
+				centralServiceActionPayloadDecoder, "centralServiceActionPayloadDecoder");
+		this.chargePointActionPayloadDecoder = requireNonNullArgument(chargePointActionPayloadDecoder,
+				"chargePointActionPayloadDecoder");
 	}
 
 	private static final StatTracker defaultStatTracker() {
@@ -407,7 +432,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	}
 
 	@Override
-	public synchronized void configurationChanged(Map<String, Object> properties) {
+	public synchronized void configurationChanged(@Nullable Map<String, Object> properties) {
 		if ( startupTask != null ) {
 			return;
 		}
@@ -625,7 +650,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        the session
 	 * @return the identity, or {@literal null} if not available
 	 */
-	protected ChargePointIdentity clientId(WebSocketSession session) {
+	protected @Nullable ChargePointIdentity clientId(WebSocketSession session) {
 		Object id = session.getAttributes().get(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR);
 		return (id instanceof ChargePointIdentity ? (ChargePointIdentity) id : null);
 	}
@@ -638,8 +663,23 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        the error to resolve
 	 * @return the code, or {@literal null} it not resolvable
 	 */
-	protected ErrorCode errorCode(RpcError error) {
+	protected @Nullable ErrorCode errorCode(RpcError error) {
 		return errorCodeResolver.errorCodeForRpcError(error);
+	}
+
+	/**
+	 * Resolve a required error code from a {@link RpcError} using the
+	 * configured {@link ErrorCodeResolver}.
+	 *
+	 * @param error
+	 *        the error to resolve
+	 * @return the code
+	 * @see #errorCode(RpcError)
+	 * @throws IllegalStateException
+	 *         if a code can not be resolved
+	 */
+	protected ErrorCode requireErrorCode(RpcError error) throws IllegalStateException {
+		return requireNonNullProperty(errorCode(error), error.name());
 	}
 
 	/**
@@ -704,6 +744,10 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 		final ChargePointIdentity clientId = clientId(session);
+		if ( clientId == null ) {
+			// ignore
+			return;
+		}
 		if ( supportsPartialMessages() ) {
 			ByteArrayOutputStream partialBuffer = (ByteArrayOutputStream) session.getAttributes()
 					.get(PARTIAL_MESSAGE_BUFFER_SESSION_KEY);
@@ -722,8 +766,8 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 					if ( partialMessageMaximumSizeExceededClose ) {
 						session.close(new CloseStatus(CloseStatus.TOO_BIG_TO_PROCESS.getCode(), msg));
 					} else {
-						sendCallError(session, clientId, null, errorCode(RpcError.PayloadProtocolError),
-								msg, null);
+						sendCallError(session, clientId, null,
+								requireErrorCode(RpcError.PayloadProtocolError), msg, null);
 					}
 					return;
 				}
@@ -742,7 +786,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 		try {
 			tree = mapper.readTree(message.getPayload());
 		} catch ( JacksonException e ) {
-			sendCallError(session, clientId, null, errorCode(RpcError.PayloadProtocolError),
+			sendCallError(session, clientId, null, requireErrorCode(RpcError.PayloadProtocolError),
 					"Message malformed JSON.", null);
 			return;
 		}
@@ -751,8 +795,9 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			JsonNode messageIdNode = tree.path(1);
 			final String messageId = messageIdNode.isString() ? messageIdNode.stringValue() : "NULL";
 			if ( !msgTypeNode.isInt() ) {
-				sendCallError(session, clientId, messageId, errorCode(RpcError.MessageSyntaxError),
-						"Message type not provided.", null);
+				sendCallError(session, clientId, messageId,
+						requireErrorCode(RpcError.MessageSyntaxError), "Message type not provided.",
+						null);
 				return;
 			}
 			MessageType msgType;
@@ -790,7 +835,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        the action name
 	 * @return the action, or {@literal null} if not supported
 	 */
-	protected Action chargePointAction(String name) {
+	protected @Nullable Action chargePointAction(String name) {
 		for ( C action : chargePointActionClass.getEnumConstants() ) {
 			if ( name.equals(action.getName()) ) {
 				return action;
@@ -806,7 +851,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        the action name
 	 * @return the action, or {@literal null} if not supported
 	 */
-	protected Action centralSystemAction(String name) {
+	protected @Nullable Action centralSystemAction(String name) {
 		for ( S action : centralSystemActionClass.getEnumConstants() ) {
 			if ( name.equals(action.getName()) ) {
 				return action;
@@ -848,10 +893,10 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			if ( action == null ) {
 				if ( actionNode.isString() && !actionNode.stringValue().isEmpty() ) {
 					return sendCallError(session, clientId, messageId,
-							errorCode(RpcError.ActionNotImplemented), "Unknown action.", null);
+							requireErrorCode(RpcError.ActionNotImplemented), "Unknown action.", null);
 				}
 				return sendCallError(session, clientId, messageId,
-						errorCode(RpcError.PayloadSyntaxError),
+						requireErrorCode(RpcError.PayloadSyntaxError),
 						actionNode.isMissingNode() ? "Missing action." : "Malformed action.", null);
 			}
 			Object payload;
@@ -860,11 +905,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 						tree.path(3));
 			} catch ( SchemaValidationException e ) {
 				return sendCallError(session, clientId, messageId,
-						errorCode(RpcError.PayloadTypeConstraintViolation),
+						requireErrorCode(RpcError.PayloadTypeConstraintViolation),
 						"Schema validation error: " + e.getMessage(), null);
 			} catch ( IOException e ) {
 				return sendCallError(session, clientId, messageId,
-						errorCode(RpcError.PayloadSyntaxError),
+						requireErrorCode(RpcError.PayloadSyntaxError),
 						"Error parsing payload: " + e.getMessage(), null);
 			}
 
@@ -874,7 +919,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 					this::processNextPendingMessage);
 			return true;
 		} catch ( RuntimeException e ) {
-			return sendCallError(session, clientId, messageId, errorCode(RpcError.InternalError),
+			return sendCallError(session, clientId, messageId, requireErrorCode(RpcError.InternalError),
 					"Internal error: " + e.toString(), null);
 		}
 	}
@@ -892,8 +937,8 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 
 	@Override
 	public boolean isMessageSupported(ActionMessage<?> message) {
-		if ( message == null || !isChargePointAvailable(message.getClientId())
-				|| message.getAction() == null ) {
+		if ( message == null || message.getClientId() == null
+				|| !isChargePointAvailable(message.getClientId()) || message.getAction() == null ) {
 			return false;
 		}
 		final String action = message.getAction().getName();
@@ -919,7 +964,8 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        the client ID to find the session for
 	 * @return the associated session, or {@literal null} if none available
 	 */
-	protected final WebSocketSession sessionForChargePoint(ChargePointIdentity clientId) {
+	protected final @Nullable WebSocketSession sessionForChargePoint(
+			@Nullable ChargePointIdentity clientId) {
 		if ( clientId == null ) {
 			return null;
 		}
@@ -979,13 +1025,18 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			log.debug("Web socket not available for CallMessage {}; ignoring", message);
 			return;
 		}
-		boolean sent = sendCall(session, message.getClientId(), message.getMessageId(),
-				message.getAction(), message.getMessage());
+		final ChargePointIdentity identity = message.getClientId();
+		if ( identity == null ) {
+			log.debug("ChargePoint identity not available for CallMessage {}; ignoring", message);
+			return;
+		}
+		boolean sent = sendCall(session, identity, message.getMessageId(), message.getAction(),
+				message.getMessage());
 		if ( !sent ) {
 			// if there was an error, then we can immediately remove this message from
 			// the pending queue and try the next message, as there won't be any response
 			removePendingMessage(msg);
-			ErrorCodeException err = new ErrorCodeException(errorCode(RpcError.SecurityError),
+			ErrorCodeException err = new ErrorCodeException(requireErrorCode(RpcError.SecurityError),
 					"Client ID missing.");
 			try {
 				resultHandler.handleActionMessageResult(message, null, err);
@@ -993,7 +1044,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 				log.warn("Error handling OCPP CallError {}: {}", err, e.toString(), e);
 				stats.increment(Stats.CallMessageSendFailures);
 			} finally {
-				processNextPendingMessage(message.getClientId());
+				processNextPendingMessage(identity);
 			}
 		}
 	}
@@ -1175,10 +1226,10 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 				payload = chargePointActionPayloadDecoder
 						.decodeActionPayload(msg.getMessage().getAction(), true, tree.path(2));
 			} catch ( SchemaValidationException e ) {
-				err = new ErrorCodeException(errorCode(RpcError.PayloadTypeConstraintViolation), null,
-						"Payload schema violation: " + e.getMessage(), e);
+				err = new ErrorCodeException(requireErrorCode(RpcError.PayloadTypeConstraintViolation),
+						null, "Payload schema violation: " + e.getMessage(), e);
 			} catch ( IOException e ) {
-				err = new ErrorCodeException(errorCode(RpcError.PayloadSyntaxError), null,
+				err = new ErrorCodeException(requireErrorCode(RpcError.PayloadSyntaxError), null,
 						"Error parsing payload: " + e.getMessage(), e);
 			}
 
@@ -1191,7 +1242,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 
 	private boolean sendCall(final WebSocketSession session, final ChargePointIdentity clientId,
 			final String messageId, final net.solarnetwork.ocpp.domain.Action action,
-			final Object payload) {
+			final @Nullable Object payload) {
 		Object[] msg = new Object[] { MessageType.Call.getNumber(), messageId, action.getName(),
 				payload };
 		String json = null;
@@ -1222,21 +1273,21 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * @param action
 	 *        the action
 	 * @param payload
-	 *        the payload
+	 *        the payload, if available
 	 * @param json
-	 *        the full JSON message sent
+	 *        the full JSON message sent, if available
 	 * @param exception
 	 *        an exception, if an error occurred
 	 * @since 1.4
 	 */
 	protected void didSendCall(final ChargePointIdentity clientId, final String messageId,
-			final net.solarnetwork.ocpp.domain.Action action, final Object payload, final String json,
-			final Throwable exception) {
+			final net.solarnetwork.ocpp.domain.Action action, final @Nullable Object payload,
+			final @Nullable String json, final @Nullable Throwable exception) {
 		// extending classes can override
 	}
 
 	private boolean sendCallResult(final WebSocketSession session, final ChargePointIdentity clientId,
-			final String messageId, final Object payload) {
+			final String messageId, final @Nullable Object payload) {
 		Object[] msg = new Object[] { MessageType.CallResult.getNumber(), messageId, payload };
 		String json = null;
 		try {
@@ -1264,21 +1315,22 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * @param messageId
 	 *        the message ID
 	 * @param payload
-	 *        the payload
+	 *        the payload, if available
 	 * @param json
-	 *        the full JSON message sent
+	 *        the full JSON message sent, if available
 	 * @param exception
 	 *        an exception, if an error occurred
 	 * @since 1.4
 	 */
 	protected void didSendCallResult(final ChargePointIdentity clientId, final String messageId,
-			final Object payload, final String json, final Throwable exception) {
+			final @Nullable Object payload, final @Nullable String json,
+			final @Nullable Throwable exception) {
 		// extending classes can override
 	}
 
 	private boolean sendCallError(final WebSocketSession session, final ChargePointIdentity clientId,
-			final String messageId, final ErrorCode errorCode, final String errorDescription,
-			final Map<String, ?> details) {
+			final @Nullable String messageId, final ErrorCode errorCode,
+			final @Nullable String errorDescription, final @Nullable Map<String, ?> details) {
 		Object[] msg = new Object[] { MessageType.CallError.getNumber(), messageId, errorCode.getName(),
 				errorDescription, details != null ? details : Collections.emptyMap() };
 		String json = null;
@@ -1313,14 +1365,15 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * @param details
 	 *        the error details
 	 * @param json
-	 *        the full JSON message sent
+	 *        the full JSON message sent, if available
 	 * @param exception
 	 *        an exception, if an error occurred
 	 * @since 1.4
 	 */
-	protected void didSendCallError(final ChargePointIdentity clientId, final String messageId,
-			final ErrorCode errorCode, final String errorDescription, final Map<String, ?> details,
-			final String json, Throwable exception) {
+	protected void didSendCallError(final @Nullable ChargePointIdentity clientId,
+			final @Nullable String messageId, final @Nullable ErrorCode errorCode,
+			final @Nullable String errorDescription, final @Nullable Map<String, ?> details,
+			final @Nullable String json, @Nullable Throwable exception) {
 		// extending classes can override
 	}
 
@@ -1345,7 +1398,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			final ChargePointIdentity clientId = message.getClientId();
 			final String messageId = message.getMessageId();
 			final WebSocketSession session = sessionForChargePoint(clientId);
-			if ( session == null ) {
+			if ( clientId == null ) {
+				log.debug("ChargePoint identity not available; ignoring ActionMessage {}", message);
+				handled.set(true);
+				return;
+			} else if ( session == null ) {
 				log.debug("Web socket not available for client {}; ignoring ActionMessage {}", clientId,
 						message);
 				handled.set(true);
@@ -1354,8 +1411,8 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 			willProcessRequest(msg);
 			final Set<ActionMessageProcessor<Object, Object>> procs = processors.get(action);
 			if ( procs == null ) {
-				sendCallError(session, clientId, messageId, errorCode(RpcError.ActionNotImplemented),
-						"Action not supported.", null);
+				sendCallError(session, clientId, messageId,
+						requireErrorCode(RpcError.ActionNotImplemented), "Action not supported.", null);
 				handled.set(true);
 				return;
 			}
@@ -1379,7 +1436,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 							errorDetails = ((ErrorHolder) error).getErrorDetails();
 						}
 						if ( errorCode == null ) {
-							errorCode = errorCode(RpcError.InternalError);
+							errorCode = requireErrorCode(RpcError.InternalError);
 						}
 						sendCallError(session, clientId, messageId, errorCode, errorDescription,
 								errorDetails);
@@ -1402,20 +1459,22 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 					}
 				} catch ( AuthorizationException e ) {
 					if ( handled.compareAndSet(false, true) ) {
-						sendCallError(session, clientId, messageId, errorCode(RpcError.SecurityError),
+						sendCallError(session, clientId, messageId,
+								requireErrorCode(RpcError.SecurityError),
 								"Authorization error handling action.", null);
 					}
 				} catch ( Throwable t ) {
 					if ( handled.compareAndSet(false, true) ) {
 						stats.increment(Stats.CallMessageReceiveFailures);
-						sendCallError(session, clientId, messageId, errorCode(RpcError.InternalError),
-								"Error handling action.", null);
+						sendCallError(session, clientId, messageId,
+								requireErrorCode(RpcError.InternalError), "Error handling action.",
+								null);
 					}
 				}
 			}
 			if ( !processed ) {
 				stats.increment(Stats.CallMessagesReceivedNotSupported);
-				sendCallError(session, clientId, messageId, errorCode(RpcError.InternalError),
+				sendCallError(session, clientId, messageId, requireErrorCode(RpcError.InternalError),
 						"Action not supported.", null);
 				handled.set(true);
 			}
@@ -1437,7 +1496,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	}
 
 	private void removePendingMessage(PendingActionMessage msg) {
-		ChargePointIdentity clientId = msg.getMessage().getClientId();
+		final ChargePointIdentity clientId = msg.getMessage().getClientId();
+		if ( clientId == null ) {
+			// ignore
+			return;
+		}
 		Deque<PendingActionMessage> q = pendingMessages.pendingMessageQueue(clientId);
 		synchronized ( q ) {
 			q.removeFirstOccurrence(msg);
@@ -1451,13 +1514,13 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * @param msg
 	 *        the message
 	 * @param payload
-	 *        the payload
+	 *        the payload, if available
 	 * @param exception
 	 *        an exception, if an error occurred
 	 * @since 1.4
 	 */
-	protected void willProcessCallResponse(PendingActionMessage msg, final Object payload,
-			final Throwable exception) {
+	protected void willProcessCallResponse(PendingActionMessage msg, final @Nullable Object payload,
+			final @Nullable Throwable exception) {
 		// extending classes can override
 	}
 
@@ -1581,7 +1644,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *
 	 * @return the object mapper, never {@literal null}
 	 */
-	public ObjectMapper getObjectMapper() {
+	public final ObjectMapper getObjectMapper() {
 		return mapper;
 	}
 
@@ -1590,7 +1653,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *
 	 * @return the task scheduler
 	 */
-	public TaskScheduler getTaskScheduler() {
+	public final @Nullable TaskScheduler getTaskScheduler() {
 		return taskScheduler;
 	}
 
@@ -1607,7 +1670,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * @param taskScheduler
 	 *        the task scheduler to set
 	 */
-	public void setTaskScheduler(TaskScheduler taskScheduler) {
+	public final void setTaskScheduler(@Nullable TaskScheduler taskScheduler) {
 		this.taskScheduler = taskScheduler;
 	}
 
@@ -1618,7 +1681,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * @return the timeout, in milliseconds; defaults to
 	 *         {@link #DEFAULT_PENDING_MESSAGE_TIMEOUT}
 	 */
-	public long getPendingMessageTimeout() {
+	public final long getPendingMessageTimeout() {
 		return pendingMessageTimeout;
 	}
 
@@ -1629,7 +1692,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * @param pendingMessageTimeout
 	 *        the timeout to set, in milliseconds
 	 */
-	public void setPendingMessageTimeout(long pendingMessageTimeout) {
+	public final void setPendingMessageTimeout(long pendingMessageTimeout) {
 		this.pendingMessageTimeout = pendingMessageTimeout;
 	}
 
@@ -1639,7 +1702,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * @return the frequency in seconds, or {@literal 0} to disable; defaults to
 	 *         {@link #DEFAULT_PING_FREQUENCY_SECS}
 	 */
-	public int getPingFrequency() {
+	public final int getPingFrequency() {
 		return pingFrequencySecs;
 	}
 
@@ -1649,7 +1712,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 * @param pingFrequencySecs
 	 *        the frequency in seconds, or {@literal 0} to disable
 	 */
-	public void setPingFrequency(int pingFrequencySecs) {
+	public final void setPingFrequency(int pingFrequencySecs) {
 		this.pingFrequencySecs = pingFrequencySecs;
 	}
 
@@ -1661,7 +1724,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *         {@link CloseStatus#SERVICE_RESTARTED}.
 	 * @since 2.4
 	 */
-	public CloseStatus getShutdownCloseStatus() {
+	public final CloseStatus getShutdownCloseStatus() {
 		return shutdownCloseStatus;
 	}
 
@@ -1673,7 +1736,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        the status to use
 	 * @since 2.4
 	 */
-	public void setShutdownCloseStatus(CloseStatus shutdownCloseStatus) {
+	public final void setShutdownCloseStatus(CloseStatus shutdownCloseStatus) {
 		this.shutdownCloseStatus = shutdownCloseStatus;
 	}
 
@@ -1685,7 +1748,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *         to {@code 0}
 	 * @since 2.12
 	 */
-	public int getPartialMessageMaximumSize() {
+	public final int getPartialMessageMaximumSize() {
 		return partialMessageMaximumSize;
 	}
 
@@ -1697,7 +1760,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        if less than {@code 1} disable partial message support
 	 * @since 2.12
 	 */
-	public void setPartialMessageMaximumSize(int partialMessageMaximumSize) {
+	public final void setPartialMessageMaximumSize(int partialMessageMaximumSize) {
 		this.partialMessageMaximumSize = partialMessageMaximumSize;
 	}
 
@@ -1709,7 +1772,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *         protocol error
 	 * @since 2.13
 	 */
-	public boolean isPartialMessageMaximumSizeExceededClose() {
+	public final boolean isPartialMessageMaximumSizeExceededClose() {
 		return partialMessageMaximumSizeExceededClose;
 	}
 
@@ -1722,7 +1785,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        protocol error
 	 * @since 2.13
 	 */
-	public void setPartialMessageMaximumSizeExceededClose(
+	public final void setPartialMessageMaximumSizeExceededClose(
 			boolean partialMessageMaximumSizeExceededClose) {
 		this.partialMessageMaximumSizeExceededClose = partialMessageMaximumSizeExceededClose;
 	}
@@ -1734,7 +1797,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *         {@code null}
 	 * @since 3.1
 	 */
-	public Duration getSendTimeLimit() {
+	public final Duration getSendTimeLimit() {
 		return sendTimeLimit;
 	}
 
@@ -1746,7 +1809,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        {@link #DEFAULT_SEND_TIME_LIMIT} will be used instead
 	 * @since 3.1
 	 */
-	public void setSendTimeLimit(Duration sendTimeLimit) {
+	public final void setSendTimeLimit(Duration sendTimeLimit) {
 		this.sendTimeLimit = (sendTimeLimit != null ? sendTimeLimit : DEFAULT_SEND_TIME_LIMIT);
 	}
 
@@ -1757,7 +1820,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *         never {@code null}
 	 * @since 3.1
 	 */
-	public DataSize getSendBufferSizeLimit() {
+	public final DataSize getSendBufferSizeLimit() {
 		return sendBufferSizeLimit;
 	}
 
@@ -1769,7 +1832,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        {@link #DEFAULT_SEND_BUFFER_SIZE_LIMIT} will be used instead
 	 * @since 3.1
 	 */
-	public void setSendBufferSizeLimit(DataSize sendBufferSizeLimit) {
+	public final void setSendBufferSizeLimit(DataSize sendBufferSizeLimit) {
 		this.sendBufferSizeLimit = (sendBufferSizeLimit != null ? sendBufferSizeLimit
 				: DEFAULT_SEND_BUFFER_SIZE_LIMIT);
 	}
@@ -1781,7 +1844,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *         {@link #DEFAULT_SEND_OVERFLOW_STRATEGY}; never {@code null}
 	 * @since 3.1
 	 */
-	public OverflowStrategy getSendOverflowStrategy() {
+	public final OverflowStrategy getSendOverflowStrategy() {
 		return sendOverflowStrategy;
 	}
 
@@ -1793,7 +1856,7 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 	 *        {@link #DEFAULT_SEND_OVERFLOW_STRATEGY} will be used instead
 	 * @since 3.1
 	 */
-	public void setSendOverflowStrategy(OverflowStrategy sendOverflowStrategy) {
+	public final void setSendOverflowStrategy(OverflowStrategy sendOverflowStrategy) {
 		this.sendOverflowStrategy = (sendOverflowStrategy != null ? sendOverflowStrategy
 				: DEFAULT_SEND_OVERFLOW_STRATEGY);
 	}

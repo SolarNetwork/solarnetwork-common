@@ -22,10 +22,10 @@
 
 package net.solarnetwork.ocpp.web.jakarta.json;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import static net.solarnetwork.util.StringUtils.commaDelimitedStringFromCollection;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -80,8 +81,8 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	private final SystemUserDao systemUserDao;
 	private final PasswordEncoder passwordEncoder;
 	private Pattern clientIdUriPattern;
-	private BiFunction<ServerHttpRequest, String, ChargePointAuthorizationDetails> clientCredentialsExtractor;
-	private String fixedIdentityUsername;
+	private @Nullable BiFunction<ServerHttpRequest, String, ChargePointAuthorizationDetails> clientCredentialsExtractor;
+	private @Nullable String fixedIdentityUsername;
 
 	/**
 	 * Constructor.
@@ -90,14 +91,16 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 *        the DAO to authenticate clients with
 	 * @param passwordEncoder
 	 *        the password encoder to use
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public OcppWebSocketHandshakeInterceptor(SystemUserDao systemUserDao,
 			PasswordEncoder passwordEncoder) {
 		super();
-		this.systemUserDao = systemUserDao;
-		this.passwordEncoder = passwordEncoder;
-		setClientIdUriPattern(Pattern.compile(DEFAULT_CLIENT_ID_URI_PATTERN));
-		clientCredentialsExtractor = this::extractBasicAuthentication;
+		this.systemUserDao = requireNonNullArgument(systemUserDao, "systemUserDao");
+		this.passwordEncoder = requireNonNullArgument(passwordEncoder, "passwordEncoder");
+		this.clientIdUriPattern = Pattern.compile(DEFAULT_CLIENT_ID_URI_PATTERN);
+		this.clientCredentialsExtractor = this::extractBasicAuthentication;
 
 	}
 
@@ -150,8 +153,9 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 		// enforce system user authentication
 		if ( systemUserDao != null ) {
-			ChargePointAuthorizationDetails authDetails = clientCredentialsExtractor.apply(request,
-					identifier);
+			final ChargePointAuthorizationDetails authDetails = (clientCredentialsExtractor != null
+					? clientCredentialsExtractor.apply(request, identifier)
+					: null);
 			if ( authDetails == null ) {
 				log.warn("OCPP handshake request rejected for {}, invalid Authorization provided",
 						identifier);
@@ -162,7 +166,9 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 			final String username = authDetails.getUsername();
 			final String password = authDetails.getPassword();
 
-			SystemUser user = systemUserDao.getForUsernameAndChargePoint(username, identifier);
+			SystemUser user = (username != null
+					? systemUserDao.getForUsernameAndChargePoint(username, identifier)
+					: null);
 			if ( user == null ) {
 				log.warn("OCPP handshake request rejected for {}, system user {} not found.", identifier,
 						username);
@@ -217,8 +223,8 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 * @param reason
 	 *        the failure reason
 	 */
-	protected void didForbidChargerConnection(ServerHttpRequest request, String identifier,
-			ChargePointAuthorizationDetails user, String reason) {
+	protected void didForbidChargerConnection(ServerHttpRequest request, @Nullable String identifier,
+			@Nullable ChargePointAuthorizationDetails user, String reason) {
 		// extending classes can override
 	}
 
@@ -232,8 +238,8 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 *        the OCPP client ID
 	 * @return the username and password, or {@literal null} if none available
 	 */
-	public ChargePointAuthorizationDetails extractBasicAuthentication(final ServerHttpRequest request,
-			final String identifier) {
+	public @Nullable ChargePointAuthorizationDetails extractBasicAuthentication(
+			final ServerHttpRequest request, final String identifier) {
 		String httpAuth = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 		if ( httpAuth == null ) {
 			log.warn("OCPP handshake request rejected for {}, Authorization header not provided.",
@@ -260,23 +266,23 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 *
 	 * @param header
 	 *        the HTTP Authorization header value; the Basic scheme is assumed
-	 * @return a 2-element array with the extracted username, password
+	 * @return a 2-element array with the extracted username, password, or
+	 *         {@code null} if the header can not be parsed as the Basic scheme
 	 */
-	private static String[] decodeBasicAuthorizationHeader(String header) {
-		Charset utf8 = Charset.forName("UTF-8");
+	private static String @Nullable [] decodeBasicAuthorizationHeader(String header) {
 		// help to work with buggy clients that present scheme as "Basic:"
 		int space = header.indexOf(' ');
 		if ( space < 0 || space + 1 >= header.length() ) {
 			return null;
 		}
-		byte[] base64Token = header.substring(space + 1).getBytes(utf8);
+		byte[] base64Token = header.substring(space + 1).getBytes(UTF_8);
 		byte[] decoded;
 		try {
 			decoded = java.util.Base64.getDecoder().decode(base64Token);
 		} catch ( IllegalArgumentException e ) {
 			return null;
 		}
-		String token = new String(decoded, utf8);
+		String token = new String(decoded, UTF_8);
 		int delim = token.indexOf(":");
 		if ( delim == -1 ) {
 			return null;
@@ -296,7 +302,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 * @return the pattern, never {@literal null}; defaults to
 	 *         {@link #DEFAULT_CLIENT_ID_URI_PATTERN}
 	 */
-	public Pattern getClientIdUriPattern() {
+	public final Pattern getClientIdUriPattern() {
 		return clientIdUriPattern;
 	}
 
@@ -311,7 +317,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 * @param clientIdUriPattern
 	 *        the URI pattern for extracting charge point IDs from URIs
 	 */
-	public void setClientIdUriPattern(Pattern clientIdUriPattern) {
+	public final void setClientIdUriPattern(Pattern clientIdUriPattern) {
 		this.clientIdUriPattern = requireNonNullArgument(clientIdUriPattern, "clientIdUriPattern");
 	}
 
@@ -320,7 +326,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 *
 	 * @return the username to use; defaults to {@literal null}
 	 */
-	public String getFixedIdentityUsername() {
+	public final @Nullable String getFixedIdentityUsername() {
 		return fixedIdentityUsername;
 	}
 
@@ -341,7 +347,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 * @param fixedIdentityUsername
 	 *        the fixed identity username to set
 	 */
-	public void setFixedIdentityUsername(String fixedIdentityUsername) {
+	public final void setFixedIdentityUsername(@Nullable String fixedIdentityUsername) {
 		this.fixedIdentityUsername = fixedIdentityUsername;
 	}
 
@@ -351,7 +357,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 * @return the function, never {@literal null}; defaults to
 	 *         {@link #extractBasicAuthentication(ServerHttpRequest, String)}
 	 */
-	public BiFunction<ServerHttpRequest, String, ChargePointAuthorizationDetails> getClientCredentialsExtractor() {
+	public final @Nullable BiFunction<ServerHttpRequest, String, ChargePointAuthorizationDetails> getClientCredentialsExtractor() {
 		return clientCredentialsExtractor;
 	}
 
@@ -363,8 +369,8 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 * @throws IllegalArgumentException
 	 *         if {clientCredentialsExtractor} is {@literal null}
 	 */
-	public void setClientCredentialsExtractor(
-			BiFunction<ServerHttpRequest, String, ChargePointAuthorizationDetails> clientCredentialsExtractor) {
+	public final void setClientCredentialsExtractor(
+			@Nullable BiFunction<ServerHttpRequest, String, ChargePointAuthorizationDetails> clientCredentialsExtractor) {
 		this.clientCredentialsExtractor = requireNonNullArgument(clientCredentialsExtractor,
 				"clientCredentialsExtractor");
 	}

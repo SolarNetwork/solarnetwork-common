@@ -22,6 +22,8 @@
 
 package net.solarnetwork.ocpp.web.jakarta.json.test;
 
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.expect;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -167,9 +169,14 @@ public class OcppWebSocketHandlerV16Tests {
 
 		// THEN
 		TextMessage outMsg = outMessageCaptor.getValue();
-		assertThat("Heartbeat response message sent", outMsg, notNullValue());
-		assertThat("Heartbeat response message content", outMsg.getPayload()
-				.matches("\\[3,\"1603881305171\",\\{\"currentTime\":\"[^\"]+\"\\}\\]"), equalTo(true));
+		// @formatter:off
+		then(outMsg)
+			.as("Heartbeat response message sent")
+			.isNotNull()
+			.extracting(TextMessage::getPayload, STRING)
+			.matches("\\[3,\"1603881305171\",\\{\"currentTime\":\"[^\"]+\"\\}\\]")
+			;
+		// @formatter:on
 	}
 
 	@Test
