@@ -26,8 +26,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Deque;
@@ -216,62 +218,67 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 		return result;
 	}
 
-	private void outputObject(@Nullable Object o, @Nullable String name, XMLStreamWriter out)
+	private void outputObject(@Nullable Object o, @Nullable String name, XMLStreamWriter writer)
 			throws XMLStreamException {
 		if ( name != null && o instanceof Collection<?> col ) {
-			outputCollection(col, name, out);
+			outputCollection(col, name, writer);
 		} else if ( name != null && o instanceof Map<?, ?> map ) {
-			outputMap(map, name, out);
+			outputMap(map, name, writer);
 		} else if ( o instanceof String || o instanceof Number ) {
 			// for simple types, write as unified <value type="String" value="foo"/>
 			// this happens often in collections / maps of simple data types
 			Map<String, Object> params = new LinkedHashMap<>(2);
 			params.put("type", org.springframework.util.ClassUtils.getShortName(o.getClass()));
 			params.put("value", o);
-			writeElement("value", params, out, true);
-		} else if ( name != null ) {
-			String elementName = (o == null ? name
-					: org.springframework.util.ClassUtils.getShortName(o.getClass()));
-			writeElement(elementName, o, out, true);
+			writeElement("value", params, writer, true);
+		} else {
+			String elementName = (o != null
+					? org.springframework.util.ClassUtils.getShortName(o.getClass())
+					: name != null ? name : "object");
+			writeElement(elementName, o, writer, true);
 		}
 	}
 
-	private void outputMap(Map<?, ?> map, String name, XMLStreamWriter out) throws XMLStreamException {
-		writeElement(name, null, out, false);
+	private void outputMap(Map<?, ?> map, @Nullable String name, XMLStreamWriter writer)
+			throws XMLStreamException {
+		writeElement(name != null ? name : "map", null, writer, false);
 
 		// for each entry, write an <entry> element
 		for ( Map.Entry<?, ?> me : map.entrySet() ) {
 			String entryName = me.getKey().toString();
-			out.writeStartElement("entry");
-			out.writeAttribute("key", entryName);
+			writer.writeStartElement("entry");
+			writer.writeAttribute("key", entryName);
 
 			Object value = me.getValue();
+			if ( value != null && value.getClass().isArray() ) {
+				value = Arrays.asList((Object[]) value);
+			}
 			if ( value instanceof Collection ) {
 				// special collection case, we don't add nested element
 				for ( Object o : (Collection<?>) value ) {
-					outputObject(o, "value", out);
+					outputObject(o, "value", writer);
 				}
 			} else {
-				outputObject(value, null, out);
+				outputObject(value, null, writer);
 			}
-			out.writeEndElement();
+			writer.writeEndElement();
 		}
 
-		out.writeEndElement();
+		writer.writeEndElement();
 	}
 
-	private void outputCollection(Collection<?> col, String name, XMLStreamWriter out)
+	private void outputCollection(Collection<?> col, @Nullable String name, XMLStreamWriter writer)
 			throws XMLStreamException {
-		writeElement(name, null, out, false);
+		writeElement(name != null ? name : "list", null, writer, false);
 		for ( Object o : col ) {
-			outputObject(o, null, out);
+			outputObject(o, null, writer);
 		}
-		out.writeEndElement();
+		writer.writeEndElement();
 	}
 
-	private void writeElement(String name, @Nullable Map<?, ?> props, XMLStreamWriter out, boolean close)
-			throws XMLStreamException {
-		out.writeStartElement(name);
+	private void writeElement(String name, @Nullable Map<?, ?> props, XMLStreamWriter writer,
+			boolean close) throws XMLStreamException {
+		writer.writeStartElement(name);
 		Map<String, Object> nested = null;
 		if ( props != null ) {
 			for ( Map.Entry<?, ?> me : props.entrySet() ) {
@@ -281,25 +288,28 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 					val = propertySerializerRegistrar.serializeProperty(name, val.getClass(), props,
 							val);
 				}
-				if ( val instanceof Date ) {
+				if ( val != null && val.getClass().isArray() ) {
+					val = Arrays.asList((Object[]) val);
+				}
+				if ( val instanceof Date || val instanceof Instant ) {
 					SimpleDateFormat sdf = SDF.get();
 					// SimpleDateFormat has no way to create xs:dateTime with tz,
 					// so use trick here to insert required colon for non GMT dates
-					Date date = (Date) val;
-					StringBuilder buf = new StringBuilder(sdf.format(date));
+					StringBuilder buf = new StringBuilder(
+							sdf.format(val instanceof Date date ? date : Date.from((Instant) val)));
 					if ( buf.charAt(buf.length() - 1) != 'Z' ) {
 						buf.insert(buf.length() - 2, ':');
 					}
 					val = buf.toString();
-				} else if ( val instanceof Collection ) {
+				} else if ( val instanceof Collection<?> ) {
 					if ( nested == null ) {
-						nested = new LinkedHashMap<String, Object>(5);
+						nested = new LinkedHashMap<>(5);
 					}
 					nested.put(key, val);
 					val = null;
 				} else if ( val instanceof Map<?, ?> ) {
 					if ( nested == null ) {
-						nested = new LinkedHashMap<String, Object>(5);
+						nested = new LinkedHashMap<>(5);
 					}
 					nested.put(key, val);
 					val = null;
@@ -308,7 +318,7 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 					for ( String prefix : classNamesAllowedForNesting ) {
 						if ( val.getClass().getName().startsWith(prefix) ) {
 							if ( nested == null ) {
-								nested = new LinkedHashMap<String, Object>(5);
+								nested = new LinkedHashMap<>(5);
 							}
 							nested.put(key, val);
 							val = null;
@@ -318,35 +328,34 @@ public class JavaBeanXmlSerializer implements PropertySerializer {
 				}
 
 				if ( val != null ) {
-					String attVal = val.toString();
-					out.writeAttribute(key, attVal);
+					writer.writeAttribute(key, val.toString());
 				}
 			}
 		}
 		if ( nested != null ) {
 			for ( Map.Entry<String, Object> me : nested.entrySet() ) {
-				outputObject(me.getValue(), me.getKey(), out);
+				outputObject(me.getValue(), me.getKey(), writer);
 			}
-			if ( close ) {
-				out.writeEndElement();
-			}
+		}
+		if ( close ) {
+			writer.writeEndElement();
 		}
 	}
 
-	private void writeElement(String name, @Nullable Object bean, XMLStreamWriter out, boolean close)
+	private void writeElement(String name, @Nullable Object bean, XMLStreamWriter writer, boolean close)
 			throws XMLStreamException {
 		if ( propertySerializerRegistrar != null && bean != null ) {
 			// try whole-bean serialization first
 			Object o = propertySerializerRegistrar.serializeProperty(name, bean.getClass(), bean, bean);
 			if ( o != bean ) {
 				if ( o != null ) {
-					outputObject(o, name, out);
+					outputObject(o, name, writer);
 				}
 				return;
 			}
 		}
 		Map<String, Object> props = ClassUtils.getBeanProperties(bean, null, true);
-		writeElement(name, props, out, close);
+		writeElement(name, props, writer, close);
 	}
 
 	/**
