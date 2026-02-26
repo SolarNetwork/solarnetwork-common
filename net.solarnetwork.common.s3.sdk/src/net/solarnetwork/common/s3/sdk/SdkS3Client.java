@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.amazonaws.AmazonClientException;
@@ -83,15 +84,15 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private String accessToken;
-	private String accessSecret;
-	private String bucketName;
+	private @Nullable String accessToken;
+	private @Nullable String accessSecret;
+	private @Nullable String bucketName;
 	private String regionName = DEFAULT_REGION_NAME;
 	private int maximumKeysPerRequest = DEFAULT_MAXIMUM_KEYS_PER_REQUEST;
-	private AWSCredentialsProvider credentialsProvider;
-	private AWSCredentialsProvider tokenCredentialsProvider;
+	private @Nullable AWSCredentialsProvider credentialsProvider;
+	private @Nullable AWSCredentialsProvider tokenCredentialsProvider;
 
-	private AmazonS3 s3Client;
+	private @Nullable AmazonS3 s3Client;
 
 	/**
 	 * Default constructor.
@@ -111,7 +112,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	}
 
 	@Override
-	public synchronized void configurationChanged(Map<String, Object> properties) {
+	public synchronized void configurationChanged(@Nullable Map<String, Object> properties) {
 		if ( accessToken != null && accessSecret != null ) {
 			tokenCredentialsProvider = new AWSStaticCredentialsProvider(
 					new BasicAWSCredentials(accessToken, accessSecret));
@@ -162,7 +163,7 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 	}
 
 	@Override
-	public Set<S3ObjectReference> listObjects(String prefix) throws IOException {
+	public Set<S3ObjectReference> listObjects(@Nullable String prefix) throws IOException {
 		AmazonS3 client = getClient();
 		Set<S3ObjectReference> result = new LinkedHashSet<>(100);
 		try {
@@ -215,7 +216,8 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	@Override
 	public <P> net.solarnetwork.common.s3.S3Object getObject(String key,
-			ProgressListener<P> progressListener, P progressContext) throws IOException {
+			@Nullable ProgressListener<P> progressListener, @Nullable P progressContext)
+			throws IOException {
 		AmazonS3 client = getClient();
 		try {
 			GetObjectRequest req = new GetObjectRequest(bucketName, key);
@@ -246,7 +248,8 @@ public class SdkS3Client extends BaseSettingsSpecifierLocalizedServiceInfoProvid
 
 	@Override
 	public <P> S3ObjectReference putObject(String key, InputStream in, S3ObjectMetadata objectMetadata,
-			ProgressListener<P> progressListener, P progressContext) throws IOException {
+			@Nullable ProgressListener<P> progressListener, @Nullable P progressContext)
+			throws IOException {
 		AmazonS3 client = getClient();
 		try {
 			ObjectMetadata meta = new ObjectMetadata();

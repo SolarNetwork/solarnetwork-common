@@ -22,6 +22,7 @@
 
 package net.solarnetwork.common.s3.sdk;
 
+import org.jspecify.annotations.Nullable;
 import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.event.ProgressEventType;
 import net.solarnetwork.service.ProgressListener;
@@ -37,7 +38,7 @@ import net.solarnetwork.service.ProgressListener;
 public class SdkTransferProgressListenerAdapter<T> implements com.amazonaws.event.ProgressListener {
 
 	private final ProgressListener<T> delegate;
-	private final T context;
+	private final @Nullable T context;
 	private final boolean trackRequest;
 	private long totalBytes;
 	private long totalBytesTransferred;
@@ -53,7 +54,7 @@ public class SdkTransferProgressListenerAdapter<T> implements com.amazonaws.even
 	 *        {@literal true} to track upload (request) progress,
 	 *        {@literal false} to track download (response) progress
 	 */
-	public SdkTransferProgressListenerAdapter(ProgressListener<T> delegate, T context,
+	public SdkTransferProgressListenerAdapter(ProgressListener<T> delegate, @Nullable T context,
 			boolean trackRequest) {
 		super();
 		this.delegate = delegate;

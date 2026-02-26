@@ -27,9 +27,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.MimeType;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import net.solarnetwork.common.s3.S3Object;
+import net.solarnetwork.common.s3.S3ObjectMeta;
 import net.solarnetwork.common.s3.S3ObjectMetadata;
 
 /**
@@ -63,12 +65,12 @@ public class SdkS3Object implements S3Object, S3ObjectMetadata {
 	}
 
 	@Override
-	public S3ObjectMetadata getMetadata() {
+	public @Nullable S3ObjectMetadata getMetadata() {
 		return this;
 	}
 
 	@Override
-	public Date getModified() {
+	public @Nullable Date getModified() {
 		ObjectMetadata m = s3Object.getObjectMetadata();
 		return (m != null ? m.getLastModified() : null);
 	}
@@ -82,7 +84,7 @@ public class SdkS3Object implements S3Object, S3ObjectMetadata {
 	@Override
 	public String getStorageClass() {
 		ObjectMetadata m = s3Object.getObjectMetadata();
-		return (m != null ? m.getStorageClass() : null);
+		return (m != null ? m.getStorageClass() : S3ObjectMeta.DEFAULT_STORAGE_CLASS);
 	}
 
 	@Override
