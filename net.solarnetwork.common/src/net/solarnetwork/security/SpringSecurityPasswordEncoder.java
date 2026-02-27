@@ -77,7 +77,7 @@ public class SpringSecurityPasswordEncoder
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
+	public @Nullable String encode(@Nullable CharSequence rawPassword) {
 		if ( encoders.isEmpty() ) {
 			throw new RuntimeException("No password encoders configured");
 		}

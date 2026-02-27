@@ -82,14 +82,15 @@ public class BCPBKDF2PasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
+	public @Nullable String encode(@Nullable CharSequence rawPassword) {
 		final int itr = iterations;
 		final int keySize = keyLength * 8;
 		final byte[] salt = new byte[saltLength];
 		random.nextBytes(salt);
 		try {
-			byte[] dk = derivePBKDF2SHA256Key(rawPassword.toString().getBytes("UTF-8"), salt, keySize,
-					itr);
+			byte[] dk = derivePBKDF2SHA256Key(
+					rawPassword != null ? rawPassword.toString().getBytes("UTF-8") : new byte[0], salt,
+					keySize, itr);
 			StringBuilder buf = new StringBuilder();
 			buf.append(Hex.encodeHexString(salt));
 			buf.append('$');

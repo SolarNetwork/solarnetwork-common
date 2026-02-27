@@ -60,7 +60,8 @@ public interface PasswordEncoder {
 	 *        the password
 	 * @return the encrypted password string
 	 */
-	String encode(CharSequence rawPassword);
+	@Nullable
+	String encode(@Nullable CharSequence rawPassword);
 
 	/**
 	 * Verify the encoded password obtained from storage matches the submitted

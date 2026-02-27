@@ -4,7 +4,7 @@ Bundle-Name: Core SolarNetwork Support
 Bundle-SymbolicName: net.solarnetwork.common
 Automatic-Module-Name: net.solarnetwork.common
 Bundle-Description: Common supporting infrastructure for SolarNode and SolarNet applications.
-Bundle-Version: 4.19.0
+Bundle-Version: 4.19.1
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
@@ -17,8 +17,8 @@ Export-Package:
  net.solarnetwork.domain.tariff;version="1.5.0",
  net.solarnetwork.event;version="1.2.0",
  net.solarnetwork.io;version="3.1.0",
- net.solarnetwork.security;version="2.2.0",
- net.solarnetwork.service;version="1.5.0",
+ net.solarnetwork.security;version="2.2.1",
+ net.solarnetwork.service;version="1.5.1",
  net.solarnetwork.service.support;version="1.2.0",
  net.solarnetwork.settings;version="2.4.0",
  net.solarnetwork.settings.support;version="3.1.0",
