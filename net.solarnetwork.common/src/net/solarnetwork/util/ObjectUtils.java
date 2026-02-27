@@ -297,6 +297,9 @@ public final class ObjectUtils {
 	 * @since 1.4
 	 */
 	public static <T> @Nullable T nullable(final Supplier<T> fn) {
+		if ( fn == null ) {
+			return null;
+		}
 		try {
 			return fn.get();
 		} catch ( IllegalStateException | NullPointerException e ) {
