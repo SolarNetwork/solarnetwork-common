@@ -23,18 +23,42 @@
 package net.solarnetwork.util;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Utilities for dealing with objects.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public final class ObjectUtils {
 
 	private ObjectUtils() {
 		// not available
+	}
+
+	/**
+	 * Compare two objects for equality.
+	 *
+	 * @param <T>
+	 *        the comparable object type
+	 * @param l
+	 *        the first object
+	 * @param r
+	 *        the second object
+	 * @return {@code true} if both objects are {@code null} or
+	 *         {@code l.compareTo(r)} equals 0
+	 * @since 1.2
+	 */
+	public static <T extends Comparable<T>> boolean comparativelyEqual(final @Nullable T l,
+			final @Nullable T r) {
+		if ( l == r ) {
+			return true;
+		} else if ( l == null || r == null ) {
+			return false;
+		}
+		return l.compareTo(r) == 0;
 	}
 
 	/**
@@ -75,43 +99,6 @@ public final class ObjectUtils {
 					String.format("The %s argument must not be null.", argumentName));
 		}
 		return arg;
-	}
-
-	/**
-	 * Require a non-null property.
-	 *
-	 * <p>
-	 * This is similar to
-	 * {@link java.util.Objects#requireNonNull(Object, String)} except
-	 * {@code name} is just the name of the required property and an
-	 * {@link IllegalStateException} is thrown instead of a
-	 * {@code NullPointerException}. Example use:
-	 * </p>
-	 *
-	 * <!-- @formatter:off -->
-	 * <blockquote><pre>
-	 * ObjectUtils.requireNonNullProperty(bar, "BarService").tap();
-	 * </pre></blockquote>
-	 * <!-- @formatter:on -->
-	 *
-	 * @param <T>
-	 *        the argument type
-	 * @param prop
-	 *        the value to require to be non-null
-	 * @param name
-	 *        the name of {@code prop} to report in the
-	 *        {@link IllegalStateException} if {@code arg} is {@code null}
-	 * @return {@code prop}
-	 * @throws IllegalStateException
-	 *         if {@code arg} is {@code null}
-	 * @since 1.3
-	 */
-	public static <T> T requireNonNullProperty(final @Nullable T prop, final String name)
-			throws IllegalStateException {
-		if ( prop == null ) {
-			throw new IllegalStateException(String.format("%s is not available.", name));
-		}
-		return prop;
 	}
 
 	/**
@@ -233,26 +220,88 @@ public final class ObjectUtils {
 	}
 
 	/**
-	 * Compare two objects for equality.
+	 * Require a non-null property.
+	 *
+	 * <p>
+	 * This is an alias for {@link #nonnull(Object, String)}.
+	 * </p>
 	 *
 	 * @param <T>
-	 *        the comparable object type
-	 * @param l
-	 *        the first object
-	 * @param r
-	 *        the second object
-	 * @return {@code true} if both objects are {@code null} or
-	 *         {@code l.compareTo(r)} equals 0
-	 * @since 1.2
+	 *        the argument type
+	 * @param prop
+	 *        the value to require to be non-null
+	 * @param name
+	 *        the name of {@code prop} to report in the
+	 *        {@link IllegalStateException} if {@code arg} is {@code null}
+	 * @return {@code prop}
+	 * @throws IllegalStateException
+	 *         if {@code arg} is {@code null}
+	 * @since 1.3
+	 * @see #nonnull(Object, String)
 	 */
-	public static <T extends Comparable<T>> boolean comparativelyEqual(final @Nullable T l,
-			final @Nullable T r) {
-		if ( l == r ) {
-			return true;
-		} else if ( l == null || r == null ) {
-			return false;
+	public static <T> T requireNonNullProperty(final @Nullable T prop, final String name)
+			throws IllegalStateException {
+		return nonnull(prop, name);
+	}
+
+	/**
+	 * Require a non-null property.
+	 *
+	 * <p>
+	 * This is similar to {@link #requireNonNullArgument(Object, String)} but an
+	 * {@link IllegalStateException} is thrown instead of a
+	 * {@link IllegalArgumentException}. Example use:
+	 * </p>
+	 *
+	 * <!-- @formatter:off -->
+	 * <blockquote><pre>
+	 * ObjectUtils.nonnull(bar, "BarService").tap();
+	 * </pre></blockquote>
+	 * <!-- @formatter:on -->
+	 *
+	 * <p>
+	 * This is intended to help with null static analysis were we can reason
+	 * that a property can not be null but static analysis is unable to (and
+	 * would raise an error).
+	 * </p>
+	 *
+	 * @param <T>
+	 *        the argument type
+	 * @param prop
+	 *        the value to require to be non-null
+	 * @param name
+	 *        the name of {@code prop} to report in the
+	 *        {@link IllegalStateException} if {@code arg} is {@code null}
+	 * @return {@code prop}
+	 * @throws IllegalStateException
+	 *         if {@code arg} is {@code null}
+	 * @since 1.4
+	 */
+	public static <T> T nonnull(final @Nullable T prop, final String name) throws IllegalStateException {
+		if ( prop == null ) {
+			throw new IllegalStateException(String.format("%s is not available.", name));
 		}
-		return l.compareTo(r) == 0;
+		return prop;
+	}
+
+	/**
+	 * Cast a non-null supplier to a null-allowed result.
+	 *
+	 * @param <T>
+	 *        the supplier type
+	 * @param fn
+	 *        the supplier
+	 * @return the supplier's result, or {@code null} if the supplier is
+	 *         {@code null}, throws an {@code IllegalStateException} or
+	 *         {@code NullPointerException}, or returns {@code null}
+	 * @since 1.4
+	 */
+	public static <T> @Nullable T nullable(final Supplier<T> fn) {
+		try {
+			return fn.get();
+		} catch ( IllegalStateException | NullPointerException e ) {
+			return null;
+		}
 	}
 
 }

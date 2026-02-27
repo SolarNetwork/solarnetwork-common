@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import org.junit.Assert;
 import org.junit.Test;
 import net.solarnetwork.util.ObjectUtils;
@@ -43,7 +44,7 @@ import net.solarnetwork.util.ObjectUtils;
  * Test cases for the {@link ObjectUtils} class.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class ObjectUtilsTests {
 
@@ -255,6 +256,78 @@ public class ObjectUtilsTests {
 			.isInstanceOf(IllegalArgumentException.class)
 			.as("Message formatted with argumentName")
 			.hasMessage("The fooBar argument must not be empty.")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void nullable_nullSupplier() {
+		// GIVEN
+		final Supplier<String> fn = null;
+
+		// WHEN
+		final String result = ObjectUtils.nullable(fn);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null supplier returns null result")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void nullable_supplierReturnsNull() {
+		// GIVEN
+		final Supplier<String> fn = () -> null;
+
+		// WHEN
+		final String result = ObjectUtils.nullable(fn);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null returned when supplier returns null")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void nullable_supplierThrowsNullPointerException() {
+		// GIVEN
+		final Supplier<String> fn = () -> {
+			throw new NullPointerException();
+		};
+
+		// WHEN
+		final String result = ObjectUtils.nullable(fn);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null returned when supplier throws NullPointerException")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void nullable_supplierThrowsIllegalStateException() {
+		// GIVEN
+		final Supplier<String> fn = () -> {
+			throw new IllegalStateException();
+		};
+
+		// WHEN
+		final String result = ObjectUtils.nullable(fn);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null returned when supplier throws IllegalStateException")
+			.isNull()
 			;
 		// @formatter:on
 	}
