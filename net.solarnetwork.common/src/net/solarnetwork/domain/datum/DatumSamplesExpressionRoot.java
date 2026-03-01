@@ -84,7 +84,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 *        the parameters
 	 */
 	public DatumSamplesExpressionRoot(@Nullable Datum datum, @Nullable DatumSamplesOperations sample,
-			Map<String, ?> parameters) {
+			@Nullable Map<String, ?> parameters) {
 		super();
 		this.datum = datum;
 		this.datumOps = (datum != null ? datum.asSampleOperations() : null);
