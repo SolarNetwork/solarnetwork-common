@@ -24,6 +24,8 @@
 
 package net.solarnetwork.domain.datum;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * An aggregation level enumeration.
  *
@@ -157,13 +159,13 @@ public enum Aggregation {
 	 * Get an enum instance for a key value.
 	 *
 	 * @param key
-	 *        the key value; if {@code null} or empty then {@link #None} will
-	 *        be returned
+	 *        the key value; if {@code null} or empty then {@link #None} will be
+	 *        returned
 	 * @return the enum
 	 * @throws IllegalArgumentException
 	 *         if {@code key} is not supported
 	 */
-	public static Aggregation forKey(String key) {
+	public static Aggregation forKey(@Nullable String key) {
 		if ( key == null || key.isEmpty() ) {
 			return None;
 		}

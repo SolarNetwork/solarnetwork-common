@@ -76,7 +76,7 @@ public enum ObjectDatumKind {
 	 * @throws IllegalArgumentException
 	 *         if {@code key} is not supported
 	 */
-	public static ObjectDatumKind forKey(String key) {
+	public static ObjectDatumKind forKey(@Nullable String key) {
 		if ( key == null || key.isEmpty() ) {
 			throw new IllegalArgumentException("Key must not be null.");
 		}

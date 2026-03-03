@@ -32,6 +32,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionException;
 
 /**
  * API for a service that uses the {@link Expression} API for evaluating dynamic
@@ -142,8 +143,10 @@ public interface ExpressionService extends Identifiable {
 	 * @param expression
 	 *        the expression to parse
 	 * @return the parsed expression
+	 * @throws ExpressionException
+	 *         if any error occurs
 	 */
-	Expression parseExpression(String expression);
+	Expression parseExpression(String expression) throws ExpressionException;
 
 	/**
 	 * Evaluate an expression.

@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain.datum;
 
+import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 /**
@@ -72,14 +73,14 @@ public enum DatumRollupType {
 	 * </p>
 	 *
 	 * @param key
-	 *        the key value; if {@code null} or empty then {@link #None} will
-	 *        be returned
+	 *        the key value; if {@code null} or empty then {@link #None} will be
+	 *        returned
 	 * @return the enum
 	 * @throws IllegalArgumentException
 	 *         if {@code key} is not supported
 	 */
 	@JsonCreator
-	public static DatumRollupType forKey(String key) {
+	public static DatumRollupType forKey(@Nullable String key) {
 		if ( key == null || key.isEmpty() ) {
 			return None;
 		}

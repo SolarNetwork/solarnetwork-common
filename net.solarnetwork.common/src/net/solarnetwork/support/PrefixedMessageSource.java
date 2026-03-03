@@ -159,6 +159,7 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 			final String[] origCodes = resolvable.getCodes();
 			final String[] codes = new String[origCodes != null ? origCodes.length : 0];
 			for ( int i = 0; i < codes.length; i++ ) {
+				@SuppressWarnings("null")
 				String code = origCodes[i];
 				if ( prefix != null && delegate != null
 						&& (prefix.length() < 1 || code.startsWith(prefix)) ) {
