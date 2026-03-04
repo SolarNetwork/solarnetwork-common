@@ -23,6 +23,8 @@
 package net.solarnetwork.domain.datum;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.UUID;
 
 /**
@@ -32,7 +34,10 @@ import java.util.UUID;
  * @version 1.0
  * @since 4.20
  */
-public class BasicObjectDatumStreamIdentity implements ObjectDatumStreamIdentity {
+public class BasicObjectDatumStreamIdentity implements ObjectDatumStreamIdentity, Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -8696797204329088515L;
 
 	/** The stream ID. */
 	private final UUID streamId;
