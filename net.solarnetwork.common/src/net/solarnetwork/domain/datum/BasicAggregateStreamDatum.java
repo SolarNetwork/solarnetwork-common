@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain.datum;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
@@ -43,7 +44,7 @@ public class BasicAggregateStreamDatum extends BasicStreamDatum implements Aggre
 	private final @Nullable Instant endTimestamp;
 
 	/** The statistics. */
-	private final @Nullable DatumPropertiesStatistics statistics;
+	private final DatumPropertiesStatistics statistics;
 
 	/**
 	 * Constructor.
@@ -58,13 +59,14 @@ public class BasicAggregateStreamDatum extends BasicStreamDatum implements Aggre
 	 *        the end timestamp
 	 * @param statistics
 	 *        the statistics
+	 * @throws IllegalArgumentException
+	 *         if any argument other than {@code endTimestamp} is {@code null}
 	 */
-	public BasicAggregateStreamDatum(UUID streamId, Instant timestamp,
-			@Nullable DatumProperties properties, @Nullable Instant endTimestamp,
-			@Nullable DatumPropertiesStatistics statistics) {
+	public BasicAggregateStreamDatum(UUID streamId, Instant timestamp, DatumProperties properties,
+			@Nullable Instant endTimestamp, DatumPropertiesStatistics statistics) {
 		super(streamId, timestamp, properties);
 		this.endTimestamp = endTimestamp;
-		this.statistics = statistics;
+		this.statistics = requireNonNullArgument(statistics, "statistics");
 	}
 
 	@Override
@@ -143,7 +145,7 @@ public class BasicAggregateStreamDatum extends BasicStreamDatum implements Aggre
 	}
 
 	@Override
-	public @Nullable DatumPropertiesStatistics getStatistics() {
+	public DatumPropertiesStatistics getStatistics() {
 		return statistics;
 	}
 

@@ -54,7 +54,6 @@ public interface AggregateStreamDatum extends StreamDatum {
 	 *
 	 * @return the statistics
 	 */
-	@Nullable
 	DatumPropertiesStatistics getStatistics();
 
 }

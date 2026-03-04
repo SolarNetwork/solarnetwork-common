@@ -48,7 +48,7 @@ public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
 	private final Instant timestamp;
 
 	/** The datum properties. */
-	private final @Nullable DatumProperties properties;
+	private final DatumProperties properties;
 
 	/**
 	 * Constructor.
@@ -60,13 +60,13 @@ public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
 	 * @param properties
 	 *        the optional samples
 	 * @throws IllegalArgumentException
-	 *         if {@code streamId} or {@code timestamp} are {@code null}
+	 *         if any argument is {@code null}
 	 */
 	public BasicStreamDatum(UUID streamId, Instant timestamp, @Nullable DatumProperties properties) {
 		super();
 		this.streamId = requireNonNullArgument(streamId, "streamId");
 		this.timestamp = requireNonNullArgument(timestamp, "timestamp");
-		this.properties = properties;
+		this.properties = requireNonNullArgument(properties, "properties");
 	}
 
 	@Override
@@ -135,7 +135,7 @@ public class BasicStreamDatum implements StreamDatum, Cloneable, Serializable {
 	}
 
 	@Override
-	public @Nullable DatumProperties getProperties() {
+	public DatumProperties getProperties() {
 		return properties;
 	}
 

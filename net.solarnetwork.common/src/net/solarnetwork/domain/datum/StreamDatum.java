@@ -24,7 +24,6 @@ package net.solarnetwork.domain.datum;
 
 import java.time.Instant;
 import java.util.UUID;
-import org.jspecify.annotations.Nullable;
 
 /**
  * API for an object that exists within a unique stream at a specific point in
@@ -60,7 +59,6 @@ public interface StreamDatum {
 	 *
 	 * @return the properties
 	 */
-	@Nullable
 	DatumProperties getProperties();
 
 }
