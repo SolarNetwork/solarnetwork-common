@@ -1,21 +1,21 @@
 /* ==================================================================
  * ArrayUtilsTests.java - 16/03/2018 7:04:22 AM
- * 
+ *
  * Copyright 2018 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -37,7 +37,7 @@ import net.solarnetwork.util.ArrayUtils;
 
 /**
  * Test cases for the {@link ArrayUtils} class.
- * 
+ *
  * @author matt
  * @version 1.2
  */
@@ -93,9 +93,16 @@ public class ArrayUtilsTests {
 	}
 
 	@Test
-	public void adjustArrayLengthShorter() {
+	public void adjustArrayLengthShorter_ignored() {
 		FooBean[] array = new FooBean[] { new FooBean(0), new FooBean(1) };
 		FooBean[] result = ArrayUtils.arrayWithLength(array, 1, FooBean.class, null);
+		assertThat("Input array returned", result, sameInstance(array));
+	}
+
+	@Test
+	public void adjustArrayLengthShorter() {
+		FooBean[] array = new FooBean[] { new FooBean(0), new FooBean(1) };
+		FooBean[] result = ArrayUtils.arrayOfLength(array, 1, FooBean.class, true, null);
 		assertThat("New array returned", result, not(sameInstance(array)));
 		assertThat("New array length", result, arrayWithSize(1));
 		assertThat("Item 0 copied", result[0], sameInstance(array[0]));
@@ -104,7 +111,7 @@ public class ArrayUtilsTests {
 	@Test
 	public void adjustArrayLengthToZero() {
 		FooBean[] array = new FooBean[] { new FooBean(0), new FooBean(1) };
-		FooBean[] result = ArrayUtils.arrayWithLength(array, 0, FooBean.class, null);
+		FooBean[] result = ArrayUtils.arrayOfLength(array, 0, FooBean.class, true, null);
 		assertThat("New array returned", result, not(sameInstance(array)));
 		assertThat("New array length", result, arrayWithSize(0));
 	}

@@ -37,7 +37,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * Utilities for dealing with arrays.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.42
  */
 public final class ArrayUtils {
@@ -47,14 +47,14 @@ public final class ArrayUtils {
 	}
 
 	/**
-	 * Adjust an array to a specific length, filling in any new elements with
-	 * newly objects.
+	 * Grow an array to a minimum length, filling in any new elements with newly
+	 * allocated objects.
 	 *
 	 * <p>
-	 * This method can shorten or lengthen an array of objects. After adjusting
-	 * the array length, any {@code null} element in the array will be
-	 * initialized to an object returned from {@code factory}, or if
-	 * {@code factory} is not provided a new instance of {@code itemClass} via
+	 * This method can only lengthen an array of objects. After adjusting the
+	 * array length, any {@code null} element in the array will be initialized
+	 * to an object returned from {@code factory}, or if {@code factory} is not
+	 * provided a new instance of {@code itemClass} via
 	 * {@link Class#newInstance()}. The {@link ObjectFactory#getObject()} method
 	 * (or class constructor if no {@code factory} provided) will be called for
 	 * <b>each</b> {@code null} array index.
@@ -71,9 +71,9 @@ public final class ArrayUtils {
 	 *        the array item type
 	 * @param array
 	 *        the source array, or {@code null}
-	 * @param count
-	 *        the desired length of the array; if less than zero will be treated
-	 *        as zero
+	 * @param minLength
+	 *        the desired minimum length of the array; if less than zero will be
+	 *        treated as zero
 	 * @param itemClass
 	 *        the class of array items
 	 * @param factory
@@ -83,21 +83,21 @@ public final class ArrayUtils {
 	 *         {@code array} if no adjustment was necessary
 	 * @see #arrayOfLength(Object[], int, Class, Supplier)
 	 */
-	public static <T> T @Nullable [] arrayWithLength(T @Nullable [] array, int count, Class<T> itemClass,
-			@Nullable ObjectFactory<? extends T> factory) {
-		return arrayOfLength(array, count, itemClass,
+	public static <T> T @Nullable [] arrayWithLength(T @Nullable [] array, int minLength,
+			Class<T> itemClass, @Nullable ObjectFactory<? extends T> factory) {
+		return arrayOfLength(array, minLength, itemClass,
 				factory != null ? (Supplier<T>) factory::getObject : null);
 	}
 
 	/**
-	 * Adjust an array to a specific length, filling in any new elements with
-	 * newly objects.
+	 * Grow an array to a minimum length, filling in any new elements with newly
+	 * allocated objects.
 	 *
 	 * <p>
-	 * This method can shorten or lengthen an array of objects. After adjusting
-	 * the array length, any {@code null} element in the array will be
-	 * initialized to an object returned from {@code factory}, or if
-	 * {@code factory} is not provided a new instance of {@code itemClass} via
+	 * This method can only lengthen an array of objects. After adjusting the
+	 * array length, any {@code null} element in the array will be initialized
+	 * to an object returned from {@code factory}, or if {@code factory} is not
+	 * provided a new instance of {@code itemClass} via
 	 * {@link Class#newInstance()}. The {@link ObjectFactory#getObject()} method
 	 * (or class constructor if no {@code factory} provided) will be called for
 	 * <b>each</b> {@code null} array index.
@@ -114,7 +114,7 @@ public final class ArrayUtils {
 	 *        the array item type
 	 * @param array
 	 *        the source array, or {@code null}
-	 * @param count
+	 * @param minLength
 	 *        the desired length of the array; if less than zero will be treated
 	 *        as zero
 	 * @param itemClass
@@ -125,27 +125,78 @@ public final class ArrayUtils {
 	 * @return a copy of {@code array} with the adjusted length, or
 	 *         {@code array} if no adjustment was necessary
 	 * @since 1.3
+	 * @see #arrayOfLength(Object[], int, Class, boolean, Supplier)
+	 */
+	public static <T> T @Nullable [] arrayOfLength(T @Nullable [] array, int minLength,
+			Class<T> itemClass, @Nullable Supplier<? extends T> factory) {
+		return arrayOfLength(array, minLength, itemClass, false, factory);
+	}
+
+	/**
+	 * Adjust an array to a specific length, filling in any new elements with
+	 * newly allocated objects.
+	 *
+	 * <p>
+	 * This method can shorten or lengthen an array of objects. After adjusting
+	 * the array length, any {@code null} element in the array will be
+	 * initialized to an object returned from {@code factory}, or if
+	 * {@code factory} is not provided a new instance of {@code itemClass} via
+	 * {@link Class#newInstance()}. The {@link ObjectFactory#getObject()} method
+	 * (or class constructor if no {@code factory} provided) will be called for
+	 * <b>each</b> {@code null} array index.
+	 * </p>
+	 *
+	 * <p>
+	 * Note that if a size adjustment is made, a new array instance is returned
+	 * from this method, with elements copied from {@code array} where
+	 * appropriate. If no size adjustment is necessary, then {@code array} is
+	 * returned directly.
+	 * </p>
+	 *
+	 * @param <T>
+	 *        the array item type
+	 * @param array
+	 *        the source array, or {@code null}
+	 * @param count
+	 *        the desired length of the array; if less than zero will be treated
+	 *        as zero; if {@code shrink} if {@code false} this becomes the
+	 *        desired minimum length of the array
+	 * @param itemClass
+	 *        the class of array items
+	 * @param shrink
+	 *        {@code true} to allow shrinking {@code array} to {@code count}
+	 *        length; otherwise only allow growing {@code array} to
+	 *        {@code count} minimum length so if {@code array} is already larger
+	 *        than {@code count} the returned array will preserve the longer
+	 *        length
+	 * @param factory
+	 *        a factory to create new array items, or {@code null} to create
+	 *        {@code itemClass} instances directly
+	 * @return a copy of {@code array} with the adjusted length, or
+	 *         {@code array} if no adjustment was necessary
+	 * @since 1.4
 	 */
 	public static <T> T @Nullable [] arrayOfLength(T @Nullable [] array, int count, Class<T> itemClass,
-			@Nullable Supplier<? extends T> factory) {
+			boolean shrink, @Nullable Supplier<? extends T> factory) {
 		if ( count < 0 ) {
 			count = 0;
 		}
-		int inCount = (array == null ? -1 : array.length);
+		final int inCount = (array == null ? -1 : array.length);
+		final int outCount = (shrink ? count : Math.max(inCount, count));
 		T[] result = array;
-		if ( inCount != count ) {
+		if ( inCount != outCount ) {
 			@SuppressWarnings("unchecked")
-			T[] newIncs = (T[]) Array.newInstance(itemClass, count);
+			T[] newArray = (T[]) Array.newInstance(itemClass, outCount);
 			if ( array != null ) {
-				System.arraycopy(array, 0, newIncs, 0, Math.min(count, inCount));
+				System.arraycopy(array, 0, newArray, 0, Math.min(outCount, inCount));
 			}
-			for ( int i = 0; i < count; i++ ) {
-				if ( newIncs[i] == null ) {
+			for ( int i = 0; i < outCount; i++ ) {
+				if ( newArray[i] == null ) {
 					if ( factory != null ) {
-						newIncs[i] = factory.get();
+						newArray[i] = factory.get();
 					} else {
 						try {
-							newIncs[i] = itemClass.getDeclaredConstructor().newInstance();
+							newArray[i] = itemClass.getDeclaredConstructor().newInstance();
 						} catch ( IllegalArgumentException | InvocationTargetException
 								| NoSuchMethodException | SecurityException | IllegalAccessException
 								| InstantiationException e ) {
@@ -154,7 +205,7 @@ public final class ArrayUtils {
 					}
 				}
 			}
-			result = newIncs;
+			result = newArray;
 		}
 		return result;
 	}
@@ -202,8 +253,8 @@ public final class ArrayUtils {
 	}
 
 	/**
-	 * Test if an array has only {@code null} elements or is itself
-	 * {@code null} or empty.
+	 * Test if an array has only {@code null} elements or is itself {@code null}
+	 * or empty.
 	 *
 	 * <p>
 	 * This method will perform a linear search for the first non-null element.
@@ -211,8 +262,8 @@ public final class ArrayUtils {
 	 *
 	 * @param array
 	 *        the array to test
-	 * @return {@literal true} if {@code array} is {@code null}, empty, or
-	 *         has only {@code null} elements
+	 * @return {@literal true} if {@code array} is {@code null}, empty, or has
+	 *         only {@code null} elements
 	 * @since 1.2
 	 */
 	public static boolean isOnlyNull(@Nullable Object @Nullable [] array) {
