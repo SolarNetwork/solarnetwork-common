@@ -1,7 +1,7 @@
 /* ==================================================================
- * ObjectDatumStreamMetadata.java - 5/11/2020 4:01:03 pm
+ * ObjectDatumStreamIdentity.java - 5/03/2026 7:56:41 am
  *
- * Copyright 2020 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,24 +22,29 @@
 
 package net.solarnetwork.domain.datum;
 
-import org.jspecify.annotations.Nullable;
-import net.solarnetwork.domain.Location;
+import java.util.UUID;
 
 /**
- * Object-specific (node or location) datum stream metadata.
+ * Identifying details for a datum stream.
  *
  * @author matt
  * @version 1.0
- * @since 1.72
+ * @since 4.20
  */
-public interface ObjectDatumStreamMetadata extends DatumStreamMetadata, ObjectDatumStreamIdentity {
+public interface ObjectDatumStreamIdentity {
+
+	/**
+	 * Get the stream ID.
+	 *
+	 * @return the stream ID
+	 */
+	UUID getStreamId();
 
 	/**
 	 * Get the object datum kind.
 	 *
 	 * @return the kind
 	 */
-	@Override
 	ObjectDatumKind getKind();
 
 	/**
@@ -47,7 +52,6 @@ public interface ObjectDatumStreamMetadata extends DatumStreamMetadata, ObjectDa
 	 *
 	 * @return the object ID
 	 */
-	@Override
 	Long getObjectId();
 
 	/**
@@ -55,23 +59,6 @@ public interface ObjectDatumStreamMetadata extends DatumStreamMetadata, ObjectDa
 	 *
 	 * @return the source ID
 	 */
-	@Override
 	String getSourceId();
-
-	/**
-	 * Get the optional custom JSON metadata.
-	 *
-	 * @return the JSON metadata
-	 */
-	@Nullable
-	String getMetaJson();
-
-	/**
-	 * Get the object location.
-	 *
-	 * @return the location
-	 */
-	@Nullable
-	Location getLocation();
 
 }
