@@ -45,9 +45,8 @@ public interface ObjectDatumStreamMetadataProvider {
 	 * metadata available for.
 	 *
 	 * @return the set of stream IDs that {@link #metadataForStreamId(UUID)}
-	 *         will return a value for, or {@code null} it not known
+	 *         will return a value for, never {@code null}
 	 */
-	@Nullable
 	Collection<UUID> metadataStreamIds();
 
 	/**

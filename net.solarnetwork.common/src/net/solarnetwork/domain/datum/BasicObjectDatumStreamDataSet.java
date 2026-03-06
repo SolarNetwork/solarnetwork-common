@@ -74,11 +74,11 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 	 * @param totalResultCount
 	 *        the total result count, or {@code null} if not known
 	 * @param startingOffset
-	 *        the starting offset within the total result set, or
-	 *        {@code null} if not known
-	 * @param returnedResultCount
-	 *        the number of results available in {@code data} or {@code null}
+	 *        the starting offset within the total result set, or {@code null}
 	 *        if not known
+	 * @param returnedResultCount
+	 *        the number of results available in {@code data} or {@code null} if
+	 *        not known
 	 * @return the new instance
 	 */
 	public static final <T extends StreamDatum> BasicObjectDatumStreamDataSet<T> dataSet(
@@ -114,11 +114,11 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 	 * @param totalResultCount
 	 *        the total result count, or {@code null} if not known
 	 * @param startingOffset
-	 *        the starting offset within the total result set, or
-	 *        {@code null} if not known
-	 * @param returnedResultCount
-	 *        the number of results available in {@code data} or {@code null}
+	 *        the starting offset within the total result set, or {@code null}
 	 *        if not known
+	 * @param returnedResultCount
+	 *        the number of results available in {@code data} or {@code null} if
+	 *        not known
 	 * @throws IllegalArgumentException
 	 *         if either {@code provider} or {@code data} is {@code null}
 	 */
@@ -134,7 +134,7 @@ public class BasicObjectDatumStreamDataSet<T extends StreamDatum>
 	}
 
 	@Override
-	public @Nullable Collection<UUID> metadataStreamIds() {
+	public Collection<UUID> metadataStreamIds() {
 		return provider.metadataStreamIds();
 	}
 
