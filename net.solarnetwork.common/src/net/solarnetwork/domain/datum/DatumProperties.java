@@ -93,14 +93,6 @@ public class DatumProperties implements Serializable {
 	/**
 	 * Create a datum properties instance.
 	 *
-	 * @param instantaneous
-	 *        the instantaneous values
-	 * @param accumulating
-	 *        the accumulating values
-	 * @param status
-	 *        the status values
-	 * @param tags
-	 *        the tag values
 	 * @return the new instance, never {@code null}
 	 * @since 1.4
 	 */
