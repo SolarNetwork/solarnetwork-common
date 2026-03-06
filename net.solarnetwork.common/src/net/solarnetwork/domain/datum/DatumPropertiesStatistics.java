@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
  * Statistic information associated with datum properties.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 2.7
  */
 public class DatumPropertiesStatistics implements Serializable {
@@ -108,6 +108,16 @@ public class DatumPropertiesStatistics implements Serializable {
 		return s;
 	}
 
+	/**
+	 * Create an empty datum statistics instance.
+	 *
+	 * @return the new instance, never {@code null}
+	 * @since 1.3
+	 */
+	public static DatumPropertiesStatistics emptyStatistics() {
+		return new DatumPropertiesStatistics();
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -158,6 +168,17 @@ public class DatumPropertiesStatistics implements Serializable {
 	 */
 	public int getLength() {
 		return getInstantaneousLength() + getAccumulatingLength();
+	}
+
+	/**
+	 * Test if there are any properties available.
+	 *
+	 * @return {@code true} if the instantaneous and accumulating properties are
+	 *         all empty
+	 * @since 1.3
+	 */
+	public boolean isEmpty() {
+		return getInstantaneousLength() < 1 && getAccumulatingLength() < 1;
 	}
 
 	/**

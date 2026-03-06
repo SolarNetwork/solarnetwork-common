@@ -35,13 +35,13 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>
  * The properties are stored as ordered arrays of values. The meaning of the
- * values depends on external {@link DatumStreamMetadata}. {@code null}
- * values are allowed both as the array fields of this class and as values
- * within array instances.
+ * values depends on external {@link DatumStreamMetadata}. {@code null} values
+ * are allowed both as the array fields of this class and as values within array
+ * instances.
  * </p>
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.72
  */
 public class DatumProperties implements Serializable {
@@ -91,6 +91,24 @@ public class DatumProperties implements Serializable {
 	}
 
 	/**
+	 * Create a datum properties instance.
+	 *
+	 * @param instantaneous
+	 *        the instantaneous values
+	 * @param accumulating
+	 *        the accumulating values
+	 * @param status
+	 *        the status values
+	 * @param tags
+	 *        the tag values
+	 * @return the new instance, never {@code null}
+	 * @since 1.4
+	 */
+	public static DatumProperties emptyProperties() {
+		return new DatumProperties();
+	}
+
+	/**
 	 * Create a new instance out of a general datum and associated stream
 	 * metadata.
 	 *
@@ -103,8 +121,7 @@ public class DatumProperties implements Serializable {
 	 *        the datum to create properties from
 	 * @param meta
 	 *        the metadata that defines the property order
-	 * @return the properties, or {@code null} if {@code datum} is
-	 *         {@code null}
+	 * @return the properties, or {@code null} if {@code datum} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the metadata does not support a property found on the datum
 	 */
@@ -295,6 +312,18 @@ public class DatumProperties implements Serializable {
 	}
 
 	/**
+	 * Test if there are any properties available.
+	 *
+	 * @return {@code true} if the instantaneous, accumulating, status, and tag
+	 *         properties are all empty
+	 * @since 1.4
+	 */
+	public boolean isEmpty() {
+		return getInstantaneousLength() < 1 && getAccumulatingLength() < 1 && getStatusLength() < 1
+				&& getTagsLength() < 1;
+	}
+
+	/**
 	 * Get the instantaneous values array length.
 	 *
 	 * @return the number of instantaneous values (including {@code null}
@@ -343,8 +372,7 @@ public class DatumProperties implements Serializable {
 	/**
 	 * Get the accumulating values array length.
 	 *
-	 * @return the number of accumulating values (including {@code null}
-	 *         values)
+	 * @return the number of accumulating values (including {@code null} values)
 	 */
 	public int getAccumulatingLength() {
 		BigDecimal[] array = getAccumulating();

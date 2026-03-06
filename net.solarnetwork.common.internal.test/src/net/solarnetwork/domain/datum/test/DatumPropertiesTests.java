@@ -1,21 +1,21 @@
 /* ==================================================================
  * DatumPropertiesTests.java - 6/11/2020 6:46:57 am
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -23,6 +23,8 @@
 package net.solarnetwork.domain.datum.test;
 
 import static net.solarnetwork.util.NumberUtils.decimalArray;
+import static org.assertj.core.api.BDDAssertions.from;
+import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
@@ -31,6 +33,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
+import org.assertj.core.api.BDDAssertions;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.DatumProperties;
@@ -41,7 +44,7 @@ import net.solarnetwork.util.Half;
 
 /**
  * Test cases for the {@link DatumProperties} class.
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -55,6 +58,7 @@ public class DatumPropertiesTests {
 		assertThat("Null accumulating length is 0", p.getAccumulatingLength(), equalTo(0));
 		assertThat("Null status length is 0", p.getStatusLength(), equalTo(0));
 		assertThat("Null tags length is 0", p.getTagsLength(), equalTo(0));
+		assertThat("Total length is 0", p.getLength(), equalTo(0));
 	}
 
 	@Test
@@ -66,6 +70,7 @@ public class DatumPropertiesTests {
 		assertThat("Empty accumulating length is 0", p.getAccumulatingLength(), equalTo(0));
 		assertThat("Empty status length is 0", p.getStatusLength(), equalTo(0));
 		assertThat("Empty tags length is 0", p.getTagsLength(), equalTo(0));
+		assertThat("Total length is 0", p.getLength(), equalTo(0));
 	}
 
 	@Test
@@ -225,6 +230,41 @@ public class DatumPropertiesTests {
 		assertThat("Properties created", p, is(notNullValue()));
 		assertThat("Instantaneous values mapped", p.getInstantaneous(),
 				is(arrayContaining(decimalArray("1", null, "3"))));
+	}
+
+	@Test
+	public void empty() {
+		// WHEN
+		final var p = DatumProperties.emptyProperties();
+
+		// @formatter:off
+		then(p)
+			.as("Instance created")
+			.isNotNull()
+			.as("Is empty")
+			.returns(true, from(DatumProperties::isEmpty))
+			.as("Length is 0")
+			.returns(0, BDDAssertions.from(DatumProperties::getLength))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void nonEmpty() {
+		// WHEN
+		final var p = DatumProperties.emptyProperties();
+		p.setInstantaneous(decimalArray("1"));
+
+		// @formatter:off
+		then(p)
+			.as("Instance created")
+			.isNotNull()
+			.as("Is not empty")
+			.returns(false, from(DatumProperties::isEmpty))
+			.as("Length is 1")
+			.returns(1, from(DatumProperties::getLength))
+			;
+		// @formatter:on
 	}
 
 }
