@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
  * Basic persistable domain object API.
  *
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public interface Datum {
 
@@ -96,30 +96,40 @@ public interface Datum {
 	String SOURCE_ID = "sourceId";
 
 	/**
+	 * Get a {@link DatumId} for this datum.
+	 *
+	 * @return the datum ID, never {@code null}
+	 * @since 2.1
+	 */
+	default DatumId datumId() {
+		return new DatumId(null, null, null, null);
+	}
+
+	/**
 	 * Get the object kind.
+	 *
+	 * <p>
+	 * This default returns {@code datumId().getKind()}.
+	 * </p>
 	 *
 	 * @return the object kind
 	 */
-	@Nullable
-	ObjectDatumKind getKind();
+	default @Nullable ObjectDatumKind getKind() {
+		return datumId().getKind();
+	}
 
 	/**
 	 * Get a domain-specific ID related to the object kind.
 	 *
+	 * <p>
+	 * This default returns {@code datumId().getObjectId()}.
+	 * </p>
+	 *
 	 * @return the object ID, or {@code null}
 	 */
-	@Nullable
-	Long getObjectId();
-
-	/**
-	 * Get the date this datum is associated with, which is often equal to
-	 * either the date it was persisted or the date the associated data in this
-	 * object was captured.
-	 *
-	 * @return the timestamp
-	 */
-	@Nullable
-	Instant getTimestamp();
+	default @Nullable Long getObjectId() {
+		return datumId().getObjectId();
+	}
 
 	/**
 	 * Get a unique source ID for this datum.
@@ -128,10 +138,30 @@ public interface Datum {
 	 * A single datum type may collect data from many different sources.
 	 * </p>
 	 *
+	 * <p>
+	 * This default returns {@code datumId().getSourceId()}.
+	 * </p>
+	 *
 	 * @return the source ID
 	 */
-	@Nullable
-	String getSourceId();
+	default @Nullable String getSourceId() {
+		return datumId().getSourceId();
+	}
+
+	/**
+	 * Get the date this datum is associated with, which is often equal to
+	 * either the date it was persisted or the date the associated data in this
+	 * object was captured.
+	 *
+	 * <p>
+	 * This default returns {@code datumId().getTimestamp()}.
+	 * </p>
+	 *
+	 * @return the timestamp
+	 */
+	default @Nullable Instant getTimestamp() {
+		return datumId().getTimestamp();
+	}
 
 	/**
 	 * Get a map of all available data sampled or collected on this datum.

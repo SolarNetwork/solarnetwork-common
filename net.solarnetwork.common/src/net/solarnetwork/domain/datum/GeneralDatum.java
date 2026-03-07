@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.solarnetwork.domain.BasicSerializableIdentity;
 import net.solarnetwork.domain.CopyingIdentity;
 
@@ -53,12 +54,12 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * Constructor.
 	 *
 	 * @param id
-	 *        the ID
+	 *        the ID; if {@code null} a new instance will be created
 	 * @param samples
 	 *        the samples; if {@code null} a new instance will be created
 	 */
 	public GeneralDatum(DatumId id, @Nullable DatumSamples samples) {
-		super(id);
+		super(id != null ? id : new DatumId(null, null, null, null));
 		this.samples = (samples != null ? samples : new DatumSamples());
 	}
 
@@ -217,38 +218,11 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 		other.samples.copyFrom(this.samples);
 	}
 
-	/**
-	 * Get the object kind.
-	 *
-	 * @return the kind
-	 */
+	@SuppressWarnings("NullAway")
+	@JsonIgnore
 	@Override
-	public @Nullable ObjectDatumKind getKind() {
-		final DatumId id = getId();
-		return (id != null ? id.getKind() : null);
-	}
-
-	/**
-	 * Get the object ID.
-	 *
-	 * @return the object ID
-	 */
-	@Override
-	public @Nullable Long getObjectId() {
-		final DatumId id = getId();
-		return (id != null ? id.getObjectId() : null);
-	}
-
-	@Override
-	public @Nullable String getSourceId() {
-		final DatumId id = getId();
-		return (id != null ? id.getSourceId() : null);
-	}
-
-	@Override
-	public @Nullable Instant getTimestamp() {
-		final DatumId id = getId();
-		return (id != null ? id.getTimestamp() : null);
+	public final DatumId datumId() {
+		return getId();
 	}
 
 	@Override
@@ -258,7 +232,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	}
 
 	@Override
-	public Map<String, ?> asSimpleMap() {
+	public final Map<String, ?> asSimpleMap() {
 		return createSimpleMap();
 	}
 
@@ -456,7 +430,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @return the samples, never {@code null}
 	 */
 	@Override
-	public DatumSamples getSamples() {
+	public final DatumSamples getSamples() {
 		return samples;
 	}
 
