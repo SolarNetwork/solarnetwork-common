@@ -159,8 +159,8 @@ public final class NumberUtils {
 	 *
 	 * @param value
 	 *        the number to get a {@code BigDecimal} version of
-	 * @return the {@code BigDecimal} version of {@code value}, or
-	 *         {@code null} if {@code value} is {@code null}
+	 * @return the {@code BigDecimal} version of {@code value}, or {@code null}
+	 *         if {@code value} is {@code null}
 	 */
 	public static @Nullable BigDecimal bigDecimalForNumber(@Nullable Number value) {
 		BigDecimal v = null;
@@ -194,8 +194,8 @@ public final class NumberUtils {
 	 *
 	 * @param value
 	 *        the number to get a {@code BigInteger} version of
-	 * @return the {@code BigInteger} version of {@code value}, or
-	 *         {@code null} if {@code value} is {@code null}
+	 * @return the {@code BigInteger} version of {@code value}, or {@code null}
+	 *         if {@code value} is {@code null}
 	 * @since 1.8
 	 */
 	public static @Nullable BigInteger bigIntegerForNumber(@Nullable Number value) {
@@ -217,13 +217,16 @@ public final class NumberUtils {
 	 *
 	 * @param nums
 	 *        the string numbers
-	 * @return the array
+	 * @return the array, or {@code null} if {@code nums} is {@code null}
 	 * @throws NumberFormatException
 	 *         if any number is not a valid representation of a
 	 *         {@code BigDecimal}
 	 * @since 1.6
 	 */
-	public static BigDecimal[] decimalArray(String... nums) {
+	public static BigDecimal @Nullable [] decimalArray(String @Nullable... nums) {
+		if ( nums == null ) {
+			return null;
+		}
 		BigDecimal[] vals = new BigDecimal[nums.length];
 		for ( int i = 0; i < nums.length; i++ ) {
 			vals[i] = (nums[i] != null ? new BigDecimal(nums[i]) : null);
@@ -1060,8 +1063,8 @@ public final class NumberUtils {
 	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
 	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
 	 *        most a {@link Long} or {@link Double}
-	 * @return the (possibly) narrowed number, or {@code null} if {@code n}
-	 *         is {@code null}
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n} is
+	 *         {@code null}
 	 * @since 1.10
 	 */
 	public static @Nullable Number narrow(final @Nullable Number n, final int minBytePower) {
@@ -1123,8 +1126,8 @@ public final class NumberUtils {
 	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
 	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
 	 *        most a {@link Long} or {@link Double}
-	 * @return the (possibly) narrowed number, or {@code null} if {@code n}
-	 *         is {@code null}
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n} is
+	 *         {@code null}
 	 * @since 1.10
 	 */
 	public static @Nullable Number narrow(final @Nullable BigInteger n, final int minBytePower) {
@@ -1177,8 +1180,8 @@ public final class NumberUtils {
 	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
 	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
 	 *        most a {@link Long} or {@link Double}
-	 * @return the (possibly) narrowed number, or {@code null} if {@code n}
-	 *         is {@code null}
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n} is
+	 *         {@code null}
 	 * @since 1.10
 	 */
 	public static @Nullable Number narrow(final @Nullable BigDecimal n, final int minBytePower) {
@@ -1233,8 +1236,7 @@ public final class NumberUtils {
 	 *
 	 * @param n
 	 *        the number to convert
-	 * @return the converted value, or {@code null} if {@code n} is
-	 *         {@code null}
+	 * @return the converted value, or {@code null} if {@code n} is {@code null}
 	 * @since 1.10
 	 * @throws ArithmeticException
 	 *         if an exact conversion cannot be done
@@ -1257,8 +1259,7 @@ public final class NumberUtils {
 	 *
 	 * @param n
 	 *        the number to convert
-	 * @return the converted value, or {@code null} if {@code n} is
-	 *         {@code null}
+	 * @return the converted value, or {@code null} if {@code n} is {@code null}
 	 * @since 1.10
 	 * @throws ArithmeticException
 	 *         if an exact conversion cannot be done
