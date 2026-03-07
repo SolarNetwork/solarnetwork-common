@@ -37,8 +37,9 @@ public interface Cachable {
 	/**
 	 * Get a unique cache key that identifies this cachable item.
 	 *
-	 * @return the cache key
+	 * @return the cache key, or {@code null} if this item should not be cached
 	 */
+	@Nullable
 	String getCacheKey();
 
 	/**
