@@ -206,7 +206,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	}
 
 	@Override
-	public GeneralDatum copyWithId(@Nullable DatumId id) {
+	public GeneralDatum copyWithId(DatumId id) {
 		return new GeneralDatum(requireNonNullArgument(id, "id"), samples);
 	}
 

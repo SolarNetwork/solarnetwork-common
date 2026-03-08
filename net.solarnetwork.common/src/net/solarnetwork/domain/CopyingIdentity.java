@@ -22,8 +22,6 @@
 
 package net.solarnetwork.domain;
 
-import org.jspecify.annotations.Nullable;
-
 /**
  * API for an identity with copying support.
  *
@@ -45,7 +43,7 @@ public interface CopyingIdentity<T extends CopyingIdentity<T, K>, K extends Comp
 	 *        the ID to use in the copy
 	 * @return the new copy
 	 */
-	T copyWithId(@Nullable K id);
+	T copyWithId(K id);
 
 	/**
 	 * Copy the properties of this identity into another entity.
