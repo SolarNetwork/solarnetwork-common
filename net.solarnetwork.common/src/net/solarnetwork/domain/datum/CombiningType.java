@@ -24,6 +24,7 @@ package net.solarnetwork.domain.datum;
 
 import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import net.solarnetwork.domain.KeyedValue;
 
 /**
  * An action to perform when combining data elements.
@@ -32,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
  * @version 1.0
  * @since 4.3
  */
-public enum CombiningType {
+public enum CombiningType implements KeyedValue {
 
 	/** Add values. */
 	Sum("s"),
@@ -72,6 +73,7 @@ public enum CombiningType {
 	 *
 	 * @return the key
 	 */
+	@Override
 	public String getKey() {
 		return key;
 	}

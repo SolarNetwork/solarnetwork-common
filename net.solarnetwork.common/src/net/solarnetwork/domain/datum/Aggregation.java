@@ -25,14 +25,15 @@
 package net.solarnetwork.domain.datum;
 
 import org.jspecify.annotations.Nullable;
+import net.solarnetwork.domain.KeyedValue;
 
 /**
  * An aggregation level enumeration.
  *
- * @version 1.1
+ * @version 1.2
  * @since 2.7
  */
-public enum Aggregation {
+public enum Aggregation implements KeyedValue {
 
 	/** No aggregation. */
 	None(0, "0"),
@@ -151,6 +152,7 @@ public enum Aggregation {
 	 *
 	 * @return the key
 	 */
+	@Override
 	public String getKey() {
 		return key;
 	}

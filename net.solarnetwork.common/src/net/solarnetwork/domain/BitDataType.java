@@ -1,21 +1,21 @@
 /* ==================================================================
  * BitDataType.java - 24/09/2019 8:54:44 pm
- * 
+ *
  * Copyright 2019 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -24,12 +24,12 @@ package net.solarnetwork.domain;
 
 /**
  * An enumeration of common bit-centric data types.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.54
  */
-public enum BitDataType {
+public enum BitDataType implements KeyedValue {
 
 	/** An individual bit. */
 	Bit(1, "bit", false, "Bit (on/off)"),
@@ -125,16 +125,17 @@ public enum BitDataType {
 
 	/**
 	 * Get the key value for this enum.
-	 * 
+	 *
 	 * @return the key
 	 */
+	@Override
 	public String getKey() {
 		return key;
 	}
 
 	/**
 	 * Get the number of bits this data type requires.
-	 * 
+	 *
 	 * @return the number of bits, or {@literal -1} for an unknown length (for
 	 *         example for strings)
 	 */
@@ -145,7 +146,7 @@ public enum BitDataType {
 	/**
 	 * Test if this type has a bit length that is not an even multiple of
 	 * {@literal 8}.
-	 * 
+	 *
 	 * @return {@literal true} if {@link #getBitLength()} is not evenly
 	 *         divisible by {@literal 8}
 	 */
@@ -155,13 +156,13 @@ public enum BitDataType {
 
 	/**
 	 * Get the number of bytes this data type requires.
-	 * 
+	 *
 	 * <p>
 	 * For types where {@link #getBitLength()} is not an even multiple of
 	 * {@literal 8}, the returned value will be rounded <b>up</b> to the next
 	 * multiple of {@literal 8}.
 	 * </p>
-	 * 
+	 *
 	 * @return the number of bytes, or {@literal -1} for an unknown length (for
 	 *         example for strings)
 	 */
@@ -171,7 +172,7 @@ public enum BitDataType {
 
 	/**
 	 * Test if the type represents a number.
-	 * 
+	 *
 	 * @return {@literal true} if the type is a number type, {@literal false}
 	 *         otherwise (such as bytes or a string)
 	 */
@@ -181,7 +182,7 @@ public enum BitDataType {
 
 	/**
 	 * Get signed flag.
-	 * 
+	 *
 	 * @return {@literal true} if the data type represents a signed number,
 	 *         {@literal false} for unsigned (or not a number)
 	 */
@@ -191,12 +192,12 @@ public enum BitDataType {
 
 	/**
 	 * Test if the type has a variable length.
-	 * 
+	 *
 	 * <p>
 	 * A type like {@link #StringUtf8} has a variable length, while
 	 * {@link #Int32} is fixed.
 	 * </p>
-	 * 
+	 *
 	 * @return {@literal true} if the type has a variable number of bytes,
 	 *         {@literal false} if a fixed number
 	 */
@@ -206,7 +207,7 @@ public enum BitDataType {
 
 	/**
 	 * Get an enum instance for a key value.
-	 * 
+	 *
 	 * @param key
 	 *        the key
 	 * @return the enum
@@ -225,7 +226,7 @@ public enum BitDataType {
 
 	/**
 	 * Get a friendly description for this data type.
-	 * 
+	 *
 	 * @return the description
 	 */
 	public String getDescription() {

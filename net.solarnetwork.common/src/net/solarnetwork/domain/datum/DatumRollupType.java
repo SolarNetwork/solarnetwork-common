@@ -24,15 +24,16 @@ package net.solarnetwork.domain.datum;
 
 import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import net.solarnetwork.domain.KeyedValue;
 
 /**
  * A rollup type for datum queries.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.3
  */
-public enum DatumRollupType {
+public enum DatumRollupType implements KeyedValue {
 
 	/** No rollup. */
 	None("0"),
@@ -60,6 +61,7 @@ public enum DatumRollupType {
 	 *
 	 * @return the key
 	 */
+	@Override
 	public String getKey() {
 		return key;
 	}

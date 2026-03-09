@@ -24,6 +24,7 @@ package net.solarnetwork.domain.datum;
 
 import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import net.solarnetwork.domain.KeyedValue;
 
 /**
  * An enumeration of different reading types for datum.
@@ -35,10 +36,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
  * </p>
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.3
  */
-public enum DatumReadingType {
+public enum DatumReadingType implements KeyedValue {
 
 	/**
 	 * Derive a single reading value based from one datum the nearest before a
@@ -85,6 +86,7 @@ public enum DatumReadingType {
 	 *
 	 * @return the key
 	 */
+	@Override
 	public String getKey() {
 		return key;
 	}

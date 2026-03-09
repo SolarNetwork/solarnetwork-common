@@ -25,6 +25,7 @@ package net.solarnetwork.domain.datum;
 import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import net.solarnetwork.domain.KeyCodedValue;
 
 /**
  * A datum object kind enumeration.
@@ -33,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  * @version 1.1
  * @since 1.72
  */
-public enum ObjectDatumKind {
+public enum ObjectDatumKind implements KeyCodedValue {
 
 	/** Node datum, with node ID and source ID. */
 	Node('n'),
@@ -50,9 +51,18 @@ public enum ObjectDatumKind {
 	/**
 	 * Get the key.
 	 *
+	 * <p>
+	 * This is an alias for {@link #getKeyCode()}.
+	 * </p>
+	 *
 	 * @return the key
 	 */
 	public char getKey() {
+		return getKeyCode();
+	}
+
+	@Override
+	public char getKeyCode() {
 		return key.charAt(0);
 	}
 

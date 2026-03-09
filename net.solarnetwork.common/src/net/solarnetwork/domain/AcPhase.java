@@ -28,9 +28,9 @@ import org.jspecify.annotations.Nullable;
  * Enumeration of AC phase values.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
-public enum AcPhase {
+public enum AcPhase implements KeyCodedValue {
 
 	/** The first phase. */
 	PhaseA(1, 'a'),
@@ -74,10 +74,19 @@ public enum AcPhase {
 	 * The keys are {@literal a}, {@literal b}, {@literal c}, and {@literal t}.
 	 * </p>
 	 *
+	 * <p>
+	 * This is an alias for {@link #getKeyCode()}.
+	 * </p>
+	 *
 	 * @return the key value
 	 * @since 1.1
 	 */
 	public char getKey() {
+		return key;
+	}
+
+	@Override
+	public char getKeyCode() {
 		return key;
 	}
 
