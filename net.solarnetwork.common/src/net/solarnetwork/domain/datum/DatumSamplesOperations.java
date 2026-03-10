@@ -22,20 +22,44 @@
 
 package net.solarnetwork.domain.datum;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableSet;
 import java.math.BigDecimal;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.Differentiable;
+import net.solarnetwork.util.CollectionUtils;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * API for accessing general datum sample property values.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.0
  */
 public interface DatumSamplesOperations extends Differentiable<DatumSamplesOperations> {
+
+	/**
+	 * A set of {@link DatumSamplesType} that use {@code Map<String, ?>}-like
+	 * storage.
+	 *
+	 * @since 1.2
+	 */
+	Set<DatumSamplesType> KEYED_TYPES = unmodifiableSet(new LinkedHashSet<>(asList(
+			DatumSamplesType.Instantaneous, DatumSamplesType.Accumulating, DatumSamplesType.Status)));
+
+	/**
+	 * A set of {@link DatumSamplesType} that use
+	 * {@code Map<String, Number>}-like storage.
+	 *
+	 * @since 1.2
+	 */
+	Set<DatumSamplesType> KEYED_NUMBER_TYPES = unmodifiableSet(
+			new LinkedHashSet<>(asList(DatumSamplesType.Instantaneous, DatumSamplesType.Accumulating)));
 
 	/**
 	 * Get specific sample data.
@@ -50,8 +74,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	Map<String, ?> getSampleData(DatumSamplesType type);
 
 	/**
-	 * Get an Integer value from a sample map, or {@code null} if not
-	 * available.
+	 * Get an Integer value from a sample map, or {@code null} if not available.
 	 *
 	 * @param type
 	 *        the type of sample data to get
@@ -87,8 +110,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	Float getSampleFloat(DatumSamplesType type, String key);
 
 	/**
-	 * Get a Double value from a sample map, or {@code null} if not
-	 * available.
+	 * Get a Double value from a sample map, or {@code null} if not available.
 	 *
 	 * @param type
 	 *        the type of sample data to get
@@ -113,8 +135,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	BigDecimal getSampleBigDecimal(DatumSamplesType type, String key);
 
 	/**
-	 * Get a String value from a sample map, or {@code null} if not
-	 * available.
+	 * Get a String value from a sample map, or {@code null} if not available.
 	 *
 	 * <p>
 	 * If {@code type} is {@link DatumSamplesType#Tag}, then this method will
@@ -146,8 +167,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	 *        the type of sample data to get
 	 * @param key
 	 *        the key of the value, or tag name, to get
-	 * @return the value cast as a {@code V}, or {@code null} if not
-	 *         available
+	 * @return the value cast as a {@code V}, or {@code null} if not available
 	 */
 	<V> @Nullable V getSampleValue(DatumSamplesType type, String key);
 
@@ -180,8 +200,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	 *        the expected value type
 	 * @param key
 	 *        the key of the value, or tag name, to get
-	 * @return the value cast as a {@code V}, or {@code null} if not
-	 *         available
+	 * @return the value cast as a {@code V}, or {@code null} if not available
 	 */
 	<V> @Nullable V findSampleValue(String key);
 
@@ -227,8 +246,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	 *         property or tag available
 	 */
 	default boolean isEmpty() {
-		for ( DatumSamplesType t : new DatumSamplesType[] { DatumSamplesType.Accumulating,
-				DatumSamplesType.Instantaneous, DatumSamplesType.Status } ) {
+		for ( DatumSamplesType t : KEYED_TYPES ) {
 			Map<String, ?> d = getSampleData(t);
 			if ( d != null && !d.isEmpty() ) {
 				return false;
@@ -246,8 +264,7 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 			return false;
 		}
 
-		for ( DatumSamplesType t : new DatumSamplesType[] { DatumSamplesType.Accumulating,
-				DatumSamplesType.Instantaneous, DatumSamplesType.Status } ) {
+		for ( DatumSamplesType t : KEYED_TYPES ) {
 			Map<String, ?> d1 = getSampleData(t);
 			Map<String, ?> d2 = other.getSampleData(t);
 			if ( d1 == null ) {
@@ -274,6 +291,77 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 			return true;
 		}
 
+		return false;
+	}
+
+	/**
+	 * Test if another operations has any different {@code Number} properties
+	 * defined or any property values available in both it an this object are
+	 * different.
+	 *
+	 * <p>
+	 * This will use {@link StringUtils#numberValue(String)} to parse string
+	 * values.
+	 * </p>
+	 *
+	 * @param other
+	 *        the other object to compare to
+	 * @return {@literal true} if the object differs from this object
+	 * @see #differsNumericallyFrom(DatumSamplesOperations, Function, Function)
+	 * @since 1.2
+	 */
+	default boolean differsNumericallyFrom(@Nullable DatumSamplesOperations other) {
+		return differsNumericallyFrom(other, StringUtils::numberValue, null);
+	}
+
+	/**
+	 * Test if another operations has any different numeric properties defined
+	 * or any property values available in both it an this object are different.
+	 *
+	 * <p>
+	 * First, if {@code parser} is provided then non-numeric property values are
+	 * converted to strings and passed to this function, with the function
+	 * result being used for the property comparison.
+	 * </p>
+	 *
+	 * <p>
+	 * Then, if {@code mapper} is provided then numeric property values are
+	 * passed to this function, with the function result being used for the
+	 * property comparison.
+	 * </p>
+	 *
+	 * <p>
+	 * Finally, comparison values that are the same type and implement
+	 * {@link Comparable} are compared using
+	 * {@link Comparable#compareTo(Object)}. Non-{@code Comparable} property
+	 * values are compared using {@link Object#equals(Object)}.
+	 * </p>
+	 *
+	 * @param other
+	 *        the other object to compare to
+	 * @param parser
+	 *        an optional function to map string values to numbers
+	 * @param mapper
+	 *        an optional function to map number values to other forms, for
+	 *        example {@code NumberUtils::bigDecimalForNumber}
+	 * @return {@literal true} if the object differs from this object
+	 * @since 1.2
+	 */
+	@SuppressWarnings("unchecked")
+	default boolean differsNumericallyFrom(@Nullable DatumSamplesOperations other,
+			@Nullable Function<String, Number> parser, @Nullable Function<Number, Number> mapper) {
+		if ( other == null ) {
+			return true;
+		} else if ( this == other ) {
+			return false;
+		}
+		for ( DatumSamplesType propType : (parser != null ? KEYED_TYPES : KEYED_NUMBER_TYPES) ) {
+			Map<String, Object> m1 = (Map<String, Object>) this.getSampleData(propType);
+			Map<String, Object> m2 = (Map<String, Object>) other.getSampleData(propType);
+			if ( CollectionUtils.differsNumerically(m1, m2, parser, mapper) ) {
+				return true;
+			}
+		}
 		return false;
 	}
 }

@@ -25,6 +25,7 @@ package net.solarnetwork.util.test;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static net.solarnetwork.util.IntRange.rangeOf;
+import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -35,6 +36,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,14 +55,20 @@ import net.solarnetwork.domain.KeyValuePair;
 import net.solarnetwork.util.CollectionUtils;
 import net.solarnetwork.util.IntRange;
 import net.solarnetwork.util.IntRangeSet;
+import net.solarnetwork.util.NumberUtils;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * Test cases for the {@link CollectionUtils} class.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class CollectionUtilsTests {
+
+	private static final String PROP_1 = "p1";
+	private static final String PROP_2 = "p2";
+	private static final String PROP_3 = "p3";
 
 	@Test
 	public void coverintgIntRanges_empty() {
@@ -500,6 +508,159 @@ public class CollectionUtilsTests {
 
 		// WHEN
 		CollectionUtils.getMapBigDecimal("num", map);
+	}
+
+	@Test
+	public void differsNumerically_bothEmpty() {
+		// GIVEN
+		Map<String, Object> m1 = Collections.emptyMap();
+		Map<String, Object> m2 = Collections.emptyMap();
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("Both empty are not different").isFalse();
+	}
+
+	@Test
+	public void differsNumerically_nonEqualValue() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1);
+		Map<String, Object> m2 = Map.of(PROP_1, 2);
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("Property value differs").isTrue();
+	}
+
+	@Test
+	public void differsNumerically_comparableValue_decimal() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, new BigDecimal("1.0"));
+		Map<String, Object> m2 = Map.of(PROP_1, new BigDecimal("1"));
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("Property values are comparably equal")
+				.isFalse();
+	}
+
+	@Test
+	public void differsNumerically_comparableValue_double() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1.0);
+		Map<String, Object> m2 = Map.of(PROP_1, (double) 1);
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("Property values are comparably equal")
+				.isFalse();
+	}
+
+	@Test
+	public void differsNumerically_comparableValue_misMatchTypes() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1.0);
+		Map<String, Object> m2 = Map.of(PROP_1, 1.0f);
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("Property values of different types differ")
+				.isTrue();
+	}
+
+	@Test
+	public void differsNumerically_comparableValue_misMatchTypes_mapped() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1);
+		Map<String, Object> m2 = Map.of(PROP_1, 1f);
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2, StringUtils::numberValue,
+				NumberUtils::bigDecimalForNumber)).as(
+						"Property values of different types mapped to BigDecimal are comparably equal")
+						.isFalse();
+	}
+
+	@Test
+	public void differsNumerically_equalValue() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1);
+		Map<String, Object> m2 = Map.of(PROP_1, 1);
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("Property value equal").isFalse();
+	}
+
+	@Test
+	public void differsNumerically_oneNullMap() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1);
+		Map<String, Object> m2 = Map.of();
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("One null one not differ").isTrue();
+		then(CollectionUtils.differsNumerically(m2, m1)).as("One null one not differ (reverse)")
+				.isTrue();
+	}
+
+	@Test
+	public void differsNumerically_oneNullOneEmptyMap() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of();
+		Map<String, Object> m2 = null;
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("One null one empty equal").isFalse();
+		then(CollectionUtils.differsNumerically(m2, m1)).as("One null one empty equal (reverse)")
+				.isFalse();
+	}
+
+	@Test
+	public void differsNumerically_withEqualMulti() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1, PROP_2, 2);
+		Map<String, Object> m2 = Map.of(PROP_1, 1, PROP_2, 2);
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("All properties equal").isFalse();
+	}
+
+	@Test
+	public void differsNumerically_withDifferentMulti() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1, PROP_2, 2);
+		Map<String, Object> m2 = Map.of(PROP_1, 1, PROP_2, 22);
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("Different prop values differ").isTrue();
+	}
+
+	@Test
+	public void differsNumerically_withEqualStrings() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1, PROP_3, "3");
+		Map<String, Object> m2 = Map.of(PROP_1, 1, PROP_3, "3");
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("Status values parsed as numbers are equal")
+				.isFalse();
+	}
+
+	@Test
+	public void differsNumerically_withDifferentStrings() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1, PROP_3, "3");
+		Map<String, Object> m2 = Map.of(PROP_1, 1, PROP_3, "33");
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("Status values parsed as numbers differ")
+				.isTrue();
+	}
+
+	@Test
+	public void differsNumerically_withDifferentStrings_oneNotNumber() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1, PROP_3, "3");
+		Map<String, Object> m2 = Map.of(PROP_1, 1, PROP_3, "3a");
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2))
+				.as("Status values parsed as numbers, one NaN, differ").isTrue();
 	}
 
 }

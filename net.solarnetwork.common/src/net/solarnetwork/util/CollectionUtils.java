@@ -50,7 +50,7 @@ import org.springframework.beans.PropertyAccessorFactory;
  * Utility methods for dealing with collections.
  *
  * @author matt
- * @version 1.5
+ * @version 1.6
  * @since 1.58
  */
 public final class CollectionUtils {
@@ -762,6 +762,134 @@ public final class CollectionUtils {
 			}
 		}
 		return res;
+	}
+
+	/**
+	 * Test if two maps have any different numeric properties defined or any
+	 * property values available in both are different.
+	 *
+	 * <p>
+	 * This will use {@link StringUtils#numberValue(String)} to parse string
+	 * values.
+	 * </p>
+	 *
+	 * @param <K>
+	 *        the key type
+	 * @param <V>
+	 *        the value type
+	 * @param m1
+	 *        the first map
+	 * @param m2
+	 *        the second map
+	 * @return {@literal true} if the values differ between the two maps
+	 * @see #differsNumerically(Map, Map, Function, Function)
+	 * @since 1.6
+	 */
+	public static <K, V> boolean differsNumerically(@Nullable Map<K, V> m1, @Nullable Map<K, V> m2) {
+		return differsNumerically(m1, m2, StringUtils::numberValue, null);
+	}
+
+	/**
+	 * Test if two maps have any different numeric properties defined or any
+	 * property values available in both are different.
+	 *
+	 * <p>
+	 * First, if {@code parser} is provided then non-numeric property values are
+	 * converted to strings and passed to this function, with the function
+	 * result being used for the property comparison.
+	 * </p>
+	 *
+	 * <p>
+	 * Then, if {@code mapper} is provided then numeric property values are
+	 * passed to this function, with the function result being used for the
+	 * property comparison.
+	 * </p>
+	 *
+	 * <p>
+	 * Finally, comparison values that are the same type and implement
+	 * {@link Comparable} are compared using
+	 * {@link Comparable#compareTo(Object)}. Non-{@code Comparable} property
+	 * values are compared using {@link Object#equals(Object)}.
+	 * </p>
+	 *
+	 * @param <K>
+	 *        the key type
+	 * @param <V>
+	 *        the value type
+	 * @param m1
+	 *        the first map
+	 * @param m2
+	 *        the second map
+	 * @param parser
+	 *        an optional function to map string values to numbers
+	 * @param mapper
+	 *        an optional function to map number values to other forms, for
+	 *        example {@code NumberUtils::bigDecimalForNumber}
+	 * @return {@literal true} if the values differ between the two maps
+	 * @since 1.6
+	 */
+	@SuppressWarnings("unchecked")
+	public static <K, V> boolean differsNumerically(@Nullable Map<K, V> m1, @Nullable Map<K, V> m2,
+			@Nullable Function<String, Number> parser, @Nullable Function<Number, Number> mapper) {
+		if ( m1 == null ) {
+			m1 = Collections.emptyMap();
+		}
+		if ( m2 == null ) {
+			m2 = Collections.emptyMap();
+		}
+		if ( m1.isEmpty() && m2.isEmpty() ) {
+			return false;
+		}
+		if ( (m1.size() != m2.size()) || !m1.keySet().equals(m2.keySet()) ) {
+			// differ in size, or have different keys
+			return true;
+		}
+		// compare all props as BigDecimal
+		for ( K propName : m1.keySet() ) {
+			final Object o1 = m1.get(propName);
+			final Object o2 = m2.get(propName);
+
+			Number n1 = (o1 instanceof Number n ? n : null);
+			if ( n1 == null && parser != null && o1 != null ) {
+				n1 = parser.apply(o1.toString());
+			}
+
+			Number n2 = (o2 instanceof Number n ? n : null);
+			if ( n2 == null && parser != null && o2 != null ) {
+				n2 = parser.apply(o2.toString());
+			}
+
+			if ( mapper != null ) {
+				n1 = mapper.apply(n1);
+				n2 = mapper.apply(n2);
+			}
+
+			if ( n1 == n2 ) {
+				// both numbers null or same instance; check non-numbers values if possible
+				if ( o1 != null && o2 != null && !o1.equals(o2) ) {
+					// non-number values differ
+					return true;
+				}
+				continue;
+			} else if ( n1 == null || n2 == null ) {
+				// one null but not the other
+				return true;
+			}
+			// try Comparable first
+			if ( n1.getClass().equals(n2.getClass()) && n1 instanceof Comparable c1
+					&& n2 instanceof Comparable c2 ) {
+				if ( c1.compareTo(c2) != 0 ) {
+					return true;
+				}
+				// Comparable equal
+				continue;
+			}
+			// fall back to equality
+			if ( !n1.equals(n2) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
