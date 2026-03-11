@@ -33,7 +33,7 @@ import net.solarnetwork.domain.BaseId;
  * Primary key for a datum based on kind/object/source/timestamp values.
  *
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.71
  */
 public class DatumId extends BaseId implements Serializable, Cloneable, Comparable<DatumId> {
@@ -58,6 +58,8 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 * <p>
 	 * All properties will be non-{@code null} in instances of this class.
 	 * </p>
+	 *
+	 * @since 2.1
 	 */
 	public static final class DatumIdent extends DatumId implements DatumIdentity {
 
@@ -140,7 +142,38 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	}
 
 	/**
+	 * Create a new location datum stream ID.
+	 *
+	 * <p>
+	 * If all arguments are non-null then a {@link DatumIdent} will be returned,
+	 * so the {@link DatumIdentity} API is available.
+	 * </p>
+	 *
+	 * @param locationId
+	 *        the node ID
+	 * @param sourceId
+	 *        the source ID
+	 * @param timestamp
+	 *        the timestamp
+	 * @return the key
+	 */
+	public static DatumId datumId(@Nullable ObjectDatumKind kind, @Nullable Long locationId,
+			@Nullable String sourceId, @Nullable Instant timestamp) {
+		if ( kind != null && locationId != null && sourceId != null && timestamp != null ) {
+			return new DatumIdent(kind, locationId, sourceId, timestamp);
+		}
+		return new DatumId(kind, locationId, sourceId, timestamp);
+	}
+
+	/**
 	 * Constructor.
+	 *
+	 * <p>
+	 * Note that the
+	 * {@link DatumId#datumId(ObjectDatumKind, Long, String, Instant)} method
+	 * should be used in preference to direct construction, so that
+	 * {@link DatumIdent} instances can be created when possible.
+	 * </p>
 	 *
 	 * @param kind
 	 *        the kind
