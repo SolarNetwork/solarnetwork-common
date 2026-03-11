@@ -22,6 +22,9 @@
 
 package net.solarnetwork.codec.test;
 
+import static org.assertj.core.api.BDDAssertions.from;
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -36,8 +39,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.codec.BasicGeneralDatumDeserializer;
 import net.solarnetwork.domain.datum.Datum;
+import net.solarnetwork.domain.datum.DatumIdentity;
 import net.solarnetwork.domain.datum.DatumSamples;
+import net.solarnetwork.domain.datum.DatumSamplesOperations;
 import net.solarnetwork.domain.datum.GeneralDatum;
+import net.solarnetwork.domain.datum.ObjectDatumKind;
 
 /**
  * Test cases for the {@link BasicGeneralDatumDeserializer} class.
@@ -88,6 +94,65 @@ public class BasicGeneralDatumDeserializerTests {
 		assertThat("GeneralDatum identity parsed", datum, is(equalTo(expected)));
 		assertThat("GeneralDatum samples parsed", datum.asSampleOperations(),
 				is(equalTo(expected.asSampleOperations())));
+	}
+
+	@Test
+	public void deserialize_node_identity() throws IOException {
+		// GIVEN
+		final String json = """
+				{
+					"nodeId" : 123,
+					"sourceId": "test.source",
+					"created": "2021-08-17 14:28:12.345Z",
+					"i": {
+						"a": 1
+					},
+					"a": {
+						"b": 2
+					},
+					"s": {
+						"c": "three"
+					},
+					"t": ["d"]
+				}
+				""";
+
+		// WHEN
+		Datum datum = mapper.readValue(json, Datum.class);
+
+		// THEN
+		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
+				(int) TimeUnit.MILLISECONDS.toNanos(345));
+		Instant ts = date.toInstant(ZoneOffset.UTC);
+		DatumSamples s = new DatumSamples();
+		s.putInstantaneousSampleValue("a", 1);
+		s.putAccumulatingSampleValue("b", 2);
+		s.putStatusSampleValue("c", "three");
+		s.addTag("d");
+		GeneralDatum expected = GeneralDatum.nodeDatum(123L, "test.source", ts, s);
+		// @formatter:off
+		then(datum)
+			.as("GeneralDatum identity parsed")
+			.isEqualTo(expected)
+			.as("Node identity available")
+			.returns(true, from(Datum::hasIdentity))
+			.extracting(Datum::asSampleOperations, type(DatumSamplesOperations.class))
+			.as("Samples parsed")
+			.isEqualTo(expected.asSampleOperations())
+			;
+		then(datum.datumIdent())
+			.as("DatumIdentity provided")
+			.isNotNull()
+			.as("Node kind parsed")
+			.returns(ObjectDatumKind.Node, from(DatumIdentity::getKind))
+			.as("Node ID parsed")
+			.returns(expected.getObjectId(), from(DatumIdentity::getObjectId))
+			.as("Source ID parsed")
+			.returns(expected.getSourceId(), from(DatumIdentity::getSourceId))
+			.as("Timestamp parsed")
+			.returns(expected.getTimestamp(), from(DatumIdentity::getTimestamp))
+			;
+		// @formatter:on
 	}
 
 	@Test

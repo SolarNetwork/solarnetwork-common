@@ -24,6 +24,7 @@ package net.solarnetwork.codec.jackson.test;
 
 import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -33,8 +34,11 @@ import org.junit.Before;
 import org.junit.Test;
 import net.solarnetwork.codec.jackson.BasicGeneralDatumDeserializer;
 import net.solarnetwork.domain.datum.Datum;
+import net.solarnetwork.domain.datum.DatumIdentity;
 import net.solarnetwork.domain.datum.DatumSamples;
+import net.solarnetwork.domain.datum.DatumSamplesOperations;
 import net.solarnetwork.domain.datum.GeneralDatum;
+import net.solarnetwork.domain.datum.ObjectDatumKind;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
@@ -92,6 +96,65 @@ public class BasicGeneralDatumDeserializerTests {
 			.returns(expected.asSampleOperations(), from(Datum::asSampleOperations))
 			;
 		// @formatter:off
+	}
+
+	@Test
+	public void deserialize_node_identity() throws IOException {
+		// GIVEN
+		final String json = """
+				{
+					"nodeId" : 123,
+					"sourceId": "test.source",
+					"created": "2021-08-17 14:28:12.345Z",
+					"i": {
+						"a": 1
+					},
+					"a": {
+						"b": 2
+					},
+					"s": {
+						"c": "three"
+					},
+					"t": ["d"]
+				}
+				""";
+
+		// WHEN
+		Datum datum = mapper.readValue(json, Datum.class);
+
+		// THEN
+		LocalDateTime date = LocalDateTime.of(2021, 8, 17, 14, 28, 12,
+				(int) TimeUnit.MILLISECONDS.toNanos(345));
+		Instant ts = date.toInstant(ZoneOffset.UTC);
+		DatumSamples s = new DatumSamples();
+		s.putInstantaneousSampleValue("a", 1);
+		s.putAccumulatingSampleValue("b", 2);
+		s.putStatusSampleValue("c", "three");
+		s.addTag("d");
+		GeneralDatum expected = GeneralDatum.nodeDatum(123L, "test.source", ts, s);
+		// @formatter:off
+		then(datum)
+			.as("GeneralDatum identity parsed")
+			.isEqualTo(expected)
+			.as("Node identity available")
+			.returns(true, from(Datum::hasIdentity))
+			.extracting(Datum::asSampleOperations, type(DatumSamplesOperations.class))
+			.as("Samples parsed")
+			.isEqualTo(expected.asSampleOperations())
+			;
+		then(datum.datumIdent())
+			.as("DatumIdentity provided")
+			.isNotNull()
+			.as("Node kind parsed")
+			.returns(ObjectDatumKind.Node, from(DatumIdentity::getKind))
+			.as("Node ID parsed")
+			.returns(expected.getObjectId(), from(DatumIdentity::getObjectId))
+			.as("Source ID parsed")
+			.returns(expected.getSourceId(), from(DatumIdentity::getSourceId))
+			.as("Timestamp parsed")
+			.returns(expected.getTimestamp(), from(DatumIdentity::getTimestamp))
+			;
+		// @formatter:on
 	}
 
 	@Test
