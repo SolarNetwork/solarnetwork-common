@@ -70,7 +70,7 @@ import tools.jackson.databind.exc.MismatchedInputException;
  * </pre>
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.13
  */
 public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> {
@@ -174,7 +174,14 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 						break;
 				}
 			}
-			DatumId id = new DatumId(kind, objectId, sourceId, ts);
+			DatumId id;
+			if ( kind == ObjectDatumKind.Node ) {
+				id = DatumId.nodeId(objectId, sourceId, ts);
+			} else if ( kind == ObjectDatumKind.Location ) {
+				id = DatumId.locationId(objectId, sourceId, ts);
+			} else {
+				id = new DatumId(kind, objectId, sourceId, ts);
+			}
 			return new GeneralDatum(id, s);
 		}
 		throw MismatchedInputException.from(p, "Unable to parse GeneralDatum (not an object)");

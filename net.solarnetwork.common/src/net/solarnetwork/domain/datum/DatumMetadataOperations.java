@@ -37,7 +37,7 @@ import net.solarnetwork.util.CollectionUtils;
  * API for read-only datum metadata operations.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.3
  */
 public interface DatumMetadataOperations extends Differentiable<DatumMetadataOperations> {
@@ -234,12 +234,49 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *
 	 * @param path
 	 *        the path of the metadata object to get
-	 * @return the metadata value, or {@code null} if none exists at the
-	 *         given path
+	 * @return the metadata value, or {@code null} if none exists at the given
+	 *         path
 	 * @see #metadataAtPath(String, Class)
 	 */
 	@Nullable
 	Object metadataAtPath(@Nullable String path);
+
+	/**
+	 * Get a metadata value at a given path.
+	 *
+	 * <p>
+	 * This method is a nullness-check shortcut, for example to be used after
+	 * {@link #hasMetadataAtPath(String)} returns {@code true}.
+	 * </p>
+	 *
+	 * @param path
+	 *        the path of the metadata object to get
+	 * @return the metadata value, or {@code null} if none exists at the given
+	 *         path
+	 * @see #metadataAtPath(String, Class)
+	 * @since 1.2
+	 */
+	@SuppressWarnings("NullAway")
+	default Object metaAtPath(@Nullable String path) {
+		return metadataAtPath(path);
+	}
+
+	/**
+	 * Test if metadata at a given path is available and of a specific type.
+	 *
+	 * @param <T>
+	 *        the expected return type
+	 * @param path
+	 *        the path of the metadata object to get
+	 * @param clazz
+	 *        the expected class of the return type
+	 * @return {@literal true} if metadata for the given path is available on
+	 *         this instance
+	 * @since 1.2
+	 */
+	default <T> boolean hasMetadataAtPath(@Nullable String path, Class<T> clazz) {
+		return (metadataAtPath(path, clazz) != null);
+	}
 
 	/**
 	 * Get a metadata value of a given type at a given path.
@@ -275,10 +312,34 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	 *        the path of the metadata object to get
 	 * @param clazz
 	 *        the expected class of the return type
-	 * @return the metadata, or {@code null} if none exists at the given path
-	 *         or is not of type {@code T}
+	 * @return the metadata, or {@code null} if none exists at the given path or
+	 *         is not of type {@code T}
 	 */
 	<T> @Nullable T metadataAtPath(@Nullable String path, Class<T> clazz);
+
+	/**
+	 * Get a metadata value of a given type at a given path.
+	 *
+	 * <p>
+	 * This method is a nullness-check shortcut, for example to be used after
+	 * {@link #hasMetadataAtPath(String, Class)} returns {@code true}.
+	 * </p>
+	 *
+	 * @param <T>
+	 *        the expected return type
+	 * @param path
+	 *        the path of the metadata object to get
+	 * @param clazz
+	 *        the expected class of the return type
+	 * @return the metadata, or {@code null} if none exists at the given path or
+	 *         is not of type {@code T}
+	 * @see #metadataAtPath(String, Class)
+	 * @since 1.2
+	 */
+	@SuppressWarnings("NullAway")
+	default <T> T metaAtPath(@Nullable String path, Class<T> clazz) {
+		return metadataAtPath(path, clazz);
+	}
 
 	/**
 	 * Get a Number value from the {@link #getInfo()} map, or {@code null} if
@@ -304,8 +365,8 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	}
 
 	/**
-	 * Get a Short value from the {@link #getInfo()} map, or {@code null} if
-	 * not available.
+	 * Get a Short value from the {@link #getInfo()} map, or {@code null} if not
+	 * available.
 	 *
 	 * @param key
 	 *        the key of the value to get
@@ -316,8 +377,8 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	}
 
 	/**
-	 * Get an Integer value from the {@link #getInfo()} map, or {@code null}
-	 * if not available.
+	 * Get an Integer value from the {@link #getInfo()} map, or {@code null} if
+	 * not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
@@ -328,8 +389,8 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	}
 
 	/**
-	 * Get a Long value from the {@link #getInfo()} map, or {@code null} if
-	 * not available.
+	 * Get a Long value from the {@link #getInfo()} map, or {@code null} if not
+	 * available.
 	 *
 	 * @param key
 	 *        the key of the value to get
@@ -340,8 +401,8 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	}
 
 	/**
-	 * Get a Float value from the {@link #getInfo()} map, or {@code null} if
-	 * not available.
+	 * Get a Float value from the {@link #getInfo()} map, or {@code null} if not
+	 * available.
 	 *
 	 * @param key
 	 *        the key of the value to get
@@ -364,8 +425,8 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	}
 
 	/**
-	 * Get a BigDecimal value from the {@link #getInfo()} map, or
-	 * {@code null} if not available.
+	 * Get a BigDecimal value from the {@link #getInfo()} map, or {@code null}
+	 * if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
@@ -376,8 +437,8 @@ public interface DatumMetadataOperations extends Differentiable<DatumMetadataOpe
 	}
 
 	/**
-	 * Get a BigInteger value from the {@link #getInfo()} map, or
-	 * {@code null} if not available.
+	 * Get a BigInteger value from the {@link #getInfo()} map, or {@code null}
+	 * if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get

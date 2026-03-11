@@ -38,7 +38,7 @@ import net.solarnetwork.util.StringUtils;
  * API for accessing general datum sample property values.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 2.0
  */
 public interface DatumSamplesOperations extends Differentiable<DatumSamplesOperations> {
@@ -168,8 +168,35 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	 * @param key
 	 *        the key of the value, or tag name, to get
 	 * @return the value cast as a {@code V}, or {@code null} if not available
+	 * @throws ClassCastException
+	 *         if the sample value cannot be cast to {@code V}
 	 */
 	<V> @Nullable V getSampleValue(DatumSamplesType type, String key);
+
+	/**
+	 * Get a sample value.
+	 *
+	 * <p>
+	 * This method is a nullness-check shortcut, for example to be used after
+	 * {@link #hasSampleValue(DatumSamplesType, String)} returns {@code true}.
+	 * </p>
+	 *
+	 * @param <V>
+	 *        the expected value type
+	 * @param type
+	 *        the type of sample data to get
+	 * @param key
+	 *        the key of the value, or tag name, to get
+	 * @return the value cast as a {@code V}, or {@code null} if not available
+	 * @throws ClassCastException
+	 *         if the sample value cannot be cast to {@code V}
+	 * @see #getSampleValue(DatumSamplesType, String)
+	 * @since 1.3
+	 */
+	@SuppressWarnings("NullAway")
+	default <V> V sampleValue(DatumSamplesType type, String key) {
+		return getSampleValue(type, key);
+	}
 
 	/**
 	 * Test is a sample value is present for a given key.

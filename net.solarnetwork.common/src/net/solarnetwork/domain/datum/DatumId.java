@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain.datum;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -52,7 +53,46 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	private final @Nullable Instant timestamp;
 
 	/**
+	 * Fully-specified version of {@code DatumId}.
+	 *
+	 * <p>
+	 * All properties will be non-{@code null} in instances of this class.
+	 * </p>
+	 */
+	public static final class DatumIdent extends DatumId implements DatumIdentity {
+
+		private static final long serialVersionUID = 73513046710808672L;
+
+		/**
+		 * Fully-specified datum identifier.
+		 *
+		 * @param kind
+		 *        the kind
+		 * @param objectId
+		 *        the object ID
+		 * @param sourceId
+		 *        the source ID
+		 * @param timestamp
+		 *        the timestamp
+		 * @throws IllegalArgumentException
+		 *         if any argument is {@code null}
+		 */
+		public DatumIdent(@Nullable ObjectDatumKind kind, @Nullable Long objectId,
+				@Nullable String sourceId, @Nullable Instant timestamp) {
+			super(requireNonNullArgument(kind, "kind"), requireNonNullArgument(objectId, "objectId"),
+					requireNonNullArgument(sourceId, "sourceId"),
+					requireNonNullArgument(timestamp, "timestamp"));
+		}
+
+	}
+
+	/**
 	 * Create a new node datum stream ID.
+	 *
+	 * <p>
+	 * If all arguments are non-null then a {@link DatumIdent} will be returned,
+	 * so the {@link DatumIdentity} API is available.
+	 * </p>
 	 *
 	 * @param nodeId
 	 *        the node ID
@@ -64,11 +104,19 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 */
 	public static DatumId nodeId(@Nullable Long nodeId, @Nullable String sourceId,
 			@Nullable Instant timestamp) {
+		if ( nodeId != null && sourceId != null && timestamp != null ) {
+			return new DatumIdent(ObjectDatumKind.Node, nodeId, sourceId, timestamp);
+		}
 		return new DatumId(ObjectDatumKind.Node, nodeId, sourceId, timestamp);
 	}
 
 	/**
 	 * Create a new location datum stream ID.
+	 *
+	 * <p>
+	 * If all arguments are non-null then a {@link DatumIdent} will be returned,
+	 * so the {@link DatumIdentity} API is available.
+	 * </p>
 	 *
 	 * @param locationId
 	 *        the node ID
@@ -80,6 +128,9 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 */
 	public static DatumId locationId(@Nullable Long locationId, @Nullable String sourceId,
 			@Nullable Instant timestamp) {
+		if ( locationId != null && sourceId != null && timestamp != null ) {
+			return new DatumIdent(ObjectDatumKind.Location, locationId, sourceId, timestamp);
+		}
 		return new DatumId(ObjectDatumKind.Location, locationId, sourceId, timestamp);
 	}
 
@@ -230,6 +281,21 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 		return Objects.equals(kind, other.kind) && Objects.equals(objectId, other.objectId)
 				&& Objects.equals(sourceId, other.sourceId)
 				&& Objects.equals(timestamp, other.timestamp);
+	}
+
+	/**
+	 * Get a {@link DatumIdentity} from this instance.
+	 *
+	 * @return the identity
+	 * @throws IllegalStateException
+	 *         if this instance is not fully specified as a
+	 *         {@link DatumIdentity}
+	 */
+	public DatumIdentity toIdentity() {
+		if ( this instanceof DatumIdent di ) {
+			return di;
+		}
+		throw new IllegalStateException("Datum identity not available.");
 	}
 
 	/**

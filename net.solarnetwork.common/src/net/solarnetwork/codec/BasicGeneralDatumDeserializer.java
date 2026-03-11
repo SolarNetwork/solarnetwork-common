@@ -71,7 +71,7 @@ import net.solarnetwork.util.DateUtils;
  * </pre>
  *
  * @author matt
- * @version 2.2
+ * @version 2.3
  * @since 1.78
  */
 public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> implements Serializable {
@@ -177,7 +177,14 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 						break;
 				}
 			}
-			DatumId id = new DatumId(kind, objectId, sourceId, ts);
+			DatumId id;
+			if ( kind == ObjectDatumKind.Node ) {
+				id = DatumId.nodeId(objectId, sourceId, ts);
+			} else if ( kind == ObjectDatumKind.Location ) {
+				id = DatumId.locationId(objectId, sourceId, ts);
+			} else {
+				id = new DatumId(kind, objectId, sourceId, ts);
+			}
 			return new GeneralDatum(id, s);
 		}
 		throw new JsonParseException(p, "Unable to parse GeneralDatum (not an object)");

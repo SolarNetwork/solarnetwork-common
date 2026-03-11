@@ -226,6 +226,11 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	}
 
 	@Override
+	public DatumIdentity datumIdent() {
+		return datumId().toIdentity();
+	}
+
+	@Override
 	public @Nullable Map<String, ?> getSampleData() {
 		final DatumSamples s = samples;
 		return (s != null ? s.getSampleData() : null);

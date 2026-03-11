@@ -34,7 +34,7 @@ import net.solarnetwork.util.StringUtils;
  * API for a user-supplied set of configuration to use with some service.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 3.24
  */
 public interface ServiceConfiguration {
@@ -130,6 +130,30 @@ public interface ServiceConfiguration {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Get a service property, assuming non-null result.
+	 *
+	 * <p>
+	 * This method is a nullness-check shortcut, for example to be used after
+	 * {@link #hasServiceProperty(String, Class)} returns {@code true}.
+	 * </p>
+	 *
+	 * @param <T>
+	 *        the expected type of the value
+	 * @param key
+	 *        the service property key to get the value for
+	 * @param type
+	 *        the type of the value
+	 * @return the service property value, or {@code null} if not available or
+	 *         cannot be converted to the given type or if a string value is
+	 *         empty
+	 * @since 1.2
+	 */
+	@SuppressWarnings("NullAway")
+	default <T> T serviceProp(String key, Class<T> type) {
+		return serviceProperty(key, type);
 	}
 
 	/**

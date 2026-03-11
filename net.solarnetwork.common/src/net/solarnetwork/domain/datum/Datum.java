@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
  * Basic persistable domain object API.
  *
  * @author matt
- * @version 2.1
+ * @version 2.2
  */
 public interface Datum {
 
@@ -103,6 +103,33 @@ public interface Datum {
 	 */
 	default DatumId datumId() {
 		return new DatumId(null, null, null, null);
+	}
+
+	/**
+	 * Get a {@link DatumIdentity} for this datum.
+	 *
+	 * @return the datum identity, never {@code null}
+	 * @throws IllegalStateException
+	 *         if any component of this datum is not specified
+	 * @since 2.2
+	 */
+	default DatumIdentity datumIdent() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Test if an identity is available.
+	 *
+	 * @return {@code true} if {@link #datumIdent()} returns a value without
+	 *         throwing an exception
+	 * @since 2.2
+	 */
+	default boolean hasIdentity() {
+		try {
+			return datumIdent() != null;
+		} catch ( RuntimeException e ) {
+			return false;
+		}
 	}
 
 	/**
