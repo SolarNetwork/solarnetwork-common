@@ -27,6 +27,7 @@ import static net.solarnetwork.domain.datum.ObjectDatumKind.Node;
 import static net.solarnetwork.test.CommonTestUtils.randomLong;
 import static net.solarnetwork.test.CommonTestUtils.randomString;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.DatumId;
 import net.solarnetwork.domain.datum.DatumSamples;
@@ -49,6 +50,7 @@ public class GeneralDatumTests {
 		// WHEN
 		final var result = d.datumId();
 
+		// THEN
 		then(result).as("Given primary key instance returned").isSameAs(pk);
 		then(d.getId()).as("Given primary key instance returned").isSameAs(pk);
 	}
@@ -63,8 +65,50 @@ public class GeneralDatumTests {
 		// WHEN
 		final var result = d.datumId();
 
+		// THEN
 		then(result).as("Primary key matches given properties").isEqualTo(pk);
 		then(d.getId()).as("Same primary key instance resturned").isSameAs(result);
+	}
+
+	@Test
+	public void datumIdent_provided() {
+		// GIVEN
+		final var pk = DatumId.nodeId(randomLong(), randomString(), now());
+		final var d = new GeneralDatum(pk, new DatumSamples());
+
+		// WHEN
+		final var result = d.datumIdent();
+
+		// THEN
+		then(result).as("Given primary key instance returned").isSameAs(pk);
+		then(d.getId()).as("Given primary key instance returned").isSameAs(pk);
+	}
+
+	@Test
+	public void datumIdent_notAvailable() {
+		// GIVEN
+		final var pk = new DatumId(null, randomLong(), randomString(), now());
+		final var d = new GeneralDatum(pk, new DatumSamples());
+
+		// WHEN
+		thenThrownBy(() -> {
+			d.datumIdent();
+		}, "IllegalState thrown when ident not availing (missing kind)")
+				.isInstanceOf(IllegalStateException.class);
+	}
+
+	@Test
+	public void datumIdent_created() {
+		// GIVEN
+		final var pk = new DatumId(Node, randomLong(), randomString(), now());
+		final var d = new GeneralDatum(pk, new DatumSamples());
+
+		// WHEN
+		final var result = d.datumIdent();
+
+		// THEN
+		then(result).as("New identity instance returned").isNotSameAs(pk);
+		then(result).as("Identity equal to given primary key").isEqualTo(pk);
 	}
 
 }

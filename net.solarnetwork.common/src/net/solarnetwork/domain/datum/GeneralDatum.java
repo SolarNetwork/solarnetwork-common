@@ -38,7 +38,7 @@ import net.solarnetwork.domain.CopyingIdentity;
  * A basic implementation of {@link MutableDatum}.
  *
  * @author matt
- * @version 3.0
+ * @version 3.1
  * @since 1.71
  */
 public class GeneralDatum extends BasicSerializableIdentity<DatumId>
@@ -58,8 +58,26 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param samples
 	 *        the samples; if {@code null} a new instance will be created
 	 */
-	public GeneralDatum(DatumId id, @Nullable DatumSamples samples) {
+	public GeneralDatum(@Nullable DatumId id, @Nullable DatumSamples samples) {
 		super(id != null ? id : new DatumId(null, null, null, null));
+		this.samples = (samples != null ? samples : new DatumSamples());
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param ident
+	 *        the ID; if {@code null} a new instance will be created
+	 * @param samples
+	 *        the samples; if {@code null} a new instance will be created
+	 * @since 3.1
+	 */
+	public GeneralDatum(@Nullable DatumIdentity ident, @Nullable DatumSamples samples) {
+		super(ident instanceof DatumId di ? di
+				: new DatumId(ident != null ? ident.getKind() : null,
+						ident != null ? ident.getObjectId() : null,
+						ident != null ? ident.getSourceId() : null,
+						ident != null ? ident.getTimestamp() : null));
 		this.samples = (samples != null ? samples : new DatumSamples());
 	}
 
@@ -74,7 +92,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param sourceId
 	 *        the source ID
 	 */
-	public GeneralDatum(String sourceId) {
+	public GeneralDatum(@Nullable String sourceId) {
 		this(new DatumId(null, null, sourceId, Instant.now()), null);
 	}
 
@@ -90,7 +108,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param timestamp
 	 *        the timestamp
 	 */
-	public GeneralDatum(String sourceId, Instant timestamp) {
+	public GeneralDatum(@Nullable String sourceId, @Nullable Instant timestamp) {
 		this(new DatumId(null, null, sourceId, timestamp), null);
 	}
 
@@ -108,7 +126,8 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param samples
 	 *        the samples; if {@code null} a new instance will be created
 	 */
-	public GeneralDatum(String sourceId, Instant timestamp, @Nullable DatumSamples samples) {
+	public GeneralDatum(@Nullable String sourceId, @Nullable Instant timestamp,
+			@Nullable DatumSamples samples) {
 		this(new DatumId(null, null, sourceId, timestamp), samples);
 	}
 
@@ -128,7 +147,7 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 * @param samples
 	 *        the samples; if {@code null} a new instance will be created
 	 */
-	public GeneralDatum(Long objectId, String sourceId, Instant timestamp,
+	public GeneralDatum(@Nullable Long objectId, @Nullable String sourceId, @Nullable Instant timestamp,
 			@Nullable DatumSamples samples) {
 		this(new DatumId(null, objectId, sourceId, timestamp), samples);
 	}
@@ -146,8 +165,8 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 *        the samples; if {@code null} a new instance will be created
 	 * @return the new instance
 	 */
-	public static GeneralDatum nodeDatum(Long nodeId, String sourceId, Instant timestamp,
-			@Nullable DatumSamples samples) {
+	public static GeneralDatum nodeDatum(@Nullable Long nodeId, @Nullable String sourceId,
+			@Nullable Instant timestamp, @Nullable DatumSamples samples) {
 		return new GeneralDatum(DatumId.nodeId(nodeId, sourceId, timestamp), samples);
 	}
 
@@ -164,8 +183,8 @@ public class GeneralDatum extends BasicSerializableIdentity<DatumId>
 	 *        the samples; if {@code null} a new instance will be created
 	 * @return the new instance
 	 */
-	public static GeneralDatum locationDatum(Long locationId, String sourceId, Instant timestamp,
-			DatumSamples samples) {
+	public static GeneralDatum locationDatum(@Nullable Long locationId, @Nullable String sourceId,
+			@Nullable Instant timestamp, @Nullable DatumSamples samples) {
 		return new GeneralDatum(DatumId.locationId(locationId, sourceId, timestamp), samples);
 	}
 

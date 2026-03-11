@@ -84,6 +84,11 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 					requireNonNullArgument(timestamp, "timestamp"));
 		}
 
+		@Override
+		public DatumIdentity toIdentity() {
+			return this;
+		}
+
 	}
 
 	/**
@@ -292,8 +297,12 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 *         {@link DatumIdentity}
 	 */
 	public DatumIdentity toIdentity() {
-		if ( this instanceof DatumIdent di ) {
-			return di;
+		final ObjectDatumKind kind = this.kind;
+		final Long objectId = this.objectId;
+		final String sourceId = this.sourceId;
+		final Instant timestamp = this.timestamp;
+		if ( kind != null && objectId != null && sourceId != null && timestamp != null ) {
+			return new DatumIdent(kind, objectId, sourceId, timestamp);
 		}
 		throw new IllegalStateException("Datum identity not available.");
 	}
