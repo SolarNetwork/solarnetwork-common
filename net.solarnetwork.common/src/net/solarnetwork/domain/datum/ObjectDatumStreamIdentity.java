@@ -22,13 +22,15 @@
 
 package net.solarnetwork.domain.datum;
 
+import java.time.Instant;
 import java.util.UUID;
+import net.solarnetwork.domain.datum.DatumId.DatumIdent;
 
 /**
  * Identifying details for a datum stream.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.20
  */
 public interface ObjectDatumStreamIdentity {
@@ -60,5 +62,17 @@ public interface ObjectDatumStreamIdentity {
 	 * @return the source ID
 	 */
 	String getSourceId();
+
+	/**
+	 * Resolve a {@link DatumIdentity} for this datum stream.
+	 *
+	 * @param timestamp
+	 *        the timestamp of the datum
+	 * @return the datum identity, never {@code null}
+	 * @since 1.1
+	 */
+	default DatumIdent datumIdent(Instant timestamp) {
+		return new DatumIdent(getKind(), getObjectId(), getSourceId(), timestamp);
+	}
 
 }

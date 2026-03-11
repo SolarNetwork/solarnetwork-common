@@ -142,27 +142,30 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	}
 
 	/**
-	 * Create a new location datum stream ID.
+	 * Create a new datum stream ID.
 	 *
 	 * <p>
 	 * If all arguments are non-null then a {@link DatumIdent} will be returned,
 	 * so the {@link DatumIdentity} API is available.
 	 * </p>
 	 *
-	 * @param locationId
-	 *        the node ID
+	 * @param kind
+	 *        the kind
+	 * @param objectId
+	 *        the object ID
 	 * @param sourceId
 	 *        the source ID
 	 * @param timestamp
 	 *        the timestamp
 	 * @return the key
+	 * @since 2.1
 	 */
-	public static DatumId datumId(@Nullable ObjectDatumKind kind, @Nullable Long locationId,
+	public static DatumId datumId(@Nullable ObjectDatumKind kind, @Nullable Long objectId,
 			@Nullable String sourceId, @Nullable Instant timestamp) {
-		if ( kind != null && locationId != null && sourceId != null && timestamp != null ) {
-			return new DatumIdent(kind, locationId, sourceId, timestamp);
+		if ( kind != null && objectId != null && sourceId != null && timestamp != null ) {
+			return new DatumIdent(kind, objectId, sourceId, timestamp);
 		}
-		return new DatumId(kind, locationId, sourceId, timestamp);
+		return new DatumId(kind, objectId, sourceId, timestamp);
 	}
 
 	/**
