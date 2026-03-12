@@ -668,6 +668,10 @@ public final class CollectionUtils {
 			return Instant.ofEpochMilli(n.longValue());
 		} else if ( propVal != null ) {
 			String s = propVal.toString();
+			Number n = NumberUtils.parseNumber(s);
+			if ( n != null ) {
+				return Instant.ofEpochMilli(n.longValue());
+			}
 			try {
 				return Instant.parse(s);
 			} catch ( DateTimeParseException e ) {
@@ -778,7 +782,7 @@ public final class CollectionUtils {
 	public static @Nullable Duration mapPropertyDuration(final String key,
 			final @Nullable Duration defaultResult, final @Nullable Map<String, ?> map) {
 		if ( key == null || map == null ) {
-			return null;
+			return defaultResult;
 		}
 		final Object propVal = map.get(key);
 		if ( propVal instanceof Duration d ) {

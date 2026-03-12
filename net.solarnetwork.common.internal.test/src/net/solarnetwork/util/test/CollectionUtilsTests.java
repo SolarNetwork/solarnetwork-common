@@ -24,6 +24,9 @@ package net.solarnetwork.util.test;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
+import static java.util.Map.entry;
+import static net.solarnetwork.test.CommonTestUtils.randomFloat;
+import static net.solarnetwork.test.CommonTestUtils.randomLong;
 import static net.solarnetwork.util.IntRange.rangeOf;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -37,6 +40,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -661,6 +668,198 @@ public class CollectionUtilsTests {
 		// THEN
 		then(CollectionUtils.differsNumerically(m1, m2))
 				.as("Status values parsed as numbers, one NaN, differ").isTrue();
+	}
+
+	@Test
+	public void mapPropertyDuration() {
+		// GIVEN
+		final Duration aDefault = Duration.ofSeconds(1);
+		final Duration anInstance = Duration.ofHours(1);
+		final Long aLong = 1234567890123456789L;
+		final String aStringNum = "12345";
+		final String aStringInvalid = "this is foobar";
+		// @formatter:off
+		final Map<String, Object> m = Map.ofEntries(
+				entry("long", aLong),
+				entry("string-num", aStringNum),
+				entry("string-empty", ""),
+				entry("string-invalid", aStringInvalid),
+				entry("inst", anInstance),
+				entry("string", anInstance.toString())
+			);
+		// @formatter:on
+
+		// THEN
+		// @formatter:off
+		then(CollectionUtils.mapPropertyDuration(null, aDefault, m))
+			.as("Null key returns default")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyDuration("long", aDefault, null))
+			.as("Null map returns default")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyDuration("long", aDefault, m))
+			.as("Number instance parsed as seconds")
+			.isEqualTo(Duration.ofSeconds(aLong))
+			;
+		then(CollectionUtils.mapPropertyDuration("string-num", aDefault, m))
+			.as("String number parsed as seconds")
+			.isEqualTo(Duration.ofSeconds(Long.valueOf(aStringNum)))
+			;
+		then(CollectionUtils.mapPropertyDuration("string-empty", aDefault, m))
+			.as("Empty string value returns default value")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyDuration("string-invalid", aDefault, m))
+			.as("Invalid string returns default value")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyDuration("key does not exist", aDefault, m))
+			.as("Non-existing key returns default value")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyDuration("inst", aDefault, m))
+			.as("Instance returned directly")
+			.isSameAs(anInstance)
+			;
+		then(CollectionUtils.mapPropertyDuration("string", aDefault, m))
+			.as("String parsed as instance")
+			.isEqualTo(anInstance)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void mapPropertyInstant() {
+		// GIVEN
+		final Instant aDefault = Instant.now().truncatedTo(ChronoUnit.HOURS).minusSeconds(1);
+		final Instant anInsance = Instant.now();
+		final Long aLong = 1234567890123456L;
+		final String aStringNum = "1234567890123456";
+		final String aStringInvalid = "this is foobar";
+		// @formatter:off
+		final Map<String, Object> m = Map.ofEntries(
+				entry("long", aLong),
+				entry("string-num", aStringNum),
+				entry("string-empty", ""),
+				entry("string-invalid", aStringInvalid),
+				entry("inst", anInsance),
+				entry("string", anInsance.toString())
+			);
+		// @formatter:on
+
+		// THEN
+		// @formatter:off
+		then(CollectionUtils.mapPropertyTimestamp(null, aDefault, m))
+			.as("Null key returns default")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyTimestamp("long", aDefault, null))
+			.as("Null map returns default")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyTimestamp("long", aDefault, m))
+			.as("Number instance parsed as millisecond epoch")
+			.isEqualTo(Instant.ofEpochMilli(aLong))
+			;
+		then(CollectionUtils.mapPropertyTimestamp("string-num", aDefault, m))
+			.as("String number parsed as millisecond epoch")
+			.isEqualTo(Instant.ofEpochMilli(Long.valueOf(aStringNum)))
+			;
+		then(CollectionUtils.mapPropertyTimestamp("string-empty", aDefault, m))
+			.as("Empty string value returns default value")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyTimestamp("string-invalid", aDefault, m))
+			.as("Invalid string returns default value")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyTimestamp("key does not exist", aDefault, m))
+			.as("Non-existing key returns default value")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyTimestamp("inst", aDefault, m))
+			.as("Instance returned directly")
+			.isSameAs(anInsance)
+			;
+		then(CollectionUtils.mapPropertyTimestamp("string", aDefault, m))
+			.as("String parsed as instance")
+			.isEqualTo(anInsance)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void servicePropertyNumber() {
+		// GIVEN
+		final Number aDefault = new BigDecimal("1.234");
+		final Float anInstance = randomFloat();
+		final Long aLong = randomLong();
+		final String aStringNum = String.valueOf(randomLong());
+		final String aStringInvalid = "this is foobar";
+		final String aLargeInteger = "987654321098765432109876543210987654321";
+		final String aLargeDecimal = "987654321098765432109876543210.987654321";
+		// @formatter:off
+		final Map<String, Object> m = Map.ofEntries(
+				entry("long", aLong),
+				entry("string-num", aStringNum),
+				entry("string-empty", ""),
+				entry("string-invalid", aStringInvalid),
+				entry("inst", anInstance),
+				entry("string", anInstance.toString()),
+				entry("large-integer", aLargeInteger),
+				entry("large-decimal", aLargeDecimal)
+			);
+		// @formatter:on
+
+		// THEN
+		// @formatter:off
+		then(CollectionUtils.mapPropertyNumber(null, aDefault, m))
+			.as("Null key returns default")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyNumber("long", aDefault, null))
+			.as("Null map returns default")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyNumber("long", aDefault, m))
+			.as("Number instance parsed as millisecond epoch")
+			.isEqualTo(aLong)
+			;
+		then(CollectionUtils.mapPropertyNumber("string-num", aDefault, m))
+			.as("String number parsed as number")
+			.isEqualTo(Long.valueOf(aStringNum))
+			;
+		then(CollectionUtils.mapPropertyNumber("string-empty", aDefault, m))
+			.as("Empty string value returns default value")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyNumber("string-invalid", aDefault, m))
+			.as("Invalid string returns default value")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyNumber("key does not exist", aDefault, m))
+			.as("Non-existing key returns default value")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapPropertyNumber("inst", aDefault, m))
+			.as("Instance returned directly")
+			.isSameAs(anInstance)
+			;
+		then(CollectionUtils.mapPropertyNumber("string", aDefault, m))
+			.as("String parsed as instance")
+			.isEqualTo(anInstance)
+			;
+		then(CollectionUtils.mapPropertyNumber("large-integer", aDefault, m))
+			.as("Large integer returned as BigInteger (not narrowed to 32-bit)")
+			.isEqualTo(new BigInteger(aLargeInteger))
+			;
+		then(CollectionUtils.mapPropertyNumber("large-decimal", aDefault, m))
+			.as("Large decimal returned as BigDecimal (not narrowed to 32-bit)")
+			.isEqualTo(new BigDecimal(aLargeDecimal))
+			;
+		// @formatter:on
 	}
 
 }
