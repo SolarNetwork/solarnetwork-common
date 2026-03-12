@@ -22,11 +22,13 @@
 
 package net.solarnetwork.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
+import net.solarnetwork.util.CollectionUtils;
 import net.solarnetwork.util.NumberUtils;
 import net.solarnetwork.util.StringUtils;
 
@@ -34,7 +36,7 @@ import net.solarnetwork.util.StringUtils;
  * API for a user-supplied set of configuration to use with some service.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 3.24
  */
 public interface ServiceConfiguration {
@@ -106,30 +108,8 @@ public interface ServiceConfiguration {
 	 *         cannot be converted to the given type or if a string value is
 	 *         empty
 	 */
-	@SuppressWarnings("unchecked")
 	default <T> @Nullable T serviceProperty(String key, Class<T> type) {
-		assert key != null && type != null;
-		Map<String, ?> props = getServiceProperties();
-		Object val = (props != null ? props.get(key) : null);
-		if ( val == null ) {
-			return null;
-		}
-		if ( String.class.isAssignableFrom(type) ) {
-			String s = val.toString();
-			return (T) (s.isEmpty() ? null : s);
-		} else if ( type.isAssignableFrom(val.getClass()) ) {
-			return (T) val;
-		} else if ( Number.class.isAssignableFrom(type) ) {
-			try {
-				if ( val instanceof Number n ) {
-					return (T) NumberUtils.convertNumber(n, (Class<? extends Number>) type);
-				}
-				return (T) NumberUtils.parseNumber(val.toString(), (Class<? extends Number>) type);
-			} catch ( IllegalArgumentException e ) {
-				// ignore and return null
-			}
-		}
-		return null;
+		return CollectionUtils.mapProperty(key, type, null, getServiceProperties());
 	}
 
 	/**
@@ -164,21 +144,8 @@ public interface ServiceConfiguration {
 	 * @return the mapping, or {@code null}
 	 * @since 1.1
 	 */
-	@SuppressWarnings("unchecked")
 	default @Nullable Map<String, String> servicePropertyStringMap(@Nullable String key) {
-		if ( key == null ) {
-			return null;
-		}
-		final Object propVal = serviceProperty(key, Object.class);
-		final Map<String, String> result;
-		if ( propVal instanceof Map<?, ?> ) {
-			result = (Map<String, String>) propVal;
-		} else if ( propVal != null ) {
-			result = StringUtils.commaDelimitedStringToMap(propVal.toString());
-		} else {
-			result = null;
-		}
-		return result;
+		return CollectionUtils.mapPropertyStringMap(key, getServiceProperties());
 	}
 
 	/**
@@ -189,6 +156,7 @@ public interface ServiceConfiguration {
 	 * @param key
 	 *        the service property key to extract
 	 * @return the mapping, or {@code null}
+	 * @see #servicePropertyStringMap(String)
 	 * @since 1.1
 	 */
 	static @Nullable Map<String, String> servicePropertyStringMap(
@@ -212,58 +180,19 @@ public interface ServiceConfiguration {
 	 * @return the list, or {@code null}
 	 * @since 1.1
 	 */
-	@SuppressWarnings("unchecked")
 	default @Nullable List<String> servicePropertyStringList(@Nullable String key) {
-		if ( key == null ) {
-			return null;
-		}
-		final Object propVal = serviceProperty(key, Object.class);
-		if ( propVal == null ) {
-			return null;
-		}
-		final List<String> result;
-		if ( propVal instanceof List<?> && !((List<?>) propVal).isEmpty() ) {
-			List<?> l = (List<?>) propVal;
-			if ( l.get(0) instanceof String ) {
-				// assume all values are strings
-				result = (List<String>) l;
-			} else {
-				result = new ArrayList<>(l.size());
-				for ( Object o : l ) {
-					if ( o != null ) {
-						result.add(o.toString());
-					}
-				}
-			}
-		} else if ( propVal instanceof String[] ) {
-			result = Arrays.asList((String[]) propVal);
-		} else if ( propVal instanceof Object[] ) {
-			Object[] a = (Object[]) propVal;
-			result = new ArrayList<>(a.length);
-			for ( Object o : a ) {
-				if ( o != null ) {
-					result.add(o.toString());
-				}
-			}
-		} else {
-			result = StringUtils.commaDelimitedStringToList(propVal.toString());
-		}
-		return result;
+		return CollectionUtils.mapPropertyStringList(key, getServiceProperties());
 	}
 
 	/**
 	 * Resolve a list from a service property value on a configuration.
-	 *
-	 * <p>
-	 * The property value can be a {@code List}, array, or a comma-delimited
-	 * single value.
-	 * </p>
 	 *
 	 * @param configuration
 	 *        the configuration to extract the mapping from
 	 * @param key
 	 *        the service property key to extract
 	 * @return the list, or {@code null}
+	 * @see #servicePropertyStringList(String)
 	 * @since 1.1
 	 */
 	static @Nullable List<String> servicePropertyStringList(@Nullable ServiceConfiguration configuration,
@@ -272,6 +201,200 @@ public interface ServiceConfiguration {
 			return null;
 		}
 		return configuration.servicePropertyStringList(key);
+	}
+
+	/**
+	 * Resolve a {@link Duration} from a setting on a configuration.
+	 *
+	 * <p>
+	 * The property value can be a number value, which will be treated as
+	 * seconds, or an ISO duration suitable for passing to
+	 * {@link Duration#parse(CharSequence)} (for example {@code PT2H} for "2
+	 * hours").
+	 * </p>
+	 *
+	 * @param key
+	 *        the service property key to extract
+	 * @param defaultResult
+	 *        the default duration to return if the property is not available
+	 * @return the duration, or {@code defaultResult} if a duration is not
+	 *         available
+	 * @since 1.3
+	 */
+	default @Nullable Duration servicePropertyDuration(String key, @Nullable Duration defaultResult) {
+		return CollectionUtils.mapPropertyDuration(key, defaultResult, getServiceProperties());
+	}
+
+	/**
+	 * Resolve a {@link Duration} from a setting on a configuration.
+	 *
+	 * @param configuration
+	 *        the configuration to extract the mapping from
+	 * @param key
+	 *        the service property key to extract
+	 * @param defaultResult
+	 *        the default duration to return if the property is not available
+	 * @return the duration, or {@code defaultResult} if a duration is not
+	 *         available
+	 * @see #servicePropertyDuration(String, Duration)
+	 * @since 1.3
+	 */
+	static @Nullable Duration servicePropertyDuration(@Nullable ServiceConfiguration configuration,
+			String key, @Nullable Duration defaultResult) {
+		if ( configuration == null ) {
+			return defaultResult;
+		}
+		return configuration.servicePropertyDuration(key, defaultResult);
+	}
+
+	/**
+	 * Resolve an {@link Instant} from a setting on a configuration.
+	 *
+	 * <p>
+	 * The property value can be a number value, which will be treated as
+	 * milliseconds since the epoch, or an ISO timestamp suitable for passing to
+	 * {@link Instant#parse(CharSequence)} (for example {@code PT2H} for "2
+	 * hours").
+	 * </p>
+	 *
+	 * @param key
+	 *        the service property key to extract
+	 * @param defaultResult
+	 *        the default instant to return if the property is not available
+	 * @return the instant, or {@code defaultResult} if a timestamp is not
+	 *         available
+	 * @since 1.3
+	 */
+	default @Nullable Instant servicePropertyTimestamp(String key, @Nullable Instant defaultResult) {
+		return CollectionUtils.mapPropertyTimestamp(key, defaultResult, getServiceProperties());
+	}
+
+	/**
+	 * Resolve an {@link Instant} from a setting on a configuration.
+	 *
+	 * @param configuration
+	 *        the configuration to extract the timestamp from
+	 * @param key
+	 *        the service property key to extract
+	 * @param defaultResult
+	 *        the default duration to return if the property is not available
+	 * @return the duration, or {@code defaultResult} if a duration is not
+	 *         available
+	 * @see #servicePropertyTimestamp(String, Instant)
+	 * @since 1.3
+	 */
+	static @Nullable Instant servicePropertyTimestamp(@Nullable ServiceConfiguration configuration,
+			String key, @Nullable Instant defaultResult) {
+		if ( configuration == null ) {
+			return defaultResult;
+		}
+		return configuration.servicePropertyTimestamp(key, defaultResult);
+	}
+
+	/**
+	 * Resolve a {@link Number} from a setting on a configuration.
+	 *
+	 * <p>
+	 * String values will be parsed witH
+	 * {@link StringUtils#numberValue(String)}, and narrowed to 32-bit (if
+	 * possible) using {@link NumberUtils#narrow32(Number)}.
+	 * </p>
+	 *
+	 * @param key
+	 *        the service property key to extract
+	 * @param defaultResult
+	 *        the default number to return if the property is not available
+	 * @return the number, or {@code defaultResult} if a number is not available
+	 * @see #servicePropertyNumber(String, Number, Function, Function)
+	 * @since 1.3
+	 */
+	default @Nullable Number servicePropertyNumber(String key, @Nullable Number defaultResult) {
+		return servicePropertyNumber(key, defaultResult, StringUtils::numberValue,
+				NumberUtils::narrow32);
+	}
+
+	/**
+	 * Resolve a {@link Number} from a setting on a configuration.
+	 *
+	 * <p>
+	 * The property value can be a number or string value.
+	 * </p>
+	 *
+	 * <p>
+	 * First, if {@code parser} is provided then non-numeric property values are
+	 * converted to strings and passed to this function.
+	 * </p>
+	 *
+	 * <p>
+	 * Then, if {@code mapper} is provided then numeric property values are
+	 * passed to this function, with the function result being returned.
+	 * </p>
+	 *
+	 * @param key
+	 *        the service property key to extract
+	 * @param defaultResult
+	 *        the default number to return if the property is not available
+	 * @param parser
+	 *        an optional function to map string values to numbers
+	 * @param mapper
+	 *        an optional function to map number values to other forms, for
+	 *        example {@code NumberUtils::bigDecimalForNumber}
+	 * @return the number, or {@code defaultResult} if a number is not available
+	 * @since 1.3
+	 */
+	default @Nullable Number servicePropertyNumber(String key, @Nullable Number defaultResult,
+			@Nullable Function<String, Number> parser, @Nullable Function<Number, Number> mapper) {
+		return CollectionUtils.mapPropertyNumber(key, defaultResult, parser, mapper,
+				getServiceProperties());
+	}
+
+	/**
+	 * Resolve a {@link Number} from a setting on a configuration.
+	 *
+	 * @param configuration
+	 *        the configuration to extract the mapping from
+	 * @param key
+	 *        the service property key to extract
+	 * @param defaultResult
+	 *        the default number to return if the property is not available
+	 * @return the number, or {@code defaultResult} if a number is not available
+	 * @see #servicePropertyNumber(String, Number, Function, Function)
+	 * @since 1.3
+	 */
+	static @Nullable Number servicePropertyNumber(@Nullable ServiceConfiguration configuration,
+			String key, @Nullable Number defaultResult) {
+		if ( configuration == null ) {
+			return defaultResult;
+		}
+		return configuration.servicePropertyNumber(key, defaultResult);
+	}
+
+	/**
+	 * Resolve a {@link Number} from a setting on a configuration.
+	 *
+	 * @param configuration
+	 *        the configuration to extract the mapping from
+	 * @param key
+	 *        the service property key to extract
+	 * @param defaultResult
+	 *        the default number to return if the property is not available
+	 * @param parser
+	 *        an optional function to map string values to numbers, for example
+	 *        {@code StringUtils::numberValue}
+	 * @param mapper
+	 *        an optional function to map number values to other forms, for
+	 *        example {@code NumberUtils::bigDecimalForNumber}
+	 * @return the number, or {@code defaultResult} if a number is not available
+	 * @see #servicePropertyNumber(String, Number, Function, Function)
+	 * @since 1.3
+	 */
+	static @Nullable Number servicePropertyNumber(@Nullable ServiceConfiguration configuration,
+			String key, @Nullable Number defaultResult, @Nullable Function<String, Number> parser,
+			@Nullable Function<Number, Number> mapper) {
+		if ( configuration == null ) {
+			return defaultResult;
+		}
+		return configuration.servicePropertyNumber(key, defaultResult, parser, mapper);
 	}
 
 }

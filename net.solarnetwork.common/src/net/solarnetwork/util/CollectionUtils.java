@@ -24,7 +24,11 @@ package net.solarnetwork.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -50,7 +54,7 @@ import org.springframework.beans.PropertyAccessorFactory;
  * Utility methods for dealing with collections.
  *
  * @author matt
- * @version 1.6
+ * @version 1.7
  * @since 1.58
  */
 public final class CollectionUtils {
@@ -498,6 +502,302 @@ public final class CollectionUtils {
 		} catch ( NumberFormatException e ) {
 			return null;
 		}
+	}
+
+	/**
+	 * Get a service property value.
+	 *
+	 * @param <T>
+	 *        the expected type of the value
+	 * @param key
+	 *        the map property key to get the value for
+	 * @param type
+	 *        the type of the value
+	 * @param defaultResult
+	 *        the default instant to return if the property is not available
+	 * @param map
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the property value, or {@code null} if not available or cannot be
+	 *         converted to the given type or if a string value is empty
+	 * @since 1.7
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> @Nullable T mapProperty(final @Nullable String key, final Class<T> type,
+			@Nullable T defaultResult, final @Nullable Map<String, ?> map) {
+		if ( key == null || map == null ) {
+			return defaultResult;
+		}
+		assert key != null && type != null;
+		Object val = (map != null ? map.get(key) : null);
+		if ( val == null ) {
+			return defaultResult;
+		}
+		if ( String.class.isAssignableFrom(type) ) {
+			String s = val.toString();
+			return (T) (s.isEmpty() ? null : s);
+		} else if ( type.isAssignableFrom(val.getClass()) ) {
+			return (T) val;
+		} else if ( Number.class.isAssignableFrom(type) ) {
+			try {
+				if ( val instanceof Number n ) {
+					return (T) NumberUtils.convertNumber(n, (Class<? extends Number>) type);
+				}
+				return (T) NumberUtils.parseNumber(val.toString(), (Class<? extends Number>) type);
+			} catch ( IllegalArgumentException e ) {
+				// ignore and return null
+			}
+		}
+		return defaultResult;
+	}
+
+	/**
+	 * Resolve a string map from a service property value.
+	 *
+	 * <p>
+	 * String property values are parsed using
+	 * {@link StringUtils#commaDelimitedStringToMap(String)}.
+	 * </p>
+	 *
+	 * @param key
+	 *        the map property key to extract
+	 * @param map
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the mapping, or {@code null}
+	 * @since 1.7
+	 */
+	@SuppressWarnings("unchecked")
+	public static @Nullable Map<String, String> mapPropertyStringMap(final @Nullable String key,
+			final @Nullable Map<String, ?> map) {
+		if ( key == null || map == null ) {
+			return null;
+		}
+		final Object propVal = map.get(key);
+		final Map<String, String> result;
+		if ( propVal instanceof Map<?, ?> ) {
+			result = (Map<String, String>) propVal;
+		} else if ( propVal != null ) {
+			result = StringUtils.commaDelimitedStringToMap(propVal.toString());
+		} else {
+			result = null;
+		}
+		return result;
+	}
+
+	/**
+	 * Resolve a list from a service property value.
+	 *
+	 * <p>
+	 * The property value can be a {@code List}, array, or a comma-delimited
+	 * single value.
+	 * </p>
+	 *
+	 * @param key
+	 *        the map property key to extract
+	 * @param map
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the list, or {@code null}
+	 * @since 1.7
+	 */
+	@SuppressWarnings("unchecked")
+	public static @Nullable List<String> mapPropertyStringList(final @Nullable String key,
+			final @Nullable Map<String, ?> map) {
+		if ( key == null || map == null ) {
+			return null;
+		}
+		final Object propVal = map.get(key);
+		if ( propVal == null ) {
+			return null;
+		}
+		final List<String> result;
+		if ( propVal instanceof List<?> l && !l.isEmpty() ) {
+			if ( l.get(0) instanceof String ) {
+				// assume all values are strings
+				result = (List<String>) l;
+			} else {
+				result = new ArrayList<>(l.size());
+				for ( Object o : l ) {
+					if ( o != null ) {
+						result.add(o.toString());
+					}
+				}
+			}
+		} else if ( propVal instanceof String[] a ) {
+			result = Arrays.asList(a);
+		} else if ( propVal instanceof Object[] a ) {
+			result = new ArrayList<>(a.length);
+			for ( Object o : a ) {
+				if ( o != null ) {
+					result.add(o.toString());
+				}
+			}
+		} else {
+			result = StringUtils.commaDelimitedStringToList(propVal.toString());
+		}
+		return result;
+	}
+
+	/**
+	 * Resolve an {@link Instant} from a setting on a configuration.
+	 *
+	 * <p>
+	 * The property value can be a number value, which will be treated as
+	 * milliseconds since the epoch, or an ISO timestamp suitable for passing to
+	 * {@link Instant#parse(CharSequence)} (for example {@code PT2H} for "2
+	 * hours").
+	 * </p>
+	 *
+	 * @param key
+	 *        the map property key to extract
+	 * @param defaultResult
+	 *        the default instant to return if the property is not available
+	 * @param map
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the instant, or {@code defaultResult} if a timestamp is not
+	 *         available
+	 * @since 1.7
+	 */
+	public static @Nullable Instant mapPropertyTimestamp(final @Nullable String key,
+			final @Nullable Instant defaultResult, final @Nullable Map<String, ?> map) {
+		if ( key == null || map == null ) {
+			return defaultResult;
+		}
+		final Object propVal = map.get(key);
+		if ( propVal instanceof Instant d ) {
+			return d;
+		} else if ( propVal instanceof Number n ) {
+			return Instant.ofEpochMilli(n.longValue());
+		} else if ( propVal != null ) {
+			String s = propVal.toString();
+			try {
+				return Instant.parse(s);
+			} catch ( DateTimeParseException e ) {
+				// not parsable...
+			}
+		}
+		return defaultResult;
+	}
+
+	/**
+	 * Resolve a {@link Number} from a setting on a configuration.
+	 *
+	 * <p>
+	 * String values will be parsed witH
+	 * {@link StringUtils#numberValue(String)}, and narrowed to 32-bit (if
+	 * possible) using {@link NumberUtils#narrow32(Number)}.
+	 * </p>
+	 *
+	 * @param key
+	 *        the map property key to extract
+	 * @param defaultResult
+	 *        the default number to return if the property is not available
+	 * @param map
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the number, or {@code defaultResult} if a number is not available
+	 * @since 1.7
+	 */
+	public static @Nullable Number mapPropertyNumber(final @Nullable String key,
+			final @Nullable Number defaultResult, final @Nullable Map<String, ?> map) {
+		return mapPropertyNumber(key, defaultResult, StringUtils::numberValue, NumberUtils::narrow32,
+				map);
+	}
+
+	/**
+	 * Resolve a {@link Number} from a setting on a configuration.
+	 *
+	 * <p>
+	 * The property value can be a number or string value.
+	 * </p>
+	 *
+	 * <p>
+	 * First, if {@code parser} is provided then non-numeric property values are
+	 * converted to strings and passed to this function.
+	 * </p>
+	 *
+	 * <p>
+	 * Then, if {@code mapper} is provided then numeric property values are
+	 * passed to this function, with the function result being returned.
+	 * </p>
+	 *
+	 * @param key
+	 *        the map property key to extract
+	 * @param defaultResult
+	 *        the default number to return if the property is not available
+	 * @param parser
+	 *        an optional function to map string values to numbers
+	 * @param mapper
+	 *        an optional function to map number values to other forms, for
+	 *        example {@code NumberUtils::bigDecimalForNumber}
+	 * @param map
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the number, or {@code defaultResult} if a number is not available
+	 * @since 1.7
+	 */
+	public static @Nullable Number mapPropertyNumber(final @Nullable String key,
+			final @Nullable Number defaultResult, @Nullable Function<String, Number> parser,
+			@Nullable Function<Number, Number> mapper, final @Nullable Map<String, ?> map) {
+		if ( key == null || map == null ) {
+			return defaultResult;
+		}
+		final Object propVal = map.get(key);
+		if ( propVal == null ) {
+			return defaultResult;
+		}
+
+		Number numVal = (propVal instanceof Number n ? n : null);
+		if ( numVal == null && parser != null && propVal != null ) {
+			numVal = parser.apply(propVal.toString());
+		}
+
+		if ( mapper != null ) {
+			numVal = mapper.apply(numVal);
+		}
+
+		return (numVal != null ? numVal : defaultResult);
+	}
+
+	/**
+	 * Resolve a {@link Duration} from a setting on a configuration.
+	 *
+	 * <p>
+	 * The property value can be a number value, which will be treated as
+	 * seconds, or an ISO duration suitable for passing to
+	 * {@link Duration#parse(CharSequence)} (for example {@code PT2H} for "2
+	 * hours").
+	 * </p>
+	 *
+	 * @param key
+	 *        the map property key to extract
+	 * @param defaultResult
+	 *        the default duration to return if the property is not available
+	 * @param map
+	 *        the map to inspect, {@code null} is allowed
+	 * @return the duration, or {@code defaultResult} if a duration is not
+	 *         available
+	 * @since 1.7
+	 */
+	public static @Nullable Duration mapPropertyDuration(final String key,
+			final @Nullable Duration defaultResult, final @Nullable Map<String, ?> map) {
+		if ( key == null || map == null ) {
+			return null;
+		}
+		final Object propVal = map.get(key);
+		if ( propVal instanceof Duration d ) {
+			return d;
+		} else if ( propVal instanceof Number n ) {
+			return Duration.ofSeconds(n.longValue());
+		} else if ( propVal != null ) {
+			String s = propVal.toString();
+			Number n = NumberUtils.parseNumber(s);
+			if ( n != null ) {
+				return Duration.ofSeconds(n.longValue());
+			}
+			try {
+				return Duration.parse(s);
+			} catch ( DateTimeParseException e ) {
+				// not parsable...
+			}
+		}
+		return defaultResult;
 	}
 
 	/**

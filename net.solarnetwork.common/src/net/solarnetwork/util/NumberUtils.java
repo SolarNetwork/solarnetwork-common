@@ -36,7 +36,7 @@ import org.jspecify.annotations.Nullable;
  * Utilities for dealing with numbers.
  *
  * @author matt
- * @version 1.14
+ * @version 1.15
  * @since 1.42
  */
 public final class NumberUtils {
@@ -1109,6 +1109,24 @@ public final class NumberUtils {
 		Number res = narrow(bigDecimalForNumber(n), minBytePower);
 		return (n.equals(res) ? n : res);
 
+	}
+
+	/**
+	 * Narrow a number to a 32-bit number type that can exactly represent the
+	 * given number.
+	 *
+	 * <p>
+	 * If {@code n} cannot be narrowed then {@code n} is returned.
+	 * </p>
+	 *
+	 * @param n
+	 *        the number to narrow
+	 * @return the (possibly) narrowed number, or {@code null} if {@code n} is
+	 *         {@code null}
+	 * @since 1.15
+	 */
+	public static @Nullable Number narrow32(final @Nullable Number n) {
+		return narrow(n, 2);
 	}
 
 	/**
