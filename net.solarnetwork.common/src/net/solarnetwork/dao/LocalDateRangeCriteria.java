@@ -36,7 +36,7 @@ import org.jspecify.annotations.Nullable;
  * </p>
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.67
  */
 public interface LocalDateRangeCriteria {
@@ -101,6 +101,40 @@ public interface LocalDateRangeCriteria {
 	 */
 	default boolean hasLocalEndDate() {
 		return getLocalEndDate() != null;
+	}
+
+	/**
+	 * Get the local start date.
+	 *
+	 * <p>
+	 * This method is designed to be used after a call to
+	 * {@link #hasLocalStartDate()} returns {@code true}, to avoid nullness
+	 * warnings.
+	 * </p>
+	 *
+	 * @return the local start date (presumed non-null)
+	 * @since 1.1
+	 */
+	@SuppressWarnings("NullAway")
+	default LocalDateTime localStartDate() {
+		return getLocalStartDate();
+	}
+
+	/**
+	 * Get the local end date.
+	 *
+	 * <p>
+	 * This method is designed to be used after a call to
+	 * {@link #hasLocalEndDate()} returns {@code true}, to avoid nullness
+	 * warnings.
+	 * </p>
+	 *
+	 * @return the local end date (presumed non-null)
+	 * @since 1.1
+	 */
+	@SuppressWarnings("NullAway")
+	default LocalDateTime localEndDate() {
+		return getLocalEndDate();
 	}
 
 }

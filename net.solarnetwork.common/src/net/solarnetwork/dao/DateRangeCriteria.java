@@ -29,7 +29,7 @@ import org.jspecify.annotations.Nullable;
  * Search criteria for a date range.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.67
  */
 public interface DateRangeCriteria {
@@ -96,6 +96,38 @@ public interface DateRangeCriteria {
 	 */
 	default boolean hasDate() {
 		return (getStartDate() != null || getEndDate() != null);
+	}
+
+	/**
+	 * Get the start date.
+	 *
+	 * <p>
+	 * This method is designed to be used after a call to
+	 * {@link #hasStartDate()} returns {@code true}, to avoid nullness warnings.
+	 * </p>
+	 *
+	 * @return the start date (presumed non-null)
+	 * @since 1.2
+	 */
+	@SuppressWarnings("NullAway")
+	default Instant startDate() {
+		return getStartDate();
+	}
+
+	/**
+	 * Get the end date.
+	 *
+	 * <p>
+	 * This method is designed to be used after a call to {@link #hasEndDate()}
+	 * returns {@code true}, to avoid nullness warnings.
+	 * </p>
+	 *
+	 * @return the end date (presumed non-null)
+	 * @since 1.2
+	 */
+	@SuppressWarnings("NullAway")
+	default Instant endDate() {
+		return getEndDate();
 	}
 
 }
