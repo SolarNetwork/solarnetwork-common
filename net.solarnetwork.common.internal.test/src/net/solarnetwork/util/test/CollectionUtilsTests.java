@@ -508,6 +508,40 @@ public class CollectionUtilsTests {
 				is(sameInstance(input)));
 	}
 
+	@Test
+	public void transformMap_nullsRemoved() {
+		// GIVEN
+		Map<String, String> input = new LinkedHashMap<>(8);
+		input.put("a", "1");
+		input.put("b", "2");
+		input.put("c", "3");
+		input.put("d", "4");
+
+		Set<String> transformKeys = new LinkedHashSet<>(Arrays.asList("a", "c"));
+
+		// WHEN
+		Map<String, String> result = CollectionUtils.transformMap(input, transformKeys, (s) -> {
+			return ("1".equals(s) ? s + "-xformed" : null);
+		});
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Map instance returned")
+			.isNotNull()
+			.as("Different instance returned")
+			.isNotSameAs(input)
+			.as("Mapper null results are removed from map")
+			.containsOnly(
+				entry("a", "1-xformed"), // transformed because in transformKeys
+				entry("b", "2"),         // not transformed
+				                         // c removed because mapper function returned null
+				entry("d", "4")          // not transformed
+			)
+			;
+		// @formatter:on
+	}
+
 	@Test(expected = NumberFormatException.class)
 	public void getMapBigDecimal_Infinity() {
 		Map<String, Number> map = new LinkedHashMap<>();

@@ -1037,13 +1037,15 @@ public final class CollectionUtils {
 	 * @param transformKeys
 	 *        the set of map keys whose values should be transformed
 	 * @param transformer
-	 *        the function to transform map values
+	 *        the function to transform map values; if the function returns
+	 *        {@code null} the associated entry will be removed from the output
+	 *        map
 	 * @return either a new map instance with one or more values transformed, or
 	 *         {@code map} when no values need transforming
 	 * @since 1.5
 	 */
 	public static <K, V> @Nullable Map<K, V> transformMap(@Nullable Map<K, V> map,
-			@Nullable Set<K> transformKeys, Function<V, V> transformer) {
+			@Nullable Set<K> transformKeys, Function<V, @Nullable V> transformer) {
 		assert transformer != null;
 		Map<K, V> res = map;
 		if ( map != null && transformKeys != null && !map.isEmpty() && !transformKeys.isEmpty() ) {
@@ -1055,7 +1057,11 @@ public final class CollectionUtils {
 						V val = me.getValue();
 						if ( val != null && transformKeys.contains(key.toString()) ) {
 							V encVal = transformer.apply(val);
-							maskedMap.put(key, encVal);
+							if ( encVal == null ) {
+								maskedMap.remove(key);
+							} else {
+								maskedMap.put(key, encVal);
+							}
 						} else {
 							maskedMap.put(key, val);
 						}
