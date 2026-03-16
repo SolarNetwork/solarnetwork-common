@@ -223,10 +223,11 @@ public final class NumberUtils {
 	 *         {@code BigDecimal}
 	 * @since 1.6
 	 */
-	public static BigDecimal @Nullable [] decimalArray(String @Nullable... nums) {
+	public static @Nullable BigDecimal @Nullable [] decimalArray(@Nullable String @Nullable... nums) {
 		if ( nums == null ) {
 			return null;
 		}
+		@Nullable
 		BigDecimal[] vals = new BigDecimal[nums.length];
 		for ( int i = 0; i < nums.length; i++ ) {
 			vals[i] = (nums[i] != null ? new BigDecimal(nums[i]) : null);

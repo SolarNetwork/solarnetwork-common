@@ -150,17 +150,21 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 	@Override
 	public String getMessage(final MessageSourceResolvable resolvable, Locale locale)
 			throws NoSuchMessageException {
+		final String @Nullable [] origCodes = resolvable.getCodes();
+		final String origCode = (origCodes != null && origCodes.length > 0 ? origCodes[0] : "");
 		if ( delegates == null || delegates.isEmpty() ) {
-			throw new NoSuchMessageException(resolvable.getCodes()[0], locale);
+			throw new NoSuchMessageException(origCode, locale);
 		}
 		for ( Map.Entry<String, MessageSource> me : delegates.entrySet() ) {
 			String prefix = me.getKey();
 			MessageSource delegate = me.getValue();
-			final String[] origCodes = resolvable.getCodes();
 			final String[] codes = new String[origCodes != null ? origCodes.length : 0];
 			for ( int i = 0; i < codes.length; i++ ) {
-				@SuppressWarnings("null")
+				@SuppressWarnings({ "null", "NullAway" })
 				String code = origCodes[i];
+				if ( code == null ) {
+					continue;
+				}
 				if ( prefix != null && delegate != null
 						&& (prefix.length() < 1 || code.startsWith(prefix)) ) {
 					// remove prefix
@@ -174,17 +178,19 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 				String result = delegate.getMessage(new MessageSourceResolvable() {
 
 					@Override
-					public String getDefaultMessage() {
+					public @Nullable String getDefaultMessage() {
 						return resolvable.getDefaultMessage();
 					}
 
+					@SuppressWarnings("NullAway")
 					@Override
-					public String[] getCodes() {
+					public String @Nullable [] getCodes() {
 						return codes;
 					}
 
+					@SuppressWarnings("NullAway")
 					@Override
-					public Object[] getArguments() {
+					public Object @Nullable [] getArguments() {
 						return resolvable.getArguments();
 					}
 				}, locale);
@@ -195,7 +201,7 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 				// skip
 			}
 		}
-		throw new NoSuchMessageException(resolvable.getCodes()[0], locale);
+		throw new NoSuchMessageException(origCode, locale);
 	}
 
 	/**

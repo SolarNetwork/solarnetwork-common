@@ -260,7 +260,7 @@ public final class ClassUtils {
 					continue;
 				}
 				final Class<?> propType = bean.getPropertyType(propName);
-				if ( !isSimpleBeanPropertyType(propType) ) {
+				if ( propType == null || !isSimpleBeanPropertyType(propType) ) {
 					continue;
 				}
 				final Object propValue = bean.getPropertyValue(propName);

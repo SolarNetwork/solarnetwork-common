@@ -376,7 +376,8 @@ public interface DatumSamplesOperations extends Differentiable<DatumSamplesOpera
 	 */
 	@SuppressWarnings("unchecked")
 	default boolean differsNumericallyFrom(@Nullable DatumSamplesOperations other,
-			@Nullable Function<String, Number> parser, @Nullable Function<Number, Number> mapper) {
+			@Nullable Function<String, @Nullable Number> parser,
+			@Nullable Function<Number, @Nullable Number> mapper) {
 		if ( other == null ) {
 			return true;
 		} else if ( this == other ) {

@@ -30,7 +30,7 @@ import org.jspecify.annotations.Nullable;
  * @param <K>
  *        the unique identifier type
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.0
  */
 public interface Unique<K> {
@@ -52,16 +52,32 @@ public interface Unique<K> {
 	 * </p>
 	 *
 	 * <p>
-	 * This implementation simply tests if {@link #getId()} is not
-	 * {@code null}. Extending classes, such as those with composite keys
-	 * where nested properties must be defined for the key to be valid, can
-	 * override this implementation as needed.
+	 * This implementation simply tests if {@link #getId()} is not {@code null}.
+	 * Extending classes, such as those with composite keys where nested
+	 * properties must be defined for the key to be valid, can override this
+	 * implementation as needed.
 	 * </p>
 	 *
 	 * @return {@code true} if this object has a valid identifier
 	 */
 	default boolean hasId() {
 		return getId() != null;
+	}
+
+	/**
+	 * Get the primary identifier of the object.
+	 *
+	 * <p>
+	 * This method is a nullness-check shortcut, for example to be used after
+	 * {@link #hasId()} returns {@code true}.
+	 * </p>
+	 *
+	 * @return the primary identifier (presumed non-null)
+	 * @since 1.1
+	 */
+	@SuppressWarnings("NullAway")
+	default K id() {
+		return getId();
 	}
 
 }

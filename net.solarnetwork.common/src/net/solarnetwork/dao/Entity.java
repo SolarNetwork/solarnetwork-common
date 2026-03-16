@@ -32,7 +32,7 @@ import net.solarnetwork.domain.Identity;
  * @param <K>
  *        the primary key type
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.59
  */
 public interface Entity<K extends Comparable<K>> extends Identity<K> {
@@ -44,5 +44,31 @@ public interface Entity<K extends Comparable<K>> extends Identity<K> {
 	 */
 	@Nullable
 	Instant getCreated();
+
+	/**
+	 * Test if a creation date is available.
+	 *
+	 * @return {@code true} if {@link #getCreated()} returns a non-null instance
+	 * @since 2.1
+	 */
+	default boolean hasCreated() {
+		return (getCreated() != null);
+	}
+
+	/**
+	 * Get the date this entity was created.
+	 *
+	 * <p>
+	 * This method is a nullness-check shortcut, for example to be used after
+	 * {@link #hasCreated()} returns {@code true}.
+	 * </p>
+	 *
+	 * @return the created date (presumed non-null)
+	 * @since 2.1
+	 */
+	@SuppressWarnings("NullAway")
+	default Instant created() {
+		return getCreated();
+	}
 
 }

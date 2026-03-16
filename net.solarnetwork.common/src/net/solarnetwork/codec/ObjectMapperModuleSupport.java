@@ -139,31 +139,33 @@ public class ObjectMapperModuleSupport extends SimpleObjectMapperService {
 		int v1 = 1, v2 = 0, v3 = 0;
 		String s1 = null, s2 = null, s3 = null;
 		int i;
-		for ( i = 0; i < 3 && i < a.length; i++ ) {
-			int v = Integer.parseInt(a[i]);
-			switch (i) {
-				case 0:
-					v1 = v;
-					break;
-				case 1:
-					v2 = v;
-					break;
-				case 2:
-					v3 = v;
-					break;
+		if ( a != null ) {
+			for ( i = 0; i < 3 && i < a.length; i++ ) {
+				int v = Integer.parseInt(a[i]);
+				switch (i) {
+					case 0:
+						v1 = v;
+						break;
+					case 1:
+						v2 = v;
+						break;
+					case 2:
+						v3 = v;
+						break;
+				}
 			}
-		}
-		for ( ; i < 6 && i < a.length; i++ ) {
-			switch (i) {
-				case 3:
-					s1 = a[i];
-					break;
-				case 4:
-					s2 = a[i];
-					break;
-				case 5:
-					s3 = a[i];
-					break;
+			for ( ; i < 6 && i < a.length; i++ ) {
+				switch (i) {
+					case 3:
+						s1 = a[i];
+						break;
+					case 4:
+						s2 = a[i];
+						break;
+					case 5:
+						s3 = a[i];
+						break;
+				}
 			}
 		}
 		setModuleVersion(new Version(v1, v2, v3, s1, s2, s3));

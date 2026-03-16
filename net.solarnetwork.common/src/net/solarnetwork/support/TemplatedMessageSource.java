@@ -62,7 +62,7 @@ public class TemplatedMessageSource implements MessageSource, HierarchicalMessag
 	}
 
 	@Override
-	public void setParentMessageSource(MessageSource parent) {
+	public void setParentMessageSource(@Nullable MessageSource parent) {
 		if ( delegate instanceof HierarchicalMessageSource ) {
 			((HierarchicalMessageSource) delegate).setParentMessageSource(parent);
 		} else {
@@ -72,7 +72,7 @@ public class TemplatedMessageSource implements MessageSource, HierarchicalMessag
 	}
 
 	@Override
-	public MessageSource getParentMessageSource() {
+	public @Nullable MessageSource getParentMessageSource() {
 		if ( delegate instanceof HierarchicalMessageSource ) {
 			return ((HierarchicalMessageSource) delegate).getParentMessageSource();
 		}
@@ -124,11 +124,11 @@ public class TemplatedMessageSource implements MessageSource, HierarchicalMessag
 	@Override
 	public String getMessage(final MessageSourceResolvable resolvable, Locale locale)
 			throws NoSuchMessageException {
-		if ( delegate == null ) {
-			throw new NoSuchMessageException(resolvable.getCodes()[0], locale);
-		}
 		final String[] codes = resolvable.getCodes();
-		if ( pat != null ) {
+		if ( delegate == null ) {
+			throw new NoSuchMessageException(codes != null && codes.length > 0 ? codes[0] : "", locale);
+		}
+		if ( pat != null && codes != null ) {
 			for ( int i = 0; i < codes.length; i++ ) {
 				Matcher m = pat.matcher(codes[i]);
 				final int count = m.groupCount();
@@ -145,17 +145,17 @@ public class TemplatedMessageSource implements MessageSource, HierarchicalMessag
 		return delegate.getMessage(new MessageSourceResolvable() {
 
 			@Override
-			public String getDefaultMessage() {
+			public @Nullable String getDefaultMessage() {
 				return resolvable.getDefaultMessage();
 			}
 
 			@Override
-			public String[] getCodes() {
+			public String @Nullable [] getCodes() {
 				return codes;
 			}
 
 			@Override
-			public Object[] getArguments() {
+			public Object @Nullable [] getArguments() {
 				return resolvable.getArguments();
 			}
 		}, locale);

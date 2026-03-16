@@ -142,7 +142,8 @@ public class CsvTemporalRangeTariffParser {
 					}
 					ids = new String[headers.size() - 4];
 					for ( int i = 0, len = ids.length; i < len; i++ ) {
-						ids[i] = StringUtils.simpleIdValue(headers.get(i + 4), preserveRateCase);
+						var idVal = StringUtils.simpleIdValue(headers.get(i + 4), preserveRateCase);
+						ids[i] = idVal != null ? idVal : "";
 					}
 					continue;
 				}
@@ -235,7 +236,8 @@ public class CsvTemporalRangeTariffParser {
 			try {
 				// change rate headers to IDs for faster lookup while processing rows
 				for ( int i = 4; i < header.length; i++ ) {
-					header[i] = StringUtils.simpleIdValue(header[i]);
+					var idVal = StringUtils.simpleIdValue(header[i]);
+					header[i] = (idVal != null ? idVal : "");
 				}
 
 				for ( ChronoFieldsTariff tariff : tariffs ) {
@@ -256,6 +258,7 @@ public class CsvTemporalRangeTariffParser {
 
 	private void encodeToCsv(ChronoFieldsTariff tariff, String[] headers, CsvWriter csvWriter)
 			throws IOException {
+		@Nullable
 		String[] row = new String[headers.length];
 		row[0] = formatRange(ChronoField.MONTH_OF_YEAR,
 				tariff.rangeForChronoField(ChronoField.MONTH_OF_YEAR), locale, SHORT);

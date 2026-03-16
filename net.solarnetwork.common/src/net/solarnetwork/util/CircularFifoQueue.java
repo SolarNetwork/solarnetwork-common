@@ -59,7 +59,7 @@ public class CircularFifoQueue<E> extends AbstractCollection<E> implements Queue
 	private static final long serialVersionUID = -8423413834657610406L;
 
 	/** Underlying storage array. */
-	private transient E[] elements;
+	private transient E[] elements; // not null-marked for simplicity in dealing with NullAway
 
 	/** Array index of first (oldest) queue element. */
 	private transient int start;
@@ -315,6 +315,7 @@ public class CircularFifoQueue<E> extends AbstractCollection<E> implements Queue
 		return elements[start];
 	}
 
+	@SuppressWarnings("NullAway")
 	@Override
 	public E remove() {
 		if ( isEmpty() ) {
@@ -392,6 +393,7 @@ public class CircularFifoQueue<E> extends AbstractCollection<E> implements Queue
 				return elements[lastReturnedIndex];
 			}
 
+			@SuppressWarnings("NullAway")
 			@Override
 			public void remove() {
 				if ( lastReturnedIndex == -1 ) {

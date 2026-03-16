@@ -343,7 +343,8 @@ public interface ServiceConfiguration {
 	 * @since 1.3
 	 */
 	default @Nullable Number servicePropertyNumber(String key, @Nullable Number defaultResult,
-			@Nullable Function<String, Number> parser, @Nullable Function<Number, Number> mapper) {
+			@Nullable Function<String, @Nullable Number> parser,
+			@Nullable Function<Number, @Nullable Number> mapper) {
 		return CollectionUtils.mapPropertyNumber(key, defaultResult, parser, mapper,
 				getServiceProperties());
 	}
@@ -389,8 +390,9 @@ public interface ServiceConfiguration {
 	 * @since 1.3
 	 */
 	static @Nullable Number servicePropertyNumber(@Nullable ServiceConfiguration configuration,
-			String key, @Nullable Number defaultResult, @Nullable Function<String, Number> parser,
-			@Nullable Function<Number, Number> mapper) {
+			String key, @Nullable Number defaultResult,
+			@Nullable Function<String, @Nullable Number> parser,
+			@Nullable Function<Number, @Nullable Number> mapper) {
 		if ( configuration == null ) {
 			return defaultResult;
 		}

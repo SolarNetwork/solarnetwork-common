@@ -737,8 +737,8 @@ public final class CollectionUtils {
 	 * @since 1.7
 	 */
 	public static @Nullable Number mapPropertyNumber(final @Nullable String key,
-			final @Nullable Number defaultResult, @Nullable Function<String, Number> parser,
-			@Nullable Function<Number, Number> mapper, final @Nullable Map<String, ?> map) {
+			final @Nullable Number defaultResult, @Nullable Function<String, @Nullable Number> parser,
+			@Nullable Function<Number, @Nullable Number> mapper, final @Nullable Map<String, ?> map) {
 		if ( key == null || map == null ) {
 			return defaultResult;
 		}
@@ -752,7 +752,7 @@ public final class CollectionUtils {
 			numVal = parser.apply(propVal.toString());
 		}
 
-		if ( mapper != null ) {
+		if ( mapper != null && numVal != null ) {
 			numVal = mapper.apply(numVal);
 		}
 
@@ -973,8 +973,8 @@ public final class CollectionUtils {
 				}
 			} else {
 				cmp = (l, r) -> {
-					Function<String, Object> lGetter;
-					Function<String, Object> rGetter;
+					Function<String, @Nullable Object> lGetter;
+					Function<String, @Nullable Object> rGetter;
 					if ( l instanceof Map ) {
 						lGetter = ((Map) l)::get;
 					} else {
@@ -1134,7 +1134,8 @@ public final class CollectionUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <K, V> boolean differsNumerically(@Nullable Map<K, V> m1, @Nullable Map<K, V> m2,
-			@Nullable Function<String, Number> parser, @Nullable Function<Number, Number> mapper) {
+			@Nullable Function<String, @Nullable Number> parser,
+			@Nullable Function<Number, @Nullable Number> mapper) {
 		if ( m1 == null ) {
 			m1 = Collections.emptyMap();
 		}
@@ -1164,8 +1165,12 @@ public final class CollectionUtils {
 			}
 
 			if ( mapper != null ) {
-				n1 = mapper.apply(n1);
-				n2 = mapper.apply(n2);
+				if ( n1 != null ) {
+					n1 = mapper.apply(n1);
+				}
+				if ( n2 != null ) {
+					n2 = mapper.apply(n2);
+				}
 			}
 
 			if ( n1 == n2 ) {
