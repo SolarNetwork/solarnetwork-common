@@ -108,7 +108,7 @@ public enum BasicSecurityPolicyField implements IndexedField {
 			throws IOException, JsonProcessingException {
 		switch (this) {
 			case NodeIds: {
-				Long[] array = JsonUtils.parseLongArray(parser);
+				var array = JsonUtils.parseLongArray(parser);
 				if ( array != null && array.length > 0 ) {
 					return new LinkedHashSet<>(Arrays.asList(array));
 				}
@@ -126,7 +126,7 @@ public enum BasicSecurityPolicyField implements IndexedField {
 			}
 
 			case Aggregations: {
-				String[] array = JsonUtils.parseStringArray(parser);
+				var array = JsonUtils.parseStringArray(parser);
 				if ( array != null && array.length > 0 ) {
 					Set<Aggregation> set = new LinkedHashSet<>();
 					for ( String s : array ) {
@@ -151,7 +151,7 @@ public enum BasicSecurityPolicyField implements IndexedField {
 			}
 
 			case LocationPrecisions: {
-				String[] array = JsonUtils.parseStringArray(parser);
+				var array = JsonUtils.parseStringArray(parser);
 				if ( array != null && array.length > 0 ) {
 					Set<LocationPrecision> set = new LinkedHashSet<>();
 					for ( String s : array ) {
@@ -169,7 +169,7 @@ public enum BasicSecurityPolicyField implements IndexedField {
 			case NodeMetadataPaths:
 			case UserMetadataPaths:
 			case ApiPaths: {
-				String[] array = JsonUtils.parseStringArray(parser);
+				var array = JsonUtils.parseStringArray(parser);
 				if ( array != null && array.length > 0 ) {
 					return new LinkedHashSet<>(Arrays.asList(array));
 				}

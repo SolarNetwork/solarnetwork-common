@@ -25,7 +25,6 @@ package net.solarnetwork.codec;
 import static java.time.Instant.ofEpochMilli;
 import static net.solarnetwork.domain.datum.DatumProperties.propertiesOf;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -72,10 +71,10 @@ public class BasicStreamDatumArrayDeserializer extends StdScalarDeserializer<Str
 				throw new JsonParseException(p,
 						"Unable to parse StreamDatum (timestamp or stream ID missing)");
 			}
-			BigDecimal[] i = JsonUtils.parseDecimalArray(p);
-			BigDecimal[] a = JsonUtils.parseDecimalArray(p);
-			String[] s = JsonUtils.parseStringArray(p);
-			String[] tags = JsonUtils.parseStringArray(p);
+			var i = JsonUtils.parseDecimalArray(p);
+			var a = JsonUtils.parseDecimalArray(p);
+			var s = JsonUtils.parseStringArray(p);
+			var tags = JsonUtils.parseStringArrayStrict(p);
 			p.nextToken(); // advance to final end-array ']'
 			return new BasicStreamDatum(new UUID(idHi, idLo), ofEpochMilli(ts),
 					propertiesOf(i, a, s, tags));

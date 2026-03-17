@@ -168,7 +168,7 @@ public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> 
 						break;
 
 					case "t":
-						String[] tags = JsonUtils.parseStringArray(p);
+						String[] tags = JsonUtils.parseStringArrayStrict(p);
 						if ( tags != null && tags.length > 0 ) {
 							for ( String tag : tags ) {
 								s.addTag(tag);
