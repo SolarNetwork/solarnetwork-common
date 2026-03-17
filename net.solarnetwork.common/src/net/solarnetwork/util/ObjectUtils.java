@@ -24,6 +24,7 @@ package net.solarnetwork.util;
 
 import java.util.Collection;
 import java.util.function.Supplier;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -92,7 +93,7 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null}
 	 */
-	public static <T> T requireNonNullArgument(final @Nullable T arg, final String argumentName)
+	public static <T> @NonNull T requireNonNullArgument(final @Nullable T arg, final String argumentName)
 			throws IllegalArgumentException {
 		if ( arg == null ) {
 			throw new IllegalArgumentException(
@@ -131,8 +132,8 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null} or empty
 	 */
-	public static <T> T[] requireNonEmptyArgument(final T @Nullable [] arg, final String argumentName)
-			throws IllegalArgumentException {
+	public static <T> T @NonNull [] requireNonEmptyArgument(final T @Nullable [] arg,
+			final String argumentName) throws IllegalArgumentException {
 		if ( arg == null || arg.length < 1 ) {
 			throw new IllegalArgumentException(
 					String.format("The %s argument must not be empty.", argumentName));
@@ -170,7 +171,7 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null} or empty
 	 */
-	public static <T extends Collection<?>> T requireNonEmptyArgument(final @Nullable T arg,
+	public static <T extends Collection<?>> @NonNull T requireNonEmptyArgument(final @Nullable T arg,
 			final String argumentName) throws IllegalArgumentException {
 		if ( arg == null || arg.size() < 1 ) {
 			throw new IllegalArgumentException(
@@ -210,7 +211,7 @@ public final class ObjectUtils {
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null} or empty
 	 */
-	public static <T extends CharSequence> T requireNonEmptyArgument(final @Nullable T arg,
+	public static <T extends CharSequence> @NonNull T requireNonEmptyArgument(final @Nullable T arg,
 			final String argumentName) throws IllegalArgumentException {
 		if ( arg == null || arg.isEmpty() ) {
 			throw new IllegalArgumentException(
@@ -239,7 +240,7 @@ public final class ObjectUtils {
 	 * @since 1.3
 	 * @see #nonnull(Object, String)
 	 */
-	public static <T> T requireNonNullProperty(final @Nullable T prop, final String name)
+	public static <T> @NonNull T requireNonNullProperty(final @Nullable T prop, final String name)
 			throws IllegalStateException {
 		return nonnull(prop, name);
 	}
@@ -277,7 +278,8 @@ public final class ObjectUtils {
 	 *         if {@code arg} is {@code null}
 	 * @since 1.4
 	 */
-	public static <T> T nonnull(final @Nullable T prop, final String name) throws IllegalStateException {
+	public static <T> @NonNull T nonnull(final @Nullable T prop, final String name)
+			throws IllegalStateException {
 		if ( prop == null ) {
 			throw new IllegalStateException(String.format("%s is not available.", name));
 		}
