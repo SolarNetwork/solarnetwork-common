@@ -86,7 +86,7 @@ public final class OcppUtils {
 	 * A function that converts an OCPP action name to an equivalent JSON schema
 	 * name.
 	 */
-	public static final Function<String, String> OCPP_ACTION_TO_JSON_SCHEMA_NAME = (s) -> {
+	public static final Function<String, @Nullable String> OCPP_ACTION_TO_JSON_SCHEMA_NAME = (s) -> {
 		if ( s == null ) {
 			return null;
 		}
@@ -105,8 +105,10 @@ public final class OcppUtils {
 			for ( Resource r : resourceResolver
 					.getResources("classpath:schema/json/ocpp/v201/*.json") ) {
 				String name = r.getFilename();
-				name = name.substring(0, name.lastIndexOf('.'));
-				uriMappings.put(AbsoluteIri.of(OCPP_ACTION_TO_JSON_SCHEMA_NAME.apply(name)), r);
+				if ( name != null ) {
+					name = name.substring(0, name.lastIndexOf('.'));
+					uriMappings.put(AbsoluteIri.of(OCPP_ACTION_TO_JSON_SCHEMA_NAME.apply(name)), r);
+				}
 			}
 		} catch ( IOException e ) {
 			throw new IllegalStateException(
