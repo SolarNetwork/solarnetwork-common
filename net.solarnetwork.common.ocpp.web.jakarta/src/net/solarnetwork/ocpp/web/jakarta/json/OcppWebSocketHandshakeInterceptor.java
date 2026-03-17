@@ -292,7 +292,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 	@Override
 	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
-			WebSocketHandler wsHandler, Exception exception) {
+			WebSocketHandler wsHandler, @Nullable Exception exception) {
 		// nothing to do
 	}
 
