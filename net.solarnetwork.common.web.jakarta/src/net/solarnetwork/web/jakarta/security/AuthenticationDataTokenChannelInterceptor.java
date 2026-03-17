@@ -126,7 +126,7 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message,
 				StompHeaderAccessor.class);
 
-		if ( StompCommand.CONNECT.equals(accessor.getCommand()) ) {
+		if ( accessor != null && StompCommand.CONNECT.equals(accessor.getCommand()) ) {
 			Authentication authenticatedUser = authenticateUser(accessor);
 			if ( authenticatedUser != null ) {
 				accessor.setUser(authenticatedUser);

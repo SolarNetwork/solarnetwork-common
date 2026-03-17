@@ -25,6 +25,7 @@ package net.solarnetwork.web.jakarta.support;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.MessageSource;
@@ -80,7 +81,11 @@ public class ReloadableResourceBundleMessagesSource extends ReloadableResourceBu
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Enumeration<String> getKeys(Locale locale) {
 		PropertiesHolder propHolder = super.getMergedProperties(locale);
-		return Collections.enumeration((Set) propHolder.getProperties().keySet());
+		Properties props = propHolder.getProperties();
+		if ( props == null ) {
+			return Collections.emptyEnumeration();
+		}
+		return Collections.enumeration((Set) props.keySet());
 	}
 
 	@Override

@@ -51,7 +51,8 @@ public class PatternMatchingResourceBundleMessagesSource extends ReloadableResou
 	}
 
 	@Override
-	protected PropertiesHolder refreshProperties(String filename, PropertiesHolder propHolder) {
+	protected PropertiesHolder refreshProperties(String filename,
+			@Nullable PropertiesHolder propHolder) {
 		if ( resourceResolver != null ) {
 			return refreshMatchingProperties(filename, propHolder);
 		}
@@ -59,7 +60,7 @@ public class PatternMatchingResourceBundleMessagesSource extends ReloadableResou
 	}
 
 	@Override
-	public void setResourceLoader(ResourceLoader resourceLoader) {
+	public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
 		super.setResourceLoader(resourceLoader);
 		if ( resourceResolver == null ) {
 			if ( resourceLoader instanceof ResourcePatternResolver ) {
@@ -70,7 +71,8 @@ public class PatternMatchingResourceBundleMessagesSource extends ReloadableResou
 		}
 	}
 
-	private PropertiesHolder refreshMatchingProperties(String filename, PropertiesHolder propHolder) {
+	private PropertiesHolder refreshMatchingProperties(String filename,
+			@Nullable PropertiesHolder propHolder) {
 		final ResourcePatternResolver resolver = this.resourceResolver;
 		final Properties properties = new Properties();
 		long lastModified = -1;
@@ -102,7 +104,7 @@ public class PatternMatchingResourceBundleMessagesSource extends ReloadableResou
 	 * @param resourceResolver
 	 *        The resolver to use.
 	 */
-	public void setResourceResolver(ResourcePatternResolver resourceResolver) {
+	public final void setResourceResolver(@Nullable ResourcePatternResolver resourceResolver) {
 		this.resourceResolver = resourceResolver;
 	}
 
