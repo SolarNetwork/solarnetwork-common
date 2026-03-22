@@ -22,6 +22,7 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -95,7 +96,7 @@ public class SystemUser extends BasicLongEntity
 	 *        the other system
 	 */
 	public SystemUser(SystemUser other) {
-		super(other.getId(), other.getCreated());
+		super(requireNonNullArgument(other, "other").getId(), other.getCreated());
 		setUsername(other.getUsername());
 		setPassword(other.getPassword());
 		Set<String> allowed = other.getAllowedChargePoints();

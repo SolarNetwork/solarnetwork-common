@@ -22,6 +22,7 @@
 
 package net.solarnetwork.ocpp.domain;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.time.Instant;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
@@ -76,6 +77,8 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the Charge Point connector ID
 	 * @param transactionId
 	 *        the transactionID
+	 * @throws IllegalArgumentException
+	 *         if {@code authId} or {@code transactionId} is {@code null}
 	 * @since 2.0
 	 */
 	public ChargeSession(String authId, long chargePointId, int connectorId, String transactionId) {
@@ -95,6 +98,8 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the Charge Point connector ID
 	 * @param transactionId
 	 *        the transactionID
+	 * @throws IllegalArgumentException
+	 *         if {@code authId} or {@code transactionId} is {@code null}
 	 * @since 2.0
 	 */
 	public ChargeSession(String authId, long chargePointId, int evseId, int connectorId,
@@ -117,6 +122,8 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the Charge Point connector ID
 	 * @param transactionId
 	 *        the transactionID
+	 * @throws IllegalArgumentException
+	 *         if {@code authId} or {@code transactionId} is {@code null}
 	 * @since 2.0
 	 */
 	public ChargeSession(@Nullable UUID id, @Nullable Instant created, String authId, long chargePointId,
@@ -141,16 +148,18 @@ public class ChargeSession extends BasicUuidEntity {
 	 *        the Charge Point connector ID
 	 * @param transactionId
 	 *        the transactionID
+	 * @throws IllegalArgumentException
+	 *         if {@code authId} or {@code transactionId} is {@code null}
 	 * @since 2.0
 	 */
 	public ChargeSession(@Nullable UUID id, @Nullable Instant created, String authId, long chargePointId,
 			int evseId, int connectorId, String transactionId) {
 		super(id, created);
-		this.authId = authId;
+		this.authId = requireNonNullArgument(authId, "authId");
 		this.chargePointId = chargePointId;
 		this.evseId = evseId;
 		this.connectorId = connectorId;
-		this.transactionId = transactionId;
+		this.transactionId = requireNonNullArgument(transactionId, "transactionId");
 	}
 
 	@Override

@@ -114,8 +114,8 @@ public class ChargePoint extends BasicLongEntity implements Differentiable<Charg
 	 * @param chargePointModel
 	 *        the model
 	 */
-	public ChargePoint(@Nullable Instant created, String identifier, String chargePointVendor,
-			String chargePointModel) {
+	public ChargePoint(@Nullable Instant created, @Nullable String identifier,
+			@Nullable String chargePointVendor, @Nullable String chargePointModel) {
 		this(null, created, new ChargePointInfo(identifier, chargePointVendor, chargePointModel));
 	}
 

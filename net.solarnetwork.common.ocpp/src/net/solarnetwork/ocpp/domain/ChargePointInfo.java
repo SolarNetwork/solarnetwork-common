@@ -57,7 +57,7 @@ public class ChargePointInfo {
 	 * @param id
 	 *        the ID to use
 	 */
-	public ChargePointInfo(String id) {
+	public ChargePointInfo(@Nullable String id) {
 		super();
 		setId(id);
 	}
@@ -72,7 +72,8 @@ public class ChargePointInfo {
 	 * @param chargePointModel
 	 *        the model
 	 */
-	public ChargePointInfo(String id, String chargePointVendor, String chargePointModel) {
+	public ChargePointInfo(@Nullable String id, @Nullable String chargePointVendor,
+			@Nullable String chargePointModel) {
 		super();
 		this.id = id;
 		this.chargePointVendor = chargePointVendor;
@@ -85,7 +86,7 @@ public class ChargePointInfo {
 	 * @param other
 	 *        the info to copy
 	 */
-	public ChargePointInfo(ChargePointInfo other) {
+	public ChargePointInfo(@Nullable ChargePointInfo other) {
 		super();
 		copyFrom(other);
 	}
