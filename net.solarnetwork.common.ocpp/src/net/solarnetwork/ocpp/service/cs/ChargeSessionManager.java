@@ -72,12 +72,11 @@ public interface ChargeSessionManager extends Identifiable {
 	 *        the charge point ID
 	 * @param transactionId
 	 *        the transaction ID
-	 * @return the charge session
-	 * @throws AuthorizationException
-	 *         if any no active charge session is available for the given
-	 *         criteria
+	 * @return the charge session, or {@code null} if none available matching
+	 *         the criteria
 	 * @since 3.0
 	 */
+	@Nullable
 	ChargeSession getActiveChargingSession(ChargePointIdentity chargePointId, String transactionId)
 			throws AuthorizationException;
 
