@@ -22,6 +22,7 @@
 
 package net.solarnetwork.dao;
 
+import java.util.NoSuchElementException;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.Unique;
 
@@ -39,7 +40,7 @@ import net.solarnetwork.domain.Unique;
  * @param <K>
  *        the filtered result identity type
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.59
  */
 public interface FilterResults<T extends Unique<K>, K extends Comparable<K>> extends Iterable<T> {
@@ -83,5 +84,22 @@ public interface FilterResults<T extends Unique<K>, K extends Comparable<K>> ext
 	 * @return the number of returned results
 	 */
 	int getReturnedResultCount();
+
+	/**
+	 * Get the first result item.
+	 *
+	 * @return the first result item, or {@code null}
+	 * @since 2.1
+	 */
+	default @Nullable T firstResult() {
+		try {
+			if ( getReturnedResultCount() < 1 ) {
+				return null;
+			}
+			return getResults().iterator().next();
+		} catch ( NoSuchElementException | NullPointerException e ) {
+			return null;
+		}
+	}
 
 }
