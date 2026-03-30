@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tyrus JDK Container Support
+Bundle-SymbolicName: net.solarnetwork.common.tyrus-core-container-jdk
+Bundle-Description: Support using the JDK client container in Tyrus.
+Bundle-Version: 2.2.0
+Bundle-Vendor: SolarNetwork
+Fragment-Host: org.glassfish.tyrus.core;bundle-version="[2.2,3.0)"
+Automatic-Module-Name: net.solarnetwork.common.tyrus.core.container.jdk
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Import-Package: org.glassfish.tyrus.container.jdk.client;version="[2.2,3.0)"
