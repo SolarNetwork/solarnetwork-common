@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
  * Utilities for dealing with objects.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public final class ObjectUtils {
 
@@ -98,6 +98,67 @@ public final class ObjectUtils {
 		if ( arg == null ) {
 			throw new IllegalArgumentException(
 					String.format("The %s argument must not be null.", argumentName));
+		}
+		return arg;
+	}
+
+	/**
+	 * Require a non-null method argument.
+	 *
+	 * <p>
+	 * This is similar to
+	 * {@link java.util.Objects#requireNonNull(Object, String)} except
+	 * {@code argumentName} is just the name of the required argument and an
+	 * {@link IllegalArgumentException} is thrown instead of a
+	 * {@code NullPointerException}. Example use:
+	 * </p>
+	 *
+	 * <!-- @formatter:off -->
+	 * <blockquote><pre>
+	 * public Foo(Bar bar, Baz baz) {
+	 * 	this.bar = ObjectUtils.requireNonNullArgument(bar, "bar");
+	 * 	this.baz = ObjectUtils.requireNonNullArgument(baz, "baz");
+	 * }
+	 * </pre></blockquote>
+	 * <!-- @formatter:on -->
+	 *
+	 * <p>If {@code bar} was {@code null} in this example, the generated
+	 * exception message would be {@code "The bar argument must not be null."}.
+	 * A formatted name can be used by passing format arguments, like this:</p>
+	 *
+	 * <!-- @formatter:off -->
+	 * <blockquote><pre>
+	 * public Foo(Bar bar, Long id) {
+	 * 	this.bar = ObjectUtils.requireNonNullArgument(bar, "bar [%d]", id);
+	 * }
+	 * </pre></blockquote>
+	 * <!-- @formatter:on -->
+	 *
+	 * <p>If {@code id} was {@code 123} and {@code bar} was {@code null} in this
+	 * example, the generated exception message would be
+	 * {@code "The bar [123] argument must not be null."}.</p>
+	 *
+	 *
+	 * @param <T>
+	 *        the argument type
+	 * @param arg
+	 *        the argument to require to be non-null
+	 * @param argumentName
+	 *        the name of {@code arg} to report in the
+	 *        {@link IllegalArgumentException} if {@code arg} is {@code null}
+	 * @param args
+	 *        if provided, treat {@code name} as a format template and use
+	 *        these arguments to generate a formatted name
+	 * @return {@code arg}
+	 * @throws IllegalArgumentException
+	 *         if {@code arg} is {@code null}
+	 *         @since 1.5
+	 */
+	public static <T> @NonNull T requireNonNullArgument(final @Nullable T arg, final String argumentName,
+			Object... args) throws IllegalArgumentException {
+		if ( arg == null ) {
+			throw new IllegalArgumentException("The %s argument must not be null."
+					.formatted(args != null ? argumentName.formatted(args) : argumentName));
 		}
 		return arg;
 	}
@@ -246,7 +307,34 @@ public final class ObjectUtils {
 	}
 
 	/**
-	 * Require a non-null property.
+	 * Assert a property is non-null.
+	 *
+	 * <p>
+	 * This is similar to {@link #requireNonNullArgument(Object, String)} but an
+	 * {@link IllegalStateException} is thrown instead of a
+	 * {@link IllegalArgumentException}. Example use:
+	 * </p>
+	 *
+	 * @param <T>
+	 *        the argument type
+	 * @param prop
+	 *        the value to require to be non-null
+	 * @param name
+	 *        the name of {@code prop} to report in the
+	 *        {@link IllegalStateException} if {@code arg} is {@code null}
+	 * @return {@code prop}
+	 * @throws IllegalStateException
+	 *         if {@code arg} is {@code null}
+	 * @since 1.4
+	 * @see #nonnull(Object, String, Object...)
+	 */
+	public static <T> @NonNull T nonnull(final @Nullable T prop, final String name)
+			throws IllegalStateException {
+		return nonnull(prop, name, (Object[]) null);
+	}
+
+	/**
+	 * Assert a property is non-null.
 	 *
 	 * <p>
 	 * This is similar to {@link #requireNonNullArgument(Object, String)} but an
@@ -259,6 +347,18 @@ public final class ObjectUtils {
 	 * ObjectUtils.nonnull(bar, "BarService").tap();
 	 * </pre></blockquote>
 	 * <!-- @formatter:on -->
+	 *
+	 * <p>The exception message would be {@code "BarService is not available."}.
+	 * A formatted name can be used by passing format arguments, like this:</p>
+	 *
+	 * <!-- @formatter:off -->
+	 * <blockquote><pre>
+	 * Long id = 123L;
+	 * ObjectUtils.nonnull(bar, "BarService %d", id).tap();
+	 * </pre></blockquote>
+	 * <!-- @formatter:on -->
+	 *
+	 * <p>The exception message would be {@code "BarService 123 is not available."}.</p>
 	 *
 	 * <p>
 	 * This is intended to help with null static analysis were we can reason
@@ -273,15 +373,19 @@ public final class ObjectUtils {
 	 * @param name
 	 *        the name of {@code prop} to report in the
 	 *        {@link IllegalStateException} if {@code arg} is {@code null}
+	 * @param args
+	 *        if provided, treat {@code name} as a format template and use
+	 *        these arguments to generate a formatted name
 	 * @return {@code prop}
 	 * @throws IllegalStateException
 	 *         if {@code arg} is {@code null}
-	 * @since 1.4
+	 * @since 1.5
 	 */
-	public static <T> @NonNull T nonnull(final @Nullable T prop, final String name)
-			throws IllegalStateException {
+	public static <T> @NonNull T nonnull(final @Nullable T prop, final String name,
+			Object @Nullable... args) throws IllegalStateException {
 		if ( prop == null ) {
-			throw new IllegalStateException(String.format("%s is not available.", name));
+			throw new IllegalStateException(
+					"%s is not available.".formatted(args != null ? name.formatted(args) : name));
 		}
 		return prop;
 	}

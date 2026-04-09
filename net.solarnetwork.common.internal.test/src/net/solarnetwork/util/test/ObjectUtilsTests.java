@@ -22,8 +22,10 @@
 
 package net.solarnetwork.util.test;
 
+import static net.solarnetwork.test.CommonTestUtils.randomLong;
 import static net.solarnetwork.test.CommonTestUtils.randomString;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.BDDAssertions.thenExceptionOfType;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -44,7 +46,7 @@ import net.solarnetwork.util.ObjectUtils;
  * Test cases for the {@link ObjectUtils} class.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class ObjectUtilsTests {
 
@@ -68,6 +70,39 @@ public class ObjectUtilsTests {
 			assertThat("Message should include argument name", e.getMessage(),
 					is("The fooBar argument must not be null."));
 		}
+	}
+
+	@Test
+	public void requireNonNullArgument_formatted_notNull() {
+		// GIVEN
+		final String arg = "foo";
+		final Long formatArg = randomLong();
+
+		// THEN
+		// @formatter:off
+		then(ObjectUtils.requireNonNullArgument(arg, "Foo %d", formatArg))
+			.as("Non-null argument is returned as-is")
+			.isEqualTo(arg)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void requireNonNullArgument_formatted_null() {
+		// GIVEN
+		final String arg = null;
+		final String formatArg = randomString();
+
+		// THEN
+		// @formatter:off
+		thenExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> {
+				ObjectUtils.requireNonNullArgument(arg, "Foo %s", formatArg);
+			})
+			.as("Formatted name is included at start of exception message")
+			.withMessageStartingWith("The Foo %s".formatted(formatArg))
+			;
+		// @formatter:on
 	}
 
 	@Test
@@ -206,6 +241,39 @@ public class ObjectUtilsTests {
 			.isInstanceOf(IllegalStateException.class)
 			.as("Name is included at start of exception message")
 			.hasMessageStartingWith("FooService ")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void nonnull_formatted_nonNull() {
+		// GIVEN
+		final String arg = randomString();
+		final String formatArg = randomString();
+
+		// THEN
+		// @formatter:off
+		then(ObjectUtils.nonnull(arg, "Foo %s", formatArg))
+			.as("Non-null argument is returned as-is")
+			.isEqualTo(arg)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void nonnull_formatted_null() {
+		// GIVEN
+		final String arg = null;
+		final String formatArg = randomString();
+
+		// THEN
+		// @formatter:off
+		thenExceptionOfType(IllegalStateException.class)
+			.isThrownBy(() -> {
+				ObjectUtils.nonnull(arg, "Foo %s", formatArg);
+			})
+			.as("Formatted name is included at start of exception message")
+			.withMessageStartingWith("Foo %s".formatted(formatArg))
 			;
 		// @formatter:on
 	}
