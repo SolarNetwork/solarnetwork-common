@@ -47,7 +47,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  *
  * @author matt
- * @version 1.17
+ * @version 1.18
  */
 public final class StringUtils {
 
@@ -274,8 +274,8 @@ public final class StringUtils {
 	 *
 	 * @param list
 	 *        the comma-delimited string
-	 * @return the Set, or {@code null} if {@code list} is {@code null} or
-	 *         an empty string
+	 * @return the Set, or {@code null} if {@code list} is {@code null} or an
+	 *         empty string
 	 * @see #delimitedStringToSet(String, String)
 	 */
 	public static @Nullable Set<String> commaDelimitedStringToSet(final @Nullable String list) {
@@ -297,8 +297,8 @@ public final class StringUtils {
 	 *        the delimited text
 	 * @param delim
 	 *        the delimiter to split the list with
-	 * @return the Set, or {@code null} if {@code list} is {@code null} or
-	 *         an empty string
+	 * @return the Set, or {@code null} if {@code list} is {@code null} or an
+	 *         empty string
 	 */
 	public static @Nullable Set<String> delimitedStringToSet(final @Nullable String list,
 			final String delim) {
@@ -318,8 +318,8 @@ public final class StringUtils {
 	 *
 	 * @param list
 	 *        the comma-delimited string
-	 * @return the List, or {@code null} if {@code list} is {@code null}
-	 *         or an empty string
+	 * @return the List, or {@code null} if {@code list} is {@code null} or an
+	 *         empty string
 	 * @see #delimitedStringToList(String, String)
 	 * @since 1.16
 	 */
@@ -341,8 +341,8 @@ public final class StringUtils {
 	 *        the delimited text
 	 * @param delim
 	 *        the delimiter to split the list with
-	 * @return the List, or {@code null} if {@code list} is {@code null}
-	 *         or an empty string
+	 * @return the List, or {@code null} if {@code list} is {@code null} or an
+	 *         empty string
 	 * @since 1.16
 	 */
 	public static @Nullable List<String> delimitedStringToList(final @Nullable String list,
@@ -371,8 +371,8 @@ public final class StringUtils {
 	 *
 	 * @param mapping
 	 *        the delimited text
-	 * @return the map, or {@code null} if {@code mapping} is {@code null}
-	 *         or empty
+	 * @return the map, or {@code null} if {@code mapping} is {@code null} or
+	 *         empty
 	 * @see #delimitedStringToMap(String, String, String)
 	 */
 	public static @Nullable Map<String, String> commaDelimitedStringToMap(
@@ -404,8 +404,8 @@ public final class StringUtils {
 	 *        the key+value record delimiter
 	 * @param fieldDelim
 	 *        the key+value delimiter
-	 * @return the map, or {@code null} if {@code mapping} is {@code null}
-	 *         or empty
+	 * @return the map, or {@code null} if {@code mapping} is {@code null} or
+	 *         empty
 	 */
 	public static @Nullable Map<String, String> delimitedStringToMap(final @Nullable String mapping,
 			final String recordDelim, final String fieldDelim) {
@@ -428,26 +428,32 @@ public final class StringUtils {
 	/**
 	 * Create an array of regular expressions from strings. If
 	 * {@code expressions} is {@code null} or empty, the result will be
-	 * {@code null}. Pass {@literal 0} for {@code flags} if no special flags
-	 * are desired.
+	 * {@code null}. Pass {@literal 0} for {@code flags} if no special flags are
+	 * desired.
 	 *
 	 * @param expressions
-	 *        the array of expressions to compile into {@link Pattern} objects
+	 *        the array of expressions to compile into {@link Pattern} objects;
+	 *        any {@code null} array values will be converted to {@code ^$}
+	 *        (match an empty string)
 	 * @param flags
 	 *        the Pattern flags to use, or {@literal 0} for no flags
 	 * @return the compiled regular expressions, in the same order as
-	 *         {@code expressions}, or {@code null} if no expressions
-	 *         supplied
+	 *         {@code expressions}, or {@code null} if no expressions supplied
 	 * @throws PatternSyntaxException
 	 *         If an expression's syntax is invalid
 	 */
-	public static Pattern @Nullable [] patterns(final String @Nullable [] expressions, int flags) {
+	public static Pattern @Nullable [] patterns(final @Nullable String @Nullable [] expressions,
+			int flags) {
 		Pattern[] result = null;
 		if ( expressions != null && expressions.length > 0 ) {
 			result = new Pattern[expressions.length];
 			for ( int i = 0, len = expressions.length; i < len; i++ ) {
-				result[i] = (flags == 0 ? Pattern.compile(expressions[i])
-						: Pattern.compile(expressions[i], flags));
+				String expr = expressions[i];
+				if ( expr == null ) {
+					// force to empty string match
+					expr = "^$";
+				}
+				result[i] = (flags == 0 ? Pattern.compile(expr) : Pattern.compile(expr, flags));
 			}
 		}
 		return result;
@@ -485,8 +491,8 @@ public final class StringUtils {
 	 *        the patterns to test (may be {@code null})
 	 * @param text
 	 *        the string to test (may be {@code null})
-	 * @return a {@link Matcher} that matches {@code text} or {@code null} if
-	 *         no match was found
+	 * @return a {@link Matcher} that matches {@code text} or {@code null} if no
+	 *         match was found
 	 */
 	public static @Nullable Matcher matches(final Pattern @Nullable [] patterns, @Nullable String text) {
 		if ( patterns == null || patterns.length < 0 || text == null ) {
@@ -756,8 +762,7 @@ public final class StringUtils {
 	 *
 	 * @param text
 	 *        the text to derive the simple ID from
-	 * @return the simple ID, or {@code null} if {@code text} is
-	 *         {@code null}
+	 * @return the simple ID, or {@code null} if {@code text} is {@code null}
 	 * @since 1.8
 	 */
 	public static @Nullable String simpleIdValue(@Nullable String text) {
@@ -783,8 +788,7 @@ public final class StringUtils {
 	 *        the text to derive the simple ID from
 	 * @param preserveRateCase
 	 *        {@literal true} to lower-case the text
-	 * @return the simple ID, or {@code null} if {@code text} is
-	 *         {@code null}
+	 * @return the simple ID, or {@code null} if {@code text} is {@code null}
 	 * @since 1.14
 	 */
 	public static @Nullable String simpleIdValue(@Nullable String text, boolean preserveRateCase) {
@@ -863,10 +867,10 @@ public final class StringUtils {
 	 *        the pattern
 	 * @param text
 	 *        the string to test against {@code pattern}
-	 * @return if the string does not match or either argument is
-	 *         {@code null}, {@code null}; otherwise an array whose first
-	 *         element is {@code text} and any additional elements are pattern
-	 *         capture values
+	 * @return if the string does not match or either argument is {@code null},
+	 *         {@code null}; otherwise an array whose first element is
+	 *         {@code text} and any additional elements are pattern capture
+	 *         values
 	 * @since 1.11
 	 */
 	public static String @Nullable [] match(@Nullable Pattern pattern, @Nullable String text) {

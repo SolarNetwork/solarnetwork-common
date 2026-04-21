@@ -264,6 +264,16 @@ public class StringUtilsTests {
 	}
 
 	@Test
+	public void patternsForNullExpression() {
+		final String[] ex = new String[] { null };
+		Pattern[] r = StringUtils.patterns(ex, 0);
+		assertNotNull(r);
+		assertEquals("Same number of patterns", ex.length, r.length);
+		assertEquals("null pattern converted to ^$", r[0].pattern(), "^$");
+		assertTrue("Pattern compiled without flags", r[0].matcher("").matches());
+	}
+
+	@Test
 	public void patternsForExpressionWithFlags() {
 		final String[] ex = new String[] { "FOO\n#here's a comment" };
 		Pattern[] r = StringUtils.patterns(ex, Pattern.CASE_INSENSITIVE | Pattern.COMMENTS);
