@@ -313,16 +313,10 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 				log.warn("Error rolling back transaction", e);
 			}
 		}
-		if ( con != null ) {
-			try {
-				if ( !con.isClosed() ) {
-					con.close();
-				}
-			} catch ( SQLException e ) {
-				log.warn("Error closing bulk loading connection", e);
-			} finally {
-				DataSourceUtils.releaseConnection(con, dataSource);
-			}
+		try {
+			DataSourceUtils.releaseConnection(con, dataSource);
+		} catch ( RuntimeException e ) {
+			log.warn("Error closing bulk loading connection", e);
 		}
 	}
 
