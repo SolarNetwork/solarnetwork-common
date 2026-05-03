@@ -58,7 +58,7 @@ import net.solarnetwork.dao.BulkLoadingDao.LoadingOptions;
  * @param <T>
  *        the entity type
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public abstract class JdbcBulkLoadingContextSupport<T>
 		implements BulkLoadingDao.LoadingContext<T>, SqlProvider {
@@ -203,7 +203,8 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 				if ( numLoaded % batchSize == 0 ) {
 					if ( batchTransaction != null ) {
 						commit();
-					} else if ( txManager != null ) {
+					}
+					if ( txManager != null ) {
 						log.debug("Starting new bulk load [{}] batch transaction @ row {}",
 								options.getName(), numLoaded);
 						DefaultTransactionDefinition txDef = new DefaultTransactionDefinition();
