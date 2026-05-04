@@ -22,9 +22,9 @@
 
 package net.solarnetwork.dao.jdbc.test;
 
+import static net.solarnetwork.test.EasyMockUtils.assertWith;
 import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
-import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW;
@@ -34,7 +34,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import javax.sql.DataSource;
 import org.easymock.EasyMock;
 import org.jspecify.annotations.Nullable;
@@ -110,12 +109,7 @@ public class JdbcBulkLoadingContextSupportTests {
 
 		// start batch transaction, should be called 2x
 		final var txDef = new DefaultTransactionDefinition(PROPAGATION_REQUIRES_NEW);
-		final var txStatuses = new ArrayList<SimpleTransactionStatus>(2);
-		expect(txManager.getTransaction(txDef)).andAnswer(() -> {
-			var txStatus = new SimpleTransactionStatus();
-			txStatuses.add(txStatus);
-			return txStatus;
-		}).times(2);
+		expect(txManager.getTransaction(txDef)).andAnswer(() -> new SimpleTransactionStatus()).times(2);
 
 		// get the DB connection, disable auto-commit
 		expect(dataSource.getConnection()).andReturn(jdbcConnection).times(2);
@@ -126,13 +120,12 @@ public class JdbcBulkLoadingContextSupportTests {
 		expect(jdbcConnection.prepareCall(BULK_LOAD_SQL)).andReturn(jdbcStatement).times(2);
 
 		// commit batch transactions
-		txManager.commit(anyObject());
-		final var commitCount = new AtomicInteger();
-		expectLastCall().times(2).andAnswer(() -> {
-			int idx = commitCount.getAndIncrement();
-			txStatuses.get(idx).setCompleted();
-			return null;
-		});
+		txManager.commit(assertWith(txStatus -> {
+			if ( txStatus instanceof SimpleTransactionStatus txs ) {
+				txs.setCompleted();
+			}
+		}));
+		expectLastCall().times(2);
 
 		// close statements
 		expect(jdbcStatement.isClosed()).andReturn(false).times(2);
@@ -172,8 +165,7 @@ public class JdbcBulkLoadingContextSupportTests {
 
 		// start batch transaction, should be called 2x
 		final var txDef = new DefaultTransactionDefinition(PROPAGATION_REQUIRES_NEW);
-		final var txStatus = new SimpleTransactionStatus();
-		expect(txManager.getTransaction(txDef)).andAnswer(() -> txStatus);
+		expect(txManager.getTransaction(txDef)).andAnswer(() -> new SimpleTransactionStatus());
 
 		// get the DB connection, disable auto-commit
 		expect(dataSource.getConnection()).andReturn(jdbcConnection);
@@ -184,11 +176,11 @@ public class JdbcBulkLoadingContextSupportTests {
 		expect(jdbcConnection.prepareCall(BULK_LOAD_SQL)).andReturn(jdbcStatement);
 
 		// commit batch transactions
-		txManager.commit(anyObject());
-		expectLastCall().andAnswer(() -> {
-			txStatus.setCompleted();
-			return null;
-		});
+		txManager.commit(assertWith(txStatus -> {
+			if ( txStatus instanceof SimpleTransactionStatus txs ) {
+				txs.setCompleted();
+			}
+		}));
 
 		// close statements
 		expect(jdbcStatement.isClosed()).andReturn(false);
