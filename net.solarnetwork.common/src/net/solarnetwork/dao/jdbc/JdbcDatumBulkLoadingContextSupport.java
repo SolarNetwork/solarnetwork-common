@@ -77,7 +77,7 @@ public abstract class JdbcDatumBulkLoadingContextSupport<T extends Datum>
 	@Override
 	protected final boolean doLoad(T entity, PreparedStatement stmt, long index) throws SQLException {
 		boolean result = doLoadDatum(entity, stmt, index);
-		if ( result ) {
+		if ( result && entity.getSourceId() != null ) {
 			if ( loadedCountsBySource != null ) {
 				loadedCountsBySource.incrementCount(entity.getSourceId());
 			} else if ( countTrackerProvider != null ) {
