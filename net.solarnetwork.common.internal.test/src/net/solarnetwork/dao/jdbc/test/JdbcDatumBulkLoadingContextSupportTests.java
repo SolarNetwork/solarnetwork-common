@@ -1,5 +1,5 @@
 /* ==================================================================
- * JdbcBulkLoadingContextSupportTests.java - 4/05/2026 10:19:36 am
+ * JdbcDatumBulkLoadingContextSupportTests.java - 6/05/2026 3:37:47 pm
  *
  * Copyright 2026 SolarNetwork.net Dev Team
  *
@@ -22,9 +22,12 @@
 
 package net.solarnetwork.dao.jdbc.test;
 
+import static net.solarnetwork.test.CommonTestUtils.RNG;
+import static net.solarnetwork.test.CommonTestUtils.randomInt;
 import static net.solarnetwork.test.EasyMockUtils.assertWith;
 import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.InstanceOfAssertFactories.map;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW;
@@ -32,8 +35,12 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 import org.easymock.EasyMock;
 import org.jspecify.annotations.Nullable;
@@ -47,15 +54,19 @@ import net.solarnetwork.dao.BasicBulkLoadingOptions;
 import net.solarnetwork.dao.BulkLoadingDao.LoadingExceptionHandler;
 import net.solarnetwork.dao.BulkLoadingDao.LoadingOptions;
 import net.solarnetwork.dao.BulkLoadingDao.LoadingTransactionMode;
-import net.solarnetwork.dao.jdbc.JdbcBulkLoadingContextSupport;
+import net.solarnetwork.dao.jdbc.JdbcDatumBulkLoadingContextSupport;
+import net.solarnetwork.domain.datum.Datum;
+import net.solarnetwork.domain.datum.DatumSamples;
+import net.solarnetwork.domain.datum.GeneralDatum;
+import net.solarnetwork.util.StringLongMapping;
 
 /**
- * Test cases for the {@link JdbcBulkLoadingContextSupport} class.
+ * Test cases for the {@link JdbcDatumBulkLoadingContextSupport} class.
  *
  * @author matt
  * @version 1.0
  */
-public class JdbcBulkLoadingContextSupportTests {
+public class JdbcDatumBulkLoadingContextSupportTests {
 
 	private static final String BULK_LOAD_SQL = "{call load_data(?)}";
 
@@ -64,21 +75,29 @@ public class JdbcBulkLoadingContextSupportTests {
 	private Connection jdbcConnection;
 	private CallableStatement jdbcStatement;
 
-	private static class TestContext extends JdbcBulkLoadingContextSupport<Integer> {
+	private static class TestContext extends JdbcDatumBulkLoadingContextSupport<Datum> {
 
-		private List<Integer> loaded = new ArrayList<>(8);
+		private List<Datum> loaded = new ArrayList<>(8);
+		private List<Map<String, ? extends Number>> batchLoadedBySource = new ArrayList<>(2);
 
 		private TestContext(@Nullable PlatformTransactionManager txManager, DataSource dataSource,
 				String sql, LoadingOptions options,
-				@Nullable LoadingExceptionHandler<Integer> exceptionHandler) {
+				@Nullable LoadingExceptionHandler<Datum> exceptionHandler) {
 			super(txManager, dataSource, sql, options, exceptionHandler);
+			setCountTrackerProvider(StringLongMapping::new);
 		}
 
 		@Override
-		protected boolean doLoad(Integer entity, PreparedStatement stmt, long index)
+		protected boolean doLoadDatum(Datum entity, PreparedStatement stmt, long index)
 				throws SQLException {
 			loaded.add(entity);
 			return true;
+		}
+
+		@Override
+		public void commit() {
+			super.commit();
+			batchLoadedBySource.add(committedCountsPerSource());
 		}
 
 	}
@@ -105,7 +124,17 @@ public class JdbcBulkLoadingContextSupportTests {
 		// GIVEN
 		final var opts = new BasicBulkLoadingOptions(null, 4, LoadingTransactionMode.BatchTransactions,
 				null);
-		final var data = List.of(1, 2, 3, 4, 5, 6);
+
+		final int datumCount = 6;
+		final List<Datum> data = new ArrayList<>(datumCount);
+		final Instant start = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		final Map<String, Long> sourceCounts = new HashMap<>(datumCount);
+		for ( int i = 0; i < datumCount; i++ ) {
+			var d = new GeneralDatum(RNG.nextLong(2) + 1L, String.valueOf((char) ('a' + RNG.nextInt(2))),
+					start.plusSeconds(i), new DatumSamples(Map.of("watts", randomInt()), null, null));
+			data.add(d);
+			sourceCounts.compute(d.getSourceId(), (k, v) -> (v != null ? v : 0L) + 1L);
+		}
 
 		// start batch transaction, should be called 2x
 		final var txDef = new DefaultTransactionDefinition(PROPAGATION_REQUIRES_NEW);
@@ -139,7 +168,7 @@ public class JdbcBulkLoadingContextSupportTests {
 		// WHEN
 		replayAll();
 		try (TestContext ctx = new TestContext(txManager, dataSource, BULK_LOAD_SQL, opts, null)) {
-			for ( Integer d : data ) {
+			for ( Datum d : data ) {
 				ctx.load(d);
 			}
 			ctx.commit();
@@ -149,10 +178,28 @@ public class JdbcBulkLoadingContextSupportTests {
 			then(ctx)
 				.as("Context tracked loaded count equal to given datum")
 				.returns((long)data.size(), from(TestContext::getLoadedCount))
-				.as("Context tracked comitted count equal to given datum")
-				.returns((long)data.size(), from(TestContext::getCommittedCount))
 				.as("Loaded given datum")
 				.returns(data, from(c -> c.loaded))
+				;
+
+			then(ctx.loadedCountsPerSource())
+				.asInstanceOf(map(String.class, Long.class))
+				.as("Datum loaded by source tracked")
+				.containsExactlyInAnyOrderEntriesOf(sourceCounts)
+				;
+
+
+			then(ctx.committedCountsPerSource())
+				.asInstanceOf(map(String.class, Long.class))
+				.as("Datum committed by source tracked")
+				.containsExactlyInAnyOrderEntriesOf(sourceCounts)
+				;
+
+			then(ctx.batchLoadedBySource)
+				.as("Two batch transactions committed")
+				.hasSize(2)
+				.last(map(String.class, Long.class))
+				.containsExactlyInAnyOrderEntriesOf(sourceCounts)
 				;
 			// @formatter:on
 		}
@@ -163,7 +210,17 @@ public class JdbcBulkLoadingContextSupportTests {
 		// GIVEN
 		final var opts = new BasicBulkLoadingOptions(null, null,
 				LoadingTransactionMode.SingleTransaction, null);
-		final var data = List.of(1, 2, 3, 4, 5, 6);
+
+		final int datumCount = 6;
+		final List<Datum> data = new ArrayList<>(datumCount);
+		final Instant start = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		final Map<String, Long> sourceCounts = new HashMap<>(datumCount);
+		for ( int i = 0; i < datumCount; i++ ) {
+			var d = new GeneralDatum(RNG.nextLong(1) + 1L, String.valueOf((char) ('a' + RNG.nextInt(1))),
+					start.plusSeconds(i), new DatumSamples(Map.of("watts", randomInt()), null, null));
+			data.add(d);
+			sourceCounts.compute(d.getSourceId(), (k, v) -> (v != null ? v : 0L) + 1L);
+		}
 
 		// start batch transaction, should be called once
 		final var txDef = new DefaultTransactionDefinition(PROPAGATION_REQUIRES_NEW);
@@ -196,7 +253,7 @@ public class JdbcBulkLoadingContextSupportTests {
 		// WHEN
 		replayAll();
 		try (TestContext ctx = new TestContext(txManager, dataSource, BULK_LOAD_SQL, opts, null)) {
-			for ( Integer d : data ) {
+			for ( Datum d : data ) {
 				ctx.load(d);
 			}
 			ctx.commit();
@@ -206,10 +263,28 @@ public class JdbcBulkLoadingContextSupportTests {
 			then(ctx)
 				.as("Context tracked loaded count equal to given datum")
 				.returns((long)data.size(), from(TestContext::getLoadedCount))
-				.as("Context tracked comitted count equal to given datum")
-				.returns((long)data.size(), from(TestContext::getCommittedCount))
 				.as("Loaded given datum")
 				.returns(data, from(c -> c.loaded))
+				;
+
+			then(ctx.loadedCountsPerSource())
+				.asInstanceOf(map(String.class, Long.class))
+				.as("Datum loaded by source tracked")
+				.containsExactlyInAnyOrderEntriesOf(sourceCounts)
+				;
+
+
+			then(ctx.committedCountsPerSource())
+				.asInstanceOf(map(String.class, Long.class))
+				.as("Datum committed by source tracked")
+				.containsExactlyInAnyOrderEntriesOf(sourceCounts)
+				;
+
+			then(ctx.batchLoadedBySource)
+				.as("One transaction committed")
+				.hasSize(1)
+				.last(map(String.class, Long.class))
+				.containsExactlyInAnyOrderEntriesOf(sourceCounts)
 				;
 			// @formatter:on
 		}
@@ -220,7 +295,17 @@ public class JdbcBulkLoadingContextSupportTests {
 		// GIVEN
 		final var opts = new BasicBulkLoadingOptions(null, null, LoadingTransactionMode.NoTransaction,
 				null);
-		final var data = List.of(1, 2, 3, 4, 5, 6);
+
+		final int datumCount = 6;
+		final List<Datum> data = new ArrayList<>(datumCount);
+		final Instant start = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		final Map<String, Long> sourceCounts = new HashMap<>(datumCount);
+		for ( int i = 0; i < datumCount; i++ ) {
+			var d = new GeneralDatum(RNG.nextLong(1) + 1L, String.valueOf((char) ('a' + RNG.nextInt(1))),
+					start.plusSeconds(i), new DatumSamples(Map.of("watts", randomInt()), null, null));
+			data.add(d);
+			sourceCounts.compute(d.getSourceId(), (k, v) -> (v != null ? v : 0L) + 1L);
+		}
 
 		// get the DB connection, disable auto-commit
 		expect(dataSource.getConnection()).andReturn(jdbcConnection);
@@ -242,7 +327,7 @@ public class JdbcBulkLoadingContextSupportTests {
 		// WHEN
 		replayAll();
 		try (TestContext ctx = new TestContext(txManager, dataSource, BULK_LOAD_SQL, opts, null)) {
-			for ( Integer d : data ) {
+			for ( Datum d : data ) {
 				ctx.load(d);
 			}
 			ctx.commit();
@@ -252,13 +337,30 @@ public class JdbcBulkLoadingContextSupportTests {
 			then(ctx)
 				.as("Context tracked loaded count equal to given datum")
 				.returns((long)data.size(), from(TestContext::getLoadedCount))
-				.as("Context tracked comitted count equal to given datum")
-				.returns((long)data.size(), from(TestContext::getCommittedCount))
 				.as("Loaded given datum")
 				.returns(data, from(c -> c.loaded))
+				;
+
+			then(ctx.loadedCountsPerSource())
+				.asInstanceOf(map(String.class, Long.class))
+				.as("Datum loaded by source tracked")
+				.containsExactlyInAnyOrderEntriesOf(sourceCounts)
+				;
+
+
+			then(ctx.committedCountsPerSource())
+				.asInstanceOf(map(String.class, Long.class))
+				.as("Datum committed by source tracked")
+				.containsExactlyInAnyOrderEntriesOf(sourceCounts)
+				;
+
+			then(ctx.batchLoadedBySource)
+				.as("One transaction committed")
+				.hasSize(1)
+				.last(map(String.class, Long.class))
+				.containsExactlyInAnyOrderEntriesOf(sourceCounts)
 				;
 			// @formatter:on
 		}
 	}
-
 }

@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
  * @param <T>
  *        the entity type
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.67
  */
 public interface BulkLoadingDao<T> {
@@ -158,6 +158,28 @@ public interface BulkLoadingDao<T> {
 		long getLoadedCount();
 
 		/**
+		 * Get the count of entities loaded thus far using this context, grouped
+		 * by source key.
+		 *
+		 * <p>
+		 * The source key is implementation dependent; it could be something
+		 * like a datum source ID, for example.
+		 * </p>
+		 *
+		 * <p>
+		 * If {@link #rollback()} is called, this value will reset back to the
+		 * count of currently committed entities.
+		 * </p>
+		 *
+		 * @return the loaded count, never {@code null}
+		 * @see #getLoadedCount()
+		 * @since 1.1
+		 */
+		default Map<String, ? extends Number> loadedCountsPerSource() {
+			return Map.of();
+		}
+
+		/**
 		 * Get the count of entities committed thus far using this context.
 		 *
 		 * <p>
@@ -187,6 +209,23 @@ public interface BulkLoadingDao<T> {
 		 * @return the committed entity count
 		 */
 		long getCommittedCount();
+
+		/**
+		 * Get the count of entities comitted thus far using this context,
+		 * grouped by a source key.
+		 *
+		 * <p>
+		 * The source key is implementation dependent; it could be something
+		 * like a datum source ID, for example.
+		 * </p>
+		 *
+		 * @return the loaded count, never {@code null}
+		 * @see #getCommittedCount()
+		 * @since 1.1
+		 */
+		default Map<String, ? extends Number> committedCountsPerSource() {
+			return Map.of();
+		}
 
 		/**
 		 * Get the entity that was last passed to the {@link #load(Object)}

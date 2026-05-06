@@ -69,13 +69,21 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 	/** A class-level logger. */
 	protected final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final @Nullable PlatformTransactionManager txManager;
+	/** The platform transaction manager. */
+	protected final @Nullable PlatformTransactionManager txManager;
+
 	private final DataSource dataSource;
 	private final String sql;
-	private final LoadingOptions options;
-	private final @Nullable LoadingExceptionHandler<T> exceptionHandler;
 
-	private final @Nullable TransactionStatus transaction;
+	/** The loading options. */
+	protected final LoadingOptions options;
+
+	/** The exception handler. */
+	protected final @Nullable LoadingExceptionHandler<T> exceptionHandler;
+
+	/** The active transaction, or {@code null} if transactions not enabled. */
+	protected final @Nullable TransactionStatus transaction;
+
 	private final int batchSize;
 
 	private long numLoaded;
@@ -215,6 +223,9 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 			}
 			if ( doLoad(entity, getPreparedStatement(), numLoaded) ) {
 				numLoaded++;
+				if ( transaction == null ) {
+					numCommitted++;
+				}
 			}
 		} catch ( Exception e ) {
 			if ( exceptionHandler != null ) {
@@ -242,6 +253,25 @@ public abstract class JdbcBulkLoadingContextSupport<T>
 	 *         if any SQL error occurs
 	 */
 	protected abstract boolean doLoad(T entity, PreparedStatement stmt, long index) throws SQLException;
+
+	/**
+	 * Test if a transaction checkpoint is available.
+	 *
+	 * @return {@code true} if a checkpoint has been set
+	 */
+	protected boolean hasCheckpoint() {
+		return transactionCheckpoint != null;
+	}
+
+	/**
+	 * Get the current batch transaction, if available.
+	 *
+	 * @return the transaction for the current batch, or {@code null} if not
+	 *         started or batch transactions are not configured
+	 */
+	protected @Nullable TransactionStatus batchTransaction() {
+		return batchTransaction;
+	}
 
 	@Override
 	public void createCheckpoint() {
