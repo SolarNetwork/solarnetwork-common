@@ -39,6 +39,8 @@ import net.solarnetwork.util.CountTracker;
  * Extension of {@link JdbcBulkLoadingContextSupport} with additional support
  * for {@link Datum} loading.
  *
+ * @param <T>
+ *        the entity type
  * @author matt
  * @version 1.0
  * @since 4.36
