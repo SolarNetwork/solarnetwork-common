@@ -1,5 +1,5 @@
 /* ==================================================================
- * SimpleCsvViewTest.java - Feb 11, 2012 7:08:42 PM
+ * SimpleCsvViewTests.java - Feb 11, 2012 7:08:42 PM
  *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
  *
@@ -42,7 +42,7 @@ import net.solarnetwork.web.jakarta.support.SimpleCsvView;
  * @author matt
  * @version 1.0
  */
-public class SimpleCsvViewTest extends AbstractTest {
+public class SimpleCsvViewTests extends AbstractTest {
 
 	private MockHttpServletRequest request;
 	private MockHttpServletResponse response;
@@ -188,7 +188,7 @@ public class SimpleCsvViewTest extends AbstractTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testMultiRowBeanWithOrder() throws Exception {
-		Collection<TestBean> rows = new ArrayList<SimpleCsvViewTest.TestBean>(2);
+		Collection<TestBean> rows = new ArrayList<SimpleCsvViewTests.TestBean>(2);
 		rows.add(new TestBean("1", 2, "3"));
 		rows.add(new TestBean("4", 5, "6"));
 

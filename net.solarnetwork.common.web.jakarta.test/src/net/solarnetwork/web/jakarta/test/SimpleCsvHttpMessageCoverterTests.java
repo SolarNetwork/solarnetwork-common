@@ -1,5 +1,5 @@
 /* ==================================================================
- * SimpleCsvHttpMessageCoverterTest.java - Apr 21, 2014 9:05:31 AM
+ * SimpleCsvHttpMessageCoverterTests.java - Apr 21, 2014 9:05:31 AM
  *
  * Copyright 2007-2014 SolarNetwork.net Dev Team
  *
@@ -24,6 +24,7 @@ package net.solarnetwork.web.jakarta.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -46,7 +47,7 @@ import net.solarnetwork.web.jakarta.support.SimpleCsvHttpMessageConverter;
  * @author matt
  * @version 1.0
  */
-public class SimpleCsvHttpMessageCoverterTest extends AbstractTest {
+public class SimpleCsvHttpMessageCoverterTests extends AbstractTest {
 
 	private static final MediaType CSV_MEDIA_TYPE = MediaType.parseMediaType("text/csv; charset=UTF-8");
 
@@ -175,6 +176,20 @@ public class SimpleCsvHttpMessageCoverterTest extends AbstractTest {
 
 		String result = response.getContentAsString();
 		assertEquals("one,two,three\r\n\"1,1\",2,\"3,3\"\r\n", result);
+	}
+
+	@Test
+	public void singleRowMap_bigDecimals() throws Exception {
+		Map<String, Object> row = new LinkedHashMap<>();
+		row.put("one", new BigDecimal("1.2345678E+7"));
+		row.put("two", new BigDecimal("12345678901234567890"));
+		row.put("three", new BigDecimal("3"));
+
+		HttpMessageConverter<Object> hmc = new SimpleCsvHttpMessageConverter();
+		hmc.write(row, CSV_MEDIA_TYPE, output);
+
+		String result = response.getContentAsString();
+		assertEquals("one,two,three\r\n12345678,12345678901234567890,3\r\n", result);
 	}
 
 }

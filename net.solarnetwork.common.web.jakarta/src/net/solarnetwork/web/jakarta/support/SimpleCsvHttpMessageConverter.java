@@ -25,6 +25,7 @@ package net.solarnetwork.web.jakarta.support;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.beans.PropertyEditor;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,7 +54,7 @@ import net.solarnetwork.util.ClassUtils;
  * {@link HttpMessageConverter} that marshals objects into CSV documents.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
 
@@ -210,13 +211,15 @@ public class SimpleCsvHttpMessageConverter extends AbstractHttpMessageConverter<
 			Map<String, ?> map = (Map<String, ?>) row;
 			for ( int i = 0; i < fields.length; i++ ) {
 				Object val = map.get(fields[i]);
-				if ( val != null ) {
+				if ( val instanceof BigDecimal n ) {
+					csvRow[i] = n.toPlainString();
+				} else if ( val != null ) {
 					csvRow[i] = val.toString();
 				}
 			}
 			writer.writeRecord(csvRow);
 		} else if ( row != null ) {
-			Map<String, Object> map = new HashMap<String, Object>(fields.length);
+			Map<String, Object> map = new HashMap<>(fields.length);
 
 			// use bean properties
 			if ( propertySerializerRegistrar != null ) {

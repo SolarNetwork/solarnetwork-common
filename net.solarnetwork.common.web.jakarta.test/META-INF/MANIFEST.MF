@@ -3,9 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SolarNetwork Common Web Jakarta Test
 Bundle-SymbolicName: net.solarnetwork.common.web.jakarta.test
 Automatic-Module-Name: net.solarnetwork.common.web.jakarta.test
-Bundle-Version: 2.4.0
+Bundle-Version: 2.4.2
 Bundle-Vendor: SolarNetwork
-Fragment-Host: net.solarnetwork.common.web.jakarta;bundle-version="[2.4,3.0)"
+Fragment-Host: net.solarnetwork.common.web.jakarta;bundle-version="[2.4.2,3.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: 
  io.micrometer.common.docs;version="[1.12,2.0)",
