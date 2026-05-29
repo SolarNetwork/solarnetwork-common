@@ -31,7 +31,7 @@ import net.solarnetwork.domain.datum.DatumId.DatumIdent;
  * Basic implementation of {@link DatumAuxiliaryRecord}.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.38
  */
 public class BasicDatumAuxiliaryRecord
@@ -57,7 +57,7 @@ public class BasicDatumAuxiliaryRecord
 	 * @throws IllegalArgumentException
 	 *         if {@code type} or {@code datumIdent} is {@code null}
 	 */
-	public static BasicDatumAuxiliaryRecord createMark(DatumIdent datumIdent, @Nullable String notes,
+	public static BasicDatumAuxiliaryRecord createMark(DatumIdentity datumIdent, @Nullable String notes,
 			GeneralDatumMetadata metadata) {
 		return new BasicDatumAuxiliaryRecord(DatumAuxiliaryType.Mark, datumIdent, notes, null, null,
 				metadata);
@@ -80,7 +80,7 @@ public class BasicDatumAuxiliaryRecord
 	 * @throws IllegalArgumentException
 	 *         if {@code type} or {@code datumIdent} is {@code null}
 	 */
-	public static BasicDatumAuxiliaryRecord createReset(DatumIdent datumIdent, @Nullable String notes,
+	public static BasicDatumAuxiliaryRecord createReset(DatumIdentity datumIdent, @Nullable String notes,
 			DatumSamples samplesFinal, DatumSamples samplesStart,
 			@Nullable GeneralDatumMetadata metadata) {
 		return new BasicDatumAuxiliaryRecord(DatumAuxiliaryType.Reset, datumIdent, notes, samplesFinal,
@@ -93,7 +93,9 @@ public class BasicDatumAuxiliaryRecord
 	 * @param type
 	 *        the type
 	 * @param datumIdent
-	 *        the identity
+	 *        the identity; if this is a {@link DatumIdent} instance it will be
+	 *        used as-is, otherwise a new {@code DatumIdent} instance will be
+	 *        derived from this value
 	 * @param notes
 	 *        the notes
 	 * @param samplesFinal
@@ -105,12 +107,20 @@ public class BasicDatumAuxiliaryRecord
 	 * @throws IllegalArgumentException
 	 *         if {@code type} or {@code datumIdent} is {@code null}
 	 */
-	public BasicDatumAuxiliaryRecord(DatumAuxiliaryType type, DatumIdent datumIdent,
+	public BasicDatumAuxiliaryRecord(DatumAuxiliaryType type, DatumIdentity datumIdent,
 			@Nullable String notes, @Nullable DatumSamples samplesFinal,
 			@Nullable DatumSamples samplesStart, @Nullable GeneralDatumMetadata metadata) {
 		super();
 		this.type = requireNonNullArgument(type, "type");
-		this.datumIdent = requireNonNullArgument(datumIdent, "datumIdent");
+
+		var ident = requireNonNullArgument(datumIdent, "datumIdent");
+		if ( ident instanceof DatumIdent di ) {
+			this.datumIdent = di;
+		} else {
+			this.datumIdent = new DatumIdent(datumIdent.getKind(), datumIdent.getObjectId(),
+					datumIdent.getSourceId(), datumIdent.getTimestamp());
+		}
+
 		this.notes = notes;
 		this.samplesFinal = samplesFinal;
 		this.samplesStart = samplesStart;
