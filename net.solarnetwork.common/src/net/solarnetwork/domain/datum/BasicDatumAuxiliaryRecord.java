@@ -53,6 +53,7 @@ public class BasicDatumAuxiliaryRecord
 	 *        the notes
 	 * @param metadata
 	 *        the metadata
+	 * @return the new instance
 	 * @throws IllegalArgumentException
 	 *         if {@code type} or {@code datumIdent} is {@code null}
 	 */
@@ -75,6 +76,7 @@ public class BasicDatumAuxiliaryRecord
 	 *        the start samples
 	 * @param metadata
 	 *        the metadata
+	 * @return the new instance
 	 * @throws IllegalArgumentException
 	 *         if {@code type} or {@code datumIdent} is {@code null}
 	 */
