@@ -26,7 +26,7 @@ package net.solarnetwork.domain.datum;
  * Enumeration of auxiliary datum types.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 4.3
  */
 public enum DatumAuxiliaryType {
@@ -34,8 +34,17 @@ public enum DatumAuxiliaryType {
 	/** A data stream "reset" event, such as when hardware is replaced. */
 	Reset,
 
-	/** An arbitrary mark or flag event, to annotate the datum stream. */
+	/** An arbitrary mark event, to annotate the datum stream. */
 	Mark,
+
+	/** A general annotation. */
+	Annotation,
+
+	/** A general flag. */
+	Flag,
+
+	/** A general note. */
+	Note,
 
 	;
 
