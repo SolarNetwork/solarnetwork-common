@@ -30,6 +30,9 @@ import java.time.Instant;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.DatumId;
 import net.solarnetwork.domain.datum.DatumId.DatumIdent;
+import net.solarnetwork.domain.datum.DatumIdentity;
+import net.solarnetwork.domain.datum.DatumStreamId.DatumStreamIdent;
+import net.solarnetwork.domain.datum.DatumStreamIdentity;
 import net.solarnetwork.domain.datum.ObjectDatumKind;
 
 /**
@@ -63,7 +66,10 @@ public class DatumIdTests {
 			.returns(sourceId, from(DatumId::getSourceId))
 			.as("Given timestamp preserved")
 			.returns(timestamp, from(DatumId::getTimestamp))
+			.as("Identity not fully formed")
+			.returns(false, from(DatumId::hasIdentity))
 			;
+
 		// @formatter:on
 	}
 
@@ -91,6 +97,8 @@ public class DatumIdTests {
 			.returns(sourceId, from(DatumId::getSourceId))
 			.as("Given timestamp preserved")
 			.returns(timestamp, from(DatumId::getTimestamp))
+			.as("Identity fully formed")
+			.returns(true, from(DatumId::hasIdentity))
 			;
 		// @formatter:on
 	}
@@ -117,6 +125,8 @@ public class DatumIdTests {
 			.returns(sourceId, from(DatumId::getSourceId))
 			.as("Given timestamp preserved")
 			.returns(timestamp, from(DatumId::getTimestamp))
+			.as("Identity not fully formed")
+			.returns(false, from(DatumId::hasIdentity))
 			;
 		// @formatter:on
 	}
@@ -144,6 +154,8 @@ public class DatumIdTests {
 			.returns(sourceId, from(DatumId::getSourceId))
 			.as("Given timestamp preserved")
 			.returns(timestamp, from(DatumId::getTimestamp))
+			.as("Identity fully formed")
+			.returns(true, from(DatumId::hasIdentity))
 			;
 		// @formatter:on
 	}
@@ -170,6 +182,8 @@ public class DatumIdTests {
 			.returns(sourceId, from(DatumId::getSourceId))
 			.as("Given timestamp preserved")
 			.returns(timestamp, from(DatumId::getTimestamp))
+			.as("Identity not fully formed")
+			.returns(false, from(DatumId::hasIdentity))
 			;
 		// @formatter:on
 	}
@@ -197,6 +211,8 @@ public class DatumIdTests {
 			.returns(sourceId, from(DatumId::getSourceId))
 			.as("Given timestamp preserved")
 			.returns(timestamp, from(DatumId::getTimestamp))
+			.as("Identity fully formed")
+			.returns(true, from(DatumId::hasIdentity))
 			;
 		// @formatter:on
 	}
@@ -278,6 +294,109 @@ public class DatumIdTests {
 		// THEN
 		then(left.compareTo(right)).as("Source compares last").isLessThan(0);
 		then(right.compareTo(left)).as("Source compares last").isGreaterThan(0);
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void toIdentity_invalid() {
+		// GIVEN
+		final DatumId id = new DatumId(ObjectDatumKind.Node, null, null, null);
+
+		id.toIdentity();
+	}
+
+	@Test
+	public void toIdentity() {
+		// GIVEN
+		final DatumId id = new DatumId(ObjectDatumKind.Node, randomLong(), randomString(),
+				Instant.now());
+
+		// WHEN
+		final DatumIdentity ident = id.toIdentity();
+
+		// THEN
+		// @formatter:off
+		then(ident)
+			.as("DatumIdent instance returned")
+			.isExactlyInstanceOf(DatumIdent.class)
+			.as("Given kind preserved")
+			.returns(id.getKind(), from(DatumIdentity::getKind))
+			.as("Given object ID preserved")
+			.returns(id.getObjectId(), from(DatumIdentity::getObjectId))
+			.as("Given source ID preserved")
+			.returns(id.getSourceId(), from(DatumIdentity::getSourceId))
+			.as("Given timestamp preserved")
+			.returns(id.getTimestamp(), from(DatumIdentity::getTimestamp))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void toIdentity_sameInstance() {
+		// GIVEN
+		final DatumIdent id = new DatumIdent(ObjectDatumKind.Node, randomLong(), randomString(),
+				Instant.now());
+
+		// WHEN
+		final DatumIdentity ident = id.toIdentity();
+
+		// THEN
+		// @formatter:off
+		then(ident)
+			.as("Same DatumIdent instance returned")
+			.isSameAs(id)
+			;
+		// @formatter:on
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void streamIdentity_invalid() {
+		// GIVEN
+		final DatumId id = new DatumId(ObjectDatumKind.Node, null, null, null);
+
+		id.streamIdentity();
+	}
+
+	@Test
+	public void streamIdentity() {
+		// GIVEN
+		final DatumId id = new DatumId(ObjectDatumKind.Node, randomLong(), randomString(),
+				Instant.now());
+
+		// WHEN
+		final DatumStreamIdentity ident = id.streamIdentity();
+
+		// THEN
+		// @formatter:off
+		then(ident)
+			.as("DatumIdent instance returned")
+			.isExactlyInstanceOf(DatumStreamIdent.class)
+			.as("Given kind preserved")
+			.returns(id.getKind(), from(DatumStreamIdentity::getKind))
+			.as("Given object ID preserved")
+			.returns(id.getObjectId(), from(DatumStreamIdentity::getObjectId))
+			.as("Given source ID preserved")
+			.returns(id.getSourceId(), from(DatumStreamIdentity::getSourceId))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void streamIdentity_sameInstance() {
+		// GIVEN
+		final DatumStreamIdent streamId = new DatumStreamIdent(ObjectDatumKind.Node, randomLong(),
+				randomString());
+		final DatumIdent id = new DatumIdent(streamId, Instant.now());
+
+		// WHEN
+		final DatumStreamIdentity ident = id.streamIdentity();
+
+		// THEN
+		// @formatter:off
+		then(ident)
+			.as("Same DatumStreamIdent instance returned")
+			.isSameAs(streamId)
+			;
+		// @formatter:on
 	}
 
 }

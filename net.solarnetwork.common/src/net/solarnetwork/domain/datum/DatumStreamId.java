@@ -23,6 +23,7 @@
 package net.solarnetwork.domain.datum;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
@@ -36,8 +37,10 @@ import net.solarnetwork.util.StringUtils;
  * @version 1.0
  * @since 4.40
  */
-public class DatumStreamId extends BaseId implements Serializable, Cloneable, Comparable<DatumStreamId> {
+public sealed class DatumStreamId extends BaseId implements Serializable, Cloneable,
+		Comparable<DatumStreamId> permits DatumStreamId.DatumStreamIdent {
 
+	@Serial
 	private static final long serialVersionUID = -5315103337212345628L;
 
 	/** The object kind. */
@@ -76,6 +79,11 @@ public class DatumStreamId extends BaseId implements Serializable, Cloneable, Co
 				@Nullable String sourceId) {
 			super(requireNonNullArgument(kind, "kind"), requireNonNullArgument(objectId, "objectId"),
 					requireNonNullArgument(sourceId, "sourceId"));
+		}
+
+		@Override
+		public boolean hasIdentity() {
+			return true;
 		}
 
 		@Override
@@ -282,6 +290,16 @@ public class DatumStreamId extends BaseId implements Serializable, Cloneable, Co
 	}
 
 	/**
+	 * Test if this ID is fully specified.
+	 *
+	 * @return {@literal true} if {@code kind} and {@code objectId},
+	 *         {@code sourceId} are all non-null and non-empty
+	 */
+	public boolean hasIdentity() {
+		return (kind != null && objectId != null && sourceId != null && !sourceId.isEmpty());
+	}
+
+	/**
 	 * Get a {@link DatumStreamIdentity} from this instance.
 	 *
 	 * @return the identity
@@ -296,7 +314,7 @@ public class DatumStreamId extends BaseId implements Serializable, Cloneable, Co
 		if ( kind != null && objectId != null && sourceId != null ) {
 			return new DatumStreamIdent(kind, objectId, sourceId);
 		}
-		throw new IllegalStateException("Datum identity not available.");
+		throw new IllegalStateException("Datum stream identity not available.");
 	}
 
 	/**

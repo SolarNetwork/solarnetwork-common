@@ -22,11 +22,14 @@
 
 package net.solarnetwork.domain.datum;
 
+import java.time.Instant;
+import net.solarnetwork.domain.datum.DatumId.DatumIdent;
+
 /**
  * Identity for a stream of datum (over time).
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public interface DatumStreamIdentity {
 
@@ -50,5 +53,17 @@ public interface DatumStreamIdentity {
 	 * @return the source ID
 	 */
 	String getSourceId();
+
+	/**
+	 * Get a datum identity for a specific timestamp.
+	 *
+	 * @param timestamp
+	 *        the timestamp
+	 * @return the datum identity
+	 * @since 1.1
+	 */
+	default DatumIdentity datumIdentity(Instant timestamp) {
+		return new DatumIdent(getKind(), getObjectId(), getSourceId(), timestamp);
+	}
 
 }

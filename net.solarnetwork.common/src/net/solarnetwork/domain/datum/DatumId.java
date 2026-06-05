@@ -23,32 +23,29 @@
 package net.solarnetwork.domain.datum;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BaseId;
-import net.solarnetwork.util.StringUtils;
+import net.solarnetwork.domain.datum.DatumStreamId.DatumStreamIdent;
 
 /**
  * Primary key for a datum based on kind/object/source/timestamp values.
  *
  * @author matt
- * @version 2.1
+ * @version 2.2
  * @since 1.71
  */
-public class DatumId extends BaseId implements Serializable, Cloneable, Comparable<DatumId> {
+public sealed class DatumId extends BaseId implements Serializable, Cloneable, Comparable<DatumId>
+		permits DatumId.DatumIdent {
 
+	@Serial
 	private static final long serialVersionUID = 6891814538805568843L;
 
-	/** The object kind. */
-	private final @Nullable ObjectDatumKind kind;
-
-	/** The object ID. */
-	private final @Nullable Long objectId;
-
-	/** The source ID. */
-	private final @Nullable String sourceId;
+	/** The stream ID. */
+	protected final DatumStreamId streamId;
 
 	/** The timestamp. */
 	private final @Nullable Instant timestamp;
@@ -82,9 +79,37 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 		 */
 		public DatumIdent(@Nullable ObjectDatumKind kind, @Nullable Long objectId,
 				@Nullable String sourceId, @Nullable Instant timestamp) {
-			super(requireNonNullArgument(kind, "kind"), requireNonNullArgument(objectId, "objectId"),
-					requireNonNullArgument(sourceId, "sourceId"),
+			this(new DatumStreamIdent(requireNonNullArgument(kind, "kind"),
+					requireNonNullArgument(objectId, "objectId"),
+					requireNonNullArgument(sourceId, "sourceId")),
 					requireNonNullArgument(timestamp, "timestamp"));
+		}
+
+		/**
+		 * Fully-specified datum identifier.
+		 *
+		 * @param streamId
+		 *        the stream ID
+		 * @param timestamp
+		 *        the timestamp
+		 * @throws IllegalArgumentException
+		 *         if any argument is {@code null}
+		 */
+		public DatumIdent(DatumStreamId streamId, @Nullable Instant timestamp) {
+			super(requireNonNullArgument(streamId, "streamId"),
+					requireNonNullArgument(timestamp, "timestamp"));
+			// verify that streamId is also DatumStreamIdentity
+			streamId.toIdentity();
+		}
+
+		@Override
+		public DatumStreamIdentity streamIdentity() {
+			return streamId.toIdentity();
+		}
+
+		@Override
+		public boolean hasIdentity() {
+			return true;
 		}
 
 		@Override
@@ -163,10 +188,34 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 */
 	public static DatumId datumId(@Nullable ObjectDatumKind kind, @Nullable Long objectId,
 			@Nullable String sourceId, @Nullable Instant timestamp) {
-		if ( kind != null && objectId != null && sourceId != null && timestamp != null ) {
-			return new DatumIdent(kind, objectId, sourceId, timestamp);
+		return datumId(DatumStreamId.datumStreamId(kind, objectId, sourceId), timestamp);
+	}
+
+	/**
+	 * Create a new datum stream ID.
+	 *
+	 * <p>
+	 * If the {@code streamId} properties are all non-null and {@code timestamp}
+	 * is non-null then a {@link DatumIdent} will be returned, so the
+	 * {@link DatumIdentity} API is available.
+	 * </p>
+	 *
+	 * @param streamId
+	 *        the stream ID
+	 * @param timestamp
+	 *        the timestamp
+	 * @return the key
+	 * @since 2.2
+	 */
+	public static DatumId datumId(DatumStreamId streamId, @Nullable Instant timestamp) {
+		if ( streamId.getKind() != null && streamId.getObjectId() != null
+				&& streamId.getSourceId() != null && timestamp != null ) {
+			return new DatumIdent(streamId instanceof DatumStreamIdentity ? streamId
+					: new DatumStreamIdent(streamId.getKind(), streamId.getObjectId(),
+							streamId.getSourceId()),
+					timestamp);
 		}
-		return new DatumId(kind, objectId, sourceId, timestamp);
+		return new DatumId(streamId, timestamp);
 	}
 
 	/**
@@ -191,9 +240,30 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	public DatumId(@Nullable ObjectDatumKind kind, @Nullable Long objectId, @Nullable String sourceId,
 			@Nullable Instant timestamp) {
 		super();
-		this.kind = kind;
-		this.objectId = objectId;
-		this.sourceId = sourceId;
+		this.streamId = DatumStreamId.datumStreamId(kind, objectId, sourceId);
+		this.timestamp = timestamp;
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * <p>
+	 * Note that the {@link DatumId#datumId(DatumStreamId, Instant)} method
+	 * should be used in preference to direct construction, so that
+	 * {@link DatumIdent} instances can be created when possible.
+	 * </p>
+	 *
+	 * @param streamId
+	 *        the stream ID
+	 * @param timestamp
+	 *        the time stamp
+	 * @throws IllegalArgumentException
+	 *         if {@code streamId} is {@code null}
+	 * @since 2.2
+	 */
+	public DatumId(DatumStreamId streamId, @Nullable Instant timestamp) {
+		super();
+		this.streamId = requireNonNullArgument(streamId, "streamId");
 		this.timestamp = timestamp;
 	}
 
@@ -204,18 +274,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	@Override
 	protected void populateIdValue(StringBuilder buf) {
-		buf.append("k=");
-		if ( kind != null ) {
-			buf.append(kind.getKey());
-		}
-		buf.append("o=");
-		if ( objectId != null ) {
-			buf.append(objectId);
-		}
-		buf.append("s=");
-		if ( sourceId != null ) {
-			buf.append(sourceId);
-		}
+		streamId.populateIdValue(buf);
 		buf.append(";t=");
 		if ( timestamp != null ) {
 			buf.append(timestamp.getEpochSecond()).append('.').append(timestamp.getNano());
@@ -224,27 +283,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	@Override
 	protected void populateStringValue(StringBuilder buf) {
-		if ( kind != null ) {
-			if ( buf.length() > 0 ) {
-				buf.append(", ");
-			}
-			buf.append("kind=");
-			buf.append(kind);
-		}
-		if ( objectId != null ) {
-			if ( buf.length() > 0 ) {
-				buf.append(", ");
-			}
-			buf.append("objectId=");
-			buf.append(objectId);
-		}
-		if ( sourceId != null ) {
-			if ( buf.length() > 0 ) {
-				buf.append(", ");
-			}
-			buf.append("sourceId=");
-			buf.append(sourceId);
-		}
+		streamId.populateStringValue(buf);
 		if ( timestamp != null ) {
 			if ( buf.length() > 0 ) {
 				buf.append(", ");
@@ -263,39 +302,9 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 		if ( o == null ) {
 			return -1;
 		}
-		int result = 0;
-		if ( kind != o.kind ) {
-			if ( kind == null ) {
-				return 1;
-			} else if ( o.kind == null ) {
-				return -1;
-			}
-			result = kind.compareTo(o.kind);
-			if ( result != 0 ) {
-				return result;
-			}
-		}
-		if ( objectId != o.objectId ) {
-			if ( objectId == null ) {
-				return 1;
-			} else if ( o.objectId == null ) {
-				return -1;
-			}
-			result = objectId.compareTo(o.objectId);
-			if ( result != 0 ) {
-				return result;
-			}
-		}
-		if ( sourceId != o.sourceId ) {
-			if ( sourceId == null ) {
-				return 1;
-			} else if ( o.sourceId == null ) {
-				return -1;
-			}
-			result = StringUtils.naturalSortCompare(sourceId, o.sourceId, false);
-			if ( result != 0 ) {
-				return result;
-			}
+		int result = streamId.compareTo(o.streamId);
+		if ( result != 0 ) {
+			return result;
 		}
 		if ( timestamp == o.timestamp ) {
 			return 0;
@@ -309,7 +318,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(kind, objectId, sourceId, timestamp);
+		return Objects.hash(streamId, timestamp);
 	}
 
 	@Override
@@ -320,9 +329,32 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 		if ( !(obj instanceof DatumId other) ) {
 			return false;
 		}
-		return Objects.equals(kind, other.kind) && Objects.equals(objectId, other.objectId)
-				&& Objects.equals(sourceId, other.sourceId)
-				&& Objects.equals(timestamp, other.timestamp);
+		return Objects.equals(streamId, other.streamId) && Objects.equals(timestamp, other.timestamp);
+	}
+
+	/**
+	 * Get a {@link DatumStreamIdentity} from this instance.
+	 *
+	 * @return the stream identity
+	 * @throws IllegalStateException
+	 *         if this instance is not fully specified as a
+	 *         {@link DatumIdentity}
+	 * @since 2.2
+	 */
+	public DatumStreamIdentity streamIdentity() {
+		return streamId.toIdentity();
+	}
+
+	/**
+	 * Test if this ID is fully specified.
+	 *
+	 * @return {@literal true} if {@code kind}, {@code objectId},
+	 *         {@code sourceId}, and {@code timestamp} are all non-null and
+	 *         non-empty
+	 * @since 2.2
+	 */
+	public boolean hasIdentity() {
+		return (streamId.hasIdentity() && timestamp != null);
 	}
 
 	/**
@@ -334,12 +366,13 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 *         {@link DatumIdentity}
 	 */
 	public DatumIdentity toIdentity() {
-		final ObjectDatumKind kind = this.kind;
-		final Long objectId = this.objectId;
-		final String sourceId = this.sourceId;
+		final DatumStreamIdentity streamIdent = streamId.toIdentity();
 		final Instant timestamp = this.timestamp;
-		if ( kind != null && objectId != null && sourceId != null && timestamp != null ) {
-			return new DatumIdent(kind, objectId, sourceId, timestamp);
+		if ( timestamp != null ) {
+			return new DatumIdent(streamIdent instanceof DatumStreamIdent dsi ? dsi
+					: new DatumStreamIdent(streamIdent.getKind(), streamIdent.getObjectId(),
+							streamIdent.getSourceId()),
+					timestamp);
 		}
 		throw new IllegalStateException("Datum identity not available.");
 	}
@@ -350,7 +383,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 * @return the kind
 	 */
 	public @Nullable ObjectDatumKind getKind() {
-		return kind;
+		return streamId.getKind();
 	}
 
 	/**
@@ -359,7 +392,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 * @return the object ID
 	 */
 	public @Nullable Long getObjectId() {
-		return objectId;
+		return streamId.getObjectId();
 	}
 
 	/**
@@ -368,7 +401,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 	 * @return the source ID
 	 */
 	public @Nullable String getSourceId() {
-		return sourceId;
+		return streamId.getSourceId();
 	}
 
 	/**

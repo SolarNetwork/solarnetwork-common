@@ -64,4 +64,18 @@ public interface DatumIdentity extends DatumStreamIdentity {
 	 */
 	Instant getTimestamp();
 
+	/**
+	 * Get a stand-alone datum stream identity from this datum.
+	 *
+	 * <p>
+	 * The returned instance will <b>not</b> also implement
+	 * {@code DatumIdentity} (and thus cannot be the same instance as this one).
+	 * </p>
+	 *
+	 * @return a distinct stream identity
+	 */
+	default DatumStreamIdentity streamIdentity() {
+		return new DatumStreamId.DatumStreamIdent(getKind(), getObjectId(), getSourceId());
+	}
+
 }

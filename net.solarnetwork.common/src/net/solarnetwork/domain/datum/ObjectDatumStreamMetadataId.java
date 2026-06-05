@@ -22,31 +22,28 @@
 
 package net.solarnetwork.domain.datum;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
-import net.solarnetwork.util.StringUtils;
+import net.solarnetwork.domain.datum.DatumStreamId.DatumStreamIdent;
 
 /**
  * A general datum stream metadata identifier.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.72
  */
 public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, DatumStreamIdentity,
 		Comparable<ObjectDatumStreamMetadataId> {
 
+	@Serial
 	private static final long serialVersionUID = -5784786087066166834L;
 
-	/** The kind. */
-	private final ObjectDatumKind kind;
-
-	/** The object ID. */
-	private final Long objectId;
-
-	/** The source ID. */
-	private final String sourceId;
+	/** The stream ID. */
+	private final DatumStreamIdent streamId;
 
 	/**
 	 * Constructor.
@@ -57,12 +54,31 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, Dat
 	 *        the object ID
 	 * @param sourceId
 	 *        the source ID
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public ObjectDatumStreamMetadataId(ObjectDatumKind kind, Long objectId, String sourceId) {
 		super();
-		this.kind = kind;
-		this.objectId = objectId;
-		this.sourceId = sourceId;
+		this.streamId = new DatumStreamIdent(requireNonNullArgument(kind, "kind"),
+				requireNonNullArgument(objectId, "objectId"),
+				requireNonNullArgument(sourceId, "sourceId"));
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param identity
+	 *        the identity ID
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
+	 * @since 1.4
+	 */
+	public ObjectDatumStreamMetadataId(DatumStreamIdentity identity) {
+		super();
+		this.streamId = (requireNonNullArgument(identity, "identity") instanceof DatumStreamIdent ident
+				? ident
+				: new DatumStreamIdent(identity.getKind(), identity.getObjectId(),
+						identity.getSourceId()));
 	}
 
 	@Override
@@ -70,11 +86,11 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, Dat
 		StringBuilder builder = new StringBuilder();
 		builder.append("DatumStreamMetadataId{");
 		builder.append("kind=");
-		builder.append(kind);
+		builder.append(streamId.getKind());
 		builder.append(", objectId=");
-		builder.append(objectId);
+		builder.append(streamId.getObjectId());
 		builder.append(", sourceId=");
-		builder.append(sourceId);
+		builder.append(streamId.getSourceId());
 		builder.append("}");
 		return builder.toString();
 	}
@@ -91,7 +107,7 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, Dat
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(kind, objectId, sourceId);
+		return Objects.hash(streamId);
 	}
 
 	@Override
@@ -103,8 +119,7 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, Dat
 			return false;
 		}
 		ObjectDatumStreamMetadataId other = (ObjectDatumStreamMetadataId) obj;
-		return kind == other.kind && Objects.equals(objectId, other.objectId)
-				&& Objects.equals(sourceId, other.sourceId);
+		return Objects.equals(streamId, other.streamId);
 	}
 
 	@SuppressWarnings("BoxedPrimitiveEquality")
@@ -116,37 +131,7 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, Dat
 		if ( o == null ) {
 			return -1;
 		}
-		int result = 0;
-		if ( kind != o.kind ) {
-			if ( kind == null ) {
-				return 1;
-			} else if ( o.kind == null ) {
-				return -1;
-			}
-			result = kind.compareTo(o.kind);
-			if ( result != 0 ) {
-				return result;
-			}
-		}
-		if ( objectId != o.objectId ) {
-			if ( objectId == null ) {
-				return 1;
-			} else if ( o.objectId == null ) {
-				return -1;
-			}
-			result = objectId.compareTo(o.objectId);
-			if ( result != 0 ) {
-				return result;
-			}
-		}
-		if ( sourceId == o.sourceId ) {
-			return 0;
-		} else if ( sourceId == null ) {
-			return 1;
-		} else if ( o.sourceId == null ) {
-			return -1;
-		}
-		return StringUtils.naturalSortCompare(sourceId, o.sourceId, false);
+		return streamId.compareTo(o.streamId);
 	}
 
 	/**
@@ -159,7 +144,7 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, Dat
 	 *         all non-null and non-empty
 	 */
 	public boolean isValidDatumStreamMetadataId(ObjectDatumKind expectedKind) {
-		return (expectedKind == kind && objectId != null && sourceId != null && !sourceId.isEmpty());
+		return (streamId.hasIdentity() && expectedKind == streamId.getKind());
 	}
 
 	/**
@@ -169,7 +154,7 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, Dat
 	 */
 	@Override
 	public ObjectDatumKind getKind() {
-		return kind;
+		return streamId.toIdentity().getKind();
 	}
 
 	/**
@@ -179,7 +164,7 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, Dat
 	 */
 	@Override
 	public Long getObjectId() {
-		return objectId;
+		return streamId.toIdentity().getObjectId();
 	}
 
 	/**
@@ -189,7 +174,7 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, Dat
 	 */
 	@Override
 	public String getSourceId() {
-		return sourceId;
+		return streamId.toIdentity().getSourceId();
 	}
 
 }
