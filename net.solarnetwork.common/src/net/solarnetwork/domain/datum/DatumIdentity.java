@@ -28,16 +28,17 @@ import java.time.Instant;
  * Primary key for a datum based on kind/object/source/timestamp values.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.26
  */
-public interface DatumIdentity {
+public interface DatumIdentity extends DatumStreamIdentity {
 
 	/**
 	 * Get the kind.
 	 *
 	 * @return the kind
 	 */
+	@Override
 	ObjectDatumKind getKind();
 
 	/**
@@ -45,6 +46,7 @@ public interface DatumIdentity {
 	 *
 	 * @return the object ID
 	 */
+	@Override
 	Long getObjectId();
 
 	/**
@@ -52,6 +54,7 @@ public interface DatumIdentity {
 	 *
 	 * @return the source ID
 	 */
+	@Override
 	String getSourceId();
 
 	/**

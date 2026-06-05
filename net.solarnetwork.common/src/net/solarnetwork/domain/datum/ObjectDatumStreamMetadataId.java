@@ -1,21 +1,21 @@
 /* ==================================================================
  * DatumStreamMetadataId.java - 22/11/2020 9:50:39 pm
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -27,12 +27,12 @@ import java.util.Objects;
 
 /**
  * A general datum stream metadata identifier.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.2
  * @since 1.72
  */
-public class ObjectDatumStreamMetadataId implements Cloneable, Serializable {
+public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, DatumStreamIdentity {
 
 	private static final long serialVersionUID = -5784786087066166834L;
 
@@ -47,7 +47,7 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param kind
 	 *        the object kind
 	 * @param objectId
@@ -106,7 +106,7 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable {
 
 	/**
 	 * Test if this ID is fully specified.
-	 * 
+	 *
 	 * @param expectedKind
 	 *        the kind to match
 	 * @return {@literal true} if {@code expectedKind} is the same as this
@@ -119,27 +119,30 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable {
 
 	/**
 	 * Get the kind.
-	 * 
+	 *
 	 * @return the kind
 	 */
+	@Override
 	public ObjectDatumKind getKind() {
 		return kind;
 	}
 
 	/**
 	 * Get the object ID.
-	 * 
+	 *
 	 * @return the object ID
 	 */
+	@Override
 	public Long getObjectId() {
 		return objectId;
 	}
 
 	/**
 	 * Get the source ID.
-	 * 
+	 *
 	 * @return the source ID
 	 */
+	@Override
 	public String getSourceId() {
 		return sourceId;
 	}

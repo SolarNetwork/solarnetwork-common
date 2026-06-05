@@ -1,5 +1,5 @@
 /* ==================================================================
- * ObjectDatumStreamIdentity.java - 5/03/2026 7:56:41 am
+ * DatumStreamIdentity.java - 5/06/2026 9:38:32 pm
  *
  * Copyright 2026 SolarNetwork.net Dev Team
  *
@@ -22,32 +22,19 @@
 
 package net.solarnetwork.domain.datum;
 
-import java.time.Instant;
-import java.util.UUID;
-import net.solarnetwork.domain.datum.DatumId.DatumIdent;
-
 /**
- * Identifying details for a datum stream.
+ * Identity for a stream of datum (over time).
  *
  * @author matt
- * @version 1.2
- * @since 4.20
+ * @version 1.0
  */
-public interface ObjectDatumStreamIdentity extends DatumStreamIdentity {
-
-	/**
-	 * Get the stream ID.
-	 *
-	 * @return the stream ID
-	 */
-	UUID getStreamId();
+public interface DatumStreamIdentity {
 
 	/**
 	 * Get the object datum kind.
 	 *
 	 * @return the kind
 	 */
-	@Override
 	ObjectDatumKind getKind();
 
 	/**
@@ -55,7 +42,6 @@ public interface ObjectDatumStreamIdentity extends DatumStreamIdentity {
 	 *
 	 * @return the object ID
 	 */
-	@Override
 	Long getObjectId();
 
 	/**
@@ -63,19 +49,6 @@ public interface ObjectDatumStreamIdentity extends DatumStreamIdentity {
 	 *
 	 * @return the source ID
 	 */
-	@Override
 	String getSourceId();
-
-	/**
-	 * Resolve a {@link DatumIdentity} for this datum stream.
-	 *
-	 * @param timestamp
-	 *        the timestamp of the datum
-	 * @return the datum identity, never {@code null}
-	 * @since 1.1
-	 */
-	default DatumIdent datumIdent(Instant timestamp) {
-		return new DatumIdent(getKind(), getObjectId(), getSourceId(), timestamp);
-	}
 
 }
