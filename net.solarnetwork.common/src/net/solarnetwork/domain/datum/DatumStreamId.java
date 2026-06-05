@@ -24,7 +24,6 @@ package net.solarnetwork.domain.datum;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BaseId;
@@ -156,8 +155,8 @@ public class DatumStreamId extends BaseId implements Serializable, Cloneable, Co
 	 *
 	 * <p>
 	 * Note that the
-	 * {@link DatumStreamId#datumId(ObjectDatumKind, Long, String, Instant)}
-	 * method should be used in preference to direct construction, so that
+	 * {@link DatumStreamId#datumStreamId(ObjectDatumKind, Long, String)} method
+	 * should be used in preference to direct construction, so that
 	 * {@link DatumStreamIdent} instances can be created when possible.
 	 * </p>
 	 *
