@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BaseId;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * Primary key for a datum stream based on kind/object/source values.
@@ -260,7 +261,7 @@ public class DatumStreamId extends BaseId implements Serializable, Cloneable, Co
 		} else if ( o.sourceId == null ) {
 			return -1;
 		}
-		return sourceId.compareTo(o.sourceId);
+		return StringUtils.naturalSortCompare(sourceId, o.sourceId, false);
 	}
 
 	@Override

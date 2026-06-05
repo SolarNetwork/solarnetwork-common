@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BaseId;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * Primary key for a datum based on kind/object/source/timestamp values.
@@ -291,7 +292,7 @@ public class DatumId extends BaseId implements Serializable, Cloneable, Comparab
 			} else if ( o.sourceId == null ) {
 				return -1;
 			}
-			result = sourceId.compareTo(o.sourceId);
+			result = StringUtils.naturalSortCompare(sourceId, o.sourceId, false);
 			if ( result != 0 ) {
 				return result;
 			}

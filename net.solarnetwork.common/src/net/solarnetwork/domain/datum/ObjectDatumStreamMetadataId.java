@@ -24,15 +24,18 @@ package net.solarnetwork.domain.datum;
 
 import java.io.Serializable;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
+import net.solarnetwork.util.StringUtils;
 
 /**
  * A general datum stream metadata identifier.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.72
  */
-public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, DatumStreamIdentity {
+public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, DatumStreamIdentity,
+		Comparable<ObjectDatumStreamMetadataId> {
 
 	private static final long serialVersionUID = -5784786087066166834L;
 
@@ -102,6 +105,48 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, Dat
 		ObjectDatumStreamMetadataId other = (ObjectDatumStreamMetadataId) obj;
 		return kind == other.kind && Objects.equals(objectId, other.objectId)
 				&& Objects.equals(sourceId, other.sourceId);
+	}
+
+	@SuppressWarnings("BoxedPrimitiveEquality")
+	@Override
+	public int compareTo(@Nullable ObjectDatumStreamMetadataId o) {
+		if ( this == o ) {
+			return 0;
+		}
+		if ( o == null ) {
+			return -1;
+		}
+		int result = 0;
+		if ( kind != o.kind ) {
+			if ( kind == null ) {
+				return 1;
+			} else if ( o.kind == null ) {
+				return -1;
+			}
+			result = kind.compareTo(o.kind);
+			if ( result != 0 ) {
+				return result;
+			}
+		}
+		if ( objectId != o.objectId ) {
+			if ( objectId == null ) {
+				return 1;
+			} else if ( o.objectId == null ) {
+				return -1;
+			}
+			result = objectId.compareTo(o.objectId);
+			if ( result != 0 ) {
+				return result;
+			}
+		}
+		if ( sourceId == o.sourceId ) {
+			return 0;
+		} else if ( sourceId == null ) {
+			return 1;
+		} else if ( o.sourceId == null ) {
+			return -1;
+		}
+		return StringUtils.naturalSortCompare(sourceId, o.sourceId, false);
 	}
 
 	/**

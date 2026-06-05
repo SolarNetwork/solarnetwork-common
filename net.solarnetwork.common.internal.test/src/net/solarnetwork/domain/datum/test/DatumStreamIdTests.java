@@ -182,4 +182,64 @@ public class DatumStreamIdTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void sort_byKind() {
+		// GIVEN
+		final Long objectId = randomLong();
+		final String sourceId = randomString();
+		final DatumStreamId left = DatumStreamId.locationStreamId(objectId, sourceId);
+		final DatumStreamId right = DatumStreamId.nodeStreamId(objectId, sourceId);
+		final DatumStreamId left2 = DatumStreamId.locationStreamId(Long.valueOf(objectId.longValue()),
+				sourceId);
+
+		// THEN
+		then(left.compareTo(right)).as("Kind compares in enum order").isGreaterThan(0);
+		then(right.compareTo(left)).as("Kind compares in enum order").isLessThan(0);
+		then(left.compareTo(left2)).as("Equality compared").isZero();
+		then(left).as("Inequality preserved").isNotEqualTo(right);
+		then(left).as("Equality preserved").isEqualTo(left2);
+	}
+
+	@Test
+	public void sort_byObject() {
+		// GIVEN
+		final Long objectId = randomLong();
+		final Long objectId2 = objectId + 1L;
+		final String sourceId = "a";
+		final DatumStreamId left = DatumStreamId.nodeStreamId(objectId, sourceId);
+		final DatumStreamId right = DatumStreamId.nodeStreamId(objectId2, sourceId);
+
+		// THEN
+		then(left.compareTo(right)).as("Object compares second").isLessThan(0);
+		then(right.compareTo(left)).as("Object compares second").isGreaterThan(0);
+	}
+
+	@Test
+	public void sort_bySource() {
+		// GIVEN
+		final Long objectId = randomLong();
+		final String sourceId = "a";
+		final String sourceId2 = "b";
+		final DatumStreamId left = DatumStreamId.nodeStreamId(objectId, sourceId);
+		final DatumStreamId right = DatumStreamId.nodeStreamId(objectId, sourceId2);
+
+		// THEN
+		then(left.compareTo(right)).as("Source compares last").isLessThan(0);
+		then(right.compareTo(left)).as("Source compares last").isGreaterThan(0);
+	}
+
+	@Test
+	public void sort_bySource_naturally() {
+		// GIVEN
+		final Long objectId = randomLong();
+		final String sourceId = "a/2";
+		final String sourceId2 = "a/100";
+		final DatumStreamId left = DatumStreamId.nodeStreamId(objectId, sourceId);
+		final DatumStreamId right = DatumStreamId.nodeStreamId(objectId, sourceId2);
+
+		// THEN
+		then(left.compareTo(right)).as("Source compares with natrual sort").isLessThan(0);
+		then(right.compareTo(left)).as("Source compares with natrual sort").isGreaterThan(0);
+	}
+
 }
