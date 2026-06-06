@@ -24,15 +24,16 @@ package net.solarnetwork.domain.datum;
 
 import java.time.Instant;
 import org.jspecify.annotations.Nullable;
+import net.solarnetwork.domain.Differentiable;
 
 /**
  * Metadata about a specific datum.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.38
  */
-public interface DatumAuxiliaryRecord {
+public interface DatumAuxiliaryRecord extends Differentiable<DatumAuxiliaryRecord> {
 
 	/**
 	 * Get the type of auxiliary datum this instance represents.
