@@ -32,6 +32,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 import java.util.Map;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.BasicDatumAuxiliaryRecord;
+import net.solarnetwork.domain.datum.DatumAuxiliaryType;
 import net.solarnetwork.domain.datum.DatumId.DatumIdent;
 import net.solarnetwork.domain.datum.DatumSamples;
 import net.solarnetwork.domain.datum.GeneralDatumMetadata;
@@ -40,7 +41,7 @@ import net.solarnetwork.domain.datum.GeneralDatumMetadata;
  * Test cases for the {@link BasicDatumAuxiliaryRecord} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicDatumAuxiliaryRecordTests {
 
@@ -272,6 +273,158 @@ public class BasicDatumAuxiliaryRecordTests {
 			.isEqualTo(1)
 			;
 		// @formatter:on
+	}
+
+	@Test
+	public void differsFrom_null() {
+		// GIVEN
+		final var aux1 = BasicDatumAuxiliaryRecord.createMark(
+				new DatumIdent(Node, randomLong(), randomString(), now()), null,
+				new GeneralDatumMetadata());
+
+		// WHEN
+		final boolean result = aux1.differsFrom(null);
+
+		// THEN
+		then(result).as("Null differs from instance").isTrue();
+	}
+
+	@Test
+	public void differsFrom_equal() {
+		// GIVEN
+		final var aux1 = BasicDatumAuxiliaryRecord.createMark(
+				new DatumIdent(Node, randomLong(), randomString(), now()), null,
+				new GeneralDatumMetadata());
+		aux1.getMetadata().putInfoValue("foo", "bar");
+		final var aux2 = BasicDatumAuxiliaryRecord
+				.createMark(
+						new DatumIdent(aux1.getKind(), aux1.getObjectId(), aux1.getSourceId(),
+								aux1.getTimestamp()),
+						null, new GeneralDatumMetadata(aux1.getMetadata()));
+
+		// WHEN
+		final boolean result = aux1.differsFrom(aux2);
+
+		// THEN
+		then(result).as("Equal aux does not differ from instance").isFalse();
+	}
+
+	@Test
+	public void differsFrom_equal_differentIdent() {
+		// GIVEN
+		final var aux1 = BasicDatumAuxiliaryRecord.createMark(
+				new DatumIdent(Node, randomLong(), randomString(), now()), null,
+				new GeneralDatumMetadata());
+		aux1.getMetadata().putInfoValue("foo", "bar");
+		final var aux2 = BasicDatumAuxiliaryRecord.createMark(
+				new DatumIdent(Location, aux1.getObjectId(), aux1.getSourceId(), aux1.getTimestamp()),
+				null, new GeneralDatumMetadata(aux1.getMetadata()));
+
+		// WHEN
+		final boolean result = aux1.differsFrom(aux2);
+
+		// THEN
+		then(result).as("Equal aux does not differ from instance, ignoring DatumIdent").isFalse();
+	}
+
+	@Test
+	public void differsFrom_notes() {
+		// GIVEN
+		final var aux1 = BasicDatumAuxiliaryRecord.createMark(
+				new DatumIdent(Node, randomLong(), randomString(), now()), randomString(),
+				new GeneralDatumMetadata());
+		aux1.getMetadata().putInfoValue("foo", "bar");
+		final var aux2 = BasicDatumAuxiliaryRecord
+				.createMark(
+						new DatumIdent(aux1.getKind(), aux1.getObjectId(), aux1.getSourceId(),
+								aux1.getTimestamp()),
+						null, new GeneralDatumMetadata(aux1.getMetadata()));
+
+		// WHEN
+		final boolean result = aux1.differsFrom(aux2);
+
+		// THEN
+		then(result).as("Different notes are different").isTrue();
+	}
+
+	@Test
+	public void differsFrom_kind() {
+		// GIVEN
+		final var datumIdent = new DatumIdent(Node, randomLong(), randomString(), now());
+		final var aux1 = new BasicDatumAuxiliaryRecord(DatumAuxiliaryType.Mark, datumIdent,
+				randomString(), new DatumSamples(), new DatumSamples(), new GeneralDatumMetadata());
+		aux1.getMetadata().putInfoValue("foo", "bar");
+
+		final var aux2 = new BasicDatumAuxiliaryRecord(DatumAuxiliaryType.Annotation, datumIdent,
+				aux1.getNotes(), new DatumSamples(aux1.getSamplesFinal()),
+				new DatumSamples(aux1.getSamplesStart()), new GeneralDatumMetadata(aux1.getMetadata()));
+
+		// WHEN
+		final boolean result = aux1.differsFrom(aux2);
+
+		// THEN
+		then(result).as("Different kinds are different").isTrue();
+	}
+
+	@Test
+	public void differsFrom_samplesFinal() {
+		// GIVEN
+		final var datumIdent = new DatumIdent(Node, randomLong(), randomString(), now());
+		final var aux1 = new BasicDatumAuxiliaryRecord(DatumAuxiliaryType.Mark, datumIdent,
+				randomString(), new DatumSamples(), new DatumSamples(), new GeneralDatumMetadata());
+		aux1.getMetadata().putInfoValue("foo", "bar");
+		aux1.getSamplesFinal().putStatusSampleValue("foo", "bar");
+		aux1.getSamplesStart().putStatusSampleValue("foo", "bar");
+
+		final var aux2 = new BasicDatumAuxiliaryRecord(aux1.getType(), datumIdent, aux1.getNotes(),
+				new DatumSamples(), new DatumSamples(aux1.getSamplesStart()),
+				new GeneralDatumMetadata(aux1.getMetadata()));
+
+		// WHEN
+		final boolean result = aux1.differsFrom(aux2);
+
+		// THEN
+		then(result).as("Different samplesFinal are different").isTrue();
+	}
+
+	@Test
+	public void differsFrom_samplesStart() {
+		// GIVEN
+		final var datumIdent = new DatumIdent(Node, randomLong(), randomString(), now());
+		final var aux1 = new BasicDatumAuxiliaryRecord(DatumAuxiliaryType.Mark, datumIdent,
+				randomString(), new DatumSamples(), new DatumSamples(), new GeneralDatumMetadata());
+		aux1.getMetadata().putInfoValue("foo", "bar");
+		aux1.getSamplesFinal().putStatusSampleValue("foo", "bar");
+		aux1.getSamplesStart().putStatusSampleValue("foo", "bar");
+
+		final var aux2 = new BasicDatumAuxiliaryRecord(aux1.getType(), datumIdent, aux1.getNotes(),
+				new DatumSamples(aux1.getSamplesFinal()), new DatumSamples(),
+				new GeneralDatumMetadata(aux1.getMetadata()));
+
+		// WHEN
+		final boolean result = aux1.differsFrom(aux2);
+
+		// THEN
+		then(result).as("Different samplesFinal are different").isTrue();
+	}
+
+	@Test
+	public void differsFrom_meta() {
+		// GIVEN
+		final var datumIdent = new DatumIdent(Node, randomLong(), randomString(), now());
+		final var aux1 = new BasicDatumAuxiliaryRecord(DatumAuxiliaryType.Mark, datumIdent,
+				randomString(), new DatumSamples(), new DatumSamples(), new GeneralDatumMetadata());
+		aux1.getMetadata().putInfoValue("foo", "bar");
+
+		final var aux2 = new BasicDatumAuxiliaryRecord(aux1.getType(), datumIdent, aux1.getNotes(),
+				new DatumSamples(aux1.getSamplesFinal()), new DatumSamples(aux1.getSamplesStart()),
+				new GeneralDatumMetadata());
+
+		// WHEN
+		final boolean result = aux1.differsFrom(aux2);
+
+		// THEN
+		then(result).as("Different meta are different").isTrue();
 	}
 
 }

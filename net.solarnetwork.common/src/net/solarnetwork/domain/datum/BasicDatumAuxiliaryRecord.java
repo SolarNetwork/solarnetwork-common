@@ -25,17 +25,18 @@ package net.solarnetwork.domain.datum;
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
+import net.solarnetwork.domain.Differentiable;
 import net.solarnetwork.domain.datum.DatumId.DatumIdent;
 
 /**
  * Basic implementation of {@link DatumAuxiliaryRecord}.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 4.38
  */
-public class BasicDatumAuxiliaryRecord
-		implements DatumAuxiliaryRecord, Comparable<BasicDatumAuxiliaryRecord> {
+public class BasicDatumAuxiliaryRecord implements DatumAuxiliaryRecord,
+		Comparable<BasicDatumAuxiliaryRecord>, Differentiable<DatumAuxiliaryRecord> {
 
 	private final DatumAuxiliaryType type;
 	private final DatumIdent datumIdent;
@@ -202,6 +203,39 @@ public class BasicDatumAuxiliaryRecord
 			return result;
 		}
 		return type.compareTo(o.type);
+	}
+
+	/**
+	 * Test if the properties of another entity are the same as in this
+	 * instance.
+	 *
+	 * <p>
+	 * The {@code datumIdent} property is not compared by this method.
+	 * </p>
+	 *
+	 * @param other
+	 *        the other entity to compare to
+	 * @return {@literal true} if the properties of this instance are equal to
+	 *         the other
+	 * @since 1.2
+	 */
+	public boolean isSameAs(@Nullable DatumAuxiliaryRecord other) {
+		if ( other == null ) {
+			return false;
+		}
+		// @formatter:off
+		return type == other.getType()
+				&& Objects.equals(notes, other.getNotes())
+				&& Objects.equals(samplesFinal, other.getSamplesFinal())
+				&& Objects.equals(samplesStart, other.getSamplesStart())
+				&& Objects.equals(metadata, other.getMetadata())
+				;
+		// @formatter:on
+	}
+
+	@Override
+	public boolean differsFrom(@Nullable DatumAuxiliaryRecord other) {
+		return !isSameAs(other);
 	}
 
 	@Override
