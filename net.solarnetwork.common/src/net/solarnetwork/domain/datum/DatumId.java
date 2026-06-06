@@ -95,11 +95,11 @@ public sealed class DatumId extends BaseId implements Serializable, Cloneable, C
 		 * @throws IllegalArgumentException
 		 *         if any argument is {@code null}
 		 */
-		public DatumIdent(DatumStreamId streamId, @Nullable Instant timestamp) {
-			super(requireNonNullArgument(streamId, "streamId"),
+		public DatumIdent(DatumStreamIdentity streamId, @Nullable Instant timestamp) {
+			super(requireNonNullArgument(streamId, "streamId") instanceof DatumStreamIdent dsi ? dsi
+					: new DatumStreamIdent(streamId.getKind(), streamId.getObjectId(),
+							streamId.getSourceId()),
 					requireNonNullArgument(timestamp, "timestamp"));
-			// verify that streamId is also DatumStreamIdentity
-			streamId.toIdentity();
 		}
 
 		@Override
@@ -210,7 +210,7 @@ public sealed class DatumId extends BaseId implements Serializable, Cloneable, C
 	public static DatumId datumId(DatumStreamId streamId, @Nullable Instant timestamp) {
 		if ( streamId.getKind() != null && streamId.getObjectId() != null
 				&& streamId.getSourceId() != null && timestamp != null ) {
-			return new DatumIdent(streamId instanceof DatumStreamIdentity ? streamId
+			return new DatumIdent(streamId instanceof DatumStreamIdentity dsi ? dsi
 					: new DatumStreamIdent(streamId.getKind(), streamId.getObjectId(),
 							streamId.getSourceId()),
 					timestamp);

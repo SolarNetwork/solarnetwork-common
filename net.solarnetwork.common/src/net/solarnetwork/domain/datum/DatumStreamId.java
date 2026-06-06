@@ -25,9 +25,11 @@ package net.solarnetwork.domain.datum;
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BaseId;
+import net.solarnetwork.domain.datum.DatumId.DatumIdent;
 import net.solarnetwork.util.StringUtils;
 
 /**
@@ -89,6 +91,11 @@ public sealed class DatumStreamId extends BaseId implements Serializable, Clonea
 		@Override
 		public DatumStreamIdentity toIdentity() {
 			return this;
+		}
+
+		@Override
+		public DatumIdentity datumIdentity(Instant timestamp) {
+			return new DatumIdent(this, timestamp);
 		}
 
 	}
