@@ -921,7 +921,7 @@ public final class CollectionUtils {
 	 * @see #sort(Collection, boolean, String...)
 	 * @since 1.4
 	 */
-	public static <T> @Nullable Collection<T> sort(Collection<T> collection,
+	public static <T> @Nullable Collection<T> sort(@Nullable Collection<T> collection,
 			String @Nullable... propNames) {
 		return sort(collection, false, propNames);
 	}
