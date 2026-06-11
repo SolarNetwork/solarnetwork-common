@@ -180,7 +180,7 @@ public interface ExpressionService extends Identifiable {
 	 *         if any error occurs
 	 */
 	<T> @Nullable T evaluateExpression(Expression expression, @Nullable Map<String, Object> variables,
-			@Nullable Object root, EvaluationContext context, Class<T> resultClass);
+			@Nullable Object root, @Nullable EvaluationContext context, Class<T> resultClass);
 
 	/**
 	 * Evaluate an expression.
@@ -204,6 +204,6 @@ public interface ExpressionService extends Identifiable {
 	 *         if any error occurs
 	 */
 	<T> @Nullable T evaluateExpression(String expression, @Nullable Map<String, Object> variables,
-			@Nullable Object root, EvaluationContext context, Class<T> resultClass);
+			@Nullable Object root, @Nullable EvaluationContext context, Class<T> resultClass);
 
 }

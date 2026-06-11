@@ -151,8 +151,8 @@ public class SpelExpressionService implements ExpressionService {
 
 	@Override
 	public <T> @Nullable T evaluateExpression(Expression expression,
-			@Nullable Map<String, Object> variables, @Nullable Object root, EvaluationContext context,
-			Class<T> resultClass) {
+			@Nullable Map<String, Object> variables, @Nullable Object root,
+			@Nullable EvaluationContext context, Class<T> resultClass) {
 		if ( context == null ) {
 			context = createEvaluationContext(null, root);
 		}
@@ -169,7 +169,7 @@ public class SpelExpressionService implements ExpressionService {
 
 	@Override
 	public <T> @Nullable T evaluateExpression(String expression, @Nullable Map<String, Object> variables,
-			@Nullable Object root, EvaluationContext context, Class<T> resultClass) {
+			@Nullable Object root, @Nullable EvaluationContext context, Class<T> resultClass) {
 		return evaluateExpression(parseExpression(expression), variables, root, context, resultClass);
 	}
 
