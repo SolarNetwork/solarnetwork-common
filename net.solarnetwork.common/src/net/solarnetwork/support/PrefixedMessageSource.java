@@ -230,7 +230,9 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 	 */
 	public void setPrefix(@Nullable String prefix) {
 		this.singlePrefix = prefix;
-		delegates.put(prefix, this.singleDelegate);
+		if ( prefix != null ) {
+			delegates.put(prefix, this.singleDelegate);
+		}
 	}
 
 	/**
@@ -254,9 +256,13 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 	 * @param delegate
 	 *        the singular delegate to use
 	 */
-	public void setDelegate(MessageSource delegate) {
+	public void setDelegate(@Nullable MessageSource delegate) {
 		this.singleDelegate = delegate;
-		delegates.put(this.singlePrefix, delegate);
+		if ( delegate != null && this.singlePrefix != null ) {
+			delegates.put(this.singlePrefix, delegate);
+		} else if ( this.singlePrefix != null ) {
+			delegates.remove(this.singlePrefix);
+		}
 		if ( this.parent != null ) {
 			setupParentMessageSource(this.parent);
 		}
@@ -285,7 +291,7 @@ public class PrefixedMessageSource implements MessageSource, HierarchicalMessage
 	 */
 	public void setDelegates(Map<String, MessageSource> delegates) {
 		this.delegates = new LinkedHashMap<String, MessageSource>(delegates);
-		if ( this.singleDelegate != null ) {
+		if ( this.singleDelegate != null && this.singlePrefix != null ) {
 			this.delegates.put(this.singlePrefix, this.singleDelegate);
 		}
 		if ( this.parent != null ) {
