@@ -76,7 +76,6 @@ public interface Instruction {
 	 *
 	 * @return iterator, never {@code null}
 	 */
-	@Nullable
 	Iterable<String> getParameterNames();
 
 	/**
@@ -105,8 +104,7 @@ public interface Instruction {
 	 *
 	 * @param parameterName
 	 *        the parameter name to get the values for
-	 * @return all available parameter values, or {@code null} if not
-	 *         available
+	 * @return all available parameter values, or {@code null} if not available
 	 */
 	String @Nullable [] getAllParameterValues(String parameterName);
 
