@@ -26,6 +26,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static net.solarnetwork.util.ArrayUtils.arrayWithLength;
+import static net.solarnetwork.util.ObjectUtils.nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,7 +45,7 @@ import net.solarnetwork.util.StringUtils;
  * Basic implementation of {@link Identifiable}.
  *
  * @author matt
- * @version 2.1
+ * @version 2.2
  * @since 1.56
  */
 public class BasicIdentifiable implements Identifiable {
@@ -390,6 +391,18 @@ public class BasicIdentifiable implements Identifiable {
 	 */
 	public void setMessageSource(@Nullable MessageSource messageSource) {
 		this.messageSource = messageSource;
+	}
+
+	/**
+	 * Get the {@link MessageSource}, assumed non-null.
+	 *
+	 * @return get the message source
+	 * @since 2.2
+	 * @throws IllegalStateException
+	 *         if no {@code MessageSource} is available
+	 */
+	protected final MessageSource messageSource() {
+		return nonnull(getMessageSource(), "MessageSource");
 	}
 
 	/*-----
