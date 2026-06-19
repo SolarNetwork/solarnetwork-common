@@ -46,7 +46,7 @@ import org.jspecify.annotations.Nullable;
  * </p>
  *
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class SearchFilter {
 
@@ -195,6 +195,7 @@ public class SearchFilter {
 					return EQUAL;
 
 				case "<>":
+				case "!=":
 					return NOT_EQUAL;
 
 				case "<":
@@ -370,6 +371,10 @@ public class SearchFilter {
 					buf.append("~=");
 					break;
 
+				case NOT_EQUAL:
+					buf.append("!=");
+					break;
+
 				default:
 					buf.append("=");
 					break;
@@ -516,7 +521,7 @@ public class SearchFilter {
 
 	private static final Pattern TOKEN_PAT = Pattern.compile("\\s*(\\([&|!]|\\(|\\))\\s*");
 
-	private static final Pattern COMP_PAT = Pattern.compile("(.+?)(=|<>|~=?|<=?|>=?|\\?|\\&\\&)(.+)");
+	private static final Pattern COMP_PAT = Pattern.compile("(.+?)(=|<>|!=|~=?|<=?|>=?|\\?|\\&\\&)(.+)");
 
 	/*-
 	private static final boolean isLogicOp(String text) {
@@ -637,8 +642,7 @@ public class SearchFilter {
 	 *
 	 * @param s
 	 *        the string to parse
-	 * @return the filter, or {@code null} if {@code s} is not in a valid
-	 *         format
+	 * @return the filter, or {@code null} if {@code s} is not in a valid format
 	 */
 	public static @Nullable SearchFilter forLDAPSearchFilterString(@Nullable String s) {
 		if ( s == null ) {
