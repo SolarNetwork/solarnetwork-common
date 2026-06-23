@@ -43,7 +43,7 @@ public class BasicInstructionStatus implements InstructionStatus, Serializable {
 	private final @Nullable Long instructionId;
 
 	/** The instruction state. */
-	private final @Nullable InstructionState instructionState;
+	private final InstructionState instructionState;
 
 	/** The status date. */
 	private final @Nullable Instant statusDate;
@@ -72,7 +72,8 @@ public class BasicInstructionStatus implements InstructionStatus, Serializable {
 	 * @param instructionId
 	 *        the instruction ID
 	 * @param instructionState
-	 *        the instruction state
+	 *        the instruction state; if {@code null} then
+	 *        {@link InstructionState#Unknown} will be used
 	 * @param statusDate
 	 *        the status date
 	 * @param resultParameters
@@ -82,7 +83,7 @@ public class BasicInstructionStatus implements InstructionStatus, Serializable {
 			@Nullable InstructionState instructionState, @Nullable Instant statusDate,
 			@Nullable Map<String, ?> resultParameters) {
 		this.instructionId = instructionId;
-		this.instructionState = instructionState;
+		this.instructionState = (instructionState != null ? instructionState : InstructionState.Unknown);
 		this.statusDate = statusDate;
 		this.resultParameters = resultParameters;
 	}
@@ -147,7 +148,7 @@ public class BasicInstructionStatus implements InstructionStatus, Serializable {
 	}
 
 	@Override
-	public @Nullable InstructionState getInstructionState() {
+	public InstructionState getInstructionState() {
 		return instructionState;
 	}
 

@@ -104,7 +104,6 @@ public interface InstructionStatus {
 	 *
 	 * @return the current instruction state
 	 */
-	@Nullable
 	InstructionState getInstructionState();
 
 	/**
