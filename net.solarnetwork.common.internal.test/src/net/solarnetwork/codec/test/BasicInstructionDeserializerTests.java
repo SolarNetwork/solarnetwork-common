@@ -22,6 +22,7 @@
 
 package net.solarnetwork.codec.test;
 
+import static org.assertj.core.api.BDDAssertions.thenExceptionOfType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.codec.BasicInstructionDeserializer;
 import net.solarnetwork.domain.BasicInstruction;
@@ -215,12 +217,11 @@ public class BasicInstructionDeserializerTests {
 				+ "}";
 		// @formatter:on
 
-		// WHEN
-		Instruction result = mapper.readValue(json, Instruction.class);
-
 		// THEN
-		BasicInstruction expected = new BasicInstruction(null, "Mock/Topic", TEST_DATE, null);
-		assertInstructionEquals("Instruction without ID or params", result, expected);
+		thenExceptionOfType(MismatchedInputException.class).isThrownBy(() -> {
+			// WHEN
+			mapper.readValue(json, Instruction.class);
+		});
 	}
 
 	@Test

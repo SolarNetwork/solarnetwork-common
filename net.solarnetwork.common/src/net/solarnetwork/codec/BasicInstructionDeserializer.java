@@ -29,13 +29,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.jspecify.annotations.Nullable;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import net.solarnetwork.domain.BasicInstruction;
 import net.solarnetwork.domain.BasicInstructionStatus;
 import net.solarnetwork.domain.Instruction;
@@ -145,6 +145,10 @@ public class BasicInstructionDeserializer extends StdScalarDeserializer<Instruct
 			if ( status == null && state != null ) {
 				status = new BasicInstructionStatus(id, state, statusDate, resultParameters);
 			}
+			if ( id == null ) {
+				throw MismatchedInputException.from(p, Instruction.class,
+						"Instruction object missing 'id' property.");
+			}
 			BasicInstruction result = new BasicInstruction(id, topic,
 					date != null ? date : Instant.now(), status);
 			if ( parameters != null ) {
@@ -157,7 +161,7 @@ public class BasicInstructionDeserializer extends StdScalarDeserializer<Instruct
 			}
 			return result;
 		}
-		throw new JsonParseException(p, "Unable to parse Instruction (not an object)");
+		throw MismatchedInputException.from(p, Instruction.class, "Not an object.");
 	}
 
 }

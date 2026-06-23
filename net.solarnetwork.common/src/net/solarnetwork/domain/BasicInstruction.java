@@ -43,7 +43,7 @@ public class BasicInstruction implements Instruction, Serializable {
 	private static final long serialVersionUID = 5522509637377814131L;
 
 	/** The instruction ID. */
-	private final @Nullable Long id;
+	private final Long id;
 
 	/** The topic name. */
 	private final @Nullable String topic;
@@ -69,7 +69,7 @@ public class BasicInstruction implements Instruction, Serializable {
 	 * @param status
 	 *        the status, or {@code null}
 	 */
-	public BasicInstruction(@Nullable Long id, @Nullable String topic, @Nullable Instant instructionDate,
+	public BasicInstruction(Long id, @Nullable String topic, @Nullable Instant instructionDate,
 			@Nullable InstructionStatus status) {
 		super();
 		this.id = id;
@@ -124,7 +124,7 @@ public class BasicInstruction implements Instruction, Serializable {
 	}
 
 	@Override
-	public @Nullable Long getId() {
+	public Long getId() {
 		return id;
 	}
 

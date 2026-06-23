@@ -24,6 +24,7 @@ package net.solarnetwork.codec.jackson.test;
 
 import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.BDDAssertions.thenExceptionOfType;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -37,6 +38,7 @@ import net.solarnetwork.domain.BasicInstructionStatus;
 import net.solarnetwork.domain.Instruction;
 import net.solarnetwork.domain.InstructionStatus;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
@@ -219,12 +221,11 @@ public class BasicInstructionDeserializerTests {
 				+ "}";
 		// @formatter:on
 
-		// WHEN
-		Instruction result = mapper.readValue(json, Instruction.class);
-
 		// THEN
-		BasicInstruction expected = new BasicInstruction(null, "Mock/Topic", TEST_DATE, null);
-		thenInstructionEquals("Instruction without ID or params", result, expected);
+		thenExceptionOfType(MismatchedInputException.class).isThrownBy(() -> {
+			// WHEN
+			mapper.readValue(json, Instruction.class);
+		});
 	}
 
 	@Test

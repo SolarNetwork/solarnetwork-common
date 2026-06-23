@@ -140,6 +140,10 @@ public class BasicInstructionDeserializer extends StdDeserializer<Instruction> {
 			if ( status == null && state != null ) {
 				status = new BasicInstructionStatus(id, state, statusDate, resultParameters);
 			}
+			if ( id == null ) {
+				throw MismatchedInputException.from(p, Instruction.class,
+						"Instruction object missing 'id' property.");
+			}
 			BasicInstruction result = new BasicInstruction(id, topic,
 					date != null ? date : Instant.now(), status);
 			if ( parameters != null ) {
@@ -152,7 +156,7 @@ public class BasicInstructionDeserializer extends StdDeserializer<Instruction> {
 			}
 			return result;
 		}
-		throw MismatchedInputException.from(p, "Unable to parse Instruction (not an object)");
+		throw MismatchedInputException.from(p, Instruction.class, "Not an object.");
 	}
 
 }

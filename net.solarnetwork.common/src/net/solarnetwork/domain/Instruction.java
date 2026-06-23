@@ -51,7 +51,6 @@ public interface Instruction {
 	 *
 	 * @return local unique ID
 	 */
-	@Nullable
 	Long getId();
 
 	/**
