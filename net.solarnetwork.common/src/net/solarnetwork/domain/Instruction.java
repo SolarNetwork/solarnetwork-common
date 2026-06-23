@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.InstructionStatus.InstructionState;
 
@@ -41,10 +42,37 @@ import net.solarnetwork.domain.InstructionStatus.InstructionState;
  * </p>
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
 public interface Instruction {
+
+	/**
+	 * Generate a new local ID.
+	 *
+	 * <p>
+	 * Local IDs are local to the JVM instance and sequentially generated, but
+	 * seeded by the current date when this method is first invoked. This is to
+	 * help reduce the risk of generating duplicate IDs across JVM restarts, but
+	 * is dependent on the system clock to achieve that.
+	 * </p>
+	 *
+	 * @return a new local ID
+	 * @since 1.1
+	 */
+	static Long localId() {
+		// inner class to lazy-init LOCAL_ID with system time seed
+		class LocalId {
+
+			private static final AtomicLong LOCAL_ID = initLocalId();
+
+			private static AtomicLong initLocalId() {
+				return new AtomicLong(System.currentTimeMillis());
+			}
+		}
+
+		return LocalId.LOCAL_ID.getAndIncrement();
+	}
 
 	/**
 	 * Get a unique ID for the instruction.

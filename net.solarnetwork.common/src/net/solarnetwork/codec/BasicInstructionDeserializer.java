@@ -146,8 +146,7 @@ public class BasicInstructionDeserializer extends StdScalarDeserializer<Instruct
 				status = new BasicInstructionStatus(id, state, statusDate, resultParameters);
 			}
 			if ( id == null ) {
-				throw MismatchedInputException.from(p, Instruction.class,
-						"Instruction object missing 'id' property.");
+				id = Instruction.localId();
 			}
 			BasicInstruction result = new BasicInstruction(id, topic,
 					date != null ? date : Instant.now(), status);
