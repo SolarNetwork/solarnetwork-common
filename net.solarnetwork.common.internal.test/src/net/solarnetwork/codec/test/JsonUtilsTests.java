@@ -22,6 +22,8 @@
 
 package net.solarnetwork.codec.test;
 
+import static java.util.Map.entry;
+import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
@@ -29,6 +31,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,12 +50,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import net.solarnetwork.codec.JsonUtils;
 import net.solarnetwork.domain.BasicDeviceInfo;
+import net.solarnetwork.util.NumberUtils;
 
 /**
  * Test cases for the {@link JsonUtils} class.
  *
  * @author matt
- * @version 2.2
+ * @version 2.3
  */
 public class JsonUtilsTests {
 
@@ -189,6 +193,108 @@ public class JsonUtilsTests {
 
 		// THEN
 		assertThat("Map not created", m, nullValue());
+	}
+
+	@Test
+	public void mapFromTree() throws IOException {
+		// GIVEN
+		final JsonNode input = JsonUtils.newObjectMapper().readTree("""
+				{
+					"a": 1,
+					"b": "two",
+					"c": 3.14159
+				}
+				""");
+
+		// WHEN
+		final Map<String, Number> result = JsonUtils.getMapFromTree(input, (k, v) -> {
+			return k + "-xformed";
+		}, (k, v) -> {
+			return NumberUtils.bigDecimalForNumber(v.numberValue());
+		});
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Map instance returned")
+			.isNotNull()
+			.as("Mapper null results are removed from map")
+			.containsOnly(
+				entry("a-xformed", new BigDecimal(1)),
+				// b removed because value transform function returned null
+				entry("c-xformed", new BigDecimal("3.14159"))
+			)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void mapFromTree_nullInput() {
+		// GIVEN
+		final JsonNode input = null;
+
+		// WHEN
+		final Map<String, Number> result = JsonUtils.getMapFromTree(input, (k, v) -> {
+			return k + "-xformed";
+		}, (k, v) -> {
+			return v.numberValue();
+		});
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null map instance returned from null input")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void mapFromTree_emptyInput() throws IOException {
+		// GIVEN
+		final JsonNode input = JsonUtils.newObjectMapper().readTree("""
+					{}
+				""");
+		;
+
+		// WHEN
+		final Map<String, Number> result = JsonUtils.getMapFromTree(input, (k, v) -> {
+			return k + "-xformed";
+		}, (k, v) -> {
+			return v.numberValue();
+		});
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null map instance returned from empty input")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void mapFromTree_nonObjectInput() throws IOException {
+		// GIVEN
+		final JsonNode input = JsonUtils.newObjectMapper().readTree("""
+					"Not an object."
+				""");
+		;
+
+		// WHEN
+		final Map<String, Number> result = JsonUtils.getMapFromTree(input, (k, v) -> {
+			return k + "-xformed";
+		}, (k, v) -> {
+			return v.numberValue();
+		});
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null map instance returned from empty input")
+			.isNull()
+			;
+		// @formatter:on
 	}
 
 	@Test

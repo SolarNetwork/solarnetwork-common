@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.BiFunction;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +97,7 @@ import net.solarnetwork.util.StringUtils;
  * </ul>
  *
  * @author matt
- * @version 2.11
+ * @version 2.12
  * @since 1.72
  */
 public final class JsonUtils {
@@ -419,6 +420,58 @@ public final class JsonUtils {
 			LOG.warn("Exception deserialzing JSON node {} to Map<String, Object>", node, e);
 		}
 		return null;
+	}
+
+	/**
+	 * Convert a JSON tree object to a Map.
+	 *
+	 * <p>
+	 * This is designed for simple values. An internal {@link ObjectMapper} will
+	 * be used, and all floating point values will be converted to
+	 * {@link BigDecimal} values to faithfully represent the data. All
+	 * exceptions while deserializing the object are caught and ignored.
+	 * </p>
+	 *
+	 * @param <K>
+	 *        the output map key type
+	 * @param <V>
+	 *        the output map value type
+	 * @param node
+	 *        the JSON object to convert
+	 * @param keyTransformer
+	 *        the function to transform map keys; if the function returns
+	 *        {@code null} the associated entry will not be added to the output
+	 *        map
+	 * @param valueTransformer
+	 *        the function to transform map values; if the function returns
+	 *        {@code null} the associated entry will not be added to the output
+	 *        map
+	 * @return the map, or {@code null} if {@code node} is not a JSON object, is
+	 *         {@code null}, or the result is an empty mapping
+	 * @since 2.12
+	 */
+	public static <K, V> @Nullable Map<K, V> getMapFromTree(final @Nullable JsonNode node,
+			BiFunction<String, JsonNode, @Nullable K> keyTransformer,
+			BiFunction<String, JsonNode, @Nullable V> valueTransformer) {
+		if ( node == null || !node.isObject() ) {
+			return null;
+		}
+		final Map<K, V> result = new LinkedHashMap<>(node.size());
+		for ( Entry<String, JsonNode> entry : node.properties() ) {
+			try {
+				final K key = keyTransformer.apply(entry.getKey(), entry.getValue());
+				if ( key == null ) {
+					continue;
+				}
+				final V val = valueTransformer.apply(entry.getKey(), entry.getValue());
+				if ( val != null ) {
+					result.put(key, val);
+				}
+			} catch ( Exception e ) {
+				LOG.warn("Exception deserialzing JSON node {} to Map<K,V>", node, e);
+			}
+		}
+		return (!result.isEmpty() ? result : null);
 	}
 
 	/**

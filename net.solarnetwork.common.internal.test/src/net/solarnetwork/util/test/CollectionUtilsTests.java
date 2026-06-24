@@ -69,7 +69,7 @@ import net.solarnetwork.util.StringUtils;
  * Test cases for the {@link CollectionUtils} class.
  *
  * @author matt
- * @version 1.5
+ * @version 1.6
  */
 public class CollectionUtilsTests {
 
@@ -458,7 +458,7 @@ public class CollectionUtilsTests {
 	}
 
 	@Test
-	public void transformMap() {
+	public void transformMapValues() {
 		// GIVEN
 		Map<String, String> input = new LinkedHashMap<>(8);
 		input.put("a", "1");
@@ -488,7 +488,7 @@ public class CollectionUtilsTests {
 	}
 
 	@Test
-	public void transformMap_noTransforms() {
+	public void transformMapValues_noTransforms() {
 		// GIVEN
 		Map<String, String> input = new LinkedHashMap<>(8);
 		input.put("a", "1");
@@ -509,7 +509,7 @@ public class CollectionUtilsTests {
 	}
 
 	@Test
-	public void transformMap_nullsRemoved() {
+	public void transformMapValues_nullsRemoved() {
 		// GIVEN
 		Map<String, String> input = new LinkedHashMap<>(8);
 		input.put("a", "1");
@@ -538,6 +538,109 @@ public class CollectionUtilsTests {
 				                         // c removed because mapper function returned null
 				entry("d", "4")          // not transformed
 			)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void transformMap() {
+		// GIVEN
+		final Map<String, Object> input = new LinkedHashMap<>(8);
+		input.put("a", 1);
+		input.put("b", "two");
+		input.put("c", new BigDecimal(3.14159));
+
+		// WHEN
+		final Map<String, Number> result = CollectionUtils.transformMap(input, null, (k, v) -> {
+			return k + "-xformed";
+		}, (k, v) -> {
+			Number val = (v instanceof Number n ? n : NumberUtils.parseNumber(v.toString()));
+			return (val != null ? val.doubleValue() * 2.0 : null);
+		});
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Map instance returned")
+			.isNotNull()
+			.as("Mapper null results are removed from map")
+			.containsOnly(
+				entry("a-xformed", 2.0),
+				// b removed because value transform function returned null
+				entry("c-xformed", 6.28318)
+			)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void transformMap_selectedKeys() {
+		// GIVEN
+		final Map<String, Object> input = new LinkedHashMap<>(8);
+		input.put("a", 1);
+		input.put("b", "two");
+		input.put("c", new BigDecimal(3.14159));
+
+		// WHEN
+		final Map<String, Number> result = CollectionUtils.transformMap(input, Set.of("b", "c"),
+				(k, v) -> {
+					return k + "-xformed";
+				}, (k, v) -> {
+					Number val = (v instanceof Number n ? n : NumberUtils.parseNumber(v.toString()));
+					return (val != null ? val.doubleValue() * 2.0 : null);
+				});
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Map instance returned")
+			.isNotNull()
+			.as("Mapper null results are removed from map")
+			.containsOnly(
+				// a removed because not in selected keys
+				// b removed because value transform function returned null
+				entry("c-xformed", 6.28318)
+			)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void transformMap_nullInput() {
+		// GIVEN
+		final Map<String, String> input = null;
+
+		// WHEN
+		final Map<String, Number> result = CollectionUtils.transformMap(input, null, (k, v) -> k,
+				(k, v) -> {
+					return NumberUtils.parseNumber(v);
+				});
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null returned for null input")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void transformMap_emptyInput() {
+		// GIVEN
+		final Map<String, String> input = Map.of();
+
+		// WHEN
+		final Map<String, Number> result = CollectionUtils.transformMap(input, null, (k, v) -> k,
+				(k, v) -> {
+					return NumberUtils.parseNumber(v);
+				});
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null returned for empty input")
+			.isNull()
 			;
 		// @formatter:on
 	}
