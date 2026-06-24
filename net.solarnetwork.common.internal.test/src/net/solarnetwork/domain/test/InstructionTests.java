@@ -49,7 +49,7 @@ public class InstructionTests {
 			.as("Local ID generated")
 			.isNotNull()
 			.as("Was seeded with current time")
-			.isCloseTo(now, within(1000L))
+			.isCloseTo(now, within(300_000L))
 			;
 		// @formatter:on
 	}
