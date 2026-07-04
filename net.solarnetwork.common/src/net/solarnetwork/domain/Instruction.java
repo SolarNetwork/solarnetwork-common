@@ -42,7 +42,7 @@ import net.solarnetwork.domain.InstructionStatus.InstructionState;
  * </p>
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.0
  */
 public interface Instruction {
@@ -158,7 +158,7 @@ public interface Instruction {
 	 *
 	 * @return the parameters as a map, never {@code null}
 	 */
-	default @Nullable Map<String, String> getParameterMap() {
+	default Map<String, String> getParameterMap() {
 		Map<String, String> result = null;
 		final Iterable<String> names = getParameterNames();
 		if ( names != null ) {
@@ -177,7 +177,7 @@ public interface Instruction {
 	 *
 	 * @return the parameters as a multi-valued map, never {@code null}
 	 */
-	default @Nullable Map<String, List<String>> getParameterMultiMap() {
+	default Map<String, List<String>> getParameterMultiMap() {
 		Map<String, List<String>> result = null;
 		final Iterable<String> names = getParameterNames();
 		if ( names != null ) {
