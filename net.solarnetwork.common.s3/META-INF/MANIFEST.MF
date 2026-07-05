@@ -3,12 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Common AWS S3 Support
 Bundle-SymbolicName: net.solarnetwork.common.s3
 Bundle-Description: Common supporting services for AWS S3 integration.
-Bundle-Version: 4.1.0
+Bundle-Version: 4.1.1
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.s3
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
- net.solarnetwork.common.s3;version="3.1.0"
+ net.solarnetwork.common.s3;version="3.1.1"
 Import-Package: 
  net.solarnetwork.domain;version="[3.5,4.0)",
  net.solarnetwork.io;version="[3.1,4.0)",

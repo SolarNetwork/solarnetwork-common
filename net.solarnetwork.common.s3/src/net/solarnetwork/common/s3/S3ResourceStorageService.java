@@ -130,7 +130,7 @@ public class S3ResourceStorageService extends BaseSettingsSpecifierLocalizedServ
 		return path;
 	}
 
-	private Function<String, String> pathPrefixMapper() {
+	private Function<@Nullable String, @Nullable String> pathPrefixMapper() {
 		final String prefix = getObjectKeyPrefix();
 		return s -> mapPathPrefix(prefix, s);
 	}
