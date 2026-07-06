@@ -82,7 +82,7 @@ public interface ServiceRegistry {
 	 *         if {@code service} is {@code null}
 	 */
 	<S> RegisteredService<S> registerService(S service, @Nullable Map<String, ?> properties,
-			@Nullable Class<?>... classes);
+			Class<?> @Nullable... classes);
 
 	/**
 	 * Unregister a previously registered service.
