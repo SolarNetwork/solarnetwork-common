@@ -23,6 +23,7 @@
 package net.solarnetwork.common.jdbc.pool.hikari;
 
 import java.util.Hashtable;
+import org.jspecify.annotations.Nullable;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -43,7 +44,7 @@ public class Activator implements BundleActivator {
 	 */
 	public static final String SERVICE_PID = "net.solarnetwork.jdbc.pool.hikari";
 
-	private ServiceRegistration<ManagedServiceFactory> msf = null;
+	private @Nullable ServiceRegistration<ManagedServiceFactory> msf = null;
 
 	/**
 	 * Constructor.

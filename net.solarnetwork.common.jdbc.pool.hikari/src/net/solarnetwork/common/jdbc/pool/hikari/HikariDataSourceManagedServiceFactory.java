@@ -22,6 +22,8 @@
 
 package net.solarnetwork.common.jdbc.pool.hikari;
 
+import static net.solarnetwork.util.ObjectUtils.nonnull;
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,6 +47,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
+import org.jspecify.annotations.Nullable;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -75,7 +78,7 @@ import net.solarnetwork.util.StringUtils;
  * Managed service factory for {@link HikariDataSource} instances.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class HikariDataSourceManagedServiceFactory implements ManagedServiceFactory {
 
@@ -108,6 +111,14 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	public static final Set<String> DEFAULT_IGNORED_PROPERTY_PREFIXES = Collections.unmodifiableSet(
 			new LinkedHashSet<>(Arrays.asList("factory.", "felix.", "service.", "uid")));
 
+	/**
+	 * The maximum number of times to retry applying configuration changes after
+	 * an error.
+	 *
+	 * @since 1.3
+	 */
+	public static final int CONFIGURATION_MAX_RETRY = 3;
+
 	private final BundleContext bundleContext;
 	private final Executor executor;
 	private final AtomicBoolean destroyed;
@@ -138,11 +149,13 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	 *        the bundle context
 	 * @param executor
 	 *        the executor to use
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public HikariDataSourceManagedServiceFactory(BundleContext bundleContext, Executor executor) {
 		super();
-		this.bundleContext = bundleContext;
-		this.executor = executor;
+		this.bundleContext = requireNonNullArgument(bundleContext, "bundleContext");
+		this.executor = requireNonNullArgument(executor, "executor");
 		this.destroyed = new AtomicBoolean(false);
 		this.instances = new ConcurrentHashMap<>(4, 0.9f, 1);
 	}
@@ -159,22 +172,37 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 			return;
 		}
 		@SuppressWarnings("unchecked")
-		final Map<String, ?> props = CollectionUtils.mapForDictionary(properties);
+		final Map<String, ?> props = nonnull(CollectionUtils.mapForDictionary(properties), "Properties");
 		final Map<String, ?> logProps = props.entrySet().stream()
 				.filter(e -> !e.getKey().contains("password")).collect(Collectors.toMap(Entry::getKey,
 						Entry::getValue, (l, r) -> r, LinkedHashMap::new));
 		log.info("Configuring managed HikariCP DataSource {} with properties {}", pid, logProps);
 		executor.execute(new Runnable() {
 
+			private int errorCount = 0;
+
 			@Override
 			public void run() {
 				try {
 					doUpdate(pid, props);
 				} catch ( Throwable t ) {
+					errorCount++;
+					if ( errorCount >= CONFIGURATION_MAX_RETRY ) {
+						log.error(
+								"Error applying managed HikariCP DataSource {} properties {} (giving up): {} ",
+								pid, logProps, t.toString(), t);
+						return;
+					}
 					log.error(
 							"Error applying managed HikariCP DataSource {} properties {} (will retry): {} ",
 							pid, logProps, t.toString(), t);
 					// try, try again
+					try {
+						Thread.sleep(1000L * errorCount);
+					} catch ( InterruptedException e ) {
+						// abort
+						return;
+					}
 					try {
 						executor.execute(this);
 					} catch ( Exception e ) {
@@ -244,7 +272,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 					}
 				}
 
-				String jdbcUrl = (String) dataSourceProps.get("url");
+				String jdbcUrl = (String) nonnull(dataSourceProps.get("url"), "URL");
 				ManagedHikariDataSource mds = new ManagedHikariDataSource(pid, dataSourceFactoryFilter,
 						jdbcUrl, pingTestQuery, serviceProps, dataSourceProps, poolProps,
 						exceptionHandlerSupport);
@@ -254,7 +282,12 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 			} else {
 				synchronized ( v ) {
 					// apply updates
-					HikariConfigMXBean bean = v.poolDataSource.getHikariConfigMXBean();
+					final HikariDataSource poolDataSource = v.poolDataSource;
+					final ServiceRegistration<DataSource> poolDataSourceReg = v.poolDataSourceReg;
+					if ( poolDataSource == null || poolDataSourceReg == null ) {
+						return v;
+					}
+					HikariConfigMXBean bean = poolDataSource.getHikariConfigMXBean();
 					Map<String, Object> p = new HashMap<>(8);
 					Hashtable<String, Object> serviceProps = new Hashtable<>();
 					for ( Entry<String, ?> me : properties.entrySet() ) {
@@ -279,7 +312,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 						}
 					}
 					if ( !serviceProps.isEmpty() ) {
-						v.poolDataSourceReg.setProperties(serviceProps);
+						poolDataSourceReg.setProperties(serviceProps);
 					}
 					ClassUtils.setBeanProperties(bean, p, true);
 				}
@@ -303,7 +336,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	 *        the property value
 	 * @return the property value to use
 	 */
-	private Object servicePropertyValue(String propKey, Object object) {
+	private @Nullable Object servicePropertyValue(String propKey, Object object) {
 		if ( Constants.SERVICE_RANKING.equals(propKey) ) {
 			if ( object instanceof Integer ) {
 				return object;
@@ -336,23 +369,23 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	private final class ManagedHikariDataSource implements ServiceListener {
 
 		private final String pid;
-		private final String dataSourceFactoryFilter;
+		private final @Nullable String dataSourceFactoryFilter;
 		private final String jdbcUrl;
-		private final String pingTestQuery;
+		private final @Nullable String pingTestQuery;
 		private final Dictionary<String, ?> serviceProps;
 		private final Properties dataSourceProps;
 		private final Properties poolProps;
 		private final boolean exceptionHandlerSupport;
 
-		private DataSource dataSource;
-		private HikariDataSource poolDataSource;
-		private ServiceRegistration<DataSource> poolDataSourceReg;
-		private ServiceRegistration<PingTest> pingTestReg;
+		private @Nullable DataSource dataSource;
+		private @Nullable HikariDataSource poolDataSource;
+		private @Nullable ServiceRegistration<DataSource> poolDataSourceReg;
+		private @Nullable ServiceRegistration<PingTest> pingTestReg;
 		private boolean dataSourceFactoryListening;
 
-		private ManagedHikariDataSource(String pid, String dataSourceFactoryFilter, String jdbcUrl,
-				String pingTestQuery, Dictionary<String, ?> serviceProps, Properties dataSourceProps,
-				Properties poolProps, boolean exceptionHandlerSupport) {
+		private ManagedHikariDataSource(String pid, @Nullable String dataSourceFactoryFilter,
+				String jdbcUrl, @Nullable String pingTestQuery, Dictionary<String, ?> serviceProps,
+				Properties dataSourceProps, Properties poolProps, boolean exceptionHandlerSupport) {
 			super();
 			this.pid = pid;
 			this.dataSourceFactoryFilter = dataSourceFactoryFilter;
@@ -483,8 +516,8 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				Iterator<ServiceReference<DataSourceFactory>> itr = (dsFactoryRefs != null
 						? dsFactoryRefs.iterator()
 						: null);
-				ServiceReference<DataSourceFactory> dsFactoryRef = itr.next();
-				dsFactory = bundleContext.getService(dsFactoryRef);
+				ServiceReference<DataSourceFactory> dsFactoryRef = (itr != null ? itr.next() : null);
+				dsFactory = (dsFactoryRef != null ? bundleContext.getService(dsFactoryRef) : null);
 				if ( dsFactory == null ) {
 					throw new NoSuchElementException();
 				}
@@ -564,7 +597,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	 * @param ignoredPropertyPrefixes
 	 *        the prefixes to ignore
 	 */
-	public void setIgnoredPropertyPrefixes(Set<String> ignoredPropertyPrefixes) {
+	public final void setIgnoredPropertyPrefixes(Set<String> ignoredPropertyPrefixes) {
 		this.ignoredPropertyPrefixes = ignoredPropertyPrefixes;
 	}
 
