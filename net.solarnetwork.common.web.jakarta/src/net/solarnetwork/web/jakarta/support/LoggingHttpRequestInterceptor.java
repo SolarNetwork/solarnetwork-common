@@ -381,7 +381,9 @@ public class LoggingHttpRequestInterceptor implements ClientHttpRequestIntercept
 					.append(me.getValue().stream().collect(Collectors.joining(", "))).append('\n');
 		}
 		buf.append('\n');
-		buf.append(new String(body, "UTF-8")).append('\n');
+		if ( body != null ) {
+			buf.append(new String(body, "UTF-8")).append('\n');
+		}
 		buf.append(">>>>>>>>>> request end   ").append(exchangeId)
 				.append(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		log.trace(buf.toString());
