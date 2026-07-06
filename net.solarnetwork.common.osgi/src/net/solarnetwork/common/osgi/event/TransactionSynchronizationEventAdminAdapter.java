@@ -1,27 +1,28 @@
 /* ==================================================================
  * TransactionSynchronizationEventAdminAdapter.java - 15/06/2017 12:13:40 PM
- * 
+ *
  * Copyright 2017 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.common.osgi.event;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.springframework.core.Ordered;
@@ -32,7 +33,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 /**
  * EventAdmin implementation that can synchronize the posting of events to the
  * current thread's active transaction.
- * 
+ *
  * <p>
  * This can be useful for event handlers that need to access data related to the
  * active transaction, for example by querying the data after the transaction
@@ -41,13 +42,13 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * {@link EventAdmin}. Otherwise the event will be registered to post when the
  * configured transaction phase occurs.
  * </p>
- * 
+ *
  * <p>
  * The {@link #sendEvent(Event)} does not synchronize with any transactions.
  * Instead it immediately calls {@link EventAdmin#sendEvent(Event)} on the
  * configured delegate.
  * </p>
- * 
+ *
  * @author matt
  * @version 1.1
  * @since 1.36
@@ -61,14 +62,15 @@ public class TransactionSynchronizationEventAdminAdapter implements EventAdmin {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param delegate
 	 *        the delegate
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public TransactionSynchronizationEventAdminAdapter(EventAdmin delegate) {
 		super();
-		assert delegate != null;
-		this.delegate = delegate;
+		this.delegate = requireNonNullArgument(delegate, "delegate");
 	}
 
 	@Override
@@ -133,12 +135,12 @@ public class TransactionSynchronizationEventAdminAdapter implements EventAdmin {
 
 	/**
 	 * Set the transaction phase to associate posting events with.
-	 * 
+	 *
 	 * <p>
 	 * This defaults to {@link TransactionPhase#AFTER_COMPLETION} so events are
 	 * posted always, after commit or rollback.
 	 * </p>
-	 * 
+	 *
 	 * @param phase
 	 *        the phase to set
 	 */
@@ -149,14 +151,14 @@ public class TransactionSynchronizationEventAdminAdapter implements EventAdmin {
 
 	/**
 	 * Set the order to attach to synchronized events.
-	 * 
+	 *
 	 * <p>
 	 * When events are synchronized to a transaction phase, this order will be
 	 * used to rank all registered tasks for that phase. That includes events
 	 * posted by this service as well as any other tasks registered with the
 	 * transaction.
 	 * </p>
-	 * 
+	 *
 	 * @param order
 	 *        the order to set
 	 */

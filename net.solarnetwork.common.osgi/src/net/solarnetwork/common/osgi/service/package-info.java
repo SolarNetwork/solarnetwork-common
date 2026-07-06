@@ -1,7 +1,7 @@
 /* ==================================================================
- * AppEventHandlerRegistrar.java - 13/06/2017 10:23:55 PM
+ * package-info.java - 20/02/2026 5:55:36 pm
  *
- * Copyright 2017 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,35 +20,9 @@
  * ==================================================================
  */
 
-package net.solarnetwork.common.osgi.event;
-
-import org.osgi.service.event.EventHandler;
-
 /**
- * API for registering OSGi {@link EventHandler} instances with topics.
- *
- * @author matt
- * @version 1.0
- * @since 1.36
+ * Package info.
  */
-public interface EventHandlerRegistrar {
 
-	/**
-	 * Register a handler for a set of topics.
-	 *
-	 * @param handler
-	 *        the handler
-	 * @param topics
-	 *        the topics to regsiter
-	 */
-	void registerEventHandler(EventHandler handler, String... topics);
-
-	/**
-	 * Deregister a handler from all topics.
-	 *
-	 * @param handler
-	 *        the handler to deregister
-	 */
-	void deregisterEventHandler(EventHandler handler);
-
-}
+@org.jspecify.annotations.NullMarked
+package net.solarnetwork.common.osgi.service;

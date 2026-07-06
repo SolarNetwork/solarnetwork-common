@@ -26,11 +26,11 @@ import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -58,7 +58,7 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 	 * @param bundleContext
 	 *        the bundle context
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public OsgiServiceRegistry(BundleContext bundleContext) {
 		super();
@@ -66,7 +66,7 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 	}
 
 	@Override
-	public Collection<?> services(String filter) {
+	public Collection<?> services(@Nullable String filter) {
 		ServiceReference<?>[] refs;
 		try {
 			refs = bundleContext.getAllServiceReferences(null, filter);
@@ -74,7 +74,7 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 			throw new IllegalArgumentException("Invalid filter syntax.", e);
 		}
 		if ( refs == null ) {
-			return Collections.emptyList();
+			return List.of();
 		}
 		final List<Object> results = new ArrayList<>(refs.length);
 		for ( ServiceReference<?> ref : refs ) {
@@ -92,7 +92,7 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 	}
 
 	@Override
-	public <S> Collection<S> services(Class<S> clazz, String filter) {
+	public <S> Collection<S> services(Class<S> clazz, @Nullable String filter) {
 		Collection<ServiceReference<S>> refs;
 		try {
 			refs = bundleContext.getServiceReferences(clazz, filter);
@@ -100,7 +100,7 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 			throw new IllegalArgumentException("Invalid filter syntax.", e);
 		}
 		if ( refs == null || refs.isEmpty() ) {
-			return Collections.emptyList();
+			return List.of();
 		}
 		final List<S> results = new ArrayList<>(refs.size());
 		for ( ServiceReference<S> ref : refs ) {
@@ -119,8 +119,8 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <S> RegisteredService<S> registerService(S service, Map<String, ?> properties,
-			Class<?>... classes) {
+	public <S> RegisteredService<S> registerService(S service, @Nullable Map<String, ?> properties,
+			Class<?> @Nullable... classes) {
 		final String[] classNames;
 		if ( classes != null ) {
 			classNames = Arrays.stream(classes).map(c -> c.getName()).toArray(String[]::new);

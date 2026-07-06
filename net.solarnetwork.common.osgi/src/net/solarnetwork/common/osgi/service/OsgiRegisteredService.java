@@ -50,7 +50,7 @@ public class OsgiRegisteredService<S> implements RegisteredService<S> {
 	 * @param serviceRegistration
 	 *        the service registration to wrap
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public OsgiRegisteredService(ServiceRegistration<S> serviceRegistration) {
 		super();

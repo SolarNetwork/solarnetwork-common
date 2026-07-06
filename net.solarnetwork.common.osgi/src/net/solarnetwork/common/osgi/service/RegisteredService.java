@@ -1,36 +1,38 @@
 /* ==================================================================
  * RegisteredService.java - Mar 20, 2012 7:09:25 PM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.common.osgi.service;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.osgi.framework.ServiceRegistration;
 
 /**
  * A class to help with tracking registered services.
- * 
+ *
  * @param <T>
  *        the service object type
  * @author matt
@@ -40,27 +42,26 @@ public class RegisteredService<T> {
 
 	private final T config;
 	private final Map<String, ?> props;
-	private List<ServiceRegistration<?>> regList;
+	private @Nullable List<ServiceRegistration<?>> regList;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param config
 	 *        the configuration object
 	 * @param properties
 	 *        the service properties
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
 	 */
 	public RegisteredService(T config, Map<String, ?> properties) {
-		if ( config == null || properties == null ) {
-			throw new IllegalArgumentException("Config and properties must not be null");
-		}
-		this.config = config;
-		this.props = properties;
+		this.config = requireNonNullArgument(config, "config");
+		this.props = requireNonNullArgument(properties, "properties");
 	}
 
 	/**
 	 * Test if a configuration is the same as another.
-	 * 
+	 *
 	 * @param other
 	 *        the other configuration object to compare
 	 * @param properties
@@ -68,7 +69,7 @@ public class RegisteredService<T> {
 	 * @return {@literal true} if {@code other} and {@code config} are equal,
 	 *         and {@code properties} and {@code props} are deeply equal
 	 */
-	public boolean isSameAs(T other, Map<String, ?> properties) {
+	public boolean isSameAs(@Nullable T other, @Nullable Map<String, ?> properties) {
 		if ( other == null || properties == null ) {
 			return false;
 		}
@@ -86,20 +87,17 @@ public class RegisteredService<T> {
 
 	/**
 	 * Test of two maps are deeply equal.
-	 * 
+	 *
 	 * @param m1
 	 *        the first map
 	 * @param m2
 	 *        the second map
 	 * @return {@literal true} if both maps are deeply equal (including arrays)
 	 */
-	public static boolean areMapsSame(Map<String, ?> m1, Map<String, ?> m2) {
-		if ( m1 == null && m2 == null ) {
+	public static boolean areMapsSame(@Nullable Map<String, ?> m1, @Nullable Map<String, ?> m2) {
+		if ( m1 == m2 ) {
 			return true;
-		}
-		if ( m1 == null && m2 != null ) {
-			return false;
-		} else if ( m1 != null && m2 == null ) {
+		} else if ( m1 == null || m2 == null ) {
 			return false;
 		}
 		if ( m1.size() != m2.size() ) {
@@ -115,7 +113,7 @@ public class RegisteredService<T> {
 				return false;
 			} else if ( mine != null ) {
 				if ( mine.getClass().isArray() ) {
-					if ( !(other.getClass().isArray()
+					if ( !(other != null && other.getClass().isArray()
 							&& Arrays.deepEquals((Object[]) mine, (Object[]) other)) ) {
 						return false;
 					}
@@ -141,7 +139,7 @@ public class RegisteredService<T> {
 
 	/**
 	 * Get the configuration.
-	 * 
+	 *
 	 * @return the configuration
 	 */
 	public T getConfig() {
@@ -150,7 +148,7 @@ public class RegisteredService<T> {
 
 	/**
 	 * Get the service properties.
-	 * 
+	 *
 	 * @return the properties
 	 */
 	public Map<String, ?> getProps() {
@@ -159,20 +157,20 @@ public class RegisteredService<T> {
 
 	/**
 	 * Get the first registration.
-	 * 
-	 * @return the registration, or {@literal null} if none available
+	 *
+	 * @return the registration, or {@code null} if none available
 	 */
-	public ServiceRegistration<?> getReg() {
+	public @Nullable ServiceRegistration<?> getReg() {
 		return (regList == null || regList.size() < 1 ? null : regList.get(0));
 	}
 
 	/**
 	 * Set a single service registration.
-	 * 
+	 *
 	 * @param reg
 	 *        the registration
 	 */
-	public void setReg(ServiceRegistration<?> reg) {
+	public void setReg(@Nullable ServiceRegistration<?> reg) {
 		if ( regList == null ) {
 			regList = new ArrayList<ServiceRegistration<?>>(1);
 		} else {
@@ -183,16 +181,16 @@ public class RegisteredService<T> {
 
 	/**
 	 * Get the list of registrations.
-	 * 
-	 * @return the registrations, or {@literal null} if none set
+	 *
+	 * @return the registrations, or {@code null} if none set
 	 */
-	public List<ServiceRegistration<?>> getRegList() {
+	public @Nullable List<ServiceRegistration<?>> getRegList() {
 		return regList;
 	}
 
 	/**
 	 * Add a new registration.
-	 * 
+	 *
 	 * @param reg
 	 *        the registration
 	 */
@@ -202,4 +200,5 @@ public class RegisteredService<T> {
 		}
 		regList.add(reg);
 	}
+
 }

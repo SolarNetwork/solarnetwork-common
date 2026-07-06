@@ -1,27 +1,28 @@
 /* ==================================================================
  * BaseServiceListener.java - Mar 20, 2012 7:36:58 PM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.common.osgi.service;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Iterator;
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Abstract helper class for a service listener that registers new OSGi
  * services.
- * 
+ *
  * @param <T>
  *        the service type
  * @param <R>
@@ -55,23 +56,20 @@ public abstract class BaseServiceListener<T, R extends RegisteredService<T>> {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param bundleContext
 	 *        the bundle context
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public BaseServiceListener(BundleContext bundleContext) {
 		super();
-		if ( bundleContext == null ) {
-			throw new IllegalArgumentException("The bundleContext argument must not be null.");
-		}
-		this.bundleContext = bundleContext;
+		this.bundleContext = requireNonNullArgument(bundleContext, "bundleContext");
 	}
 
 	/**
 	 * Register a new OSGi service.
-	 * 
+	 *
 	 * @param tracked
 	 *        the RegisteredService instance
 	 * @param service
@@ -94,7 +92,7 @@ public abstract class BaseServiceListener<T, R extends RegisteredService<T>> {
 
 	/**
 	 * Track a collection of registered OSGi services.
-	 * 
+	 *
 	 * @param tracked
 	 *        the RegisteredService instance
 	 * @param services
@@ -111,7 +109,7 @@ public abstract class BaseServiceListener<T, R extends RegisteredService<T>> {
 
 	/**
 	 * Remove the registered service associated with a specific service.
-	 * 
+	 *
 	 * @param tracked
 	 *        the tracked service to remove
 	 * @param properties
@@ -133,19 +131,19 @@ public abstract class BaseServiceListener<T, R extends RegisteredService<T>> {
 
 	/**
 	 * Get the registered services.
-	 * 
+	 *
 	 * @return the registered services
 	 */
-	protected List<R> getRegisteredServices() {
+	protected final List<R> getRegisteredServices() {
 		return registeredServices;
 	}
 
 	/**
 	 * Get the bundle context.
-	 * 
-	 * @return the bundle context, never {@literal null}
+	 *
+	 * @return the bundle context, never {@code null}
 	 */
-	public BundleContext getBundleContext() {
+	public final BundleContext getBundleContext() {
 		return bundleContext;
 	}
 

@@ -1,27 +1,28 @@
 /* ==================================================================
  * DynamicServiceProxy.java - 8/06/2015 2:55:41 pm
- * 
+ *
  * Copyright 2007-2015 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.common.osgi.service;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,6 +32,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -47,7 +49,7 @@ import net.solarnetwork.service.OptionalService;
 /**
  * Utility for dynamically obtaining an OSGi service based on comparing bean
  * properties of a filtered subset of available services for matching values.
- * 
+ *
  * <p>
  * An example scenario for this class would be in the case of a factory service
  * that publishes differently configured service instances. This class can be
@@ -56,7 +58,7 @@ import net.solarnetwork.service.OptionalService;
  * might expose the serial port identifier as a bean property, which could be
  * used to match on the desired port.
  * </p>
- * 
+ *
  * <p>
  * This class is similar in purpose to the {@link DynamicServiceTracker} class,
  * except that it implements {@link FactoryBean} and returns a {@link Proxy}
@@ -68,12 +70,12 @@ import net.solarnetwork.service.OptionalService;
  * the filters configured on <em>this</em> class and then invoke the same method
  * on the resolved service.
  * </p>
- * 
+ *
  * <p>
  * The exposed proxy will also implement the {@link FilterableService}
  * interface.
  * </p>
- * 
+ *
  * @param <T>
  *        the tracked service type
  * @author matt
@@ -87,30 +89,24 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 
 	private final BundleContext bundleContext;
 	private final Class<? extends T> serviceClass;
-	private String serviceFilter;
-	private Map<String, Object> propertyFilters;
+	private @Nullable String serviceFilter;
+	private @Nullable Map<String, Object> propertyFilters;
 	private boolean ignoreEmptyPropertyFilterValues = true;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param bundleContext
 	 *        the bundle context
 	 * @param serviceClass
 	 *        the service class
 	 * @throws IllegalArgumentException
-	 *         if any argument is {@literal null}
+	 *         if any argument is {@code null}
 	 */
 	public DynamicServiceProxy(BundleContext bundleContext, Class<? extends T> serviceClass) {
 		super();
-		if ( bundleContext == null ) {
-			throw new IllegalArgumentException("The bundleContext argument must not be null.");
-		}
-		this.bundleContext = bundleContext;
-		if ( serviceClass == null ) {
-			throw new IllegalArgumentException("The serviceClass argument must not be null.");
-		}
-		this.serviceClass = serviceClass;
+		this.bundleContext = requireNonNullArgument(bundleContext, "bundleContext");
+		this.serviceClass = requireNonNullArgument(serviceClass, "serviceClass");
 	}
 
 	@Override
@@ -153,7 +149,7 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 	}
 
 	@Override
-	public Class<?> getObjectType() {
+	public @Nullable Class<?> getObjectType() {
 		return null;
 	}
 
@@ -163,7 +159,7 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 	}
 
 	@SuppressWarnings("unchecked")
-	private T getServiceInstance() {
+	private @Nullable T getServiceInstance() {
 		final String serviceClassName = serviceClass.getName();
 		ServiceReference<?>[] refs;
 		try {
@@ -235,17 +231,24 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 	}
 
 	@Override
-	public void setPropertyFilter(String key, Object value) {
+	public void setPropertyFilter(String key, @Nullable Object value) {
 		Map<String, Object> filters = propertyFilters;
+		if ( (filters == null || filters.isEmpty()) && value == null ) {
+			return;
+		}
 		if ( filters == null ) {
-			filters = new LinkedHashMap<String, Object>(8);
+			filters = new LinkedHashMap<>(8);
 			propertyFilters = filters;
 		}
-		filters.put(key, value);
+		if ( value != null ) {
+			filters.put(key, value);
+		} else {
+			filters.remove(key);
+		}
 	}
 
 	@Override
-	public Object removePropertyFilter(String key) {
+	public @Nullable Object removePropertyFilter(String key) {
 		Object result = null;
 		Map<String, Object> filters = propertyFilters;
 		if ( filters != null ) {
@@ -256,85 +259,84 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 
 	/**
 	 * Get the OSGi bundle context.
-	 * 
+	 *
 	 * @return The configured bundle context.
 	 */
-	public BundleContext getBundleContext() {
+	public final BundleContext getBundleContext() {
 		return bundleContext;
 	}
 
 	/**
 	 * Get the OSGi service interface to proxy.
-	 * 
+	 *
 	 * @return The interface to proxy.
 	 */
-	public Class<? extends T> getServiceClass() {
+	public final Class<? extends T> getServiceClass() {
 		return serviceClass;
 	}
 
 	/**
 	 * Get the OSGi service filter to use.
-	 * 
-	 * @return The service filter, or {@literal null} if none.
+	 *
+	 * @return The service filter, or {@code null} if none.
 	 * @see #setServiceFilter(String)
 	 */
-	public String getServiceFilter() {
+	public final @Nullable String getServiceFilter() {
 		return serviceFilter;
 	}
 
 	/**
-	 * Set an OSGi service filter to restrict services to, or {@literal null}
-	 * for no filter.
-	 * 
+	 * Set an OSGi service filter to restrict services to, or {@code null} for
+	 * no filter.
+	 *
 	 * @param serviceFilter
 	 *        The service filter to use.
 	 */
-	public void setServiceFilter(String serviceFilter) {
+	public final void setServiceFilter(@Nullable String serviceFilter) {
 		this.serviceFilter = serviceFilter;
 	}
 
 	@Override
-	public Map<String, Object> getPropertyFilters() {
+	public final @Nullable Map<String, Object> getPropertyFilters() {
 		return propertyFilters;
 	}
 
 	/**
 	 * Set a map of bean property names and associated values to match against
 	 * all found OSGi services. The first service to match will be returned in
-	 * {@link #getObject()}. This can be {@literal null}, in which case the
-	 * first service found matching {@code serviceClassName} and
-	 * {@code serviceFilter} will be returned.
-	 * 
+	 * {@link #getObject()}. This can be {@code null}, in which case the first
+	 * service found matching {@code serviceClassName} and {@code serviceFilter}
+	 * will be returned.
+	 *
 	 * @param propertyFilters
 	 *        The property filter map to set.
 	 */
-	public void setPropertyFilters(Map<String, Object> propertyFilters) {
+	public final void setPropertyFilters(@Nullable Map<String, Object> propertyFilters) {
 		this.propertyFilters = propertyFilters;
 	}
 
 	/**
 	 * Get the flag to ignore empty property filter values.
-	 * 
+	 *
 	 * @return The flag value.
 	 * @see #setIgnoreEmptyPropertyFilterValues(boolean)
 	 */
-	public boolean isIgnoreEmptyPropertyFilterValues() {
+	public final boolean isIgnoreEmptyPropertyFilterValues() {
 		return ignoreEmptyPropertyFilterValues;
 	}
 
 	/**
 	 * Set the flag to ignore empty property filter values or not. If
-	 * {@literal true}, then ignore property filter values that are
-	 * {@literal null} or, if strings, have no length, for purposes of filtering
-	 * services. If {@literal false} then the property filters must match even
-	 * if empty, that is a {@literal null} filter value will only match services
-	 * whose corresponding property is also {@literal null}. Defaults to
-	 * {@literal true}.
-	 * 
+	 * {@literal true}, then ignore property filter values that are {@code null}
+	 * or, if strings, have no length, for purposes of filtering services. If
+	 * {@literal false} then the property filters must match even if empty, that
+	 * is a {@code null} filter value will only match services whose
+	 * corresponding property is also {@code null}. Defaults to {@literal true}.
+	 *
 	 * @param ignoreEmptyPropertyFilterValues
 	 *        The flag to set.
 	 */
-	public void setIgnoreEmptyPropertyFilterValues(boolean ignoreEmptyPropertyFilterValues) {
+	public final void setIgnoreEmptyPropertyFilterValues(boolean ignoreEmptyPropertyFilterValues) {
 		this.ignoreEmptyPropertyFilterValues = ignoreEmptyPropertyFilterValues;
 	}
 

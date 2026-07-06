@@ -1,27 +1,28 @@
 /* ==================================================================
  * DynamicServiceTracker.java - Mar 24, 2012 8:32:05 PM
- * 
+ *
  * Copyright 2007-2012 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.common.osgi.service;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +32,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.jspecify.annotations.Nullable;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -46,7 +48,7 @@ import net.solarnetwork.service.OptionalServiceCollection;
 /**
  * Utility for dynamically obtaining an OSGi service based on comparing bean
  * properties of a filtered subset of available services for matching values.
- * 
+ *
  * <p>
  * An example scenario for this class would be in the case of a factory service
  * that publishes differently configured service instances. This class can be
@@ -55,7 +57,7 @@ import net.solarnetwork.service.OptionalServiceCollection;
  * might expose the serial port identifier as a bean property, which could be
  * used to match on the desired port.
  * </p>
- * 
+ *
  * <p>
  * The {@code sticky} property allows for caching of a resolved service so it
  * need not be resolved every time {@link #service()} is invoked. The resolved
@@ -65,13 +67,13 @@ import net.solarnetwork.service.OptionalServiceCollection;
  * expected to change much, or at all, during the life of this tracker, and the
  * speed of resolving the service it critical.
  * </p>
- * 
+ *
  * <p>
  * Conceptually this is very similar to what OSGi Blueprint service references
  * provide, just with more features such as filtering on service JavaBean
  * properties.
  * </p>
- * 
+ *
  * @param <T>
  *        the tracked service type
  * @author matt
@@ -87,23 +89,23 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 
 	private final BundleContext bundleContext;
 
-	private String serviceClassName;
-	private String serviceFilter;
-	private Map<String, Object> propertyFilters;
-	private T fallbackService;
+	private @Nullable String serviceClassName;
+	private @Nullable String serviceFilter;
+	private @Nullable Map<String, Object> propertyFilters;
+	private @Nullable T fallbackService;
 	private boolean ignoreEmptyPropertyFilterValues = true;
 	private boolean requirePropertyFilter = false;
 	private boolean sticky = false;
-	private WeakReference<T> stickyService;
+	private @Nullable WeakReference<T> stickyService;
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param bundleContext
 	 *        the bundle context; in OSGi Blueprint this is available via an
 	 *        implicit {@literal bundleContext} bean ID
 	 * @throws IllegalArgumentException
-	 *         if the {@code bundleContext} argument is {@literal null}
+	 *         if the {@code bundleContext} argument is {@code null}
 	 */
 	public DynamicServiceTracker(BundleContext bundleContext) {
 		this(bundleContext, (String) null);
@@ -111,42 +113,39 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param bundleContext
 	 *        the bundle context; in OSGi Blueprint this is available via an
 	 *        implicit {@literal bundleContext} bean ID
 	 * @param serviceClassName
 	 *        the service class name to track
 	 * @throws IllegalArgumentException
-	 *         if the {@code bundleContext} argument is {@literal null}
+	 *         if the {@code bundleContext} argument is {@code null}
 	 */
-	public DynamicServiceTracker(BundleContext bundleContext, String serviceClassName) {
+	public DynamicServiceTracker(BundleContext bundleContext, @Nullable String serviceClassName) {
 		super();
-		if ( bundleContext == null ) {
-			throw new IllegalArgumentException("The bundleContext argument must not be null.");
-		}
-		this.bundleContext = bundleContext;
+		this.bundleContext = requireNonNullArgument(bundleContext, "bundleContext");
 		this.serviceClassName = serviceClassName;
 	}
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param bundleContext
 	 *        the bundle context; in OSGi Blueprint this is available via an
 	 *        implicit {@literal bundleContext} bean ID
 	 * @param serviceClass
 	 *        the service class to track
 	 * @throws IllegalArgumentException
-	 *         if the {@code bundleContext} argument is {@literal null}
+	 *         if the {@code bundleContext} argument is {@code null}
 	 */
-	public DynamicServiceTracker(BundleContext bundleContext, Class<?> serviceClass) {
+	public DynamicServiceTracker(BundleContext bundleContext, @Nullable Class<?> serviceClass) {
 		this(bundleContext, serviceClass != null ? serviceClass.getName() : null);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public T service() {
+	public @Nullable T service() {
 		if ( !canResolveService() ) {
 			return null;
 		}
@@ -301,18 +300,25 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	}
 
 	@Override
-	public void setPropertyFilter(String key, Object value) {
+	public void setPropertyFilter(String key, @Nullable Object value) {
 		Map<String, Object> filters = propertyFilters;
+		if ( (filters == null || filters.isEmpty()) && value == null ) {
+			return;
+		}
 		if ( filters == null ) {
 			filters = new LinkedCaseInsensitiveMap<>(2);
 			propertyFilters = filters;
 		}
-		filters.put(key, value);
+		if ( value != null ) {
+			filters.put(key, value);
+		} else {
+			filters.remove(key);
+		}
 		stickyService = null;
 	}
 
 	@Override
-	public Object removePropertyFilter(String key) {
+	public @Nullable Object removePropertyFilter(String key) {
 		Object result = null;
 		Map<String, Object> filters = propertyFilters;
 		if ( filters != null ) {
@@ -324,82 +330,81 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 
 	/**
 	 * Get the OSGi bundle context.
-	 * 
+	 *
 	 * @return the bundle context
 	 */
-	public BundleContext getBundleContext() {
+	public final BundleContext getBundleContext() {
 		return bundleContext;
 	}
 
 	/**
 	 * Get the service class name to filter on.
-	 * 
-	 * @return the service class name, or {@literal null} to consider all
-	 *         services
+	 *
+	 * @return the service class name, or {@code null} to consider all services
 	 */
-	public String getServiceClassName() {
+	public final @Nullable String getServiceClassName() {
 		return serviceClassName;
 	}
 
 	/**
 	 * Set the OSGi service class name to filter on.
-	 * 
+	 *
 	 * @param serviceClassName
-	 *        the service class name to look for , or {@literal null} to
-	 *        consider all services
+	 *        the service class name to look for , or {@code null} to consider
+	 *        all services
 	 */
-	public void setServiceClassName(String serviceClassName) {
+	public final void setServiceClassName(@Nullable String serviceClassName) {
 		this.serviceClassName = serviceClassName;
 	}
 
 	/**
 	 * Get the OSGi service filter to filter services on.
-	 * 
-	 * @return the service filter expression, or {@literal null} to not restrict
-	 *         by any service filter
+	 *
+	 * @return the service filter expression, or {@code null} to not restrict by
+	 *         any service filter
 	 */
-	public String getServiceFilter() {
+	public final @Nullable String getServiceFilter() {
 		return serviceFilter;
 	}
 
 	/**
 	 * Set an OSGi service filter to filter services on.
-	 * 
+	 *
 	 * @param serviceFilter
-	 *        the OSGi service filter expression, or {@literal null} to not
+	 *        the OSGi service filter expression, or {@code null} to not
 	 *        restrict by any service filter
 	 */
-	public void setServiceFilter(String serviceFilter) {
+	public final void setServiceFilter(@Nullable String serviceFilter) {
 		this.serviceFilter = serviceFilter;
 	}
 
 	@Override
-	public Map<String, Object> getPropertyFilters() {
+	public final @Nullable Map<String, Object> getPropertyFilters() {
 		return propertyFilters;
 	}
 
 	/**
 	 * Set a map of bean property names and associated values to match against
 	 * all found OSGi services.
-	 * 
+	 *
 	 * <p>
 	 * The first service to match will be returned in {@link #service()}. This
-	 * can be {@literal null}, in which case the first service found matching
+	 * can be {@code null}, in which case the first service found matching
 	 * {@code serviceClassName} and {@code serviceFilter} will be returned.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * <b>Note</b> a case-preserving but case-insensitive map will be created
 	 * and used internally. This is to support filters like {@literal UID} and
 	 * {@literal uid} which have been used interchangeably in SolarNetwork
 	 * settings.
 	 * </p>
-	 * 
+	 *
 	 * @param propertyFilters
 	 *        the JavaBean property values to filter services on, or
-	 *        {@literal null} to not restrict by bean properties
+	 *        {@code null} to not restrict by bean properties
 	 */
-	public void setPropertyFilters(Map<String, Object> propertyFilters) {
+	public final void setPropertyFilters(@Nullable Map<String, Object> propertyFilters) {
 		if ( propertyFilters != null ) {
 			Map<String, Object> ciMap = new LinkedCaseInsensitiveMap<>(propertyFilters.size());
 			ciMap.putAll(propertyFilters);
@@ -410,103 +415,103 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 
 	/**
 	 * Get the fallback service.
-	 * 
+	 *
 	 * @return the fallback service
 	 */
-	public T getFallbackService() {
+	public final @Nullable T getFallbackService() {
 		return fallbackService;
 	}
 
 	/**
 	 * Set a service to use if no other matching service is available.
-	 * 
+	 *
 	 * <p>
 	 * If no matching service is available when {@link #service()} is called,
 	 * this value will be returned.
 	 * </p>
-	 * 
+	 *
 	 * @param fallbackService
 	 *        the fallback service to use when no other service is available
 	 */
-	public void setFallbackService(T fallbackService) {
+	public final void setFallbackService(@Nullable T fallbackService) {
 		this.fallbackService = fallbackService;
 	}
 
 	/**
 	 * Get a flag to ignore empty property filter values.
-	 * 
+	 *
 	 * @return {@literal true} to ignore empty property values when filtering;
 	 *         defaults to {@literal true}.
 	 */
-	public boolean isIgnoreEmptyPropertyFilterValues() {
+	public final boolean isIgnoreEmptyPropertyFilterValues() {
 		return ignoreEmptyPropertyFilterValues;
 	}
 
 	/**
 	 * Set a flag to ignore empty property filter values.
-	 * 
+	 *
 	 * <p>
 	 * If {@literal true}, then ignore property filter values that are
-	 * {@literal null} or, if strings, have no length, for purposes of filtering
+	 * {@code null} or, if strings, have no length, for purposes of filtering
 	 * services. If {@literal false} then the property filters must match even
-	 * if empty, that is a {@literal null} filter value will only match services
-	 * whose corresponding property is also {@literal null}.
+	 * if empty, that is a {@code null} filter value will only match services
+	 * whose corresponding property is also {@code null}.
 	 * </p>
-	 * 
+	 *
 	 * @param ignoreEmptyPropertyFilterValues
 	 *        the ignore setting to use
 	 */
-	public void setIgnoreEmptyPropertyFilterValues(boolean ignoreEmptyPropertyFilterValues) {
+	public final void setIgnoreEmptyPropertyFilterValues(boolean ignoreEmptyPropertyFilterValues) {
 		this.ignoreEmptyPropertyFilterValues = ignoreEmptyPropertyFilterValues;
 	}
 
 	/**
 	 * Get the "sticky" mode.
-	 * 
+	 *
 	 * @return {@literal true} to maintain a reference to the first-available
 	 *         service
 	 */
-	public synchronized boolean isSticky() {
+	public final synchronized boolean isSticky() {
 		return sticky;
 	}
 
 	/**
 	 * Set the "sticky" mode.
-	 * 
+	 *
 	 * <p>
 	 * When {@literal true} then maintain a reference to the first-available
 	 * service discovered, rather than resolve it each time {@link #service()}
 	 * is called.
 	 * </p>
-	 * 
+	 *
 	 * @param sticky
 	 *        {@literal true} to maintain a reference to the first-available
 	 *        service
 	 */
-	public synchronized void setSticky(boolean sticky) {
+	public final synchronized void setSticky(boolean sticky) {
 		this.sticky = sticky;
 	}
 
 	/**
 	 * Get the flag to require a property filter.
-	 * 
+	 *
 	 * @return {@literal true} if a property filter is required, so without a
 	 *         property filter a service will never be resolved
 	 * @since 1.1
 	 */
-	public boolean isRequirePropertyFilter() {
+	public final boolean isRequirePropertyFilter() {
 		return requirePropertyFilter;
 	}
 
 	/**
 	 * Set the flag to require a property filter.
-	 * 
+	 *
 	 * @param requirePropertyFilter
 	 *        {@literal true} if a property filter is required, so without a
 	 *        property filter a service will never be resolved
 	 * @since 1.1
 	 */
-	public void setRequirePropertyFilter(boolean requirePropertyFilter) {
+	public final void setRequirePropertyFilter(boolean requirePropertyFilter) {
 		this.requirePropertyFilter = requirePropertyFilter;
 	}
 
