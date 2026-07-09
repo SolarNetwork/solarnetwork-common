@@ -54,6 +54,13 @@ public class ExpressionConfiguration {
 	private @Nullable Expression cachedExpression;
 
 	/**
+	 * Constructor.
+	 */
+	public ExpressionConfiguration() {
+		super();
+	}
+
+	/**
 	 * Get settings suitable for configuring an instance of this class.
 	 *
 	 * <p>
