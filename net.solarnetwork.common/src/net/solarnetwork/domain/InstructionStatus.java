@@ -30,7 +30,7 @@ import org.jspecify.annotations.Nullable;
  * Status information for a single Instruction.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.0
  */
 public interface InstructionStatus {
@@ -105,6 +105,38 @@ public interface InstructionStatus {
 	 * @return the current instruction state
 	 */
 	InstructionState getInstructionState();
+
+	/**
+	 * Get the instruction state as a string.
+	 *
+	 * @return the {@link #getInstructionState()} name value
+	 * @since 1.1
+	 */
+	default String instructionStateName() {
+		return getInstructionState().name();
+	}
+
+	/**
+	 * Test if the instruction state is {@code Completed} or {@code Declined}.
+	 *
+	 * @return {@code true} if the instruction state is {@code Completed} or
+	 *         {@code Declined}
+	 * @since 1.1
+	 */
+	default boolean isDone() {
+		final InstructionState state = getInstructionState();
+		return (state == InstructionState.Completed || state == InstructionState.Declined);
+	}
+
+	/**
+	 * Test if the instruction state is {@code Completed}.
+	 *
+	 * @return {@code true} if the instruction state is {@code Completed}
+	 * @since 1.1
+	 */
+	default boolean isCompleted() {
+		return (getInstructionState() == InstructionState.Completed);
+	}
 
 	/**
 	 * Get the date/time the instruction state was queried.
