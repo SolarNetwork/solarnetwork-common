@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 import org.springframework.expression.Expression;
 import net.solarnetwork.service.ExpressionService;
@@ -173,6 +174,31 @@ public class ExpressionConfiguration {
 	 */
 	public synchronized @Nullable ExpressionServiceExpression expression(
 			final @Nullable Iterable<ExpressionService> services) {
+		return expression(Function.identity(), services);
+	}
+
+	/**
+	 * Get the appropriate {@link Expression} to use based on the
+	 * {@link #getExpression()} value, if {@link #getExpressionServiceId()} is
+	 * configured and the matching service is available.
+	 *
+	 * <p>
+	 * The parsed expression will be cached and re-used over the life of this
+	 * instance.
+	 * </p>
+	 *
+	 * @param expressionPreProcessor
+	 *        a function to pre-process the expression, for example to resolve
+	 *        placeholder values; you can use {@link Function#identity()} for a
+	 *        no-op transformer
+	 * @param services
+	 *        the available services
+	 * @return the expression instance, or {@code null} if no expression is
+	 *         configured or the appropriate service is not found
+	 */
+	public synchronized @Nullable ExpressionServiceExpression expression(
+			final Function<String, String> expressionPreProcessor,
+			final @Nullable Iterable<ExpressionService> services) {
 		final String serviceId = getExpressionServiceId();
 		if ( serviceId == null || services == null ) {
 			return null;
@@ -183,7 +209,7 @@ public class ExpressionConfiguration {
 				if ( expr == null ) {
 					final String value = getExpression();
 					if ( value != null ) {
-						expr = service.parseExpression(value);
+						expr = service.parseExpression(expressionPreProcessor.apply(value));
 						if ( expr != null ) {
 							cachedExpression = expr;
 						}
