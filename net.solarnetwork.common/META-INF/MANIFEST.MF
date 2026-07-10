@@ -20,7 +20,7 @@ Export-Package:
  net.solarnetwork.security;version="2.2.1",
  net.solarnetwork.service;version="1.7.3",
  net.solarnetwork.service.support;version="1.4.0",
- net.solarnetwork.settings;version="2.4.0",
+ net.solarnetwork.settings;version="2.4.1",
  net.solarnetwork.settings.support;version="3.1.0",
  net.solarnetwork.support;version="2.1.2",
  net.solarnetwork.util;version="2.29.0"
