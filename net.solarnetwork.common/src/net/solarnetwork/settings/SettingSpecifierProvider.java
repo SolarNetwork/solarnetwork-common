@@ -137,7 +137,7 @@ public interface SettingSpecifierProvider {
 	 *         if any argument except {@code groupUid} is {@code null}
 	 * @since 2.2
 	 */
-	default SettingSpecifierProviderInfo localizedInfo(@Nullable Locale locale, String uid,
+	default SettingSpecifierProviderInfo localizedInfo(@Nullable Locale locale, @Nullable String uid,
 			@Nullable String groupUid) {
 		final String settingUid = getSettingUid();
 		String displayName = getDisplayName();
