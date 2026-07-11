@@ -22,15 +22,18 @@
 
 package net.solarnetwork.domain.datum;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 import org.springframework.util.ConcurrentLruCache;
+import net.solarnetwork.util.NumberUtils;
 
 /**
  * API for datum-related string helper functions.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.7
  */
 public interface DatumStringFunctions {
@@ -108,6 +111,31 @@ public interface DatumStringFunctions {
 		}
 		Pattern p = PATTERN_CACHE.get(regex);
 		return p.matcher(source).replaceAll(replacement != null ? replacement : "");
+	}
+
+	/**
+	 * Parse an object as a Number.
+	 *
+	 * <p>
+	 * The resulting number will be narrowed to 32-bit types if possible,
+	 * otherwise a {@link BigDecimal} or {@link BigInteger} will be returned.
+	 * </p>
+	 *
+	 * @param value
+	 *        the value to treat as a number
+	 * @return if {@code value} is already a {@code Number} then it will be
+	 *         returned as-is, otherwise a new {@code Number} instance, or
+	 *         {@code null} if {@code value} cannot be parsed as a number
+	 * @since 1.1
+	 * @see NumberUtils#parseNumber(String)
+	 */
+	default @Nullable Number numberValue(@Nullable Object value) {
+		if ( value instanceof Number n ) {
+			return n;
+		} else if ( value == null ) {
+			return null;
+		}
+		return NumberUtils.parseNumber(value.toString());
 	}
 
 }

@@ -22,6 +22,9 @@
 
 package net.solarnetwork.domain.datum.test;
 
+import static net.solarnetwork.test.CommonTestUtils.randomInt;
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.InstanceOfAssertFactories.DOUBLE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -33,7 +36,7 @@ import net.solarnetwork.domain.datum.DatumStringFunctions;
  * Test cases for the {@link DatumStringFunctions} interface.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class DatumStringFunctionsTests implements DatumStringFunctions {
 
@@ -151,6 +154,64 @@ public class DatumStringFunctionsTests implements DatumStringFunctions {
 			assertThat("MRU regex was cached", PATTERN_CACHE.contains(String.valueOf(i)), is(true));
 		}
 		assertThat("Cache is at capacity", PATTERN_CACHE.size(), is(equalTo(cacheCapacity)));
+	}
+
+	@Test
+	public void numberValue_null() {
+		then(numberValue(null)).as("Null input returns null").isNull();
+	}
+
+	@Test
+	public void numberValue_number() {
+		// GIVEN
+		final Number input = randomInt();
+
+		// THEN
+		then(numberValue(input)).as("Number input returns same instance").isSameAs(input);
+	}
+
+	@Test
+	public void numberValue_nan() {
+		// GIVEN
+		final String input = "not a number";
+
+		// THEN
+		// @formatter:off
+		then(numberValue(input))
+			.as("Non-number input returns null")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void numberValue_decimalString() {
+		// GIVEN
+		final String input = "3.14159265";
+
+		// THEN
+		// @formatter:off
+		then(numberValue(input))
+			.as("String decimal input returns number")
+			.isInstanceOf(Double.class)
+			.asInstanceOf(DOUBLE)
+			.isEqualByComparingTo(3.14159265)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void numberValue_intString() {
+		// GIVEN
+		final String input = "123";
+
+		// THEN
+		// @formatter:off
+		then(numberValue(input))
+			.as("String integer input returns number")
+			.isEqualTo(123)
+			;
+		// @formatter:on
 	}
 
 }
