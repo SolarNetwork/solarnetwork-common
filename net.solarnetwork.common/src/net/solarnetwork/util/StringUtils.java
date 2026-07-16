@@ -116,7 +116,7 @@ public final class StringUtils {
 			variables = Collections.emptyMap();
 		}
 		Matcher matcher = NAMES_PATTERN.matcher(source);
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		while ( matcher.find() ) {
 			String match = matcher.group(1);
 			Object variableValue = getVariableValue(match, variables);

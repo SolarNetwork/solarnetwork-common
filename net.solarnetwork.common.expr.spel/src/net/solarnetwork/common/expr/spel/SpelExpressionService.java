@@ -140,7 +140,7 @@ public class SpelExpressionService implements ExpressionService {
 
 	private String safeVariableName(String varName) {
 		Matcher m = VAR_NAME_RESERVED.matcher(varName);
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		while ( m.find() ) {
 			char ch = m.group(1).charAt(0);
 			m.appendReplacement(buf, Integer.toString(ch, 16));
