@@ -23,6 +23,7 @@
 package net.solarnetwork.codec;
 
 import static java.util.Arrays.asList;
+import static net.solarnetwork.util.ObjectUtils.nonnull;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -53,6 +54,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -71,11 +73,13 @@ import net.solarnetwork.domain.InstructionStatus;
 import net.solarnetwork.domain.Location;
 import net.solarnetwork.domain.SecurityPolicy;
 import net.solarnetwork.domain.datum.Datum;
+import net.solarnetwork.domain.datum.DatumAuxiliaryRecord;
 import net.solarnetwork.domain.datum.GeneralDatumMetadata;
 import net.solarnetwork.domain.datum.ObjectDatumStreamDataSet;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadataId;
 import net.solarnetwork.domain.datum.StreamDatum;
+import net.solarnetwork.util.DateUtils;
 import net.solarnetwork.util.Half;
 import net.solarnetwork.util.NumberUtils;
 import net.solarnetwork.util.StringUtils;
@@ -97,7 +101,7 @@ import net.solarnetwork.util.StringUtils;
  * </ul>
  *
  * @author matt
- * @version 2.12
+ * @version 2.13
  * @since 1.72
  */
 public final class JsonUtils {
@@ -193,12 +197,14 @@ public final class JsonUtils {
 	static {
 		SimpleModule m = new SimpleModule("SolarNetwork Datum");
 		m.addSerializer(BasicGeneralDatumSerializer.INSTANCE);
+		m.addSerializer(BasicDatumAuxiliaryRecordSerializer.INSTANCE);
 		m.addSerializer(BasicObjectDatumStreamMetadataSerializer.INSTANCE);
 		m.addSerializer(BasicStreamDatumArraySerializer.INSTANCE);
 		m.addSerializer(ObjectDatumStreamMetadataId.class,
 				BasicObjectDatumStreamMetadataIdSerializer.INSTANCE);
 		m.addSerializer(BasicObjectDatumStreamDataSetSerializer.INSTANCE);
 		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
+		m.addDeserializer(DatumAuxiliaryRecord.class, BasicDatumAuxiliaryRecordDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamMetadata.class,
 				BasicObjectDatumStreamMetadataDeserializer.INSTANCE);
 		m.addDeserializer(StreamDatum.class, BasicStreamDatumArrayDeserializer.INSTANCE);
@@ -617,6 +623,46 @@ public final class JsonUtils {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Parse a timestamp from a tree node.
+	 *
+	 * <p>
+	 * This method supports parsing either a millisecond epoch number or an ISO
+	 * 8601 timestamp or a SolarNetwork timestamp.
+	 * </p>
+	 *
+	 * @param node
+	 *        the timestamp
+	 * @return the instant
+	 * @throws DateTimeParseException
+	 *         if any date parsing error occurs
+	 * @since 2.13
+	 */
+	public static @Nullable Instant parseTimestamp(@Nullable TreeNode node)
+			throws DateTimeParseException {
+		if ( node == null || !node.isValueNode() || !(node instanceof JsonNode tsNode) ) {
+			return null;
+		}
+
+		if ( tsNode.isNumber() ) {
+			return Instant.ofEpochMilli(tsNode.asLong());
+		}
+
+		try {
+			return Instant.parse(tsNode.textValue());
+		} catch ( DateTimeParseException e ) {
+			try {
+				return DateUtils.ISO_DATE_TIME_ALT_UTC.parse(tsNode.textValue(), Instant::from);
+			} catch ( DateTimeParseException e2 ) {
+				ZonedDateTime zdt = DateUtils.parseIsoTimestamp(tsNode.textValue(), ZoneOffset.UTC);
+				if ( zdt != null ) {
+					return zdt.toInstant();
+				}
+			}
+			throw e;
+		}
 	}
 
 	/**
@@ -1368,6 +1414,36 @@ public final class JsonUtils {
 				data[index] = o;
 			}
 		}
+	}
+
+	/**
+	 * Read an object from a tree node.
+	 *
+	 * @param <T>
+	 *        the expected object type
+	 * @param p
+	 *        the parser
+	 * @param node
+	 *        the tree node
+	 * @param clazz
+	 *        the object type class
+	 * @return the mapped object, or {@code null} if {@code node} is
+	 *         {@code null}, not a JSON object, or empty
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws JsonProcessingException
+	 *         if any processing exception occurs
+	 * @since 2.13
+	 */
+	public static final <T> @Nullable T readObject(JsonParser p, @Nullable JsonNode node, Class<T> clazz)
+			throws IOException, JsonProcessingException {
+		if ( node == null || !node.isObject() || node.isEmpty() ) {
+			return null;
+		}
+		final ObjectCodec codec = nonnull(p.getCodec(), "ObjectCodec");
+		final JsonParser childParser = node.traverse(codec);
+		childParser.nextToken();
+		return childParser.readValueAs(clazz);
 	}
 
 }

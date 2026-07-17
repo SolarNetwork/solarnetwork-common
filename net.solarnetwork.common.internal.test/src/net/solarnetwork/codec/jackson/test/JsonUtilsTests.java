@@ -22,9 +22,11 @@
 
 package net.solarnetwork.codec.jackson.test;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Map.entry;
 import static org.assertj.core.api.BDDAssertions.catchThrowableOfType;
 import static org.assertj.core.api.BDDAssertions.then;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -40,6 +42,7 @@ import org.junit.Test;
 import net.solarnetwork.codec.jackson.JsonDateUtils;
 import net.solarnetwork.codec.jackson.JsonUtils;
 import net.solarnetwork.domain.BasicDeviceInfo;
+import net.solarnetwork.domain.datum.GeneralDatumMetadata;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -445,6 +448,168 @@ public class JsonUtilsTests {
 					() -> JsonUtils.parseLong(p));
 
 			then(ex.getValue()).isEqualTo("12345.6789");
+		}
+	}
+
+	@Test
+	public void parseTimestamp_null() {
+		// GIVEN
+		final JsonNode input = null;
+
+		// WHEN
+		final Instant result = JsonUtils.parseTimestamp(input);
+
+		// THEN
+		then(result).as("Null input returns null").isNull();
+	}
+
+	@Test
+	public void parseTimestamp_nonValueValue_object() {
+		// GIVEN
+		final JsonNode input = JsonUtils.JSON_OBJECT_MAPPER.readTree("{}");
+
+		// WHEN
+		final Instant result = JsonUtils.parseTimestamp(input);
+
+		// THEN
+		then(result).as("Non-value JSON value returns null").isNull();
+	}
+
+	@Test
+	public void parseTimestamp_nonValueValue_array() {
+		// GIVEN
+		final JsonNode input = JsonUtils.JSON_OBJECT_MAPPER.readTree("[123345]");
+
+		// WHEN
+		final Instant result = JsonUtils.parseTimestamp(input);
+
+		// THEN
+		then(result).as("Non-value JSON value returns null").isNull();
+	}
+
+	@Test
+	public void parseTimestamp_longValue() {
+		// GIVEN
+		final Instant ts = Instant.now().truncatedTo(MILLIS);
+		final JsonNode input = JsonUtils.JSON_OBJECT_MAPPER.readTree("%d".formatted(ts.toEpochMilli()));
+
+		// WHEN
+		final Instant result = JsonUtils.parseTimestamp(input);
+
+		// THEN
+		then(result).as("Millisecond epoch number parsed as Instant").isEqualTo(ts);
+	}
+
+	@Test
+	public void parseTimestamp_textValue_iso() {
+		// GIVEN
+		final Instant ts = Instant.now().truncatedTo(MILLIS);
+		final JsonNode input = JsonUtils.JSON_OBJECT_MAPPER.readTree("\"%s\"".formatted(ts.toString()));
+
+		// WHEN
+		final Instant result = JsonUtils.parseTimestamp(input);
+
+		// THEN
+		then(result).as("ISO 8601 text parsed as Instant").isEqualTo(ts);
+	}
+
+	@Test
+	public void parseTimestamp_textValue_sn() {
+		// GIVEN
+		final Instant ts = Instant.now().truncatedTo(MILLIS);
+		final JsonNode input = JsonUtils.JSON_OBJECT_MAPPER
+				.readTree("\"%s\"".formatted(ts.toString().replace('T', ' ')));
+
+		// WHEN
+		final Instant result = JsonUtils.parseTimestamp(input);
+
+		// THEN
+		then(result).as("ISO 8601 text parsed as Instant").isEqualTo(ts);
+	}
+
+	private JsonMapper newDatumObjectMapper() {
+		return JsonUtils.JSON_OBJECT_MAPPER.rebuild().addModules(JsonUtils.DATUM_MODULE).build();
+	}
+
+	@Test
+	public void readObject_null() throws IOException {
+		// GIVEN
+		try (JsonParser p = newDatumObjectMapper().createParser("""
+					{}
+				""")) {
+
+			// WHEN
+			final GeneralDatumMetadata result = JsonUtils.readObject(p, null,
+					GeneralDatumMetadata.class);
+
+			// THEN
+			then(result).as("Null input returns null").isNull();
+		}
+	}
+
+	@Test
+	public void readObject_nonObject() throws IOException {
+		// GIVEN
+		try (JsonParser p = newDatumObjectMapper().createParser("""
+				{"metadata":"Not an object"}
+				""")) {
+			final JsonNode tree = p.readValueAsTree();
+
+			// WHEN
+			final GeneralDatumMetadata result = JsonUtils.readObject(p, tree.path("metadata"),
+					GeneralDatumMetadata.class);
+
+			// THEN
+			then(result).as("Non-object input returns null").isNull();
+		}
+	}
+
+	@Test
+	public void readObject_jsonNull() throws IOException {
+		// GIVEN
+		try (JsonParser p = newDatumObjectMapper().createParser("""
+				{"metadata":null}
+				""")) {
+			final JsonNode tree = p.readValueAsTree();
+
+			// WHEN
+			final GeneralDatumMetadata result = JsonUtils.readObject(p, tree.path("metadata"),
+					GeneralDatumMetadata.class);
+
+			// THEN
+			then(result).as("Non-object input returns null").isNull();
+		}
+	}
+
+	@Test
+	public void readObject() throws IOException {
+		// GIVEN
+		try (JsonParser p = newDatumObjectMapper().createParser("""
+					{
+					"metadata": {
+						"m": {
+							"foo": "bar"
+						},
+						"pm": {
+							"thing": {
+								"one": 2
+							}
+						}
+					}
+				}
+				""")) {
+			final JsonNode tree = p.readValueAsTree();
+
+			// WHEN
+			final GeneralDatumMetadata result = JsonUtils.readObject(p, tree.path("metadata"),
+					GeneralDatumMetadata.class);
+
+			// THEN
+			GeneralDatumMetadata expected = new GeneralDatumMetadata();
+			expected.putInfoValue("foo", "bar");
+			expected.putInfoValue("thing", "one", 2);
+
+			then(result).as("Tree parsed as object").isEqualTo(expected);
 		}
 	}
 
