@@ -24,6 +24,7 @@ package net.solarnetwork.codec;
 
 import static net.solarnetwork.util.DateUtils.ISO_DATE_TIME_ALT_UTC;
 import java.io.IOException;
+import java.io.Serial;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +47,7 @@ import net.solarnetwork.domain.datum.ObjectDatumKind;
  */
 public class BasicGeneralDatumSerializer extends StdScalarSerializer<Datum> {
 
+	@Serial
 	private static final long serialVersionUID = -5820173690461042501L;
 
 	/** A default instance. */

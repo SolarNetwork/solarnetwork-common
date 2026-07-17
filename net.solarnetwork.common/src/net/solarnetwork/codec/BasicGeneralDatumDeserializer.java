@@ -23,6 +23,7 @@
 package net.solarnetwork.codec;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -76,6 +77,7 @@ import net.solarnetwork.util.DateUtils;
  */
 public class BasicGeneralDatumDeserializer extends StdScalarDeserializer<Datum> implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = 3787325819424216521L;
 
 	/** A default instance. */
