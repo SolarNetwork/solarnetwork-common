@@ -47,7 +47,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  *
  * @author matt
- * @version 1.18
+ * @version 1.19
  */
 public final class StringUtils {
 
@@ -706,7 +706,8 @@ public final class StringUtils {
 	 * @since 1.7
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <K, V> @Nullable Map<K, V> sha256MaskedMap(@Nullable Map<K, V> map, Set<K> maskKeys) {
+	public static <K, V> @Nullable Map<K, V> sha256MaskedMap(@Nullable Map<K, V> map,
+			@Nullable Set<K> maskKeys) {
 		Map<K, V> res = map;
 		if ( map != null && maskKeys != null && !map.isEmpty() && !maskKeys.isEmpty() ) {
 			for ( K propName : maskKeys ) {
