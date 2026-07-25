@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
  * Basic persistable domain object API.
  *
  * @author matt
- * @version 2.2
+ * @version 2.3
  */
 public interface Datum {
 
@@ -94,6 +94,14 @@ public interface Datum {
 	 * A sample data key for a {@link Datum#getSourceId()} value.
 	 */
 	String SOURCE_ID = "sourceId";
+
+	/**
+	 * A tag to represent datum that are synthetic in nature, that is not
+	 * directly captured from a physical device.
+	 *
+	 * @since 2.3
+	 */
+	String SYNTHETIC_TAG = "synthetic";
 
 	/**
 	 * Get a {@link DatumId} for this datum.
