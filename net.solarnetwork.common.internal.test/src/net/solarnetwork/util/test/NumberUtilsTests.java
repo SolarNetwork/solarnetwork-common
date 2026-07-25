@@ -1015,12 +1015,10 @@ public class NumberUtilsTests {
 		then(NumberUtils.parseNumber("0X123ABC1234567890123456789"))
 				.as("Upper case hex parsed into BigIneteger")
 				.isEqualTo(new BigInteger("123abc1234567890123456789", 16));
-		then(NumberUtils.parseNumber("123abc1234567890123456789"))
-				.as("Unprefixed hex parsed into BigIneteger")
-				.isEqualTo(new BigInteger("123abc1234567890123456789", 16));
-		then(NumberUtils.parseNumber("0X123ABC1234567890123456789"))
-				.as("Unprefixed upper case hex parsed into BigIneteger")
-				.isEqualTo(new BigInteger("123abc1234567890123456789", 16));
+		then(NumberUtils.parseNumber("123abc1234567890123456789")).as("Unprefixed hex parsed as null")
+				.isNull();
+		then(NumberUtils.parseNumber("123ABC1234567890123456789"))
+				.as("Unprefixed upper case hex parsed as null").isNull();
 	}
 
 }

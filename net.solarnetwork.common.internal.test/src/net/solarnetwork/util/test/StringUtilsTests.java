@@ -642,15 +642,13 @@ public class StringUtilsTests {
 
 	@Test
 	public void numberValue_hex_noPrefix() {
-		then(StringUtils.numberValue("1abc")).as("Hex input without 0x prefix returns BigInteger")
-				.isEqualTo(new BigInteger("1abc", 16));
+		then(StringUtils.numberValue("1abc")).as("Hex input without 0x prefix returns null").isNull();
 	}
 
 	@Test
 	public void numberValue_hex_noPrefix_upperCase() {
-		then(StringUtils.numberValue("1ABC"))
-				.as("Upper case hex input without 0x prefix returns BigInteger")
-				.isEqualTo(new BigInteger("1abc", 16));
+		then(StringUtils.numberValue("1ABC")).as("Upper case hex input without 0x prefix returns null")
+				.isNull();
 	}
 
 	@Test

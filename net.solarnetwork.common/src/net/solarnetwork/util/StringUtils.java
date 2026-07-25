@@ -72,14 +72,14 @@ public final class StringUtils {
 	 * A pattern to match base-16 integer values.
 	 *
 	 * <p>
-	 * The values are expected to start with an optional {@code 0x} followed by
+	 * The values are expected to start with an mandatory {@code 0x} followed by
 	 * any number of base-16 characters. The pattern is case-insensitive. A
 	 * single group is also provided that omits the {@code 0x} prefix.
 	 * </p>
 	 *
 	 * @since 1.20
 	 */
-	public static Pattern HEX_INTEGER_PATTERN = Pattern.compile("(?:0[xX])?([0-9a-fA-F]+)");
+	public static Pattern HEX_INTEGER_PATTERN = Pattern.compile("0[xX]([0-9a-fA-F]+)");
 
 	/**
 	 * A pattern to match decimal number values.
