@@ -47,7 +47,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  *
  * @author matt
- * @version 1.19
+ * @version 1.20
  */
 public final class StringUtils {
 
@@ -67,6 +67,19 @@ public final class StringUtils {
 	 * @since 1.11
 	 */
 	public static Pattern INTEGER_PATTERN = Pattern.compile("[+-]?\\d+");
+
+	/**
+	 * A pattern to match base-16 integer values.
+	 *
+	 * <p>
+	 * The values are expected to start with an optional {@code 0x} followed by
+	 * any number of base-16 characters. The pattern is case-insensitive. A
+	 * single group is also provided that omits the {@code 0x} prefix.
+	 * </p>
+	 *
+	 * @since 1.20
+	 */
+	public static Pattern HEX_INTEGER_PATTERN = Pattern.compile("(?:0[xX])?([0-9a-fA-F]+)");
 
 	/**
 	 * A pattern to match decimal number values.
@@ -848,6 +861,11 @@ public final class StringUtils {
 				return new BigInteger(text);
 			} else if ( DECIMAL_PATTERN.matcher(text).matches() ) {
 				return new BigDecimal(text);
+			} else {
+				Matcher m = HEX_INTEGER_PATTERN.matcher(text);
+				if ( m.matches() ) {
+					return new BigInteger(m.group(1), 16);
+				}
 			}
 		} catch ( NumberFormatException e ) {
 			// don't expect to get here, but just to be sure we ignore this

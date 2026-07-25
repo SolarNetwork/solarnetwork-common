@@ -579,7 +579,8 @@ public final class NumberUtils {
 				n = d;
 			}
 		} catch ( Exception e ) {
-			// ignore
+			// try via StringUtils pattern matching, which supports hex
+			n = StringUtils.numberValue(numberString);
 		}
 		return narrow(n, 2);
 	}

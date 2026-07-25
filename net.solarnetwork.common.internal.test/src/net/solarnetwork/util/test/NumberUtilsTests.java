@@ -22,6 +22,7 @@
 
 package net.solarnetwork.util.test;
 
+import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
@@ -1005,6 +1006,21 @@ public class NumberUtilsTests {
 				"-123456789012345678901234567890123456789.123456789012345678901234567890123456789"),
 				is(equalTo(new BigDecimal(
 						"-123456789012345678901234567890123456789.123456789012345678901234567890123456789"))));
+	}
+
+	@Test
+	public void parseNumber_hex() {
+		then(NumberUtils.parseNumber("0x123abc1234567890123456789")).as("Hex parsed into BigIneteger")
+				.isEqualTo(new BigInteger("123abc1234567890123456789", 16));
+		then(NumberUtils.parseNumber("0X123ABC1234567890123456789"))
+				.as("Upper case hex parsed into BigIneteger")
+				.isEqualTo(new BigInteger("123abc1234567890123456789", 16));
+		then(NumberUtils.parseNumber("123abc1234567890123456789"))
+				.as("Unprefixed hex parsed into BigIneteger")
+				.isEqualTo(new BigInteger("123abc1234567890123456789", 16));
+		then(NumberUtils.parseNumber("0X123ABC1234567890123456789"))
+				.as("Unprefixed upper case hex parsed into BigIneteger")
+				.isEqualTo(new BigInteger("123abc1234567890123456789", 16));
 	}
 
 }

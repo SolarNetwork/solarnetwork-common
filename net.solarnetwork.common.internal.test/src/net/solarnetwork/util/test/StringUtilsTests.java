@@ -23,6 +23,7 @@
 package net.solarnetwork.util.test;
 
 import static net.solarnetwork.util.IntRange.rangeOf;
+import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
@@ -65,7 +66,7 @@ import net.solarnetwork.util.StringUtils;
  * Unit test for the StringUtils class.
  *
  * @author matt
- * @version 1.9
+ * @version 1.10
  */
 public class StringUtilsTests {
 
@@ -625,6 +626,31 @@ public class StringUtilsTests {
 	public void numberValue_float() {
 		assertThat("Decimal input returns BigDecimal", StringUtils.numberValue("123.45"),
 				is(new BigDecimal("123.45")));
+	}
+
+	@Test
+	public void numberValue_hex() {
+		then(StringUtils.numberValue("0x1000")).as("Hex input returns BigInteger")
+				.isEqualTo(new BigInteger("1000", 16));
+	}
+
+	@Test
+	public void numberValue_hex_upperCase() {
+		then(StringUtils.numberValue("0X1ABC")).as("Upper case hex input returns BigInteger")
+				.isEqualTo(new BigInteger("1abc", 16));
+	}
+
+	@Test
+	public void numberValue_hex_noPrefix() {
+		then(StringUtils.numberValue("1abc")).as("Hex input without 0x prefix returns BigInteger")
+				.isEqualTo(new BigInteger("1abc", 16));
+	}
+
+	@Test
+	public void numberValue_hex_noPrefix_upperCase() {
+		then(StringUtils.numberValue("1ABC"))
+				.as("Upper case hex input without 0x prefix returns BigInteger")
+				.isEqualTo(new BigInteger("1abc", 16));
 	}
 
 	@Test
