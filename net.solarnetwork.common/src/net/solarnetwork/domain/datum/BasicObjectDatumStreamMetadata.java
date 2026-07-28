@@ -29,12 +29,13 @@ import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.BasicLocation;
 import net.solarnetwork.domain.Location;
+import net.solarnetwork.domain.datum.DatumStreamId.DatumStreamIdent;
 
 /**
  * Basic implementation of {@link ObjectDatumStreamMetadata}.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.72
  */
 public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
@@ -42,14 +43,8 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 
 	private static final long serialVersionUID = -4093896601567626604L;
 
-	/** The kind. */
-	private final ObjectDatumKind kind;
-
-	/** The object ID. */
-	private final Long objectId;
-
-	/** The source ID. */
-	private final String sourceId;
+	/** The stream identity. */
+	private final DatumStreamIdentity identity;
 
 	/** The location. */
 	private final @Nullable BasicLocation location;
@@ -79,12 +74,29 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 	}
 
 	/**
+	 * Create a new metadata instance with no property names.
+	 *
+	 * @param streamId
+	 *        the stream ID
+	 * @param timeZoneId
+	 *        the time zone ID
+	 * @param identity
+	 *        the identity
+	 * @return the new instance
+	 */
+	public static BasicObjectDatumStreamMetadata emptyMeta(UUID streamId, @Nullable String timeZoneId,
+			DatumStreamIdentity identity) {
+		return new BasicObjectDatumStreamMetadata(streamId, timeZoneId, identity, null, null, null, null,
+				null);
+	}
+
+	/**
 	 * Constructor.
 	 *
 	 * <p>
 	 * All arguments except {@code streamId}, {@code objectId}, and
-	 * {@code sourceId} are allowed to be {@code null}. If any array is
-	 * empty, it will be treated as if it were {@code null}.
+	 * {@code sourceId} are allowed to be {@code null}. If any array is empty,
+	 * it will be treated as if it were {@code null}.
 	 * </p>
 	 *
 	 * @param streamId
@@ -120,8 +132,8 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 	 *
 	 * <p>
 	 * All arguments except {@code streamId}, {@code objectId}, and
-	 * {@code sourceId} are allowed to be {@code null}. If any array is
-	 * empty, it will be treated as if it were {@code null}.
+	 * {@code sourceId} are allowed to be {@code null}. If any array is empty,
+	 * it will be treated as if it were {@code null}.
 	 * </p>
 	 *
 	 * @param streamId
@@ -159,8 +171,8 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 	 *
 	 * <p>
 	 * All arguments except {@code streamId}, {@code objectId}, and
-	 * {@code sourceId} are allowed to be {@code null}. If any array is
-	 * empty, it will be treated as if it were {@code null}.
+	 * {@code sourceId} are allowed to be {@code null}. If any array is empty,
+	 * it will be treated as if it were {@code null}.
 	 * </p>
 	 *
 	 * @param streamId
@@ -184,17 +196,53 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 	 * @param metaJson
 	 *        the JSON metadata
 	 * @throws IllegalArgumentException
-	 *         if {@code streamId} or {@code objectId} or {@code sourceId} is
-	 *         {@code null}
+	 *         if {@code streamId}, {@code kind}, {@code objectId}, or
+	 *         {@code sourceId} is {@code null}
 	 */
 	public BasicObjectDatumStreamMetadata(UUID streamId, @Nullable String timeZoneId,
 			ObjectDatumKind kind, Long objectId, String sourceId, @Nullable Location location,
 			String @Nullable [] instantaneousProperties, String @Nullable [] accumulatingProperties,
 			String @Nullable [] statusProperties, @Nullable String metaJson) {
+		this(streamId, timeZoneId, new DatumStreamIdent(kind, objectId, sourceId), location,
+				instantaneousProperties, accumulatingProperties, statusProperties, metaJson);
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * <p>
+	 * All arguments except {@code streamId}, {@code objectId}, and
+	 * {@code sourceId} are allowed to be {@code null}. If any array is empty,
+	 * it will be treated as if it were {@code null}.
+	 * </p>
+	 *
+	 * @param streamId
+	 *        the stream ID
+	 * @param timeZoneId
+	 *        the time zone ID
+	 * @param identity
+	 *        the stream identity
+	 * @param location
+	 *        the location
+	 * @param instantaneousProperties
+	 *        the instantaneous property names
+	 * @param accumulatingProperties
+	 *        the accumulating property names
+	 * @param statusProperties
+	 *        the status property names
+	 * @param metaJson
+	 *        the JSON metadata
+	 * @throws IllegalArgumentException
+	 *         if {@code streamId} or {@code objectId} or {@code sourceId} is
+	 *         {@code null}
+	 * @since 1.2
+	 */
+	public BasicObjectDatumStreamMetadata(UUID streamId, @Nullable String timeZoneId,
+			DatumStreamIdentity identity, @Nullable Location location,
+			String @Nullable [] instantaneousProperties, String @Nullable [] accumulatingProperties,
+			String @Nullable [] statusProperties, @Nullable String metaJson) {
 		super(streamId, timeZoneId, instantaneousProperties, accumulatingProperties, statusProperties);
-		this.kind = requireNonNullArgument(kind, "kind");
-		this.objectId = requireNonNullArgument(objectId, "objectId");
-		this.sourceId = requireNonNullArgument(sourceId, "sourceId");
+		this.identity = requireNonNullArgument(identity, "identity");
 		this.location = BasicLocation.locationValue(location);
 		this.metaJson = metaJson;
 	}
@@ -206,11 +254,11 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 		builder.append("streamId=");
 		builder.append(getStreamId());
 		builder.append(", kind=");
-		builder.append(kind);
+		builder.append(identity.getKind());
 		builder.append(", objectId=");
-		builder.append(objectId);
+		builder.append(identity.getObjectId());
 		builder.append(", sourceId=");
-		builder.append(sourceId);
+		builder.append(identity.getSourceId());
 		if ( getPropertyNames() != null ) {
 			builder.append(", propertyNames=");
 			builder.append(Arrays.toString(getPropertyNames()));
@@ -223,7 +271,8 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(kind, location, metaJson, objectId, sourceId);
+		result = prime * result + Objects.hash(identity.getKind(), location, metaJson,
+				identity.getObjectId(), identity.getSourceId());
 		return result;
 	}
 
@@ -238,19 +287,18 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 		if ( !(obj instanceof BasicObjectDatumStreamMetadata other) ) {
 			return false;
 		}
-		return kind == other.kind && Objects.equals(location, other.location)
-				&& Objects.equals(metaJson, other.metaJson) && Objects.equals(objectId, other.objectId)
-				&& Objects.equals(sourceId, other.sourceId);
+		return Objects.equals(identity, other.identity) && Objects.equals(location, other.location)
+				&& Objects.equals(metaJson, other.metaJson);
 	}
 
 	@Override
 	public Long getObjectId() {
-		return objectId;
+		return identity.getObjectId();
 	}
 
 	@Override
 	public String getSourceId() {
-		return sourceId;
+		return identity.getSourceId();
 	}
 
 	@Override
@@ -260,7 +308,7 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 
 	@Override
 	public ObjectDatumKind getKind() {
-		return kind;
+		return identity.getKind();
 	}
 
 	@Override

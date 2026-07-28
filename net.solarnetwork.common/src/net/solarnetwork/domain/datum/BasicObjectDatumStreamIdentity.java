@@ -26,12 +26,13 @@ import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
+import net.solarnetwork.domain.datum.DatumStreamId.DatumStreamIdent;
 
 /**
  * Basic immutable implementation of {@link ObjectDatumStreamIdentity}.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.20
  */
 public class BasicObjectDatumStreamIdentity implements ObjectDatumStreamIdentity, Serializable {
@@ -42,14 +43,8 @@ public class BasicObjectDatumStreamIdentity implements ObjectDatumStreamIdentity
 	/** The stream ID. */
 	private final UUID streamId;
 
-	/** The kind. */
-	private final ObjectDatumKind kind;
-
-	/** The object ID. */
-	private final Long objectId;
-
-	/** The source ID. */
-	private final String sourceId;
+	/** The stream identity. */
+	private final DatumStreamIdentity identity;
 
 	/**
 	 * Constructor.
@@ -67,11 +62,24 @@ public class BasicObjectDatumStreamIdentity implements ObjectDatumStreamIdentity
 	 */
 	public BasicObjectDatumStreamIdentity(UUID streamId, ObjectDatumKind kind, Long objectId,
 			String sourceId) {
+		this(streamId, new DatumStreamIdent(kind, objectId, sourceId));
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param streamId
+	 *        the stream ID
+	 * @param identity
+	 *        the stream identity
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
+	 * @since 1.1
+	 */
+	public BasicObjectDatumStreamIdentity(UUID streamId, DatumStreamIdentity identity) {
 		super();
 		this.streamId = requireNonNullArgument(streamId, "streamId");
-		this.kind = requireNonNullArgument(kind, "kind");
-		this.objectId = requireNonNullArgument(objectId, "objectId");
-		this.sourceId = requireNonNullArgument(sourceId, "sourceId");
+		this.identity = requireNonNullArgument(identity, "identity");
 	}
 
 	/**
@@ -94,6 +102,23 @@ public class BasicObjectDatumStreamIdentity implements ObjectDatumStreamIdentity
 		return new BasicObjectDatumStreamIdentity(streamId, kind, objectId, sourceId);
 	}
 
+	/**
+	 * Create a new identity instance.
+	 *
+	 * @param streamId
+	 *        the stream ID
+	 * @param identity
+	 *        the stream identity
+	 * @return the new instance
+	 * @throws IllegalArgumentException
+	 *         if any argument is {@code null}
+	 * @since 1.1
+	 */
+	public static BasicObjectDatumStreamIdentity streamIdentity(UUID streamId,
+			DatumStreamIdentity identity) {
+		return new BasicObjectDatumStreamIdentity(streamId, identity);
+	}
+
 	@Override
 	public final UUID getStreamId() {
 		return streamId;
@@ -101,17 +126,17 @@ public class BasicObjectDatumStreamIdentity implements ObjectDatumStreamIdentity
 
 	@Override
 	public final ObjectDatumKind getKind() {
-		return kind;
+		return identity.getKind();
 	}
 
 	@Override
 	public final Long getObjectId() {
-		return objectId;
+		return identity.getObjectId();
 	}
 
 	@Override
 	public final String getSourceId() {
-		return sourceId;
+		return identity.getSourceId();
 	}
 
 }

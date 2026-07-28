@@ -75,7 +75,7 @@ public interface ObjectDatumStreamIdentity extends DatumStreamIdentity {
 	 * @since 1.1
 	 */
 	default DatumIdent datumIdent(Instant timestamp) {
-		return new DatumIdent(getKind(), getObjectId(), getSourceId(), timestamp);
+		return new DatumIdent(this, timestamp);
 	}
 
 }

@@ -29,7 +29,7 @@ import net.solarnetwork.domain.Location;
  * Object-specific (node or location) datum stream metadata.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.72
  */
 public interface ObjectDatumStreamMetadata extends DatumStreamMetadata, ObjectDatumStreamIdentity {

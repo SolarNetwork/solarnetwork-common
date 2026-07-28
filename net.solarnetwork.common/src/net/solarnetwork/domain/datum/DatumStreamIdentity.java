@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain.datum;
 
+import java.io.Serializable;
 import java.time.Instant;
 import net.solarnetwork.domain.datum.DatumId.DatumIdent;
 
@@ -29,9 +30,9 @@ import net.solarnetwork.domain.datum.DatumId.DatumIdent;
  * Identity for a stream of datum (over time).
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
-public interface DatumStreamIdentity {
+public interface DatumStreamIdentity extends Serializable {
 
 	/**
 	 * Get the object datum kind.
@@ -63,7 +64,7 @@ public interface DatumStreamIdentity {
 	 * @since 1.1
 	 */
 	default DatumIdentity datumIdentity(Instant timestamp) {
-		return new DatumIdent(getKind(), getObjectId(), getSourceId(), timestamp);
+		return new DatumIdent(this, timestamp);
 	}
 
 }
