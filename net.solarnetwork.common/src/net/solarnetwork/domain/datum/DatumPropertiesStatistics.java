@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
  * Statistic information associated with datum properties.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 2.7
  */
 public class DatumPropertiesStatistics implements Serializable {
@@ -47,13 +47,45 @@ public class DatumPropertiesStatistics implements Serializable {
 	public static enum InstantaneousStatistic {
 
 		/** The count of properties that participated in the aggregate value. */
-		Count,
+		Count("_count"),
 
 		/** The minimum property value seen within the aggregate period. */
-		Minimum,
+		Minimum("_max"),
 
 		/** The maximum property value seen within the aggregate period. */
-		Maximum;
+		Maximum("_min"),
+
+		;
+
+		private String suffix;
+
+		InstantaneousStatistic(String suffix) {
+			this.suffix = suffix;
+		}
+
+		/**
+		 * Get a suffix that can be appended to property names associated with
+		 * this statistic.
+		 *
+		 * @return the suffix
+		 * @since 1.4
+		 */
+		public String getSuffix() {
+			return suffix;
+		}
+
+		/**
+		 * Get a property name to use with this statistic.
+		 *
+		 * @param name
+		 *        the property name
+		 * @return the property name with {@code #getSuffix()} appended
+		 * @since 1.4
+		 */
+		public String name(String name) {
+			return name + suffix;
+		}
+
 	}
 
 	/**
@@ -67,13 +99,45 @@ public class DatumPropertiesStatistics implements Serializable {
 	public static enum AccumulatingStatistic {
 
 		/** The accumulated change over the aggregate period. */
-		Difference,
+		Difference("_diff"),
 
 		/** The first property value seen within the aggregate period. */
-		Start,
+		Start("_start"),
 
 		/** The last property value seen within the aggregate period. */
-		End;
+		End("_end")
+
+		;
+
+		private String suffix;
+
+		AccumulatingStatistic(String suffix) {
+			this.suffix = suffix;
+		}
+
+		/**
+		 * Get a suffix that can be appended to property names associated with
+		 * this statistic.
+		 *
+		 * @return the suffix
+		 * @since 1.4
+		 */
+		public String getSuffix() {
+			return suffix;
+		}
+
+		/**
+		 * Get a property name to use with this statistic.
+		 *
+		 * @param name
+		 *        the property name
+		 * @return the property name with {@code #getSuffix()} appended
+		 * @since 1.4
+		 */
+		public String name(String name) {
+			return name + suffix;
+		}
+
 	}
 
 	private static final long serialVersionUID = -1933887645480711417L;

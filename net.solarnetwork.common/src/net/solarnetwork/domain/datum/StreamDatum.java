@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
  * time and a set of property values.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.72
  */
 public interface StreamDatum {
@@ -104,6 +104,19 @@ public interface StreamDatum {
 	 */
 	static boolean isStreamIdAssigned(final @Nullable UUID streamId) {
 		return (streamId != null && !UNASSIGNED_STREAM_ID.equals(streamId));
+	}
+
+	/**
+	 * Convert this stream datum into a general datum.
+	 *
+	 * @param meta
+	 *        the stream metadata associated with this stream datum
+	 * @return the general datum
+	 * @since 1.2
+	 */
+	default GeneralDatum toGeneralDatum(ObjectDatumStreamMetadata meta) {
+		final DatumSamples samples = meta.datumSamples(getProperties());
+		return new GeneralDatum(meta.datumIdentity(getTimestamp()), samples);
 	}
 
 }

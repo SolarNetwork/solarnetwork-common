@@ -22,13 +22,17 @@
 
 package net.solarnetwork.domain.datum.test;
 
+import static java.util.UUID.randomUUID;
 import static net.solarnetwork.domain.datum.DatumSamplesType.Accumulating;
 import static net.solarnetwork.domain.datum.DatumSamplesType.Instantaneous;
 import static net.solarnetwork.domain.datum.DatumSamplesType.Status;
 import static net.solarnetwork.test.CommonTestUtils.randomDecimal;
 import static net.solarnetwork.test.CommonTestUtils.randomString;
+import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
 import java.math.BigDecimal;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.BasicDatumStreamMetadata;
@@ -36,13 +40,14 @@ import net.solarnetwork.domain.datum.DatumProperties;
 import net.solarnetwork.domain.datum.DatumPropertiesStatistics;
 import net.solarnetwork.domain.datum.DatumPropertiesStatistics.AccumulatingStatistic;
 import net.solarnetwork.domain.datum.DatumPropertiesStatistics.InstantaneousStatistic;
+import net.solarnetwork.domain.datum.DatumSamples;
 import net.solarnetwork.domain.datum.DatumSamplesType;
 
 /**
  * Test cases for the {@link BasicDatumStreamMetadata} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicDatumStreamMetadataTests {
 
@@ -201,6 +206,63 @@ public class BasicDatumStreamMetadataTests {
 			.isNull()
 			;
 
+		// @formatter:on
+	}
+
+	@Test
+	public void datumSamples() {
+		// GIVEN
+		final var iProps = new String[] { randomString(), randomString(), randomString() };
+		final var aProps = new String[] { randomString(), randomString() };
+		final var sProps = new String[] { randomString() };
+
+		final var meta = new BasicDatumStreamMetadata(randomUUID(), randomString(), iProps, aProps,
+				sProps);
+
+		final var iData = new BigDecimal[] { randomDecimal(), randomDecimal(), randomDecimal() };
+		final var aData = new BigDecimal[] { randomDecimal(), randomDecimal() };
+		final var sData = new String[] { randomString() };
+
+		final var data = new DatumProperties();
+		data.setInstantaneous(iData);
+		data.setAccumulating(aData);
+		data.setStatus(sData);
+		data.setTags(new String[] { randomString(), randomString() });
+
+		// WHEN
+		final DatumSamples result = meta.datumSamples(data);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("DatumSamples instance created")
+			.isNotNull()
+			.satisfies(ds -> {
+				then(ds.getInstantaneous())
+					.as("Instantaneous data copied")
+					.containsExactlyInAnyOrderEntriesOf(Map.of(
+						iProps[0], iData[0],
+						iProps[1], iData[1],
+						iProps[2], iData[2]
+					))
+					;
+				then(ds.getAccumulating())
+					.as("Accumulating data copied")
+					.containsExactlyInAnyOrderEntriesOf(Map.of(
+						aProps[0], aData[0],
+						aProps[1], aData[1]
+					))
+					;
+				then(ds.getStatus())
+					.as("Status data copied")
+					.containsExactlyInAnyOrderEntriesOf(Map.of(
+						sProps[0], sData[0]
+					))
+					;
+			})
+			.as("Tags copied")
+			.returns(Set.of(data.getTags()), from(DatumSamples::getTags))
+			;
 		// @formatter:on
 	}
 

@@ -35,7 +35,7 @@ import net.solarnetwork.domain.datum.DatumStreamId.DatumStreamIdent;
  * Basic implementation of {@link ObjectDatumStreamMetadata}.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.72
  */
 public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
@@ -205,6 +205,44 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 			String @Nullable [] statusProperties, @Nullable String metaJson) {
 		this(streamId, timeZoneId, new DatumStreamIdent(kind, objectId, sourceId), location,
 				instantaneousProperties, accumulatingProperties, statusProperties, metaJson);
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * <p>
+	 * All arguments except {@code streamId}, {@code objectId}, and
+	 * {@code sourceId} are allowed to be {@code null}. If any array is empty,
+	 * it will be treated as if it were {@code null}.
+	 * </p>
+	 *
+	 * @param streamId
+	 *        the stream ID
+	 * @param timeZoneId
+	 *        the time zone ID
+	 * @param identity
+	 *        the stream identity
+	 * @param location
+	 *        the location
+	 * @param instantaneousProperties
+	 *        the instantaneous property names
+	 * @param accumulatingProperties
+	 *        the accumulating property names
+	 * @param statusProperties
+	 *        the status property names
+	 * @param metaJson
+	 *        the JSON metadata
+	 * @throws IllegalArgumentException
+	 *         if {@code streamId} or {@code objectId} or {@code sourceId} is
+	 *         {@code null}
+	 * @since 1.3
+	 */
+	public BasicObjectDatumStreamMetadata(UUID streamId, @Nullable String timeZoneId,
+			DatumStreamIdentity identity, String @Nullable [] instantaneousProperties,
+			String @Nullable [] accumulatingProperties, String @Nullable [] statusProperties,
+			@Nullable String metaJson) {
+		this(streamId, timeZoneId, identity, null, instantaneousProperties, accumulatingProperties,
+				statusProperties, metaJson);
 	}
 
 	/**

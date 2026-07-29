@@ -27,6 +27,7 @@ import static net.solarnetwork.test.CommonTestUtils.randomLong;
 import static net.solarnetwork.test.CommonTestUtils.randomString;
 import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
+import java.io.Serial;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.Test;
@@ -43,6 +44,9 @@ import net.solarnetwork.domain.datum.ObjectDatumStreamIdentity;
 public class ObjectDatumStreamIdentityTests {
 
 	private static class TestIdentity implements ObjectDatumStreamIdentity {
+
+		@Serial
+		private static final long serialVersionUID = -7581439458267047601L;
 
 		private final UUID streamId;
 		private final ObjectDatumKind kind;

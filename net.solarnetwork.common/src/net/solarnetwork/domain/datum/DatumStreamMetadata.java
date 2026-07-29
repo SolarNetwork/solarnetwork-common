@@ -22,7 +22,9 @@
 
 package net.solarnetwork.domain.datum;
 
+import static net.solarnetwork.util.ObjectUtils.nonnull;
 import java.math.BigDecimal;
+import java.util.Set;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.domain.datum.DatumPropertiesStatistics.AccumulatingStatistic;
@@ -32,7 +34,7 @@ import net.solarnetwork.domain.datum.DatumPropertiesStatistics.InstantaneousStat
  * Metadata about a datum stream.
  *
  * @author matt
- * @version 2.2
+ * @version 2.3
  * @since 2.0
  */
 public interface DatumStreamMetadata {
@@ -55,9 +57,41 @@ public interface DatumStreamMetadata {
 	/**
 	 * Get all property names included in the stream.
 	 *
-	 * @return the property names
+	 * @return the property names, or {@code null} if none exist
 	 */
-	String @Nullable [] getPropertyNames();
+	default String @Nullable [] getPropertyNames() {
+		final int iLen = propertyNamesLength(DatumSamplesType.Instantaneous);
+		final int aLen = propertyNamesLength(DatumSamplesType.Accumulating);
+		final int sLen = propertyNamesLength(DatumSamplesType.Status);
+		final int len = iLen + aLen + sLen;
+		if ( len < 1 ) {
+			return null;
+		}
+		String[] result = new String[len];
+		if ( iLen > 0 ) {
+			System.arraycopy(namesForType(DatumSamplesType.Instantaneous), 0, result, 0, iLen);
+		}
+		if ( aLen > 0 ) {
+			System.arraycopy(namesForType(DatumSamplesType.Accumulating), 0, result, iLen, aLen);
+		}
+		if ( sLen > 0 ) {
+			System.arraycopy(namesForType(DatumSamplesType.Status), 0, result, iLen + aLen, sLen);
+		}
+		return result;
+	}
+
+	/**
+	 * Get the total number of instantaneous, accumulating, and status property
+	 * names.
+	 *
+	 * @return the total number of properties
+	 * @since 2.3
+	 */
+	default int getPropertyNamesLength() {
+		return propertyNamesLength(DatumSamplesType.Instantaneous)
+				+ propertyNamesLength(DatumSamplesType.Accumulating)
+				+ propertyNamesLength(DatumSamplesType.Status);
+	}
 
 	/**
 	 * Get the subset of all property names that are of a specific type.
@@ -65,9 +99,117 @@ public interface DatumStreamMetadata {
 	 * @param type
 	 *        the type of property to get the names for
 	 * @return the property names, or {@code null} if none available or
-	 *         {@code type} is {@link DatumSamplesType#Tag}
+	 *         {@code type} is not a supported type
 	 */
 	String @Nullable [] propertyNamesForType(DatumSamplesType type);
+
+	/**
+	 * Get the subset of all property names that are of a specific type, assumed
+	 * non-{@code null}.
+	 *
+	 * <p>
+	 * This is designed to be used when a property is known to exist, such as
+	 * after testing {@link #propertyNamesLength(DatumSamplesType)}.
+	 * </p>
+	 *
+	 * @param type
+	 *        the type of property to get the names for
+	 * @return the property names
+	 * @throws IllegalStateException
+	 *         if property names for the given type do not exist
+	 * @since 2.3
+	 * @see #propertyNamesForType(DatumSamplesType)
+	 */
+	default String[] namesForType(DatumSamplesType type) {
+		return nonnull(propertyNamesForType(type), "%s property names", type);
+	}
+
+	/**
+	 * Get a property names array length.
+	 *
+	 * @return the number of property names of the given type
+	 * @since 2.3
+	 */
+	default int propertyNamesLength(DatumSamplesType type) {
+		final String[] names = propertyNamesForType(type);
+		return (names != null ? names.length : 0);
+	}
+
+	/**
+	 * Get the instantaneous property names array length.
+	 *
+	 * @return the number of instantaneous property names
+	 * @since 2.3
+	 */
+	default int getInstantaneousLength() {
+		return propertyNamesLength(DatumSamplesType.Instantaneous);
+	}
+
+	/**
+	 * Get the accumulating property names array length.
+	 *
+	 * @return the number of accumulating property names
+	 * @since 2.3
+	 */
+	default int getAccumulatingLength() {
+		return propertyNamesLength(DatumSamplesType.Accumulating);
+	}
+
+	/**
+	 * Get the status property names array length.
+	 *
+	 * @return the number of status property names
+	 * @since 2.3
+	 */
+	default int getStatusLength() {
+		return propertyNamesLength(DatumSamplesType.Status);
+	}
+
+	/**
+	 * Get a property name.
+	 *
+	 * @param type
+	 *        the property type
+	 * @param propertyIndex
+	 *        the property index of the given type to retrieve
+	 * @return the property name, or {@code null} if no such name exists
+	 * @since 2.3
+	 * @see #name(DatumSamplesType, int)
+	 */
+	default @Nullable String propertyName(DatumSamplesType type, int propertyIndex) {
+		String[] names = propertyNamesForType(type);
+		if ( names != null && propertyIndex < names.length ) {
+			return names[propertyIndex];
+		}
+		return null;
+	}
+
+	/**
+	 * Get a property name, assumed non-{@code null}.
+	 *
+	 * <p>
+	 * This is designed to be used when a property is known to exist, such as
+	 * after testing {@link #propertyNamesLength(DatumSamplesType)}.
+	 * </p>
+	 *
+	 * @param type
+	 *        the property type
+	 * @param propertyIndex
+	 *        the property index of the given type to retrieve
+	 * @return the property name
+	 * @throws IllegalStateException
+	 *         if a property name for the given type and index does not exist
+	 * @since 2.3
+	 * @see #propertyName(DatumSamplesType, int)
+	 */
+	default String name(DatumSamplesType type, int propertyIndex) {
+		String[] names = propertyNamesForType(type);
+		if ( names != null && propertyIndex >= 0 && propertyIndex < names.length ) {
+			return names[propertyIndex];
+		}
+		throw new IllegalStateException(
+				"Property %d of type %s not available.".formatted(propertyIndex, type));
+	}
 
 	/**
 	 * Get the index of a specific property name.
@@ -151,6 +293,127 @@ public interface DatumStreamMetadata {
 			return null;
 		}
 		return stats.stat(type, propertyIndex);
+	}
+
+	/**
+	 * Create a {@link DatumSamples} instance from {@link DatumProperties} and
+	 * this metadata.
+	 *
+	 * @param props
+	 *        the properties
+	 * @return the new samples instance
+	 * @since 2.3
+	 */
+	default DatumSamples datumSamples(final @Nullable DatumProperties props) {
+		final var samples = new DatumSamples();
+
+		if ( props != null ) {
+			for ( DatumSamplesType type : DatumSamplesType.values() ) {
+				String[] names = propertyNamesForType(type);
+				if ( names != null ) {
+					for ( int i = 0; i < names.length; i++ ) {
+						samples.putSampleValue(type, names[i], props.value(type, i));
+					}
+				}
+			}
+
+			String[] tags = props.getTags();
+			if ( tags != null ) {
+				samples.setTags(Set.of(tags));
+			}
+		}
+
+		return samples;
+	}
+
+	/**
+	 * Populate a {@link DatumSamples} instance with instantaneous property
+	 * statistics.
+	 *
+	 * <p>
+	 * This will populate {@code _min} and {@code _max} instantaneous properties
+	 * for all available instantaneous property statistic values.
+	 * </p>
+	 *
+	 * @param s
+	 *        the samples instance to populate
+	 * @param stats
+	 *        the statistics to copy
+	 * @since 2.3
+	 */
+	default void populateInstantaneousStatistics(final @Nullable DatumSamples s,
+			final @Nullable DatumPropertiesStatistics stats) {
+		if ( s == null || stats == null ) {
+			return;
+		}
+		final int statCount = stats.getInstantaneousLength();
+		if ( statCount < 1 ) {
+			return;
+		}
+		String[] propNames = propertyNamesForType(DatumSamplesType.Instantaneous);
+		if ( propNames == null ) {
+			return;
+		}
+		final int len = Math.min(statCount, propNames.length);
+		for ( int i = 0; i < len; i++ ) {
+			BigDecimal min = stat(stats, InstantaneousStatistic.Minimum, i);
+			BigDecimal max = stat(stats, InstantaneousStatistic.Maximum, i);
+			if ( min != null && max != null ) {
+				s.putSampleValue(DatumSamplesType.Instantaneous,
+						InstantaneousStatistic.Minimum.name(propNames[i]), min);
+				s.putSampleValue(DatumSamplesType.Instantaneous,
+						InstantaneousStatistic.Maximum.name(propNames[i]), max);
+			}
+		}
+	}
+
+	/**
+	 * Populate a {@link DatumSamples} instance with accumulating property
+	 * statistics.
+	 *
+	 * <p>
+	 * This will populate {@code _start} and {@code _end} instantaneous
+	 * properties for all available accumulating property statistic values, and
+	 * an accumulating property value for the difference statistic value.
+	 * </p>
+	 *
+	 * @param s
+	 *        the samples instance to populate
+	 * @param stats
+	 *        the statistics to copy
+	 * @since 2.3
+	 */
+	default void populateAccumulatingStatistics(final @Nullable DatumSamples s,
+			final @Nullable DatumPropertiesStatistics stats) {
+		if ( s == null || stats == null ) {
+			return;
+		}
+		final int statCount = stats.getAccumulatingLength();
+		if ( statCount < 1 ) {
+			return;
+		}
+		final String[] propNames = propertyNamesForType(DatumSamplesType.Accumulating);
+		if ( propNames == null ) {
+			return;
+		}
+		final int len = Math.min(statCount, propNames.length);
+		for ( int i = 0; i < len; i++ ) {
+			BigDecimal diff = stat(stats, AccumulatingStatistic.Difference, i);
+			BigDecimal start = stat(stats, AccumulatingStatistic.Start, i);
+			BigDecimal end = stat(stats, AccumulatingStatistic.End, i);
+
+			if ( diff != null ) {
+				s.putSampleValue(DatumSamplesType.Accumulating, propNames[i], diff);
+			}
+			if ( start != null ) {
+				s.putSampleValue(DatumSamplesType.Instantaneous,
+						AccumulatingStatistic.Start.name(propNames[i]), start);
+			}
+			if ( end != null ) {
+				s.putSampleValue(DatumSamplesType.Instantaneous,
+						AccumulatingStatistic.End.name(propNames[i]), end);
+			}
+		}
 	}
 
 }
