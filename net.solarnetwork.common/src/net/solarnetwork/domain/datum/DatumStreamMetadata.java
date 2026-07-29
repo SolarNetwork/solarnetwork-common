@@ -127,6 +127,8 @@ public interface DatumStreamMetadata {
 	/**
 	 * Get a property names array length.
 	 *
+	 * @param type
+	 *        the type of property to get the names for
 	 * @return the number of property names of the given type
 	 * @since 2.3
 	 */

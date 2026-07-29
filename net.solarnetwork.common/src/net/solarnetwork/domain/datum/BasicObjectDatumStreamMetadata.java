@@ -222,8 +222,6 @@ public class BasicObjectDatumStreamMetadata extends BasicDatumStreamMetadata
 	 *        the time zone ID
 	 * @param identity
 	 *        the stream identity
-	 * @param location
-	 *        the location
 	 * @param instantaneousProperties
 	 *        the instantaneous property names
 	 * @param accumulatingProperties
