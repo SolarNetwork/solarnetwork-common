@@ -22,6 +22,9 @@
 
 package net.solarnetwork.domain.datum;
 
+import org.jspecify.annotations.Nullable;
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * Enumeration of auxiliary datum types.
  *
@@ -48,4 +51,29 @@ public enum DatumAuxiliaryType {
 
 	;
 
+	/**
+	 * Get an enum instance for a name or key value.
+	 *
+	 * @param value
+	 *        the enumeration name or key value, case-insensitive
+	 * @return the enum, or {@code null} if value is {@code null} or empty
+	 * @throws IllegalArgumentException
+	 *         if {@code value} is not a valid value
+	 */
+	@JsonCreator
+	public static @Nullable DatumAuxiliaryType fromValue(@Nullable String value) {
+		if ( value == null || value.isEmpty() ) {
+			return null;
+		}
+		try {
+			return DatumAuxiliaryType.valueOf(value);
+		} catch ( IllegalArgumentException ex ) {
+			for ( DatumAuxiliaryType e : DatumAuxiliaryType.values() ) {
+				if ( value.equalsIgnoreCase(e.name()) ) {
+					return e;
+				}
+			}
+		}
+		throw new IllegalArgumentException("Unknown DatumAuxiliaryType value [" + value + "]");
+	}
 }
