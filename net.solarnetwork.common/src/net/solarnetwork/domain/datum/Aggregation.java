@@ -173,14 +173,9 @@ public enum Aggregation implements KeyedValue {
 		if ( key == null || key.isEmpty() ) {
 			return None;
 		}
-		try {
-			// try name() value first for convenience
-			return Aggregation.valueOf(key);
-		} catch ( IllegalArgumentException e ) {
-			for ( Aggregation a : Aggregation.values() ) {
-				if ( a.key.equals(key) || a.name().equalsIgnoreCase(key) ) {
-					return a;
-				}
+		for ( Aggregation a : Aggregation.values() ) {
+			if ( a.key.equals(key) || a.name().equalsIgnoreCase(key) ) {
+				return a;
 			}
 		}
 		throw new IllegalArgumentException("Invalid Aggregation value [" + key + "]");
