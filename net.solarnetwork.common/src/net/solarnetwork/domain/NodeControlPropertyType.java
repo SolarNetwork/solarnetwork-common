@@ -22,11 +22,14 @@
 
 package net.solarnetwork.domain;
 
+import org.jspecify.annotations.Nullable;
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * Enumeration of supported node component property types.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public enum NodeControlPropertyType implements KeyCodedValue {
 
@@ -88,4 +91,34 @@ public enum NodeControlPropertyType implements KeyCodedValue {
 		}
 		throw new IllegalArgumentException("Unknown NodeControlPropertyType key [" + key + "]");
 	}
+
+	/**
+	 * Get an enum instance for a key value.
+	 *
+	 * @param key
+	 *        the key value; supports matching a case-insensitve key or
+	 *        enumeration name
+	 * @return the enum
+	 * @throws IllegalArgumentException
+	 *         if {@code key} is not supported
+	 */
+	@JsonCreator
+	public static NodeControlPropertyType fromValue(@Nullable String key) {
+		if ( key != null && !key.isEmpty() ) {
+			try {
+				// try name() value first for convenience
+				return NodeControlPropertyType.valueOf(key);
+			} catch ( IllegalArgumentException e ) {
+				char k = key.length() == 1 ? Character.toLowerCase(key.charAt(0)) : 0;
+				for ( NodeControlPropertyType a : NodeControlPropertyType.values() ) {
+					if ( (k > 0 && k == a.key) || key.equalsIgnoreCase(a.name()) ) {
+						return a;
+					}
+				}
+
+			}
+		}
+		throw new IllegalArgumentException("Invalid NodeControlPropertyType value [" + key + "]");
+	}
+
 }

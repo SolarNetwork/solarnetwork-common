@@ -25,6 +25,7 @@
 package net.solarnetwork.domain.datum;
 
 import org.jspecify.annotations.Nullable;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import net.solarnetwork.domain.KeyedValue;
 
 /**
@@ -162,11 +163,12 @@ public enum Aggregation implements KeyedValue {
 	 *
 	 * @param key
 	 *        the key value; if {@code null} or empty then {@link #None} will be
-	 *        returned
+	 *        returned; case-insensitive name values are also supported
 	 * @return the enum
 	 * @throws IllegalArgumentException
 	 *         if {@code key} is not supported
 	 */
+	@JsonCreator
 	public static Aggregation forKey(@Nullable String key) {
 		if ( key == null || key.isEmpty() ) {
 			return None;
@@ -176,7 +178,7 @@ public enum Aggregation implements KeyedValue {
 			return Aggregation.valueOf(key);
 		} catch ( IllegalArgumentException e ) {
 			for ( Aggregation a : Aggregation.values() ) {
-				if ( a.key.equals(key) ) {
+				if ( a.key.equals(key) || a.name().equalsIgnoreCase(key) ) {
 					return a;
 				}
 			}
