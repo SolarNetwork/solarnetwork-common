@@ -101,7 +101,8 @@ public enum DatumReadingType implements KeyedValue {
 	 *
 	 * @param key
 	 *        the key value; if {@code null} or empty then
-	 *        {@link #NearestDifference} will be returned
+	 *        {@link #NearestDifference} will be returned; will case-insensitive
+	 *        match against both the key and the name
 	 * @return the enum
 	 * @throws IllegalArgumentException
 	 *         if {@code key} is not supported
@@ -116,7 +117,7 @@ public enum DatumReadingType implements KeyedValue {
 			return DatumReadingType.valueOf(key);
 		} catch ( IllegalArgumentException e ) {
 			for ( DatumReadingType type : DatumReadingType.values() ) {
-				if ( type.key.equals(key) ) {
+				if ( type.key.equalsIgnoreCase(key) || type.name().equalsIgnoreCase(key) ) {
 					return type;
 				}
 			}
