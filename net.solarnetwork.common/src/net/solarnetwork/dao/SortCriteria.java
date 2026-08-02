@@ -30,7 +30,7 @@ import net.solarnetwork.domain.SortDescriptor;
  * API for sorting criteria.
  *
  * @author matt
- * @version 1.2
+ * @version 1.1
  * @since 1.67
  */
 public interface SortCriteria {
@@ -41,7 +41,7 @@ public interface SortCriteria {
 	 * @return the sorts
 	 */
 	@Nullable
-	List<? extends SortDescriptor> getSorts();
+	List<SortDescriptor> getSorts();
 
 	/**
 	 * Test if any sort descriptors are available.
@@ -50,7 +50,7 @@ public interface SortCriteria {
 	 * @since 1.1
 	 */
 	default boolean hasSorts() {
-		List<? extends SortDescriptor> sorts = getSorts();
+		List<SortDescriptor> sorts = getSorts();
 		return (sorts != null && !sorts.isEmpty());
 	}
 
@@ -66,7 +66,7 @@ public interface SortCriteria {
 	 * @since 1.1
 	 */
 	@SuppressWarnings("NullAway")
-	default List<? extends SortDescriptor> sorts() {
+	default List<SortDescriptor> sorts() {
 		return getSorts();
 	}
 
