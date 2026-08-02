@@ -22,6 +22,7 @@
 
 package net.solarnetwork.domain;
 
+import static net.solarnetwork.util.ObjectUtils.nonnull;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
@@ -34,7 +35,7 @@ import org.jspecify.annotations.Nullable;
  * </p>
  *
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class SimplePagination implements Cloneable {
 
@@ -115,6 +116,58 @@ public class SimplePagination implements Cloneable {
 	 */
 	public void setSorts(@Nullable List<SortDescriptor> sorts) {
 		this.sorts = sorts;
+	}
+
+	/**
+	 * Get the order-by list.
+	 *
+	 * <p>
+	 * This is derived from the {@link #getSorts()} list. The returned list will
+	 * contain all the {@link SortDescriptor#getSortKey()} values. Any
+	 * descriptor where {@link SortDescriptor#isDescending()} returns
+	 * {@literal true} will cause a {@literal ~} character to be added to the
+	 * end of the associated sort key value.
+	 * </p>
+	 *
+	 * @return the order-by list
+	 * @since 2.1
+	 */
+	public final @Nullable List<String> getOrderBy() {
+		final List<SortDescriptor> sorts = getSorts();
+		if ( sorts == null || sorts.isEmpty() ) {
+			return null;
+		}
+		return sorts.stream().filter(s -> s.getSortKey() != null).map(
+				s -> s.isDescending() ? nonnull(s.getSortKey(), "sortKey").concat("~") : s.getSortKey())
+				.toList();
+	}
+
+	/**
+	 * Set the order-by list.
+	 *
+	 * <p>
+	 * This creates the {@link #getSorts()} list. The values of the
+	 * {@code orderBys} list represent the sort descriptor key values. If the
+	 * value ends with a {@literal ~} character the descriptor will be set to
+	 * descending order.
+	 * </p>
+	 *
+	 * @param orderBys
+	 *        the order-by list
+	 * @see #getOrderBy()
+	 * @since 2.1
+	 */
+	public final void setOrderBy(@Nullable List<String> orderBys) {
+		if ( orderBys == null || orderBys.isEmpty() ) {
+			setSorts(null);
+			return;
+		}
+		List<SortDescriptor> sorts = orderBys.stream().map(o -> {
+			boolean desc = o.endsWith("~");
+			return (SortDescriptor) new SimpleSortDescriptor(desc ? o.substring(0, o.length() - 1) : o,
+					desc);
+		}).toList();
+		setSorts(sorts);
 	}
 
 	/**
