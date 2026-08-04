@@ -1421,8 +1421,6 @@ public final class CollectionUtils {
 	/**
 	 * Extract a value from a nested {@code Map} hierarchy at a given key path.
 	 *
-	 * @param <T>
-	 *        the expected return type
 	 * @param path
 	 *        a URL path-like string delimited by {@code /} characters; will be
 	 *        split and the resulting array of keys passed to
@@ -1453,8 +1451,6 @@ public final class CollectionUtils {
 	/**
 	 * Extract a value from a nested {@code Map} hierarchy at a given key path.
 	 *
-	 * @param <T>
-	 *        the expected return type
 	 * @param path
 	 *        a URL path-like string delimited by {@code /} characters; will be
 	 *        split and the resulting array of keys passed to
