@@ -56,7 +56,7 @@ import org.springframework.beans.PropertyAccessorFactory;
  * Utility methods for dealing with collections.
  *
  * @author matt
- * @version 1.8
+ * @version 1.9
  * @since 1.58
  */
 public final class CollectionUtils {
@@ -1273,6 +1273,261 @@ public final class CollectionUtils {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Extract a value from a nested {@code Map} hierarchy at a given key path.
+	 *
+	 * <p>
+	 * The {@code keys} represent keys within a nested hierarchy of
+	 * {@code Map<String, ?>} objects within {@code data}. The <b>first</b>
+	 * component represents a key in {@code data} itself, and the the value
+	 * associated with the <b>last</b> component will be returned. Any
+	 * <b>intermediate</b> components represent keys to nested {@code Map}
+	 * objects, from which subsequent components will be resolved.
+	 * </p>
+	 *
+	 * <p>
+	 * For example, the keys {@code ["m", "foo"]} would return the value
+	 * associated with the {@code "foo"} key in the {@code Map} returned from
+	 * {@code (Map) data.get("m")}. The keys {@code ["pm", "foo", "bar"]} would
+	 * return the value associated with the {@code "bar"} key in the {@code Map}
+	 * associated with the {@code "foo"} key in the {@code Map} returned from
+	 * {@code (Map) data.get("pm")}.
+	 * </p>
+	 *
+	 * <p>
+	 * Empty values within {@code keys} will be skipped and resolution will
+	 * continue from the next higher index. This is to support a common pattern
+	 * of splitting URL-like paths into the keys array, where something like
+	 * {@code "/pm/the/path".split("/")} results in
+	 * {@code ["", "pm", "the", "path"]} due to the leading split delimiter.
+	 * </p>
+	 *
+	 * @param keys
+	 *        the key path components of the object to get
+	 * @param startingIndex
+	 *        the index within {@code keys} to start resolving from, with
+	 *        {@code 0} being the first key; can be used to skip a set of
+	 *        "prefix" keys
+	 * @param data
+	 *        the map to look in
+	 * @return the value at the specified path, or {@code null} if none exists
+	 * @since 1.9
+	 */
+	public static @Nullable Object valueAtPath(final String @Nullable [] keys, final int startingIndex,
+			final @Nullable Map<String, ?> data) {
+		if ( keys == null || keys.length < 1 || data == null || data.isEmpty() ) {
+			return null;
+		}
+		return metadataAtPath(keys, startingIndex, data);
+	}
+
+	/**
+	 * Extract a value from a nested {@code Map} hierarchy at a given key path.
+	 *
+	 * @param keys
+	 *        the key path components of the object to get
+	 * @param data
+	 *        the map to look in
+	 * @return the value at the specified path, or {@code null} if none exists
+	 * @see #valueAtPath(String[], int, Map)
+	 * @since 1.9
+	 */
+	public static @Nullable Object valueAtPath(final String @Nullable [] keys,
+			final @Nullable Map<String, ?> data) {
+		return valueAtPath(keys, 0, data);
+	}
+
+	/**
+	 * Extract a value of a specific type from a nested {@code Map} hierarchy at
+	 * a given key path.
+	 *
+	 * @param <T>
+	 *        the expected return type
+	 * @param keys
+	 *        the key path components of the object to get
+	 * @param startingIndex
+	 *        the index within {@code keys} to start resolving from, with
+	 *        {@code 0} being the first key; can be used to skip a set of
+	 *        "prefix" keys
+	 * @param data
+	 *        the map to look in
+	 * @param clazz
+	 *        the expected class of the return type
+	 * @return the value at the specified path, or {@code null} if none exists
+	 *         or is not of type {@code T}
+	 * @see #valueAtPath(String[], int, Map)
+	 * @since 1.9
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> @Nullable T valueAtPath(final String @Nullable [] keys, final int startingIndex,
+			final @Nullable Map<String, ?> data, final Class<T> clazz) {
+		Object o = valueAtPath(keys, startingIndex, data);
+		if ( o != null && clazz.isAssignableFrom(o.getClass()) ) {
+			return (T) o;
+		}
+		return null;
+
+	}
+
+	/**
+	 * Extract a value of a specific type from a nested {@code Map} hierarchy at
+	 * a given key path.
+	 *
+	 * @param <T>
+	 *        the expected return type
+	 * @param keys
+	 *        the key path components of the object to get
+	 * @param data
+	 *        the map to look in
+	 * @param clazz
+	 *        the expected class of the return type
+	 * @return the value at the specified path, or {@code null} if none exists
+	 *         or is not of type {@code T}
+	 * @see #valueAtPath(String[], int, Map)
+	 * @since 1.9
+	 */
+	public static <T> @Nullable T valueAtPath(final String @Nullable [] keys,
+			final @Nullable Map<String, ?> data, final Class<T> clazz) {
+		return valueAtPath(keys, 0, data, clazz);
+	}
+
+	private static @Nullable Object metadataAtPath(final String[] keys, final int idx,
+			final @Nullable Map<String, ?> data) {
+		if ( data == null || data.isEmpty() ) {
+			return null;
+		}
+		if ( idx < 0 || idx >= keys.length ) {
+			// can happen if requesting a root path
+			return data;
+		}
+		if ( keys[idx].isEmpty() ) {
+			// skip empty key
+			return metadataAtPath(keys, idx + 1, data);
+		}
+		Object v = data.get(keys[idx]);
+		if ( idx == keys.length - 1 ) {
+			return v;
+		}
+		if ( v instanceof Map<?, ?> ) {
+			@SuppressWarnings("unchecked")
+			Map<String, ?> m = (Map<String, ?>) v;
+			return metadataAtPath(keys, idx + 1, m);
+		}
+		return null;
+	}
+
+	/**
+	 * Extract a value from a nested {@code Map} hierarchy at a given key path.
+	 *
+	 * @param <T>
+	 *        the expected return type
+	 * @param path
+	 *        a URL path-like string delimited by {@code /} characters; will be
+	 *        split and the resulting array of keys passed to
+	 *        {@link #valueAtPath(String[], int, Map, Class)}
+	 * @param startingIndex
+	 *        the index within {@code keys} to start resolving from, with
+	 *        {@code 0} being the first key; can be used to skip a set of
+	 *        "prefix" path components
+	 * @param data
+	 *        the map to look in
+	 * @return the value at the specified path, or {@code null} if none exists
+	 * @see #valueAtPath(String[], int, Map)
+	 * @since 1.9
+	 */
+	public static @Nullable Object valueAtPath(final @Nullable String path, final int startingIndex,
+			final @Nullable Map<String, ?> data) {
+		if ( path == null || path.isEmpty() || data == null || data.isEmpty() ) {
+			return null;
+		}
+		final String[] keys = path.split("/", 0);
+		int idx = startingIndex;
+		if ( keys[0].isEmpty() ) {
+			idx += 1;
+		}
+		return valueAtPath(keys, idx, data);
+	}
+
+	/**
+	 * Extract a value from a nested {@code Map} hierarchy at a given key path.
+	 *
+	 * @param <T>
+	 *        the expected return type
+	 * @param path
+	 *        a URL path-like string delimited by {@code /} characters; will be
+	 *        split and the resulting array of keys passed to
+	 *        {@link #valueAtPath(String[], int, Map, Class)}
+	 * @param data
+	 *        the map to look in
+	 * @return the value at the specified path, or {@code null} if none exists
+	 * @see #valueAtPath(String, int, Map)
+	 * @since 1.9
+	 */
+	public static @Nullable Object valueAtPath(final @Nullable String path,
+			final @Nullable Map<String, ?> data) {
+		return valueAtPath(path, 0, data);
+	}
+
+	/**
+	 * Extract a value of a specific type from a nested {@code Map} hierarchy at
+	 * a given key path.
+	 *
+	 * @param <T>
+	 *        the expected return type
+	 * @param path
+	 *        a URL path-like string delimited by {@code /} characters; will be
+	 *        split and the resulting array of keys passed to
+	 *        {@link #valueAtPath(String[], int, Map, Class)}
+	 * @param startingIndex
+	 *        the index within {@code keys} to start resolving from, with
+	 *        {@code 0} being the first key; can be used to skip a set of
+	 *        "prefix" path components
+	 * @param data
+	 *        the map to look in
+	 * @param clazz
+	 *        the expected class of the return type
+	 * @return the value at the specified path, or {@code null} if none exists
+	 *         or is not of type {@code T}
+	 * @see #valueAtPath(String[], int, Map)
+	 * @since 1.9
+	 */
+	public static <T> @Nullable T valueAtPath(final @Nullable String path, final int startingIndex,
+			final @Nullable Map<String, ?> data, final Class<T> clazz) {
+		if ( path == null || path.isEmpty() || data == null || data.isEmpty() ) {
+			return null;
+		}
+		final String[] keys = path.split("/", 0);
+		int idx = startingIndex;
+		if ( keys[0].isEmpty() ) {
+			idx += 1;
+		}
+		return valueAtPath(keys, idx, data, clazz);
+	}
+
+	/**
+	 * Extract a value of a specific type from a nested {@code Map} hierarchy at
+	 * a given key path.
+	 *
+	 * @param <T>
+	 *        the expected return type
+	 * @param path
+	 *        a URL path-like string delimited by {@code /} characters; will be
+	 *        split and the resulting array of keys passed to
+	 *        {@link #valueAtPath(String[], int, Map, Class)}
+	 * @param data
+	 *        the map to look in
+	 * @param clazz
+	 *        the expected class of the return type
+	 * @return the value at the specified path, or {@code null} if none exists
+	 *         or is not of type {@code T}
+	 * @see #valueAtPath(String, int, Map, Class)
+	 * @since 1.9
+	 */
+	public static <T> @Nullable T valueAtPath(final @Nullable String path,
+			final @Nullable Map<String, ?> data, final Class<T> clazz) {
+		return valueAtPath(path, 0, data, clazz);
 	}
 
 }

@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import net.solarnetwork.domain.KeyValuePair;
 import net.solarnetwork.domain.SerializeIgnore;
+import net.solarnetwork.util.CollectionUtils;
 import net.solarnetwork.util.NumberUtils;
 import net.solarnetwork.util.StringUtils;
 
@@ -42,7 +43,7 @@ import net.solarnetwork.util.StringUtils;
  * Metadata about general node datum streams of data.
  *
  * @author matt
- * @version 2.2
+ * @version 2.3
  */
 @JsonPropertyOrder({ "m", "pm", "t" })
 @JsonIgnoreProperties({ "empty", "infoKeys" })
@@ -533,8 +534,8 @@ public class GeneralDatumMetadata extends DatumSupport
 	 *        the path of the metadata object to get
 	 * @param meta
 	 *        the metadata to look in
-	 * @return the metadata value, or {@code null} if none exists at the
-	 *         given path
+	 * @return the metadata value, or {@code null} if none exists at the given
+	 *         path
 	 * @since 1.3
 	 */
 	public static @Nullable Object metadataAtPath(@Nullable String path,
@@ -543,17 +544,17 @@ public class GeneralDatumMetadata extends DatumSupport
 			return null;
 		}
 		Object result = null;
-		String[] components = path.split("/");
+		String[] components = path.split("/", 0);
 		int idx = 0;
 		if ( components[0].isEmpty() ) {
 			idx += 1;
 		}
 		if ( "m".equals(components[idx]) ) {
-			return metadataAtPath(components, idx + 1, meta.getM());
+			return CollectionUtils.valueAtPath(components, idx + 1, meta.getInfo());
 		} else if ( "pm".equals(components[idx]) ) {
-			return metadataAtPath(components, idx + 1, meta.getPm());
+			return CollectionUtils.valueAtPath(components, idx + 1, meta.getPropertyInfo());
 		} else if ( "t".equals(components[idx]) ) {
-			Set<String> tags = meta.getT();
+			Set<String> tags = meta.getTags();
 			if ( tags != null && idx + 1 < components.length ) {
 				String tag = components[idx + 1];
 				return tags.contains(tag) ? tag : null;
@@ -574,8 +575,8 @@ public class GeneralDatumMetadata extends DatumSupport
 	 *        the metadata to look in
 	 * @param clazz
 	 *        the expected class of the return type
-	 * @return the metadata, or {@code null} if none exists at the given path
-	 *         or is not of type {@code T}
+	 * @return the metadata, or {@code null} if none exists at the given path or
+	 *         is not of type {@code T}
 	 * @see GeneralDatumMetadata#metadataAtPath(String, GeneralDatumMetadata,
 	 *      Class)
 	 * @since 1.3
@@ -589,27 +590,6 @@ public class GeneralDatumMetadata extends DatumSupport
 		}
 		return null;
 
-	}
-
-	private static @Nullable Object metadataAtPath(String[] pathComponents, int idx,
-			@Nullable Map<String, ?> data) {
-		if ( data == null ) {
-			return null;
-		}
-		if ( idx >= pathComponents.length ) {
-			// can happen if requesting a root path
-			return data;
-		}
-		Object v = data.get(pathComponents[idx]);
-		if ( idx == pathComponents.length - 1 ) {
-			return v;
-		}
-		if ( v instanceof Map<?, ?> ) {
-			@SuppressWarnings("unchecked")
-			Map<String, ?> m = (Map<String, ?>) v;
-			return metadataAtPath(pathComponents, idx + 1, m);
-		}
-		return null;
 	}
 
 }
