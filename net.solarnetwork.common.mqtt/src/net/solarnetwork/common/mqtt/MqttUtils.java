@@ -31,7 +31,7 @@ import net.solarnetwork.util.StringUtils;
  * Utilities for MQTT.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 2.6
  */
 public final class MqttUtils {
@@ -50,7 +50,7 @@ public final class MqttUtils {
 	 *
 	 * @param topic
 	 *        the topic name to validate
-	 * @throws IllegalArgumentException
+	 * @throws InvalidTopicNameException
 	 *         if {@code topic} is not valid
 	 */
 	public static void validateTopicName(final @Nullable String topic) {
@@ -69,28 +69,28 @@ public final class MqttUtils {
 	 *        the topic name to validate
 	 * @param version
 	 *        the MQTT version to enforce
-	 * @throws IllegalArgumentException
+	 * @throws InvalidTopicNameException
 	 *         if {@code topic} is not valid
 	 */
 	public static void validateTopicName(final @Nullable String topic, final MqttVersion version) {
 		if ( topic == null || topic.isEmpty() ) {
-			throw new IllegalArgumentException(
+			throw new InvalidTopicNameException(
 					"MQTT topic must be at least one character (MQTT-4.7.3-1).");
 		} else if ( StringUtils.utf8length(topic) > 65535 ) {
-			throw new IllegalArgumentException(
+			throw new InvalidTopicNameException(
 					"MQTT topic must not be longer than 65535 bytes (MQTT-4.7.3-3).");
 		}
 		final CharacterIterator itr = new StringCharacterIterator(topic);
 		for ( char c = itr.first(); c != CharacterIterator.DONE; c = itr.next() ) {
 			switch (c) {
 				case '\0':
-					throw new IllegalArgumentException(String.format(
+					throw new InvalidTopicNameException(String.format(
 							"MQTT topic must not include the null character, found at index %d (MQTT-4.7.3-2).",
 							itr.getIndex()));
 
 				case '#':
 				case '+':
-					throw new IllegalArgumentException(String.format(
+					throw new InvalidTopicNameException(String.format(
 							"MQTT topic must not include the subscription wildcard character '%c', found at index %d (MQTT-4.7.1-1).",
 							c, itr.getIndex()));
 
