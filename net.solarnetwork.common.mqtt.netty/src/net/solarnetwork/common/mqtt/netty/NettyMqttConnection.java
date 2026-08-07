@@ -48,6 +48,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.solarnetwork.common.mqtt.BaseMqttConnection;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
+import net.solarnetwork.common.mqtt.MessageSizeLimitExceeded;
 import net.solarnetwork.common.mqtt.MqttBasicCount;
 import net.solarnetwork.common.mqtt.MqttConnectReturnCode;
 import net.solarnetwork.common.mqtt.MqttConnection;
@@ -74,7 +75,7 @@ import net.solarnetwork.util.StatTracker;
  * Netty based implementation of {@link MqttConnection}.
  *
  * @author matt
- * @version 3.3
+ * @version 3.4
  */
 public class NettyMqttConnection extends BaseMqttConnection
 		implements MqttMessageHandler, MqttClientCallback, WireLoggingSupport {
@@ -588,9 +589,10 @@ public class NettyMqttConnection extends BaseMqttConnection
 		if ( getConnectionConfig().getMaximumMessageSize() > 0 && payload != null
 				&& payload.length > getConnectionConfig().getMaximumMessageSize() ) {
 			CompletableFuture<Void> f = new CompletableFuture<>();
-			f.completeExceptionally(
-					new IllegalArgumentException(String.format("Maximum message size %d exceeded: %d",
-							getConnectionConfig().getMaximumMessageSize(), payload.length)));
+			f.completeExceptionally(new MessageSizeLimitExceeded(
+					String.format("Maximum message size %d exceeded: %d",
+							getConnectionConfig().getMaximumMessageSize(), payload.length),
+					payload.length, getConnectionConfig().getMaximumMessageSize()));
 			return f;
 		}
 		io.netty.util.concurrent.Future<Void> f = c.publish(message.getTopic(),

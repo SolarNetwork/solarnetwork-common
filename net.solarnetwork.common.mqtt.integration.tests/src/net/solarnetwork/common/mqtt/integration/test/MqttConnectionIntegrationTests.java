@@ -28,6 +28,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,6 +52,8 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import io.moquette.interception.messages.InterceptConnectMessage;
 import net.solarnetwork.common.mqtt.BasicMqttConnectionConfig;
 import net.solarnetwork.common.mqtt.BasicMqttMessage;
+import net.solarnetwork.common.mqtt.InvalidTopicNameException;
+import net.solarnetwork.common.mqtt.MessageSizeLimitExceeded;
 import net.solarnetwork.common.mqtt.MqttConnection;
 import net.solarnetwork.common.mqtt.MqttConnectionObserver;
 import net.solarnetwork.common.mqtt.MqttMessage;
@@ -420,8 +423,8 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 					new BasicMqttMessage("bad/#/topic", false, MqttQos.AtLeastOnce, msg.getBytes(UTF_8)))
 					.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 		} catch ( ExecutionException e ) {
-			assertThat("Invalid topic results in IllegalArgumentException", e.getCause(),
-					instanceOf(IllegalArgumentException.class));
+			assertThat("Invalid topic results in InvalidTopicNameException", e.getCause(),
+					instanceOf(InvalidTopicNameException.class));
 		}
 
 		stopMqttServer(); // to flush messages
@@ -451,8 +454,13 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 			service.publish(new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce, msg.getBytes(UTF_8)))
 					.get(TIMEOUT_SECS, TimeUnit.SECONDS);
 		} catch ( ExecutionException e ) {
-			assertThat("Maximum message size exceeded results in IllegalArgumentException", e.getCause(),
-					instanceOf(IllegalArgumentException.class));
+			assertThat("Maximum message size exceeded results in MessageSizeLimitExceeded", e.getCause(),
+					instanceOf(MessageSizeLimitExceeded.class));
+			MessageSizeLimitExceeded ex = (MessageSizeLimitExceeded) e.getCause();
+			assertThat("Max size included in exception", ex.getMaximumSize(),
+					is(equalTo((long) config.getMaximumMessageSize())));
+			assertThat("Actual size included in exception", ex.getMessageSize(),
+					is(equalTo((long) msg.getBytes(UTF_8).length)));
 		}
 
 		stopMqttServer(); // to flush messages
