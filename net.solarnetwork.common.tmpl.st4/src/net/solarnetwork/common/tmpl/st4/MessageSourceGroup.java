@@ -1,29 +1,31 @@
 /* ==================================================================
  * MessageSourceGroup.java - 26/07/2020 7:31:13 AM
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
 
 package net.solarnetwork.common.tmpl.st4;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.Token;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -35,7 +37,7 @@ import org.stringtemplate.v4.misc.Misc;
 
 /**
  * {@link STGroup} that loads templates from a {@link MessageSource}.
- * 
+ *
  * <p>
  * <b>Note</b> that because templates are resolved using the
  * {@link java.text.MessageFormat} style parameter expansion, curly braces in
@@ -43,19 +45,19 @@ import org.stringtemplate.v4.misc.Misc;
  * anonymous ST templates, which use brace delimiters. A normal ST anonymous
  * template invocation like this:
  * </p>
- * 
+ *
  * <pre>
  * <code>test(name) ::= "$name:{x | [$x$]}; separator=\", \"$</code>
  * </pre>
- * 
+ *
  * <p>
  * would need to be escaped like this:
  * </p>
- * 
+ *
  * <pre>
  * <code>test(name) ::= "$name:'{'x | [$x$]'}'; separator=\", \"$</code>
  * </pre>
- * 
+ *
  * @author matt
  * @version 1.0
  */
@@ -68,7 +70,7 @@ public class MessageSourceGroup extends STGroup {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param groupName
 	 *        a group name to use
 	 * @param messageSource
@@ -82,7 +84,7 @@ public class MessageSourceGroup extends STGroup {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param groupName
 	 *        a group name to use
 	 * @param messageSource
@@ -97,14 +99,8 @@ public class MessageSourceGroup extends STGroup {
 	public MessageSourceGroup(String groupName, MessageSource messageSource, char delimiterStartChar,
 			char delimiterStopChar) {
 		super(delimiterStartChar, delimiterStopChar);
-		if ( groupName == null ) {
-			throw new IllegalArgumentException("The groupName argument must be provided.");
-		}
-		this.groupName = groupName;
-		if ( messageSource == null ) {
-			throw new IllegalArgumentException("The messageSource argument must be provided.");
-		}
-		this.messageSource = messageSource;
+		this.groupName = requireNonNullArgument(groupName, "groupName");
+		this.messageSource = requireNonNullArgument(messageSource, "messageSource");
 	}
 
 	@Override
@@ -115,14 +111,14 @@ public class MessageSourceGroup extends STGroup {
 	}
 
 	@Override
-	protected CompiledST load(String name) {
+	protected @Nullable CompiledST load(String name) {
 		log.debug("MessageSourceGroup.load({})", name);
 		String prefix = Misc.getPrefix(name);
 		String unqualifiedName = Misc.getFileName(name);
 		return loadTemplateFile(prefix, unqualifiedName + TEMPLATE_FILE_EXTENSION);
 	}
 
-	private CompiledST loadTemplateFile(String prefix, String unqualifiedFileName) {
+	private @Nullable CompiledST loadTemplateFile(String prefix, String unqualifiedFileName) {
 		log.debug("loadTemplateFile({}) in MessageSourceGroup {} from prefix={}", unqualifiedFileName,
 				groupName, prefix);
 		String t;

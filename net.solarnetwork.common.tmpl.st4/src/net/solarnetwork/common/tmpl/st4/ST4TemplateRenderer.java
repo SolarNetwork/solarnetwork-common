@@ -1,21 +1,21 @@
 /* ==================================================================
  * ST4TemplateRenderer.java - 25/07/2020 4:07:33 PM
- * 
+ *
  * Copyright 2020 SolarNetwork.net Dev Team
- * 
- * This program is free software; you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
- * published by the Free Software Foundation; either version 2 of 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
  * the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
- * along with this program; if not, write to the Free Software 
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
  * 02111-1307 USA
  * ==================================================================
  */
@@ -28,9 +28,11 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 import org.stringtemplate.v4.AutoIndentWriter;
@@ -42,14 +44,19 @@ import net.solarnetwork.service.TemplateRenderer;
 
 /**
  * StringTemplate 4 implementation of {@link TemplateRenderer}.
- * 
+ *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class ST4TemplateRenderer extends BasicIdentity<String> implements TemplateRenderer {
 
-	/** The UTF-8 character set. */
-	public static final Charset UTF8 = Charset.forName("UTF-8");
+	/**
+	 * The UTF-8 character set.
+	 *
+	 * @deprecated use {@code StandardCharsets.UTF_8} instead
+	 */
+	@Deprecated(since = "1.3", forRemoval = true)
+	public static final Charset UTF8 = StandardCharsets.UTF_8;
 
 	/** List of just the HTML MIME type. */
 	public static final List<MimeType> HTML = singletonList(MimeTypeUtils.TEXT_HTML);
@@ -64,7 +71,23 @@ public class ST4TemplateRenderer extends BasicIdentity<String> implements Templa
 
 	/**
 	 * Create a renderer for HTML using UTF-8 encoding.
-	 * 
+	 *
+	 * @param id
+	 *        the identifier
+	 * @param group
+	 *        the template group to use
+	 * @param templateName
+	 *        the entry point template name to execute
+	 * @return the new instance
+	 * @since 1.3
+	 */
+	public static ST4TemplateRenderer html(String id, STGroup group, String templateName) {
+		return new ST4TemplateRenderer(id, group, templateName, HTML, StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * Create a renderer for text using UTF-8 encoding.
+	 *
 	 * @param id
 	 *        the identifier
 	 * @param group
@@ -73,13 +96,13 @@ public class ST4TemplateRenderer extends BasicIdentity<String> implements Templa
 	 *        the entry point template name to execute
 	 * @return the new instance
 	 */
-	public static ST4TemplateRenderer html(String id, STGroup group, String templateName) {
-		return new ST4TemplateRenderer(id, group, templateName, HTML, UTF8);
+	public static ST4TemplateRenderer text(String id, STGroup group, String templateName) {
+		return new ST4TemplateRenderer(id, group, templateName, TEXT, StandardCharsets.UTF_8);
 	}
 
 	/**
-	 * Constructor. v *
-	 * 
+	 * Constructor.
+	 *
 	 * @param id
 	 *        the identifier
 	 * @param group
@@ -99,6 +122,8 @@ public class ST4TemplateRenderer extends BasicIdentity<String> implements Templa
 		this.templateName = templateName;
 		this.mimeTypes = mimeTypes;
 		this.charset = (charset != null ? charset : Charset.forName("UTF-8"));
+
+		group.registerModelAdaptor(Record.class, new RecordModelAdaptor<>());
 	}
 
 	@Override
@@ -117,8 +142,8 @@ public class ST4TemplateRenderer extends BasicIdentity<String> implements Templa
 	}
 
 	@Override
-	public void render(Locale locale, MimeType mimeType, Map<String, ?> parameters, OutputStream out)
-			throws IOException {
+	public void render(@Nullable Locale locale, MimeType mimeType, @Nullable Map<String, ?> parameters,
+			OutputStream out) throws IOException {
 		ST st = group.getInstanceOf(templateName);
 		if ( st == null ) {
 			String msg = String.format("Template %s not available in group %s.", templateName, group);
