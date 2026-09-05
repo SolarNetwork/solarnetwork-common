@@ -43,7 +43,7 @@ import org.stringtemplate.v4.misc.STNoSuchPropertyException;
  * @version 1.0
  * @since 4.1
  */
-public class RecordModelAdaptor<T extends Record> extends ObjectModelAdaptor<T> {
+public class RecordModelAdaptor extends ObjectModelAdaptor<Record> {
 
 	/**
 	 * Constructor.
@@ -53,7 +53,7 @@ public class RecordModelAdaptor<T extends Record> extends ObjectModelAdaptor<T> 
 	}
 
 	@Override
-	public Object getProperty(Interpreter interpreter, ST self, T rtype, Object property,
+	public Object getProperty(Interpreter interpreter, ST self, Record rtype, Object property,
 			String propertyName) throws STNoSuchPropertyException {
 		RecordComponent[] components = rtype.getClass().getRecordComponents();
 		for ( RecordComponent component : components ) {

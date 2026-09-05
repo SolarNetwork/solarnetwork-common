@@ -123,7 +123,7 @@ public class ST4TemplateRenderer extends BasicIdentity<String> implements Templa
 		this.mimeTypes = mimeTypes;
 		this.charset = (charset != null ? charset : Charset.forName("UTF-8"));
 
-		group.registerModelAdaptor(Record.class, new RecordModelAdaptor<>());
+		group.registerModelAdaptor(Record.class, new RecordModelAdaptor());
 	}
 
 	@Override
