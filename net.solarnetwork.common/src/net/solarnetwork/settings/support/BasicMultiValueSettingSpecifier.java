@@ -22,7 +22,12 @@
 
 package net.solarnetwork.settings.support;
 
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
 import org.jspecify.annotations.Nullable;
+import org.springframework.context.MessageSource;
+import net.solarnetwork.domain.KeyedValue;
 import net.solarnetwork.settings.MappableSpecifier;
 import net.solarnetwork.settings.MultiValueSettingSpecifier;
 import net.solarnetwork.settings.SettingSpecifier;
@@ -31,7 +36,7 @@ import net.solarnetwork.settings.SettingSpecifier;
  * Basic implementation of {@link MultiValueSettingSpecifier}.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class BasicMultiValueSettingSpecifier extends BasicTextFieldSettingSpecifier
 		implements MultiValueSettingSpecifier {
@@ -67,4 +72,96 @@ public class BasicMultiValueSettingSpecifier extends BasicTextFieldSettingSpecif
 		spec.setDescriptionArguments(getDescriptionArguments());
 		return spec;
 	}
+
+	/**
+	 * Create a drop-down menu setting for an enum property.
+	 *
+	 * <p>
+	 * Each {@code valueTitles} key comes from the enum's constant name.
+	 * </p>
+	 *
+	 * <p>
+	 * Each {@code valueTitles} value comes from the message bundle, keyed by
+	 * the enum's simple class name and constant name, for example
+	 * {@code MyEnum.MY_VALUE}.
+	 * </p>
+	 *
+	 * @param <E>
+	 *        the enum type
+	 * @param enumClass
+	 *        the enum class that provides the available values
+	 * @param key
+	 *        the setting key
+	 * @param defaultValue
+	 *        the default value, or {@code null} to include an "empty" menu item
+	 * @param msg
+	 *        the message source to resolve value titles with
+	 * @param locale
+	 *        the locale to resolve value titles for
+	 * @return the setting
+	 * @since 1.2
+	 */
+	public static <E extends Enum<E>> BasicMultiValueSettingSpecifier enumSpec(Class<E> enumClass,
+			String key, @Nullable E defaultValue, MessageSource msg, Locale locale) {
+		final E[] values = enumClass.getEnumConstants();
+		final BasicMultiValueSettingSpecifier spec = new BasicMultiValueSettingSpecifier(key,
+				(defaultValue != null ? defaultValue.name() : ""));
+		final Map<String, String> titles = new LinkedHashMap<>(values.length);
+		if ( defaultValue == null ) {
+			titles.put("", "");
+		}
+		for ( E e : values ) {
+			titles.put(e.name(),
+					msg.getMessage(enumClass.getSimpleName() + "." + e.name(), null, e.name(), locale));
+		}
+		spec.setValueTitles(titles);
+		return spec;
+	}
+
+	/**
+	 * Create a drop-down menu setting for an enum property using key values.
+	 *
+	 * <p>
+	 * Each {@code valueTitles} key comes from the enum's
+	 * {@link KeyedValue#getKey()}.
+	 * </p>
+	 *
+	 * <p>
+	 * Each {@code valueTitles} value comes from the message bundle, keyed by
+	 * the enum's simple class name and constant name, for example
+	 * {@code MyEnum.MY_VALUE}.
+	 * </p>
+	 *
+	 * @param <E>
+	 *        the enum type
+	 * @param enumClass
+	 *        the enum class that provides the available values
+	 * @param key
+	 *        the setting key
+	 * @param defaultValue
+	 *        the default value, or {@code null} to include an "empty" menu item
+	 * @param msg
+	 *        the message source to resolve value titles with
+	 * @param locale
+	 *        the locale to resolve value titles for
+	 * @return the setting
+	 * @since 1.2
+	 */
+	public static <E extends Enum<E> & KeyedValue> BasicMultiValueSettingSpecifier keyedEnumSpec(
+			Class<E> enumClass, String key, @Nullable E defaultValue, MessageSource msg, Locale locale) {
+		final E[] values = enumClass.getEnumConstants();
+		final BasicMultiValueSettingSpecifier spec = new BasicMultiValueSettingSpecifier(key,
+				(defaultValue != null ? defaultValue.getKey() : ""));
+		final Map<String, String> titles = new LinkedHashMap<>(values.length);
+		if ( defaultValue == null ) {
+			titles.put("", "");
+		}
+		for ( E e : values ) {
+			titles.put(e.getKey(),
+					msg.getMessage(enumClass.getSimpleName() + "." + e.name(), null, e.name(), locale));
+		}
+		spec.setValueTitles(titles);
+		return spec;
+	}
+
 }
