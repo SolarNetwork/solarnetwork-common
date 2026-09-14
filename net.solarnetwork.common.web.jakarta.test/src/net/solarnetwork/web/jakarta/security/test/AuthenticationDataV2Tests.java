@@ -372,6 +372,25 @@ public class AuthenticationDataV2Tests {
 	}
 
 	@Test
+	public void simplePath_ignoreRepeatedValues() throws ServletException, IOException {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");
+		final Instant now = Instant.now();
+		request.addHeader("Date", AUTHORIZATION_DATE_HEADER_FORMATTER.format(now));
+		String authHeader = createAuthorizationHeaderV2Value(TEST_AUTH_TOKEN, TEST_PASSWORD, request,
+				now);
+
+		// add duplicate components to the header; these will be ignored
+		final String extra = ",Credential=IGNORED,SignedHeaders=IGNORED,Signature=IGNORED";
+		request.addHeader(HTTP_HEADER_AUTH, authHeader + extra);
+		verifyRequest(request, TEST_PASSWORD);
+
+		final Snws2AuthorizationBuilder builder = new Snws2AuthorizationBuilder(TEST_AUTH_TOKEN);
+		String builderAuthHeader = builder.date(now).host(TEST_HOST).path(request.getRequestURI())
+				.build(TEST_PASSWORD);
+		Assert.assertEquals("Builder header equal to manual header", authHeader, builderAuthHeader);
+	}
+
+	@Test
 	public void simplePath_explicitHost() throws ServletException, IOException {
 		// given a request with Host: other.example.com
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/mock/path/here");

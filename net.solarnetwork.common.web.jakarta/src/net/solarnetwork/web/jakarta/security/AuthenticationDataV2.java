@@ -98,8 +98,8 @@ public class AuthenticationDataV2 extends AuthenticationData {
 	 *        the {@literal Authorization} HTTP header value
 	 * @param explicitHost
 	 *        a fixed value to use instead of the {@literal Host} HTTP header
-	 *        value, or {@code null} to use the header value; this can be
-	 *        useful when sitting behind a proxy
+	 *        value, or {@code null} to use the header value; this can be useful
+	 *        when sitting behind a proxy
 	 * @throws IOException
 	 *         if any IO error occurs
 	 * @since 1.3
@@ -166,7 +166,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 			if ( splitIdx > 0 ) {
 				String componentKey = component.substring(0, splitIdx);
 				String componentValue = component.substring(splitIdx + 1);
-				map.put(componentKey, componentValue);
+				map.putIfAbsent(componentKey, componentValue);
 			}
 		}
 		return map;
