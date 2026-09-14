@@ -46,11 +46,12 @@ public final class WebTestUtils {
 	public static RestTemplate testRestTemplate() {
 		var restTemplate = new RestTemplate();
 
-		// remove CBOR message converter so tests only dealing with JSON accept headers
+		// remove CBOR and XML message converter so tests only dealing with JSON accept headers
 		for ( Iterator<HttpMessageConverter<?>> itr = restTemplate.getMessageConverters().iterator(); itr
 				.hasNext(); ) {
 			var converter = itr.next();
-			if ( converter.getClass().getSimpleName().toLowerCase().contains("cbor") ) {
+			final var name = converter.getClass().getSimpleName().toLowerCase();
+			if ( name.contains("cbor") || name.contains("xml") ) {
 				itr.remove();
 			}
 		}

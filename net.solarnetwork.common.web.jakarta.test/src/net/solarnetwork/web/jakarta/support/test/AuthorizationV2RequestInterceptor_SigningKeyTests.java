@@ -37,7 +37,6 @@ import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,7 +52,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -89,15 +87,6 @@ public class AuthorizationV2RequestInterceptor_SigningKeyTests {
 	@Before
 	public void setup() throws Exception {
 		restTemplate = WebTestUtils.testRestTemplate();
-
-		// remove CBOR message converter
-		for ( Iterator<HttpMessageConverter<?>> itr = restTemplate.getMessageConverters().iterator(); itr
-				.hasNext(); ) {
-			var converter = itr.next();
-			if ( converter.getClass().getSimpleName().toLowerCase().contains("cbor") ) {
-				itr.remove();
-			}
-		}
 
 		tokenId = randomUUID().toString();
 		tokenSecret = randomUUID().toString();

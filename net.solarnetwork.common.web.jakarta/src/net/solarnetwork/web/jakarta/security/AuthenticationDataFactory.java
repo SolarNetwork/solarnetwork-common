@@ -80,9 +80,9 @@ public final class AuthenticationDataFactory {
 		String headerData = null;
 		if ( header != null ) {
 			for ( AuthenticationScheme aScheme : AuthenticationScheme.values() ) {
-				if ( header.startsWith(aScheme.getSchemeName()) ) {
+				if ( header.startsWith(aScheme.getSchemePrefix()) ) {
 					scheme = aScheme;
-					headerData = header.substring(scheme.getSchemeName().length() + 1);
+					headerData = header.substring(scheme.getSchemePrefix().length());
 					break;
 				}
 			}
