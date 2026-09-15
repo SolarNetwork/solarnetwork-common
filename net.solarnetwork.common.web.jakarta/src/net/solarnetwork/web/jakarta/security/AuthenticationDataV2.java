@@ -22,8 +22,10 @@
 
 package net.solarnetwork.web.jakarta.security;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -47,7 +49,7 @@ import net.solarnetwork.util.StringUtils;
  * the signature calculation in {@link #computeSignatureDigest(String)}.
  *
  * @author matt
- * @version 3.1
+ * @version 3.2
  * @since 1.11
  */
 public class AuthenticationDataV2 extends AuthenticationData {
@@ -200,7 +202,8 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		for ( int i = 0; i < 7; i++ ) {
 			byte[] signKey = builder.computeSigningKey(signDate, secretKey);
 			String computed = builder.signingKey(signKey).buildSignature();
-			if ( computed.equals(signatureDigest) ) {
+			// compare in constant time to avoid leaking timing information
+			if ( MessageDigest.isEqual(computed.getBytes(UTF_8), signatureDigest.getBytes(UTF_8)) ) {
 				return computed;
 			} else if ( result == null ) {
 				// save 1st result as one we return if nothing matches

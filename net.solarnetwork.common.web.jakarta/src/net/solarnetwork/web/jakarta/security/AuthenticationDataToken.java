@@ -25,7 +25,7 @@ package net.solarnetwork.web.jakarta.security;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.solarnetwork.security.AuthorizationUtils.computeHmacSha256;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
+import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -49,7 +49,7 @@ import tools.jackson.core.JacksonException;
  * {@literal HS256}.
  *
  * @author matt
- * @version 3.1
+ * @version 3.2
  */
 public class AuthenticationDataToken {
 
@@ -322,7 +322,8 @@ public class AuthenticationDataToken {
 	 */
 	public void verify(byte[] secret, final long date) {
 		byte[] computed = computeHmacSha256(secret, messageData);
-		if ( !Arrays.equals(signature, computed) ) {
+		// compare in constant time to avoid leaking timing information
+		if ( !MessageDigest.isEqual(signature, computed) ) {
 			throw new SecurityException("Signature does not match.");
 		}
 		if ( expires * 1000 < date ) {

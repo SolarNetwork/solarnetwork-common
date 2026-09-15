@@ -22,12 +22,14 @@
 
 package net.solarnetwork.web.jakarta.security;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.security.MessageDigest;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,7 +90,7 @@ import net.solarnetwork.web.jakarta.support.RequestInfoHandshakeInterceptor;
  * </p>
  *
  * @author matt
- * @version 2.0
+ * @version 2.1
  * @since 1.14
  */
 public class AuthenticationDataTokenChannelInterceptor implements ChannelInterceptor {
@@ -150,7 +152,9 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 		if ( data != null ) {
 			UserDetails user = userDetailsService.loadUserByUsername(data.getAuthTokenId());
 			final String computedDigest = data.computeSignatureDigest(user.getPassword());
-			if ( computedDigest.equals(data.getSignatureDigest()) ) {
+			// compare in constant time to avoid leaking timing information
+			if ( MessageDigest.isEqual(computedDigest.getBytes(UTF_8),
+					data.getSignatureDigest().getBytes(UTF_8)) ) {
 				if ( data.isDateValid(maxDateSkew) ) {
 					authenticatedUser = createSuccessfulAuthentication(request, user);
 					log.debug("Authentication success for user: '{}'", user.getUsername());
@@ -160,7 +164,7 @@ public class AuthenticationDataTokenChannelInterceptor implements ChannelInterce
 					throw new BadCredentialsException("Request date skew too large");
 				}
 			} else {
-				log.debug("Expected digest: '{}' but received: '{}'", computedDigest,
+				log.debug("Signature digest does not match received value '{}'",
 						data.getSignatureDigest());
 				throw new BadCredentialsException("Bad signature digest");
 			}

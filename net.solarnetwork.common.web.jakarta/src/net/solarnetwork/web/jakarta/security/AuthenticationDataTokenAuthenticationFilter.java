@@ -22,11 +22,13 @@
 
 package net.solarnetwork.web.jakarta.security;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.solarnetwork.security.AuthorizationUtils.computeMacDigest;
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -61,7 +63,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * then be presented on subsequent requests instead of the HTTP authorization.
  *
  * @author matt
- * @version 2.0
+ * @version 2.1
  */
 public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestFilter {
 
@@ -131,7 +133,9 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 			UserDetails user = requireNonNullArgument(userDetailsService, "userDetailsService")
 					.loadUserByUsername(data.getAuthTokenId());
 			final String computedDigest = data.computeSignatureDigest(user.getPassword());
-			if ( computedDigest.equals(data.getSignatureDigest()) ) {
+			// compare in constant time to avoid leaking timing information
+			if ( MessageDigest.isEqual(computedDigest.getBytes(UTF_8),
+					data.getSignatureDigest().getBytes(UTF_8)) ) {
 				if ( data.isDateValid(maxDateSkew) ) {
 					// check if cookie should be set
 					if ( "true".equalsIgnoreCase(request.getParameter(REQUEST_PARAM_SET_COOKIE)) ) {
@@ -152,7 +156,7 @@ public class AuthenticationDataTokenAuthenticationFilter extends OncePerRequestF
 					throw new BadCredentialsException("Request date skew too large");
 				}
 			} else {
-				log.debug("Expected digest: '{}' but received: '{}'", computedDigest,
+				log.debug("Signature digest does not match received value '{}'",
 						data.getSignatureDigest());
 				throw new BadCredentialsException("Bad signature digest");
 			}
