@@ -32,6 +32,7 @@ import java.util.Date;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.authentication.BadCredentialsException;
 import net.solarnetwork.security.Snws2AuthorizationBuilder;
 import net.solarnetwork.test.CommonTestUtils;
 import net.solarnetwork.web.jakarta.security.AuthenticationData;
@@ -95,6 +96,23 @@ public class AuthenticationDataFactoryTests {
 
 		// THEN
 		assertThat("SNWS2 data not resolved because prefix does not match", result, is(nullValue()));
+	}
+
+	@Test(expected = BadCredentialsException.class)
+	public void failV2_empty() throws IOException {
+		// GIVEN
+		final Instant now = Instant.now();
+
+		// add a trailing character after SNWS2
+		final String authHeader = "SNWS2\t";
+
+		// WHEN
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", TEST_PATH);
+		request.addHeader(HttpHeaders.DATE, Date.from(now));
+		request.addHeader(HttpHeaders.AUTHORIZATION, authHeader);
+
+		AuthenticationDataFactory.authenticationDataForAuthorizationHeader(
+				new SecurityHttpServletRequestWrapper(request, 1024));
 	}
 
 }

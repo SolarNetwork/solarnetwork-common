@@ -22,6 +22,10 @@
 
 package net.solarnetwork.web.jakarta.security;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
+
 /**
  * Authentication scheme constants.
  *
@@ -38,11 +42,11 @@ public enum AuthenticationScheme {
 	V2("SNWS2");
 
 	private final String schemeName;
-	private final String schemePrefix;
+	private final Pattern schemePrefix;
 
 	private AuthenticationScheme(String schemeName) {
 		this.schemeName = schemeName;
-		this.schemePrefix = schemeName + ' ';
+		this.schemePrefix = Pattern.compile("^" + schemeName + "\\s+");
 	}
 
 	/**
@@ -55,7 +59,7 @@ public enum AuthenticationScheme {
 	}
 
 	/**
-	 * Get the scheme name with a space character.
+	 * Get the scheme name with whitespace.
 	 *
 	 * <p>
 	 * This is meant to be used when inspecting an authorization header, to
@@ -63,9 +67,25 @@ public enum AuthenticationScheme {
 	 * </p>
 	 *
 	 * @return the scheme prefix
+	 * @since 1.1
 	 */
-	public final String getSchemePrefix() {
+	public final Pattern getSchemePrefix() {
 		return schemePrefix;
+	}
+
+	/**
+	 * Extract the authentication header data if the scheme prefix matches this
+	 * scheme.
+	 *
+	 * @param authenticationHeader
+	 *        the full authentication header to test
+	 * @return the associated authentication data (after the scheme prefix) if
+	 *         the scheme prefix matches, {@code null} otherwise
+	 * @since 1.1
+	 */
+	public @Nullable String matchingHeaderData(String authenticationHeader) {
+		Matcher m = schemePrefix.matcher(authenticationHeader);
+		return (m.find() ? authenticationHeader.substring(m.end()) : null);
 	}
 
 }
