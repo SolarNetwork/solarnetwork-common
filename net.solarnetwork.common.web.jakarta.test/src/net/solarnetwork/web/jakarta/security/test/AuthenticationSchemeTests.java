@@ -25,6 +25,7 @@ package net.solarnetwork.web.jakarta.security.test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import java.util.regex.Pattern;
 import org.junit.Test;
 import net.solarnetwork.web.jakarta.security.AuthenticationScheme;
 
@@ -39,8 +40,9 @@ public class AuthenticationSchemeTests {
 	@Test
 	public void schemePrefix() {
 		for ( AuthenticationScheme s : AuthenticationScheme.values() ) {
-			assertThat("Scheme prefix is scheme name with space", s.getSchemePrefix(),
-					is(equalTo(s.getSchemeName() + ' ')));
+			var expected = Pattern.compile("^" + s.getSchemeName() + "\\s+");
+			assertThat("Scheme prefix is scheme name with whitespace, anchored to start of string",
+					s.getSchemePrefix().pattern(), is(equalTo(expected.pattern())));
 		}
 	}
 
