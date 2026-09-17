@@ -25,6 +25,7 @@ package net.solarnetwork.domain.test;
 import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 import org.junit.Test;
@@ -120,6 +121,52 @@ public class InstructionStatusTests {
 			.returns(false, from(InstructionStatus::isDone))
 			.as("Receivedw state is not complete")
 			.returns(false, from(InstructionStatus::isCompleted))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void isNotProcessing() {
+		for ( InstructionState state : EnumSet
+				.complementOf(EnumSet.of(InstructionState.Received, InstructionState.Executing)) ) {
+			// @formatter:off
+			then(new TestInstructionStatus(state))
+				.as("%s state is not processing", state)
+				.returns(false, from(InstructionStatus::isProcessing))
+				;
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void isProcessing() {
+		for ( InstructionState state : EnumSet.of(InstructionState.Received,
+				InstructionState.Executing) ) {
+			// @formatter:off
+			then(new TestInstructionStatus(state))
+				.as("%s state is processing", state)
+				.returns(true, from(InstructionStatus::isProcessing))
+				;
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void isProcessing_received() {
+		// @formatter:off
+		then(new TestInstructionStatus(InstructionState.Received))
+			.as("Received state is processing")
+			.returns(true, from(InstructionStatus::isProcessing))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void isProcessing_completed() {
+		// @formatter:off
+		then(new TestInstructionStatus(InstructionState.Executing))
+			.as("Completed state is not processing")
+			.returns(true, from(InstructionStatus::isProcessing))
 			;
 		// @formatter:on
 	}

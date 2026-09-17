@@ -30,7 +30,7 @@ import org.jspecify.annotations.Nullable;
  * Status information for a single Instruction.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 2.0
  */
 public interface InstructionStatus {
@@ -136,6 +136,28 @@ public interface InstructionStatus {
 	 */
 	default boolean isCompleted() {
 		return (getInstructionState() == InstructionState.Completed);
+	}
+
+	/**
+	 * Test if the instruction state is {@code Received}.
+	 *
+	 * @return {@code true} if the instruction state is {@code Received}
+	 * @since 1.2
+	 */
+	default boolean isReceived() {
+		return (getInstructionState() == InstructionState.Received);
+	}
+
+	/**
+	 * Test if the instruction state is {@code Received} or {@code Executing}.
+	 *
+	 * @return {@code true} if the instruction state is {@code Received} or
+	 *         {@code Executing}
+	 * @since 1.2
+	 */
+	default boolean isProcessing() {
+		final InstructionState state = getInstructionState();
+		return (state == InstructionState.Received || state == InstructionState.Executing);
 	}
 
 	/**
