@@ -135,9 +135,7 @@ public class AuthenticationDataHttpSignature extends AuthenticationData {
 			throw new BadCredentialsException(e.getMessage(), e);
 		}
 
-		if ( log.isDebugEnabled() ) {
-			log.debug("Signature [{}] base:\n{}", label, signatureBase.value());
-		}
+		log.debug("Signature [{}] base:\n{}", label, signatureBase.value());
 	}
 
 	/**
