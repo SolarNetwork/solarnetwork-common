@@ -10,6 +10,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: 
  io.micrometer.common.docs;version="[1.12,2.0)",
  io.micrometer.observation;version="[1.12,2.0)",
+ net.bytebuddy;version="[1.18,2.0)",
+ net.bytebuddy.agent;version="[1.18,2.0)",
  net.solarnetwork.test;version="[1.9,2.0)",
  net.solarnetwork.test.http;version="[1.1,2.0)",
  org.apache.commons.io;version="[2.4,3.0)",
