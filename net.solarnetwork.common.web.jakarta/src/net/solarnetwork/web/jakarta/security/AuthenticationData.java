@@ -22,7 +22,9 @@
 
 package net.solarnetwork.web.jakarta.security;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
@@ -38,8 +40,16 @@ import net.solarnetwork.security.AuthorizationUtils;
  * Abstract base class for parsing and exposing the authentication data included
  * in a HTTP authentication header.
  *
+ * <p>
+ * <b>Note</b> this is a copy of the {@code net.solarnetwork.web.jakarta} class
+ * of the same name, changed so that the request date is provided by extending
+ * classes rather than resolved from an HTTP header: RFC 9421 takes its
+ * timestamp from the {@literal created} signature parameter, and has no date
+ * header to resolve.
+ * </p>
+ *
  * @author matt
- * @version 2.2
+ * @version 3.0
  * @since 1.11
  */
 public abstract class AuthenticationData {
@@ -55,19 +65,29 @@ public abstract class AuthenticationData {
 	 * Constructor.
 	 *
 	 * @param scheme
-	 *        The scheme associated with the data.
-	 * @param request
-	 *        The request.
-	 * @param headerValue
-	 *        The authentication HTTP header value.
-	 * @throws BadCredentialsException
-	 *         if the request date is not available or no data is associated
-	 *         with the authentication header
+	 *        the scheme associated with the data
+	 * @param date
+	 *        the date the request was signed
+	 * @since 3.0
 	 */
-	public AuthenticationData(AuthenticationScheme scheme, SecurityHttpServletRequestWrapper request,
-			String headerValue) {
+	public AuthenticationData(AuthenticationScheme scheme, Instant date) {
 		this.scheme = scheme;
+		this.date = date;
+		this.dateSkew = Math.abs(System.currentTimeMillis() - date.toEpochMilli());
+	}
 
+	/**
+	 * Resolve the request date from the {@literal X-SN-Date} or {@literal Date}
+	 * HTTP header.
+	 *
+	 * @param request
+	 *        the request
+	 * @return the date
+	 * @throws BadCredentialsException
+	 *         if the request date is not available
+	 * @since 3.0
+	 */
+	protected static Instant requestDate(SecurityHttpServletRequestWrapper request) {
 		String dateHeader = WebConstants.HEADER_DATE;
 		long dateValue = 0;
 		try {
@@ -82,8 +102,7 @@ public abstract class AuthenticationData {
 		if ( dateValue < 0 ) {
 			throw new BadCredentialsException("Missing or invalid HTTP Date header value");
 		}
-		this.date = Instant.ofEpochMilli(dateValue);
-		this.dateSkew = Math.abs(System.currentTimeMillis() - date.toEpochMilli());
+		return Instant.ofEpochMilli(dateValue);
 	}
 
 	/**
@@ -133,6 +152,7 @@ public abstract class AuthenticationData {
 		}
 	}
 
+	@SuppressWarnings("StatementSwitchToExpressionSwitch")
 	private static void validateContentDigest(DigestAlgorithm alg, @Nullable String providedDigestString,
 			SecurityHttpServletRequestWrapper request) throws IOException {
 		byte[] computedDigest = null;
@@ -259,6 +279,27 @@ public abstract class AuthenticationData {
 	 */
 	protected final byte[] computeMACDigest(final String secretKey, String macAlgorithm) {
 		return AuthenticationUtils.computeMACDigest(secretKey, getSignatureData(), macAlgorithm);
+	}
+
+	/**
+	 * Verify the signature presented in the request against a given secret key.
+	 *
+	 * <p>
+	 * The default implementation recomputes the signature digest and compares
+	 * it to the presented value in constant time. Schemes whose signatures
+	 * cannot be recomputed, such as those using a non-deterministic signature
+	 * algorithm, must override this method.
+	 * </p>
+	 *
+	 * @param secretKey
+	 *        the secret key
+	 * @return {@code true} if the signature is valid
+	 * @since 3.0
+	 */
+	public boolean verifySignature(String secretKey) {
+		// compare in constant time to avoid leaking timing information
+		return MessageDigest.isEqual(computeSignatureDigest(secretKey).getBytes(UTF_8),
+				getSignatureDigest().getBytes(UTF_8));
 	}
 
 	/**

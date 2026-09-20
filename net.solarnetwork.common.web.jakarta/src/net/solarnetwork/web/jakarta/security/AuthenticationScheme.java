@@ -1,7 +1,7 @@
 /* ==================================================================
- * AuthenticationScheme.java - 1/03/2017 5:14:54 PM
+ * AuthenticationScheme.java - 19/09/2026 12:07:41 pm
  *
- * Copyright 2007-2017 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,23 +30,41 @@ import org.jspecify.annotations.Nullable;
  * Authentication scheme constants.
  *
  * @author matt
- * @version 1.1
+ * @version 2.0
  * @since 1.11
  */
 public enum AuthenticationScheme {
 
 	/** The original scheme. */
-	V1("SolarNetworkWS"),
+	V1("SolarNetworkWS", true),
 
 	/** The version 2 scheme. */
-	V2("SNWS2");
+	V2("SNWS2", true),
+
+	/**
+	 * HTTP Message Signatures, as defined in RFC 9421.
+	 *
+	 * <p>
+	 * Unlike the other schemes, this one does not use the
+	 * {@literal Authorization} HTTP header at all: a signature is carried in
+	 * the {@literal Signature-Input} and {@literal Signature} HTTP fields.
+	 * Detection is therefore by the presence of the {@literal Signature-Input}
+	 * field, as RFC 9421 appendix A recommends, rather than by an
+	 * {@literal Authorization} scheme prefix.
+	 * </p>
+	 *
+	 * @since 2.0
+	 */
+	HttpSignature("Signature", false);
 
 	private final String schemeName;
 	private final Pattern schemePrefix;
+	private final boolean authorizationHeader;
 
-	private AuthenticationScheme(String schemeName) {
+	private AuthenticationScheme(String schemeName, boolean authorizationHeader) {
 		this.schemeName = schemeName;
 		this.schemePrefix = Pattern.compile("^" + schemeName + "\\s+");
+		this.authorizationHeader = authorizationHeader;
 	}
 
 	/**
@@ -74,6 +92,18 @@ public enum AuthenticationScheme {
 	}
 
 	/**
+	 * Test if this scheme presents its credentials in the
+	 * {@literal Authorization} HTTP header.
+	 *
+	 * @return {@code true} if the scheme uses the {@literal Authorization}
+	 *         header
+	 * @since 2.0
+	 */
+	public final boolean isAuthorizationHeader() {
+		return authorizationHeader;
+	}
+
+	/**
 	 * Extract the authentication header data if the scheme prefix matches this
 	 * scheme.
 	 *
@@ -84,6 +114,9 @@ public enum AuthenticationScheme {
 	 * @since 1.1
 	 */
 	public @Nullable String matchingHeaderData(String authenticationHeader) {
+		if ( !authorizationHeader ) {
+			return null;
+		}
 		Matcher m = schemePrefix.matcher(authenticationHeader);
 		return (m.find() ? authenticationHeader.substring(m.end()) : null);
 	}

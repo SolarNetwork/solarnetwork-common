@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
@@ -48,8 +49,13 @@ import net.solarnetwork.util.StringUtils;
  * Signing keys are treated valid for up to 7 days in the past from the time of
  * the signature calculation in {@link #computeSignatureDigest(String)}.
  *
+ * <p>
+ * <b>Note</b> this is a copy of the {@code net.solarnetwork.web.jakarta} class
+ * of the same name, adapted to the refactored {@link AuthenticationData} base.
+ * </p>
+ *
  * @author matt
- * @version 3.2
+ * @version 4.0
  * @since 1.11
  */
 public class AuthenticationDataV2 extends AuthenticationData {
@@ -108,7 +114,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 	 */
 	public AuthenticationDataV2(SecurityHttpServletRequestWrapper request, String headerValue,
 			@Nullable String explicitHost) throws IOException {
-		super(AuthenticationScheme.V2, request, headerValue);
+		super(AuthenticationScheme.V2, requestDate(request));
 		this.explicitHost = explicitHost;
 
 		// the header must be in the form Credential=TOKEN-ID,SignedHeaders=x;y;z,Signature=HMAC-SHA1-SIGNATURE
@@ -139,7 +145,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		final String[] sortedSignedHeaderNames = signedHeaderNames
 				.toArray(new String[signedHeaderNames.size()]);
 		for ( int i = 0; i < sortedSignedHeaderNames.length; i++ ) {
-			sortedSignedHeaderNames[i] = sortedSignedHeaderNames[i].toLowerCase();
+			sortedSignedHeaderNames[i] = sortedSignedHeaderNames[i].toLowerCase(Locale.ROOT);
 		}
 		Arrays.sort(sortedSignedHeaderNames);
 		this.sortedSignedHeaderNames = sortedSignedHeaderNames;
@@ -152,6 +158,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 		setupBuilder(request);
 	}
 
+	@SuppressWarnings("MixedMutabilityReturnType")
 	private static Map<String, String> tokenStringToMap(final @Nullable String headerValue) {
 		if ( headerValue == null || headerValue.length() < 1 ) {
 			return Collections.emptyMap();
@@ -265,7 +272,7 @@ public class AuthenticationDataV2 extends AuthenticationData {
 					log.trace("X-Forwarded-Port header: {}", port);
 					if ( port.length() < 1 ) {
 						String proto = nullSafeHeaderValue(request, "X-Forwarded-Proto").trim()
-								.toLowerCase();
+								.toLowerCase(Locale.ROOT);
 						log.trace("X-Forwarded-Proto header: {}", proto);
 						if ( "https".equals(proto) ) {
 							port = "443";
@@ -293,9 +300,9 @@ public class AuthenticationDataV2 extends AuthenticationData {
 					"One of the 'Date' or 'X-SN-Date' HTTP headers must be included in SignedHeaders");
 		}
 		Enumeration<String> headerNames = request.getHeaderNames();
-		final String snHeaderPrefix = WebConstants.HEADER_PREFIX.toLowerCase();
+		final String snHeaderPrefix = WebConstants.HEADER_PREFIX.toLowerCase(Locale.ROOT);
 		while ( headerNames.hasMoreElements() ) {
-			String headerName = headerNames.nextElement().toLowerCase();
+			String headerName = headerNames.nextElement().toLowerCase(Locale.ROOT);
 			// ALL X-SN-* headers must be included; also Content-Type, Content-MD5, Digest
 			boolean mustInclude = (headerName.startsWith(snHeaderPrefix)
 					|| headerName.equals("content-type") || headerName.equals("content-md5")

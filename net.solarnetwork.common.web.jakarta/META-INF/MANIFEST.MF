@@ -4,12 +4,12 @@ Bundle-Name: Core SolarNetwork Web Support
 Bundle-SymbolicName: net.solarnetwork.common.web.jakarta
 Automatic-Module-Name: net.solarnetwork.common.web.jakarta
 Bundle-Description: Common supporting infrastructure for SolarNode and SolarNet web applications using Jakarta EE.
-Bundle-Version: 2.5.0
+Bundle-Version: 2.6.0
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
  net.solarnetwork.web.jakarta.domain;version="1.1.0",
- net.solarnetwork.web.jakarta.security;version="1.3.0",
+ net.solarnetwork.web.jakarta.security;version="1.4.0",
  net.solarnetwork.web.jakarta.service;version="1.1.0",
  net.solarnetwork.web.jakarta.service.support;version="1.1.0",
  net.solarnetwork.web.jakarta.support;version="1.4.3"
@@ -28,6 +28,7 @@ Import-Package:
  net.solarnetwork.domain;version="[3.4,4.0)",
  net.solarnetwork.io;version="[3.0,4.0)",
  net.solarnetwork.security;version="[2.0,3.0)",
+ net.solarnetwork.security.http.sig;version="[1.0,2.0)",
  net.solarnetwork.service;version="[1.0,2.0)",
  net.solarnetwork.service.support;version="[1.1,2.0)",
  net.solarnetwork.settings;version="[2.1,3.0)",
@@ -37,6 +38,7 @@ Import-Package:
  org.apache.commons.codec.binary;version="[1.7,2.0)",
  org.apache.commons.codec.digest;version="[1.7,2.0)",
  org.apache.commons.logging;version="[1.1.0,2.0.0)",
+ org.greenbytes.http.sfv;version="[0.6,1.0)",
  org.jspecify.annotations;version="[1.0,2.0)",
  org.slf4j;version="[1.7,2.0)",
  org.springframework.beans;version="[6.0,7.0)",

@@ -1,7 +1,7 @@
 /* ==================================================================
- * AuthenticationDataFactory.java - 25/04/2017 11:10:41 AM
+ * AuthenticationDataFactory.java - 19/09/2026 1:38:22 pm
  *
- * Copyright 2017 SolarNetwork.net Dev Team
+ * Copyright 2026 SolarNetwork.net Dev Team
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,12 +25,14 @@ package net.solarnetwork.web.jakarta.security;
 import java.io.IOException;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.BadCredentialsException;
+import jakarta.servlet.http.HttpServletRequest;
+import net.solarnetwork.security.http.sig.HttpSignatureFields;
 
 /**
  * Factory for creating {@code AuthenticationData} instances.
  *
  * @author matt
- * @version 1.1
+ * @version 2.0
  * @since 1.11
  */
 public final class AuthenticationDataFactory {
@@ -43,7 +45,7 @@ public final class AuthenticationDataFactory {
 	 * This can be useful when the application performing the authentication
 	 * validation sits behind a proxy or load balancer and the requested
 	 * {@literal Host} value is different than the value used to generate the
-	 * authenciation signature.
+	 * authentication signature.
 	 * </p>
 	 *
 	 * @since 1.1
@@ -51,6 +53,8 @@ public final class AuthenticationDataFactory {
 	public static final String EXPLICIT_HOST_PROP = "sn.web.auth.explicitHost";
 
 	private static final String EXPLICIT_HOST = System.getProperty(EXPLICIT_HOST_PROP, null);
+
+	private static final HttpSignatureSettings DEFAULT_HTTP_SIGNATURE_SETTINGS = new HttpSignatureSettings();
 
 	/**
 	 * Constructor.
@@ -64,9 +68,8 @@ public final class AuthenticationDataFactory {
 	 *
 	 * @param request
 	 *        The HTTP request.
-	 * @return the authentication data, or {@code null} if no
-	 *         {@code Authorization} header provided on the request or the
-	 *         authorization scheme is not supported
+	 * @return the authentication data, or {@code null} if no supported
+	 *         credentials are provided on the request
 	 * @throws IOException
 	 *         if any IO error occurs
 	 * @throws BadCredentialsException
@@ -74,6 +77,35 @@ public final class AuthenticationDataFactory {
 	 */
 	public static @Nullable AuthenticationData authenticationDataForAuthorizationHeader(
 			final SecurityHttpServletRequestWrapper request) throws IOException {
+		return authenticationDataForAuthorizationHeader(request, DEFAULT_HTTP_SIGNATURE_SETTINGS);
+	}
+
+	/**
+	 * Obtain a {@link AuthenticationData} instance from a HTTP request.
+	 *
+	 * <p>
+	 * An {@literal Authorization} header naming a supported scheme takes
+	 * precedence, since it is an unambiguous statement of how the client means
+	 * to authenticate. Only when no such header is present is the request
+	 * inspected for a {@literal Signature-Input} field, which is how RFC 9421
+	 * appendix A recommends detecting an HTTP message signature.
+	 * </p>
+	 *
+	 * @param request
+	 *        The HTTP request.
+	 * @param httpSignatureSettings
+	 *        the RFC 9421 profile settings
+	 * @return the authentication data, or {@code null} if no supported
+	 *         credentials are provided on the request
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @throws BadCredentialsException
+	 *         if the authorization data is malformed in any way
+	 * @since 2.0
+	 */
+	public static @Nullable AuthenticationData authenticationDataForAuthorizationHeader(
+			final SecurityHttpServletRequestWrapper request,
+			final HttpSignatureSettings httpSignatureSettings) throws IOException {
 		final String header = request.getHeader("Authorization");
 
 		AuthenticationScheme scheme = null;
@@ -89,30 +121,35 @@ public final class AuthenticationDataFactory {
 		}
 
 		if ( scheme == null ) {
+			if ( httpSignatureSettings.isEnabled() && isHttpSignatureRequest(request) ) {
+				return new AuthenticationDataHttpSignature(request, httpSignatureSettings,
+						EXPLICIT_HOST);
+			}
 			return null;
 		}
 
-		AuthenticationData data;
-		switch (scheme) {
-			case V1:
-				if ( headerData == null ) {
-					throw new BadCredentialsException("Authentication info not provided.");
-				}
-				data = new AuthenticationDataV1(request, headerData);
-				break;
-
-			case V2:
-				if ( headerData == null ) {
-					throw new BadCredentialsException("Authentication info not provided.");
-				}
-				data = new AuthenticationDataV2(request, headerData, EXPLICIT_HOST);
-				break;
-
-			default:
-				throw new BadCredentialsException("Authentication scheme not supported.");
+		if ( headerData == null ) {
+			throw new BadCredentialsException("Authentication info not provided.");
 		}
 
-		return data;
+		return switch (scheme) {
+			case V1 -> new AuthenticationDataV1(request, headerData);
+			case V2 -> new AuthenticationDataV2(request, headerData, EXPLICIT_HOST);
+			default -> throw new BadCredentialsException("Authentication scheme not supported.");
+		};
+	}
+
+	/**
+	 * Test if a request carries an RFC 9421 HTTP message signature.
+	 *
+	 * @param request
+	 *        the request
+	 * @return {@code true} if the request has a {@literal Signature-Input} HTTP
+	 *         field
+	 * @since 2.0
+	 */
+	public static boolean isHttpSignatureRequest(final HttpServletRequest request) {
+		return (request.getHeader(HttpSignatureFields.SIGNATURE_INPUT_HEADER) != null);
 	}
 
 }
