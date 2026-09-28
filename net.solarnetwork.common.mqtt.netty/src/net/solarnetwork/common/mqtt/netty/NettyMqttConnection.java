@@ -75,7 +75,7 @@ import net.solarnetwork.util.StatTracker;
  * Netty based implementation of {@link MqttConnection}.
  *
  * @author matt
- * @version 3.4
+ * @version 3.5
  */
 public class NettyMqttConnection extends BaseMqttConnection
 		implements MqttMessageHandler, MqttClientCallback, WireLoggingSupport {
@@ -90,6 +90,15 @@ public class NettyMqttConnection extends BaseMqttConnection
 	private boolean wireLogging = DEFAULT_WIRE_LOGGING;
 
 	private volatile @Nullable MqttClient client;
+
+	/**
+	 * The client for a connection attempt that has not completed yet, so that
+	 * {@link #closeConnection()} can abort an attempt that is still in flight.
+	 */
+	private volatile @Nullable MqttClient pendingClient;
+
+	/** Tracks whether a connection has ever been established. */
+	private volatile boolean everConnected;
 
 	/**
 	 * Constructor.
@@ -155,7 +164,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 		@Override
 		public void run() {
 			synchronized ( NettyMqttConnection.this ) {
-				if ( isClosed() || connectFuture != connectFuture() ) {
+				if ( isStale() ) {
 					connectFuture.completeExceptionally(new RuntimeException("Connect cancelled."));
 					return;
 				}
@@ -183,6 +192,16 @@ public class NettyMqttConnection extends BaseMqttConnection
 					client.setEventLoop(new MultiThreadIoEventLoopGroup(ioThreadCount,
 							new CustomizableThreadFactory("MQTT-" + getUid() + "-"),
 							NioIoHandler.newFactory()));
+					// publish the in-flight client so closeConnection() can abort this attempt
+					synchronized ( NettyMqttConnection.this ) {
+						if ( isStale() ) {
+							connectFuture.completeExceptionally(
+									new RuntimeException("Connect cancelled."));
+							closeClient(client);
+							return;
+						}
+						NettyMqttConnection.this.pendingClient = client;
+					}
 					if ( s != null ) {
 						s.increment(MqttBasicCount.ConnectionAttempts);
 					}
@@ -197,32 +216,35 @@ public class NettyMqttConnection extends BaseMqttConnection
 						return;
 					}
 					t = new RuntimeException("Server refused connection: " + r.getReturnCode());
+					closeClient(client);
 				} catch ( Exception e ) {
 					t = e;
 					if ( client != null ) {
-						try {
-							closeClient(client).get(connectionConfig.getConnectTimeoutSeconds(),
-									TimeUnit.SECONDS);
-						} catch ( Exception e2 ) {
-							// ignore
-						}
+						closeClient(client);
 					}
+				} finally {
+					clearPendingClient(client);
 				}
 				if ( s != null ) {
 					s.increment(MqttBasicCount.ConnectionFail);
 				}
+				final String reason = (t instanceof TimeoutException ? "timeout" : t.getMessage());
 				if ( connectionConfig.isReconnect() ) {
 					log.info("Failed to connect to MQTT server {} ({}), will try again in {}s",
-							connectionConfig.getServerUri(),
-							t instanceof TimeoutException ? "timeout" : t.getMessage(),
+							connectionConfig.getServerUri(), reason,
 							String.format("%.01f", (reconnectDelay / 1000.0)));
 				} else {
-					log.info("Failed to connect to MQTT server {} (), will not try again.",
-							connectionConfig.getServerUri(),
-							t instanceof TimeoutException ? "timeout" : t.getMessage());
+					log.info("Failed to connect to MQTT server {} ({}), will not try again.",
+							connectionConfig.getServerUri(), reason);
 				}
 			} else {
 				log.info("{} MQTT configuration incomplete, will not connect.", getUid());
+			}
+			synchronized ( NettyMqttConnection.this ) {
+				if ( isStale() ) {
+					// superseded while we were connecting: let the newer attempt carry on
+					return;
+				}
 			}
 			if ( connectionConfig.isReconnect() && config != null ) {
 				scheduler.schedule(scheduledTask, Instant.now().plusMillis(reconnectDelay));
@@ -231,11 +253,31 @@ public class NettyMqttConnection extends BaseMqttConnection
 			}
 		}
 
+		/**
+		 * Test if this attempt has been superseded, and so must not install its
+		 * client or schedule any further work.
+		 *
+		 * <p>
+		 * Must be called while holding the {@code NettyMqttConnection} monitor.
+		 * </p>
+		 *
+		 * @return {@literal true} if this attempt is no longer the current one
+		 */
+		private boolean isStale() {
+			return (isClosed() || connectFuture != connectFuture());
+		}
+
 		private void connectComplete(@Nullable MqttClient client, @Nullable MqttConnectResult result,
 				@Nullable Throwable t) {
+			MqttClient superseded = null;
 			synchronized ( NettyMqttConnection.this ) {
-				NettyMqttConnection.this.client = client;
-				if ( connectFuture != null ) {
+				clearPendingClient(client);
+				if ( isStale() ) {
+					// this attempt was cancelled while it was connecting; throw it away rather
+					// than leaving a second session connected with the same client ID
+					superseded = client;
+				} else {
+					NettyMqttConnection.this.client = client;
 					if ( t != null ) {
 						connectFuture.completeExceptionally(t);
 					} else {
@@ -246,12 +288,27 @@ public class NettyMqttConnection extends BaseMqttConnection
 						if ( s != null ) {
 							s.increment(MqttBasicCount.ConnectionSuccess);
 						}
+						final boolean reconnected = everConnected;
+						everConnected = true;
 						MqttConnectionObserver observer = NettyMqttConnection.this.connectionObserver;
 						if ( observer != null ) {
-							executor.execute(new ConnectionEstablishedTask(false, observer));
+							executor.execute(new ConnectionEstablishedTask(reconnected, observer));
 						}
 					}
 				}
+			}
+			if ( superseded != null ) {
+				log.info("Discarding superseded connection to MQTT server {}",
+						connectionConfig.getServerUri());
+				closeClient(superseded);
+			}
+		}
+	}
+
+	private void clearPendingClient(@Nullable MqttClient client) {
+		synchronized ( this ) {
+			if ( client != null && this.pendingClient == client ) {
+				this.pendingClient = null;
 			}
 		}
 	}
@@ -354,7 +411,9 @@ public class NettyMqttConnection extends BaseMqttConnection
 			default:
 				config.setProtocolVersion(MqttVersion.MQTT_3_1_1);
 		}
-		config.setReconnect(false); // only switch AFTER connect
+		// re-connection is managed here, via connectionLost() -> reopen(), so the client's own
+		// reconnect scheduling stays disabled
+		config.setReconnect(false);
 		config.setReconnectDelay(connConfig.getReconnectDelaySeconds());
 		config.setTimeoutSeconds(connConfig.getKeepAliveSeconds());
 		config.setReadTimeoutSeconds(connConfig.getReadTimeoutSeconds());
@@ -383,39 +442,84 @@ public class NettyMqttConnection extends BaseMqttConnection
 		}
 	}
 
-	private Future<?> closeClient(final MqttClient c) {
+	/**
+	 * Disconnect a client and release its event loop group.
+	 *
+	 * <p>
+	 * This never blocks: the event loop group is shut down from a callback on
+	 * the disconnect, and from a scheduled fallback in case the disconnect
+	 * cannot complete. Waiting for the disconnect on an event loop thread would
+	 * stall that thread whenever the {@literal DISCONNECT} write could not
+	 * complete inline, which is the normal case for a TLS channel whose
+	 * handshake has not finished.
+	 * </p>
+	 *
+	 * @param c
+	 *        the client to close
+	 * @return a future that completes once the client has been released
+	 */
+	private CompletableFuture<Void> closeClient(final MqttClient c) {
 		final CompletableFuture<Void> result = new CompletableFuture<>();
 		final EventLoopGroup g = c.getEventLoop();
-		if ( g != null ) {
-			g.execute(() -> {
-				try {
-					c.disconnect().get(connectionConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS);
-					result.complete(null);
-				} catch ( Exception e ) {
-					result.completeExceptionally(e);
-				} finally {
-					if ( g != null ) {
-						g.shutdownGracefully();
-					}
-				}
-			});
-		} else {
+		if ( g != null && (g.isShuttingDown() || g.isShutdown()) ) {
+			// already released, for example by a competing close of the same client
 			result.complete(null);
+			return result;
+		}
+		CompletableFuture<Void> disconnected;
+		try {
+			disconnected = c.disconnect();
+		} catch ( Exception e ) {
+			log.debug("Error disconnecting from MQTT server {}: {}", connectionConfig.getServerUri(),
+					e.toString());
+			disconnected = CompletableFuture.completedFuture(null);
+		}
+		final CompletableFuture<Void> d = disconnected;
+		final Runnable release = () -> {
+			if ( g != null ) {
+				g.shutdownGracefully();
+			}
+			result.complete(null);
+		};
+		d.whenComplete((v, e) -> release.run());
+		if ( !d.isDone() ) {
+			// never let a disconnect that cannot complete hold the event loop group open
+			try {
+				scheduler.schedule(() -> {
+					if ( !result.isDone() ) {
+						log.info("Timeout closing connection to MQTT server {}; releasing resources.",
+								connectionConfig.getServerUri());
+						release.run();
+					}
+				}, Instant.now()
+						.plusSeconds(Math.max(1, connectionConfig.getConnectTimeoutSeconds())));
+			} catch ( RuntimeException e ) {
+				log.debug("Unable to schedule MQTT close fallback task: {}", e.toString());
+			}
 		}
 		return result;
 	}
 
 	@Override
-	protected synchronized Future<?> closeConnection() {
-		final MqttClient c = this.client;
-		if ( c != null ) {
-			try {
-				return closeClient(c);
-			} finally {
-				client = null;
-			}
+	protected Future<?> closeConnection() {
+		final MqttClient c;
+		final MqttClient p;
+		synchronized ( this ) {
+			c = this.client;
+			p = this.pendingClient;
+			this.client = null;
+			this.pendingClient = null;
 		}
-		return CompletableFuture.completedFuture(null);
+		if ( c == null && p == null ) {
+			return CompletableFuture.completedFuture(null);
+		}
+		// abort any attempt still in flight as well, so it cannot install itself later
+		final CompletableFuture<Void> cf = (c != null ? closeClient(c)
+				: CompletableFuture.completedFuture(null));
+		if ( p == null || p == c ) {
+			return cf;
+		}
+		return CompletableFuture.allOf(cf, closeClient(p));
 	}
 
 	@Override
@@ -432,10 +536,22 @@ public class NettyMqttConnection extends BaseMqttConnection
 			// bump to another thread so MQTT processing not affected by observer execution time
 			executor.execute(new ConnectionLostTask(cause, observer));
 		}
+
+		// release the dead client, so its event loop group does not outlive the connection
+		final MqttClient dead;
+		synchronized ( this ) {
+			dead = this.client;
+			this.client = null;
+		}
+		if ( dead != null ) {
+			closeClient(dead);
+		}
+
 		if ( !isClosed() && connectionConfig.isReconnect() ) {
-			log.info("Resetting connection to MQTT server {} to schedule reconnect",
-					connectionConfig.getServerUri());
-			reconfigure();
+			// schedule a new connection attempt, rather than reconfigure(), which would cancel
+			// any attempt already under way and tear the whole connection down first
+			log.info("Scheduling reconnect to MQTT server {}", connectionConfig.getServerUri());
+			reopen();
 		}
 	}
 
@@ -596,8 +712,9 @@ public class NettyMqttConnection extends BaseMqttConnection
 			return f;
 		}
 		io.netty.util.concurrent.Future<Void> f = c.publish(message.getTopic(),
-				Unpooled.wrappedBuffer(payload), NettyMqttUtils.qos(message.getQosLevel()),
-				message.isRetained(), message.getProperties());
+				payload != null ? Unpooled.wrappedBuffer(payload) : Unpooled.EMPTY_BUFFER,
+				NettyMqttUtils.qos(message.getQosLevel()), message.isRetained(),
+				message.getProperties());
 
 		final StatTracker s = connectionConfig.getStats();
 		if ( s != null ) {

@@ -141,6 +141,11 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		super.channelInactive(ctx);
+
+		// the CONNACK can never arrive now, so fail the connect rather than leaving the caller
+		// to wait out its full connect timeout
+		this.connectFuture.tryFailure(new ChannelClosedException("Channel closed before CONNACK."));
+
 		log.debug("Clearing topic aliases for server (max {}) and client (max {})",
 				serverAliases.getMaximumAliasCount(), client.getTopicAliases().getMaximumAliasCount());
 
@@ -202,8 +207,8 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 						.onMqttMessage(new NettyMqttMessage(topic, message.fixedHeader().isRetain(),
 								message.fixedHeader().qosLevel(), message.payload()));
 			}
-		} finally {
-			message.payload().release();
+		} catch ( RuntimeException e ) {
+			log.warn("Error handling incoming message on topic [{}]: {}", msgTopic, e.toString(), e);
 		}
 	}
 
@@ -235,7 +240,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				log.debug("MQTT connection {} allowable topic aliases for server: {}; client: {}",
 						client.getServerUri(), maxSubscribeTopicAliases, maxPublishTopicAliases);
 
-				this.connectFuture.setSuccess(new MqttConnectResult(true,
+				this.connectFuture.trySuccess(new MqttConnectResult(true,
 						MqttConnectReturnCode.CONNECTION_ACCEPTED, channel.closeFuture()));
 
 				this.client.getPendingSubscriptions().entrySet().stream()
@@ -286,7 +291,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 			case CONNECTION_REFUSED_UNSPECIFIED_ERROR:
 			case CONNECTION_REFUSED_UNSUPPORTED_PROTOCOL_VERSION:
 			case CONNECTION_REFUSED_USE_ANOTHER_SERVER:
-				this.connectFuture.setSuccess(new MqttConnectResult(false,
+				this.connectFuture.trySuccess(new MqttConnectResult(false,
 						message.variableHeader().connectReturnCode(), channel.closeFuture()));
 				channel.close();
 				// Don't start reconnect logic here
@@ -316,9 +321,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 
 		this.client.getServerSubscriptions().add(pendingSubscription.getTopic());
 
-		if ( !pendingSubscription.getFuture().isDone() ) {
-			pendingSubscription.getFuture().setSuccess(null);
-		}
+		pendingSubscription.getFuture().trySuccess(null);
 	}
 
 	private void handlePublish(Channel channel, MqttPublishMessage message) {
@@ -372,8 +375,8 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		}
 		unsubscription.onUnsubackReceived();
 		this.client.getServerSubscriptions().remove(unsubscription.getTopic());
-		unsubscription.getFuture().setSuccess(null);
 		this.client.getPendingServerUnsubscribes().remove(message.variableHeader().messageId());
+		unsubscription.getFuture().trySuccess(null);
 	}
 
 	private void handlePuback(MqttPubAckMessage message) {
@@ -390,7 +393,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 					.variableHeader();
 			reasonCode = rep.reasonCode();
 		}
-		if ( reasonCode != (byte) 0 ) {
+		if ( MqttPubackReasonCode.isError(reasonCode) ) {
 			MqttPubackReasonCode r = null;
 			try {
 				r = MqttPubackReasonCode.forCode(reasonCode);
@@ -403,17 +406,22 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 					: String.format("Unsuccessful PUBACK reason code %d on message %d",
 							Byte.toUnsignedInt(reasonCode), message.variableHeader().messageId()));
 			RemoteServiceException ex = new RemoteServiceException(msg);
-			pendingPublish.getFuture().setFailure(ex);
+			pendingPublish.getFuture().tryFailure(ex);
 		} else {
+			if ( reasonCode != (byte) 0 && log.isDebugEnabled() ) {
+				// a non-zero success code, such as 0x10 "no matching subscribers"
+				log.debug("PUBACK reason code {} on message {} to {}", Byte.toUnsignedInt(reasonCode),
+						message.variableHeader().messageId(), client.getServerUri());
+			}
 			String topic = pendingPublish.getMessage().variableHeader().topicName();
 			if ( topic != null && !topic.isEmpty()
 					&& client.getTopicAliases().getMaximumAliasCount() > 0 ) {
 				// confirm alias
 				client.getTopicAliases().confirmTopicAlias(topic);
 			}
-			pendingPublish.getFuture().setSuccess(null);
+			pendingPublish.getFuture().trySuccess(null);
 		}
-		pendingPublish.getPayload().release();
+		pendingPublish.releasePayload();
 	}
 
 	private void handlePubrec(Channel channel, MqttMessage message) {
@@ -438,14 +446,16 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 	}
 
 	private void handlePubrel(Channel channel, MqttMessage message) {
-		if ( this.client.getQos2PendingIncomingPublishes()
-				.containsKey(((MqttMessageIdVariableHeader) message.variableHeader()).messageId()) ) {
-			MqttIncomingQos2Publish incomingQos2Publish = this.client.getQos2PendingIncomingPublishes()
-					.get(((MqttMessageIdVariableHeader) message.variableHeader()).messageId());
-			this.invokeHandlersForIncomingPublish(incomingQos2Publish.getIncomingPublish());
+		MqttIncomingQos2Publish incomingQos2Publish = this.client.getQos2PendingIncomingPublishes()
+				.remove(((MqttMessageIdVariableHeader) message.variableHeader()).messageId());
+		if ( incomingQos2Publish != null ) {
 			incomingQos2Publish.onPubrelReceived();
-			this.client.getQos2PendingIncomingPublishes()
-					.remove(incomingQos2Publish.getIncomingPublish().variableHeader().packetId());
+			try {
+				this.invokeHandlersForIncomingPublish(incomingQos2Publish.getIncomingPublish());
+			} finally {
+				// release the reference retained when the PUBLISH arrived
+				incomingQos2Publish.getIncomingPublish().payload().release();
+			}
 		}
 		MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBCOMP, false,
 				MqttQoS.AT_MOST_ONCE, false, 0);
@@ -464,9 +474,9 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 					((MqttMessageIdVariableHeader) message.variableHeader()).messageId());
 			return;
 		}
-		pendingPublish.getFuture().setSuccess(null);
 		this.client.getPendingPublishes().remove(variableHeader.messageId());
-		pendingPublish.getPayload().release();
+		pendingPublish.getFuture().trySuccess(null);
+		pendingPublish.releasePayload();
 		pendingPublish.onPubcompReceived();
 	}
 
@@ -481,6 +491,10 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 						cause);
 			}
 		}
+		// the connection is not usable after an unhandled error, for example a failed TLS
+		// handshake, so close it rather than leaving it open until an idle timeout
+		this.connectFuture.tryFailure(cause);
+		ctx.close();
 	}
 
 }

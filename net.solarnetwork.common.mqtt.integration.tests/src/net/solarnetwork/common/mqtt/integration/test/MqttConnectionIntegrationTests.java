@@ -36,11 +36,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -88,6 +90,10 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		private final @Nullable AtomicInteger lostCounter;
 		private final @Nullable AtomicInteger estCounter;
 
+		/** The {@code reconnected} flag passed to each establishment callback. */
+		public final List<Boolean> reconnectedFlags = Collections
+				.synchronizedList(new ArrayList<Boolean>(2));
+
 		private CountDownConnectionObserver(CountDownLatch latch) {
 			this(latch, null, null);
 		}
@@ -112,6 +118,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 			if ( estCounter != null ) {
 				estCounter.incrementAndGet();
 			}
+			reconnectedFlags.add(reconnected);
 			latch.countDown();
 		}
 	}
@@ -456,7 +463,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		} catch ( ExecutionException e ) {
 			assertThat("Maximum message size exceeded results in MessageSizeLimitExceeded", e.getCause(),
 					instanceOf(MessageSizeLimitExceeded.class));
-			MessageSizeLimitExceeded ex = (MessageSizeLimitExceeded) e.getCause();
+			MessageSizeLimitExceeded ex = (MessageSizeLimitExceeded) requireNonNull(e.getCause());
 			assertThat("Max size included in exception", ex.getMaximumSize(),
 					is(equalTo((long) config.getMaximumMessageSize())));
 			assertThat("Actual size included in exception", ex.getMessageSize(),
@@ -1029,7 +1036,10 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// when
 		final AtomicInteger lostCounter = new AtomicInteger(0);
 		final AtomicInteger estCounter = new AtomicInteger(0);
-		final CountDownLatch connectLatch = new CountDownLatch(2);
+
+		// the observer only publishes to this queue once its subscription has been acknowledged,
+		// so the test never publishes before the broker has registered the subscription
+		final BlockingQueue<Boolean> subscribed = new LinkedBlockingQueue<>();
 		service.setConnectionObserver(new MqttConnectionObserver() {
 
 			@Override
@@ -1042,14 +1052,17 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 			public void onMqttServerConnectionEstablished(MqttConnection connection,
 					boolean reconnected) {
 				estCounter.incrementAndGet();
-				connectLatch.countDown();
-				service.subscribe("foo", MqttQos.AtLeastOnce, null);
+				try {
+					service.subscribe("foo", MqttQos.AtLeastOnce, null).get(TIMEOUT_SECS,
+							TimeUnit.SECONDS);
+					subscribed.add(reconnected);
+				} catch ( Exception e ) {
+					log.warn("Error subscribing to [foo]: {}", e.toString());
+				}
 			}
 		});
 
-		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
-
-		final List<MqttMessage> messages = new ArrayList<>(2);
+		final List<MqttMessage> messages = Collections.synchronizedList(new ArrayList<>(2));
 		service.setMessageHandler(new MqttMessageHandler() {
 
 			@Override
@@ -1057,6 +1070,10 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 				messages.add(message);
 			}
 		});
+
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+		assertThat("Subscribed after initial connection",
+				subscribed.poll(TIMEOUT_SECS, TimeUnit.SECONDS), equalTo(false));
 
 		final String msg = "Hello, world.";
 		final MqttMessage tx = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
@@ -1074,9 +1091,9 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		// start server on new port, update configuration
 		setupMqttServer(Collections.singletonList(session), null, null, config.getPort());
 
-		// chill for a while for auto-reconnect
-		boolean reconnected = connectLatch.await(TIMEOUT_SECS, TimeUnit.SECONDS);
-		assertThat("Reconnected", reconnected, equalTo(true));
+		// chill for a while for auto-reconnect, and the subscription to be restored
+		assertThat("Reconnected and subscription restored",
+				subscribed.poll(TIMEOUT_SECS, TimeUnit.SECONDS), equalTo(true));
 
 		final String msg2 = "Goodbye, world.";
 		final MqttMessage tx2 = new BasicMqttMessage("foo", false, MqttQos.AtLeastOnce,
@@ -1120,6 +1137,110 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		assertThat("Message topic", rx.getTopic(), equalTo(tx2.getTopic()));
 		assertThat("Message QoS", rx.getQosLevel(), equalTo(MqttQos.AtLeastOnce));
 		assertThat("Message payload", new String(rx.getPayload(), UTF_8), equalTo(msg2));
+	}
+
+	@Test
+	public void close_doesNotReportConnectionLost() throws Exception {
+		// given
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
+		config.setUsername(UUID.randomUUID().toString());
+		config.setPassword(UUID.randomUUID().toString());
+		config.setReconnect(true);
+
+		final AtomicInteger lostCounter = new AtomicInteger(0);
+		final AtomicInteger estCounter = new AtomicInteger(0);
+		final CountDownLatch connectLatch = new CountDownLatch(1);
+		service.setConnectionObserver(
+				new CountDownConnectionObserver(connectLatch, lostCounter, estCounter));
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+		assertThat("Connected", connectLatch.await(TIMEOUT_SECS, TimeUnit.SECONDS), equalTo(true));
+
+		service.close();
+
+		// give any spurious callback a chance to arrive
+		Thread.sleep(1000);
+
+		// then
+		assertThat("Closing the connection is not a connection loss", lostCounter.get(), equalTo(0));
+		assertThat("Connection established once", estCounter.get(), equalTo(1));
+		assertThat("Connection is closed", service.isEstablished(), equalTo(false));
+	}
+
+	@Test
+	public void close_duringReconfigure_doesNotReconnect() throws Exception {
+		// given
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
+		config.setUsername(UUID.randomUUID().toString());
+		config.setPassword(UUID.randomUUID().toString());
+		config.setReconnect(true);
+		config.setReconnectDelaySeconds(3);
+
+		final TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+		assertThat("Connected", service.isEstablished(), equalTo(true));
+
+		if ( service instanceof ReconfigurableMqttConnection ) {
+			((ReconfigurableMqttConnection) service).reconfigure();
+		}
+		// close while the re-configuration is waiting to re-open the connection
+		Thread.sleep(500);
+		service.close();
+
+		// wait for longer than the re-connect delay, so a revived connection would show up
+		Thread.sleep(TimeUnit.SECONDS.toMillis(config.getReconnectDelaySeconds()) + 3000L);
+
+		// then
+		assertThat("Closed connection was not revived", service.isEstablished(), equalTo(false));
+		assertThat("Connected to broker only for the initial connection", session.connectMessages,
+				hasSize(1));
+	}
+
+	@Test
+	public void reconnectToServerAfterConnectionDropped_reportsReconnectedFlag() throws Exception {
+		// given
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
+		config.setUsername(UUID.randomUUID().toString());
+		config.setPassword(UUID.randomUUID().toString());
+		config.setReconnect(true);
+
+		final TestingInterceptHandler session = requireNonNull(getTestingInterceptHandler());
+
+		final AtomicInteger lostCounter = new AtomicInteger(0);
+		final AtomicInteger estCounter = new AtomicInteger(0);
+		final CountDownLatch connectLatch = new CountDownLatch(2);
+		final CountDownConnectionObserver observer = new CountDownConnectionObserver(connectLatch,
+				lostCounter, estCounter);
+		service.setConnectionObserver(observer);
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		stopMqttServer();
+		Thread.sleep(200);
+		setupMqttServer(Collections.singletonList(session), null, null, config.getPort());
+
+		assertThat("Reconnected", connectLatch.await(TIMEOUT_SECS, TimeUnit.SECONDS), equalTo(true));
+
+		// let any duplicate connection attempt settle
+		Thread.sleep(2000);
+		service.setConnectionObserver(null);
+		stopMqttServer();
+
+		// then
+		assertThat("Established exactly once per connection", estCounter.get(), equalTo(2));
+		assertThat("Connection lost reported once", lostCounter.get(), equalTo(1));
+		assertThat("Connected to broker twice", session.connectMessages, hasSize(2));
+		assertThat("Initial connection not flagged as a reconnect", observer.reconnectedFlags.get(0),
+				equalTo(false));
+		assertThat("Subsequent connection flagged as a reconnect", observer.reconnectedFlags.get(1),
+				equalTo(true));
 	}
 
 }

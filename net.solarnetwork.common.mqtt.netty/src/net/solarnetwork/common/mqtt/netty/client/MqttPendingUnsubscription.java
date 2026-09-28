@@ -53,4 +53,13 @@ final class MqttPendingUnsubscription {
     void onUnsubackReceived(){
         this.retransmissionHandler.stop();
     }
+
+    /**
+     * Stop all retransmission.
+     *
+     * @since 1.1
+     */
+    void stop() {
+        this.retransmissionHandler.stop();
+    }
 }

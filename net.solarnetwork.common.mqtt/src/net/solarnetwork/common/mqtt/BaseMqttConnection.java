@@ -53,7 +53,7 @@ import net.solarnetwork.util.StatTracker;
  * </p>
  *
  * @author matt
- * @version 2.1
+ * @version 2.2
  */
 public abstract class BaseMqttConnection extends BasicIdentifiable
 		implements MqttConnection, ReconfigurableMqttConnection, SettingsChangeObserver, PingTest {
@@ -137,6 +137,10 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 
 	@Override
 	public final synchronized Future<?> reconfigure() {
+		if ( closed ) {
+			// the connection has been closed; a configuration change must not revive it
+			return CompletableFuture.completedFuture(null);
+		}
 		if ( reconfigureFuture != null ) {
 			return reconfigureFuture;
 		}
@@ -176,6 +180,12 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 						Thread.sleep(reconnectDelay);
 					} catch ( InterruptedException e2 ) {
 						// ignore
+					}
+					if ( isClosed() ) {
+						// closed while we were waiting: do not bring the connection back up
+						log.info("{} MQTT connection closed during re-configuration; not re-opening",
+								getUid());
+						return;
 					}
 					try {
 						open().get(connectionConfig.getConnectTimeoutSeconds(), TimeUnit.SECONDS);
@@ -220,6 +230,40 @@ public abstract class BaseMqttConnection extends BasicIdentifiable
 		log.info("Scheduling connection to {} MQTT server in {}ms", getUid(), connectDelay);
 		scheduler.schedule(createConnectScheduledTask(f), connectDate);
 		return f;
+	}
+
+	/**
+	 * Schedule a new connection attempt, after a connection has been lost.
+	 *
+	 * <p>
+	 * This differs from {@link #reconfigure()} in that it neither cancels an
+	 * attempt already under way nor closes and re-creates the connection: if a
+	 * connection attempt is already in progress its future is returned and
+	 * nothing else happens, so a connection loss reported while connecting
+	 * cannot disturb the attempt that is trying to recover from it. Nothing
+	 * happens if the connection has been closed.
+	 * </p>
+	 *
+	 * @return a future that completes when the connection has been established
+	 * @since 2.2
+	 */
+	protected final synchronized Future<MqttConnectReturnCode> reopen() {
+		if ( closed ) {
+			return CompletableFuture.completedFuture(null);
+		}
+		final CompletableFuture<MqttConnectReturnCode> f = connectFuture;
+		if ( f != null && !f.isDone() ) {
+			// an attempt is already under way; let it run to completion
+			return f;
+		}
+		connectFuture = null;
+		try {
+			return open();
+		} catch ( IOException e ) {
+			final CompletableFuture<MqttConnectReturnCode> err = new CompletableFuture<>();
+			err.completeExceptionally(e);
+			return err;
+		}
 	}
 
 	/**

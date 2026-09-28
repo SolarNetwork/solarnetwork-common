@@ -23,7 +23,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,14 +33,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -72,7 +70,6 @@ import io.netty.handler.codec.mqtt.MqttVersion;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
@@ -85,7 +82,16 @@ import net.solarnetwork.domain.KeyValuePair;
  * Represents an MqttClientImpl connected to a single MQTT server. Will try to
  * keep the connection going at all times.
  *
- * @version 1.3
+ * <p>
+ * All the connection state maintained here is mutated both from the Netty event
+ * loop (when server packets arrive, and when the channel closes) and from
+ * application threads (when {@link #on(String, MqttMessageHandler, MqttQoS)},
+ * {@link #off(String, MqttMessageHandler)}, or
+ * {@link #publish(String, ByteBuf, MqttQoS, boolean, net.solarnetwork.common.mqtt.MqttProperties)}
+ * are called), so it is held in concurrent collections.
+ * </p>
+ *
+ * @version 1.4
  */
 final class MqttClientImpl implements MqttClient {
 
@@ -98,17 +104,30 @@ final class MqttClientImpl implements MqttClient {
 	 */
 	public static final int READ_TIMEOUT_FACTOR = 2;
 
+	/**
+	 * The maximum number of seconds to wait for a {@literal DISCONNECT} message
+	 * to be written before forcing the channel closed.
+	 *
+	 * @since 1.4
+	 */
+	public static final int DISCONNECT_TIMEOUT_SECS = 5;
+
 	private static final Logger log = LoggerFactory.getLogger(MqttClientImpl.class);
 
-	private final Set<String> serverSubscriptions = new HashSet<>();
-	private final IntObjectHashMap<MqttPendingUnsubscription> pendingServerUnsubscribes = new IntObjectHashMap<>();
-	private final IntObjectHashMap<MqttIncomingQos2Publish> qos2PendingIncomingPublishes = new IntObjectHashMap<>();
+	private final Set<String> serverSubscriptions = ConcurrentHashMap.newKeySet();
+	private final ConcurrentMap<Integer, MqttPendingUnsubscription> pendingServerUnsubscribes = new ConcurrentHashMap<>(
+			8, 0.7f, 2);
+	private final ConcurrentMap<Integer, MqttIncomingQos2Publish> qos2PendingIncomingPublishes = new ConcurrentHashMap<>(
+			8, 0.7f, 2);
 	private final ConcurrentMap<Integer, MqttPendingPublish> pendingPublishes = new ConcurrentHashMap<>(
 			16, 0.7f, 2);
-	private final MultiValueMap<String, MqttSubscription> subscriptions = new LinkedMultiValueMap<>();
-	private final IntObjectHashMap<MqttPendingSubscription> pendingSubscriptions = new IntObjectHashMap<>();
-	private final Set<String> pendingSubscribeTopics = new HashSet<>();
-	private final MultiValueMap<MqttMessageHandler, MqttSubscription> handlerToSubscription = new LinkedMultiValueMap<>();
+	private final ConcurrentMap<String, List<MqttSubscription>> subscriptions = new ConcurrentHashMap<>(
+			8, 0.7f, 2);
+	private final ConcurrentMap<Integer, MqttPendingSubscription> pendingSubscriptions = new ConcurrentHashMap<>(
+			8, 0.7f, 2);
+	private final Set<String> pendingSubscribeTopics = ConcurrentHashMap.newKeySet();
+	private final ConcurrentMap<MqttMessageHandler, List<MqttSubscription>> handlerToSubscription = new ConcurrentHashMap<>(
+			8, 0.7f, 2);
 	private final AtomicInteger nextMessageId = new AtomicInteger(0);
 	private final MqttTopicAliases clientAliases = new BasicMqttTopicAliases(0);
 
@@ -116,18 +135,18 @@ final class MqttClientImpl implements MqttClient {
 
 	private final @Nullable MqttMessageHandler defaultHandler;
 
-	private @Nullable EventLoopGroup eventLoop;
+	private volatile @Nullable EventLoopGroup eventLoop;
 
 	private volatile @Nullable Channel channel;
 
 	private volatile boolean disconnected = false;
 	private volatile boolean reconnect = false;
-	private boolean wireLogging = false;
-	private @Nullable String host;
-	private int port;
-	private @Nullable MqttClientCallback callback;
-	private boolean publishRetransmit = false;
-	private int pendingAbortTimeoutMinutes = 60;
+	private volatile boolean wireLogging = false;
+	private volatile @Nullable String host;
+	private volatile int port;
+	private volatile @Nullable MqttClientCallback callback;
+	private volatile boolean publishRetransmit = false;
+	private volatile int pendingAbortTimeoutMinutes = 60;
 
 	/**
 	 * Construct the MqttClientImpl with default config
@@ -210,26 +229,24 @@ final class MqttClientImpl implements MqttClient {
 				final Channel ch = f.channel();
 				MqttClientImpl.this.channel = ch;
 				ch.closeFuture().addListener((ChannelFutureListener) channelFuture -> {
-					if ( isConnected() ) {
-						return;
+					final ChannelClosedException e = new ChannelClosedException("Channel is closed!");
+					try {
+						channelClosed(e);
+					} catch ( RuntimeException t ) {
+						log.warn("Error releasing state of closed MQTT connection {}: {}",
+								getServerUri(), t.toString(), t);
 					}
-					ChannelClosedException e = new ChannelClosedException("Channel is closed!");
-					if ( callback != null ) {
+
+					// only report the loss if we did not close the connection ourselves; note
+					// isConnected() can never be true here, as the channel has just closed
+					final MqttClientCallback cb = callback;
+					if ( cb != null && !isDisconnected() ) {
 						try {
-							callback.connectionLost(e);
+							cb.connectionLost(e);
 						} catch ( Throwable t ) {
 							// ignore
 						}
 					}
-					pendingSubscriptions.clear();
-					serverSubscriptions.clear();
-					subscriptions.clear();
-					pendingServerUnsubscribes.clear();
-					qos2PendingIncomingPublishes.clear();
-					pendingPublishes.clear();
-					pendingSubscribeTopics.clear();
-					handlerToSubscription.clear();
-					clientAliases.setMaximumAliasCount(0); // also clears
 					scheduleConnectIfRequired(host, port, true);
 				});
 			} else {
@@ -237,6 +254,59 @@ final class MqttClientImpl implements MqttClient {
 			}
 		});
 		return connectFuture;
+	}
+
+	/**
+	 * Release all connection-scoped state after the channel has closed.
+	 *
+	 * <p>
+	 * Any in-flight operation is settled here, rather than simply discarded, so
+	 * callers waiting on a publish, subscribe, or unsubscribe future are not
+	 * left waiting for a response that can never arrive. All retransmission
+	 * timers are stopped, and all retained publish payloads released.
+	 * </p>
+	 *
+	 * @param cause
+	 *        the reason the channel closed
+	 * @since 1.4
+	 */
+	private void channelClosed(Throwable cause) {
+		for ( Iterator<MqttPendingSubscription> itr = pendingSubscriptions.values().iterator(); itr
+				.hasNext(); ) {
+			MqttPendingSubscription pending = itr.next();
+			itr.remove();
+			pending.stop();
+			pending.getFuture().tryFailure(cause);
+		}
+		for ( Iterator<MqttPendingUnsubscription> itr = pendingServerUnsubscribes.values().iterator(); itr
+				.hasNext(); ) {
+			MqttPendingUnsubscription pending = itr.next();
+			itr.remove();
+			pending.stop();
+			pending.getFuture().tryFailure(cause);
+		}
+		for ( Iterator<MqttPendingPublish> itr = pendingPublishes.values().iterator(); itr.hasNext(); ) {
+			MqttPendingPublish pending = itr.next();
+			itr.remove();
+			pending.stop();
+			pending.getFuture().tryFailure(cause);
+			pending.releasePayload();
+		}
+		for ( Iterator<MqttIncomingQos2Publish> itr = qos2PendingIncomingPublishes.values()
+				.iterator(); itr.hasNext(); ) {
+			MqttIncomingQos2Publish pending = itr.next();
+			itr.remove();
+			pending.stop();
+			final ByteBuf payload = pending.getIncomingPublish().payload();
+			if ( payload.refCnt() > 0 ) {
+				payload.release();
+			}
+		}
+		serverSubscriptions.clear();
+		subscriptions.clear();
+		pendingSubscribeTopics.clear();
+		handlerToSubscription.clear();
+		clientAliases.setMaximumAliasCount(0); // also clears
 	}
 
 	private void scheduleConnectIfRequired(String host, int port, boolean reconnect) {
@@ -265,11 +335,11 @@ final class MqttClientImpl implements MqttClient {
 			if ( pending.getDate() + timeout < now ) {
 				log.warn("Timeout on pending publish message {}: aborting publish.",
 						pending.getMessageId());
-				pending.stop();
-				pending.getFuture().setFailure(new TimeoutException(
-						"Failed to publish message within " + timeoutMins + " minutes"));
-				pending.getPayload().release();
 				itr.remove();
+				pending.stop();
+				pending.getFuture().tryFailure(new TimeoutException(
+						"Failed to publish message within " + timeoutMins + " minutes"));
+				pending.releasePayload();
 			}
 		}
 	}
@@ -368,7 +438,9 @@ final class MqttClientImpl implements MqttClient {
 	public Future<Void> off(String topic) {
 		final EventLoopGroup eventLoop = requireEventLoop();
 		Promise<Void> future = new DefaultPromise<>(eventLoop.next());
-		Set<MqttSubscription> subscriptions = new LinkedHashSet<>(this.subscriptions.get(topic));
+		final List<MqttSubscription> topicSubs = this.subscriptions.get(topic);
+		Set<MqttSubscription> subscriptions = (topicSubs != null ? new LinkedHashSet<>(topicSubs)
+				: Collections.emptySet());
 		for ( MqttSubscription subscription : subscriptions ) {
 			final List<MqttSubscription> handSubs = this.handlerToSubscription
 					.get(subscription.getHandler());
@@ -450,18 +522,21 @@ final class MqttClientImpl implements MqttClient {
 		ChannelFuture channelFuture = this.sendAndFlushPacket(message);
 
 		if ( channelFuture != null ) {
-			pendingPublish.setSent(true);
 			if ( channelFuture.cause() != null ) {
-				future.setFailure(channelFuture.cause());
+				// the channel was not active, so the message never reached the encoder and
+				// nothing has released the payload on its behalf: leave `sent` false so both
+				// outstanding references are released here
 				this.pendingPublishes.remove(pendingPublish.getMessageId());
-				payload.release();
+				future.tryFailure(channelFuture.cause());
+				pendingPublish.releasePayload();
 				return future;
 			}
+			pendingPublish.setSent(true);
 		}
 		if ( pendingPublish.isSent() && pendingPublish.getQos() == MqttQoS.AT_MOST_ONCE ) {
-			pendingPublish.getFuture().setSuccess(null); //We don't get an ACK for QOS 0
 			this.pendingPublishes.remove(pendingPublish.getMessageId());
-			payload.release();
+			pendingPublish.getFuture().trySuccess(null); //We don't get an ACK for QOS 0
+			pendingPublish.releasePayload();
 		} else if ( pendingPublish.isSent() && retransmit ) {
 			pendingPublish.startPublishRetransmissionTimer(requireEventLoop().next(),
 					this::sendAndFlushPacket);
@@ -499,26 +574,46 @@ final class MqttClientImpl implements MqttClient {
 	}
 
 	@Override
-	public java.util.concurrent.Future<?> disconnect() {
+	public CompletableFuture<Void> disconnect() {
 		disconnected = true;
 		CompletableFuture<Void> result = new CompletableFuture<>();
 		final Channel ch = this.channel;
-		if ( ch != null ) {
-			this.reconnect = false;
-			MqttMessage message = new MqttMessage(new MqttFixedHeader(MqttMessageType.DISCONNECT, false,
-					MqttQoS.AT_MOST_ONCE, false, 0));
-			final ChannelFuture cf = this.sendAndFlushPacket(ch, message);
-			if ( cf != null ) {
-				cf.addListener(future1 -> ch.close().addListener(closeFuture -> {
-					if ( closeFuture.isSuccess() ) {
-						result.complete(null);
-					} else {
-						result.completeExceptionally(closeFuture.cause());
-					}
-				}));
-			}
-		} else {
+		if ( ch == null ) {
 			result.complete(null);
+			return result;
+		}
+		this.reconnect = false;
+
+		// the result completes when the channel actually closes, however that comes about
+		ch.closeFuture().addListener((ChannelFutureListener) closeFuture -> {
+			if ( closeFuture.isSuccess() ) {
+				result.complete(null);
+			} else {
+				result.completeExceptionally(closeFuture.cause());
+			}
+		});
+
+		MqttMessage message = new MqttMessage(
+				new MqttFixedHeader(MqttMessageType.DISCONNECT, false, MqttQoS.AT_MOST_ONCE, false, 0));
+		final ChannelFuture cf = this.sendAndFlushPacket(ch, message);
+		if ( cf == null ) {
+			ch.close();
+			return result;
+		}
+		cf.addListener((ChannelFutureListener) f -> ch.close());
+
+		// a DISCONNECT written to a half-open connection, or to a TLS channel whose handshake
+		// never completed, can stay pending forever; never let that hold the channel open
+		try {
+			ch.eventLoop().schedule(() -> {
+				if ( ch.isOpen() ) {
+					log.info("Timeout sending DISCONNECT to MQTT server {}; closing channel.",
+							getServerUri());
+					ch.close();
+				}
+			}, DISCONNECT_TIMEOUT_SECS, TimeUnit.SECONDS);
+		} catch ( RejectedExecutionException e ) {
+			// event loop already shutting down; it will close the channel itself
 		}
 		return result;
 	}
@@ -636,11 +731,11 @@ final class MqttClientImpl implements MqttClient {
 		}
 	}
 
-	IntObjectHashMap<MqttPendingSubscription> getPendingSubscriptions() {
+	ConcurrentMap<Integer, MqttPendingSubscription> getPendingSubscriptions() {
 		return pendingSubscriptions;
 	}
 
-	MultiValueMap<String, MqttSubscription> getSubscriptions() {
+	ConcurrentMap<String, List<MqttSubscription>> getSubscriptions() {
 		return subscriptions;
 	}
 
@@ -648,7 +743,7 @@ final class MqttClientImpl implements MqttClient {
 		return pendingSubscribeTopics;
 	}
 
-	MultiValueMap<MqttMessageHandler, MqttSubscription> getHandlerToSubscription() {
+	ConcurrentMap<MqttMessageHandler, List<MqttSubscription>> getHandlerToSubscription() {
 		return handlerToSubscription;
 	}
 
@@ -656,7 +751,7 @@ final class MqttClientImpl implements MqttClient {
 		return serverSubscriptions;
 	}
 
-	IntObjectHashMap<MqttPendingUnsubscription> getPendingServerUnsubscribes() {
+	ConcurrentMap<Integer, MqttPendingUnsubscription> getPendingServerUnsubscribes() {
 		return pendingServerUnsubscribes;
 	}
 
@@ -664,7 +759,7 @@ final class MqttClientImpl implements MqttClient {
 		return pendingPublishes;
 	}
 
-	IntObjectHashMap<MqttIncomingQos2Publish> getQos2PendingIncomingPublishes() {
+	ConcurrentMap<Integer, MqttIncomingQos2Publish> getQos2PendingIncomingPublishes() {
 		return qos2PendingIncomingPublishes;
 	}
 

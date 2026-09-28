@@ -34,7 +34,7 @@ final class MqttPendingSubscription {
 
 	private final RetransmissionHandler<MqttSubscribeMessage> retransmissionHandler = new RetransmissionHandler<>();
 
-	private boolean sent = false;
+	private volatile boolean sent = false;
 
 	MqttPendingSubscription(Promise<Void> future, String topic, MqttSubscribeMessage message) {
 		this.future = future;
@@ -82,6 +82,15 @@ final class MqttPendingSubscription {
 	}
 
 	void onSubackReceived() {
+		this.retransmissionHandler.stop();
+	}
+
+	/**
+	 * Stop all retransmission.
+	 *
+	 * @since 1.1
+	 */
+	void stop() {
 		this.retransmissionHandler.stop();
 	}
 
