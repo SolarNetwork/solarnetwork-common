@@ -22,7 +22,10 @@
 
 package net.solarnetwork.common.mqtt.netty.test;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.jspecify.annotations.Nullable;
+import org.junit.After;
 import org.junit.Before;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
@@ -35,9 +38,12 @@ import net.solarnetwork.util.StatTracker;
  * Test cases for the {@link NettyMqttConnection} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class NettyMqttConnectionTests extends MqttConnectionIntegrationTests {
+
+	private @Nullable ThreadPoolTaskScheduler scheduler;
+	private @Nullable ExecutorService executor;
 
 	@Override
 	@Before
@@ -46,12 +52,37 @@ public class NettyMqttConnectionTests extends MqttConnectionIntegrationTests {
 		ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
 		scheduler.setThreadNamePrefix("NettyMqtt-Scheduler-Test-");
 		scheduler.initialize();
+		this.scheduler = scheduler;
+		ExecutorService executor = Executors
+				.newCachedThreadPool(new CustomizableThreadFactory("NettyMqtt-Test-"));
+		this.executor = executor;
 		config.setUid("Netty-Test");
 		config.setStats(new StatTracker("Nett-Test", null,
 				LoggerFactory.getLogger("net.solarnetwork.common.mqtt.MqttStats"), 5));
-		NettyMqttConnection conn = new NettyMqttConnection(
-				Executors.newCachedThreadPool(new CustomizableThreadFactory("NettyMqtt-Test-")),
-				scheduler, config);
+		NettyMqttConnection conn = new NettyMqttConnection(executor, scheduler, config);
 		setService(conn);
+	}
+
+	/**
+	 * Shut down the scheduler and executor created for each test.
+	 *
+	 * <p>
+	 * Both create non-daemon threads, which would otherwise accumulate for the
+	 * life of the JVM: the tests all run in one forked JVM, and the JVM cannot
+	 * exit while they are alive.
+	 * </p>
+	 */
+	@After
+	public void shutdownTaskThreads() {
+		final ThreadPoolTaskScheduler scheduler = this.scheduler;
+		if ( scheduler != null ) {
+			this.scheduler = null;
+			scheduler.shutdown();
+		}
+		final ExecutorService executor = this.executor;
+		if ( executor != null ) {
+			this.executor = null;
+			executor.shutdownNow();
+		}
 	}
 }
