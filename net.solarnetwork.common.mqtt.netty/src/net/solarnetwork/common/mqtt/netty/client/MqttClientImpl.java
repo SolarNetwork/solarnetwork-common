@@ -70,6 +70,7 @@ import io.netty.handler.codec.mqtt.MqttVersion;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
@@ -83,15 +84,16 @@ import net.solarnetwork.domain.KeyValuePair;
  * keep the connection going at all times.
  *
  * <p>
- * All the connection state maintained here is mutated both from the Netty event
- * loop (when server packets arrive, and when the channel closes) and from
+ * Most of the connection state maintained here is mutated both from the Netty
+ * event loop (when server packets arrive, and when the channel closes) and from
  * application threads (when {@link #on(String, MqttMessageHandler, MqttQoS)},
  * {@link #off(String, MqttMessageHandler)}, or
  * {@link #publish(String, ByteBuf, MqttQoS, boolean, net.solarnetwork.common.mqtt.MqttProperties)}
- * are called), so it is held in concurrent collections.
+ * are called), so it is held in concurrent collections. The exception is
+ * {@code qos2PendingIncomingPublishes}, which is confined to the event loop.
  * </p>
  *
- * @version 1.4
+ * @version 1.5
  */
 final class MqttClientImpl implements MqttClient {
 
@@ -117,8 +119,22 @@ final class MqttClientImpl implements MqttClient {
 	private final Set<String> serverSubscriptions = ConcurrentHashMap.newKeySet();
 	private final ConcurrentMap<Integer, MqttPendingUnsubscription> pendingServerUnsubscribes = new ConcurrentHashMap<>(
 			8, 0.7f, 2);
-	private final ConcurrentMap<Integer, MqttIncomingQos2Publish> qos2PendingIncomingPublishes = new ConcurrentHashMap<>(
-			8, 0.7f, 2);
+
+	/**
+	 * Incoming QOS 2 messages awaiting a {@literal PUBREL}.
+	 *
+	 * <p>
+	 * Unlike the other state here this is confined to the Netty event loop: it
+	 * is only touched while handling an inbound {@literal PUBLISH} or
+	 * {@literal PUBREL}, and when the channel closes. It therefore does not need
+	 * to be concurrent, and keeps primitive {@code int} keys to avoid boxing
+	 * every packet ID. Anything that comes to touch it from an application
+	 * thread must change this.
+	 * </p>
+	 */
+	private final IntObjectHashMap<MqttIncomingQos2Publish> qos2PendingIncomingPublishes = new IntObjectHashMap<>(
+			8);
+
 	private final ConcurrentMap<Integer, MqttPendingPublish> pendingPublishes = new ConcurrentHashMap<>(
 			16, 0.7f, 2);
 	private final ConcurrentMap<String, List<MqttSubscription>> subscriptions = new ConcurrentHashMap<>(
@@ -292,16 +308,14 @@ final class MqttClientImpl implements MqttClient {
 			pending.getFuture().tryFailure(cause);
 			pending.releasePayload();
 		}
-		for ( Iterator<MqttIncomingQos2Publish> itr = qos2PendingIncomingPublishes.values()
-				.iterator(); itr.hasNext(); ) {
-			MqttIncomingQos2Publish pending = itr.next();
-			itr.remove();
+		for ( MqttIncomingQos2Publish pending : qos2PendingIncomingPublishes.values() ) {
 			pending.stop();
 			final ByteBuf payload = pending.getIncomingPublish().payload();
 			if ( payload.refCnt() > 0 ) {
 				payload.release();
 			}
 		}
+		qos2PendingIncomingPublishes.clear();
 		serverSubscriptions.clear();
 		subscriptions.clear();
 		pendingSubscribeTopics.clear();
@@ -759,7 +773,7 @@ final class MqttClientImpl implements MqttClient {
 		return pendingPublishes;
 	}
 
-	ConcurrentMap<Integer, MqttIncomingQos2Publish> getQos2PendingIncomingPublishes() {
+	IntObjectHashMap<MqttIncomingQos2Publish> getQos2PendingIncomingPublishes() {
 		return qos2PendingIncomingPublishes;
 	}
 
