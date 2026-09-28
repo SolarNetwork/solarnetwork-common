@@ -29,6 +29,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -1241,6 +1243,52 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 				equalTo(false));
 		assertThat("Subsequent connection flagged as a reconnect", observer.reconnectedFlags.get(1),
 				equalTo(true));
+	}
+
+	@Test
+	public void publishAndReceive_exactlyOnce() throws Exception {
+		// given
+		final String username = UUID.randomUUID().toString();
+		final String password = UUID.randomUUID().toString();
+		final var config = requireNonNull(this.config);
+		final var service = requireNonNull(this.service);
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setReconnect(false);
+
+		// when
+		service.open().get(TIMEOUT_SECS, TimeUnit.SECONDS);
+
+		final BlockingQueue<MqttMessage> messages = new LinkedBlockingQueue<>();
+		service.subscribe("foo", MqttQos.ExactlyOnce, messages::add).get(TIMEOUT_SECS,
+				TimeUnit.SECONDS);
+
+		// publish more than one, so the incoming QOS 2 state is added and removed repeatedly
+		final int count = 3;
+		final List<String> sent = new ArrayList<>(count);
+		for ( int i = 0; i < count; i++ ) {
+			final String body = "Hello, world " + i + ".";
+			sent.add(body);
+			service.publish(new BasicMqttMessage("foo", false, MqttQos.ExactlyOnce,
+					body.getBytes(UTF_8))).get(TIMEOUT_SECS, TimeUnit.SECONDS);
+		}
+
+		// then
+		final List<String> received = new ArrayList<>(count);
+		for ( int i = 0; i < count; i++ ) {
+			MqttMessage rx = messages.poll(TIMEOUT_SECS, TimeUnit.SECONDS);
+			assertThat("Message " + i + " received", rx, is(notNullValue()));
+			assertThat("Message " + i + " topic", rx.getTopic(), equalTo("foo"));
+			assertThat("Message " + i + " QoS", rx.getQosLevel(), equalTo(MqttQos.ExactlyOnce));
+			received.add(new String(rx.getPayload(), UTF_8));
+		}
+		assertThat("All messages received", received, equalTo(sent));
+
+		// the PUBREL handling must discard the pending message, so nothing is delivered twice
+		assertThat("No message delivered more than once", messages.poll(2, TimeUnit.SECONDS),
+				is(nullValue()));
+
+		stopMqttServer(); // to flush messages
 	}
 
 }
