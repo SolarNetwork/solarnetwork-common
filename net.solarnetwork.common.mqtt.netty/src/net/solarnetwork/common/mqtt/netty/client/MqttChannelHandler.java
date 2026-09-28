@@ -17,10 +17,7 @@
 
 package net.solarnetwork.common.mqtt.netty.client;
 
-import static java.util.stream.Collectors.toList;
 import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,9 +181,15 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				topic = msgTopic;
 			}
 
-			for ( MqttSubscription subscription : new LinkedHashSet<>(this.client.getSubscriptions()
-					.values().stream().flatMap(List::stream).collect(toList())) ) {
-				if ( subscription.matches(topic) ) {
+			// iterate in place: the map is concurrent and each value is a CopyOnWriteArrayList,
+			// so no defensive copy is needed even though a `once` subscription removes itself
+			// below. Each subscription is held under its own topic key, so none can be seen twice.
+			for ( CopyOnWriteArrayList<MqttSubscription> topicSubs : this.client.getSubscriptions()
+					.values() ) {
+				for ( MqttSubscription subscription : topicSubs ) {
+					if ( !subscription.matches(topic) ) {
+						continue;
+					}
 					if ( subscription.isOnce() && subscription.isCalled() ) {
 						continue;
 					}
@@ -243,11 +246,13 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				this.connectFuture.trySuccess(new MqttConnectResult(true,
 						MqttConnectReturnCode.CONNECTION_ACCEPTED, channel.closeFuture()));
 
-				this.client.getPendingSubscriptions().entrySet().stream()
-						.filter((e) -> !e.getValue().isSent()).forEach((e) -> {
-							channel.write(e.getValue().getSubscribeMessage());
-							e.getValue().setSent(true);
-						});
+				for ( MqttPendingSubscription pending : this.client.getPendingSubscriptions()
+						.values() ) {
+					if ( !pending.isSent() ) {
+						channel.write(pending.getSubscribeMessage());
+						pending.setSent(true);
+					}
+				}
 
 				this.client.getPendingPublishes().forEach((id, publish) -> {
 					if ( publish.isSent() )
@@ -309,13 +314,12 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		for ( MqttPendingSubscription.MqttPendingHandler handler : pendingSubscription.getHandlers() ) {
 			MqttSubscription subscription = new MqttSubscription(pendingSubscription.getTopic(),
 					handler.getHandler(), handler.isOnce());
-			CopyOnWriteArrayList<MqttSubscription> l = (CopyOnWriteArrayList<MqttSubscription>) this.client
-					.getSubscriptions()
-					.computeIfAbsent(pendingSubscription.getTopic(), k -> new CopyOnWriteArrayList<>());
-			l.addIfAbsent(subscription);
-			l = (CopyOnWriteArrayList<MqttSubscription>) this.client.getHandlerToSubscription()
-					.computeIfAbsent(handler.getHandler(), k -> new CopyOnWriteArrayList<>());
-			l.addIfAbsent(subscription);
+			this.client.getSubscriptions()
+					.computeIfAbsent(pendingSubscription.getTopic(), k -> new CopyOnWriteArrayList<>())
+					.addIfAbsent(subscription);
+			this.client.getHandlerToSubscription()
+					.computeIfAbsent(handler.getHandler(), k -> new CopyOnWriteArrayList<>())
+					.addIfAbsent(subscription);
 		}
 		this.client.getPendingSubscribeTopics().remove(pendingSubscription.getTopic());
 

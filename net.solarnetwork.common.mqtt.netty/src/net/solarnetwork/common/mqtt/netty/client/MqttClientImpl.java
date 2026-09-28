@@ -21,13 +21,8 @@ import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -137,12 +132,12 @@ final class MqttClientImpl implements MqttClient {
 
 	private final ConcurrentMap<Integer, MqttPendingPublish> pendingPublishes = new ConcurrentHashMap<>(
 			16, 0.7f, 2);
-	private final ConcurrentMap<String, List<MqttSubscription>> subscriptions = new ConcurrentHashMap<>(
+	private final ConcurrentMap<String, CopyOnWriteArrayList<MqttSubscription>> subscriptions = new ConcurrentHashMap<>(
 			8, 0.7f, 2);
 	private final ConcurrentMap<Integer, MqttPendingSubscription> pendingSubscriptions = new ConcurrentHashMap<>(
 			8, 0.7f, 2);
 	private final Set<String> pendingSubscribeTopics = ConcurrentHashMap.newKeySet();
-	private final ConcurrentMap<MqttMessageHandler, List<MqttSubscription>> handlerToSubscription = new ConcurrentHashMap<>(
+	private final ConcurrentMap<MqttMessageHandler, CopyOnWriteArrayList<MqttSubscription>> handlerToSubscription = new ConcurrentHashMap<>(
 			8, 0.7f, 2);
 	private final AtomicInteger nextMessageId = new AtomicInteger(0);
 	private final MqttTopicAliases clientAliases = new BasicMqttTopicAliases(0);
@@ -424,9 +419,10 @@ final class MqttClientImpl implements MqttClient {
 	public Future<Void> off(String topic, MqttMessageHandler handler) {
 		final EventLoopGroup eventLoop = requireEventLoop();
 		Promise<Void> future = new DefaultPromise<>(eventLoop.next());
-		List<MqttSubscription> subs = this.handlerToSubscription.get(handler);
+		final CopyOnWriteArrayList<MqttSubscription> subs = this.handlerToSubscription.get(handler);
 		if ( subs != null ) {
-			for ( MqttSubscription subscription : new ArrayList<>(subs) ) {
+			// CopyOnWriteArrayList iterates a snapshot, so subs can be modified in the loop
+			for ( MqttSubscription subscription : subs ) {
 				if ( topic.equals(subscription.getTopic()) ) {
 					this.subscriptions.computeIfPresent(topic, (k, v) -> {
 						if ( v != null ) {
@@ -452,28 +448,29 @@ final class MqttClientImpl implements MqttClient {
 	public Future<Void> off(String topic) {
 		final EventLoopGroup eventLoop = requireEventLoop();
 		Promise<Void> future = new DefaultPromise<>(eventLoop.next());
-		final List<MqttSubscription> topicSubs = this.subscriptions.get(topic);
-		Set<MqttSubscription> subscriptions = (topicSubs != null ? new LinkedHashSet<>(topicSubs)
-				: Collections.emptySet());
-		for ( MqttSubscription subscription : subscriptions ) {
-			final List<MqttSubscription> handSubs = this.handlerToSubscription
-					.get(subscription.getHandler());
-			if ( handSubs != null ) {
-				for ( MqttSubscription handSub : handSubs ) {
-					this.subscriptions.computeIfPresent(topic, (k, v) -> {
-						if ( v != null ) {
-							v.remove(handSub);
-						}
-						return v;
-					});
+		final CopyOnWriteArrayList<MqttSubscription> topicSubs = this.subscriptions.get(topic);
+		if ( topicSubs != null ) {
+			// CopyOnWriteArrayList iterates a snapshot, so the lists can be modified in the loop
+			for ( MqttSubscription subscription : topicSubs ) {
+				final CopyOnWriteArrayList<MqttSubscription> handSubs = this.handlerToSubscription
+						.get(subscription.getHandler());
+				if ( handSubs != null ) {
+					for ( MqttSubscription handSub : handSubs ) {
+						this.subscriptions.computeIfPresent(topic, (k, v) -> {
+							if ( v != null ) {
+								v.remove(handSub);
+							}
+							return v;
+						});
+					}
 				}
+				this.handlerToSubscription.computeIfPresent(subscription.getHandler(), (k, v) -> {
+					if ( v != null ) {
+						v.remove(subscription);
+					}
+					return v;
+				});
 			}
-			this.handlerToSubscription.computeIfPresent(subscription.getHandler(), (k, v) -> {
-				if ( v != null ) {
-					v.remove(subscription);
-				}
-				return v;
-			});
 		}
 		this.checkSubscribtions(topic, future);
 		return future;
@@ -684,21 +681,19 @@ final class MqttClientImpl implements MqttClient {
 	private Future<Void> createSubscription(String topic, MqttMessageHandler handler, boolean once,
 			MqttQoS qos) {
 		if ( this.pendingSubscribeTopics.contains(topic) ) {
-			Optional<Map.Entry<Integer, MqttPendingSubscription>> subscriptionEntry = this.pendingSubscriptions
-					.entrySet().stream().filter((e) -> e.getValue().getTopic().equals(topic)).findAny();
-			if ( subscriptionEntry.isPresent() ) {
-				subscriptionEntry.get().getValue().addHandler(handler, once);
-				return subscriptionEntry.get().getValue().getFuture();
+			for ( MqttPendingSubscription pending : this.pendingSubscriptions.values() ) {
+				if ( pending.getTopic().equals(topic) ) {
+					pending.addHandler(handler, once);
+					return pending.getFuture();
+				}
 			}
 		}
 		if ( this.serverSubscriptions.contains(topic) ) {
 			MqttSubscription subscription = new MqttSubscription(topic, handler, once);
-			CopyOnWriteArrayList<MqttSubscription> l = (CopyOnWriteArrayList<MqttSubscription>) this.subscriptions
-					.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>());
-			l.addIfAbsent(subscription);
-			l = (CopyOnWriteArrayList<MqttSubscription>) this.handlerToSubscription
-					.computeIfAbsent(handler, k -> new CopyOnWriteArrayList<>());
-			l.addIfAbsent(subscription);
+			this.subscriptions.computeIfAbsent(topic, k -> new CopyOnWriteArrayList<>())
+					.addIfAbsent(subscription);
+			this.handlerToSubscription.computeIfAbsent(handler, k -> new CopyOnWriteArrayList<>())
+					.addIfAbsent(subscription);
 			return requireChannel().newSucceededFuture();
 		}
 
@@ -749,7 +744,7 @@ final class MqttClientImpl implements MqttClient {
 		return pendingSubscriptions;
 	}
 
-	ConcurrentMap<String, List<MqttSubscription>> getSubscriptions() {
+	ConcurrentMap<String, CopyOnWriteArrayList<MqttSubscription>> getSubscriptions() {
 		return subscriptions;
 	}
 
@@ -757,7 +752,7 @@ final class MqttClientImpl implements MqttClient {
 		return pendingSubscribeTopics;
 	}
 
-	ConcurrentMap<MqttMessageHandler, List<MqttSubscription>> getHandlerToSubscription() {
+	ConcurrentMap<MqttMessageHandler, CopyOnWriteArrayList<MqttSubscription>> getHandlerToSubscription() {
 		return handlerToSubscription;
 	}
 
