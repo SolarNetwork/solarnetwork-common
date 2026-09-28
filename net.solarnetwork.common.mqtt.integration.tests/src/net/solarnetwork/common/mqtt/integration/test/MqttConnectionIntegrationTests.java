@@ -456,7 +456,7 @@ public abstract class MqttConnectionIntegrationTests extends MqttServerSupport {
 		} catch ( ExecutionException e ) {
 			assertThat("Maximum message size exceeded results in MessageSizeLimitExceeded", e.getCause(),
 					instanceOf(MessageSizeLimitExceeded.class));
-			MessageSizeLimitExceeded ex = (MessageSizeLimitExceeded) e.getCause();
+			MessageSizeLimitExceeded ex = (MessageSizeLimitExceeded) requireNonNull(e.getCause());
 			assertThat("Max size included in exception", ex.getMaximumSize(),
 					is(equalTo((long) config.getMaximumMessageSize())));
 			assertThat("Actual size included in exception", ex.getMessageSize(),
