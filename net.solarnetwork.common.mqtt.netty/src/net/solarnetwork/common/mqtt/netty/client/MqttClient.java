@@ -19,6 +19,7 @@ package net.solarnetwork.common.mqtt.netty.client;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullProperty;
 import java.net.URI;
+import java.util.concurrent.CompletableFuture;
 import org.jspecify.annotations.Nullable;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -40,7 +41,7 @@ import net.solarnetwork.common.mqtt.MqttTopicAliases;
  * </p>
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public interface MqttClient {
 
@@ -369,10 +370,15 @@ public interface MqttClient {
 	/**
 	 * Send disconnect and close channel.
 	 *
+	 * <p>
+	 * The channel is always closed, even if the {@literal DISCONNECT} message
+	 * cannot be written, so the returned future always completes.
+	 * </p>
+	 *
 	 * @return A future which will be completed when the channel has been
 	 *         closed.
 	 */
-	java.util.concurrent.Future<?> disconnect();
+	CompletableFuture<Void> disconnect();
 
 	/**
 	 * Get disconnected flag.

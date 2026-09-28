@@ -35,7 +35,7 @@ final class MqttSubscription {
 
 	private final boolean once;
 
-	private boolean called;
+	private volatile boolean called;
 
 	MqttSubscription(String topic, MqttMessageHandler handler, boolean once) {
 		this.topic = requireNonNullArgument(topic, "topic");

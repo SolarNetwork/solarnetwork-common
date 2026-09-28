@@ -30,7 +30,7 @@ import io.netty.util.concurrent.Promise;
 /**
  * An in-flight publish message.
  *
- * @version 1.1
+ * @version 1.2
  */
 final class MqttPendingPublish {
 
@@ -44,7 +44,7 @@ final class MqttPendingPublish {
 	private final @Nullable RetransmissionHandler<MqttPublishMessage> publishRetransmissionHandler;
 	private final @Nullable RetransmissionHandler<MqttMessage> pubrelRetransmissionHandler;
 
-	private boolean sent = false;
+	private volatile boolean sent = false;
 
 	MqttPendingPublish(int messageId, Promise<Void> future, ByteBuf payload, MqttPublishMessage message,
 			MqttQoS qos, boolean enableRetransmission) {
@@ -136,6 +136,27 @@ final class MqttPendingPublish {
 	void onPubcompReceived() {
 		if ( pubrelRetransmissionHandler != null ) {
 			pubrelRetransmissionHandler.stop();
+		}
+	}
+
+	/**
+	 * Release the payload buffer references held for this message.
+	 *
+	 * <p>
+	 * The payload is retained once on behalf of this pending record. If the
+	 * message was never handed to the encoder then the reference the encoder
+	 * would have released is outstanding as well, and both are released here.
+	 * </p>
+	 *
+	 * @since 1.2
+	 */
+	void releasePayload() {
+		final int held = (sent ? 1 : 2);
+		final int refCnt = payload.refCnt();
+		if ( refCnt >= held ) {
+			payload.release(held);
+		} else if ( refCnt > 0 ) {
+			payload.release(refCnt);
 		}
 	}
 

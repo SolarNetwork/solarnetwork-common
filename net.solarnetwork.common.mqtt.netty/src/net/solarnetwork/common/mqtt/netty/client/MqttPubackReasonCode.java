@@ -26,7 +26,7 @@ package net.solarnetwork.common.mqtt.netty.client;
  * MQTT {@literal PUBACK} reason codes.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public enum MqttPubackReasonCode {
 
@@ -72,6 +72,24 @@ public enum MqttPubackReasonCode {
 	 */
 	public byte getCode() {
 		return code;
+	}
+
+	/**
+	 * Test if a reason code represents an error.
+	 *
+	 * <p>
+	 * In MQTT 5 a reason code less than {@literal 0x80} indicates success; for
+	 * example {@link #NoSubscribers} is returned when a message is accepted but
+	 * no subscriber matched its topic.
+	 * </p>
+	 *
+	 * @param code
+	 *        the code value to test
+	 * @return {@literal true} if {@code code} represents an error
+	 * @since 1.1
+	 */
+	public static boolean isError(byte code) {
+		return (code & 0x80) != 0;
 	}
 
 	/**

@@ -19,8 +19,9 @@ package net.solarnetwork.common.mqtt.netty.client;
 
 import java.util.concurrent.TimeUnit;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.mqtt.MqttFixedHeader;
@@ -31,7 +32,15 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.ScheduledFuture;
 
+/**
+ * Handler that keeps the connection alive with {@literal PINGREQ} messages, and closes it when the
+ * server stops answering them.
+ *
+ * @version 1.1
+ */
 final class MqttPingHandler extends ChannelInboundHandlerAdapter {
+
+	private static final Logger log = LoggerFactory.getLogger(MqttPingHandler.class);
 
 	private final int keepaliveSeconds;
 	private final boolean closeOnReaderIdle;
@@ -60,8 +69,17 @@ final class MqttPingHandler extends ChannelInboundHandlerAdapter {
 		} else if ( message.fixedHeader().messageType() == MqttMessageType.PINGRESP ) {
 			this.handlePingResp();
 		} else {
-			ctx.fireChannelRead(ReferenceCountUtil.retain(msg));
+			// pass ownership downstream: MqttChannelHandler releases the message
+			ctx.fireChannelRead(msg);
+			return;
 		}
+		ReferenceCountUtil.release(msg);
+	}
+
+	@Override
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		cancelPingRespTimeout();
+		super.channelInactive(ctx);
 	}
 
 	@Override
@@ -99,13 +117,18 @@ final class MqttPingHandler extends ChannelInboundHandlerAdapter {
 				MqttQoS.AT_MOST_ONCE, false, 0);
 		channel.writeAndFlush(new MqttMessage(fixedHeader));
 
-		if ( this.pingRespTimeout != null ) {
+		if ( this.pingRespTimeout == null ) {
+			// watch for the matching PINGRESP: without this a half-open connection, where the
+			// socket stays up but nothing gets through, is never detected
 			this.pingRespTimeout = channel.eventLoop().schedule(() -> {
-				MqttFixedHeader fixedHeader2 = new MqttFixedHeader(MqttMessageType.DISCONNECT, false,
-						MqttQoS.AT_MOST_ONCE, false, 0);
-				channel.writeAndFlush(new MqttMessage(fixedHeader2))
-						.addListener(ChannelFutureListener.CLOSE);
-				//TODO: what do when the connection is closed ?
+				this.pingRespTimeout = null;
+				if ( channel.isOpen() ) {
+					log.warn("No PINGRESP from MQTT server {} within {}s: closing connection.",
+							channel.remoteAddress(), this.keepaliveSeconds);
+					// do not try to write a DISCONNECT here: the connection is already
+					// unresponsive, so that write might never complete
+					channel.close();
+				}
 			}, this.keepaliveSeconds, TimeUnit.SECONDS);
 		}
 	}
@@ -117,10 +140,14 @@ final class MqttPingHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	private void handlePingResp() {
-		if ( this.pingRespTimeout != null && !this.pingRespTimeout.isCancelled()
-				&& !this.pingRespTimeout.isDone() ) {
-			this.pingRespTimeout.cancel(true);
-			this.pingRespTimeout = null;
+		cancelPingRespTimeout();
+	}
+
+	private void cancelPingRespTimeout() {
+		final ScheduledFuture<?> f = this.pingRespTimeout;
+		this.pingRespTimeout = null;
+		if ( f != null && !f.isCancelled() && !f.isDone() ) {
+			f.cancel(false);
 		}
 	}
 }
