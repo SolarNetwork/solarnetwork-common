@@ -51,8 +51,8 @@ public class MqttPubackReasonCodeTests {
 	@Test
 	public void isError_allNonErrorCodes() {
 		for ( int code = 0x00; code < 0x80; code++ ) {
-			assertThat("Code " + code + " is not an error",
-					MqttPubackReasonCode.isError((byte) code), is(false));
+			assertThat("Code " + code + " is not an error", MqttPubackReasonCode.isError((byte) code),
+					is(false));
 		}
 	}
 

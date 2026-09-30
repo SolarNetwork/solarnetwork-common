@@ -44,6 +44,7 @@ import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Promise;
 import net.solarnetwork.common.mqtt.BasicMqttTopicAliases;
+import net.solarnetwork.common.mqtt.MqttMessageHandler;
 import net.solarnetwork.common.mqtt.MqttTopicAliases;
 import net.solarnetwork.common.mqtt.NoOpMqttTopicAliases;
 import net.solarnetwork.common.mqtt.netty.NettyMqttMessage;
@@ -152,8 +153,26 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		client.getTopicAliases().setMaximumAliasCount(0);
 	}
 
-	private void invokeHandlersForIncomingPublish(MqttPublishMessage message) {
+	/**
+	 * Deliver an incoming PUBLISH message to the handlers subscribed to its
+	 * topic.
+	 *
+	 * <p>
+	 * A handler that throws has not accepted the message. The exception is
+	 * contained here rather than allowed to reach
+	 * {@link #exceptionCaught(ChannelHandlerContext, Throwable)}, which closes
+	 * the channel: the connection stays up and keeps processing messages, and
+	 * only the acknowledgement is withheld.
+	 * </p>
+	 *
+	 * @param message
+	 *        the message to deliver
+	 * @return {@literal true} if every handler accepted the message, and so it
+	 *         may be acknowledged
+	 */
+	private boolean invokeHandlersForIncomingPublish(MqttPublishMessage message) {
 		boolean handlerInvoked = false;
+		boolean handled = true;
 
 		// decode topic alias if provided
 		final String msgTopic = message.variableHeader().topicName();
@@ -166,13 +185,14 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				topicAlias = ((MqttProperties.IntegerProperty) prop).value();
 			}
 		}
+		final String topic;
 		try {
-			final String topic;
 			if ( topicAlias != null ) {
-				topic = serverAliases.aliasedTopic(msgTopic, topicAlias);
-				if ( topic == null ) {
+				final String aliased = serverAliases.aliasedTopic(msgTopic, topicAlias);
+				if ( aliased == null ) {
 					throw new IllegalStateException("Could not resolve topic alias " + topicAlias);
 				}
+				topic = aliased;
 				if ( log.isDebugEnabled() ) {
 					log.debug("Received message {} resolved topic [{}] with alias {} as [{}]",
 							message.variableHeader().packetId(), msgTopic, topicAlias, topic);
@@ -180,38 +200,75 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 			} else {
 				topic = msgTopic;
 			}
+		} catch ( RuntimeException e ) {
+			// the topic cannot be resolved, so no handler can ever process this
+			// message: report it as handled, because withholding the acknowledgement
+			// would only stall the subscription on a message that cannot be retried
+			log.warn("Discarding unresolvable incoming message on topic [{}]: {}", msgTopic,
+					e.toString(), e);
+			return true;
+		}
 
-			// iterate in place: the map is concurrent and each value is a CopyOnWriteArrayList,
-			// so no defensive copy is needed even though a `once` subscription removes itself
-			// below. Each subscription is held under its own topic key, so none can be seen twice.
-			for ( CopyOnWriteArrayList<MqttSubscription> topicSubs : this.client.getSubscriptions()
-					.values() ) {
-				for ( MqttSubscription subscription : topicSubs ) {
-					if ( !subscription.matches(topic) ) {
-						continue;
-					}
-					if ( subscription.isOnce() && subscription.isCalled() ) {
-						continue;
-					}
-					message.payload().markReaderIndex();
-					subscription.setCalled(true);
-					subscription.getHandler()
-							.onMqttMessage(new NettyMqttMessage(topic, message.fixedHeader().isRetain(),
-									message.fixedHeader().qosLevel(), message.payload()));
-					if ( subscription.isOnce() ) {
-						this.client.off(subscription.getTopic(), subscription.getHandler());
-					}
-					message.payload().resetReaderIndex();
-					handlerInvoked = true;
+		// iterate in place: the map is concurrent and each value is a CopyOnWriteArrayList,
+		// so no defensive copy is needed even though a `once` subscription removes itself
+		// below. Each subscription is held under its own topic key, so none can be seen twice.
+		for ( CopyOnWriteArrayList<MqttSubscription> topicSubs : this.client.getSubscriptions()
+				.values() ) {
+			for ( MqttSubscription subscription : topicSubs ) {
+				if ( !subscription.matches(topic) ) {
+					continue;
+				}
+				if ( subscription.isOnce() && subscription.isCalled() ) {
+					continue;
+				}
+				handlerInvoked = true;
+				if ( !invokeHandler(subscription.getHandler(), topic, message) ) {
+					handled = false;
+					continue;
+				}
+				subscription.setCalled(true);
+				if ( subscription.isOnce() ) {
+					this.client.off(subscription.getTopic(), subscription.getHandler());
 				}
 			}
-			if ( !handlerInvoked && client.getDefaultHandler() != null ) {
-				client.getDefaultHandler()
-						.onMqttMessage(new NettyMqttMessage(topic, message.fixedHeader().isRetain(),
-								message.fixedHeader().qosLevel(), message.payload()));
+		}
+		if ( !handlerInvoked && client.getDefaultHandler() != null ) {
+			if ( !invokeHandler(client.getDefaultHandler(), topic, message) ) {
+				handled = false;
 			}
+		}
+		return handled;
+	}
+
+	/**
+	 * Pass a message to one handler.
+	 *
+	 * <p>
+	 * The payload reader index is restored afterwards even when the handler
+	 * throws, so a handler that consumed the buffer cannot corrupt the read for
+	 * the handlers that follow.
+	 * </p>
+	 *
+	 * @param handler
+	 *        the handler to invoke
+	 * @param topic
+	 *        the resolved message topic
+	 * @param message
+	 *        the message to pass
+	 * @return {@literal true} if the handler accepted the message
+	 */
+	private boolean invokeHandler(MqttMessageHandler handler, String topic,
+			MqttPublishMessage message) {
+		message.payload().markReaderIndex();
+		try {
+			handler.onMqttMessage(new NettyMqttMessage(topic, message.fixedHeader().isRetain(),
+					message.fixedHeader().qosLevel(), message.payload()));
+			return true;
 		} catch ( RuntimeException e ) {
-			log.warn("Error handling incoming message on topic [{}]: {}", msgTopic, e.toString(), e);
+			log.warn("Error handling incoming message on topic [{}]: {}", topic, e.toString(), e);
+			return false;
+		} finally {
+			message.payload().resetReaderIndex();
 		}
 	}
 
@@ -331,19 +388,30 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 	private void handlePublish(Channel channel, MqttPublishMessage message) {
 		switch (message.fixedHeader().qosLevel()) {
 			case AT_MOST_ONCE:
+				// nothing to acknowledge, so the handler outcome cannot be acted on
 				invokeHandlersForIncomingPublish(message);
 				break;
 
-			case AT_LEAST_ONCE:
-				invokeHandlersForIncomingPublish(message);
-				if ( message.variableHeader().packetId() != -1 ) {
-					MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBACK, false,
-							MqttQoS.AT_MOST_ONCE, false, 0);
-					MqttMessageIdVariableHeader variableHeader = MqttMessageIdVariableHeader
-							.from(message.variableHeader().packetId());
-					channel.writeAndFlush(new MqttPubAckMessage(fixedHeader, variableHeader));
+			case AT_LEAST_ONCE: {
+				final boolean handled = invokeHandlersForIncomingPublish(message);
+				final int packetId = message.variableHeader().packetId();
+				if ( packetId == -1 ) {
+					break;
 				}
+				if ( !handled ) {
+					// withhold the acknowledgement so the message stays unacknowledged and
+					// the broker redelivers it, which is the guarantee QOS 1 exists to give
+					log.warn(
+							"Not acknowledging message {} on topic [{}], which a handler did not accept, so the broker can redeliver it.",
+							packetId, message.variableHeader().topicName());
+					break;
+				}
+				MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBACK, false,
+						MqttQoS.AT_MOST_ONCE, false, 0);
+				MqttMessageIdVariableHeader variableHeader = MqttMessageIdVariableHeader.from(packetId);
+				channel.writeAndFlush(new MqttPubAckMessage(fixedHeader, variableHeader));
 				break;
+			}
 
 			case EXACTLY_ONCE:
 				if ( message.variableHeader().packetId() != -1 ) {
@@ -455,6 +523,9 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 		if ( incomingQos2Publish != null ) {
 			incomingQos2Publish.onPubrelReceived();
 			try {
+				// the handler outcome cannot be acted on here: the PUBREC has already been
+				// sent, so the broker will not send the PUBLISH again, and withholding the
+				// PUBCOMP would only stall the flow rather than cause a redelivery
 				this.invokeHandlersForIncomingPublish(incomingQos2Publish.getIncomingPublish());
 			} finally {
 				// release the reference retained when the PUBLISH arrived
