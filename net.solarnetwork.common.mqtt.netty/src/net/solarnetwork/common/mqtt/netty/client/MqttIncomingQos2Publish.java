@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.solarnetwork.common.mqtt.netty.client;
 
 import io.netty.channel.EventLoop;
@@ -23,36 +24,36 @@ import java.util.function.Consumer;
 
 final class MqttIncomingQos2Publish {
 
-    private final MqttPublishMessage incomingPublish;
+	private final MqttPublishMessage incomingPublish;
 
-    private final RetransmissionHandler<MqttMessage> retransmissionHandler = new RetransmissionHandler<>();
+	private final RetransmissionHandler<MqttMessage> retransmissionHandler = new RetransmissionHandler<>();
 
-    MqttIncomingQos2Publish(MqttPublishMessage incomingPublish, MqttMessage originalMessage) {
-        this.incomingPublish = incomingPublish;
+	MqttIncomingQos2Publish(MqttPublishMessage incomingPublish, MqttMessage originalMessage) {
+		this.incomingPublish = incomingPublish;
 
-        this.retransmissionHandler.setOriginalMessage(originalMessage);
-    }
+		this.retransmissionHandler.setOriginalMessage(originalMessage);
+	}
 
-    MqttPublishMessage getIncomingPublish() {
-        return incomingPublish;
-    }
+	MqttPublishMessage getIncomingPublish() {
+		return incomingPublish;
+	}
 
-    void startPubrecRetransmitTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
-        this.retransmissionHandler.setHandler((fixedHeader, originalMessage) ->
-                sendPacket.accept(new MqttMessage(fixedHeader, originalMessage.variableHeader())));
-        this.retransmissionHandler.start(eventLoop);
-    }
+	void startPubrecRetransmitTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
+		this.retransmissionHandler.setHandler((fixedHeader, originalMessage) -> sendPacket
+				.accept(new MqttMessage(fixedHeader, originalMessage.variableHeader())));
+		this.retransmissionHandler.start(eventLoop);
+	}
 
-    void onPubrelReceived() {
-        this.retransmissionHandler.stop();
-    }
+	void onPubrelReceived() {
+		this.retransmissionHandler.stop();
+	}
 
-    /**
-     * Stop all retransmission.
-     *
-     * @since 1.1
-     */
-    void stop() {
-        this.retransmissionHandler.stop();
-    }
+	/**
+	 * Stop all retransmission.
+	 *
+	 * @since 1.1
+	 */
+	void stop() {
+		this.retransmissionHandler.stop();
+	}
 }

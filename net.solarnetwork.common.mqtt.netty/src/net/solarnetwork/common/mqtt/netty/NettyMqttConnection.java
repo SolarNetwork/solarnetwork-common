@@ -195,8 +195,8 @@ public class NettyMqttConnection extends BaseMqttConnection
 					// publish the in-flight client so closeConnection() can abort this attempt
 					synchronized ( NettyMqttConnection.this ) {
 						if ( isStale() ) {
-							connectFuture.completeExceptionally(
-									new RuntimeException("Connect cancelled."));
+							connectFuture
+									.completeExceptionally(new RuntimeException("Connect cancelled."));
 							closeClient(client);
 							return;
 						}
@@ -491,8 +491,7 @@ public class NettyMqttConnection extends BaseMqttConnection
 								connectionConfig.getServerUri());
 						release.run();
 					}
-				}, Instant.now()
-						.plusSeconds(Math.max(1, connectionConfig.getConnectTimeoutSeconds())));
+				}, Instant.now().plusSeconds(Math.max(1, connectionConfig.getConnectTimeoutSeconds())));
 			} catch ( RuntimeException e ) {
 				log.debug("Unable to schedule MQTT close fallback task: {}", e.toString());
 			}

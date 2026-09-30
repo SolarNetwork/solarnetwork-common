@@ -289,8 +289,8 @@ final class MqttClientImpl implements MqttClient {
 			pending.stop();
 			pending.getFuture().tryFailure(cause);
 		}
-		for ( Iterator<MqttPendingUnsubscription> itr = pendingServerUnsubscribes.values().iterator(); itr
-				.hasNext(); ) {
+		for ( Iterator<MqttPendingUnsubscription> itr = pendingServerUnsubscribes.values()
+				.iterator(); itr.hasNext(); ) {
 			MqttPendingUnsubscription pending = itr.next();
 			itr.remove();
 			pending.stop();

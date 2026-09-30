@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.solarnetwork.common.mqtt.netty.client;
 
 import io.netty.channel.EventLoop;
@@ -24,42 +25,44 @@ import java.util.function.Consumer;
 
 final class MqttPendingUnsubscription {
 
-    private final Promise<Void> future;
-    private final String topic;
+	private final Promise<Void> future;
+	private final String topic;
 
-    private final RetransmissionHandler<MqttUnsubscribeMessage> retransmissionHandler = new RetransmissionHandler<>();
+	private final RetransmissionHandler<MqttUnsubscribeMessage> retransmissionHandler = new RetransmissionHandler<>();
 
-    MqttPendingUnsubscription(Promise<Void> future, String topic, MqttUnsubscribeMessage unsubscribeMessage) {
-        this.future = future;
-        this.topic = topic;
+	MqttPendingUnsubscription(Promise<Void> future, String topic,
+			MqttUnsubscribeMessage unsubscribeMessage) {
+		this.future = future;
+		this.topic = topic;
 
-        this.retransmissionHandler.setOriginalMessage(unsubscribeMessage);
-    }
+		this.retransmissionHandler.setOriginalMessage(unsubscribeMessage);
+	}
 
-    Promise<Void> getFuture() {
-        return future;
-    }
+	Promise<Void> getFuture() {
+		return future;
+	}
 
-    String getTopic() {
-        return topic;
-    }
+	String getTopic() {
+		return topic;
+	}
 
-    void startRetransmissionTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
-        this.retransmissionHandler.setHandler((fixedHeader, originalMessage) ->
-                sendPacket.accept(new MqttUnsubscribeMessage(fixedHeader, originalMessage.variableHeader(), originalMessage.payload())));
-        this.retransmissionHandler.start(eventLoop);
-    }
+	void startRetransmissionTimer(EventLoop eventLoop, Consumer<Object> sendPacket) {
+		this.retransmissionHandler.setHandler(
+				(fixedHeader, originalMessage) -> sendPacket.accept(new MqttUnsubscribeMessage(
+						fixedHeader, originalMessage.variableHeader(), originalMessage.payload())));
+		this.retransmissionHandler.start(eventLoop);
+	}
 
-    void onUnsubackReceived(){
-        this.retransmissionHandler.stop();
-    }
+	void onUnsubackReceived() {
+		this.retransmissionHandler.stop();
+	}
 
-    /**
-     * Stop all retransmission.
-     *
-     * @since 1.1
-     */
-    void stop() {
-        this.retransmissionHandler.stop();
-    }
+	/**
+	 * Stop all retransmission.
+	 *
+	 * @since 1.1
+	 */
+	void stop() {
+		this.retransmissionHandler.stop();
+	}
 }

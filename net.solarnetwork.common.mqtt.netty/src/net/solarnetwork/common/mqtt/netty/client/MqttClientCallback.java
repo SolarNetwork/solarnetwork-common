@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.solarnetwork.common.mqtt.netty.client;
 
 /**
@@ -21,16 +22,16 @@ package net.solarnetwork.common.mqtt.netty.client;
  */
 public interface MqttClientCallback {
 
-    /**
-     * This method is called when the connection to the server is lost.
-     *
-     * @param cause the reason behind the loss of connection.
-     */
-    void connectionLost(Throwable cause);
+	/**
+	 * This method is called when the connection to the server is lost.
+	 *
+	 * @param cause the reason behind the loss of connection.
+	 */
+	void connectionLost(Throwable cause);
 
-    /**
-     * This method is called when the connection to the server is recovered.
-     *
-     */
-    void onSuccessfulReconnect();
+	/**
+	 * This method is called when the connection to the server is recovered.
+	 *
+	 */
+	void onSuccessfulReconnect();
 }

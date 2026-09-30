@@ -18,6 +18,10 @@
 package net.solarnetwork.common.mqtt.netty.client;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,12 +171,13 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 	 *
 	 * @param message
 	 *        the message to deliver
-	 * @return {@literal true} if every handler accepted the message, and so it
-	 *         may be acknowledged
+	 * @return a stage that completes once every handler has accepted the
+	 *         message, and so it may be acknowledged, or completes exceptionally
+	 *         if any did not
 	 */
-	private boolean invokeHandlersForIncomingPublish(MqttPublishMessage message) {
+	private CompletableFuture<Void> invokeHandlersForIncomingPublish(MqttPublishMessage message) {
 		boolean handlerInvoked = false;
-		boolean handled = true;
+		final List<CompletionStage<?>> results = new ArrayList<>(4);
 
 		// decode topic alias if provided
 		final String msgTopic = message.variableHeader().topicName();
@@ -206,7 +211,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 			// would only stall the subscription on a message that cannot be retried
 			log.warn("Discarding unresolvable incoming message on topic [{}]: {}", msgTopic,
 					e.toString(), e);
-			return true;
+			return CompletableFuture.completedFuture(null);
 		}
 
 		// iterate in place: the map is concurrent and each value is a CopyOnWriteArrayList,
@@ -222,10 +227,7 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 					continue;
 				}
 				handlerInvoked = true;
-				if ( !invokeHandler(subscription.getHandler(), topic, message) ) {
-					handled = false;
-					continue;
-				}
+				results.add(invokeHandler(subscription.getHandler(), topic, message));
 				subscription.setCalled(true);
 				if ( subscription.isOnce() ) {
 					this.client.off(subscription.getTopic(), subscription.getHandler());
@@ -233,20 +235,23 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 			}
 		}
 		if ( !handlerInvoked && client.getDefaultHandler() != null ) {
-			if ( !invokeHandler(client.getDefaultHandler(), topic, message) ) {
-				handled = false;
-			}
+			results.add(invokeHandler(client.getDefaultHandler(), topic, message));
 		}
-		return handled;
+		if ( results.isEmpty() ) {
+			return CompletableFuture.completedFuture(null);
+		}
+		return CompletableFuture.allOf(results.stream().map(CompletionStage::toCompletableFuture)
+				.toArray(CompletableFuture[]::new));
 	}
 
 	/**
 	 * Pass a message to one handler.
 	 *
 	 * <p>
-	 * The payload reader index is restored afterwards even when the handler
-	 * throws, so a handler that consumed the buffer cannot corrupt the read for
-	 * the handlers that follow.
+	 * The message is copied out of the payload buffer before the handler is
+	 * called, and the reader index restored, so the handler may keep the message
+	 * after this method returns and a handler that consumed the buffer cannot
+	 * corrupt the read for the handlers that follow.
 	 * </p>
 	 *
 	 * @param handler
@@ -255,21 +260,34 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 	 *        the resolved message topic
 	 * @param message
 	 *        the message to pass
-	 * @return {@literal true} if the handler accepted the message
+	 * @return a stage that completes when the handler has accepted the message
 	 */
-	private boolean invokeHandler(MqttMessageHandler handler, String topic,
+	private CompletionStage<?> invokeHandler(MqttMessageHandler handler, String topic,
 			MqttPublishMessage message) {
+		final NettyMqttMessage msg;
 		message.payload().markReaderIndex();
 		try {
-			handler.onMqttMessage(new NettyMqttMessage(topic, message.fixedHeader().isRetain(),
-					message.fixedHeader().qosLevel(), message.payload()));
-			return true;
-		} catch ( RuntimeException e ) {
-			log.warn("Error handling incoming message on topic [{}]: {}", topic, e.toString(), e);
-			return false;
+			// NettyMqttMessage copies the payload, so msg outlives this call
+			msg = new NettyMqttMessage(topic, message.fixedHeader().isRetain(),
+					message.fixedHeader().qosLevel(), message.payload());
 		} finally {
 			message.payload().resetReaderIndex();
 		}
+		CompletionStage<?> result;
+		try {
+			result = handler.onMqttMessageAsync(msg);
+			if ( result == null ) {
+				result = CompletableFuture.completedFuture(null);
+			}
+		} catch ( RuntimeException e ) {
+			// an implementation may throw rather than return a failed stage
+			result = CompletableFuture.failedFuture(e);
+		}
+		return result.whenComplete((r, e) -> {
+			if ( e != null ) {
+				log.warn("Error handling incoming message on topic [{}]: {}", topic, e.toString(), e);
+			}
+		});
 	}
 
 	private void handleConack(Channel channel, MqttConnAckMessage message) {
@@ -393,23 +411,28 @@ final class MqttChannelHandler extends SimpleChannelInboundHandler<MqttMessage> 
 				break;
 
 			case AT_LEAST_ONCE: {
-				final boolean handled = invokeHandlersForIncomingPublish(message);
+				// capture these now: the message is released once this returns, which can
+				// happen before a handler completes
 				final int packetId = message.variableHeader().packetId();
-				if ( packetId == -1 ) {
-					break;
-				}
-				if ( !handled ) {
-					// withhold the acknowledgement so the message stays unacknowledged and
-					// the broker redelivers it, which is the guarantee QOS 1 exists to give
-					log.warn(
-							"Not acknowledging message {} on topic [{}], which a handler did not accept, so the broker can redeliver it.",
-							packetId, message.variableHeader().topicName());
-					break;
-				}
-				MqttFixedHeader fixedHeader = new MqttFixedHeader(MqttMessageType.PUBACK, false,
-						MqttQoS.AT_MOST_ONCE, false, 0);
-				MqttMessageIdVariableHeader variableHeader = MqttMessageIdVariableHeader.from(packetId);
-				channel.writeAndFlush(new MqttPubAckMessage(fixedHeader, variableHeader));
+				final String topicName = message.variableHeader().topicName();
+				invokeHandlersForIncomingPublish(message).whenComplete((r, ex) -> {
+					if ( packetId == -1 ) {
+						return;
+					}
+					if ( ex != null ) {
+						// withhold the acknowledgement so the message stays unacknowledged
+						// and the broker redelivers it, which is the guarantee QOS 1 gives
+						log.warn(
+								"Not acknowledging message {} on topic [{}], which a handler did not accept, so the broker can redeliver it.",
+								packetId, topicName);
+						return;
+					}
+					MqttFixedHeader ackHeader = new MqttFixedHeader(MqttMessageType.PUBACK, false,
+							MqttQoS.AT_MOST_ONCE, false, 0);
+					// safe from any thread: Netty schedules onto the channel's event loop
+					channel.writeAndFlush(new MqttPubAckMessage(ackHeader,
+							MqttMessageIdVariableHeader.from(packetId)));
+				});
 				break;
 			}
 

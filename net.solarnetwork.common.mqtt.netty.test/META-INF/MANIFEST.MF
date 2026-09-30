@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MQTT client based on Netty Tests
 Bundle-SymbolicName: net.solarnetwork.common.mqtt.netty.test
-Bundle-Version: 5.2.1
+Bundle-Version: 5.2.2
 Bundle-Vendor: SolarNetwork
 Fragment-Host: net.solarnetwork.common.mqtt.netty;bundle-version="[5.3,6.0)"
 Automatic-Module-Name: net.solarnetwork.common.mqtt.netty.test

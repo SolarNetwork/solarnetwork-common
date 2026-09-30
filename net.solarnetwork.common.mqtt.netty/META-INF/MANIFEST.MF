@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: MQTT client - Netty
 Bundle-Description: MQTT client based on the Netty framework.
 Bundle-SymbolicName: net.solarnetwork.common.mqtt.netty
-Bundle-Version: 5.3.2
+Bundle-Version: 5.3.3
 Bundle-Vendor: SolarNetwork
 Automatic-Module-Name: net.solarnetwork.common.mqtt.netty
 Bundle-RequiredExecutionEnvironment: JavaSE-17
@@ -29,7 +29,7 @@ Import-Package:
  io.netty.util.concurrent;version="[4.2.8,5.0)",
  javax.net,
  javax.net.ssl,
- net.solarnetwork.common.mqtt;version="[3.3,4.0)",
+ net.solarnetwork.common.mqtt;version="[3.4,4.0)",
  net.solarnetwork.domain;version="[3.5,4.0)",
  net.solarnetwork.service;version="[1.5,2.0)",
  net.solarnetwork.settings;version="[2.4,3.0)",

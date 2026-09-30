@@ -24,13 +24,15 @@ package net.solarnetwork.common.mqtt.netty.client;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.solarnetwork.util.ObjectUtils.nonnull;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.jspecify.annotations.Nullable;
 import org.junit.After;
@@ -40,7 +42,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.netty.handler.codec.mqtt.MqttMessage;
-import io.netty.handler.codec.mqtt.MqttMessageIdVariableHeader;
 import io.netty.handler.codec.mqtt.MqttMessageType;
 import io.netty.handler.codec.mqtt.MqttPubAckMessage;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
@@ -55,7 +56,7 @@ import net.solarnetwork.common.mqtt.MqttMessageHandler;
  * Test cases for the {@link MqttChannelHandler} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class MqttChannelHandlerTests {
 
@@ -114,8 +115,7 @@ public class MqttChannelHandlerTests {
 		MqttPubAckMessage puback = readPubackOutbound();
 		assertThat("Message acknowledged after the handler accepted it", puback, is(notNullValue()));
 		assertThat("Acknowledged the delivered packet",
-				((MqttMessageIdVariableHeader) nonnull(puback, "PubAck").variableHeader()).messageId(),
-				is(equalTo(42)));
+				nonnull(puback, "PubAck").variableHeader().messageId(), is(equalTo(42)));
 	}
 
 	@Test
@@ -155,8 +155,7 @@ public class MqttChannelHandlerTests {
 		MqttPubAckMessage puback = readPubackOutbound();
 		assertThat("Second message acknowledged", puback, is(notNullValue()));
 		assertThat("Only the message the handler accepted was acknowledged",
-				((MqttMessageIdVariableHeader) nonnull(puback, "PubAck").variableHeader()).messageId(),
-				is(equalTo(43)));
+				nonnull(puback, "PubAck").variableHeader().messageId(), is(equalTo(43)));
 		assertThat("No other acknowledgement sent", readPubackOutbound(), is(nullValue()));
 	}
 
@@ -195,6 +194,134 @@ public class MqttChannelHandlerTests {
 		// THEN
 		assertThat("Nothing to acknowledge at QOS 0", readPubackOutbound(), is(nullValue()));
 		assertThat("Channel still open", channel.isActive(), is(equalTo(true)));
+	}
+
+	@Test
+	public void qos1_asyncHandler_acknowledgedOnlyWhenStageCompletes() {
+		// GIVEN
+		final CompletableFuture<Void> work = new CompletableFuture<>();
+		subscribe(new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage message) {
+				throw new UnsupportedOperationException("async handler");
+			}
+
+			@Override
+			public CompletionStage<?> onMqttMessageAsync(
+					net.solarnetwork.common.mqtt.MqttMessage message) {
+				return work;
+			}
+
+		});
+
+		// WHEN
+		publishInbound(42, MqttQoS.AT_LEAST_ONCE);
+
+		// THEN
+		assertThat("Not acknowledged while the handler is still working", readPubackOutbound(),
+				is(nullValue()));
+
+		work.complete(null);
+		channel.runPendingTasks();
+
+		MqttPubAckMessage puback = readPubackOutbound();
+		assertThat("Acknowledged once the handler completed", puback, is(notNullValue()));
+		assertThat("Acknowledged the delivered packet",
+				nonnull(puback, "PubAck").variableHeader().messageId(), is(equalTo(42)));
+	}
+
+	@Test
+	public void qos1_asyncHandlerFailed_notAcknowledged() {
+		// GIVEN
+		final CompletableFuture<Void> work = new CompletableFuture<>();
+		subscribe(new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage message) {
+				throw new UnsupportedOperationException("async handler");
+			}
+
+			@Override
+			public CompletionStage<?> onMqttMessageAsync(
+					net.solarnetwork.common.mqtt.MqttMessage message) {
+				return work;
+			}
+
+		});
+
+		// WHEN
+		publishInbound(42, MqttQoS.AT_LEAST_ONCE);
+		work.completeExceptionally(new RuntimeException("boom!"));
+		channel.runPendingTasks();
+
+		// THEN
+		assertThat("Not acknowledged, so the broker can redeliver it", readPubackOutbound(),
+				is(nullValue()));
+		assertThat("Channel still open", channel.isActive(), is(equalTo(true)));
+	}
+
+	@Test
+	public void qos1_asyncHandler_completedOnAnotherThread_acknowledged() throws Exception {
+		// GIVEN
+		final CompletableFuture<Void> work = new CompletableFuture<>();
+		subscribe(new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage message) {
+				throw new UnsupportedOperationException("async handler");
+			}
+
+			@Override
+			public CompletionStage<?> onMqttMessageAsync(
+					net.solarnetwork.common.mqtt.MqttMessage message) {
+				return work;
+			}
+
+		});
+
+		// WHEN
+		publishInbound(42, MqttQoS.AT_LEAST_ONCE);
+
+		// complete from a worker thread, as a handler using an executor would
+		Thread worker = new Thread(() -> work.complete(null), "test-worker");
+		worker.start();
+		worker.join(5_000);
+
+		channel.runPendingTasks();
+
+		// THEN
+		MqttPubAckMessage puback = readPubackOutbound();
+		assertThat("Acknowledged from the completing worker thread", puback, is(notNullValue()));
+		assertThat("Acknowledged the delivered packet",
+				nonnull(puback, "PubAck").variableHeader().messageId(), is(equalTo(42)));
+	}
+
+	@Test
+	public void qos1_asyncHandlerReturnedNull_acknowledged() {
+		// GIVEN
+		subscribe(new MqttMessageHandler() {
+
+			@Override
+			public void onMqttMessage(net.solarnetwork.common.mqtt.MqttMessage message) {
+				throw new UnsupportedOperationException("async handler");
+			}
+
+			@SuppressWarnings("NullAway")
+			@Override
+			public CompletionStage<?> onMqttMessageAsync(
+					net.solarnetwork.common.mqtt.MqttMessage message) {
+				return null;
+			}
+
+		});
+
+		// WHEN
+		publishInbound(42, MqttQoS.AT_LEAST_ONCE);
+		channel.runPendingTasks();
+
+		// THEN
+		assertThat("A null stage is treated as accepted", readPubackOutbound(), is(notNullValue()));
 	}
 
 }
