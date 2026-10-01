@@ -127,7 +127,7 @@ import tools.jackson.databind.ObjectMapper;
  * @param <S>
  *        the central system action enumeration to use
  * @author matt
- * @version 3.2
+ * @version 3.3
  */
 public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> & Action>
 		extends AbstractWebSocketHandler implements WebSocketHandler, SubProtocolCapable,
@@ -932,7 +932,11 @@ public class OcppWebSocketHandler<C extends Enum<C> & Action, S extends Enum<S> 
 
 	@Override
 	public boolean isChargePointAvailable(ChargePointIdentity clientId) {
-		return clientSessions.ceilingKey(ChargePointSessionIdentity.boundaryKey(clientId)) != null;
+		// the boundary key sorts before all sessions of the given client, so the ceiling key is
+		// the client's first session if it has one, otherwise the session of some other client
+		final ChargePointSessionIdentity key = clientSessions
+				.ceilingKey(ChargePointSessionIdentity.boundaryKey(clientId));
+		return key != null && key.getIdentity().equals(clientId);
 	}
 
 	@Override
