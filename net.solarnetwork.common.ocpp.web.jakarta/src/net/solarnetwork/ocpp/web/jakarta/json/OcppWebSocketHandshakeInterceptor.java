@@ -60,8 +60,15 @@ import net.solarnetwork.service.PasswordEncoder;
  * is not available then a {@link HttpStatus#NOT_FOUND} error will be sent.
  * </p>
  *
+ * <p>
+ * Charge Point credentials are verified with the configured
+ * {@link PasswordEncoder}. Comparing the presented password directly to the
+ * stored password is only done when {@link #setAllowRawPasswords(boolean)} is
+ * enabled.
+ * </p>
+ *
  * @author matt
- * @version 3.1
+ * @version 3.2
  */
 public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
@@ -83,6 +90,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	private Pattern clientIdUriPattern;
 	private @Nullable BiFunction<ServerHttpRequest, String, ChargePointAuthorizationDetails> clientCredentialsExtractor;
 	private @Nullable String fixedIdentityUsername;
+	private boolean allowRawPasswords;
 
 	/**
 	 * Constructor.
@@ -193,7 +201,7 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 
 			if ( user.getPassword() != null ) {
 				if ( !((passwordEncoder != null && passwordEncoder.matches(password, user.getPassword()))
-						|| user.getPassword().equals(password)) ) {
+						|| (allowRawPasswords && user.getPassword().equals(password))) ) {
 					log.warn(
 							"OCPP handshake request rejected for {}, system user {} password does not match.",
 							identifier, username);
@@ -349,6 +357,39 @@ public class OcppWebSocketHandshakeInterceptor implements HandshakeInterceptor {
 	 */
 	public final void setFixedIdentityUsername(@Nullable String fixedIdentityUsername) {
 		this.fixedIdentityUsername = fixedIdentityUsername;
+	}
+
+	/**
+	 * Get the "allow raw passwords" mode.
+	 *
+	 * @return {@code true} if a presented password that equals the stored
+	 *         password is accepted without the password encoder; defaults to
+	 *         {@code false}
+	 * @since 3.2
+	 */
+	public final boolean isAllowRawPasswords() {
+		return allowRawPasswords;
+	}
+
+	/**
+	 * Set the "allow raw passwords" mode.
+	 *
+	 * <p>
+	 * When enabled, a presented password that equals the stored password is
+	 * accepted, even if it does not match via the configured password encoder.
+	 * This supports stored passwords that are not encoded, such as during
+	 * development. It must not be enabled when stored passwords are encoded,
+	 * because the stored encoded value itself would then be accepted as the
+	 * password.
+	 * </p>
+	 *
+	 * @param allowRawPasswords
+	 *        {@code true} to accept a presented password that equals the stored
+	 *        password
+	 * @since 3.2
+	 */
+	public final void setAllowRawPasswords(boolean allowRawPasswords) {
+		this.allowRawPasswords = allowRawPasswords;
 	}
 
 	/**

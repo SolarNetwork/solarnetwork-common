@@ -64,7 +64,7 @@ import net.solarnetwork.service.PasswordEncoder;
  * Test cases for the {@link OcppWebSocketHandshakeInterceptor} class.
  *
  * @author matt
- * @version 3.0
+ * @version 3.1
  */
 public class OcppWebSocketHandshakeInterceptorTests {
 
@@ -262,7 +262,7 @@ public class OcppWebSocketHandshakeInterceptorTests {
 
 		SystemUser user = testUser();
 		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
-		expect(passwordEncoder.matches("bar", "bar")).andReturn(false);
+		expect(passwordEncoder.matches("bar", "bar")).andReturn(true);
 
 		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
 				systemUserDao, passwordEncoder);
@@ -615,6 +615,77 @@ public class OcppWebSocketHandshakeInterceptorTests {
 		assertThat("Result failed from malformed-Basic auth header", result, equalTo(false));
 
 		assertForbiddenDetails("foobar", null, null, hi.forbiddenDetails);
+	}
+
+	@Test
+	public void rawPassword_rejectedByDefault() throws Exception {
+		// given
+		URI uri = URI.create("http://example.com/ocpp/v16/cs/json/foobar");
+		expect(req.getURI()).andReturn(uri);
+		expect(handler.getSubProtocols())
+				.andReturn(Collections.singletonList(WebSocketSubProtocol.OCPP_V16.getValue()));
+
+		HttpHeaders h = new HttpHeaders();
+		h.add(WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL, WebSocketSubProtocol.OCPP_V16.getValue());
+		addBasicAuth(h);
+		expect(req.getHeaders()).andReturn(h).anyTimes();
+
+		// stored password equals the presented password, but does not match via the encoder,
+		// as when the stored encoded password is presented as the password
+		SystemUser user = testUser();
+		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
+		expect(passwordEncoder.matches("bar", "bar")).andReturn(false);
+
+		res.setStatusCode(HttpStatus.FORBIDDEN);
+
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
+
+		// when
+		replayAll();
+		Map<String, Object> attributes = new LinkedHashMap<>(4);
+		boolean result = hi.beforeHandshake(req, res, handler, attributes);
+
+		assertThat("Result failed because raw passwords not allowed by default", result,
+				equalTo(false));
+		assertThat("No attributes populated", attributes.keySet(), hasSize(0));
+
+		assertForbiddenDetails("foobar", "foo", "bar", hi.forbiddenDetails);
+	}
+
+	@Test
+	public void rawPassword_allowed() throws Exception {
+		// given
+		URI uri = URI.create("http://example.com/ocpp/v16/cs/json/foobar");
+		expect(req.getURI()).andReturn(uri);
+		expect(handler.getSubProtocols())
+				.andReturn(Collections.singletonList(WebSocketSubProtocol.OCPP_V16.getValue()));
+
+		HttpHeaders h = new HttpHeaders();
+		h.add(WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL, WebSocketSubProtocol.OCPP_V16.getValue());
+		addBasicAuth(h);
+		expect(req.getHeaders()).andReturn(h).anyTimes();
+
+		// stored password is not encoded, so does not match via the encoder
+		SystemUser user = testUser();
+		expect(systemUserDao.getForUsernameAndChargePoint("foo", "foobar")).andReturn(user);
+		expect(passwordEncoder.matches("bar", "bar")).andReturn(false);
+
+		TestOcppWebSocketHandshakeInterceptor hi = new TestOcppWebSocketHandshakeInterceptor(
+				systemUserDao, passwordEncoder);
+		hi.setAllowRawPasswords(true);
+
+		// when
+		replayAll();
+		Map<String, Object> attributes = new LinkedHashMap<>(4);
+		boolean result = hi.beforeHandshake(req, res, handler, attributes);
+
+		assertThat("Result success from raw password match", result, equalTo(true));
+		assertThat("Client ID attribute populated", attributes,
+				hasEntry(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR,
+						new ChargePointIdentity("foobar", ChargePointIdentity.ANY_USER)));
+
+		assertNoForbiddenDetails(hi.forbiddenDetails);
 	}
 
 }
