@@ -33,6 +33,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import java.util.Collections;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -47,6 +48,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import net.solarnetwork.ocpp.domain.ActionMessage;
+import net.solarnetwork.ocpp.domain.BasicActionMessage;
 import net.solarnetwork.ocpp.domain.ChargePointIdentity;
 import net.solarnetwork.ocpp.service.ActionMessageResultHandler;
 import net.solarnetwork.ocpp.v16.jakarta.CentralSystemAction;
@@ -71,7 +73,7 @@ import tools.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationModule;
  * Test cases for the {@link OcppWebSocketHandler} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class OcppWebSocketHandlerV16Tests {
 
@@ -348,6 +350,125 @@ public class OcppWebSocketHandlerV16Tests {
 		assertThat("Session was closed", status, notNullValue());
 		assertThat("Close reason was 'too big'", status.getCode(),
 				is(equalTo(CloseStatus.TOO_BIG_TO_PROCESS.getCode())));
+	}
+
+	private WebSocketSession connectedSession(ChargePointIdentity cpIdent) throws Exception {
+		final WebSocketSession s = EasyMock.createMock(WebSocketSession.class);
+		final Map<String, Object> attributes = Collections
+				.singletonMap(OcppWebSocketHandshakeInterceptor.CLIENT_ID_ATTR, cpIdent);
+		expect(s.getId()).andReturn(UUID.randomUUID().toString()).anyTimes();
+		expect(s.getAttributes()).andReturn(attributes).anyTimes();
+		EasyMock.replay(s);
+		handler.afterConnectionEstablished(s);
+		return s;
+	}
+
+	@Test
+	public void isChargePointAvailable_connected() throws Exception {
+		// GIVEN
+		final ChargePointIdentity cpIdent = new ChargePointIdentity("foo", "user");
+		replayAll();
+		handler.startup(false);
+		connectedSession(cpIdent);
+
+		// WHEN
+		boolean result = handler.isChargePointAvailable(cpIdent);
+
+		// THEN
+		then(result).as("Connected charger is available").isTrue();
+	}
+
+	@Test
+	public void isChargePointAvailable_otherChargerConnected() throws Exception {
+		// GIVEN
+		replayAll();
+		handler.startup(false);
+		connectedSession(new ChargePointIdentity("foo", "user"));
+
+		// "bar" sorts before "foo", so the connected "foo" session follows its boundary key
+		final ChargePointIdentity notConnected = new ChargePointIdentity("bar", "user");
+
+		// WHEN
+		boolean result = handler.isChargePointAvailable(notConnected);
+
+		// THEN
+		then(result).as("Charger without a session is not available").isFalse();
+	}
+
+	@Test
+	public void isChargePointAvailable_sameIdentifierOtherUserConnected() throws Exception {
+		// GIVEN
+		replayAll();
+		handler.startup(false);
+		connectedSession(new ChargePointIdentity("foo", "user"));
+
+		// "other" sorts before "user", so the connected session follows its boundary key
+		final ChargePointIdentity notConnected = new ChargePointIdentity("foo", "other");
+
+		// WHEN
+		boolean result = handler.isChargePointAvailable(notConnected);
+
+		// THEN
+		then(result).as("Same identifier for a different user is not available").isFalse();
+	}
+
+	@Test
+	public void isChargePointAvailable_disconnected() throws Exception {
+		// GIVEN
+		final ChargePointIdentity cpIdent = new ChargePointIdentity("foo", "user");
+		replayAll();
+		handler.startup(false);
+		WebSocketSession s = connectedSession(cpIdent);
+		handler.afterConnectionClosed(s, CloseStatus.NORMAL);
+
+		// WHEN
+		boolean result = handler.isChargePointAvailable(cpIdent);
+
+		// THEN
+		then(result).as("Disconnected charger is not available").isFalse();
+	}
+
+	@Test
+	public void isMessageSupported_otherChargerConnected() throws Exception {
+		// GIVEN
+		replayAll();
+		handler.startup(false);
+		connectedSession(new ChargePointIdentity("foo", "user"));
+
+		final ActionMessage<HeartbeatRequest> msg = new BasicActionMessage<>(
+				new ChargePointIdentity("bar", "user"), CentralSystemAction.Heartbeat,
+				new HeartbeatRequest());
+
+		// WHEN
+		boolean result = handler.isMessageSupported(msg);
+
+		// THEN
+		then(result).as("Message for charger without a session is not supported").isFalse();
+	}
+
+	@Test
+	public void availableChargePointsIds() throws Exception {
+		// GIVEN
+		final ChargePointIdentity cp1 = new ChargePointIdentity("foo", "user");
+		final ChargePointIdentity cp2 = new ChargePointIdentity("bar", "user");
+		replayAll();
+		handler.startup(false);
+		connectedSession(cp1);
+		connectedSession(cp1); // second session for same charger
+		WebSocketSession s2 = connectedSession(cp2);
+		connectedSession(new ChargePointIdentity("bim", "user"));
+		handler.afterConnectionClosed(s2, CloseStatus.NORMAL);
+
+		// WHEN
+		var result = handler.availableChargePointsIds();
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Each connected charger listed once, disconnected charger excluded")
+			.containsExactlyInAnyOrderElementsOf(List.of(cp1, new ChargePointIdentity("bim", "user")))
+			;
+		// @formatter:on
 	}
 
 }
