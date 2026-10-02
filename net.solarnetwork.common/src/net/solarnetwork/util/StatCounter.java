@@ -51,7 +51,7 @@ import org.slf4j.Logger;
  * </p>
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.78
  */
 public class StatCounter {
@@ -95,7 +95,8 @@ public class StatCounter {
 	 * @param log
 	 *        the Logger to use, or {@code null} for no logging
 	 * @param logFrequency
-	 *        a frequency at which to log INFO level statistic messages
+	 *        a frequency at which to log INFO level statistic messages; values
+	 *        less than {@literal 1} disable logging
 	 * @param baseStats
 	 *        the "base" statistics to track; can <b>not</b> be {@code null}
 	 * @throws IllegalArgumentException
@@ -138,7 +139,8 @@ public class StatCounter {
 	 * @param log
 	 *        the Logger to use, or {@code null} for no logging
 	 * @param logFrequency
-	 *        a frequency at which to log INFO level statistic messages
+	 *        a frequency at which to log INFO level statistic messages; values
+	 *        less than {@literal 1} disable logging
 	 * @param baseStats
 	 *        the "base" statistics to track; can <b>not</b> be {@code null}
 	 * @param stats
@@ -189,7 +191,8 @@ public class StatCounter {
 	/**
 	 * Get the log frequency.
 	 *
-	 * @return the log frequency
+	 * @return the log frequency; values less than {@literal 1} mean logging
+	 *         is disabled
 	 */
 	public int getLogFrequency() {
 		return logFrequency;
@@ -199,7 +202,7 @@ public class StatCounter {
 	 * Set the log frequency.
 	 *
 	 * @param logFrequency
-	 *        the frequency
+	 *        the frequency; values less than {@literal 1} disable logging
 	 */
 	public void setLogFrequency(int logFrequency) {
 		this.logFrequency = logFrequency;
@@ -294,7 +297,9 @@ public class StatCounter {
 	 */
 	public long incrementAndGet(Stat stat, boolean quiet) {
 		long c = counts.incrementAndGet(countStatIndex(stat));
-		if ( !quiet && log != null && log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
+		// read once, as setLogFrequency() may change it concurrently
+		final int freq = logFrequency;
+		if ( !quiet && freq > 0 && log != null && log.isInfoEnabled() && ((c % freq) == 0) ) {
 			log(stat, c);
 		}
 		return c;
@@ -332,7 +337,9 @@ public class StatCounter {
 	 */
 	public long addAndGet(Stat stat, long count, boolean quiet) {
 		long c = counts.addAndGet(countStatIndex(stat), count);
-		if ( !quiet && log != null && log.isInfoEnabled() && ((c % logFrequency) == 0) ) {
+		// read once, as setLogFrequency() may change it concurrently
+		final int freq = logFrequency;
+		if ( !quiet && freq > 0 && log != null && log.isInfoEnabled() && ((c % freq) == 0) ) {
 			log(stat, c);
 		}
 		return c;

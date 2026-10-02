@@ -37,7 +37,7 @@ import net.solarnetwork.util.StatCounter.Stat;
  * Test cases for the {@link StatCounter} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class StatCounterTests {
 
@@ -254,6 +254,71 @@ public class StatCounterTests {
 		assertThat("2 log entries added", log.getEntries(), hasSize(2));
 		assertThat("Log entry 0 count", log.getEntries().get(0).toString(), endsWith("Foo: 5"));
 		assertThat("Log entry 0 count", log.getEntries().get(1).toString(), endsWith("Foo: 10"));
+	}
+
+	@Test
+	public void logging_zeroFrequency() {
+		// GIVEN
+		StatCounter c = new StatCounter("TestStats", "test", log, 0, BasicCounts.values(), null);
+
+		// WHEN
+		for ( int i = 0; i < 10; i++ ) {
+			c.incrementAndGet(BasicCounts.Foo);
+		}
+
+		// THEN
+		assertThat("Foo final value", c.get(BasicCounts.Foo), is(10L));
+		assertThat("Logging disabled", log.getEntries(), hasSize(0));
+	}
+
+	@Test
+	public void logging_negativeFrequency() {
+		// GIVEN
+		StatCounter c = new StatCounter("TestStats", "test", log, -1, BasicCounts.values(), null);
+
+		// WHEN
+		for ( int i = 0; i < 10; i++ ) {
+			c.incrementAndGet(BasicCounts.Foo);
+		}
+
+		// THEN
+		assertThat("Foo final value", c.get(BasicCounts.Foo), is(10L));
+		assertThat("Logging disabled", log.getEntries(), hasSize(0));
+	}
+
+	@Test
+	public void logging_zeroFrequency_add() {
+		// GIVEN
+		StatCounter c = new StatCounter("TestStats", "test", log, 0, BasicCounts.values(), null);
+
+		// WHEN
+		for ( int i = 0; i < 10; i++ ) {
+			c.addAndGet(BasicCounts.Foo, i);
+		}
+
+		// THEN
+		assertThat("Foo final value", c.get(BasicCounts.Foo), is(45L));
+		assertThat("Logging disabled", log.getEntries(), hasSize(0));
+	}
+
+	@Test
+	public void logging_setLogFrequencyZero() {
+		// GIVEN
+		StatCounter c = new StatCounter("TestStats", "test", log, 5, BasicCounts.values(), null);
+		for ( int i = 0; i < 5; i++ ) {
+			c.incrementAndGet(BasicCounts.Foo);
+		}
+
+		// WHEN
+		c.setLogFrequency(0);
+		for ( int i = 0; i < 5; i++ ) {
+			c.incrementAndGet(BasicCounts.Foo);
+		}
+
+		// THEN
+		assertThat("Foo final value", c.get(BasicCounts.Foo), is(10L));
+		assertThat("Only entry logged before logging disabled", log.getEntries(), hasSize(1));
+		assertThat("Log entry 0 count", log.getEntries().get(0).toString(), endsWith("Foo: 5"));
 	}
 
 }
