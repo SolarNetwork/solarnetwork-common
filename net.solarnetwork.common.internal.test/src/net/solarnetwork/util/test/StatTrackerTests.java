@@ -47,7 +47,7 @@ import net.solarnetwork.util.StatTracker.AccumulationValue;
  * Test cases for the {@link StatTracker} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class StatTrackerTests {
 
@@ -228,6 +228,72 @@ public class StatTrackerTests {
 		assertThat("2 log entries added", log.getEntries(), hasSize(2));
 		assertThat("Log entry 0 count", log.getEntries().get(0).toString(), endsWith("Foo: 5"));
 		assertThat("Log entry 0 count", log.getEntries().get(1).toString(), endsWith("Foo: 10"));
+	}
+
+	@Test
+	public void logging_zeroFrequency() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, 0);
+
+		// WHEN
+		for ( int i = 0; i < 10; i++ ) {
+			c.increment(BasicCounts.Foo);
+		}
+
+		// THEN
+		assertThat("Foo final value", c.get(BasicCounts.Foo), is(10L));
+		assertThat("Logging disabled", log.getEntries(), hasSize(0));
+	}
+
+	@Test
+	public void logging_negativeFrequency() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, -1);
+
+		// WHEN
+		for ( int i = 0; i < 10; i++ ) {
+			c.increment(BasicCounts.Foo);
+		}
+
+		// THEN
+		assertThat("Foo final value", c.get(BasicCounts.Foo), is(10L));
+		assertThat("Logging disabled", log.getEntries(), hasSize(0));
+	}
+
+	@Test
+	public void logging_zeroFrequency_add() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, 0);
+
+		// WHEN
+		for ( int i = 0; i < 10; i++ ) {
+			c.add(BasicCounts.Foo, i);
+		}
+
+		// THEN
+		assertAccumulationEquals("Foo accumulation", c.getAccumulation(BasicCounts.Foo),
+				new AccumulationValue(10L, 45L, 4.5, 0L, 9L));
+		assertThat("Logging disabled", log.getEntries(), hasSize(0));
+	}
+
+	@Test
+	public void logging_setLogFrequencyZero() {
+		// GIVEN
+		StatTracker c = new StatTracker("TestStats", "test", log, 5);
+		for ( int i = 0; i < 5; i++ ) {
+			c.increment(BasicCounts.Foo);
+		}
+
+		// WHEN
+		c.setLogFrequency(0);
+		for ( int i = 0; i < 5; i++ ) {
+			c.increment(BasicCounts.Foo);
+		}
+
+		// THEN
+		assertThat("Foo final value", c.get(BasicCounts.Foo), is(10L));
+		assertThat("Only entry logged before logging disabled", log.getEntries(), hasSize(1));
+		assertThat("Log entry 0 count", log.getEntries().get(0).toString(), endsWith("Foo: 5"));
 	}
 
 	@Test

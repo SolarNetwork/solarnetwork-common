@@ -46,7 +46,7 @@ import net.solarnetwork.service.Identifiable;
  * additionally track average/min/max statistics.
  *
  * @author matt
- * @version 1.5
+ * @version 1.6
  * @since 3.10
  */
 public class StatTracker implements Identifiable {
@@ -75,7 +75,7 @@ public class StatTracker implements Identifiable {
 	 * @param log
 	 *        the logger
 	 * @param logFrequency
-	 *        the log frequency
+	 *        the log frequency; values less than {@literal 1} disable logging
 	 * @throws IllegalArgumentException
 	 *         if {@code name} is {@code null}
 	 */
@@ -95,7 +95,7 @@ public class StatTracker implements Identifiable {
 	 * @param log
 	 *        the logger
 	 * @param logFrequency
-	 *        the log frequency
+	 *        the log frequency; values less than {@literal 1} disable logging
 	 * @throws IllegalArgumentException
 	 *         if {@code counts} or {@code name} is {@code null}
 	 */
@@ -118,7 +118,7 @@ public class StatTracker implements Identifiable {
 	 * @param log
 	 *        the logger
 	 * @param logFrequency
-	 *        the log frequency
+	 *        the log frequency; values less than {@literal 1} disable logging
 	 * @throws IllegalArgumentException
 	 *         if {@code counts}, {@code accums}, or {@code name} is
 	 *         {@code null}
@@ -517,11 +517,13 @@ public class StatTracker implements Identifiable {
 	}
 
 	private void log(final String key, final LongSupplier c, final boolean quiet) {
-		if ( quiet || log == null || !log.isInfoEnabled() ) {
+		// read once, as setLogFrequency() may change it concurrently
+		final int freq = logFrequency;
+		if ( quiet || freq < 1 || log == null || !log.isInfoEnabled() ) {
 			return;
 		}
 		long count = c.getAsLong();
-		if ( (count % logFrequency) != 0 ) {
+		if ( (count % freq) != 0 ) {
 			return;
 		}
 
@@ -534,11 +536,13 @@ public class StatTracker implements Identifiable {
 	}
 
 	private void log(final String key, final AccumulativeStats a, final boolean quiet) {
-		if ( quiet || log == null || !log.isInfoEnabled() ) {
+		// read once, as setLogFrequency() may change it concurrently
+		final int freq = logFrequency;
+		if ( quiet || freq < 1 || log == null || !log.isInfoEnabled() ) {
 			return;
 		}
 		long count = a.count();
-		if ( (count % logFrequency) != 0 ) {
+		if ( (count % freq) != 0 ) {
 			return;
 		}
 
@@ -737,7 +741,8 @@ public class StatTracker implements Identifiable {
 	/**
 	 * Get the log frequency.
 	 *
-	 * @return the log frequency
+	 * @return the log frequency; values less than {@literal 1} mean logging
+	 *         is disabled
 	 */
 	public final int getLogFrequency() {
 		return logFrequency;
@@ -747,7 +752,7 @@ public class StatTracker implements Identifiable {
 	 * Set the log frequency.
 	 *
 	 * @param logFrequency
-	 *        the frequency
+	 *        the frequency; values less than {@literal 1} disable logging
 	 */
 	public final void setLogFrequency(int logFrequency) {
 		this.logFrequency = logFrequency;
