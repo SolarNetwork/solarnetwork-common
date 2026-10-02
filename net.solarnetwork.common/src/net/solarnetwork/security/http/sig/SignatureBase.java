@@ -131,18 +131,18 @@ public final class SignatureBase {
 	private static String queryParamValue(SignatureContext context, SignatureComponent component) {
 		final String encodedName = component.queryParamName();
 		if ( encodedName == null ) {
-			throw new HttpSignatureException("The component " + component.identifier()
-					+ " requires a 'name' parameter.");
+			throw new HttpSignatureException(
+					"The component " + component.identifier() + " requires a 'name' parameter.");
 		}
 		final List<String> values = context.queryParamValues(URLDecoder.decode(encodedName, UTF_8));
 		if ( values.isEmpty() ) {
-			throw new HttpSignatureException("The query parameter covered by "
-					+ component.identifier() + " is not present in the request.");
+			throw new HttpSignatureException("The query parameter covered by " + component.identifier()
+					+ " is not present in the request.");
 		}
 		if ( values.size() > 1 ) {
 			// RFC 9421 2.2.8: a repeated parameter MUST NOT be covered this way
-			throw new HttpSignatureException("The query parameter covered by "
-					+ component.identifier() + " occurs more than once in the request.");
+			throw new HttpSignatureException("The query parameter covered by " + component.identifier()
+					+ " occurs more than once in the request.");
 		}
 		return values.get(0);
 	}

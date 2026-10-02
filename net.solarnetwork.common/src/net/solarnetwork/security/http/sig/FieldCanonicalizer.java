@@ -183,8 +183,8 @@ public final class FieldCanonicalizer {
 		}
 		final ListElement<?> member = dict.get().get(key);
 		if ( member == null ) {
-			throw new HttpSignatureException("The [" + name + "] HTTP field does not have a ["
-					+ key + "] member, which the signature covers.");
+			throw new HttpSignatureException("The [" + name + "] HTTP field does not have a [" + key
+					+ "] member, which the signature covers.");
 		}
 		return member.serialize();
 	}
