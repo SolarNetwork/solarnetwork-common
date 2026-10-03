@@ -66,7 +66,7 @@ public class BasicIdentityLocation extends BasicLocation implements Identity<Lon
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(id);
+		result = prime * result + Objects.hashCode(id);
 		return result;
 	}
 

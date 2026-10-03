@@ -107,7 +107,7 @@ public class ObjectDatumStreamMetadataId implements Cloneable, Serializable, Dat
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(streamId);
+		return Objects.hashCode(streamId);
 	}
 
 	@Override
