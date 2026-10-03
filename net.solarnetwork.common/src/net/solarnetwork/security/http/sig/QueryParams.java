@@ -115,8 +115,8 @@ public final class QueryParams {
 		final StringBuilder buf = new StringBuilder(bytes.length);
 		for ( byte b : bytes ) {
 			final int c = b & 0xFF;
-			if ( (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')
-					|| c == '*' || c == '-' || c == '.' || c == '_' ) {
+			if ( (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '*'
+					|| c == '-' || c == '.' || c == '_' ) {
 				buf.append((char) c);
 			} else {
 				buf.append('%');

@@ -52,8 +52,7 @@ public final class HttpSignatureVerifier {
 	 */
 	public static byte[] sign(HttpSignatureAlgorithm algorithm, byte[] key, SignatureBase base) {
 		try {
-			return AuthorizationUtils.computeMacDigest(key, base.bytes(),
-					algorithm.getMacAlgorithm());
+			return AuthorizationUtils.computeMacDigest(key, base.bytes(), algorithm.getMacAlgorithm());
 		} catch ( net.solarnetwork.security.SecurityException e ) {
 			throw new HttpSignatureException(
 					"Error computing " + algorithm.getAlgorithmName() + " signature.", e);

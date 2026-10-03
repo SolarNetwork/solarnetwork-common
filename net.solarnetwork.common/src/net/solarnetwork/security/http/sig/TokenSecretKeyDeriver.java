@@ -106,8 +106,8 @@ public final class TokenSecretKeyDeriver {
 		try {
 			date = LocalDate.parse(dateValue, SIGNING_DATE_FORMATTER);
 		} catch ( DateTimeParseException e ) {
-			throw new HttpSignatureException("The 'keyid' signature parameter signing date ["
-					+ dateValue + "] is not a valid YYYYMMDD date.", e);
+			throw new HttpSignatureException("The 'keyid' signature parameter signing date [" + dateValue
+					+ "] is not a valid YYYYMMDD date.", e);
 		}
 		return new TokenSecretKeyDeriver(tokenId, date, dateValue);
 	}
