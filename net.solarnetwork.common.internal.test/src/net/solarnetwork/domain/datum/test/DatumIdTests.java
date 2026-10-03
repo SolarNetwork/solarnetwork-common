@@ -26,11 +26,17 @@ import static net.solarnetwork.test.CommonTestUtils.randomLong;
 import static net.solarnetwork.test.CommonTestUtils.randomString;
 import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.Instant;
+import java.util.Objects;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.DatumId;
 import net.solarnetwork.domain.datum.DatumId.DatumIdent;
 import net.solarnetwork.domain.datum.DatumIdentity;
+import net.solarnetwork.domain.datum.DatumStreamId;
 import net.solarnetwork.domain.datum.DatumStreamId.DatumStreamIdent;
 import net.solarnetwork.domain.datum.DatumStreamIdentity;
 import net.solarnetwork.domain.datum.ObjectDatumKind;
@@ -39,7 +45,7 @@ import net.solarnetwork.domain.datum.ObjectDatumKind;
  * Test cases for the {@link DatumId} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class DatumIdTests {
 
@@ -395,6 +401,81 @@ public class DatumIdTests {
 		then(ident)
 			.as("Same DatumStreamIdent instance returned")
 			.isSameAs(streamId)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void hashCode_sameAsObjectsHash() {
+		// GIVEN
+		final Long objectId = randomLong();
+		final String sourceId = randomString();
+		final Instant ts = Instant.now();
+		final DatumId full = new DatumId(ObjectDatumKind.Node, objectId, sourceId, ts);
+		final DatumId partial = new DatumId(ObjectDatumKind.Node, objectId, sourceId, null);
+
+		// WHEN
+		final int fullHash = full.hashCode();
+		final int partialHash = partial.hashCode();
+
+		// THEN
+		final DatumStreamId streamId = new DatumStreamId(ObjectDatumKind.Node, objectId, sourceId);
+		// @formatter:off
+		then(fullHash)
+			.as("Hash unchanged from Objects.hash() of the properties")
+			.isEqualTo(Objects.hash(streamId, ts))
+			.as("Hash the same when computed again")
+			.isEqualTo(full.hashCode())
+			;
+		then(partialHash)
+			.as("Hash unchanged from Objects.hash() with a null timestamp")
+			.isEqualTo(Objects.hash(streamId, null))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void hashCode_equalInstances() throws Exception {
+		// GIVEN
+		final Long objectId = randomLong();
+		final String sourceId = randomString();
+		final Instant ts = Instant.now();
+		final DatumId id = new DatumId(ObjectDatumKind.Node, objectId, sourceId, ts);
+		final int hash = id.hashCode();
+
+		final ByteArrayOutputStream byos = new ByteArrayOutputStream();
+		try (ObjectOutputStream out = new ObjectOutputStream(byos)) {
+			out.writeObject(id);
+		}
+
+		// WHEN
+		final DatumId ident = DatumId.nodeId(objectId, sourceId, ts);
+		final DatumId clone = id.clone();
+		final DatumId deserialized;
+		try (ObjectInputStream in = new ObjectInputStream(
+				new ByteArrayInputStream(byos.toByteArray()))) {
+			deserialized = (DatumId) in.readObject();
+		}
+
+		// THEN
+		// @formatter:off
+		then(ident)
+			.as("Identity instance equal")
+			.isEqualTo(id)
+			.as("Identity instance hash equal")
+			.returns(hash, from(DatumId::hashCode))
+			;
+		then(clone)
+			.as("Clone equal")
+			.isEqualTo(id)
+			.as("Clone hash equal")
+			.returns(hash, from(DatumId::hashCode))
+			;
+		then(deserialized)
+			.as("Deserialized instance equal")
+			.isEqualTo(id)
+			.as("Deserialized instance hash equal")
+			.returns(hash, from(DatumId::hashCode))
 			;
 		// @formatter:on
 	}

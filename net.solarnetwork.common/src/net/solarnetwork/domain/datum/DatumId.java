@@ -35,7 +35,7 @@ import net.solarnetwork.domain.datum.DatumStreamId.DatumStreamIdent;
  * Primary key for a datum based on kind/object/source/timestamp values.
  *
  * @author matt
- * @version 2.2
+ * @version 2.3
  * @since 1.71
  */
 public sealed class DatumId extends BaseId implements Serializable, Cloneable, Comparable<DatumId>
@@ -49,6 +49,12 @@ public sealed class DatumId extends BaseId implements Serializable, Cloneable, C
 
 	/** The timestamp. */
 	private final @Nullable Instant timestamp;
+
+	/**
+	 * The hash code, computed when first needed; transient as it includes the
+	 * stream ID's hash, which differs between JVMs.
+	 */
+	private transient int hash;
 
 	/**
 	 * Fully-specified version of {@code DatumId}.
@@ -318,7 +324,14 @@ public sealed class DatumId extends BaseId implements Serializable, Cloneable, C
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(streamId, timestamp);
+		// immutable, so compute once when first needed; threads racing here just compute the
+		// same value; the same value as Objects.hash(streamId, timestamp) without its array
+		int h = hash;
+		if ( h == 0 ) {
+			h = 31 * (31 + streamId.hashCode()) + Objects.hashCode(timestamp);
+			hash = h;
+		}
+		return h;
 	}
 
 	@Override

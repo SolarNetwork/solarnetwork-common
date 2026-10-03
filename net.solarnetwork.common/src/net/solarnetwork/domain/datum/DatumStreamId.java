@@ -36,7 +36,7 @@ import net.solarnetwork.util.StringUtils;
  * Primary key for a datum stream based on kind/object/source values.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.40
  */
 public sealed class DatumStreamId extends BaseId implements Serializable, Cloneable,
@@ -281,7 +281,11 @@ public sealed class DatumStreamId extends BaseId implements Serializable, Clonea
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(kind, objectId, sourceId);
+		// the same value as Objects.hash(kind, objectId, sourceId), without allocating its array;
+		// not cached, as a field for that would make every instance 8 bytes larger
+		int h = 31 + Objects.hashCode(kind);
+		h = 31 * h + Objects.hashCode(objectId);
+		return 31 * h + Objects.hashCode(sourceId);
 	}
 
 	@Override

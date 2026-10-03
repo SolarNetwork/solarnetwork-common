@@ -26,7 +26,12 @@ import static net.solarnetwork.test.CommonTestUtils.randomLong;
 import static net.solarnetwork.test.CommonTestUtils.randomString;
 import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.Instant;
+import java.util.Objects;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.DatumId.DatumIdent;
 import net.solarnetwork.domain.datum.DatumIdentity;
@@ -39,7 +44,7 @@ import net.solarnetwork.domain.datum.ObjectDatumKind;
  * Test cases for the {@link DatumStreamId} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class DatumStreamIdTests {
 
@@ -331,6 +336,78 @@ public class DatumStreamIdTests {
 		then(ident)
 			.as("Same DatumStreamIdent instance returned")
 			.isSameAs(id)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void hashCode_sameAsObjectsHash() {
+		// GIVEN
+		final Long objectId = randomLong();
+		final String sourceId = randomString();
+		final DatumStreamId full = new DatumStreamId(ObjectDatumKind.Node, objectId, sourceId);
+		final DatumStreamId partial = new DatumStreamId(null, objectId, null);
+
+		// WHEN
+		final int fullHash = full.hashCode();
+		final int partialHash = partial.hashCode();
+
+		// THEN
+		// @formatter:off
+		then(fullHash)
+			.as("Hash unchanged from Objects.hash() of the properties")
+			.isEqualTo(Objects.hash(ObjectDatumKind.Node, objectId, sourceId))
+			.as("Hash the same when computed again")
+			.isEqualTo(full.hashCode())
+			;
+		then(partialHash)
+			.as("Hash unchanged from Objects.hash() with null properties")
+			.isEqualTo(Objects.hash(null, objectId, null))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void hashCode_equalInstances() throws Exception {
+		// GIVEN
+		final Long objectId = randomLong();
+		final String sourceId = randomString();
+		final DatumStreamId id = new DatumStreamId(ObjectDatumKind.Node, objectId, sourceId);
+		final int hash = id.hashCode();
+
+		final ByteArrayOutputStream byos = new ByteArrayOutputStream();
+		try (ObjectOutputStream out = new ObjectOutputStream(byos)) {
+			out.writeObject(id);
+		}
+
+		// WHEN
+		final DatumStreamId ident = DatumStreamId.nodeStreamId(objectId, sourceId);
+		final DatumStreamId clone = id.clone();
+		final DatumStreamId deserialized;
+		try (ObjectInputStream in = new ObjectInputStream(
+				new ByteArrayInputStream(byos.toByteArray()))) {
+			deserialized = (DatumStreamId) in.readObject();
+		}
+
+		// THEN
+		// @formatter:off
+		then(ident)
+			.as("Identity instance equal")
+			.isEqualTo(id)
+			.as("Identity instance hash equal")
+			.returns(hash, from(DatumStreamId::hashCode))
+			;
+		then(clone)
+			.as("Clone equal")
+			.isEqualTo(id)
+			.as("Clone hash equal")
+			.returns(hash, from(DatumStreamId::hashCode))
+			;
+		then(deserialized)
+			.as("Deserialized instance equal")
+			.isEqualTo(id)
+			.as("Deserialized instance hash equal")
+			.returns(hash, from(DatumStreamId::hashCode))
 			;
 		// @formatter:on
 	}
