@@ -36,6 +36,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -197,6 +198,29 @@ public class IntShortMapTests {
 			assertThat("Map unchanged", m.keySet(), contains(1));
 			assertThat("Iterator still usable", itr.next(), equalTo(1));
 		}
+	}
+
+	@Test(expected = ConcurrentModificationException.class)
+	public void keySet_iterator_concurrentModification_put() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(10, 1);
+		m.putValue(20, 2);
+		m.putValue(30, 3);
+		Iterator<Integer> itr = m.keySet().iterator();
+		itr.next();
+		m.putValue(5, 0);
+		itr.next();
+	}
+
+	@Test(expected = ConcurrentModificationException.class)
+	public void keySet_iterator_remove_concurrentModification() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(10, 1);
+		m.putValue(20, 2);
+		Iterator<Integer> itr = m.keySet().iterator();
+		itr.next();
+		m.putValue(30, 3);
+		itr.remove();
 	}
 
 	@Test
@@ -404,6 +428,32 @@ public class IntShortMapTests {
 		m.entrySet().iterator().next();
 	}
 
+	@Test(expected = ConcurrentModificationException.class)
+	public void entrySet_iterator_concurrentModification_remove() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(10, 1);
+		m.putValue(20, 2);
+		m.putValue(30, 3);
+		Iterator<Entry<Integer, Short>> itr = m.entrySet().iterator();
+		itr.next();
+		m.remove(20);
+		itr.next();
+	}
+
+	@Test
+	public void entrySet_iterator_replaceValue() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(10, 1);
+		m.putValue(20, 2);
+		Iterator<Entry<Integer, Short>> itr = m.entrySet().iterator();
+		itr.next();
+		m.putValue(20, 99);
+		Entry<Integer, Short> e = itr.next();
+		assertThat("Replacing a value is not a structural modification", e.getValue(),
+				equalTo((short) 99));
+		assertThat("No more entries", itr.hasNext(), equalTo(false));
+	}
+
 	@Test
 	public void containsKey() {
 		IntShortMap m = new IntShortMap(4);
@@ -602,6 +652,58 @@ public class IntShortMapTests {
 		});
 		assertThat("Consumed keys", keys, contains(7, 10));
 		assertThat("Consumed values", vals, contains((short) 8, (short) 11));
+	}
+
+	@Test
+	public void forEachOrdered_concurrentModification_remove() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(10, 1);
+		m.putValue(20, 2);
+		m.putValue(30, 3);
+		List<Integer> keys = new ArrayList<>(3);
+		try {
+			m.forEachOrdered((k, v) -> {
+				keys.add(k);
+				if ( k == 10 ) {
+					m.remove(10);
+				}
+			});
+			Assert.fail("Should have thrown ConcurrentModificationException");
+		} catch ( ConcurrentModificationException e ) {
+			assertThat("Iteration stopped at the modification", keys, contains(10));
+		}
+	}
+
+	@Test
+	public void forEachOrdered_range_concurrentModification_put() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(10, 1);
+		m.putValue(20, 2);
+		m.putValue(30, 3);
+		List<Integer> keys = new ArrayList<>(3);
+		try {
+			m.forEachOrdered(10, 30, (k, v) -> {
+				keys.add(k);
+				m.putValue(k + 1, v);
+			});
+			Assert.fail("Should have thrown ConcurrentModificationException");
+		} catch ( ConcurrentModificationException e ) {
+			assertThat("Iteration stopped at the modification", keys, contains(10));
+		}
+	}
+
+	@Test
+	public void forEachOrdered_replaceValue() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(10, 1);
+		m.putValue(20, 2);
+		List<Integer> keys = new ArrayList<>(2);
+		m.forEachOrdered((k, v) -> {
+			keys.add(k);
+			m.putValue(k, v + 1);
+		});
+		assertThat("All keys visited", keys, contains(10, 20));
+		assertThat("Values replaced", m, allOf(hasEntry(10, (short) 2), hasEntry(20, (short) 3)));
 	}
 
 	@Test
@@ -864,6 +966,17 @@ public class IntShortMapTests {
 		} catch ( IllegalStateException e ) {
 			assertThat("Only the last returned entry removed", sm.keySet(), contains(1, 3));
 		}
+	}
+
+	@Test(expected = ConcurrentModificationException.class)
+	public void unsignedMap_entrySet_iterator_concurrentModification() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 0xF123);
+		sm.putValue(2, 0xF234);
+		Iterator<Entry<Integer, Integer>> itr = sm.unsignedMap().entrySet().iterator();
+		itr.next();
+		sm.putValue(0, 0xF012);
+		itr.next();
 	}
 
 }

@@ -28,6 +28,7 @@ import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -56,6 +57,17 @@ import org.jspecify.annotations.Nullable;
  * of a different key or throw an exception, not just return an outdated value.
  * </p>
  *
+ * <p>
+ * The iterators of this map's collection views, including those of
+ * {@link #unsignedMap()}, and the {@code forEachOrdered()} methods are
+ * <i>fail-fast</i>: if the map is structurally modified while iterating, in
+ * any way except through the iterator's own {@code remove()} method, they
+ * throw a {@link ConcurrentModificationException}. Adding or removing keys is
+ * a structural modification; changing the value of an existing key is not.
+ * Fail-fast behavior is best-effort, so it cannot be relied on to detect
+ * unsynchronized concurrent modification.
+ * </p>
+ *
  * @author matt
  * @version 1.1
  * @since 1.58
@@ -76,6 +88,9 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	private int[] keys;
 	private short[] values;
 	private int size;
+
+	/** The count of structural modifications, for fail-fast iteration. */
+	private int modCount;
 
 	/**
 	 * Default constructor.
@@ -189,16 +204,23 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *
 	 * @param action
 	 *        the consumer to handle the key/value pairs
+	 * @throws ConcurrentModificationException
+	 *         if this map is structurally modified while iterating, for example
+	 *         by {@code action}
 	 */
 	@Override
 	public void forEachOrdered(IntShortBiConsumer action) {
 		Objects.requireNonNull(action);
-		for ( int i = 0; i < size; i++ ) {
+		final int mc = modCount;
+		for ( int i = 0; modCount == mc && i < size; i++ ) {
 			action.accept(keys[i], values[i]);
 			if ( i == Integer.MAX_VALUE ) {
 				// prevent overflow
-				return;
+				break;
 			}
+		}
+		if ( modCount != mc ) {
+			throw new ConcurrentModificationException();
 		}
 	}
 
@@ -218,20 +240,27 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *        the maximum key value (exclusive)
 	 * @param action
 	 *        the consumer to handle the key/value pairs
+	 * @throws ConcurrentModificationException
+	 *         if this map is structurally modified while iterating, for example
+	 *         by {@code action}
 	 */
 	@Override
 	public void forEachOrdered(int min, int max, IntShortBiConsumer action) {
 		Objects.requireNonNull(action);
+		final int mc = modCount;
 		int start = binarySearch(keys, 0, size, min);
 		if ( start < 0 ) {
 			start = -(start + 1);
 		}
-		for ( int i = start; i < size && keys[i] < max; i++ ) {
+		for ( int i = start; modCount == mc && i < size && keys[i] < max; i++ ) {
 			action.accept(keys[i], values[i]);
 			if ( i == Integer.MAX_VALUE ) {
 				// prevent overflow
-				return;
+				break;
 			}
+		}
+		if ( modCount != mc ) {
+			throw new ConcurrentModificationException();
 		}
 	}
 
@@ -276,6 +305,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	@Override
 	public void clear() {
 		size = 0;
+		modCount++;
 	}
 
 	/**
@@ -397,6 +427,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 			keys[p] = k;
 			values[p] = value;
 			size++;
+			modCount++;
 		}
 		return prev;
 	}
@@ -462,6 +493,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 			throw new IndexOutOfBoundsException();
 		}
 		size--;
+		modCount++;
 		System.arraycopy(keys, idx + 1, keys, idx, (size - idx));
 		System.arraycopy(values, idx + 1, values, idx, (size - idx));
 	}
@@ -476,6 +508,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 		private int idx = 0;
 		private int lastIdx = -1;
+		private int expectedModCount = modCount;
 
 		/**
 		 * Get the element at an array index.
@@ -493,6 +526,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 		@Override
 		public T next() {
+			checkForComodification();
 			if ( idx >= size ) {
 				throw new NoSuchElementException();
 			}
@@ -505,9 +539,17 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 			if ( lastIdx < 0 ) {
 				throw new IllegalStateException();
 			}
+			checkForComodification();
 			removeKeyAtIndex(lastIdx);
 			idx = lastIdx;
 			lastIdx = -1;
+			expectedModCount = modCount;
+		}
+
+		private void checkForComodification() {
+			if ( modCount != expectedModCount ) {
+				throw new ConcurrentModificationException();
+			}
 		}
 
 	}
