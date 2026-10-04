@@ -68,6 +68,14 @@ import org.jspecify.annotations.Nullable;
  * unsynchronized concurrent modification.
  * </p>
  *
+ * <p>
+ * The entries of {@link #entrySet()}, and of the {@link #unsignedMap()} entry
+ * set, are immutable snapshots: their {@link Map.Entry#setValue(Object)}
+ * method throws an {@link UnsupportedOperationException}, and so does
+ * {@link Map#replaceAll(java.util.function.BiFunction)}, which relies on it.
+ * Change values with {@link #putValue(int, short)} instead.
+ * </p>
+ *
  * @author matt
  * @version 1.1
  * @since 1.58
@@ -121,7 +129,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 * @param initialCapacity
 	 *        the initial capacity
 	 * @throws IllegalArgumentException
-	 *         if {@code initialCapacity} is less than {@literal 1}
+	 *         if {@code initialCapacity} is negative
 	 */
 	public IntShortMap(int initialCapacity) {
 		this(initialCapacity, (short) 0);
@@ -143,7 +151,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *        found, or {@link #VALUE_NO_SUCH_ELEMENT} to throw a
 	 *        {@link NoSuchElementException}
 	 * @throws IllegalArgumentException
-	 *         if {@code initialCapacity} is less than {@literal 1}
+	 *         if {@code initialCapacity} is negative
 	 */
 	public IntShortMap(int initialCapacity, short notFoundValue) {
 		this(initialCapacity, notFoundValue, notFoundValue == VALUE_NO_SUCH_ELEMENT);
@@ -168,13 +176,13 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *        {@link #getValue(int)} if a key is not found, instead of returning
 	 *        {@code notFoundValue}
 	 * @throws IllegalArgumentException
-	 *         if {@code initialCapacity} is less than {@literal 1}
+	 *         if {@code initialCapacity} is negative
 	 * @since 1.1
 	 */
 	public IntShortMap(int initialCapacity, short notFoundValue, boolean throwIfNotFound) {
 		super();
-		if ( initialCapacity < 1 ) {
-			throw new IllegalArgumentException("The initial capacity must be 1 or more.");
+		if ( initialCapacity < 0 ) {
+			throw new IllegalArgumentException("The initial capacity must be 0 or more.");
 		}
 		this.notFoundValue = notFoundValue;
 		this.throwIfNotFound = throwIfNotFound;
@@ -363,19 +371,17 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 * Free up excess capacity.
 	 *
 	 * <p>
-	 * The capacity is reduced to the size of this map, or {@literal 1} if this
-	 * map is empty.
+	 * The capacity is reduced to the size of this map.
 	 * </p>
 	 *
 	 * @return {@literal true} if any capacity was freed
 	 */
 	public boolean compact() {
-		final int newCapacity = Math.max(size, 1);
-		if ( newCapacity >= keys.length ) {
+		if ( size >= keys.length ) {
 			return false;
 		}
-		this.keys = Arrays.copyOf(keys, newCapacity);
-		this.values = Arrays.copyOf(values, newCapacity);
+		this.keys = Arrays.copyOf(keys, size);
+		this.values = Arrays.copyOf(values, size);
 		return true;
 	}
 

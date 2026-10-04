@@ -64,6 +64,22 @@ public class IntShortMapTests {
 		assertThat("Capacity is initial", m.getCapacity(), equalTo(64));
 	}
 
+	@Test
+	public void construct_zeroCapacity() {
+		IntShortMap m = new IntShortMap(0);
+		assertThat("Capacity is zero", m.getCapacity(), equalTo(0));
+		assertThat("Map is empty", m.size(), equalTo(0));
+		assertThat("Key not found", m.get(1), nullValue());
+		m.putValue(1, 2);
+		assertThat("Capacity expanded", m.getCapacity(), greaterThan(0));
+		assertThat("Value added", m.get(1), equalTo((short) 2));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void construct_negativeCapacity() {
+		new IntShortMap(-1);
+	}
+
 	private void assertRange(IntShortMap m, int from, int to) {
 		int[] keys = m.keySet().stream().mapToInt(Integer::intValue).toArray();
 		for ( int i = from, w = 0; i < to; i++, w++ ) {
@@ -825,7 +841,8 @@ public class IntShortMapTests {
 		m.clear();
 		boolean result = m.compact();
 		assertThat("Capacity freed", result, equalTo(true));
-		assertThat("Capacity reduced to minimum", m.getCapacity(), equalTo(1));
+		assertThat("Capacity reduced to size", m.getCapacity(), equalTo(0));
+		assertThat("No more capacity to free", m.compact(), equalTo(false));
 
 		IntShortMap m2 = m.clone();
 		assertThat("Clone of compacted empty map is empty", m2.size(), equalTo(0));
