@@ -301,6 +301,33 @@ public class IntShortMapTests {
 	}
 
 	@Test
+	public void entrySet_contains_otherKeyTypes() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		Set<Entry<Integer, Short>> s = m.entrySet();
+		assertThat("Long key not found",
+				s.contains((Object) new AbstractMap.SimpleImmutableEntry<Object, Object>(1L, (short) 2)),
+				equalTo(false));
+		assertThat("Long key with null value not found",
+				s.contains((Object) new AbstractMap.SimpleImmutableEntry<Object, Object>(1L, null)),
+				equalTo(false));
+		assertThat("Null key not found",
+				s.contains((Object) new AbstractMap.SimpleImmutableEntry<Object, Object>(null, null)),
+				equalTo(false));
+	}
+
+	@Test
+	public void entrySet_remove_otherKeyType() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		Set<Entry<Integer, Short>> s = m.entrySet();
+		boolean result = s
+				.remove((Object) new AbstractMap.SimpleImmutableEntry<Object, Object>(1L, (short) 2));
+		assertThat("Element not removed", result, equalTo(false));
+		assertThat("Backing map unchanged", m, hasEntry(1, (short) 2));
+	}
+
+	@Test
 	public void entrySet_iterator_remove_first() {
 		IntShortMap m = new IntShortMap(4);
 		m.putValue(1, 2);
@@ -478,6 +505,32 @@ public class IntShortMapTests {
 		}
 		assertThat("Missing key", m.containsValue((short) 0), equalTo(false));
 		assertThat("Missing key", m.containsValue((short) 9), equalTo(false));
+	}
+
+	@Test
+	public void get_otherKeyTypes() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		assertThat("Long key not found", m.get((Object) 1L), nullValue());
+		assertThat("String key not found", m.get((Object) "1"), nullValue());
+		assertThat("Null key not found", m.get((Object) null), nullValue());
+		assertThat("Default for Long key", m.getOrDefault((Object) 1L, (short) -1), equalTo((short) -1));
+	}
+
+	@Test
+	public void containsKey_otherKeyTypes() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		assertThat("Long key not found", m.containsKey((Object) 1L), equalTo(false));
+		assertThat("Null key not found", m.containsKey((Object) null), equalTo(false));
+	}
+
+	@Test
+	public void containsValue_otherValueTypes() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		assertThat("Integer value not found", m.containsValue((Object) 2), equalTo(false));
+		assertThat("Null value not found", m.containsValue((Object) null), equalTo(false));
 	}
 
 	@Test
@@ -730,6 +783,21 @@ public class IntShortMapTests {
 	}
 
 	@Test
+	public void getValue_notFoundWithNoSuchElementValueDefault() {
+		IntShortMap m = new IntShortMap(8, IntShortMap.VALUE_NO_SUCH_ELEMENT, false);
+		m.putValue(1, 2);
+		short v = m.getValue(2);
+		assertThat("0x8000 returned for nonexistent key", v, equalTo((short) 0x8000));
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void getValue_notFound_throwIfNotFound() {
+		IntShortMap m = new IntShortMap(8, (short) 0, true);
+		m.putValue(1, 2);
+		m.getValue(2);
+	}
+
+	@Test
 	public void compact() {
 		IntShortMap m = new IntShortMap(8);
 		m.putValue(1, 2);
@@ -837,6 +905,13 @@ public class IntShortMapTests {
 		IntShortMap m1 = new IntShortMap(8, IntShortMap.VALUE_NO_SUCH_ELEMENT);
 		IntShortMap m2 = m1.clone();
 		m2.getValue(1);
+	}
+
+	@Test
+	public void clone_notFoundValue_noSuchElementValueDefault() {
+		IntShortMap m1 = new IntShortMap(8, IntShortMap.VALUE_NO_SUCH_ELEMENT, false);
+		IntShortMap m2 = m1.clone();
+		assertThat("Clone returns 0x8000 for nonexistent key", m2.getValue(1), equalTo((short) 0x8000));
 	}
 
 	@Test
@@ -977,6 +1052,50 @@ public class IntShortMapTests {
 		itr.next();
 		sm.putValue(0, 0xF012);
 		itr.next();
+	}
+
+	@Test
+	public void unsignedMap_get_otherKeyTypes() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 0xF123);
+		Map<Integer, Integer> m = sm.unsignedMap();
+		assertThat("Long key not found", m.get((Object) 1L), nullValue());
+		assertThat("Null key not found", m.get((Object) null), nullValue());
+		assertThat("Long key not contained", m.containsKey((Object) 1L), equalTo(false));
+	}
+
+	@Test
+	public void unsignedMap_put_range() {
+		IntShortMap sm = new IntShortMap();
+		Map<Integer, Integer> m = sm.unsignedMap();
+		m.put(1, 0);
+		m.put(2, 0xFFFF);
+		assertThat("Unsigned values round trip", m, allOf(hasEntry(1, 0), hasEntry(2, 0xFFFF)));
+		assertThat("Backing map values", sm, allOf(hasEntry(1, (short) 0), hasEntry(2, (short) -1)));
+	}
+
+	@Test
+	public void unsignedMap_put_tooLarge() {
+		IntShortMap sm = new IntShortMap();
+		Map<Integer, Integer> m = sm.unsignedMap();
+		try {
+			m.put(1, 70000);
+			Assert.fail("Should have thrown IllegalArgumentException");
+		} catch ( IllegalArgumentException e ) {
+			assertThat("Value not stored", sm.size(), equalTo(0));
+		}
+	}
+
+	@Test
+	public void unsignedMap_put_negative() {
+		IntShortMap sm = new IntShortMap();
+		Map<Integer, Integer> m = sm.unsignedMap();
+		try {
+			m.put(1, -1);
+			Assert.fail("Should have thrown IllegalArgumentException");
+		} catch ( IllegalArgumentException e ) {
+			assertThat("Value not stored", sm.size(), equalTo(0));
+		}
 	}
 
 }

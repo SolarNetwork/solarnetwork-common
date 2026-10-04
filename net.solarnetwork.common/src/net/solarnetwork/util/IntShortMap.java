@@ -80,11 +80,17 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * The default value that causes {@code NoSuchElementException} to be thrown
-	 * in {@link #getValue(int)}.
+	 * in {@link #getValue(int)}, when passed to {@link #IntShortMap(int, short)}.
+	 *
+	 * <p>
+	 * This is also the 16-bit value {@code 0x8000}. To return that value for
+	 * nonexistent keys instead, use {@link #IntShortMap(int, short, boolean)}.
+	 * </p>
 	 */
 	public static final short VALUE_NO_SUCH_ELEMENT = Short.MIN_VALUE;
 
 	private final short notFoundValue;
+	private final boolean throwIfNotFound;
 	private int[] keys;
 	private short[] values;
 	private int size;
@@ -124,6 +130,12 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	/**
 	 * Constructor.
 	 *
+	 * <p>
+	 * As {@link #VALUE_NO_SUCH_ELEMENT} means to throw an exception, this
+	 * constructor cannot create a map that returns that value for nonexistent
+	 * keys. Use {@link #IntShortMap(int, short, boolean)} for that.
+	 * </p>
+	 *
 	 * @param initialCapacity
 	 *        the initial capacity
 	 * @param notFoundValue
@@ -134,11 +146,38 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *         if {@code initialCapacity} is less than {@literal 1}
 	 */
 	public IntShortMap(int initialCapacity, short notFoundValue) {
+		this(initialCapacity, notFoundValue, notFoundValue == VALUE_NO_SUCH_ELEMENT);
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * <p>
+	 * Unlike {@link #IntShortMap(int, short)}, this treats every
+	 * {@code notFoundValue} as a value to return, including
+	 * {@link #VALUE_NO_SUCH_ELEMENT}.
+	 * </p>
+	 *
+	 * @param initialCapacity
+	 *        the initial capacity
+	 * @param notFoundValue
+	 *        the value to return in {@link #getValue(int)} if a key is not
+	 *        found, when {@code throwIfNotFound} is {@literal false}
+	 * @param throwIfNotFound
+	 *        {@literal true} to throw a {@link NoSuchElementException} in
+	 *        {@link #getValue(int)} if a key is not found, instead of returning
+	 *        {@code notFoundValue}
+	 * @throws IllegalArgumentException
+	 *         if {@code initialCapacity} is less than {@literal 1}
+	 * @since 1.1
+	 */
+	public IntShortMap(int initialCapacity, short notFoundValue, boolean throwIfNotFound) {
 		super();
 		if ( initialCapacity < 1 ) {
 			throw new IllegalArgumentException("The initial capacity must be 1 or more.");
 		}
 		this.notFoundValue = notFoundValue;
+		this.throwIfNotFound = throwIfNotFound;
 		this.keys = new int[initialCapacity];
 		this.values = new short[initialCapacity];
 	}
@@ -275,8 +314,11 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	}
 
 	@Override
-	public boolean containsValue(Object value) {
-		final short v = (Short) value;
+	public boolean containsValue(@Nullable Object value) {
+		if ( !(value instanceof Short s) ) {
+			return false;
+		}
+		final short v = s.shortValue();
 		for ( int i = 0; i < size; i++ ) {
 			if ( v == values[i] ) {
 				return true;
@@ -286,8 +328,8 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	}
 
 	@Override
-	public boolean containsKey(Object key) {
-		return containsKey(((Integer) key).intValue());
+	public boolean containsKey(@Nullable Object key) {
+		return (key instanceof Integer k) && containsKey(k.intValue());
 	}
 
 	/**
@@ -338,9 +380,8 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	}
 
 	@Override
-	public @Nullable Short get(Object key) {
-		final int k = (Integer) key;
-		return get(k);
+	public @Nullable Short get(@Nullable Object key) {
+		return (key instanceof Integer k ? get(k.intValue()) : null);
 	}
 
 	/**
@@ -364,16 +405,18 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *
 	 * @param k
 	 *        the key of the value to get
-	 * @return the associated value
+	 * @return the associated value, or the configured not-found value if
+	 *         {@code k} is not present
 	 * @throws NoSuchElementException
-	 *         if {@code k} is not present
+	 *         if {@code k} is not present and this map is configured to throw
+	 *         an exception for nonexistent keys
 	 */
 	public short getValue(final int k) {
 		final int idx = binarySearch(keys, 0, size, k);
 		if ( idx >= 0 ) {
 			return values[idx];
 		}
-		if ( notFoundValue == VALUE_NO_SUCH_ELEMENT ) {
+		if ( throwIfNotFound ) {
 			throw new NoSuchElementException();
 		}
 		return notFoundValue;
@@ -440,6 +483,13 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	/**
 	 * Get a view of this map with unsigned integer values.
 	 *
+	 * <p>
+	 * Values put into the view must be between {@literal 0} and
+	 * {@literal 65535}: {@link Map#put(Object, Object)} throws an
+	 * {@link IllegalArgumentException} for any other value, rather than
+	 * truncating it.
+	 * </p>
+	 *
 	 * @return a new map, backed by this map's data, where the values are
 	 *         returned as unsigned integers
 	 */
@@ -448,12 +498,12 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		return new AbstractMap<Integer, Integer>() {
 
 			@Override
-			public boolean containsKey(Object key) {
+			public boolean containsKey(@Nullable Object key) {
 				return IntShortMap.this.containsKey(key);
 			}
 
 			@Override
-			public @Nullable Integer get(Object key) {
+			public @Nullable Integer get(@Nullable Object key) {
 				Integer result = null;
 				Short v = IntShortMap.this.get(key);
 				if ( v != null ) {
@@ -469,8 +519,12 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 			@Override
 			public @Nullable Integer put(Integer key, Integer value) {
-				Short v = value.shortValue();
-				Short prev = IntShortMap.this.put(key, v);
+				final int v = value.intValue();
+				if ( v < 0 || v > 0xFFFF ) {
+					throw new IllegalArgumentException(
+							"The value " + v + " must be between 0 and 65535.");
+				}
+				Short prev = IntShortMap.this.putValue(key, (short) v);
 				return (prev != null ? Short.toUnsignedInt(prev) : null);
 			}
 
@@ -590,8 +644,8 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		}
 
 		@Override
-		public boolean contains(Object o) {
-			return (o instanceof Short) && containsValue(o);
+		public boolean contains(@Nullable Object o) {
+			return containsValue(o);
 		}
 
 		@Override
@@ -623,14 +677,12 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		}
 
 		@Override
-		public boolean contains(Object o) {
-			if ( !(o instanceof Entry) ) {
+		public boolean contains(@Nullable Object o) {
+			if ( !(o instanceof Entry<?, ?> e) ) {
 				return false;
 			}
-			@SuppressWarnings("unchecked")
-			Entry<Integer, Short> e = (Entry<Integer, Short>) o;
 			Short v = IntShortMap.this.get(e.getKey());
-			return Objects.equals(e.getValue(), v);
+			return (v != null && Objects.equals(e.getValue(), v));
 		}
 
 		@Override
@@ -644,17 +696,11 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		}
 
 		@Override
-		public boolean remove(Object o) {
-			if ( !(o instanceof Entry) ) {
+		public boolean remove(@Nullable Object o) {
+			if ( !(o instanceof Entry<?, ?> e) || !contains(e) ) {
 				return false;
 			}
-			@SuppressWarnings("unchecked")
-			Entry<Integer, Short> e = (Entry<Integer, Short>) o;
-			Short v = IntShortMap.this.get(e.getKey());
-			if ( Objects.equals(e.getValue(), v) ) {
-				return IntShortMap.this.remove(e.getKey()) != null;
-			}
-			return false;
+			return IntShortMap.this.remove(e.getKey()) != null;
 		}
 
 		private final class EntryIterator extends IndexIterator<Entry<Integer, Short>> {
@@ -681,12 +727,10 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		}
 
 		@Override
-		public boolean contains(Object o) {
-			if ( !(o instanceof Entry) ) {
+		public boolean contains(@Nullable Object o) {
+			if ( !(o instanceof Entry<?, ?> e) ) {
 				return false;
 			}
-			@SuppressWarnings("unchecked")
-			Entry<Integer, Integer> e = (Entry<Integer, Integer>) o;
 			Short v = IntShortMap.this.get(e.getKey());
 			return (v != null && Objects.equals(e.getValue(), Short.toUnsignedInt(v)));
 		}
@@ -702,12 +746,10 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		}
 
 		@Override
-		public boolean remove(Object o) {
-			if ( !contains(o) ) {
+		public boolean remove(@Nullable Object o) {
+			if ( !(o instanceof Entry<?, ?> e) || !contains(e) ) {
 				return false;
 			}
-			@SuppressWarnings("unchecked")
-			Entry<Integer, Integer> e = (Entry<Integer, Integer>) o;
 			return IntShortMap.this.remove(e.getKey()) != null;
 		}
 
