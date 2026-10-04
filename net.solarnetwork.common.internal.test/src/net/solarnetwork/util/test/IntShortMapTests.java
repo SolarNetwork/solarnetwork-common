@@ -29,25 +29,28 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import org.junit.Assert;
 import org.junit.Test;
 import net.solarnetwork.util.IntShortMap;
 
 /**
  * Test cases for the {@link IntShortMap} class.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class IntShortMapTests {
 
@@ -162,6 +165,38 @@ public class IntShortMapTests {
 		m.putValue(5, 5);
 		m.putValue(-8, -8);
 		assertThat("Keys maintain order", m.keySet(), contains(-8, 1, 5, 9));
+	}
+
+	@Test
+	public void keySet_iterator_remove_twice() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.putValue(3, 4);
+		Iterator<Integer> itr = m.keySet().iterator();
+		itr.next();
+		itr.next();
+		itr.remove();
+		try {
+			itr.remove();
+			Assert.fail("Should have thrown IllegalStateException");
+		} catch ( IllegalStateException e ) {
+			assertThat("Only the last returned key removed", m.keySet(), contains(1, 3));
+		}
+	}
+
+	@Test
+	public void keySet_iterator_remove_beforeNext() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		Iterator<Integer> itr = m.keySet().iterator();
+		try {
+			itr.remove();
+			Assert.fail("Should have thrown IllegalStateException");
+		} catch ( IllegalStateException e ) {
+			assertThat("Map unchanged", m.keySet(), contains(1));
+			assertThat("Iterator still usable", itr.next(), equalTo(1));
+		}
 	}
 
 	@Test
@@ -335,6 +370,41 @@ public class IntShortMapTests {
 	}
 
 	@Test
+	public void entrySet_iterator_remove_twice() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.putValue(3, 4);
+		Iterator<Entry<Integer, Short>> itr = m.entrySet().iterator();
+		itr.next();
+		itr.next();
+		itr.remove();
+		try {
+			itr.remove();
+			Assert.fail("Should have thrown IllegalStateException");
+		} catch ( IllegalStateException e ) {
+			assertThat("Only the last returned entry removed", m.keySet(), contains(1, 3));
+		}
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void entrySet_iterator_next_pastEnd() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		Iterator<Entry<Integer, Short>> itr = m.entrySet().iterator();
+		itr.next();
+		itr.next();
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void entrySet_iterator_next_afterClear() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.clear();
+		m.entrySet().iterator().next();
+	}
+
+	@Test
 	public void containsKey() {
 		IntShortMap m = new IntShortMap(4);
 		m.putValue(1, 2);
@@ -358,6 +428,54 @@ public class IntShortMapTests {
 		}
 		assertThat("Missing key", m.containsValue((short) 0), equalTo(false));
 		assertThat("Missing key", m.containsValue((short) 9), equalTo(false));
+	}
+
+	@Test
+	public void values() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(3, 4);
+		m.putValue(2, 3);
+		assertThat("Values in key order", m.values(), contains((short) 2, (short) 3, (short) 4));
+	}
+
+	@Test
+	public void values_backingMapMutationsVisible() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		Collection<Short> vals = m.values();
+		m.putValue(2, 3);
+		assertThat("Values view shows added value", vals, contains((short) 2, (short) 3));
+	}
+
+	@Test
+	public void values_removeIf() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.putValue(3, 4);
+		boolean result = m.values().removeIf(v -> v == 3);
+		assertThat("Value removed", result, equalTo(true));
+		assertThat("Backing map entry removed", m.keySet(), contains(1, 3));
+	}
+
+	@Test
+	public void values_clear() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		m.values().clear();
+		assertThat("Backing map cleared", m.size(), equalTo(0));
+	}
+
+	@Test
+	public void values_contains() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		Collection<Short> vals = m.values();
+		assertThat("Contains value", vals.contains((short) 2), equalTo(true));
+		assertThat("Missing value", vals.contains((short) 3), equalTo(false));
+		assertThat("Integer is not a value", vals.contains((Object) 2), equalTo(false));
 	}
 
 	@Test
@@ -510,9 +628,61 @@ public class IntShortMapTests {
 	}
 
 	@Test
+	public void compact() {
+		IntShortMap m = new IntShortMap(8);
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		boolean result = m.compact();
+		assertThat("Capacity freed", result, equalTo(true));
+		assertThat("Capacity reduced to size", m.getCapacity(), equalTo(2));
+		assertThat("Contents unchanged", m, allOf(hasEntry(1, (short) 2), hasEntry(2, (short) 3)));
+	}
+
+	@Test
+	public void compact_full() {
+		IntShortMap m = new IntShortMap(2);
+		m.putValue(1, 2);
+		m.putValue(2, 3);
+		boolean result = m.compact();
+		assertThat("No capacity freed", result, equalTo(false));
+		assertThat("Capacity unchanged", m.getCapacity(), equalTo(2));
+	}
+
+	@Test
+	public void compact_empty() {
+		IntShortMap m = new IntShortMap(8);
+		m.putValue(1, 2);
+		m.clear();
+		boolean result = m.compact();
+		assertThat("Capacity freed", result, equalTo(true));
+		assertThat("Capacity reduced to minimum", m.getCapacity(), equalTo(1));
+
+		IntShortMap m2 = m.clone();
+		assertThat("Clone of compacted empty map is empty", m2.size(), equalTo(0));
+		m2.putValue(1, 2);
+		assertThat("Clone accepts values", m2.get(1), equalTo((short) 2));
+	}
+
+	@Test
+	public void compact_afterGrowth() {
+		IntShortMap m = new IntShortMap(64);
+		m.putValue(0, 0);
+		m.compact();
+		for ( int i = 1; i < 40; i++ ) {
+			m.putValue(i, i);
+		}
+		for ( int i = 1; i < 40; i++ ) {
+			m.remove(i);
+		}
+		boolean result = m.compact();
+		assertThat("Capacity freed", result, equalTo(true));
+		assertThat("Capacity reduced to size", m.getCapacity(), equalTo(1));
+	}
+
+	@Test
 	public void clone_empty() {
 		IntShortMap m1 = new IntShortMap(8);
-		IntShortMap m2 = (IntShortMap) m1.clone();
+		IntShortMap m2 = m1.clone();
 		assertThat("New instance created", m2, not(sameInstance(m1)));
 		assertThat("New instance capacity same", m2.getCapacity(), equalTo(m1.getCapacity()));
 		assertThat("New instance size same", m2.size(), equalTo(m1.size()));
@@ -524,7 +694,7 @@ public class IntShortMapTests {
 		m1.putValue(1, 1);
 		m1.putValue(2, 2);
 		m1.putValue(9, 9);
-		IntShortMap m2 = (IntShortMap) m1.clone();
+		IntShortMap m2 = m1.clone();
 		assertThat("New instance created", m2, not(sameInstance(m1)));
 		assertThat("New instance capacity compacted", m2.getCapacity(), equalTo(3));
 		assertThat("New instance size same", m2.size(), equalTo(m1.size()));
@@ -537,7 +707,7 @@ public class IntShortMapTests {
 		m1.putValue(1, 1);
 		m1.putValue(2, 2);
 		m1.putValue(3, 3);
-		IntShortMap m2 = (IntShortMap) m1.clone();
+		IntShortMap m2 = m1.clone();
 		m2.putValue(1, 99);
 		m2.putValue(4, 100);
 		assertThat("New instance created", m2, not(sameInstance(m1)));
@@ -547,6 +717,24 @@ public class IntShortMapTests {
 		assertThat("Clone value unchanged", m2.get(2), equalTo((short) 2));
 		assertThat("Clone value unchanged", m2.get(3), equalTo((short) 3));
 		assertThat("Clone value added", m2.get(4), equalTo((short) 100));
+	}
+
+	@Test
+	public void clone_subclass() {
+		IntShortMap m1 = new IntShortMap(8) {
+			// anonymous subclass, to verify the clone has the same class
+		};
+		m1.putValue(1, 2);
+		IntShortMap m2 = m1.clone();
+		assertThat("Clone has same class", m2, instanceOf(m1.getClass()));
+		assertThat("Contents same", m2.entrySet(), equalTo(m1.entrySet()));
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void clone_notFoundValue() {
+		IntShortMap m1 = new IntShortMap(8, IntShortMap.VALUE_NO_SUCH_ELEMENT);
+		IntShortMap m2 = m1.clone();
+		m2.getValue(1);
 	}
 
 	@Test
@@ -621,6 +809,61 @@ public class IntShortMapTests {
 		assertThat("Set size unchanged", s, hasSize(2));
 		assertThat("Backing map size unchanged", m.size(), equalTo(2));
 		assertThat("Backing map unchanged", m, allOf(hasEntry(1, 0xF123), hasEntry(2, 0xF234)));
+	}
+
+	@Test
+	public void unsignedMap_entrySet_remove_signedValue() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 0xF123);
+		Set<Entry<Integer, Integer>> s = sm.unsignedMap().entrySet();
+		boolean result = s
+				.remove(new AbstractMap.SimpleImmutableEntry<Integer, Integer>(1, (int) (short) 0xF123));
+		assertThat("Element not removed", result, equalTo(false));
+		assertThat("Backing map unchanged", sm, hasEntry(1, (short) 0xF123));
+	}
+
+	@Test
+	public void unsignedMap_entrySet_contains() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 0xF123);
+		Set<Entry<Integer, Integer>> s = sm.unsignedMap().entrySet();
+		assertThat("Contains unsigned value",
+				s.contains(new AbstractMap.SimpleImmutableEntry<Integer, Integer>(1, 0xF123)),
+				equalTo(true));
+		assertThat("Does not contain signed value",
+				s.contains(
+						new AbstractMap.SimpleImmutableEntry<Integer, Integer>(1, (int) (short) 0xF123)),
+				equalTo(false));
+		assertThat("Does not contain value outside unsigned short range",
+				s.contains(new AbstractMap.SimpleImmutableEntry<Integer, Integer>(1, 0x1F123)),
+				equalTo(false));
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void unsignedMap_entrySet_iterator_next_pastEnd() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 0xF123);
+		Iterator<Entry<Integer, Integer>> itr = sm.unsignedMap().entrySet().iterator();
+		itr.next();
+		itr.next();
+	}
+
+	@Test
+	public void unsignedMap_entrySet_iterator_remove_twice() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 2);
+		sm.putValue(2, 3);
+		sm.putValue(3, 4);
+		Iterator<Entry<Integer, Integer>> itr = sm.unsignedMap().entrySet().iterator();
+		itr.next();
+		itr.next();
+		itr.remove();
+		try {
+			itr.remove();
+			Assert.fail("Should have thrown IllegalStateException");
+		} catch ( IllegalStateException e ) {
+			assertThat("Only the last returned entry removed", sm.keySet(), contains(1, 3));
+		}
 	}
 
 }

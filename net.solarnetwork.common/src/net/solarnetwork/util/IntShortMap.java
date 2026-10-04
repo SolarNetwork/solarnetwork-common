@@ -23,13 +23,12 @@
 package net.solarnetwork.util;
 
 import static java.util.Arrays.binarySearch;
+import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -48,8 +47,17 @@ import org.jspecify.annotations.Nullable;
  * order.
  * </p>
  *
+ * <p>
+ * <b>This class is not thread-safe.</b> If multiple threads access an instance
+ * concurrently, and at least one of them modifies it, then all access must be
+ * synchronized externally, including read-only methods like
+ * {@link #getValue(int)}, {@link #forEachOrdered(IntShortBiConsumer)}, and
+ * {@link #clone()}. A read concurrent with a modification can return the value
+ * of a different key or throw an exception, not just return an outdated value.
+ * </p>
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.58
  */
 public class IntShortMap extends AbstractMap<Integer, Short>
@@ -64,7 +72,6 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 */
 	public static final short VALUE_NO_SUCH_ELEMENT = Short.MIN_VALUE;
 
-	private final int initialCapacity;
 	private final short notFoundValue;
 	private int[] keys;
 	private short[] values;
@@ -116,7 +123,6 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		if ( initialCapacity < 1 ) {
 			throw new IllegalArgumentException("The initial capacity must be 1 or more.");
 		}
-		this.initialCapacity = initialCapacity;
 		this.notFoundValue = notFoundValue;
 		this.keys = new int[initialCapacity];
 		this.values = new short[initialCapacity];
@@ -136,13 +142,28 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		return buf.toString();
 	}
 
+	/**
+	 * Create a copy of this map.
+	 *
+	 * <p>
+	 * The capacity of the copy is reduced to the size of this map, unless this
+	 * map is empty.
+	 * </p>
+	 *
+	 * @return the copy
+	 */
 	@Override
-	public Object clone() {
-		IntShortMap m = new IntShortMap(this.size > 0 ? this.size : this.getCapacity(),
-				this.notFoundValue);
-		System.arraycopy(keys, 0, m.keys, 0, size);
-		System.arraycopy(values, 0, m.values, 0, size);
-		m.size = this.size;
+	public IntShortMap clone() {
+		final IntShortMap m;
+		try {
+			m = (IntShortMap) super.clone();
+		} catch ( CloneNotSupportedException e ) {
+			// should not get here
+			throw new RuntimeException(e);
+		}
+		final int len = (m.size > 0 ? m.size : m.keys.length);
+		m.keys = Arrays.copyOf(m.keys, len);
+		m.values = Arrays.copyOf(m.values, len);
 		return m;
 	}
 
@@ -221,12 +242,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	@Override
 	public Collection<Short> values() {
-		final int len = size;
-		List<Short> l = new ArrayList<>(len);
-		for ( int i = 0; i < len; i++ ) {
-			l.add(values[i]);
-		}
-		return l;
+		return new ValueCollection();
 	}
 
 	@Override
@@ -274,18 +290,20 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	/**
 	 * Free up excess capacity.
 	 *
+	 * <p>
+	 * The capacity is reduced to the size of this map, or {@literal 1} if this
+	 * map is empty.
+	 * </p>
+	 *
 	 * @return {@literal true} if any capacity was freed
 	 */
 	public boolean compact() {
-		if ( keys.length < initialCapacity || size == keys.length ) {
+		final int newCapacity = Math.max(size, 1);
+		if ( newCapacity >= keys.length ) {
 			return false;
 		}
-		int[] newKeys = new int[size];
-		short[] newValues = new short[size];
-		System.arraycopy(keys, 0, newKeys, 0, size);
-		System.arraycopy(values, 0, newValues, 0, size);
-		this.keys = newKeys;
-		this.values = newValues;
+		this.keys = Arrays.copyOf(keys, newCapacity);
+		this.values = Arrays.copyOf(values, newCapacity);
 		return true;
 	}
 
@@ -448,6 +466,52 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		System.arraycopy(values, idx + 1, values, idx, (size - idx));
 	}
 
+	/**
+	 * Base iterator over the array indexes of this map.
+	 *
+	 * @param <T>
+	 *        the element type
+	 */
+	private abstract class IndexIterator<T> implements Iterator<T> {
+
+		private int idx = 0;
+		private int lastIdx = -1;
+
+		/**
+		 * Get the element at an array index.
+		 *
+		 * @param i
+		 *        the index
+		 * @return the element
+		 */
+		protected abstract T element(int i);
+
+		@Override
+		public boolean hasNext() {
+			return idx < size;
+		}
+
+		@Override
+		public T next() {
+			if ( idx >= size ) {
+				throw new NoSuchElementException();
+			}
+			lastIdx = idx++;
+			return element(lastIdx);
+		}
+
+		@Override
+		public void remove() {
+			if ( lastIdx < 0 ) {
+				throw new IllegalStateException();
+			}
+			removeKeyAtIndex(lastIdx);
+			idx = lastIdx;
+			lastIdx = -1;
+		}
+
+	}
+
 	private final class KeySet extends AbstractSet<Integer> {
 
 		@Override
@@ -462,31 +526,44 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	}
 
-	private final class KeyIterator implements Iterator<Integer> {
+	private final class KeyIterator extends IndexIterator<Integer> {
 
-		private int idx;
+		@Override
+		protected Integer element(int i) {
+			return keys[i];
+		}
 
-		private KeyIterator() {
-			super();
-			this.idx = 0;
+	}
+
+	private final class ValueCollection extends AbstractCollection<Short> {
+
+		@Override
+		public Iterator<Short> iterator() {
+			return new ValueIterator();
 		}
 
 		@Override
-		public boolean hasNext() {
-			return idx < size;
+		public int size() {
+			return size;
 		}
 
 		@Override
-		public Integer next() {
-			if ( idx >= size ) {
-				throw new NoSuchElementException();
-			}
-			return keys[idx++];
+		public boolean contains(Object o) {
+			return (o instanceof Short) && containsValue(o);
 		}
 
 		@Override
-		public void remove() {
-			removeKeyAtIndex(--idx);
+		public void clear() {
+			IntShortMap.this.clear();
+		}
+
+	}
+
+	private final class ValueIterator extends IndexIterator<Short> {
+
+		@Override
+		protected Short element(int i) {
+			return values[i];
 		}
 
 	}
@@ -538,29 +615,11 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 			return false;
 		}
 
-		private final class EntryIterator implements Iterator<Entry<Integer, Short>> {
-
-			private int idx;
-
-			private EntryIterator() {
-				super();
-				this.idx = 0;
-			}
+		private final class EntryIterator extends IndexIterator<Entry<Integer, Short>> {
 
 			@Override
-			public boolean hasNext() {
-				return idx < size;
-			}
-
-			@Override
-			public Entry<Integer, Short> next() {
-				final int i = idx++;
+			protected Entry<Integer, Short> element(int i) {
 				return new SimpleImmutableEntry<>(keys[i], values[i]);
-			}
-
-			@Override
-			public void remove() {
-				removeKeyAtIndex(--idx);
 			}
 
 		}
@@ -587,7 +646,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 			@SuppressWarnings("unchecked")
 			Entry<Integer, Integer> e = (Entry<Integer, Integer>) o;
 			Short v = IntShortMap.this.get(e.getKey());
-			return Objects.equals(e.getValue().shortValue(), v);
+			return (v != null && Objects.equals(e.getValue(), Short.toUnsignedInt(v)));
 		}
 
 		@Override
@@ -602,41 +661,19 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 		@Override
 		public boolean remove(Object o) {
-			if ( !(o instanceof Entry) ) {
+			if ( !contains(o) ) {
 				return false;
 			}
 			@SuppressWarnings("unchecked")
 			Entry<Integer, Integer> e = (Entry<Integer, Integer>) o;
-			Short v = IntShortMap.this.get(e.getKey());
-			if ( Objects.equals(e.getValue().shortValue(), v) ) {
-				return IntShortMap.this.remove(e.getKey()) != null;
-			}
-			return false;
+			return IntShortMap.this.remove(e.getKey()) != null;
 		}
 
-		private final class UnsignedEntryIterator implements Iterator<Entry<Integer, Integer>> {
-
-			private int idx;
-
-			private UnsignedEntryIterator() {
-				super();
-				this.idx = 0;
-			}
+		private final class UnsignedEntryIterator extends IndexIterator<Entry<Integer, Integer>> {
 
 			@Override
-			public boolean hasNext() {
-				return idx < size;
-			}
-
-			@Override
-			public Entry<Integer, Integer> next() {
-				final int i = idx++;
+			protected Entry<Integer, Integer> element(int i) {
 				return new SimpleImmutableEntry<>(keys[i], Short.toUnsignedInt(values[i]));
-			}
-
-			@Override
-			public void remove() {
-				removeKeyAtIndex(--idx);
 			}
 
 		}
