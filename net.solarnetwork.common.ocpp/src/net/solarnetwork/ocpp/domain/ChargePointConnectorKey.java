@@ -140,7 +140,12 @@ public class ChargePointConnectorKey
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(chargePointId, evseId, connectorId);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Long.hashCode(chargePointId);
+		result = prime * result + evseId;
+		result = prime * result + connectorId;
+		return result;
 	}
 
 	@Override

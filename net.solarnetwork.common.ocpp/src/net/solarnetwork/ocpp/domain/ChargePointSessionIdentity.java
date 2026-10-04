@@ -75,7 +75,11 @@ public class ChargePointSessionIdentity implements Comparable<ChargePointSession
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(identity, sessionId);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + identity.hashCode();
+		result = prime * result + sessionId.hashCode();
+		return result;
 	}
 
 	@Override
