@@ -261,10 +261,6 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		final int mc = modCount;
 		for ( int i = 0; modCount == mc && i < size; i++ ) {
 			action.accept(keys[i], values[i]);
-			if ( i == Integer.MAX_VALUE ) {
-				// prevent overflow
-				break;
-			}
 		}
 		if ( modCount != mc ) {
 			throw new ConcurrentModificationException();
@@ -301,10 +297,6 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		}
 		for ( int i = start; modCount == mc && i < size && keys[i] < max; i++ ) {
 			action.accept(keys[i], values[i]);
-			if ( i == Integer.MAX_VALUE ) {
-				// prevent overflow
-				break;
-			}
 		}
 		if ( modCount != mc ) {
 			throw new ConcurrentModificationException();
@@ -486,6 +478,20 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		return putValue(key, value);
 	}
 
+	@Override
+	public @Nullable Short remove(@Nullable Object key) {
+		if ( !(key instanceof Integer k) ) {
+			return null;
+		}
+		final int idx = binarySearch(keys, 0, size, k.intValue());
+		if ( idx < 0 ) {
+			return null;
+		}
+		final short prev = values[idx];
+		removeKeyAtIndex(idx);
+		return prev;
+	}
+
 	/**
 	 * Get a view of this map with unsigned integer values.
 	 *
@@ -531,6 +537,12 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 							"The value " + v + " must be between 0 and 65535.");
 				}
 				Short prev = IntShortMap.this.putValue(key, (short) v);
+				return (prev != null ? Short.toUnsignedInt(prev) : null);
+			}
+
+			@Override
+			public @Nullable Integer remove(@Nullable Object key) {
+				Short prev = IntShortMap.this.remove(key);
 				return (prev != null ? Short.toUnsignedInt(prev) : null);
 			}
 
@@ -624,6 +636,21 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 		@Override
 		public int size() {
 			return size;
+		}
+
+		@Override
+		public boolean contains(@Nullable Object o) {
+			return containsKey(o);
+		}
+
+		@Override
+		public boolean remove(@Nullable Object o) {
+			return IntShortMap.this.remove(o) != null;
+		}
+
+		@Override
+		public void clear() {
+			IntShortMap.this.clear();
 		}
 
 	}

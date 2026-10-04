@@ -185,6 +185,38 @@ public class IntShortMapTests {
 	}
 
 	@Test
+	public void keySet_contains() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(3, 4);
+		Set<Integer> keys = m.keySet();
+		assertThat("Contains key", keys.contains(3), equalTo(true));
+		assertThat("Missing key", keys.contains(2), equalTo(false));
+		assertThat("Long key not found", keys.contains((Object) 3L), equalTo(false));
+	}
+
+	@Test
+	public void keySet_remove() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(3, 4);
+		m.putValue(5, 6);
+		Set<Integer> keys = m.keySet();
+		assertThat("Key removed", keys.remove(3), equalTo(true));
+		assertThat("Missing key not removed", keys.remove(3), equalTo(false));
+		assertThat("Backing map updated", m.keySet(), contains(1, 5));
+	}
+
+	@Test
+	public void keySet_clear() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(3, 4);
+		m.keySet().clear();
+		assertThat("Backing map cleared", m.size(), equalTo(0));
+	}
+
+	@Test
 	public void keySet_iterator_remove_twice() {
 		IntShortMap m = new IntShortMap();
 		m.putValue(1, 2);
@@ -257,6 +289,35 @@ public class IntShortMapTests {
 		m.clear();
 		assertThat("Size after clear", m.size(), equalTo(0));
 		assertThat("Keys", m.keySet(), hasSize(0));
+	}
+
+	@Test
+	public void remove() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		m.putValue(3, 4);
+		m.putValue(5, 6);
+		Short prev = m.remove(3);
+		assertThat("Previous value returned", prev, equalTo((short) 4));
+		assertThat("Keys maintain order", m.keySet(), contains(1, 5));
+		assertThat("Values maintain order", m.values(), contains((short) 2, (short) 6));
+	}
+
+	@Test
+	public void remove_missingKey() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		assertThat("No previous value", m.remove(3), nullValue());
+		assertThat("Map unchanged", m.keySet(), contains(1));
+	}
+
+	@Test
+	public void remove_otherKeyTypes() {
+		IntShortMap m = new IntShortMap();
+		m.putValue(1, 2);
+		assertThat("Long key not removed", m.remove((Object) 1L), nullValue());
+		assertThat("Null key not removed", m.remove((Object) null), nullValue());
+		assertThat("Map unchanged", m.keySet(), contains(1));
 	}
 
 	@Test
@@ -1113,6 +1174,17 @@ public class IntShortMapTests {
 		} catch ( IllegalArgumentException e ) {
 			assertThat("Value not stored", sm.size(), equalTo(0));
 		}
+	}
+
+	@Test
+	public void unsignedMap_remove() {
+		IntShortMap sm = new IntShortMap();
+		sm.putValue(1, 0xF123);
+		sm.putValue(2, 0xF234);
+		Map<Integer, Integer> m = sm.unsignedMap();
+		assertThat("Unsigned previous value returned", m.remove(1), equalTo(0xF123));
+		assertThat("Missing key not removed", m.remove(1), nullValue());
+		assertThat("Backing map updated", sm.keySet(), contains(2));
 	}
 
 }
