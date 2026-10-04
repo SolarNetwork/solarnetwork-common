@@ -2,6 +2,7 @@
 .moquette_uuid
 /solarnetwork-osgi-lib
 *.jpage
+CLAUDE.md
 build/
 target/
 junit*.properties
