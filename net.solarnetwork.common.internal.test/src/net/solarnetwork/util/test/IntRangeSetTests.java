@@ -47,7 +47,7 @@ import net.solarnetwork.util.IntRangeSet;
  * Test cases for the {@link IntRangeSet} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class IntRangeSetTests {
 
@@ -326,6 +326,16 @@ public class IntRangeSetTests {
 		assertThat("Set changed from mutation", result, equalTo(true));
 		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
 		assertThat("Ranges", ranges, contains(rangeOf(1, 5), rangeOf(7, 9)));
+	}
+
+	@Test
+	public void addAll_farApart() {
+		IntRangeSet s = new IntRangeSet();
+		boolean result = s.addAll(asList(2_000_000_000, -2_000_000_000));
+		assertThat("Set changed from mutation", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Values more than Integer.MAX_VALUE apart are not merged", ranges,
+				contains(rangeOf(-2_000_000_000), rangeOf(2_000_000_000)));
 	}
 
 	@Test

@@ -48,7 +48,7 @@ import org.jspecify.annotations.Nullable;
  * </p>
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 1.58
  */
 public class IntRangeSet extends AbstractSet<Integer>
@@ -290,7 +290,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 		boolean changed = false;
 		for ( int i = 1; i < len; i++ ) {
 			int c = sorted[i];
-			int d = c - b;
+			long d = (long) c - b;
 			if ( d > 1 ) {
 				changed |= addRange(a, b);
 				a = c;
