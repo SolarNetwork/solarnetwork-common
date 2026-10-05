@@ -139,8 +139,8 @@ public interface AcEnergyDatum extends EnergyDatum {
 	/**
 	 * Get the instantaneous reactive power, in reactive volt-amperes (var).
 	 *
-	 * @return the reactive power in reactive volt-amperes, or {@code null}
-	 *         if not available
+	 * @return the reactive power in reactive volt-amperes, or {@code null} if
+	 *         not available
 	 */
 	default @Nullable Integer getReactivePower() {
 		return asSampleOperations().getSampleInteger(Instantaneous, REACTIVE_POWER_KEY);

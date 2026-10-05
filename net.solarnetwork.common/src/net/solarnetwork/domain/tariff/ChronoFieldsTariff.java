@@ -60,8 +60,7 @@ public interface ChronoFieldsTariff extends Tariff {
 	 * @return the formatted tariff value, or {@code null} if no range defined
 	 *         for the given field
 	 * @throws IllegalArgumentException
-	 *         if {@code field} is not supported or any argument is
-	 *         {@code null}
+	 *         if {@code field} is not supported or any argument is {@code null}
 	 */
 	@Nullable
 	String formatChronoField(ChronoField field, Locale locale, TextStyle style);

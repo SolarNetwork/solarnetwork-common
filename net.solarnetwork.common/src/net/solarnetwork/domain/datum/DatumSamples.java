@@ -493,8 +493,8 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	}
 
 	/**
-	 * Get a Long value from the {@link #getAccumulating()} map, or
-	 * {@code null} if not available.
+	 * Get a Long value from the {@link #getAccumulating()} map, or {@code null}
+	 * if not available.
 	 *
 	 * @param key
 	 *        the key of the value to get
@@ -601,8 +601,8 @@ public class DatumSamples extends DatumSupport implements MutableDatumSamplesOpe
 	}
 
 	/**
-	 * Get a String value from the {@link #getStatus()} map, or {@code null}
-	 * if not available.
+	 * Get a String value from the {@link #getStatus()} map, or {@code null} if
+	 * not available.
 	 *
 	 * @param key
 	 *        the key of the value to get

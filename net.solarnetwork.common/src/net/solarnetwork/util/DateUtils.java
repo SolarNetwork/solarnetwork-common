@@ -421,8 +421,8 @@ public final class DateUtils {
 	 * @param defaultZone
 	 *        a default time zone to use if one is not available in
 	 *        {@code value}
-	 * @return the parsed date, or {@code null} if it cannot be parsed for
-	 *         any reason
+	 * @return the parsed date, or {@code null} if it cannot be parsed for any
+	 *         reason
 	 */
 	public static @Nullable ZonedDateTime parseIsoAltTimestamp(final @Nullable String value,
 			final ZoneId defaultZone) {
@@ -443,8 +443,8 @@ public final class DateUtils {
 	 * @param defaultZone
 	 *        a default time zone to use if one is not available in
 	 *        {@code value}
-	 * @return the parsed date, or {@code null} if it cannot be parsed for
-	 *         any reason
+	 * @return the parsed date, or {@code null} if it cannot be parsed for any
+	 *         reason
 	 * @since 2.2
 	 */
 	public static @Nullable ZonedDateTime parseIsoTimestamp(final @Nullable String value,
@@ -468,8 +468,8 @@ public final class DateUtils {
 	 * @param defaultZone
 	 *        a default time zone to use if one is not available in
 	 *        {@code value}
-	 * @return the parsed date, or {@code null} if it cannot be parsed for
-	 *         any reason
+	 * @return the parsed date, or {@code null} if it cannot be parsed for any
+	 *         reason
 	 * @since 2.2
 	 */
 	public static @Nullable ZonedDateTime parseIsoTimestamp(final DateTimeFormatter formatter,
@@ -584,8 +584,8 @@ public final class DateUtils {
 	 *        the range set string to parse into a time range set
 	 * @param locale
 	 *        the locale to parse the ranges as
-	 * @return the range set, or {@code null} if {@code ranges} is
-	 *         {@code null} or empty
+	 * @return the range set, or {@code null} if {@code ranges} is {@code null}
+	 *         or empty
 	 * @throws DateTimeException
 	 *         if any parsing error occurs
 	 * @since 2.3
@@ -606,8 +606,8 @@ public final class DateUtils {
 	 *        the locale to parse the ranges as
 	 * @param rangeDelim
 	 *        the delimiter to use between ranges
-	 * @return the range set, or {@code null} if {@code ranges} is
-	 *         {@code null} or empty
+	 * @return the range set, or {@code null} if {@code ranges} is {@code null}
+	 *         or empty
 	 * @throws DateTimeException
 	 *         if any parsing error occurs
 	 * @since 2.3
@@ -1071,8 +1071,8 @@ public final class DateUtils {
 	 * Parse a time zone ID into a zone instance.
 	 *
 	 * @param zoneId
-	 *        the zone ID to parse, or {@code null} to resolve the system
-	 *        time zone
+	 *        the zone ID to parse, or {@code null} to resolve the system time
+	 *        zone
 	 * @return the zone, never {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} cannot be parsed
@@ -1169,8 +1169,7 @@ public final class DateUtils {
 	 *
 	 * @param name
 	 *        the value to case insensitively parse as a {@link ChronoUnit}
-	 * @return the enum value, or {@code null} if {@code name} is
-	 *         {@code null}
+	 * @return the enum value, or {@code null} if {@code name} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code name} is not valid
 	 * @since 2.4

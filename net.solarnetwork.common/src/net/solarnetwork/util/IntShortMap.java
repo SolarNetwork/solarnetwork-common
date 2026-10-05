@@ -60,18 +60,18 @@ import org.jspecify.annotations.Nullable;
  * <p>
  * The iterators of this map's collection views, including those of
  * {@link #unsignedMap()}, and the {@code forEachOrdered()} methods are
- * <i>fail-fast</i>: if the map is structurally modified while iterating, in
- * any way except through the iterator's own {@code remove()} method, they
- * throw a {@link ConcurrentModificationException}. Adding or removing keys is
- * a structural modification; changing the value of an existing key is not.
+ * <i>fail-fast</i>: if the map is structurally modified while iterating, in any
+ * way except through the iterator's own {@code remove()} method, they throw a
+ * {@link ConcurrentModificationException}. Adding or removing keys is a
+ * structural modification; changing the value of an existing key is not.
  * Fail-fast behavior is best-effort, so it cannot be relied on to detect
  * unsynchronized concurrent modification.
  * </p>
  *
  * <p>
  * The entries of {@link #entrySet()}, and of the {@link #unsignedMap()} entry
- * set, are immutable snapshots: their {@link Map.Entry#setValue(Object)}
- * method throws an {@link UnsupportedOperationException}, and so does
+ * set, are immutable snapshots: their {@link Map.Entry#setValue(Object)} method
+ * throws an {@link UnsupportedOperationException}, and so does
  * {@link Map#replaceAll(java.util.function.BiFunction)}, which relies on it.
  * Change values with {@link #putValue(int, short)} instead.
  * </p>
@@ -88,7 +88,8 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 
 	/**
 	 * The default value that causes {@code NoSuchElementException} to be thrown
-	 * in {@link #getValue(int)}, when passed to {@link #IntShortMap(int, short)}.
+	 * in {@link #getValue(int)}, when passed to
+	 * {@link #IntShortMap(int, short)}.
 	 *
 	 * <p>
 	 * This is also the 16-bit value {@code 0x8000}. To return that value for
@@ -387,8 +388,7 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *
 	 * @param k
 	 *        the key of the value to get
-	 * @return the associated value, or {@code null} if {@code k} is not
-	 *         present
+	 * @return the associated value, or {@code null} if {@code k} is not present
 	 */
 	public @Nullable Short get(final int k) {
 		final int idx = binarySearch(keys, 0, size, k);
@@ -427,8 +427,8 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *        the key
 	 * @param value
 	 *        the value, which will be down-cast to a short
-	 * @return the previous value associated with {@code k}, or {@code null}
-	 *         if none
+	 * @return the previous value associated with {@code k}, or {@code null} if
+	 *         none
 	 */
 	public @Nullable Short putValue(final int k, final int value) {
 		return putValue(k, (short) value);
@@ -441,8 +441,8 @@ public class IntShortMap extends AbstractMap<Integer, Short>
 	 *        the key
 	 * @param value
 	 *        the value
-	 * @return the previous value associated with {@code k}, or {@code null}
-	 *         if none
+	 * @return the previous value associated with {@code k}, or {@code null} if
+	 *         none
 	 */
 	public @Nullable Short putValue(final int k, final short value) {
 		// find position to insert key at; if larger than highest key, we can insert at end

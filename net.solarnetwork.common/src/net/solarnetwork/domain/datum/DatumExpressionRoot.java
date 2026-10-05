@@ -75,8 +75,8 @@ public interface DatumExpressionRoot
 	/**
 	 * Get a node datum's object ID.
 	 *
-	 * @return the datum object ID, or {@code null} if the datum is not a
-	 *         node kind or does not have a node ID
+	 * @return the datum object ID, or {@code null} if the datum is not a node
+	 *         kind or does not have a node ID
 	 * @since 1.2
 	 */
 	default @Nullable Long getNodeId() {
@@ -87,8 +87,8 @@ public interface DatumExpressionRoot
 	/**
 	 * Get a datum's source ID.
 	 *
-	 * @return the datum source ID, or {@code null} if the datum does not
-	 *         have a source ID
+	 * @return the datum source ID, or {@code null} if the datum does not have a
+	 *         source ID
 	 * @since 1.2
 	 */
 	default @Nullable String getSourceId() {
@@ -99,8 +99,8 @@ public interface DatumExpressionRoot
 	/**
 	 * Get a datum's timestamp.
 	 *
-	 * @return the datum timestamp, or {@code null} if the datum does not
-	 *         have a timestamp
+	 * @return the datum timestamp, or {@code null} if the datum does not have a
+	 *         timestamp
 	 * @since 1.2
 	 */
 	default @Nullable Instant getTimestamp() {

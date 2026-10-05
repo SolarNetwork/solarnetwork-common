@@ -66,8 +66,8 @@ public class Result<T> {
 		 * Constructor.
 		 *
 		 * @param location
-		 *        the error location, such as a bean-style path, or
-		 *        {@code null} for an overall error
+		 *        the error location, such as a bean-style path, or {@code null}
+		 *        for an overall error
 		 * @param rejectedValue
 		 *        the value the rejected value, if available
 		 * @param message
@@ -81,8 +81,8 @@ public class Result<T> {
 		 * Constructor.
 		 *
 		 * @param location
-		 *        the error location, such as a bean-style path, or
-		 *        {@code null} for an overall error
+		 *        the error location, such as a bean-style path, or {@code null}
+		 *        for an overall error
 		 * @param code
 		 *        the code
 		 * @param rejectedValue

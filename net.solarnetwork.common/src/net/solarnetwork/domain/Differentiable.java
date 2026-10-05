@@ -58,9 +58,9 @@ public interface Differentiable<T> {
 	 * Test if two {@link Differentiable} objects differ.
 	 *
 	 * <p>
-	 * If both objects are {@code null} this method returns {@literal false}.
-	 * If one object is {@code null} this methdo returns {@literal true}.
-	 * Otherwise this method returns the result of {@code l.differsFrom(r)}.
+	 * If both objects are {@code null} this method returns {@literal false}. If
+	 * one object is {@code null} this methdo returns {@literal true}. Otherwise
+	 * this method returns the result of {@code l.differsFrom(r)}.
 	 * </p>
 	 *
 	 * @param <T>

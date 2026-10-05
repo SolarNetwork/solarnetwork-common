@@ -215,8 +215,8 @@ public class MapSampleOperations implements MutableDatumSamplesOperations {
 	 * Set the tags.
 	 *
 	 * <p>
-	 * <b>Note</b> this method will always return {@code null} as tags are
-	 * not supported.
+	 * <b>Note</b> this method will always return {@code null} as tags are not
+	 * supported.
 	 * </p>
 	 *
 	 * {@inheritDoc}

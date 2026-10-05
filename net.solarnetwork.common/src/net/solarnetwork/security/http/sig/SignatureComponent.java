@@ -36,9 +36,9 @@ import org.jspecify.annotations.Nullable;
  * A single covered component identifier, as defined in RFC 9421 section 2.
  *
  * <p>
- * A component identifier is a name, which is either an HTTP field name in
- * lower case or a derived component name starting with {@code @}, together
- * with any of the parameters defined in section 2.1.
+ * A component identifier is a name, which is either an HTTP field name in lower
+ * case or a derived component name starting with {@code @}, together with any
+ * of the parameters defined in section 2.1.
  * </p>
  *
  * @author matt

@@ -741,8 +741,8 @@ public class StatTracker implements Identifiable {
 	/**
 	 * Get the log frequency.
 	 *
-	 * @return the log frequency; values less than {@literal 1} mean logging
-	 *         is disabled
+	 * @return the log frequency; values less than {@literal 1} mean logging is
+	 *         disabled
 	 */
 	public final int getLogFrequency() {
 		return logFrequency;

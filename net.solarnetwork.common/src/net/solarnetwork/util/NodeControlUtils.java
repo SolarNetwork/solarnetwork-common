@@ -180,8 +180,8 @@ public final class NodeControlUtils {
 	 *
 	 * @param value
 	 *        the value to convert to an integer control value
-	 * @return a decimal string representation of an integer, or {@code null}
-	 *         if {@code value} is not a number
+	 * @return a decimal string representation of an integer, or {@code null} if
+	 *         {@code value} is not a number
 	 */
 	public static @Nullable String integerControlValue(@Nullable Object value) {
 		BigInteger n = null;
@@ -243,8 +243,8 @@ public final class NodeControlUtils {
 	 *
 	 * @param value
 	 *        the value to convert to an integer control value
-	 * @return a decimal string representation of an integer, or {@code null}
-	 *         if {@code value} is not a number
+	 * @return a decimal string representation of an integer, or {@code null} if
+	 *         {@code value} is not a number
 	 */
 	public static @Nullable String stringControlValue(@Nullable Object value) {
 		return (value != null ? value.toString() : null);

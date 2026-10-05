@@ -43,8 +43,7 @@ public class SimpleSortDescriptor implements SortDescriptor {
 	 *
 	 * @param keys
 	 *        the sort keys
-	 * @return the descriptors, or {@code null} if {@code keys} has no
-	 *         elements
+	 * @return the descriptors, or {@code null} if {@code keys} has no elements
 	 */
 	public static @Nullable List<SortDescriptor> sorts(String @Nullable... keys) {
 		if ( keys == null || keys.length < 1 ) {

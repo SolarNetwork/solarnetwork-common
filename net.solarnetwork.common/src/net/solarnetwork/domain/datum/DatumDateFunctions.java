@@ -56,8 +56,8 @@ public interface DatumDateFunctions {
 	 * Parse a time zone ID into a zone instance.
 	 *
 	 * @param zoneId
-	 *        the zone ID to parse, or {@code null} to resolve the system
-	 *        time zone
+	 *        the zone ID to parse, or {@code null} to resolve the system time
+	 *        zone
 	 * @return the zone, never {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} cannot be parsed
@@ -272,8 +272,7 @@ public interface DatumDateFunctions {
 	 *
 	 * @param date
 	 *        the millisecond epoch date
-	 * @return the instant, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the instant, or {@code null} if {@code date} is {@code null}
 	 * @since 1.4
 	 */
 	default @Nullable Instant timestamp(@Nullable Long date) {
@@ -450,8 +449,7 @@ public interface DatumDateFunctions {
 	 *
 	 * @param name
 	 *        the value to case insensitively parse as a {@link ChronoUnit}
-	 * @return the enum value, or {@code null} if {@code name} is
-	 *         {@code null}
+	 * @return the enum value, or {@code null} if {@code name} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code name} is not valid
 	 */
@@ -644,8 +642,7 @@ public interface DatumDateFunctions {
 	 *
 	 * @param date
 	 *        the date
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 */
 	default @Nullable ZonedDateTime dateTz(@Nullable LocalDate date) {
 		return dateTz(date, ZoneId.systemDefault());
@@ -658,8 +655,7 @@ public interface DatumDateFunctions {
 	 *        the date
 	 * @param zoneId
 	 *        the time zone
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} is not valid
 	 */
@@ -674,8 +670,7 @@ public interface DatumDateFunctions {
 	 *        the date
 	 * @param zone
 	 *        the time zone, or {@code null} to use the system time zone
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 */
 	default @Nullable ZonedDateTime dateTz(@Nullable LocalDate date, @Nullable ZoneId zone) {
 		if ( date == null ) {
@@ -692,8 +687,7 @@ public interface DatumDateFunctions {
 	 *
 	 * @param date
 	 *        the date
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 */
 	default @Nullable ZonedDateTime dateTz(@Nullable LocalDateTime date) {
 		if ( date == null ) {
@@ -709,8 +703,7 @@ public interface DatumDateFunctions {
 	 *        the date
 	 * @param zoneId
 	 *        the time zone
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} is not valid
 	 */
@@ -725,8 +718,7 @@ public interface DatumDateFunctions {
 	 *        the date
 	 * @param zone
 	 *        the time zone, or {@code null} to use the system time zone
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 */
 	default @Nullable ZonedDateTime dateTz(@Nullable LocalDateTime date, @Nullable ZoneId zone) {
 		if ( date == null ) {
@@ -744,8 +736,7 @@ public interface DatumDateFunctions {
 	 *
 	 * @param date
 	 *        the date
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} is not valid
 	 * @since 1.4
@@ -761,8 +752,7 @@ public interface DatumDateFunctions {
 	 *        the date
 	 * @param zoneId
 	 *        the time zone
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} is not valid
 	 * @since 1.4
@@ -778,8 +768,7 @@ public interface DatumDateFunctions {
 	 *        the date
 	 * @param zone
 	 *        the time zone, or {@code null} to use the system time zone
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 * @since 1.4
 	 */
 	default @Nullable ZonedDateTime dateTz(@Nullable Long date, @Nullable ZoneId zone) {
@@ -792,8 +781,7 @@ public interface DatumDateFunctions {
 	 *
 	 * @param date
 	 *        the date
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} is not valid
 	 * @since 1.4
@@ -809,8 +797,7 @@ public interface DatumDateFunctions {
 	 *        the date
 	 * @param zoneId
 	 *        the time zone
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code zoneId} is not valid
 	 * @since 1.4
@@ -826,8 +813,7 @@ public interface DatumDateFunctions {
 	 *        the date
 	 * @param zone
 	 *        the time zone, or {@code null} to use the system time zone
-	 * @return the zoned date, or {@code null} if {@code date} is
-	 *         {@code null}
+	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
 	 * @since 1.4
 	 */
 	default @Nullable ZonedDateTime dateTz(@Nullable Instant date, @Nullable ZoneId zone) {
@@ -916,8 +902,8 @@ public interface DatumDateFunctions {
 	 *
 	 * @param value
 	 *        the date string to parse, in {@code YYYY-MM-DD} form
-	 * @return the parsed date, or {@code null} if {@code value} is
-	 *         {@code null} or empty
+	 * @return the parsed date, or {@code null} if {@code value} is {@code null}
+	 *         or empty
 	 * @throws IllegalArgumentException
 	 *         if {@code value} cannot be parsed
 	 * @since 1.2
@@ -940,8 +926,8 @@ public interface DatumDateFunctions {
 	 *
 	 * @param value
 	 *        the time string to parse, in {@code HH:mm} form
-	 * @return the parsed time, or {@code null} if {@code value} is
-	 *         {@code null} or empty
+	 * @return the parsed time, or {@code null} if {@code value} is {@code null}
+	 *         or empty
 	 * @throws IllegalArgumentException
 	 *         if {@code value} cannot be parsed
 	 * @since 1.2
@@ -969,8 +955,8 @@ public interface DatumDateFunctions {
 	 *
 	 * @param value
 	 *        the timestamp string to parse, in ISO-8601 form
-	 * @return the parsed time, or {@code null} if {@code value} is
-	 *         {@code null} or empty
+	 * @return the parsed time, or {@code null} if {@code value} is {@code null}
+	 *         or empty
 	 * @throws IllegalArgumentException
 	 *         if {@code value} cannot be parsed
 	 * @since 1.2

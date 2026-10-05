@@ -789,11 +789,9 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 	 * </p>
 	 *
 	 * @param nodeIds
-	 *        The node IDs to restrict to, or {@code null} for no
-	 *        restriction.
+	 *        The node IDs to restrict to, or {@code null} for no restriction.
 	 * @param sourceIds
-	 *        The source ID to restrict to, or {@code null} for no
-	 *        restriction.
+	 *        The source ID to restrict to, or {@code null} for no restriction.
 	 * @param aggregations
 	 *        The aggregations to restrict to, or {@code null} for no
 	 *        restriction.
@@ -808,8 +806,8 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 	 *        The {@code SolarNodeMetadata} paths to restrict to, or
 	 *        {@code null} for no restriction.
 	 * @param userMetadataPaths
-	 *        The {@code UserNodeMetadata} paths to restrict to, or
-	 *        {@code null} for no restriction.
+	 *        The {@code UserNodeMetadata} paths to restrict to, or {@code null}
+	 *        for no restriction.
 	 */
 	public BasicSecurityPolicy(@Nullable Set<Long> nodeIds, @Nullable Set<String> sourceIds,
 			@Nullable Set<Aggregation> aggregations, @Nullable Aggregation minAggregation,
@@ -824,11 +822,9 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 	 * Constructor.
 	 *
 	 * @param nodeIds
-	 *        The node IDs to restrict to, or {@code null} for no
-	 *        restriction.
+	 *        The node IDs to restrict to, or {@code null} for no restriction.
 	 * @param sourceIds
-	 *        The source ID to restrict to, or {@code null} for no
-	 *        restriction.
+	 *        The source ID to restrict to, or {@code null} for no restriction.
 	 * @param aggregations
 	 *        The aggregations to restrict to, or {@code null} for no
 	 *        restriction.
@@ -843,11 +839,11 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 	 *        The {@code SolarNodeMetadata} paths to restrict to, or
 	 *        {@code null} for no restriction.
 	 * @param userMetadataPaths
-	 *        The {@code UserNodeMetadata} paths to restrict to, or
-	 *        {@code null} for no restriction.
+	 *        The {@code UserNodeMetadata} paths to restrict to, or {@code null}
+	 *        for no restriction.
 	 * @param notAfter
-	 *        A date after which the token is no longer valid, or
-	 *        {@code null} for no expiration.
+	 *        A date after which the token is no longer valid, or {@code null}
+	 *        for no expiration.
 	 * @param refreshAllowed
 	 *        {@literal true} if the token can be refreshed
 	 * @since 2.0
@@ -866,11 +862,9 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 	 * Constructor.
 	 *
 	 * @param nodeIds
-	 *        The node IDs to restrict to, or {@code null} for no
-	 *        restriction.
+	 *        The node IDs to restrict to, or {@code null} for no restriction.
 	 * @param sourceIds
-	 *        The source ID to restrict to, or {@code null} for no
-	 *        restriction.
+	 *        The source ID to restrict to, or {@code null} for no restriction.
 	 * @param aggregations
 	 *        The aggregations to restrict to, or {@code null} for no
 	 *        restriction.
@@ -885,14 +879,13 @@ public class BasicSecurityPolicy implements SecurityPolicy, Serializable {
 	 *        The {@code SolarNodeMetadata} paths to restrict to, or
 	 *        {@code null} for no restriction.
 	 * @param userMetadataPaths
-	 *        The {@code UserNodeMetadata} paths to restrict to, or
-	 *        {@code null} for no restriction.
+	 *        The {@code UserNodeMetadata} paths to restrict to, or {@code null}
+	 *        for no restriction.
 	 * @param apiPaths
-	 *        The API paths to restrict to, or {@code null} for no
-	 *        restriction.
+	 *        The API paths to restrict to, or {@code null} for no restriction.
 	 * @param notAfter
-	 *        A date after which the token is no longer valid, or
-	 *        {@code null} for no expiration.
+	 *        A date after which the token is no longer valid, or {@code null}
+	 *        for no expiration.
 	 * @param refreshAllowed
 	 *        {@literal true} if the token can be refreshed
 	 * @since 2.0

@@ -31,8 +31,8 @@ import org.jspecify.annotations.Nullable;
  * and so on.
  *
  * <p>
- * All properties are considered optional, and methods may return
- * {@code null} if a property is not known.
+ * All properties are considered optional, and methods may return {@code null}
+ * if a property is not known.
  * </p>
  *
  * @author matt

@@ -25,15 +25,16 @@
  *
  * <p>
  * This package is protocol-agnostic with respect to the runtime HTTP stack: a
- * message is adapted to the {@link net.solarnetwork.security.http.sig.SignatureContext}
- * interface, and everything else is derived from that. It must not gain any
- * servlet dependency.
+ * message is adapted to the
+ * {@link net.solarnetwork.security.http.sig.SignatureContext} interface, and
+ * everything else is derived from that. It must not gain any servlet
+ * dependency.
  * </p>
  *
  * <p>
- * <b>Note</b> this package is a stand-in for a {@code net.solarnetwork.security}
- * package in the {@code solarnetwork-common} project, and is expected to move
- * there once that library is released.
+ * <b>Note</b> this package is a stand-in for a
+ * {@code net.solarnetwork.security} package in the {@code solarnetwork-common}
+ * project, and is expected to move there once that library is released.
  * </p>
  */
 

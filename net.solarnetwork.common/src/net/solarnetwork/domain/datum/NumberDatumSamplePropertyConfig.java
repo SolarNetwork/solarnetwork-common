@@ -146,8 +146,7 @@ public class NumberDatumSamplePropertyConfig<V> extends DatumSamplePropertyConfi
 	 *
 	 * @param value
 	 *        the number to apply the transform properties to
-	 * @return the result, or {@code null} if {@code value} is
-	 *         {@code null}
+	 * @return the result, or {@code null} if {@code value} is {@code null}
 	 */
 	public @Nullable Number applyTransformations(@Nullable Number value) {
 		if ( value == null ) {

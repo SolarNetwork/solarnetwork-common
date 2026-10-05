@@ -115,8 +115,9 @@ public interface SignatureContext {
 	 *
 	 * <p>
 	 * The values must be taken from the query string alone, never from a
-	 * form-encoded request body, and must be percent-decoded and then re-encoded
-	 * per the {@code application/x-www-form-urlencoded} serializing rules.
+	 * form-encoded request body, and must be percent-decoded and then
+	 * re-encoded per the {@code application/x-www-form-urlencoded} serializing
+	 * rules.
 	 * </p>
 	 *
 	 * @param name

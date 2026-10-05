@@ -56,8 +56,7 @@ public class MapBeanProxy implements InvocationHandler {
 	 * Constructor.
 	 *
 	 * @param data
-	 *        the map data; a new map instance will be created if
-	 *        {@code null}
+	 *        the map data; a new map instance will be created if {@code null}
 	 */
 	public MapBeanProxy(@Nullable Map<String, ?> data) {
 		this(data, true);
@@ -67,8 +66,7 @@ public class MapBeanProxy implements InvocationHandler {
 	 * Constructor.
 	 *
 	 * @param data
-	 *        the map data; a new map instance will be created if
-	 *        {@code null}
+	 *        the map data; a new map instance will be created if {@code null}
 	 * @param readOnly
 	 *        {@literal true} to disallow setter method invocation to the data
 	 *        map
@@ -87,8 +85,8 @@ public class MapBeanProxy implements InvocationHandler {
 	 * @param bean
 	 *        the bean to proxy
 	 * @param interfaces
-	 *        specific interfaces to implement, or {@code null} to extract
-	 *        all interfaces from {@code bean}
+	 *        specific interfaces to implement, or {@code null} to extract all
+	 *        interfaces from {@code bean}
 	 * @return the proxy, which will implement all interfaces defined by
 	 *         {@code interfaces} or {@code bean}
 	 */
@@ -109,11 +107,11 @@ public class MapBeanProxy implements InvocationHandler {
 	 * @param bean
 	 *        the bean to proxy
 	 * @param classLoader
-	 *        the class loader to use, or {@code null} to use the class
-	 *        loader of {@code bean}
+	 *        the class loader to use, or {@code null} to use the class loader
+	 *        of {@code bean}
 	 * @param interfaces
-	 *        specific interfaces to implement, or {@code null} to extract
-	 *        all interfaces from {@code bean}
+	 *        specific interfaces to implement, or {@code null} to extract all
+	 *        interfaces from {@code bean}
 	 * @return the proxy, which will implement all interfaces defined by
 	 *         {@code interfaces} or {@code bean}
 	 */

@@ -191,8 +191,8 @@ public class StatCounter {
 	/**
 	 * Get the log frequency.
 	 *
-	 * @return the log frequency; values less than {@literal 1} mean logging
-	 *         is disabled
+	 * @return the log frequency; values less than {@literal 1} mean logging is
+	 *         disabled
 	 */
 	public int getLogFrequency() {
 		return logFrequency;

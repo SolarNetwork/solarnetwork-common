@@ -49,9 +49,9 @@ public interface MutableDatumSamplesOperations extends DatumSamplesOperations {
 	 *
 	 * <p>
 	 * To add a tag, pass the tag name for both {@code key} and {@code value}.
-	 * To remove a tag, pass the tag name for {@code key} and {@code null}
-	 * for {@code value}. To replace a tag, pass the tag to remove for
-	 * {@code key} and the tag to add as {@code value}.
+	 * To remove a tag, pass the tag name for {@code key} and {@code null} for
+	 * {@code value}. To replace a tag, pass the tag to remove for {@code key}
+	 * and the tag to add as {@code value}.
 	 * </p>
 	 *
 	 * <p>

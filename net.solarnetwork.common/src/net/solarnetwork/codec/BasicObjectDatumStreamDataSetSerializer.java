@@ -47,8 +47,8 @@ import net.solarnetwork.domain.datum.StreamDatum;
  * Serializer for {@link ObjectDatumStreamDataSet}.
  *
  * <p>
- * This generates a JSON object with the following form ({@code null} values
- * are omitted}:
+ * This generates a JSON object with the following form ({@code null} values are
+ * omitted}:
  * </p>
  *
  * <pre>
