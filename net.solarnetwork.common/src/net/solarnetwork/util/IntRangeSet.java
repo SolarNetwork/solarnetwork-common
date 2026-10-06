@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -57,6 +58,9 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	private final boolean immutable;
 	private final List<IntRange> ranges;
+
+	/** A count of modifications, to make iteration fail-fast. */
+	private int modCount;
 
 	/**
 	 * Default constructor.
@@ -269,6 +273,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 				changed = true;
 			}
 		}
+		modCount++;
 		return changed;
 	}
 
@@ -377,6 +382,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 				changed = true;
 			}
 		}
+		modCount++;
 		return changed;
 	}
 
@@ -386,6 +392,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 			throw new UnsupportedOperationException("Set it immutable.");
 		}
 		ranges.clear();
+		modCount++;
 	}
 
 	@Override
@@ -576,6 +583,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 					itr.set(new IntRange(r.getMin(), v - 1));
 					ranges.add(itr.nextIndex(), new IntRange(v + 1, r.getMax()));
 				}
+				modCount++;
 				return true;
 			}
 		}
@@ -613,6 +621,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 			// contract from left
 			ranges.set(0, new IntRange(old.getMin() + 1, old.getMax()));
 		}
+		modCount++;
 		return old.getMin();
 	}
 
@@ -633,6 +642,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 			// contract from right
 			ranges.set(lastIndex, new IntRange(old.getMin(), old.getMax() - 1));
 		}
+		modCount++;
 		return old.getMax();
 	}
 
@@ -725,7 +735,32 @@ public class IntRangeSet extends AbstractSet<Integer>
 				break;
 			}
 		}
+		if ( changed ) {
+			modCount++;
+		}
 		return changed;
+	}
+
+	/**
+	 * Find the index of the range containing a value, searching from a nearby
+	 * index.
+	 *
+	 * @param value
+	 *        the value to find, which must be in this set
+	 * @param index
+	 *        the index to start searching from
+	 * @return the index of the range containing {@code value}
+	 */
+	private int rangeIndexNear(final long value, int index) {
+		final int len = ranges.size();
+		index = Math.max(0, Math.min(index, len - 1));
+		while ( index > 0 && ranges.get(index).getMin() > value ) {
+			index--;
+		}
+		while ( index + 1 < len && ranges.get(index).getMax() < value ) {
+			index++;
+		}
+		return index;
 	}
 
 	/**
@@ -734,18 +769,20 @@ public class IntRangeSet extends AbstractSet<Integer>
 	private class IntegerIterator implements Iterator<Integer> {
 
 		private final long max;
-		private final Iterator<IntRange> rangeItr;
+		private int index;
 		private long next;
 		private long stop;
+		private boolean canRemove;
+		private int lastReturned;
+		private int expectedModCount = modCount;
 
 		private IntegerIterator(long min, long max) {
 			super();
 			this.max = max;
-			this.rangeItr = ranges.iterator();
 			this.next = 1;
 			this.stop = 0;
-			while ( rangeItr.hasNext() ) {
-				IntRange r = rangeItr.next();
+			for ( final int len = ranges.size(); index < len; index++ ) {
+				IntRange r = ranges.get(index);
 				if ( r.getMax() >= min ) {
 					next = Math.max(r.getMin(), min);
 					stop = Math.min(r.getMax(), max);
@@ -761,17 +798,39 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 		@Override
 		public Integer next() {
+			if ( modCount != expectedModCount ) {
+				throw new ConcurrentModificationException();
+			}
 			if ( next > stop ) {
 				throw new NoSuchElementException();
 			}
 			final int n = (int) next;
 			next++;
-			if ( next > stop && rangeItr.hasNext() ) {
-				IntRange r = rangeItr.next();
+			if ( next > stop && ++index < ranges.size() ) {
+				IntRange r = ranges.get(index);
 				next = r.getMin();
 				stop = Math.min(r.getMax(), max);
 			}
+			lastReturned = n;
+			canRemove = true;
 			return n;
+		}
+
+		@Override
+		public void remove() {
+			if ( !canRemove ) {
+				throw new IllegalStateException();
+			}
+			if ( modCount != expectedModCount ) {
+				throw new ConcurrentModificationException();
+			}
+			IntRangeSet.this.remove(lastReturned);
+			canRemove = false;
+			expectedModCount = modCount;
+			if ( next <= stop ) {
+				// removing may have split or removed a range, shifting the next range
+				index = rangeIndexNear(next, index);
+			}
 		}
 
 	}
@@ -782,18 +841,20 @@ public class IntRangeSet extends AbstractSet<Integer>
 	private class IntegerReverseIterator implements Iterator<Integer> {
 
 		private final long min;
-		private final ListIterator<IntRange> rangeItr;
+		private int index;
 		private long next;
 		private long stop;
+		private boolean canRemove;
+		private int lastReturned;
+		private int expectedModCount = modCount;
 
 		private IntegerReverseIterator(long min, long max) {
 			super();
 			this.min = min;
-			this.rangeItr = ranges.listIterator(ranges.size());
 			this.next = 0;
 			this.stop = 1;
-			while ( rangeItr.hasPrevious() ) {
-				IntRange r = rangeItr.previous();
+			for ( index = ranges.size() - 1; index >= 0; index-- ) {
+				IntRange r = ranges.get(index);
 				if ( r.getMin() <= max ) {
 					next = Math.min(r.getMax(), max);
 					stop = Math.max(r.getMin(), min);
@@ -809,17 +870,39 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 		@Override
 		public Integer next() {
+			if ( modCount != expectedModCount ) {
+				throw new ConcurrentModificationException();
+			}
 			if ( next < stop ) {
 				throw new NoSuchElementException();
 			}
 			final int n = (int) next;
 			next--;
-			if ( next < stop && rangeItr.hasPrevious() ) {
-				IntRange r = rangeItr.previous();
+			if ( next < stop && --index >= 0 ) {
+				IntRange r = ranges.get(index);
 				next = r.getMax();
 				stop = Math.max(r.getMin(), min);
 			}
+			lastReturned = n;
+			canRemove = true;
 			return n;
+		}
+
+		@Override
+		public void remove() {
+			if ( !canRemove ) {
+				throw new IllegalStateException();
+			}
+			if ( modCount != expectedModCount ) {
+				throw new ConcurrentModificationException();
+			}
+			IntRangeSet.this.remove(lastReturned);
+			canRemove = false;
+			expectedModCount = modCount;
+			if ( next >= stop ) {
+				// removing may have split or removed a range, shifting the next range
+				index = rangeIndexNear(next, index);
+			}
 		}
 
 	}

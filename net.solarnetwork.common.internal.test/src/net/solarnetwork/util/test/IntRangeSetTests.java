@@ -38,6 +38,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -1928,6 +1929,231 @@ public class IntRangeSetTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void reverseSet_subSet_fromLessThanTo() {
 		new IntRangeSet(rangeOf(1, 9)).descendingSet().subSet(2, 8);
+	}
+
+	private static List<IntRange> rangeList(IntRangeSet s) {
+		return stream(s.ranges().spliterator(), false).collect(toList());
+	}
+
+	@Test
+	public void iterator_remove() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+
+		// WHEN
+		List<Integer> data = new ArrayList<>();
+		for ( Iterator<Integer> itr = s.iterator(); itr.hasNext(); ) {
+			int v = itr.next();
+			data.add(v);
+			if ( v % 2 == 0 ) {
+				itr.remove();
+			}
+		}
+
+		// THEN
+		assertThat("All values iterated", data, contains(1, 2, 3, 5, 6, 7, 8, 9));
+		assertThat("Even values removed", rangeList(s),
+				contains(rangeOf(1), rangeOf(3), rangeOf(5), rangeOf(7), rangeOf(9)));
+	}
+
+	@Test
+	public void iterator_remove_all() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5), rangeOf(7, 9));
+
+		// WHEN
+		List<Integer> data = new ArrayList<>();
+		for ( Iterator<Integer> itr = s.iterator(); itr.hasNext(); ) {
+			data.add(itr.next());
+			itr.remove();
+		}
+
+		// THEN
+		assertThat("All values iterated", data, contains(1, 2, 3, 5, 7, 8, 9));
+		assertThat("All values removed", s, hasSize(0));
+	}
+
+	@Test
+	public void iterator_remove_rangeEnds() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 7));
+
+		// WHEN
+		List<Integer> data = new ArrayList<>();
+		for ( Iterator<Integer> itr = s.iterator(); itr.hasNext(); ) {
+			int v = itr.next();
+			data.add(v);
+			if ( v == 3 || v == 5 ) {
+				itr.remove();
+			}
+		}
+
+		// THEN
+		assertThat("All values iterated", data, contains(1, 2, 3, 5, 6, 7));
+		assertThat("Range end values removed", rangeList(s), contains(rangeOf(1, 2), rangeOf(6, 7)));
+	}
+
+	@Test
+	public void descendingIterator_remove() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+
+		// WHEN
+		List<Integer> data = new ArrayList<>();
+		for ( Iterator<Integer> itr = s.descendingIterator(); itr.hasNext(); ) {
+			int v = itr.next();
+			data.add(v);
+			if ( v % 2 == 0 ) {
+				itr.remove();
+			}
+		}
+
+		// THEN
+		assertThat("All values iterated", data, contains(9, 8, 7, 6, 5, 3, 2, 1));
+		assertThat("Even values removed", rangeList(s),
+				contains(rangeOf(1), rangeOf(3), rangeOf(5), rangeOf(7), rangeOf(9)));
+	}
+
+	@Test
+	public void descendingIterator_remove_all() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5), rangeOf(7, 9));
+
+		// WHEN
+		List<Integer> data = new ArrayList<>();
+		for ( Iterator<Integer> itr = s.descendingIterator(); itr.hasNext(); ) {
+			data.add(itr.next());
+			itr.remove();
+		}
+
+		// THEN
+		assertThat("All values iterated", data, contains(9, 8, 7, 5, 3, 2, 1));
+		assertThat("All values removed", s, hasSize(0));
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void iterator_remove_beforeNext() {
+		new IntRangeSet(rangeOf(1, 3)).iterator().remove();
+	}
+
+	@Test
+	public void iterator_remove_twice() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
+		Iterator<Integer> itr = s.iterator();
+		itr.next();
+		itr.remove();
+		try {
+			itr.remove();
+			fail("Should not be able to remove twice");
+		} catch ( IllegalStateException e ) {
+			// expected
+		}
+		assertThat("Only one value removed", s, contains(2, 3));
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void iterator_remove_immutable() {
+		Iterator<Integer> itr = new IntRangeSet(rangeOf(1, 3)).immutableCopy().iterator();
+		itr.next();
+		itr.remove();
+	}
+
+	@Test(expected = ConcurrentModificationException.class)
+	public void iterator_concurrentModification() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 5));
+		Iterator<Integer> itr = s.iterator();
+		itr.next();
+		s.remove(5);
+		itr.next();
+	}
+
+	@Test(expected = ConcurrentModificationException.class)
+	public void descendingIterator_concurrentModification() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 5));
+		Iterator<Integer> itr = s.descendingIterator();
+		itr.next();
+		s.remove(1);
+		itr.next();
+	}
+
+	@Test
+	public void retainAll() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+		boolean result = s.retainAll(asList(2, 6, 7, 100));
+		assertThat("Set changed", result, is(true));
+		assertThat("Only given values retained", rangeList(s), contains(rangeOf(2), rangeOf(6, 7)));
+	}
+
+	@Test
+	public void removeIf() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 9));
+		boolean result = s.removeIf(v -> v > 3 && v < 7);
+		assertThat("Set changed", result, is(true));
+		assertThat("Matching values removed", rangeList(s), contains(rangeOf(1, 3), rangeOf(7, 9)));
+	}
+
+	@Test
+	public void reverseSet_removeIf() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 9));
+		boolean result = s.descendingSet().removeIf(v -> v % 3 == 0);
+		assertThat("Set changed", result, is(true));
+		assertThat("Matching values removed", s, contains(1, 2, 4, 5, 7, 8));
+	}
+
+	@Test
+	public void subSet_removeIf() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 9));
+		boolean result = s.subSet(3, true, 7, false).removeIf(v -> v % 2 == 0);
+		assertThat("Set changed", result, is(true));
+		assertThat("Only matching values in range removed", s, contains(1, 2, 3, 5, 7, 8, 9));
+	}
+
+	@Test
+	public void subSet_retainAll() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 9));
+		boolean result = s.subSet(3, true, 7, false).retainAll(asList(1, 5));
+		assertThat("Set changed", result, is(true));
+		assertThat("Only values in range removed", s, contains(1, 2, 5, 7, 8, 9));
+	}
+
+	@Test
+	public void headSet_iterator_remove_atBound() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 9));
+
+		// WHEN
+		List<Integer> data = new ArrayList<>();
+		for ( Iterator<Integer> itr = s.headSet(5, true).iterator(); itr.hasNext(); ) {
+			int v = itr.next();
+			data.add(v);
+			if ( v == 5 ) {
+				itr.remove();
+			}
+		}
+
+		// THEN
+		assertThat("View values iterated", data, contains(1, 2, 3, 4, 5));
+		assertThat("Bound value removed", rangeList(s), contains(rangeOf(1, 4), rangeOf(6, 9)));
+	}
+
+	@Test
+	public void tailSet_descendingIterator_remove_atBound() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 9));
+
+		// WHEN
+		List<Integer> data = new ArrayList<>();
+		for ( Iterator<Integer> itr = s.tailSet(5, true).descendingIterator(); itr.hasNext(); ) {
+			int v = itr.next();
+			data.add(v);
+			if ( v == 5 ) {
+				itr.remove();
+			}
+		}
+
+		// THEN
+		assertThat("View values iterated", data, contains(9, 8, 7, 6, 5));
+		assertThat("Bound value removed", rangeList(s), contains(rangeOf(1, 4), rangeOf(6, 9)));
 	}
 
 }
