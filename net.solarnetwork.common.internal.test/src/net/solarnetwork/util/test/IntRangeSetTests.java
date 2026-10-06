@@ -396,6 +396,24 @@ public class IntRangeSetTests {
 	}
 
 	@Test
+	public void size_rangeLongerThanMaxValue() {
+		IntRangeSet s = new IntRangeSet(rangeOf(0, Integer.MAX_VALUE));
+		assertThat("Size capped at MAX_VALUE", s.size(), equalTo(Integer.MAX_VALUE));
+	}
+
+	@Test
+	public void size_allValues() {
+		IntRangeSet s = new IntRangeSet(rangeOf(Integer.MIN_VALUE, Integer.MAX_VALUE));
+		assertThat("Size capped at MAX_VALUE", s.size(), equalTo(Integer.MAX_VALUE));
+	}
+
+	@Test
+	public void size_rangesSumLongerThanMaxValue() {
+		IntRangeSet s = new IntRangeSet(rangeOf(-2_000_000_000, -1), rangeOf(1, 2_000_000_000));
+		assertThat("Size capped at MAX_VALUE", s.size(), equalTo(Integer.MAX_VALUE));
+	}
+
+	@Test
 	public void addRange_initial() {
 		IntRangeSet s = new IntRangeSet();
 		boolean result = s.addRange(1, 2);

@@ -131,6 +131,11 @@ public final class IntRange implements Serializable, Comparable<IntRange>, IntRa
 	 * Get the number of integer values between {@code min} and {@code max},
 	 * inclusive.
 	 *
+	 * <p>
+	 * The result overflows for ranges that contain more than
+	 * {@code Integer.MAX_VALUE} values.
+	 * </p>
+	 *
 	 * @return the inclusive length between {@code min} and {@code max}
 	 */
 	public int length() {

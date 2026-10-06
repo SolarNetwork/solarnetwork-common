@@ -423,7 +423,11 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	@Override
 	public int size() {
-		return ranges.stream().mapToInt(IntRange::length).sum();
+		long size = 0;
+		for ( IntRange r : ranges ) {
+			size += (long) r.getMax() - r.getMin() + 1;
+		}
+		return (int) Math.min(size, Integer.MAX_VALUE);
 	}
 
 	@Override
