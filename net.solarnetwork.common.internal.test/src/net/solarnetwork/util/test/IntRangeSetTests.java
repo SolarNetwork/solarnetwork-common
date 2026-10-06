@@ -1646,6 +1646,39 @@ public class IntRangeSetTests {
 		assertThat("Stream sorted into natural order", data, contains(1, 2, 4, 5));
 	}
 
+	@Test(expected = NullPointerException.class)
+	public void add_null() {
+		new IntRangeSet().add((Integer) null);
+	}
+
+	@Test
+	public void clone_copy() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3));
+
+		// WHEN
+		IntRangeSet c = s.clone();
+		c.add(5);
+		s.add(7);
+
+		// THEN
+		assertThat("Original changed independently of copy", s, contains(1, 2, 3, 7));
+		assertThat("Copy changed independently of original", c, contains(1, 2, 3, 5));
+	}
+
+	@Test
+	public void clone_subclass() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3)) {
+			// empty
+		};
+		assertThat("Copy has same class", s.clone().getClass(), equalTo(s.getClass()));
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void clone_immutable() {
+		new IntRangeSet(rangeOf(1, 3)).immutableCopy().clone().add(5);
+	}
+
 	@Test
 	public void immutableCopy() {
 		IntRangeSet s = new IntRangeSet();

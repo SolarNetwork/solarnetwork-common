@@ -49,6 +49,20 @@ import org.jspecify.annotations.Nullable;
  * {@link #ranges()} method can be used to get the list of ranges.
  * </p>
  *
+ * <p>
+ * <b>This class is not thread-safe.</b> If multiple threads access an instance
+ * concurrently, and at least one of them modifies it, then all access must be
+ * synchronized externally.
+ * </p>
+ *
+ * <p>
+ * The iterators of this set and its views, and the {@code forEachOrdered()}
+ * methods, are <i>fail-fast</i>: if the set is modified while iterating, in any
+ * way except through the iterator's own {@code remove()} method, they throw a
+ * {@link ConcurrentModificationException}. Fail-fast behavior is best-effort,
+ * so it cannot be relied on to detect unsynchronized concurrent modification.
+ * </p>
+ *
  * @author matt
  * @version 1.3
  * @since 1.58
@@ -57,7 +71,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 		implements NavigableSet<Integer>, IntRangeContainer, IntOrderedIterable, Cloneable {
 
 	private final boolean immutable;
-	private final List<IntRange> ranges;
+	private List<IntRange> ranges;
 
 	/** A count of modifications, to make iteration fail-fast. */
 	private int modCount;
@@ -127,9 +141,26 @@ public class IntRangeSet extends AbstractSet<Integer>
 		return new IntRangeSet(this.ranges, true);
 	}
 
+	/**
+	 * Create a copy of this set.
+	 *
+	 * <p>
+	 * The copy is immutable if this set is immutable.
+	 * </p>
+	 *
+	 * @return the copy
+	 */
 	@Override
-	public Object clone() {
-		return new IntRangeSet(ranges, immutable);
+	public IntRangeSet clone() {
+		final IntRangeSet s;
+		try {
+			s = (IntRangeSet) super.clone();
+		} catch ( CloneNotSupportedException e ) {
+			// should not get here
+			throw new RuntimeException(e);
+		}
+		s.ranges = new ArrayList<>(ranges);
+		return s;
 	}
 
 	@Override
@@ -227,11 +258,9 @@ public class IntRangeSet extends AbstractSet<Integer>
 	@Override
 	public boolean add(Integer e) {
 		if ( immutable ) {
-			throw new UnsupportedOperationException("Set it immutable.");
+			throw new UnsupportedOperationException("Set is immutable.");
 		}
-		if ( e == null ) {
-			throw new IllegalArgumentException("Integer cannot be null");
-		}
+		Objects.requireNonNull(e, "Integer cannot be null");
 		return add(e.intValue());
 	}
 
@@ -250,7 +279,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	 */
 	public boolean add(final int v) {
 		if ( immutable ) {
-			throw new UnsupportedOperationException("Set it immutable.");
+			throw new UnsupportedOperationException("Set is immutable.");
 		}
 		IntRange p = null;
 		boolean changed = false;
@@ -305,7 +334,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	@Override
 	public boolean addAll(Collection<? extends Integer> col) {
 		if ( immutable ) {
-			throw new UnsupportedOperationException("Set it immutable.");
+			throw new UnsupportedOperationException("Set is immutable.");
 		}
 		if ( col == null || col.isEmpty() ) {
 			return false;
@@ -363,7 +392,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	 */
 	public boolean addRange(IntRange range) {
 		if ( immutable ) {
-			throw new UnsupportedOperationException("Set it immutable.");
+			throw new UnsupportedOperationException("Set is immutable.");
 		}
 		boolean changed = false;
 		if ( ranges.isEmpty() ) {
@@ -414,7 +443,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	@Override
 	public void clear() {
 		if ( immutable ) {
-			throw new UnsupportedOperationException("Set it immutable.");
+			throw new UnsupportedOperationException("Set is immutable.");
 		}
 		ranges.clear();
 		modCount++;
@@ -587,7 +616,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	@Override
 	public boolean remove(@Nullable Object o) {
 		if ( immutable ) {
-			throw new UnsupportedOperationException("Set it immutable.");
+			throw new UnsupportedOperationException("Set is immutable.");
 		}
 		if ( !(o instanceof Integer) ) {
 			return false;
@@ -622,7 +651,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	@Override
 	public boolean removeAll(@Nullable Collection<?> c) {
 		if ( immutable ) {
-			throw new UnsupportedOperationException("Set it immutable.");
+			throw new UnsupportedOperationException("Set is immutable.");
 		}
 		if ( c == null ) {
 			return false;
@@ -637,7 +666,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	@Override
 	public @Nullable Integer pollFirst() {
 		if ( immutable ) {
-			throw new UnsupportedOperationException("Set it immutable.");
+			throw new UnsupportedOperationException("Set is immutable.");
 		}
 		if ( ranges.isEmpty() ) {
 			return null;
@@ -657,7 +686,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	@Override
 	public @Nullable Integer pollLast() {
 		if ( immutable ) {
-			throw new UnsupportedOperationException("Set it immutable.");
+			throw new UnsupportedOperationException("Set is immutable.");
 		}
 		if ( ranges.isEmpty() ) {
 			return null;
@@ -730,7 +759,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	 */
 	private boolean removeRange(final long min, final long max) {
 		if ( immutable ) {
-			throw new UnsupportedOperationException("Set it immutable.");
+			throw new UnsupportedOperationException("Set is immutable.");
 		}
 		if ( min > max ) {
 			return false;
