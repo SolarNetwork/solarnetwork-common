@@ -425,25 +425,29 @@ public class IntRangeSet extends AbstractSet<Integer>
 	}
 
 	@Override
-	public @Nullable Integer first() {
-		IntRange r = (ranges.isEmpty() ? null : ranges.get(0));
-		return (r != null ? r.getMin() : null);
+	public Integer first() {
+		if ( ranges.isEmpty() ) {
+			throw new NoSuchElementException();
+		}
+		return ranges.get(0).getMin();
 	}
 
 	@Override
-	public @Nullable Integer last() {
-		IntRange r = (ranges.isEmpty() ? null : ranges.get(ranges.size() - 1));
-		return (r != null ? r.getMax() : null);
+	public Integer last() {
+		if ( ranges.isEmpty() ) {
+			throw new NoSuchElementException();
+		}
+		return ranges.get(ranges.size() - 1).getMax();
 	}
 
 	@Override
 	public @Nullable Integer min() {
-		return first();
+		return (ranges.isEmpty() ? null : ranges.get(0).getMin());
 	}
 
 	@Override
 	public @Nullable Integer max() {
-		return last();
+		return (ranges.isEmpty() ? null : ranges.get(ranges.size() - 1).getMax());
 	}
 
 	@Override
@@ -817,12 +821,12 @@ public class IntRangeSet extends AbstractSet<Integer>
 		}
 
 		@Override
-		public @Nullable Integer first() {
+		public Integer first() {
 			return delegate.last();
 		}
 
 		@Override
-		public @Nullable Integer last() {
+		public Integer last() {
 			return delegate.first();
 		}
 

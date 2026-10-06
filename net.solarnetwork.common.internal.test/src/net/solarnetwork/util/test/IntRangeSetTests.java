@@ -811,10 +811,21 @@ public class IntRangeSetTests {
 				hasSize(0));
 	}
 
-	@Test
+	@Test(expected = NoSuchElementException.class)
 	public void first_empty() {
+		new IntRangeSet().first();
+	}
+
+	@Test
+	public void min_empty() {
 		IntRangeSet s = new IntRangeSet();
-		assertThat("Empty first", s.first(), nullValue());
+		assertThat("Empty min", s.min(), nullValue());
+	}
+
+	@Test
+	public void min_twoRanges() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+		assertThat("Two ranges min", s.min(), equalTo(1));
 	}
 
 	@Test
@@ -835,10 +846,21 @@ public class IntRangeSetTests {
 		assertThat("Two ranges first", s.first(), equalTo(1));
 	}
 
-	@Test
+	@Test(expected = NoSuchElementException.class)
 	public void last_empty() {
+		new IntRangeSet().last();
+	}
+
+	@Test
+	public void max_empty() {
 		IntRangeSet s = new IntRangeSet();
-		assertThat("Empty last", s.last(), nullValue());
+		assertThat("Empty max", s.max(), nullValue());
+	}
+
+	@Test
+	public void max_twoRanges() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+		assertThat("Two ranges max", s.max(), equalTo(9));
 	}
 
 	@Test
@@ -1527,6 +1549,16 @@ public class IntRangeSetTests {
 		data = new ArrayList<Integer>(2);
 		s.iterator().forEachRemaining(data::add);
 		assertThat("Mutations go to backing set", data, contains(1, 2, 4, 5));
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void reverseSet_empty_first() {
+		new IntRangeSet().descendingSet().first();
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void reverseSet_empty_last() {
+		new IntRangeSet().descendingSet().last();
 	}
 
 	@Test
