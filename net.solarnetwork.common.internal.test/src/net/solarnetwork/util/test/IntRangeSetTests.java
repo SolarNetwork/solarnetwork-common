@@ -38,6 +38,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
@@ -1697,6 +1698,236 @@ public class IntRangeSetTests {
 
 		// THEN
 		assertThat("Does not contain value", set.contains("a"), is(false));
+	}
+
+	@Test
+	public void subSet() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+
+		// WHEN
+		NavigableSet<Integer> v = s.subSet(2, true, 7, false);
+
+		// THEN
+		assertThat("View values", v, contains(2, 3, 5, 6));
+		assertThat("View size", v, hasSize(4));
+		assertThat("View first", v.first(), equalTo(2));
+		assertThat("View last", v.last(), equalTo(6));
+		assertThat("View contains value in range", v.contains(5), is(true));
+		assertThat("View does not contain value below range", v.contains(1), is(false));
+		assertThat("View does not contain value above range", v.contains(7), is(false));
+		assertThat("View descending values", v.descendingSet(), contains(6, 5, 3, 2));
+		List<Integer> data = new ArrayList<>();
+		v.descendingIterator().forEachRemaining(data::add);
+		assertThat("View descending iterator", data, contains(6, 5, 3, 2));
+		assertThat("View equals set of same values", v, equalTo(new HashSet<>(asList(2, 3, 5, 6))));
+	}
+
+	@Test
+	public void subSet_exclusiveInclusive() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+		assertThat("Default bounds", s.subSet(2, 7), contains(2, 3, 5, 6));
+		assertThat("Exclusive bounds", s.subSet(2, false, 7, false), contains(3, 5, 6));
+		assertThat("Inclusive bounds", s.subSet(2, true, 7, true), contains(2, 3, 5, 6, 7));
+		assertThat("Empty exclusive bounds", s.subSet(2, false, 2, false), hasSize(0));
+		assertThat("Single inclusive bound", s.subSet(2, true, 2, true), contains(2));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void subSet_fromGreaterThanTo() {
+		new IntRangeSet(rangeOf(1, 9)).subSet(5, 4);
+	}
+
+	@Test
+	public void headSet() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+		assertThat("Default exclusive", s.headSet(5), contains(1, 2, 3));
+		assertThat("Inclusive", s.headSet(5, true), contains(1, 2, 3, 5));
+		assertThat("Below all", s.headSet(1), hasSize(0));
+		assertThat("Above all", s.headSet(100), contains(1, 2, 3, 5, 6, 7, 8, 9));
+	}
+
+	@Test
+	public void tailSet() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+		assertThat("Default inclusive", s.tailSet(3), contains(3, 5, 6, 7, 8, 9));
+		assertThat("Exclusive", s.tailSet(3, false), contains(5, 6, 7, 8, 9));
+		assertThat("Above all", s.tailSet(9, false), hasSize(0));
+		assertThat("Below all", s.tailSet(-100), contains(1, 2, 3, 5, 6, 7, 8, 9));
+	}
+
+	@Test
+	public void subSet_navigation() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+
+		// WHEN
+		NavigableSet<Integer> v = s.subSet(2, true, 7, true);
+
+		// THEN
+		assertThat("Lower within range", v.lower(5), equalTo(3));
+		assertThat("Lower at range start", v.lower(2), nullValue());
+		assertThat("Lower above range", v.lower(100), equalTo(7));
+		assertThat("Floor within range", v.floor(4), equalTo(3));
+		assertThat("Floor below range", v.floor(1), nullValue());
+		assertThat("Floor above range", v.floor(9), equalTo(7));
+		assertThat("Ceiling within range", v.ceiling(4), equalTo(5));
+		assertThat("Ceiling above range", v.ceiling(8), nullValue());
+		assertThat("Ceiling below range", v.ceiling(-100), equalTo(2));
+		assertThat("Higher within range", v.higher(3), equalTo(5));
+		assertThat("Higher at range end", v.higher(7), nullValue());
+		assertThat("Higher below range", v.higher(1), equalTo(2));
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void subSet_empty_first() {
+		new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9)).subSet(4, 5).first();
+	}
+
+	@Test(expected = NoSuchElementException.class)
+	public void subSet_empty_last() {
+		new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9)).subSet(4, 5).last();
+	}
+
+	@Test
+	public void subSet_writeThrough() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+		NavigableSet<Integer> v = s.subSet(2, true, 7, false);
+
+		// WHEN
+		boolean added = v.add(4);
+		boolean removed = v.remove(5);
+		boolean removedOutOfRange = v.remove(1);
+
+		// THEN
+		assertThat("Added in range", added, is(true));
+		assertThat("Removed in range", removed, is(true));
+		assertThat("Did not remove out of range", removedOutOfRange, is(false));
+		assertThat("Changes written to backing set", s, contains(1, 2, 3, 4, 6, 7, 8, 9));
+		assertThat("View values", v, contains(2, 3, 4, 6));
+	}
+
+	@Test
+	public void subSet_backingSetChangesVisible() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+		NavigableSet<Integer> v = s.subSet(2, true, 7, false);
+
+		// WHEN
+		s.add(4);
+		s.remove(2);
+
+		// THEN
+		assertThat("View shows backing set changes", v, contains(3, 4, 5, 6));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void subSet_add_outOfRange() {
+		new IntRangeSet(rangeOf(1, 9)).subSet(2, 7).add(7);
+	}
+
+	@Test
+	public void subSet_clear() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+
+		// WHEN
+		s.subSet(2, 7).clear();
+
+		// THEN
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Range values removed from backing set", ranges, contains(rangeOf(1), rangeOf(7, 9)));
+	}
+
+	@Test
+	public void subSet_clear_withinRange() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 9));
+
+		// WHEN
+		s.subSet(3, 7).clear();
+
+		// THEN
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Range split by clear", ranges, contains(rangeOf(1, 2), rangeOf(7, 9)));
+	}
+
+	@Test
+	public void subSet_removeAll() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 9));
+		boolean result = s.subSet(3, 7).removeAll(asList(1, 4, 5));
+		assertThat("Set changed", result, is(true));
+		assertThat("Only values in range removed", s, contains(1, 2, 3, 6, 7, 8, 9));
+	}
+
+	@Test
+	public void subSet_poll() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+		NavigableSet<Integer> v = s.subSet(2, true, 7, false);
+		assertThat("Poll first", v.pollFirst(), equalTo(2));
+		assertThat("Poll last", v.pollLast(), equalTo(6));
+		assertThat("Polled values removed from backing set", s, contains(1, 3, 5, 7, 8, 9));
+		assertThat("Poll empty view", s.subSet(10, true, 20, false).pollFirst(), nullValue());
+	}
+
+	@Test
+	public void subSet_nested() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 9));
+		NavigableSet<Integer> v = s.subSet(2, true, 8, false);
+		assertThat("Nested subSet", v.subSet(3, 5), contains(3, 4));
+		assertThat("Nested headSet at exclusive bound", v.headSet(8, false), contains(2, 3, 4, 5, 6, 7));
+		assertThat("Nested tailSet", v.tailSet(6), contains(6, 7));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void subSet_nested_outOfRange() {
+		new IntRangeSet(rangeOf(1, 9)).subSet(2, true, 8, false).headSet(8, true);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void subSet_nested_outOfRange_belowExclusive() {
+		new IntRangeSet(rangeOf(1, 9)).subSet(2, true, 8, false).tailSet(1, false);
+	}
+
+	@Test
+	public void subSet_extremeValues() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(Integer.MIN_VALUE, Integer.MAX_VALUE));
+
+		// THEN
+		assertThat("Tail at MAX_VALUE", s.tailSet(Integer.MAX_VALUE - 1),
+				contains(Integer.MAX_VALUE - 1, Integer.MAX_VALUE));
+		assertThat("Tail after MAX_VALUE", s.tailSet(Integer.MAX_VALUE, false), hasSize(0));
+		assertThat("Head at MIN_VALUE descending",
+				s.headSet(Integer.MIN_VALUE + 1, true).descendingSet(),
+				contains(Integer.MIN_VALUE + 1, Integer.MIN_VALUE));
+		assertThat("Head before MIN_VALUE", s.headSet(Integer.MIN_VALUE, false), hasSize(0));
+		assertThat("Higher than MAX_VALUE", s.tailSet(0, true).higher(Integer.MAX_VALUE), nullValue());
+		assertThat("Lower than MIN_VALUE", s.headSet(0, false).lower(Integer.MIN_VALUE), nullValue());
+	}
+
+	@Test
+	public void reverseSet_subSets() {
+		// GIVEN
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 3), rangeOf(5, 9));
+
+		// WHEN
+		NavigableSet<Integer> d = s.descendingSet();
+
+		// THEN
+		assertThat("Descending headSet", d.headSet(5), contains(9, 8, 7, 6));
+		assertThat("Descending headSet inclusive", d.headSet(5, true), contains(9, 8, 7, 6, 5));
+		assertThat("Descending tailSet", d.tailSet(5), contains(5, 3, 2, 1));
+		assertThat("Descending tailSet exclusive", d.tailSet(5, false), contains(3, 2, 1));
+		assertThat("Descending subSet", d.subSet(8, 2), contains(8, 7, 6, 5, 3));
+		assertThat("Descending subSet ascending again", d.subSet(8, true, 2, false).descendingSet(),
+				contains(3, 5, 6, 7, 8));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void reverseSet_subSet_fromLessThanTo() {
+		new IntRangeSet(rangeOf(1, 9)).descendingSet().subSet(2, 8);
 	}
 
 }

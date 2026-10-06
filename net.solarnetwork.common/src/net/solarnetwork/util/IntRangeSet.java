@@ -390,7 +390,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	@Override
 	public Iterator<Integer> iterator() {
-		return new IntegerIterator();
+		return new IntegerIterator(Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 
 	/**
@@ -643,7 +643,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	@Override
 	public Iterator<Integer> descendingIterator() {
-		return new IntegerReverseIterator();
+		return new IntegerReverseIterator(Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 
 	@Override
@@ -654,17 +654,20 @@ public class IntRangeSet extends AbstractSet<Integer>
 	@Override
 	public NavigableSet<Integer> subSet(Integer fromElement, boolean fromInclusive, Integer toElement,
 			boolean toInclusive) {
-		throw new UnsupportedOperationException();
+		if ( fromElement > toElement ) {
+			throw new IllegalArgumentException("fromElement > toElement");
+		}
+		return new SubSet(false, fromElement, fromInclusive, false, toElement, toInclusive);
 	}
 
 	@Override
 	public NavigableSet<Integer> headSet(Integer toElement, boolean inclusive) {
-		throw new UnsupportedOperationException();
+		return new SubSet(true, 0, true, false, toElement, inclusive);
 	}
 
 	@Override
 	public NavigableSet<Integer> tailSet(Integer fromElement, boolean inclusive) {
-		throw new UnsupportedOperationException();
+		return new SubSet(false, fromElement, inclusive, true, 0, true);
 	}
 
 	@Override
@@ -677,125 +680,410 @@ public class IntRangeSet extends AbstractSet<Integer>
 		return tailSet(fromElement, true);
 	}
 
+	/**
+	 * Remove a range of integers, inclusive.
+	 *
+	 * @param min
+	 *        the first value to remove
+	 * @param max
+	 *        the last value to remove
+	 * @return {@literal true} if any values were removed
+	 */
+	private boolean removeRange(final long min, final long max) {
+		if ( immutable ) {
+			throw new UnsupportedOperationException("Set it immutable.");
+		}
+		if ( min > max ) {
+			return false;
+		}
+		boolean changed = false;
+		for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
+			IntRange r = itr.next();
+			if ( r.getMax() < min ) {
+				continue;
+			} else if ( r.getMin() > max ) {
+				break;
+			}
+			changed = true;
+			final boolean keepLeft = r.getMin() < min;
+			final boolean keepRight = r.getMax() > max;
+			if ( keepLeft ) {
+				// contract range from right
+				itr.set(new IntRange(r.getMin(), (int) (min - 1)));
+				if ( keepRight ) {
+					// create hole by splitting range
+					itr.add(new IntRange((int) (max + 1), r.getMax()));
+				}
+			} else if ( keepRight ) {
+				// contract range from left
+				itr.set(new IntRange((int) (max + 1), r.getMax()));
+			} else {
+				// remove entire range
+				itr.remove();
+			}
+			if ( keepRight ) {
+				break;
+			}
+		}
+		return changed;
+	}
+
+	/**
+	 * Iterate over the values of this set within a range, in ascending order.
+	 */
 	private class IntegerIterator implements Iterator<Integer> {
 
+		private final long max;
 		private final Iterator<IntRange> rangeItr;
-		private @Nullable IntRange curr;
-		private int next;
+		private long next;
+		private long stop;
 
-		private IntegerIterator() {
+		private IntegerIterator(long min, long max) {
 			super();
-			rangeItr = ranges.iterator();
-			if ( rangeItr.hasNext() ) {
-				curr = rangeItr.next();
-				next = curr.getMin();
-			} else {
-				curr = null;
-			}
-		}
-
-		private IntegerIterator(int min, int max) {
-			super();
-			rangeItr = ranges.iterator();
-			next = min;
+			this.max = max;
+			this.rangeItr = ranges.iterator();
+			this.next = 1;
+			this.stop = 0;
 			while ( rangeItr.hasNext() ) {
-				curr = rangeItr.next();
-				if ( curr.contains(min) ) {
+				IntRange r = rangeItr.next();
+				if ( r.getMax() >= min ) {
+					next = Math.max(r.getMin(), min);
+					stop = Math.min(r.getMax(), max);
 					break;
 				}
-			}
-			if ( curr != null && !curr.contains(min) ) {
-				curr = null;
 			}
 		}
 
 		@Override
 		public boolean hasNext() {
-			return (curr != null && (next <= curr.getMax() || rangeItr.hasNext()));
+			return next <= stop;
 		}
 
 		@Override
 		public Integer next() {
-			if ( curr == null ) {
+			if ( next > stop ) {
 				throw new NoSuchElementException();
 			}
-			int n = next;
+			final int n = (int) next;
 			next++;
-			if ( !curr.contains(next) ) {
-				if ( rangeItr.hasNext() ) {
-					curr = rangeItr.next();
-					next = curr.getMin();
-				} else {
-					curr = null;
-				}
+			if ( next > stop && rangeItr.hasNext() ) {
+				IntRange r = rangeItr.next();
+				next = r.getMin();
+				stop = Math.min(r.getMax(), max);
 			}
 			return n;
 		}
 
 	}
 
+	/**
+	 * Iterate over the values of this set within a range, in descending order.
+	 */
 	private class IntegerReverseIterator implements Iterator<Integer> {
 
+		private final long min;
 		private final ListIterator<IntRange> rangeItr;
-		private @Nullable IntRange curr;
-		private int next;
+		private long next;
+		private long stop;
 
-		private IntegerReverseIterator() {
+		private IntegerReverseIterator(long min, long max) {
 			super();
-			rangeItr = ranges.listIterator(ranges.size());
-			if ( rangeItr.hasPrevious() ) {
-				curr = rangeItr.previous();
-				next = curr.getMax();
-			} else {
-				curr = null;
-			}
-		}
-
-		private IntegerReverseIterator(int min, int max) {
-			super();
-			rangeItr = ranges.listIterator(ranges.size());
-			next = min;
+			this.min = min;
+			this.rangeItr = ranges.listIterator(ranges.size());
+			this.next = 0;
+			this.stop = 1;
 			while ( rangeItr.hasPrevious() ) {
-				curr = rangeItr.previous();
-				if ( curr.contains(max) ) {
+				IntRange r = rangeItr.previous();
+				if ( r.getMin() <= max ) {
+					next = Math.min(r.getMax(), max);
+					stop = Math.max(r.getMin(), min);
 					break;
 				}
-			}
-			if ( curr != null && !curr.contains(max) ) {
-				curr = null;
 			}
 		}
 
 		@Override
 		public boolean hasNext() {
-			return (curr != null && (next >= curr.getMin() || rangeItr.hasPrevious()));
+			return next >= stop;
 		}
 
 		@Override
 		public Integer next() {
-			if ( curr == null ) {
+			if ( next < stop ) {
 				throw new NoSuchElementException();
 			}
-			int n = next;
+			final int n = (int) next;
 			next--;
-			if ( !curr.contains(next) ) {
-				if ( rangeItr.hasPrevious() ) {
-					curr = rangeItr.previous();
-					next = curr.getMax();
-				} else {
-					curr = null;
-				}
+			if ( next < stop && rangeItr.hasPrevious() ) {
+				IntRange r = rangeItr.previous();
+				next = r.getMax();
+				stop = Math.max(r.getMin(), min);
 			}
 			return n;
 		}
 
 	}
 
-	private static class ReverseSet extends AbstractSet<Integer> implements NavigableSet<Integer> {
+	/**
+	 * An ascending view of the values of this set within a range.
+	 *
+	 * <p>
+	 * The range bounds follow the same rules as {@link java.util.TreeSet}
+	 * views.
+	 * </p>
+	 */
+	private final class SubSet extends AbstractSet<Integer> implements NavigableSet<Integer> {
 
-		private final IntRangeSet delegate;
+		private final boolean fromStart;
+		private final int lo;
+		private final boolean loInclusive;
+		private final boolean toEnd;
+		private final int hi;
+		private final boolean hiInclusive;
 
-		private ReverseSet(IntRangeSet delegate) {
+		/** The minimum value in range, inclusive. */
+		private final long min;
+
+		/** The maximum value in range, inclusive. */
+		private final long max;
+
+		private SubSet(boolean fromStart, int lo, boolean loInclusive, boolean toEnd, int hi,
+				boolean hiInclusive) {
+			super();
+			this.fromStart = fromStart;
+			this.lo = lo;
+			this.loInclusive = loInclusive;
+			this.toEnd = toEnd;
+			this.hi = hi;
+			this.hiInclusive = hiInclusive;
+			this.min = (fromStart ? Integer.MIN_VALUE : loInclusive ? lo : lo + 1L);
+			this.max = (toEnd ? Integer.MAX_VALUE : hiInclusive ? hi : hi - 1L);
+		}
+
+		private boolean inRange(long v) {
+			return (v >= min && v <= max);
+		}
+
+		private boolean inClosedRange(int v) {
+			return (fromStart || v >= lo) && (toEnd || v <= hi);
+		}
+
+		private boolean inRange(int v, boolean inclusive) {
+			return (inclusive ? inRange(v) : inClosedRange(v));
+		}
+
+		private @Nullable Integer floorWithin(long v) {
+			final long bound = Math.min(v, max);
+			if ( bound < min ) {
+				return null;
+			}
+			Integer result = IntRangeSet.this.floor((int) bound);
+			return (result != null && result >= min ? result : null);
+		}
+
+		private @Nullable Integer ceilingWithin(long v) {
+			final long bound = Math.max(v, min);
+			if ( bound > max ) {
+				return null;
+			}
+			Integer result = IntRangeSet.this.ceiling((int) bound);
+			return (result != null && result <= max ? result : null);
+		}
+
+		@Override
+		public @Nullable Comparator<? super Integer> comparator() {
+			return null;
+		}
+
+		@Override
+		public boolean contains(@Nullable Object o) {
+			if ( !(o instanceof Integer) ) {
+				return false;
+			}
+			final int v = (Integer) o;
+			return (inRange(v) && IntRangeSet.this.contains(v));
+		}
+
+		@Override
+		public boolean add(Integer e) {
+			if ( !inRange(e.intValue()) ) {
+				throw new IllegalArgumentException("Value out of range");
+			}
+			return IntRangeSet.this.add(e.intValue());
+		}
+
+		@Override
+		public boolean remove(@Nullable Object o) {
+			if ( !(o instanceof Integer) ) {
+				return false;
+			}
+			final int v = (Integer) o;
+			return (inRange(v) && IntRangeSet.this.remove(o));
+		}
+
+		@Override
+		public boolean removeAll(Collection<?> c) {
+			boolean modified = false;
+			for ( Object o : c ) {
+				modified |= remove(o);
+			}
+			return modified;
+		}
+
+		@Override
+		public void clear() {
+			IntRangeSet.this.removeRange(min, max);
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return (ceilingWithin(min) == null);
+		}
+
+		@Override
+		public int size() {
+			if ( min > max ) {
+				return 0;
+			}
+			long size = 0;
+			for ( IntRange r : ranges ) {
+				if ( r.getMax() < min ) {
+					continue;
+				} else if ( r.getMin() > max ) {
+					break;
+				}
+				size += Math.min(r.getMax(), max) - Math.max(r.getMin(), min) + 1;
+			}
+			return (int) Math.min(size, Integer.MAX_VALUE);
+		}
+
+		@Override
+		public Iterator<Integer> iterator() {
+			return new IntegerIterator(min, max);
+		}
+
+		@Override
+		public Iterator<Integer> descendingIterator() {
+			return new IntegerReverseIterator(min, max);
+		}
+
+		@Override
+		public NavigableSet<Integer> descendingSet() {
+			return new ReverseSet(this);
+		}
+
+		@Override
+		public Integer first() {
+			Integer result = ceilingWithin(min);
+			if ( result == null ) {
+				throw new NoSuchElementException();
+			}
+			return result;
+		}
+
+		@Override
+		public Integer last() {
+			Integer result = floorWithin(max);
+			if ( result == null ) {
+				throw new NoSuchElementException();
+			}
+			return result;
+		}
+
+		@Override
+		public @Nullable Integer lower(Integer e) {
+			return floorWithin(e - 1L);
+		}
+
+		@Override
+		public @Nullable Integer floor(Integer e) {
+			return floorWithin(e);
+		}
+
+		@Override
+		public @Nullable Integer ceiling(Integer e) {
+			return ceilingWithin(e);
+		}
+
+		@Override
+		public @Nullable Integer higher(Integer e) {
+			return ceilingWithin(e + 1L);
+		}
+
+		@Override
+		public @Nullable Integer pollFirst() {
+			Integer result = ceilingWithin(min);
+			if ( result != null ) {
+				IntRangeSet.this.remove(result);
+			}
+			return result;
+		}
+
+		@Override
+		public @Nullable Integer pollLast() {
+			Integer result = floorWithin(max);
+			if ( result != null ) {
+				IntRangeSet.this.remove(result);
+			}
+			return result;
+		}
+
+		@Override
+		public SortedSet<Integer> subSet(Integer fromElement, Integer toElement) {
+			return subSet(fromElement, true, toElement, false);
+		}
+
+		@Override
+		public NavigableSet<Integer> subSet(Integer fromElement, boolean fromInclusive,
+				Integer toElement, boolean toInclusive) {
+			if ( !inRange(fromElement, fromInclusive) ) {
+				throw new IllegalArgumentException("fromElement out of range");
+			}
+			if ( !inRange(toElement, toInclusive) ) {
+				throw new IllegalArgumentException("toElement out of range");
+			}
+			if ( fromElement > toElement ) {
+				throw new IllegalArgumentException("fromElement > toElement");
+			}
+			return new SubSet(false, fromElement, fromInclusive, false, toElement, toInclusive);
+		}
+
+		@Override
+		public NavigableSet<Integer> headSet(Integer toElement, boolean inclusive) {
+			if ( !inRange(toElement, inclusive) ) {
+				throw new IllegalArgumentException("toElement out of range");
+			}
+			return new SubSet(fromStart, lo, loInclusive, false, toElement, inclusive);
+		}
+
+		@Override
+		public NavigableSet<Integer> tailSet(Integer fromElement, boolean inclusive) {
+			if ( !inRange(fromElement, inclusive) ) {
+				throw new IllegalArgumentException("fromElement out of range");
+			}
+			return new SubSet(false, fromElement, inclusive, toEnd, hi, hiInclusive);
+		}
+
+		@Override
+		public SortedSet<Integer> headSet(Integer toElement) {
+			return headSet(toElement, false);
+		}
+
+		@Override
+		public SortedSet<Integer> tailSet(Integer fromElement) {
+			return tailSet(fromElement, true);
+		}
+
+	}
+
+	/**
+	 * A descending view of an ascending set.
+	 */
+	private static final class ReverseSet extends AbstractSet<Integer> implements NavigableSet<Integer> {
+
+		private final NavigableSet<Integer> delegate;
+
+		private ReverseSet(NavigableSet<Integer> delegate) {
 			super();
 			this.delegate = delegate;
 		}
@@ -813,6 +1101,21 @@ public class IntRangeSet extends AbstractSet<Integer>
 		@Override
 		public boolean addAll(Collection<? extends Integer> col) {
 			return delegate.addAll(col);
+		}
+
+		@Override
+		public boolean contains(@Nullable Object o) {
+			return delegate.contains(o);
+		}
+
+		@Override
+		public boolean remove(@Nullable Object o) {
+			return delegate.remove(o);
+		}
+
+		@Override
+		public boolean removeAll(Collection<?> c) {
+			return delegate.removeAll(c);
 		}
 
 		@Override
@@ -878,27 +1181,27 @@ public class IntRangeSet extends AbstractSet<Integer>
 		@Override
 		public NavigableSet<Integer> subSet(Integer fromElement, boolean fromInclusive,
 				Integer toElement, boolean toInclusive) {
-			throw new UnsupportedOperationException();
+			return new ReverseSet(delegate.subSet(toElement, toInclusive, fromElement, fromInclusive));
 		}
 
 		@Override
 		public NavigableSet<Integer> headSet(Integer toElement, boolean inclusive) {
-			return delegate.tailSet(toElement, inclusive);
+			return new ReverseSet(delegate.tailSet(toElement, inclusive));
 		}
 
 		@Override
 		public NavigableSet<Integer> tailSet(Integer fromElement, boolean inclusive) {
-			return delegate.headSet(fromElement, inclusive);
+			return new ReverseSet(delegate.headSet(fromElement, inclusive));
 		}
 
 		@Override
 		public SortedSet<Integer> headSet(Integer toElement) {
-			return delegate.tailSet(toElement);
+			return headSet(toElement, false);
 		}
 
 		@Override
 		public SortedSet<Integer> tailSet(Integer fromElement) {
-			return delegate.headSet(fromElement);
+			return tailSet(fromElement, true);
 		}
 
 		@Override
