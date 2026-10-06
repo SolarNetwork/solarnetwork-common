@@ -31,7 +31,6 @@ import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -47,6 +46,12 @@ import org.jspecify.annotations.Nullable;
  * are common. Instead of storing individual integer values, it stores an
  * ordered list of {@link IntRange} objects whose ranges do not overlap. The
  * {@link #ranges()} method can be used to get the list of ranges.
+ * </p>
+ *
+ * <p>
+ * Finding values runs in {@code O(log n)} time, where {@code n} is the number
+ * of ranges. Adding or removing values can also shift the ranges that follow in
+ * the underlying list.
  * </p>
  *
  * <p>
@@ -178,12 +183,52 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	@Override
 	public boolean contains(int value) {
-		for ( IntRange r : ranges ) {
-			if ( r.contains(value) ) {
-				return true;
+		final int idx = ceilingIndex(value);
+		return (idx < ranges.size() && ranges.get(idx).getMin() <= value);
+	}
+
+	/**
+	 * Find the first range whose maximum is greater than or equal to a value.
+	 *
+	 * @param value
+	 *        the value to search for
+	 * @return the index of the range, or the number of ranges if there is no
+	 *         such range
+	 */
+	private int ceilingIndex(final long value) {
+		int low = 0;
+		int high = ranges.size();
+		while ( low < high ) {
+			final int mid = (low + high) >>> 1;
+			if ( ranges.get(mid).getMax() < value ) {
+				low = mid + 1;
+			} else {
+				high = mid;
 			}
 		}
-		return false;
+		return low;
+	}
+
+	/**
+	 * Find the last range whose minimum is less than or equal to a value.
+	 *
+	 * @param value
+	 *        the value to search for
+	 * @return the index of the range, or {@literal -1} if there is no such
+	 *         range
+	 */
+	private int floorIndex(final long value) {
+		int low = 0;
+		int high = ranges.size();
+		while ( low < high ) {
+			final int mid = (low + high) >>> 1;
+			if ( ranges.get(mid).getMin() <= value ) {
+				low = mid + 1;
+			} else {
+				high = mid;
+			}
+		}
+		return low - 1;
 	}
 
 	/**
@@ -223,11 +268,9 @@ public class IntRangeSet extends AbstractSet<Integer>
 	public void forEachOrdered(int min, int max, IntConsumer action) {
 		Objects.requireNonNull(action);
 		final int mc = modCount;
-		for ( int idx = 0, len = ranges.size(); modCount == mc && idx < len; idx++ ) {
+		for ( int idx = ceilingIndex(min), len = ranges.size(); modCount == mc && idx < len; idx++ ) {
 			final IntRange r = ranges.get(idx);
-			if ( min > r.getMax() ) {
-				continue;
-			} else if ( max <= r.getMin() ) {
+			if ( max <= r.getMin() ) {
 				break;
 			}
 			int i = r.getMin();
@@ -268,9 +311,8 @@ public class IntRangeSet extends AbstractSet<Integer>
 	 * Add a single integer to this set.
 	 *
 	 * <p>
-	 * This method requires a linear search of all existing discreet ranges to
-	 * maintain ordering and possibly merge the value into an existing range or
-	 * cause two ranges to merge together.
+	 * This method may merge the value into an existing range, or cause two
+	 * ranges to merge together.
 	 * </p>
 	 *
 	 * @param v
@@ -281,54 +323,34 @@ public class IntRangeSet extends AbstractSet<Integer>
 		if ( immutable ) {
 			throw new UnsupportedOperationException("Set is immutable.");
 		}
-		IntRange p = null;
-		boolean changed = false;
-		if ( ranges.isEmpty() ) {
-			// first range to add
-			ranges.add(new IntRange(v, v));
-			changed = true;
+		// the first range ending on or after v; any previous range ends before v
+		final int idx = ceilingIndex(v);
+		final int len = ranges.size();
+		if ( idx < len && ranges.get(idx).getMin() <= v ) {
+			// already in this set, nothing to do
+			return false;
+		}
+		final boolean joinPrev = (idx > 0 && ranges.get(idx - 1).getMax() + 1 == v);
+		final boolean joinNext = (idx < len && ranges.get(idx).getMin() - 1 == v);
+		if ( joinPrev ) {
+			final IntRange p = ranges.get(idx - 1);
+			if ( joinNext ) {
+				// inserting such that two existing ranges are merged
+				ranges.set(idx - 1, new IntRange(p.getMin(), ranges.get(idx).getMax()));
+				ranges.remove(idx);
+			} else {
+				// just expand prev range right
+				ranges.set(idx - 1, new IntRange(p.getMin(), v));
+			}
+		} else if ( joinNext ) {
+			// just expand next range left
+			ranges.set(idx, new IntRange(v, ranges.get(idx).getMax()));
 		} else {
-			for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
-				IntRange r = itr.next();
-				if ( r.contains(v) ) {
-					// already in this set, nothing to do
-					return false;
-				} else if ( v < r.getMin() ) {
-					if ( v + 1 == r.getMin() ) {
-						// new value adjacent to curr minimum; expand curr minimum - 1
-						if ( p != null && v - 1 == p.getMax() ) {
-							// inserting such that two existing ranges are merged
-							itr.remove();
-							ranges.set(itr.previousIndex(), new IntRange(p.getMin(), r.getMax()));
-						} else {
-							// just expand curr range left
-							itr.set(new IntRange(v, r.getMax()));
-						}
-					} else if ( p != null && v - 1 == p.getMax() ) {
-						// just expand prev range right
-						ranges.set(itr.previousIndex() - 1, new IntRange(p.getMin(), v));
-					} else {
-						// insert singleton range before curr
-						ranges.add(itr.previousIndex(), new IntRange(v, v));
-					}
-					changed = true;
-					break;
-				}
-				p = r;
-			}
-			if ( !changed ) {
-				// append to end
-				if ( p != null && v - 1 == p.getMax() ) {
-					// just expand the last range
-					ranges.set(ranges.size() - 1, new IntRange(p.getMin(), v));
-				} else {
-					ranges.add(new IntRange(v, v));
-				}
-				changed = true;
-			}
+			// insert singleton range
+			ranges.add(idx, new IntRange(v, v));
 		}
 		modCount++;
-		return changed;
+		return true;
 	}
 
 	@Override
@@ -380,9 +402,8 @@ public class IntRangeSet extends AbstractSet<Integer>
 	 * Add a range of integers, inclusive.
 	 *
 	 * <p>
-	 * This method requires a linear search of all existing discreet ranges to
-	 * maintain ordering and possibly merge the given range into an existing
-	 * range or cause existing ranges to merge together.
+	 * This method may merge the given range into existing ranges, or cause
+	 * existing ranges to merge together.
 	 * </p>
 	 *
 	 * @param range
@@ -394,50 +415,26 @@ public class IntRangeSet extends AbstractSet<Integer>
 		if ( immutable ) {
 			throw new UnsupportedOperationException("Set is immutable.");
 		}
-		boolean changed = false;
-		if ( ranges.isEmpty() ) {
-			// first range to add
-			ranges.add(range);
-			changed = true;
+		// the ranges from a to b, inclusive, intersect or are adjacent to range
+		final int a = ceilingIndex(range.getMin() - 1L);
+		final int b = floorIndex(range.getMax() + 1L);
+		if ( a > b ) {
+			// no overlap, just insert range
+			ranges.add(a, range);
 		} else {
-			for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
-				IntRange r = itr.next();
-				if ( r.containsAll(range) ) {
-					// already in this set, nothing to do
-					return false;
-				} else if ( r.canMergeWith(range) ) {
-					IntRange merged = r.mergeWith(range);
-
-					// try to expand right as far as possible
-					while ( itr.hasNext() ) {
-						IntRange n = itr.next();
-						if ( merged.canMergeWith(n) ) {
-							merged = merged.mergeWith(n);
-							itr.remove();
-						} else {
-							// back up to last merged
-							itr.previous();
-							break;
-						}
-					}
-					ranges.set(itr.previousIndex(), merged);
-					changed = true;
-					break;
-				} else if ( range.getMin() < r.getMin() ) {
-					// no overlap, just insert range before curr
-					ranges.add(itr.previousIndex(), range);
-					changed = true;
-					break;
-				}
+			final IntRange first = ranges.get(a);
+			if ( a == b && first.containsAll(range) ) {
+				// already in this set, nothing to do
+				return false;
 			}
-			if ( !changed ) {
-				// append to end
-				ranges.add(range);
-				changed = true;
+			ranges.set(a, new IntRange(Math.min(first.getMin(), range.getMin()),
+					Math.max(ranges.get(b).getMax(), range.getMax())));
+			if ( b > a ) {
+				ranges.subList(a + 1, b + 1).clear();
 			}
 		}
 		modCount++;
-		return changed;
+		return true;
 	}
 
 	@Override
@@ -517,100 +514,48 @@ public class IntRangeSet extends AbstractSet<Integer>
 
 	@Override
 	public @Nullable Integer lower(Integer e) {
-		final int v = e;
-		for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
-			IntRange r = itr.next();
-			if ( r.contains(v) || r.getMin() >= v ) {
-				if ( v > r.getMin() ) {
-					// current range starts _before_ e, so can return e - 1
-					return v - 1;
-				} else if ( itr.previousIndex() > 0 ) {
-					// current range starts _on_ or _after_ e, so return previous range max
-					return ranges.get(itr.previousIndex() - 1).getMax();
-				} else {
-					// there is no lower value available
-					break;
-				}
-			} else if ( r.getMax() < v && !itr.hasNext() ) {
-				// last element's max is lower than e, return that
-				return r.getMax();
-			}
-		}
-		return null;
+		return floorValue(e - 1L);
 	}
 
 	@Override
 	public @Nullable Integer floor(Integer e) {
-		final int v = e;
-		for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
-			IntRange r = itr.next();
-			if ( r.contains(v) ) {
-				// current range contains e, so return e
-				return v;
-			} else if ( r.getMin() > v ) {
-				if ( itr.previousIndex() > 0 ) {
-					// current range starts _after_ e, so return previous range max
-					return ranges.get(itr.previousIndex() - 1).getMax();
-				} else {
-					// no lower element
-					break;
-				}
-			} else if ( r.getMax() < v && !itr.hasNext() ) {
-				// last element's max is lower than e, return that
-				return r.getMax();
-			}
-		}
-		return null;
+		return floorValue(e);
 	}
 
 	@Override
 	public @Nullable Integer ceiling(Integer e) {
-		final int v = e;
-		final int len = ranges.size();
-		for ( ListIterator<IntRange> itr = ranges.listIterator(len); itr.hasPrevious(); ) {
-			IntRange r = itr.previous();
-			if ( r.contains(v) ) {
-				// current range contains e, so return e
-				return v;
-			} else if ( r.getMax() < v ) {
-				if ( itr.nextIndex() + 1 < len ) {
-					// current range ends _before_ e, so return next range min
-					return ranges.get(itr.nextIndex() + 1).getMin();
-				} else {
-					// no higher element
-					break;
-				}
-			} else if ( r.getMin() > v && !itr.hasPrevious() ) {
-				// first element's min is higher than e, return that
-				return r.getMin();
-			}
-		}
-		return null;
+		return ceilingValue(e);
 	}
 
 	@Override
 	public @Nullable Integer higher(Integer e) {
-		final int v = e;
-		final int len = ranges.size();
-		for ( ListIterator<IntRange> itr = ranges.listIterator(len); itr.hasPrevious(); ) {
-			IntRange r = itr.previous();
-			if ( r.contains(v) || r.getMax() <= v ) {
-				if ( v < r.getMax() ) {
-					// current range ends _before_ e, so can return e + 1
-					return v + 1;
-				} else if ( itr.nextIndex() + 1 < len ) {
-					// current range ends _on_ or _before_ e, so return next range min
-					return ranges.get(itr.nextIndex() + 1).getMin();
-				} else {
-					// there is no higher value available
-					break;
-				}
-			} else if ( r.getMin() > v && !itr.hasPrevious() ) {
-				// first element's min is higher than e, return that
-				return r.getMin();
-			}
-		}
-		return null;
+		return ceilingValue(e + 1L);
+	}
+
+	/**
+	 * Get the greatest value in this set less than or equal to a value.
+	 *
+	 * @param v
+	 *        the value
+	 * @return the greatest value less than or equal to {@code v}, or
+	 *         {@code null} if there is no such value
+	 */
+	private @Nullable Integer floorValue(final long v) {
+		final int idx = floorIndex(v);
+		return (idx < 0 ? null : (int) Math.min(ranges.get(idx).getMax(), v));
+	}
+
+	/**
+	 * Get the least value in this set greater than or equal to a value.
+	 *
+	 * @param v
+	 *        the value
+	 * @return the least value greater than or equal to {@code v}, or
+	 *         {@code null} if there is no such value
+	 */
+	private @Nullable Integer ceilingValue(final long v) {
+		final int idx = ceilingIndex(v);
+		return (idx < ranges.size() ? (int) Math.max(ranges.get(idx).getMin(), v) : null);
 	}
 
 	@Override
@@ -622,30 +567,32 @@ public class IntRangeSet extends AbstractSet<Integer>
 			return false;
 		}
 		final int v = (Integer) o;
-		for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
-			IntRange r = itr.next();
-			if ( r.contains(v) ) {
-				if ( v == r.getMin() ) {
-					if ( v < r.getMax() ) {
-						// contract range from left
-						itr.set(new IntRange(v + 1, r.getMax()));
-					} else {
-						// remove singleton range
-						itr.remove();
-					}
-				} else if ( v == r.getMax() ) {
-					// contract range from right
-					itr.set(new IntRange(r.getMin(), v - 1));
-				} else {
-					// create hole by splitting range
-					itr.set(new IntRange(r.getMin(), v - 1));
-					ranges.add(itr.nextIndex(), new IntRange(v + 1, r.getMax()));
-				}
-				modCount++;
-				return true;
-			}
+		final int idx = ceilingIndex(v);
+		if ( idx >= ranges.size() ) {
+			return false;
 		}
-		return false;
+		final IntRange r = ranges.get(idx);
+		if ( r.getMin() > v ) {
+			return false;
+		}
+		if ( v == r.getMin() ) {
+			if ( v < r.getMax() ) {
+				// contract range from left
+				ranges.set(idx, new IntRange(v + 1, r.getMax()));
+			} else {
+				// remove singleton range
+				ranges.remove(idx);
+			}
+		} else if ( v == r.getMax() ) {
+			// contract range from right
+			ranges.set(idx, new IntRange(r.getMin(), v - 1));
+		} else {
+			// create hole by splitting range
+			ranges.set(idx, new IntRange(r.getMin(), v - 1));
+			ranges.add(idx + 1, new IntRange(v + 1, r.getMax()));
+		}
+		modCount++;
+		return true;
 	}
 
 	@Override
@@ -764,61 +711,25 @@ public class IntRangeSet extends AbstractSet<Integer>
 		if ( min > max ) {
 			return false;
 		}
-		boolean changed = false;
-		for ( ListIterator<IntRange> itr = ranges.listIterator(); itr.hasNext(); ) {
-			IntRange r = itr.next();
-			if ( r.getMax() < min ) {
-				continue;
-			} else if ( r.getMin() > max ) {
-				break;
-			}
-			changed = true;
-			final boolean keepLeft = r.getMin() < min;
-			final boolean keepRight = r.getMax() > max;
-			if ( keepLeft ) {
-				// contract range from right
-				itr.set(new IntRange(r.getMin(), (int) (min - 1)));
-				if ( keepRight ) {
-					// create hole by splitting range
-					itr.add(new IntRange((int) (max + 1), r.getMax()));
-				}
-			} else if ( keepRight ) {
-				// contract range from left
-				itr.set(new IntRange((int) (max + 1), r.getMax()));
-			} else {
-				// remove entire range
-				itr.remove();
-			}
-			if ( keepRight ) {
-				break;
-			}
+		// the ranges from a to b, inclusive, intersect the range to remove
+		final int a = ceilingIndex(min);
+		final int b = floorIndex(max);
+		if ( a > b ) {
+			return false;
 		}
-		if ( changed ) {
-			modCount++;
+		final IntRange first = ranges.get(a);
+		final IntRange last = ranges.get(b);
+		ranges.subList(a, b + 1).clear();
+		if ( last.getMax() > max ) {
+			// keep the part of the last range after max
+			ranges.add(a, new IntRange((int) (max + 1), last.getMax()));
 		}
-		return changed;
-	}
-
-	/**
-	 * Find the index of the range containing a value, searching from a nearby
-	 * index.
-	 *
-	 * @param value
-	 *        the value to find, which must be in this set
-	 * @param index
-	 *        the index to start searching from
-	 * @return the index of the range containing {@code value}
-	 */
-	private int rangeIndexNear(final long value, int index) {
-		final int len = ranges.size();
-		index = Math.max(0, Math.min(index, len - 1));
-		while ( index > 0 && ranges.get(index).getMin() > value ) {
-			index--;
+		if ( first.getMin() < min ) {
+			// keep the part of the first range before min
+			ranges.add(a, new IntRange(first.getMin(), (int) (min - 1)));
 		}
-		while ( index + 1 < len && ranges.get(index).getMax() < value ) {
-			index++;
-		}
-		return index;
+		modCount++;
+		return true;
 	}
 
 	/**
@@ -837,15 +748,14 @@ public class IntRangeSet extends AbstractSet<Integer>
 		private IntegerIterator(long min, long max) {
 			super();
 			this.max = max;
-			this.next = 1;
-			this.stop = 0;
-			for ( final int len = ranges.size(); index < len; index++ ) {
+			this.index = ceilingIndex(min);
+			if ( index < ranges.size() ) {
 				IntRange r = ranges.get(index);
-				if ( r.getMax() >= min ) {
-					next = Math.max(r.getMin(), min);
-					stop = Math.min(r.getMax(), max);
-					break;
-				}
+				next = Math.max(r.getMin(), min);
+				stop = Math.min(r.getMax(), max);
+			} else {
+				next = 1;
+				stop = 0;
 			}
 		}
 
@@ -887,7 +797,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 			expectedModCount = modCount;
 			if ( next <= stop ) {
 				// removing may have split or removed a range, shifting the next range
-				index = rangeIndexNear(next, index);
+				index = ceilingIndex(next);
 			}
 		}
 
@@ -909,15 +819,14 @@ public class IntRangeSet extends AbstractSet<Integer>
 		private IntegerReverseIterator(long min, long max) {
 			super();
 			this.min = min;
-			this.next = 0;
-			this.stop = 1;
-			for ( index = ranges.size() - 1; index >= 0; index-- ) {
+			this.index = floorIndex(max);
+			if ( index >= 0 ) {
 				IntRange r = ranges.get(index);
-				if ( r.getMin() <= max ) {
-					next = Math.min(r.getMax(), max);
-					stop = Math.max(r.getMin(), min);
-					break;
-				}
+				next = Math.min(r.getMax(), max);
+				stop = Math.max(r.getMin(), min);
+			} else {
+				next = 0;
+				stop = 1;
 			}
 		}
 
@@ -959,7 +868,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 			expectedModCount = modCount;
 			if ( next >= stop ) {
 				// removing may have split or removed a range, shifting the next range
-				index = rangeIndexNear(next, index);
+				index = floorIndex(next);
 			}
 		}
 
@@ -1018,7 +927,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 			if ( bound < min ) {
 				return null;
 			}
-			Integer result = IntRangeSet.this.floor((int) bound);
+			Integer result = IntRangeSet.this.floorValue(bound);
 			return (result != null && result >= min ? result : null);
 		}
 
@@ -1027,7 +936,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 			if ( bound > max ) {
 				return null;
 			}
-			Integer result = IntRangeSet.this.ceiling((int) bound);
+			Integer result = IntRangeSet.this.ceilingValue(bound);
 			return (result != null && result <= max ? result : null);
 		}
 
@@ -1087,10 +996,9 @@ public class IntRangeSet extends AbstractSet<Integer>
 				return 0;
 			}
 			long size = 0;
-			for ( IntRange r : ranges ) {
-				if ( r.getMax() < min ) {
-					continue;
-				} else if ( r.getMin() > max ) {
+			for ( int idx = ceilingIndex(min), len = ranges.size(); idx < len; idx++ ) {
+				final IntRange r = ranges.get(idx);
+				if ( r.getMin() > max ) {
 					break;
 				}
 				size += Math.min(r.getMax(), max) - Math.max(r.getMin(), min) + 1;
