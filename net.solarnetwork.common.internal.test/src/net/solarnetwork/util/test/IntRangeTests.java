@@ -32,7 +32,7 @@ import net.solarnetwork.util.IntRange;
  * Test cases for the {@link IntRange} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class IntRangeTests {
 
@@ -198,6 +198,24 @@ public class IntRangeTests {
 		IntRange r2 = new IntRange(2, 3);
 		assertThat("Overlapping ranges not adjacent", r1.adjacentTo(r2), equalTo(false));
 		assertThat("Overlapping ranges not adjacent inverse", r2.adjacentTo(r1), equalTo(false));
+	}
+
+	@Test
+	public void adjacent_maxValue() {
+		IntRange r1 = new IntRange(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
+		IntRange r2 = new IntRange(Integer.MAX_VALUE, Integer.MAX_VALUE);
+		assertThat("Ranges adjacent", r1.adjacentTo(r2), equalTo(true));
+		assertThat("Ranges adjacent inverse", r2.adjacentTo(r1), equalTo(true));
+	}
+
+	@Test
+	public void adjacent_wrapAround() {
+		IntRange r1 = new IntRange(Integer.MIN_VALUE, Integer.MIN_VALUE);
+		IntRange r2 = new IntRange(Integer.MAX_VALUE, Integer.MAX_VALUE);
+		assertThat("Extreme ranges not adjacent", r1.adjacentTo(r2), equalTo(false));
+		assertThat("Extreme ranges not adjacent inverse", r2.adjacentTo(r1), equalTo(false));
+		assertThat("Extreme ranges cannot merge", r1.canMergeWith(r2), equalTo(false));
+		assertThat("Extreme ranges cannot merge inverse", r2.canMergeWith(r1), equalTo(false));
 	}
 
 	@Test

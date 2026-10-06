@@ -339,6 +339,26 @@ public class IntRangeSetTests {
 	}
 
 	@Test
+	public void addAll_minAndMaxValues() {
+		IntRangeSet s = new IntRangeSet();
+		boolean result = s.addAll(asList(Integer.MAX_VALUE, Integer.MIN_VALUE));
+		assertThat("Set changed from mutation", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("Ranges", ranges, contains(rangeOf(Integer.MIN_VALUE), rangeOf(Integer.MAX_VALUE)));
+	}
+
+	@Test
+	public void addRange_maxValue_afterMinValue() {
+		IntRangeSet s = new IntRangeSet();
+		s.add(Integer.MIN_VALUE);
+		boolean result = s.addRange(Integer.MAX_VALUE, Integer.MAX_VALUE);
+		assertThat("Set changed from mutation", result, equalTo(true));
+		List<IntRange> ranges = stream(s.ranges().spliterator(), false).collect(toList());
+		assertThat("MAX_VALUE not merged with MIN_VALUE", ranges,
+				contains(rangeOf(Integer.MIN_VALUE), rangeOf(Integer.MAX_VALUE)));
+	}
+
+	@Test
 	public void size_empty() {
 		IntRangeSet s = new IntRangeSet();
 		assertThat("Empty size", s, hasSize(0));

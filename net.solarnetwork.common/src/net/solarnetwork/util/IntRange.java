@@ -35,7 +35,7 @@ import java.util.Objects;
  * </p>
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.58
  */
 public final class IntRange implements Serializable, Comparable<IntRange>, IntRangeContainer {
@@ -207,7 +207,7 @@ public final class IntRange implements Serializable, Comparable<IntRange>, IntRa
 	 *         if {@code o} is {@code null}
 	 */
 	public boolean adjacentTo(final IntRange o) {
-		return (max + 1 == o.min) || (o.max + 1 == min);
+		return (max + 1L == o.min) || (o.max + 1L == min);
 	}
 
 	/**
