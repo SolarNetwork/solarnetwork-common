@@ -155,24 +155,45 @@ public class IntRangeSet extends AbstractSet<Integer>
 		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws ConcurrentModificationException
+	 *         if this set is modified while iterating, for example by
+	 *         {@code action}
+	 */
 	@Override
 	public void forEachOrdered(IntConsumer action) {
 		Objects.requireNonNull(action);
-		for ( IntRange r : ranges ) {
-			for ( int i = r.getMin(); i <= r.getMax(); i++ ) {
+		final int mc = modCount;
+		for ( int idx = 0, len = ranges.size(); modCount == mc && idx < len; idx++ ) {
+			final IntRange r = ranges.get(idx);
+			for ( int i = r.getMin(); modCount == mc && i <= r.getMax(); i++ ) {
 				action.accept(i);
 				if ( i == Integer.MAX_VALUE ) {
 					// prevent overflow
-					return;
+					break;
 				}
 			}
 		}
+		if ( modCount != mc ) {
+			throw new ConcurrentModificationException();
+		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws ConcurrentModificationException
+	 *         if this set is modified while iterating, for example by
+	 *         {@code action}
+	 */
 	@Override
 	public void forEachOrdered(int min, int max, IntConsumer action) {
 		Objects.requireNonNull(action);
-		for ( IntRange r : ranges ) {
+		final int mc = modCount;
+		for ( int idx = 0, len = ranges.size(); modCount == mc && idx < len; idx++ ) {
+			final IntRange r = ranges.get(idx);
 			if ( min > r.getMax() ) {
 				continue;
 			} else if ( max <= r.getMin() ) {
@@ -182,13 +203,17 @@ public class IntRangeSet extends AbstractSet<Integer>
 			if ( i < min ) {
 				i = min;
 			}
-			for ( final int stop = max <= r.getMax() ? max - 1 : r.getMax(); i <= stop; i++ ) {
+			for ( final int stop = max <= r.getMax() ? max - 1 : r.getMax(); modCount == mc
+					&& i <= stop; i++ ) {
 				action.accept(i);
 				if ( i == Integer.MAX_VALUE ) {
 					// prevent overflow
-					return;
+					break;
 				}
 			}
+		}
+		if ( modCount != mc ) {
+			throw new ConcurrentModificationException();
 		}
 	}
 

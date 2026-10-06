@@ -789,6 +789,46 @@ public class IntRangeSetTests {
 		assertThat("Iterator values", data, hasSize(0));
 	}
 
+	@Test(expected = ConcurrentModificationException.class)
+	public void forEachOrdered_concurrentModification() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 5));
+		s.forEachOrdered(v -> {
+			if ( v == 2 ) {
+				s.remove(5);
+			}
+		});
+	}
+
+	@Test(expected = ConcurrentModificationException.class)
+	public void forEachOrdered_concurrentModification_atMaxValue() {
+		IntRangeSet s = new IntRangeSet(rangeOf(Integer.MAX_VALUE - 1, Integer.MAX_VALUE));
+		s.forEachOrdered(v -> {
+			if ( v == Integer.MAX_VALUE ) {
+				s.remove(Integer.MAX_VALUE - 1);
+			}
+		});
+	}
+
+	@Test(expected = ConcurrentModificationException.class)
+	public void forEachOrdered_range_concurrentModification() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 5));
+		s.forEachOrdered(1, 10, v -> {
+			if ( v == 2 ) {
+				s.remove(5);
+			}
+		});
+	}
+
+	@Test(expected = ConcurrentModificationException.class)
+	public void forEachOrdered_range_concurrentModification_atMaxValue() {
+		IntRangeSet s = new IntRangeSet(rangeOf(Integer.MAX_VALUE - 2, Integer.MAX_VALUE - 1));
+		s.forEachOrdered(0, Integer.MAX_VALUE, v -> {
+			if ( v == Integer.MAX_VALUE - 1 ) {
+				s.remove(Integer.MAX_VALUE - 2);
+			}
+		});
+	}
+
 	@Test
 	public void forEachOrdered_range_head_onExistingKeys() {
 		IntRangeSet m = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 7), rangeOf(9, 10));
