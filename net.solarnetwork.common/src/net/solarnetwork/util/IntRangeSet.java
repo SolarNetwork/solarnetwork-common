@@ -397,8 +397,8 @@ public class IntRangeSet extends AbstractSet<Integer>
 	 * Get the ranges of this set.
 	 *
 	 * <p>
-	 * This returns a "live" reference to the ranges in this set; mutations to
-	 * this set will impact the values in the returned collection.
+	 * This returns an unmodifiable "live" view of the ranges in this set;
+	 * mutations to this set will impact the values in the returned collection.
 	 * </p>
 	 *
 	 * @return the disjoint ranges in this set, ordered from least to greatest,
@@ -406,7 +406,7 @@ public class IntRangeSet extends AbstractSet<Integer>
 	 */
 	@Override
 	public Iterable<IntRange> ranges() {
-		return ranges;
+		return Collections.unmodifiableList(ranges);
 	}
 
 	@Override

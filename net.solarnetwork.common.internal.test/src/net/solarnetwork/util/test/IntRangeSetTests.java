@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -1562,6 +1563,35 @@ public class IntRangeSetTests {
 		assertThat("Original set mutated", s, hasSize(2));
 		assertThat("Immutable copied at point in time", c, hasSize(1));
 		assertThat("Immutable copy contains original", c, contains(1));
+	}
+
+	@Test
+	public void immutableCopy_ranges_remove() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
+		IntRangeSet c = s.immutableCopy();
+		Iterator<IntRange> itr = c.ranges().iterator();
+		itr.next();
+		try {
+			itr.remove();
+			fail("Should not be able to remove range from immutable set");
+		} catch ( UnsupportedOperationException e ) {
+			// expected
+		}
+		assertThat("Immutable copy unchanged", c, contains(1, 2, 4, 5));
+	}
+
+	@Test
+	public void ranges_remove() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
+		Iterator<IntRange> itr = s.ranges().iterator();
+		itr.next();
+		try {
+			itr.remove();
+			fail("Should not be able to remove range via ranges()");
+		} catch ( UnsupportedOperationException e ) {
+			// expected
+		}
+		assertThat("Set unchanged", s, contains(1, 2, 4, 5));
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
