@@ -26,6 +26,7 @@ import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -796,8 +797,8 @@ public class IntRangeSet extends AbstractSet<Integer>
 		}
 
 		@Override
-		public @Nullable Comparator<? super Integer> comparator() {
-			return null;
+		public Comparator<? super Integer> comparator() {
+			return Collections.reverseOrder();
 		}
 
 		@Override

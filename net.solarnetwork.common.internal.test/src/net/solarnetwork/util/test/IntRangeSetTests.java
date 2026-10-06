@@ -32,12 +32,16 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.TreeSet;
 import java.util.stream.StreamSupport;
 import org.junit.Test;
 import net.solarnetwork.util.IntRange;
@@ -1522,6 +1526,31 @@ public class IntRangeSetTests {
 		data = new ArrayList<Integer>(2);
 		s.iterator().forEachRemaining(data::add);
 		assertThat("Mutations go to backing set", data, contains(1, 2, 4, 5));
+	}
+
+	@Test
+	public void reverseSet_comparator() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
+		Comparator<? super Integer> cmp = s.descendingSet().comparator();
+		assertThat("Comparator provided for reverse order", cmp, notNullValue());
+		assertThat("Comparator orders greater values first", cmp.compare(5, 1), lessThan(0));
+	}
+
+	@Test
+	public void reverseSet_copyToTreeSet() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
+		TreeSet<Integer> t = new TreeSet<>(s.descendingSet());
+		assertThat("Copy iterates in descending order", t, contains(5, 4, 2, 1));
+		for ( int v : asList(1, 2, 4, 5) ) {
+			assertThat("Copy contains " + v, t.contains(v), equalTo(true));
+		}
+	}
+
+	@Test
+	public void reverseSet_streamSorted() {
+		IntRangeSet s = new IntRangeSet(rangeOf(1, 2), rangeOf(4, 5));
+		List<Integer> data = s.descendingSet().stream().sorted().collect(toList());
+		assertThat("Stream sorted into natural order", data, contains(1, 2, 4, 5));
 	}
 
 	@Test
