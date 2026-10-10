@@ -8,6 +8,7 @@ implemented with the Eclipse JDT library.
 The bundle will register a `net.solarnetwork.util.JavaCompiler` service when deployed, with the
 following service properties:
 
-| Property | Description |
-|:---------|:------------|
+| Property | Description           |
+|:---------|:----------------------|
 | `impl`   | Will be set to `jdt`. |
+
