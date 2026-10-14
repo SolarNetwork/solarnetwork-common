@@ -29,10 +29,8 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.compiler.CompiledST;
-import org.stringtemplate.v4.misc.ErrorType;
 import org.stringtemplate.v4.misc.Misc;
 
 /**
@@ -58,8 +56,16 @@ import org.stringtemplate.v4.misc.Misc;
  * <code>test(name) ::= "$name:'{'x | [$x$]'}'; separator=\", \"$</code>
  * </pre>
  *
+ * <p>
+ * Templates from other groups can be used by passing those groups to
+ * {@link STGroup#importTemplates(STGroup)}. A template not found in the message
+ * source is not reported as an error by this class, so that ST can look for it
+ * in the imported groups; ST reports a template that is not found in any of
+ * them.
+ * </p>
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class MessageSourceGroup extends STGroup {
 
@@ -121,11 +127,11 @@ public class MessageSourceGroup extends STGroup {
 	private @Nullable CompiledST loadTemplateFile(String prefix, String unqualifiedFileName) {
 		log.debug("loadTemplateFile({}) in MessageSourceGroup {} from prefix={}", unqualifiedFileName,
 				groupName, prefix);
-		String t;
-		try {
-			t = messageSource.getMessage(unqualifiedFileName, null, null);
-		} catch ( NoSuchMessageException e ) {
-			errMgr.runTimeError(null, null, ErrorType.INVALID_TEMPLATE_NAME, e, unqualifiedFileName);
+		// a missing template is not an error here: ST looks for it in any imported groups next,
+		// and reports it if it is not found in any of them
+		final String t = messageSource.getMessage(unqualifiedFileName, null, null, null);
+		if ( t == null ) {
+			log.debug("Template {} not found in MessageSourceGroup {}", unqualifiedFileName, groupName);
 			return null;
 		}
 

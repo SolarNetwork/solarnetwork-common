@@ -22,11 +22,15 @@
 
 package net.solarnetwork.common.tmpl.st4.test;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -36,15 +40,48 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.support.StaticMessageSource;
 import org.springframework.util.FileCopyUtils;
 import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STErrorListener;
+import org.stringtemplate.v4.misc.ErrorType;
+import org.stringtemplate.v4.misc.STMessage;
 import net.solarnetwork.common.tmpl.st4.MessageSourceGroup;
 
 /**
  * Test cases for the {@link MessageSourceGroup} class.
- * 
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class MessageSourceGroupTests {
+
+	private static final class CapturingErrorListener implements STErrorListener {
+
+		private final List<STMessage> messages = new ArrayList<>(4);
+
+		@Override
+		public void compileTimeError(STMessage msg) {
+			messages.add(msg);
+		}
+
+		@Override
+		public void runTimeError(STMessage msg) {
+			messages.add(msg);
+		}
+
+		@Override
+		public void IOError(STMessage msg) {
+			messages.add(msg);
+		}
+
+		@Override
+		public void internalError(STMessage msg) {
+			messages.add(msg);
+		}
+
+		private List<ErrorType> errorTypes() {
+			return messages.stream().map(m -> m.error).toList();
+		}
+
+	}
 
 	private MessageSource messageSource;
 
@@ -87,6 +124,55 @@ public class MessageSourceGroupTests {
 		assertThat("Output generated", output,
 				equalTo("<html><head><title>Yo!</title></head><body>Hello, world.</body></html>"));
 
+	}
+
+	@Test
+	public void render_importedTemplates() {
+		// GIVEN
+		final StaticMessageSource rootMessages = new StaticMessageSource();
+		populateMessages(rootMessages, MessageSourceGroupTests.class, "hello.st");
+		final StaticMessageSource importedMessages = new StaticMessageSource();
+		populateMessages(importedMessages, MessageSourceGroupTests.class, "head.st", "body.st");
+
+		final MessageSourceGroup group = new MessageSourceGroup("/hello", rootMessages, '$', '$');
+		group.importTemplates(new MessageSourceGroup("/parts", importedMessages, '$', '$'));
+		final CapturingErrorListener errors = new CapturingErrorListener();
+		group.setListener(errors);
+
+		final Properties messages = new Properties();
+		messages.put("title", "Yo!");
+
+		// WHEN
+		ST st = group.getInstanceOf("hello");
+		st.add("messages", messages);
+		String output = st.render();
+
+		// THEN
+		assertThat("Output generated from imported templates", output,
+				equalTo("<html><head><title>Yo!</title></head><body>Hello, world.</body></html>"));
+		assertThat("Templates found in an imported group are not errors", errors.errorTypes(), empty());
+	}
+
+	@Test
+	public void render_missingTemplate() {
+		// GIVEN
+		final StaticMessageSource rootMessages = new StaticMessageSource();
+		populateMessages(rootMessages, MessageSourceGroupTests.class, "hello.st");
+
+		final MessageSourceGroup group = new MessageSourceGroup("/hello", rootMessages, '$', '$');
+		final CapturingErrorListener errors = new CapturingErrorListener();
+		group.setListener(errors);
+
+		// WHEN
+		ST st = group.getInstanceOf("hello");
+		st.add("messages", new Properties());
+		String output = st.render();
+
+		// THEN
+		assertThat("Output generated without the missing templates", output,
+				equalTo("<html><head></head><body></body></html>"));
+		assertThat("Each missing template reported once", errors.errorTypes(),
+				contains(ErrorType.NO_SUCH_TEMPLATE, ErrorType.NO_SUCH_TEMPLATE));
 	}
 
 }
