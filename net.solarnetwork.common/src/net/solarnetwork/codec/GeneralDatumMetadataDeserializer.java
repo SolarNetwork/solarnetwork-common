@@ -67,11 +67,11 @@ public class GeneralDatumMetadataDeserializer extends StdDeserializer<GeneralDat
 		if ( t == JsonToken.VALUE_NULL ) {
 			return null;
 		} else if ( !p.isExpectedStartObjectToken() ) {
-			throw new JsonParseException(p, "Unable to parse DatumAuxiliaryRecord (not an object)");
+			throw new JsonParseException(p, "Unable to parse GeneralDatumMetadata (not an object)");
 		}
 		final GeneralDatumMetadata result = new GeneralDatumMetadata();
-		while ( p.nextValue() != null ) {
-			String field = p.currentName();
+		for ( String field = p.nextFieldName(); field != null; field = p.nextFieldName() ) {
+			p.nextToken();
 			if ( "m".equals(field) && p.isExpectedStartObjectToken() ) {
 				Map<String, Object> map = p.readValueAs(JsonUtils.STRING_MAP_TYPE);
 				result.setM(map);
@@ -95,6 +95,9 @@ public class GeneralDatumMetadataDeserializer extends StdDeserializer<GeneralDat
 				if ( !tags.isEmpty() ) {
 					result.setTags(tags);
 				}
+			} else {
+				// ignore other properties, and values of the wrong type
+				p.skipChildren();
 			}
 		}
 		return result;

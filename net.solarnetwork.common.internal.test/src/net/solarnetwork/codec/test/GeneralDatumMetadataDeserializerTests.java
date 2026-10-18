@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import net.solarnetwork.codec.GeneralDatumMetadataDeserializer;
@@ -166,6 +167,58 @@ public class GeneralDatumMetadataDeserializerTests {
 			.as("Pm parsed, ignorning non-map top-level value")
 			.returns(Map.of("c", Map.of("d", "e")), from(GeneralDatumMetadata::getPm))
 			.as("T null")
+			.returns(null, from(GeneralDatumMetadata::getT))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void deserialize_list() throws IOException {
+		// GIVEN
+		final String json = """
+				[
+					{"m": {"a": "b"}},
+					{"m": {"c": "d"}}
+				]
+				""";
+
+		// WHEN
+		List<GeneralDatumMetadata> list = mapper.readValue(json,
+				new TypeReference<List<GeneralDatumMetadata>>() {
+				});
+
+		// @formatter:off
+		then(list)
+			.as("Each array element parsed as its own metadata")
+			.extracting(GeneralDatumMetadata::getM)
+			.containsExactly(Map.of("a", "b"), Map.of("c", "d"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void deserialize_ignoredValues() throws IOException {
+		// GIVEN
+		final String json = """
+				{
+					"x": {"m": {"a": "b"}},
+					"m": [{"pm": {"c": {"d": "e"}}}],
+					"t": "f"
+				}
+				""";
+
+		// WHEN
+		GeneralDatumMetadata d = mapper.readValue(json, GeneralDatumMetadata.class);
+
+		// @formatter:off
+		then(d)
+			.as("JSON parsed")
+			.isNotNull()
+			.as("M not taken from other properties")
+			.returns(null, from(GeneralDatumMetadata::getM))
+			.as("Pm not taken from inside an invalid M value")
+			.returns(null, from(GeneralDatumMetadata::getPm))
+			.as("T ignored when not an array")
 			.returns(null, from(GeneralDatumMetadata::getT))
 			;
 		// @formatter:on
