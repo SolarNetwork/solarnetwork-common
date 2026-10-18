@@ -101,7 +101,7 @@ import net.solarnetwork.util.StringUtils;
  * </ul>
  *
  * @author matt
- * @version 2.13
+ * @version 2.14
  * @since 1.72
  */
 public final class JsonUtils {
@@ -180,6 +180,7 @@ public final class JsonUtils {
 		m.addSerializer(BasicInstructionSerializer.INSTANCE);
 		m.addSerializer(BasicInstructionStatusSerializer.INSTANCE);
 		m.addSerializer(SecurityPolicySerializer.INSTANCE);
+
 		m.addDeserializer(BasicIdentityLocation.class, BasicIdentityLocationDeserializer.INSTANCE);
 		m.addDeserializer(Location.class, BasicLocationDeserializer.INSTANCE);
 		m.addDeserializer(Instruction.class, BasicInstructionDeserializer.INSTANCE);
@@ -203,6 +204,8 @@ public final class JsonUtils {
 		m.addSerializer(ObjectDatumStreamMetadataId.class,
 				BasicObjectDatumStreamMetadataIdSerializer.INSTANCE);
 		m.addSerializer(BasicObjectDatumStreamDataSetSerializer.INSTANCE);
+		m.addSerializer(GeneralDatumMetadataSerializer.INSTANCE);
+
 		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
 		m.addDeserializer(DatumAuxiliaryRecord.class, BasicDatumAuxiliaryRecordDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamMetadata.class,
@@ -212,6 +215,7 @@ public final class JsonUtils {
 				BasicObjectDatumStreamMetadataIdDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamDataSet.class,
 				BasicObjectDatumStreamDataSetDeserializer.INSTANCE);
+		m.addDeserializer(GeneralDatumMetadata.class, GeneralDatumMetadataDeserializer.INSTANCE);
 		DATUM_MODULE = m;
 	}
 

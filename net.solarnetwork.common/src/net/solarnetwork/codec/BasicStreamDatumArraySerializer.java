@@ -23,6 +23,7 @@
 package net.solarnetwork.codec;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -43,6 +44,7 @@ import net.solarnetwork.domain.datum.StreamDatum;
 public class BasicStreamDatumArraySerializer extends StdScalarSerializer<StreamDatum>
 		implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = -4548263284532264499L;
 
 	/** A default instance. */

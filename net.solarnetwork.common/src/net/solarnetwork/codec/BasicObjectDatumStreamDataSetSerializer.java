@@ -25,6 +25,7 @@ package net.solarnetwork.codec;
 import static net.solarnetwork.codec.JsonUtils.writeDecimalArrayValues;
 import static net.solarnetwork.codec.JsonUtils.writeStringArrayValues;
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
@@ -76,6 +77,7 @@ import net.solarnetwork.domain.datum.StreamDatum;
 public class BasicObjectDatumStreamDataSetSerializer extends
 		StdScalarSerializer<ObjectDatumStreamDataSet<? extends StreamDatum>> implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = -4226762305023708915L;
 
 	/** A default instance. */

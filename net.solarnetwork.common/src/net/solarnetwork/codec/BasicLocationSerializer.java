@@ -23,6 +23,7 @@
 package net.solarnetwork.codec;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -40,6 +41,7 @@ import net.solarnetwork.domain.Location;
  */
 public class BasicLocationSerializer extends StdScalarSerializer<Location> implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = 4083741477465008605L;
 
 	/** A default instance. */

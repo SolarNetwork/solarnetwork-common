@@ -23,6 +23,7 @@
 package net.solarnetwork.codec;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -41,6 +42,7 @@ import net.solarnetwork.domain.InstructionStatus;
 public class BasicInstructionStatusSerializer extends StdScalarSerializer<InstructionStatus>
 		implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = 3557353976716434922L;
 
 	/** A default instance. */

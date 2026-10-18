@@ -23,6 +23,7 @@
 package net.solarnetwork.codec;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
@@ -52,6 +53,7 @@ import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 public class BasicObjectDatumStreamMetadataDeserializer
 		extends StdScalarDeserializer<ObjectDatumStreamMetadata> implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = -1844182290390256234L;
 
 	/** A default instance. */

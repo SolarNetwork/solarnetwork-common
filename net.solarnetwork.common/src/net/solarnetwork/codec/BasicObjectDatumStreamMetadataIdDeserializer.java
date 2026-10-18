@@ -23,6 +23,7 @@
 package net.solarnetwork.codec;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -44,6 +45,7 @@ import net.solarnetwork.domain.datum.ObjectDatumStreamMetadataId;
 public class BasicObjectDatumStreamMetadataIdDeserializer
 		extends StdScalarDeserializer<ObjectDatumStreamMetadataId> implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = 5772539222468672138L;
 
 	/** A default instance. */

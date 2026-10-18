@@ -23,6 +23,7 @@
 package net.solarnetwork.codec;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import org.jspecify.annotations.Nullable;
@@ -46,6 +47,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  */
 public class BigDecimalStringSerializer extends StdSerializer<BigDecimal> {
 
+	@Serial
 	private static final long serialVersionUID = 4462532770316408808L;
 
 	/**

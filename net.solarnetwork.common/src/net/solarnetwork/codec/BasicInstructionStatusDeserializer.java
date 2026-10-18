@@ -23,6 +23,7 @@
 package net.solarnetwork.codec;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Map;
@@ -47,6 +48,7 @@ import net.solarnetwork.domain.InstructionStatus;
 public class BasicInstructionStatusDeserializer extends StdScalarDeserializer<InstructionStatus>
 		implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = -5321961973815076686L;
 
 	/** A default instance . */

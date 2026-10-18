@@ -97,7 +97,7 @@ import tools.jackson.databind.module.SimpleModule;
  * </ul>
  *
  * @author matt
- * @version 1.5
+ * @version 1.6
  * @since 4.13
  */
 public final class JsonUtils {
@@ -138,6 +138,7 @@ public final class JsonUtils {
 		m.addSerializer(ObjectDatumStreamMetadataId.class,
 				BasicObjectDatumStreamMetadataIdSerializer.INSTANCE);
 		m.addSerializer(BasicObjectDatumStreamDataSetSerializer.INSTANCE);
+		m.addSerializer(GeneralDatumMetadataSerializer.INSTANCE);
 
 		m.addDeserializer(Datum.class, BasicGeneralDatumDeserializer.INSTANCE);
 		m.addDeserializer(DatumAuxiliaryRecord.class, BasicDatumAuxiliaryRecordDeserializer.INSTANCE);
@@ -148,6 +149,7 @@ public final class JsonUtils {
 				BasicObjectDatumStreamMetadataIdDeserializer.INSTANCE);
 		m.addDeserializer(ObjectDatumStreamDataSet.class,
 				BasicObjectDatumStreamDataSetDeserializer.INSTANCE);
+		m.addDeserializer(GeneralDatumMetadata.class, GeneralDatumMetadataDeserializer.INSTANCE);
 		DATUM_MODULE = m;
 	}
 

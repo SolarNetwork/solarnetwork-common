@@ -23,6 +23,7 @@
 package net.solarnetwork.codec;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import org.jspecify.annotations.Nullable;
@@ -44,6 +45,7 @@ import net.solarnetwork.domain.Location;
  */
 public class BasicLocationDeserializer extends StdScalarDeserializer<Location> implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = -5998708607249785150L;
 
 	/** A default instance. */

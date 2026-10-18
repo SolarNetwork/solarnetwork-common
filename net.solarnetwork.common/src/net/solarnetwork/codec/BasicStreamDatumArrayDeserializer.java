@@ -25,6 +25,7 @@ package net.solarnetwork.codec;
 import static java.time.Instant.ofEpochMilli;
 import static net.solarnetwork.domain.datum.DatumProperties.propertiesOf;
 import java.io.IOException;
+import java.io.Serial;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -45,6 +46,7 @@ import net.solarnetwork.domain.datum.StreamDatum;
  */
 public class BasicStreamDatumArrayDeserializer extends StdScalarDeserializer<StreamDatum> {
 
+	@Serial
 	private static final long serialVersionUID = -7518473762908606824L;
 
 	/** A default instance. */

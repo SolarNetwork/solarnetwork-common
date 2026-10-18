@@ -32,6 +32,7 @@ import static net.solarnetwork.codec.BasicObjectDatumStreamDataSetSerializer.TOT
 import static net.solarnetwork.domain.datum.DatumProperties.propertiesOf;
 import static net.solarnetwork.domain.datum.DatumPropertiesStatistics.statisticsOf;
 import java.io.IOException;
+import java.io.Serial;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +67,7 @@ import net.solarnetwork.domain.datum.StreamDatum;
 public class BasicObjectDatumStreamDataSetDeserializer
 		extends StdScalarDeserializer<ObjectDatumStreamDataSet<StreamDatum>> {
 
+	@Serial
 	private static final long serialVersionUID = 3809268939568086603L;
 
 	/** A default instance. */
