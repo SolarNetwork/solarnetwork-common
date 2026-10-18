@@ -31,6 +31,7 @@ import static org.hamcrest.Matchers.nullValue;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +47,7 @@ import net.solarnetwork.domain.tariff.TariffUtils;
  * Test cases for the {@link TariffUtils} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class TariffUtilsTests {
 
@@ -169,6 +170,55 @@ public class TariffUtilsTests {
 				"10.48");
 		assertTemporalRangeTariff("Row 3", tariffs.get(1), "January-December", null, "Sat-Sun", "0-8",
 				"9.19");
+	}
+
+	@Test
+	public void parseCsvTemporalRangeSchedule_list_multipleRates() throws IOException {
+		// GIVEN
+		final List<List<Object>> csv = List.of(
+				List.of("Month", "Day Range", "Day of Week Range", "Hour of Day Range", "E", "F"),
+				Arrays.asList("January-December", null, "Mon-Fri", "0-8", "10.48",
+						new BigDecimal("1.5")),
+				Arrays.asList("January-December", null, "Sat-Sun", "0-8", "9.19", "1.25"));
+
+		// WHEN
+		TariffSchedule result = TariffUtils.parseCsvTemporalRangeSchedule(Locale.US, false, false, null,
+				csv);
+
+		// THEN
+		assertThat("SimpleTemporalTariffSchedule provided", result,
+				is(instanceOf(SimpleTemporalTariffSchedule.class)));
+		List<Tariff> tariffs = new ArrayList<>();
+		tariffs.addAll(result.rules());
+		assertThat("One rule per row", tariffs, hasSize(2));
+		assertTemporalRangeTariff("Row 1", tariffs.get(0), "January-December", null, "Mon-Fri", "0-8",
+				"10.48", "1.5");
+		assertTemporalRangeTariff("Row 2", tariffs.get(1), "January-December", null, "Sat-Sun", "0-8",
+				"9.19", "1.25");
+	}
+
+	@Test
+	public void parseCsvTemporalRangeSchedule_list_ignoredValues() throws IOException {
+		// GIVEN
+		final List<List<Object>> csv = List.of(
+				List.of("Month", "Day Range", "Day of Week Range", "Hour of Day Range", "E", "F"),
+				Arrays.asList("January-December", null, "Mon-Fri", "0-8", "10.48", "1.5", "no header"),
+				Arrays.asList("January-December", "", "Sat-Sun", "0-8", "9.19", ""));
+
+		// WHEN
+		TariffSchedule result = TariffUtils.parseCsvTemporalRangeSchedule(Locale.US, false, false, null,
+				csv);
+
+		// THEN
+		assertThat("SimpleTemporalTariffSchedule provided", result,
+				is(instanceOf(SimpleTemporalTariffSchedule.class)));
+		List<Tariff> tariffs = new ArrayList<>();
+		tariffs.addAll(result.rules());
+		assertThat("One rule per row", tariffs, hasSize(2));
+		assertTemporalRangeTariff("Row 1 ignores a value without a header", tariffs.get(0),
+				"January-December", null, "Mon-Fri", "0-8", "10.48", "1.5");
+		assertTemporalRangeTariff("Row 2 ignores an empty rate", tariffs.get(1), "January-December",
+				null, "Sat-Sun", "0-8", "9.19");
 	}
 
 }

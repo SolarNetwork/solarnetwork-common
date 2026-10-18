@@ -67,11 +67,12 @@ public final class TariffUtils {
 	 *        {@link net.solarnetwork.domain.tariff.SimpleTemporalRangesTariffEvaluator}
 	 *        will be used
 	 * @param scheduleData
-	 *        a {@code String}, {@link Reader}, or {@code String[]} instance of
-	 *        CSV data
+	 *        a {@code String} or {@link Reader} of CSV data, or the CSV rows as
+	 *        a {@code String[][]} or a {@code List} of {@code List} (like a
+	 *        JSON array of arrays in metadata)
 	 * @return the parsed schedule, or {@code null} if {@code scheduleData} is
-	 *         not a {@code String}, {@link Reader}, or {@code String[]}
-	 *         instance
+	 *         not one of the supported types, or its rows have no header row of
+	 *         at least 5 columns
 	 * @throws IOException
 	 *         if any parsing error occurs
 	 * @see CsvTemporalRangeTariffParser
@@ -124,26 +125,23 @@ public final class TariffUtils {
 					if ( row == null || row.size() < 5 ) {
 						continue;
 					}
-					List<Tariff.Rate> rates = new ArrayList<>(row.size() - 4);
-					for ( int j = 4, colCount = row.size(); j < colCount; j++ ) {
-						Object name = headers.get(j);
-						String id = StringUtils.simpleIdValue(name.toString(), preserveRateCase);
-						if ( id == null ) {
+					// like CsvTemporalRangeTariffParser, ignore values without a header and empty rates
+					final int colCount = Math.min(row.size(), headers.size());
+					final List<Tariff.Rate> rates = new ArrayList<>(colCount - 4);
+					for ( int j = 4; j < colCount; j++ ) {
+						final String name = stringValue(headers.get(j));
+						final String id = (name != null
+								? StringUtils.simpleIdValue(name, preserveRateCase)
+								: null);
+						final String val = stringValue(row.get(j));
+						if ( name == null || id == null || val == null || val.isEmpty() ) {
 							continue;
 						}
-						Object val = row.get(j);
-						if ( val == null ) {
-							continue;
-						}
-						rates.add(new SimpleTariffRate(id, name.toString(),
-								new BigDecimal(val.toString())));
-						TemporalRangeSetsTariff tariff = new TemporalRangeSetsTariff(
-								row.get(0) != null ? row.get(0).toString() : null,
-								row.get(1) != null ? row.get(1).toString() : null,
-								row.get(2) != null ? row.get(2).toString() : null,
-								row.get(3) != null ? row.get(3).toString() : null, rates, locale);
-						tariffs.add(tariff);
+						rates.add(new SimpleTariffRate(id, name, new BigDecimal(val)));
 					}
+					tariffs.add(
+							new TemporalRangeSetsTariff(stringValue(row.get(0)), stringValue(row.get(1)),
+									stringValue(row.get(2)), stringValue(row.get(3)), rates, locale));
 				}
 			}
 		} else {
@@ -152,6 +150,11 @@ public final class TariffUtils {
 		SimpleTemporalTariffSchedule s = new SimpleTemporalTariffSchedule(tariffs, evaluator);
 		s.setFirstMatchOnly(firstMatchOnly);
 		return s;
+	}
+
+	private static @Nullable String stringValue(@Nullable Object value) {
+		// trim like the CSV parser does
+		return (value != null ? value.toString().trim() : null);
 	}
 
 }
