@@ -36,7 +36,7 @@ import net.solarnetwork.util.StringUtils;
  * Tariff utilities.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 3.16
  */
 public final class TariffUtils {
@@ -85,9 +85,8 @@ public final class TariffUtils {
 			tariffs = new CsvTemporalRangeTariffParser(locale, preserveRateCase)
 					.parseTariffs(scheduleData instanceof Reader ? (Reader) scheduleData
 							: new StringReader(scheduleData.toString()));
-		} else if ( scheduleData instanceof String[][] ) {
+		} else if ( scheduleData instanceof String[][] data ) {
 			tariffs = new ArrayList<>();
-			String[][] data = (String[][]) scheduleData;
 			if ( data.length > 1 ) {
 				String[] headers = data[0];
 				if ( headers.length < 5 ) {
@@ -110,6 +109,41 @@ public final class TariffUtils {
 					TemporalRangeSetsTariff tariff = new TemporalRangeSetsTariff(row[0], row[1], row[2],
 							row[3], rates, locale);
 					tariffs.add(tariff);
+				}
+			}
+		} else if ( scheduleData instanceof List<?> data ) {
+			// assume List of List here (should be List<List<String>>)
+			tariffs = new ArrayList<>();
+			if ( !data.isEmpty() ) {
+				final List<?> headers = data.get(0) instanceof List<?> l ? l : null;
+				if ( headers == null || headers.size() < 5 ) {
+					return null;
+				}
+				for ( int i = 1, rowCount = data.size(); i < rowCount; i++ ) {
+					final List<?> row = data.get(i) instanceof List<?> l ? l : null;
+					if ( row == null || row.size() < 5 ) {
+						continue;
+					}
+					List<Tariff.Rate> rates = new ArrayList<>(row.size() - 4);
+					for ( int j = 4, colCount = row.size(); j < colCount; j++ ) {
+						Object name = headers.get(j);
+						String id = StringUtils.simpleIdValue(name.toString(), preserveRateCase);
+						if ( id == null ) {
+							continue;
+						}
+						Object val = row.get(j);
+						if ( val == null ) {
+							continue;
+						}
+						rates.add(new SimpleTariffRate(id, name.toString(),
+								new BigDecimal(val.toString())));
+						TemporalRangeSetsTariff tariff = new TemporalRangeSetsTariff(
+								row.get(0) != null ? row.get(0).toString() : null,
+								row.get(1) != null ? row.get(1).toString() : null,
+								row.get(2) != null ? row.get(2).toString() : null,
+								row.get(3) != null ? row.get(3).toString() : null, rates, locale);
+						tariffs.add(tariff);
+					}
 				}
 			}
 		} else {

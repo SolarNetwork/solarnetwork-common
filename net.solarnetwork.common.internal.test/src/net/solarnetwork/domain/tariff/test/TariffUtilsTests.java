@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import org.junit.Test;
@@ -129,6 +130,30 @@ public class TariffUtilsTests {
 				new String[] { "Month", "Day Range", "Day of Week Range", "Hour of Day Range", "E" },
 				new String[] { "January-December", null, "Mon-Fri", "0-8", "10.48" },
 				new String[] { "January-December", null, "Sat-Sun", "0-8", "9.19" } };
+
+		// WHEN
+		TariffSchedule result = TariffUtils.parseCsvTemporalRangeSchedule(Locale.US, false, false, null,
+				csv);
+
+		// THEN
+		assertThat("SimpleTemporalTariffSchedule provided", result,
+				is(instanceOf(SimpleTemporalTariffSchedule.class)));
+		List<Tariff> tariffs = new ArrayList<>();
+		tariffs.addAll(result.rules());
+		assertThat("All rules parsed", tariffs, hasSize(2));
+		assertTemporalRangeTariff("Row 1", tariffs.get(0), "January-December", null, "Mon-Fri", "0-8",
+				"10.48");
+		assertTemporalRangeTariff("Row 3", tariffs.get(1), "January-December", null, "Sat-Sun", "0-8",
+				"9.19");
+	}
+
+	@Test
+	public void parseCsvTemporalRangeSchedule_list() throws IOException {
+		// GIVEN
+		final List<List<String>> csv = List.of(
+				List.of("Month", "Day Range", "Day of Week Range", "Hour of Day Range", "E"),
+				Arrays.asList("January-December", null, "Mon-Fri", "0-8", "10.48"),
+				Arrays.asList("January-December", null, "Sat-Sun", "0-8", "9.19"));
 
 		// WHEN
 		TariffSchedule result = TariffUtils.parseCsvTemporalRangeSchedule(Locale.US, false, false, null,
