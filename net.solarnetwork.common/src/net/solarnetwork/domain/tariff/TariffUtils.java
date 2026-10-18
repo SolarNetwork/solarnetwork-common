@@ -108,7 +108,7 @@ public final class TariffUtils {
 						rates.add(new SimpleTariffRate(id, name, new BigDecimal(row[j])));
 					}
 					TemporalRangeSetsTariff tariff = new TemporalRangeSetsTariff(row[0], row[1], row[2],
-							row[3], rates, locale);
+							wholeHourRange(row[3]), rates, locale);
 					tariffs.add(tariff);
 				}
 			}
@@ -139,9 +139,9 @@ public final class TariffUtils {
 						}
 						rates.add(new SimpleTariffRate(id, name, new BigDecimal(val)));
 					}
-					tariffs.add(
-							new TemporalRangeSetsTariff(stringValue(row.get(0)), stringValue(row.get(1)),
-									stringValue(row.get(2)), stringValue(row.get(3)), rates, locale));
+					tariffs.add(new TemporalRangeSetsTariff(stringValue(row.get(0)),
+							stringValue(row.get(1)), stringValue(row.get(2)),
+							wholeHourRange(stringValue(row.get(3))), rates, locale));
 				}
 			}
 		} else {
@@ -155,6 +155,29 @@ public final class TariffUtils {
 	private static @Nullable String stringValue(@Nullable Object value) {
 		// trim like the CSV parser does
 		return (value != null ? value.toString().trim() : null);
+	}
+
+	/**
+	 * Widen a whole hour time-of-day range, like {@code 8}, to that hour, like
+	 * {@code 8-9}.
+	 *
+	 * @param range
+	 *        the time-of-day range
+	 * @return the range, widened if it is a single whole hour from 0 to 23
+	 * @since 1.1
+	 */
+	public static @Nullable String wholeHourRange(@Nullable String range) {
+		if ( range != null && range.indexOf('-') < 0 && range.indexOf(':') < 0 ) {
+			try {
+				int hod = Integer.parseInt(range);
+				if ( hod < 24 ) {
+					return hod + "-" + (hod + 1);
+				}
+			} catch ( NumberFormatException e ) {
+				// ignore and continue
+			}
+		}
+		return range;
 	}
 
 }

@@ -70,7 +70,7 @@ import net.solarnetwork.util.StringUtils;
  * </p>
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  * @since 1.71
  */
 public class CsvTemporalRangeTariffParser {
@@ -165,18 +165,7 @@ public class CsvTemporalRangeTariffParser {
 							rates.add(new SimpleTariffRate(ids[i], headers.get(j), rateValue));
 						}
 					}
-					// look for MOD singleton hour; convert to hour range if found
-					String modRange = row.getField(3);
-					if ( modRange != null && modRange.indexOf('-') < 0 && modRange.indexOf(':') < 0 ) {
-						try {
-							int hod = Integer.parseInt(modRange);
-							if ( hod < 24 ) {
-								modRange = hod + "-" + (hod + 1);
-							}
-						} catch ( NumberFormatException e ) {
-							// ignore and continue
-						}
-					}
+					String modRange = TariffUtils.wholeHourRange(row.getField(3));
 					TemporalRangeSetsTariff t = new TemporalRangeSetsTariff(row.getField(0),
 							row.getField(1), row.getField(2), modRange, rates, locale);
 					result.add(t);
