@@ -22,6 +22,8 @@
 
 package net.solarnetwork.web.jakarta.support;
 
+import static net.solarnetwork.util.ObjectUtils.nonnull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +32,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * Common utility helper methods for web processing.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public final class WebUtils {
 
@@ -63,17 +65,19 @@ public final class WebUtils {
 	 * @param request
 	 *        the HTTP request
 	 * @param viewName
-	 *        the custom view name
+	 *        if non-null, the view name to use instead of resolving one from
+	 *        the URI
 	 * @return a view name (never {@code null})
+	 * @throws IllegalStateException
+	 *         if a view name cannot be resolved from the URI extension
 	 */
-	public static String resolveViewFromUrlExtension(HttpServletRequest request, String viewName) {
+	public static String resolveViewFromUrlExtension(HttpServletRequest request,
+			@Nullable String viewName) {
 		// resolve the final view name based on the URL suffix, i.e. "*.xml" -> "xml"
 		String resolvedViewName = viewName;
 		if ( resolvedViewName == null ) {
-			var resolved = StringUtils.getFilenameExtension(request.getRequestURI());
-			if ( resolved != null ) {
-				resolvedViewName = resolved;
-			}
+			resolvedViewName = nonnull(StringUtils.getFilenameExtension(request.getRequestURI()),
+					"URI extension");
 		}
 		return resolvedViewName;
 	}
