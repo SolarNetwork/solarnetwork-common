@@ -26,6 +26,7 @@ import static java.lang.String.format;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.InstantSource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -47,7 +48,7 @@ import net.solarnetwork.util.DateUtils;
  * API for datum-related date helper functions.
  *
  * @author matt
- * @version 1.5
+ * @version 1.6
  * @since 3.17
  */
 public interface DatumDateFunctions {
@@ -67,12 +68,28 @@ public interface DatumDateFunctions {
 	}
 
 	/**
+	 * Get the clock that the "current time" functions such as
+	 * {@link #timestamp()}, {@link #now()}, {@link #nowTz()}, {@link #today()},
+	 * and {@link #startOfDay()} use.
+	 *
+	 * <p>
+	 * This implementation returns {@link InstantSource#system()}.
+	 * </p>
+	 *
+	 * @return the clock, never {@code null}
+	 * @since 1.6
+	 */
+	default InstantSource clock() {
+		return InstantSource.system();
+	}
+
+	/**
 	 * Get the local date right now in the system time zone.
 	 *
 	 * @return the local date
 	 */
 	default LocalDate today() {
-		return LocalDate.now();
+		return today((ZoneId) null);
 	}
 
 	/**
@@ -97,9 +114,9 @@ public interface DatumDateFunctions {
 	 */
 	default LocalDate today(@Nullable ZoneId zone) {
 		if ( zone == null ) {
-			return today();
+			zone = ZoneId.systemDefault();
 		}
-		return LocalDate.now(zone);
+		return LocalDate.ofInstant(clock().instant(), zone);
 	}
 
 	/**
@@ -138,7 +155,7 @@ public interface DatumDateFunctions {
 		if ( zone == null ) {
 			zone = ZoneId.systemDefault();
 		}
-		return ZonedDateTime.now(zone).truncatedTo(ChronoUnit.DAYS);
+		return nowTz(zone).truncatedTo(ChronoUnit.DAYS);
 	}
 
 	/**
@@ -147,7 +164,7 @@ public interface DatumDateFunctions {
 	 * @return the local date and time
 	 */
 	default LocalDateTime now() {
-		return LocalDateTime.now();
+		return now((ZoneId) null);
 	}
 
 	/**
@@ -172,9 +189,9 @@ public interface DatumDateFunctions {
 	 */
 	default LocalDateTime now(@Nullable ZoneId zone) {
 		if ( zone == null ) {
-			return now();
+			zone = ZoneId.systemDefault();
 		}
-		return LocalDateTime.now(zone);
+		return LocalDateTime.ofInstant(clock().instant(), zone);
 	}
 
 	/**
@@ -183,7 +200,7 @@ public interface DatumDateFunctions {
 	 * @return the date and time
 	 */
 	default ZonedDateTime nowTz() {
-		return ZonedDateTime.now();
+		return nowTz((ZoneId) null);
 	}
 
 	/**
@@ -208,9 +225,9 @@ public interface DatumDateFunctions {
 	 */
 	default ZonedDateTime nowTz(@Nullable ZoneId zone) {
 		if ( zone == null ) {
-			return nowTz();
+			zone = ZoneId.systemDefault();
 		}
-		return ZonedDateTime.now(zone);
+		return ZonedDateTime.ofInstant(clock().instant(), zone);
 	}
 
 	/**
@@ -264,7 +281,7 @@ public interface DatumDateFunctions {
 	 * @return the instant
 	 */
 	default Instant timestamp() {
-		return Instant.now();
+		return clock().instant();
 	}
 
 	/**

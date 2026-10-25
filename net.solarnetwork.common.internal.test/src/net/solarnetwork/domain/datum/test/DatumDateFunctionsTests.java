@@ -36,6 +36,7 @@ import static org.hamcrest.Matchers.nullValue;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.InstantSource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -55,7 +56,7 @@ import net.solarnetwork.util.NumberUtils;
  * Test cases for the {@link DatumDateFunctions} interface.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class DatumDateFunctionsTests implements DatumDateFunctions {
 
@@ -1091,6 +1092,37 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 		// THEN
 		assertThat("Floored Instant in system time zone", result, is(equalTo(date.truncatedTo(MINUTES)
 				.minus(date.atZone(ZoneId.systemDefault()).getMinute() % 15, MINUTES))));
+	}
+
+	@Test
+	public void currentTimeFunctions_clock() {
+		// GIVEN
+		final Instant date = Instant.parse("2020-02-03T04:05:06.789Z");
+		final ZoneId zone = ZoneId.of("Pacific/Auckland");
+		final DatumDateFunctions fns = new DatumDateFunctions() {
+
+			@Override
+			public InstantSource clock() {
+				return InstantSource.fixed(date);
+			}
+
+		};
+
+		// THEN
+		assertThat("Timestamp from clock", fns.timestamp(), is(equalTo(date)));
+		assertThat("Now from clock in system zone", fns.now(),
+				is(equalTo(LocalDateTime.ofInstant(date, ZoneId.systemDefault()))));
+		assertThat("Now from clock in zone", fns.now(zone),
+				is(equalTo(LocalDateTime.of(2020, 2, 3, 17, 5, 6, 789_000_000))));
+		assertThat("NowTz from clock in system zone", fns.nowTz(),
+				is(equalTo(date.atZone(ZoneId.systemDefault()))));
+		assertThat("NowTz from clock in zone", fns.nowTz(zone), is(equalTo(date.atZone(zone))));
+		assertThat("Today from clock in system zone", fns.today(),
+				is(equalTo(LocalDate.ofInstant(date, ZoneId.systemDefault()))));
+		assertThat("Today from clock in zone", fns.today("UTC-06:00"),
+				is(equalTo(LocalDate.of(2020, 2, 2))));
+		assertThat("Start of day from clock in zone", fns.startOfDay(zone),
+				is(equalTo(ZonedDateTime.of(2020, 2, 3, 0, 0, 0, 0, zone))));
 	}
 
 }

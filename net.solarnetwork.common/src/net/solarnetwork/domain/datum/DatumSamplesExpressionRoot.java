@@ -22,6 +22,8 @@
 
 package net.solarnetwork.domain.datum;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import java.time.InstantSource;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -55,7 +57,7 @@ import org.jspecify.annotations.Nullable;
  * </ol>
  *
  * @author matt
- * @version 2.2
+ * @version 2.3
  * @since 1.71
  */
 public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
@@ -68,6 +70,7 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 */
 	public static final String INTERNAL_PARAM_PREFIX = "__";
 
+	private final InstantSource clock;
 	private final @Nullable Datum datum;
 	private final @Nullable DatumSamplesOperations datumOps;
 	private final @Nullable DatumSamplesOperations sample;
@@ -85,7 +88,26 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 */
 	public DatumSamplesExpressionRoot(@Nullable Datum datum, @Nullable DatumSamplesOperations sample,
 			@Nullable Map<String, ?> parameters) {
+		this(InstantSource.system(), datum, sample, parameters);
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param clock
+	 *        the instant source to use
+	 * @param datum
+	 *        the datum currently being populated
+	 * @param sample
+	 *        the samples
+	 * @param parameters
+	 *        the parameters
+	 * @since 2.3
+	 */
+	public DatumSamplesExpressionRoot(InstantSource clock, @Nullable Datum datum,
+			@Nullable DatumSamplesOperations sample, @Nullable Map<String, ?> parameters) {
 		super();
+		this.clock = requireNonNullArgument(clock, "clock");
 		this.datum = datum;
 		this.datumOps = (datum != null ? datum.asSampleOperations() : null);
 		this.sample = sample;
@@ -119,6 +141,16 @@ public class DatumSamplesExpressionRoot extends AbstractMap<String, Object>
 	 */
 	public @Nullable Map<String, ?> getParameters() {
 		return parameters;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @since 2.3
+	 */
+	@Override
+	public InstantSource clock() {
+		return clock;
 	}
 
 	/**

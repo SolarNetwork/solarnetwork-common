@@ -34,6 +34,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.InstantSource;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -54,13 +56,17 @@ import net.solarnetwork.service.ExpressionService;
  * Test cases for the {@link ExpressionRoot} class.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class DatumSamplesExpressionRootTests {
 
 	private final ExpressionService expressionService = new SpelExpressionService();
 
 	private DatumSamplesExpressionRoot createTestRoot() {
+		return createTestRoot(InstantSource.system());
+	}
+
+	private DatumSamplesExpressionRoot createTestRoot(InstantSource clock) {
 		GeneralDatum d = new GeneralDatum("foo");
 		d.putSampleValue(Instantaneous, "a", 3);
 		d.putSampleValue(Instantaneous, "b", 5);
@@ -79,7 +85,7 @@ public class DatumSamplesExpressionRootTests {
 		p.put("f", 35);
 		p.put("g", 35);
 
-		return new DatumSamplesExpressionRoot(d, s, p);
+		return new DatumSamplesExpressionRoot(clock, d, s, p);
 	}
 
 	@Test
@@ -342,6 +348,20 @@ public class DatumSamplesExpressionRootTests {
 
 		// THEN
 		assertThat("Regex replace executed", result, is(equalTo("Foo")));
+	}
+
+	@Test
+	public void timestamp_clock() {
+		// GIVEN
+		final Instant date = Instant.parse("2020-02-03T04:05:06.789Z");
+		DatumSamplesExpressionRoot root = createTestRoot(InstantSource.fixed(date));
+
+		// WHEN
+		Instant result = expressionService.evaluateExpression("timestamp()", null, root, null,
+				Instant.class);
+
+		// THEN
+		assertThat("timestamp() result from clock", result, is(equalTo(date)));
 	}
 
 }
