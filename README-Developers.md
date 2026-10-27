@@ -14,7 +14,8 @@ ant clean test
 The testing fragment bundles are always named after the bundle they target, with `.test` appended.
 
 > :warning: **Note** the `net.solarnetwork.common.test` bundle is not a test project. It is a shared
-> test-support library used by most test bundles.
+> test-support library used by most test bundles. The `net.solarnetwork.common.internal.test` bundle
+> is the fragment that targets the `net.solarnetwork.common` bundle.
 
 ### Test style
 
@@ -74,8 +75,7 @@ and.then(ownershipCaptor.getValue())
 
 ### Other test info
 
-- The sibling bundles they build from source in a `bundle.deps` dirset in `build.xml`. The core
-  bundle's tests are in `net.solarnetwork.common.internal.test`.
+- The sibling bundles they build from source in a `bundle.deps` dirset in `build.xml`.
 - **Use `ant clean test`, not `ant test`, after changing main sources.** The test project caches the
   jar of the bundle under test in `build/ant/deps/` and rebuilds it only when it is missing, so
   `ant test` runs against stale code.
