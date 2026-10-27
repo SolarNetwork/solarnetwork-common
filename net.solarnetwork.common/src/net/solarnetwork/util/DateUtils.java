@@ -57,7 +57,10 @@ import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalQueries;
 import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
@@ -530,17 +533,15 @@ public final class DateUtils {
 		}
 		DateTimeFormatter f = new DateTimeFormatterBuilder().parseCaseInsensitive().parseLenient()
 				.appendText(field, style).toFormatter(locale);
-		TemporalAccessor a = f.parse(r[0]);
+		final int start = f.parse(r[0]).get(field);
 		if ( r[0].equals(r[1]) ) {
-			return IntRange.rangeOf(a.get(field));
+			return IntRange.rangeOf(start);
 		}
-		TemporalAccessor b = f.parse(r[1]);
-		final int min = a.get(field);
-		final int max = b.get(field);
-		if ( strict && min > max ) {
+		final int end = f.parse(r[1]).get(field);
+		if ( strict && start > end ) {
 			throw new DateTimeException(String.format("Range [%s-%s] is descending", r[0], r[1]));
 		}
-		return IntRange.rangeOf(min, max);
+		return IntRange.rangeOf(start, end);
 	}
 
 	/**
@@ -608,7 +609,7 @@ public final class DateUtils {
 			locale = Locale.getDefault();
 		}
 		if ( ChronoField.MINUTE_OF_DAY.equals(field) ) {
-			return parseMinuteOfDayRange(range, false, strict);
+			return parseMinuteOfDayRange(range, locale, false, strict);
 		}
 		return parseRange(splitRange(range), locale, field, TextStyle.FULL, strict);
 	}
@@ -702,18 +703,19 @@ public final class DateUtils {
 		if ( rangeComponents.length < 1 ) {
 			return null;
 		}
-		final boolean checkGaps = strict && ChronoField.MINUTE_OF_DAY.equals(field);
-		final @Nullable IntRange[] parsed = new IntRange[rangeComponents.length];
+		final boolean rejectOneMinuteGaps = strict && ChronoField.MINUTE_OF_DAY.equals(field);
+		final List<Map.Entry<String, IntRange>> earlier = new ArrayList<>(rangeComponents.length);
 		IntRangeSet result = new IntRangeSet();
-		for ( int i = 0; i < rangeComponents.length; i++ ) {
-			IntRange r = parseRange(field, rangeComponents[i].trim(), locale, strict);
+		for ( String component : rangeComponents ) {
+			final String text = component.trim();
+			final IntRange r = parseRange(field, text, locale, strict);
 			if ( r == null ) {
 				continue;
 			}
-			if ( checkGaps ) {
-				requireNoOneMinuteGap(r, i, parsed, rangeComponents);
+			if ( rejectOneMinuteGaps ) {
+				requireNoOneMinuteGap(text, r, earlier);
+				earlier.add(Map.entry(text, r));
 			}
-			parsed[i] = r;
 			result.addRange(r);
 		}
 		return result;
@@ -729,30 +731,23 @@ public final class DateUtils {
 	 * inclusive and merges adjacent ones, so adding both would include 09:00.
 	 * </p>
 	 *
+	 * @param text
+	 *        the trimmed text of {@code range}, for the error message
 	 * @param range
 	 *        the range to check
-	 * @param index
-	 *        the index of {@code range} in {@code components}
-	 * @param parsed
-	 *        the ranges parsed so far, by component index
-	 * @param components
-	 *        the range set components, for the error message
+	 * @param earlier
+	 *        the ranges parsed earlier in the set, with their trimmed text
 	 * @throws DateTimeException
 	 *         if {@code range} is one minute apart from an earlier range
 	 */
-	private static void requireNoOneMinuteGap(IntRange range, int index, @Nullable IntRange[] parsed,
-			String[] components) {
-		for ( int j = 0; j < index; j++ ) {
-			final IntRange other = parsed[j];
-			if ( other == null ) {
-				continue;
-			}
-			final boolean oneMinuteApart = (range.getMin() == other.getMax() + 1
-					|| other.getMin() == range.getMax() + 1);
-			if ( oneMinuteApart ) {
+	private static void requireNoOneMinuteGap(String text, IntRange range,
+			List<Map.Entry<String, IntRange>> earlier) {
+		for ( Map.Entry<String, IntRange> other : earlier ) {
+			// one minute apart with exclusive ends == adjacent as inclusive ranges
+			if ( range.adjacentTo(other.getValue()) ) {
 				throw new DateTimeException(
 						String.format("Time ranges [%s] and [%s] are one minute apart and would merge",
-								components[j].trim(), components[index].trim()));
+								other.getKey(), text));
 			}
 		}
 	}
@@ -877,11 +872,14 @@ public final class DateUtils {
 	 */
 	public static @Nullable IntRange parseMinuteOfDayRange(@Nullable String range,
 			@Nullable Locale locale, boolean fix24) throws DateTimeException {
-		return parseMinuteOfDayRange(range, fix24, false);
+		if ( range == null ) {
+			return null;
+		}
+		return parseMinuteOfDayRange(range, locale, fix24, false);
 	}
 
-	private static @Nullable IntRange parseMinuteOfDayRange(@Nullable String range, boolean fix24,
-			boolean strict) throws DateTimeException {
+	private static @Nullable IntRange parseMinuteOfDayRange(String range, @Nullable Locale locale,
+			boolean fix24, boolean strict) throws DateTimeException {
 		String[] r = splitRange(range);
 		if ( r == null ) {
 			return null;
@@ -917,16 +915,38 @@ public final class DateUtils {
 			throw new DateTimeParseException("Invalid hour of day range", range, 0, e);
 		}
 		if ( strict ) {
-			final String text = (range != null ? range.trim() : r[0]);
-			if ( n[0] > MINUTES_PER_DAY || n[1] > MINUTES_PER_DAY ) {
-				throw new DateTimeException(String.format("Time range [%s] ends after 24:00", text));
-			} else if ( n[0] > n[1] ) {
-				throw new DateTimeException(String.format("Time range [%s] is descending", text));
-			} else if ( n[0] == n[1] ) {
-				throw new DateTimeException(String.format("Time range [%s] is empty", text));
-			}
+			requireStrictMinuteOfDayRange(range.trim(), n[0], n[1]);
 		}
 		return IntRange.rangeOf(n[0], n[1]);
+	}
+
+	/**
+	 * Reject a minute of day range that strict parsing does not allow.
+	 *
+	 * <p>
+	 * Minute of day ranges have an exclusive end, so a range whose start and
+	 * end are equal covers no time at all.
+	 * </p>
+	 *
+	 * @param text
+	 *        the range text, for the error message
+	 * @param start
+	 *        the parsed start minute
+	 * @param end
+	 *        the parsed (exclusive) end minute
+	 * @throws DateTimeException
+	 *         if the range ends after 24:00, is descending, or is empty
+	 */
+	private static void requireStrictMinuteOfDayRange(String text, int start, int end) {
+		if ( start > MINUTES_PER_DAY || end > MINUTES_PER_DAY ) {
+			throw new DateTimeException(String.format("Time range [%s] ends after 24:00", text));
+		}
+		if ( start > end ) {
+			throw new DateTimeException(String.format("Time range [%s] is descending", text));
+		}
+		if ( start == end ) {
+			throw new DateTimeException(String.format("Time range [%s] is empty", text));
+		}
 	}
 
 	/** The number of standard minutes in a standard 24-hour day. */

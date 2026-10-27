@@ -129,12 +129,12 @@ public class TemporalRangeSetsTariff implements Tariff, ChronoFieldsTariff {
 	 * @param locale
 	 *        the locale
 	 * @param strict
-	 *        {@literal true} to reject descending ranges, and empty or
-	 *        out-of-day minute of day ranges, instead of reordering them
+	 *        {@literal true} to parse the ranges strictly, as described in
+	 *        {@link net.solarnetwork.util.DateUtils#parseRangeSet(java.time.temporal.TemporalField, String, Locale, String, boolean)}
 	 * @throws java.time.DateTimeException
 	 *         if any range cannot be parsed
-	 * @see net.solarnetwork.util.DateUtils#parseRange(java.time.temporal.TemporalField,
-	 *      String, Locale, boolean)
+	 * @see net.solarnetwork.util.DateUtils#parseRangeSet(java.time.temporal.TemporalField,
+	 *      String, Locale, String, boolean)
 	 * @since 1.1
 	 */
 	public TemporalRangeSetsTariff(@Nullable String monthRanges, @Nullable String dayOfMonthRanges,

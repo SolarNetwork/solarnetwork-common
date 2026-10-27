@@ -85,8 +85,8 @@ public final class TariffUtils {
 	}
 
 	/**
-	 * Parse a CSV temporal range tariff schedule, optionally rejecting ranges
-	 * that would otherwise be reordered.
+	 * Parse a CSV temporal range tariff schedule, optionally parsing the ranges
+	 * strictly.
 	 *
 	 * <p>
 	 * This method can parse either CSV data in the form of a string or
@@ -103,8 +103,8 @@ public final class TariffUtils {
 	 *        {@literal true} if only the first tariff rule to match should be
 	 *        returned
 	 * @param strict
-	 *        {@literal true} to reject descending ranges, and empty or
-	 *        out-of-day time ranges, instead of reordering them
+	 *        {@literal true} to parse the ranges strictly, as described in
+	 *        {@link net.solarnetwork.util.DateUtils#parseRangeSet(java.time.temporal.TemporalField, String, Locale, String, boolean)}
 	 * @param evaluator
 	 *        an optional evaluator to use; if not provided then
 	 *        {@link net.solarnetwork.domain.tariff.SimpleTemporalRangesTariffEvaluator}

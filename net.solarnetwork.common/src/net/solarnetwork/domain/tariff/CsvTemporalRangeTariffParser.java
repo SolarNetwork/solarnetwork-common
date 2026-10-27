@@ -72,8 +72,10 @@ import net.solarnetwork.util.StringUtils;
  * <p>
  * By default a descending range like {@code 22:00-06:00} or {@code Fri-Mon} is
  * reordered to an ascending one. A <i>strict</i> parser rejects such ranges
- * instead, along with empty time ranges and time ranges that end after
- * {@code 24:00}.
+ * instead, along with empty time ranges, time ranges that end after
+ * {@code 24:00}, and time ranges exactly one minute apart, which would
+ * otherwise merge. See
+ * {@link net.solarnetwork.util.DateUtils#parseRangeSet(java.time.temporal.TemporalField, String, Locale, String, boolean)}.
  * </p>
  *
  * @author matt
@@ -128,8 +130,8 @@ public class CsvTemporalRangeTariffParser {
 	 * @param preserveRateCase
 	 *        {@literal true} to preserve the case of rate names
 	 * @param strict
-	 *        {@literal true} to reject descending ranges, and empty or
-	 *        out-of-day time ranges, instead of reordering them
+	 *        {@literal true} to parse ranges strictly, as described in the
+	 *        class documentation
 	 * @since 1.5
 	 */
 	public CsvTemporalRangeTariffParser(@Nullable Locale locale, boolean preserveRateCase,
@@ -318,8 +320,8 @@ public class CsvTemporalRangeTariffParser {
 	/**
 	 * Get the "strict" mode.
 	 *
-	 * @return {@literal true} to reject descending ranges, and empty or
-	 *         out-of-day time ranges, instead of reordering them
+	 * @return {@literal true} to parse ranges strictly, as described in the
+	 *         class documentation
 	 * @since 1.5
 	 */
 	public final boolean isStrict() {
