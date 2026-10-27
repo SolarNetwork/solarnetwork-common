@@ -67,7 +67,7 @@ import org.springframework.util.StringUtils;
  * Date and time utilities.
  *
  * @author matt
- * @version 2.7
+ * @version 2.8
  * @since 1.59
  */
 public final class DateUtils {
@@ -524,7 +524,7 @@ public final class DateUtils {
 	}
 
 	private static @Nullable IntRange parseRange(String @Nullable [] r, Locale locale,
-			TemporalField field, TextStyle style) throws DateTimeException {
+			TemporalField field, TextStyle style, boolean strict) throws DateTimeException {
 		if ( r == null || r.length < 2 ) {
 			return null;
 		}
@@ -535,7 +535,12 @@ public final class DateUtils {
 			return IntRange.rangeOf(a.get(field));
 		}
 		TemporalAccessor b = f.parse(r[1]);
-		return IntRange.rangeOf(a.get(field), b.get(field));
+		final int min = a.get(field);
+		final int max = b.get(field);
+		if ( strict && min > max ) {
+			throw new DateTimeException(String.format("Range [%s-%s] is descending", r[0], r[1]));
+		}
+		return IntRange.rangeOf(min, max);
 	}
 
 	/**
@@ -559,6 +564,43 @@ public final class DateUtils {
 	 */
 	public static @Nullable IntRange parseRange(TemporalField field, @Nullable String range,
 			@Nullable Locale locale) throws DateTimeException {
+		return parseRange(field, range, locale, false);
+	}
+
+	/**
+	 * Parse a time range, optionally rejecting ranges that would otherwise be
+	 * reordered.
+	 *
+	 * <p>
+	 * The range can be specified using names, abbreviations, or numbers. The
+	 * range of allowed numbers varies by field.
+	 * </p>
+	 *
+	 * <p>
+	 * When {@code strict} is {@literal false} a descending range like
+	 * {@code Fri-Mon} is reordered to an ascending one like {@code Mon-Fri}.
+	 * When {@code strict} is {@literal true} a descending range is rejected
+	 * instead. For {@link ChronoField#MINUTE_OF_DAY} ranges, whose maximum is
+	 * exclusive, strict mode also rejects empty ranges like {@code 07:00} or
+	 * {@code 07:00-07:00} and ranges that end after {@code 24:00}.
+	 * </p>
+	 *
+	 * @param field
+	 *        the time field to parse
+	 * @param range
+	 *        the range string to parse into a time range
+	 * @param locale
+	 *        the locale to parse the range as
+	 * @param strict
+	 *        {@literal true} to reject descending ranges, and empty or
+	 *        out-of-day minute of day ranges
+	 * @return the range
+	 * @throws DateTimeException
+	 *         if any parsing error occurs
+	 * @since 2.8
+	 */
+	public static @Nullable IntRange parseRange(TemporalField field, @Nullable String range,
+			@Nullable Locale locale, boolean strict) throws DateTimeException {
 		if ( range == null ) {
 			return null;
 		}
@@ -566,9 +608,9 @@ public final class DateUtils {
 			locale = Locale.getDefault();
 		}
 		if ( ChronoField.MINUTE_OF_DAY.equals(field) ) {
-			return parseMinuteOfDayRange(range, locale);
+			return parseMinuteOfDayRange(range, false, strict);
 		}
-		return parseRange(splitRange(range), locale, field, TextStyle.FULL);
+		return parseRange(splitRange(range), locale, field, TextStyle.FULL, strict);
 	}
 
 	/**
@@ -614,6 +656,42 @@ public final class DateUtils {
 	 */
 	public static @Nullable IntRangeSet parseRangeSet(TemporalField field, @Nullable String ranges,
 			@Nullable Locale locale, String rangeDelim) {
+		return parseRangeSet(field, ranges, locale, rangeDelim, false);
+	}
+
+	/**
+	 * Parse a time range set, optionally rejecting ranges that would otherwise
+	 * be reordered or merged.
+	 *
+	 * <p>
+	 * When {@code strict} is {@literal true}, each range is parsed strictly
+	 * (see {@link #parseRange(TemporalField, String, Locale, boolean)}). For
+	 * {@link ChronoField#MINUTE_OF_DAY} ranges, whose maximum is exclusive, two
+	 * ranges that are exactly one minute apart, like {@code 06:00-09:00} and
+	 * {@code 09:01-12:00}, are also rejected, because the set would merge them
+	 * and so include the minute between them.
+	 * </p>
+	 *
+	 * @param field
+	 *        the time field to parse
+	 * @param ranges
+	 *        the range set string to parse into a time range set
+	 * @param locale
+	 *        the locale to parse the ranges as
+	 * @param rangeDelim
+	 *        the delimiter to use between ranges
+	 * @param strict
+	 *        {@literal true} to reject descending ranges, empty or out-of-day
+	 *        minute of day ranges, and minute of day ranges one minute apart
+	 * @return the range set, or {@code null} if {@code ranges} is {@code null}
+	 *         or empty
+	 * @throws DateTimeException
+	 *         if any parsing error occurs
+	 * @see #parseRange(TemporalField, String, Locale, boolean)
+	 * @since 2.8
+	 */
+	public static @Nullable IntRangeSet parseRangeSet(TemporalField field, @Nullable String ranges,
+			@Nullable Locale locale, String rangeDelim, boolean strict) {
 		if ( ranges == null ) {
 			return null;
 		}
@@ -624,12 +702,29 @@ public final class DateUtils {
 		if ( rangeComponents.length < 1 ) {
 			return null;
 		}
+		final boolean checkGaps = strict && ChronoField.MINUTE_OF_DAY.equals(field);
+		final @Nullable IntRange @Nullable [] parsed = (checkGaps ? new IntRange[rangeComponents.length]
+				: null);
 		IntRangeSet result = new IntRangeSet();
-		for ( String range : rangeComponents ) {
-			IntRange r = parseRange(field, range.trim(), locale);
-			if ( r != null ) {
-				result.addRange(r);
+		for ( int i = 0; i < rangeComponents.length; i++ ) {
+			IntRange r = parseRange(field, rangeComponents[i].trim(), locale, strict);
+			if ( r == null ) {
+				continue;
 			}
+			if ( parsed != null ) {
+				// the set merges adjacent minutes, which would fill a one minute gap
+				// between exclusive-end ranges
+				for ( int j = 0; j < i; j++ ) {
+					IntRange p = parsed[j];
+					if ( p != null && (r.getMin() == p.getMax() + 1 || p.getMin() == r.getMax() + 1) ) {
+						throw new DateTimeException(String.format(
+								"Time ranges [%s] and [%s] are one minute apart and would merge",
+								rangeComponents[j].trim(), rangeComponents[i].trim()));
+					}
+				}
+				parsed[i] = r;
+			}
+			result.addRange(r);
 		}
 		return result;
 	}
@@ -754,6 +849,11 @@ public final class DateUtils {
 	 */
 	public static @Nullable IntRange parseMinuteOfDayRange(@Nullable String range,
 			@Nullable Locale locale, boolean fix24) throws DateTimeException {
+		return parseMinuteOfDayRange(range, fix24, false);
+	}
+
+	private static @Nullable IntRange parseMinuteOfDayRange(@Nullable String range, boolean fix24,
+			boolean strict) throws DateTimeException {
 		String[] r = splitRange(range);
 		if ( r == null ) {
 			return null;
@@ -787,6 +887,16 @@ public final class DateUtils {
 			}
 		} catch ( NumberFormatException e ) {
 			throw new DateTimeParseException("Invalid hour of day range", range, 0, e);
+		}
+		if ( strict ) {
+			final String text = (range != null ? range.trim() : r[0]);
+			if ( n[0] > MINUTES_PER_DAY || n[1] > MINUTES_PER_DAY ) {
+				throw new DateTimeException(String.format("Time range [%s] ends after 24:00", text));
+			} else if ( n[0] > n[1] ) {
+				throw new DateTimeException(String.format("Time range [%s] is descending", text));
+			} else if ( n[0] == n[1] ) {
+				throw new DateTimeException(String.format("Time range [%s] is empty", text));
+			}
 		}
 		return IntRange.rangeOf(n[0], n[1]);
 	}

@@ -69,14 +69,22 @@ import net.solarnetwork.util.StringUtils;
  * as a {@link BigDecimal}.
  * </p>
  *
+ * <p>
+ * By default a descending range like {@code 22:00-06:00} or {@code Fri-Mon} is
+ * reordered to an ascending one. A <i>strict</i> parser rejects such ranges
+ * instead, along with empty time ranges and time ranges that end after
+ * {@code 24:00}.
+ * </p>
+ *
  * @author matt
- * @version 1.4
+ * @version 1.5
  * @since 1.71
  */
 public class CsvTemporalRangeTariffParser {
 
 	private final Locale locale;
 	private final boolean preserveRateCase;
+	private final boolean strict;
 
 	/**
 	 * Constructor.
@@ -109,9 +117,27 @@ public class CsvTemporalRangeTariffParser {
 	 * @since 1.2
 	 */
 	public CsvTemporalRangeTariffParser(@Nullable Locale locale, boolean preserveRateCase) {
+		this(locale, preserveRateCase, false);
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param locale
+	 *        the locale to use, or {@code null} to use the system default
+	 * @param preserveRateCase
+	 *        {@literal true} to preserve the case of rate names
+	 * @param strict
+	 *        {@literal true} to reject descending ranges, and empty or
+	 *        out-of-day time ranges, instead of reordering them
+	 * @since 1.5
+	 */
+	public CsvTemporalRangeTariffParser(@Nullable Locale locale, boolean preserveRateCase,
+			boolean strict) {
 		super();
 		this.locale = (locale != null ? locale : Locale.getDefault());
 		this.preserveRateCase = preserveRateCase;
+		this.strict = strict;
 	}
 
 	/**
@@ -167,7 +193,7 @@ public class CsvTemporalRangeTariffParser {
 					}
 					String modRange = TariffUtils.wholeHourRange(row.getField(3));
 					TemporalRangeSetsTariff t = new TemporalRangeSetsTariff(row.getField(0),
-							row.getField(1), row.getField(2), modRange, rates, locale);
+							row.getField(1), row.getField(2), modRange, rates, locale, strict);
 					result.add(t);
 				} catch ( NumberFormatException e ) {
 					throw new IllegalArgumentException(
@@ -287,6 +313,17 @@ public class CsvTemporalRangeTariffParser {
 	 */
 	public final boolean isPreserveRateCase() {
 		return preserveRateCase;
+	}
+
+	/**
+	 * Get the "strict" mode.
+	 *
+	 * @return {@literal true} to reject descending ranges, and empty or
+	 *         out-of-day time ranges, instead of reordering them
+	 * @since 1.5
+	 */
+	public final boolean isStrict() {
+		return strict;
 	}
 
 }

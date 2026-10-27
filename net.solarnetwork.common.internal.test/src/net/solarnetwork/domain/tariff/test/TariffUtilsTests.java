@@ -28,10 +28,12 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -266,6 +268,76 @@ public class TariffUtilsTests {
 				"January-December", null, null, "0-1", "10.48");
 		assertTemporalRangeTariff("Row 2 whole hour number widened to the hour", tariffs.get(1),
 				"January-December", null, null, "23-24", "11.21");
+	}
+
+	@Test
+	public void parseCsvTemporalRangeSchedule_strict_csv() throws IOException {
+		// GIVEN
+		final String csv = "Month,Day,Weekday,Time,E\n,,,22:00-06:00,1\n";
+
+		// WHEN
+		try {
+			TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH, false, true, true, null, csv);
+			fail("Strict CSV schedule should reject a descending range");
+		} catch ( IllegalArgumentException e ) {
+			// THEN
+			assertThat("Error names the range", e.getMessage(), is(
+					"Error parsing date range value in CSV row 2: Time range [22:00-06:00] is descending"));
+		}
+
+		// lenient still reorders
+		TariffSchedule lenient = TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH, false, true,
+				null, csv);
+		assertThat("Lenient schedule parsed", lenient.rules(), hasSize(1));
+	}
+
+	@Test
+	public void parseCsvTemporalRangeSchedule_strict_array() throws IOException {
+		// GIVEN
+		final String[][] csv = new String[][] { { "Month", "Day", "Weekday", "Time", "E" },
+				{ "Dec-Jan", "", "", "", "1" } };
+
+		// WHEN
+		try {
+			TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH, false, true, true, null, csv);
+			fail("Strict array schedule should reject a descending range");
+		} catch ( DateTimeException e ) {
+			// THEN
+			assertThat("Error names the range", e.getMessage(), is("Range [Dec-Jan] is descending"));
+		}
+	}
+
+	@Test
+	public void parseCsvTemporalRangeSchedule_strict_list() throws IOException {
+		// GIVEN
+		final List<List<Object>> csv = List.of(List.of("Month", "Day", "Weekday", "Time", "E"),
+				Arrays.asList(null, null, "Fri-Mon", null, "1"));
+
+		// WHEN
+		try {
+			TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH, false, true, true, null, csv);
+			fail("Strict list schedule should reject a descending range");
+		} catch ( DateTimeException e ) {
+			// THEN
+			assertThat("Error names the range", e.getMessage(), is("Range [Fri-Mon] is descending"));
+		}
+	}
+
+	@Test
+	public void parseCsvTemporalRangeSchedule_strict_valid() throws IOException {
+		// GIVEN
+		final List<List<Object>> csv = List.of(List.of("Month", "Day", "Weekday", "Time", "E"),
+				Arrays.asList(null, null, "Mon-Fri", "07:00-18:00", "1"));
+
+		// WHEN
+		TariffSchedule result = TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH, false, true,
+				true, null, csv);
+
+		// THEN
+		List<Tariff> tariffs = new ArrayList<>();
+		tariffs.addAll(result.rules());
+		assertThat("One rule per row", tariffs, hasSize(1));
+		assertTemporalRangeTariff("Row 1", tariffs.get(0), null, null, "Mon-Fri", "07:00-18:00", "1");
 	}
 
 }

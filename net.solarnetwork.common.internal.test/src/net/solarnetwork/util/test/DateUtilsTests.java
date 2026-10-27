@@ -1309,4 +1309,126 @@ public class DateUtilsTests {
 		}
 	}
 
+	private static void assertStrictRejected(ChronoField field, String range, String message) {
+		try {
+			DateUtils.parseRange(field, range, Locale.ENGLISH, true);
+			fail(format("Strict %s range [%s] should be rejected", field, range));
+		} catch ( DateTimeException e ) {
+			assertThat(format("Strict %s range [%s] error message", field, range), e.getMessage(),
+					equalTo(message));
+		}
+	}
+
+	@Test
+	public void parseRange_strict_descending() {
+		assertStrictRejected(ChronoField.MONTH_OF_YEAR, "Dec-Jan", "Range [Dec-Jan] is descending");
+		assertStrictRejected(ChronoField.DAY_OF_MONTH, "20 - 10", "Range [20-10] is descending");
+		assertStrictRejected(ChronoField.DAY_OF_WEEK, "Fri-Mon", "Range [Fri-Mon] is descending");
+		assertStrictRejected(ChronoField.MINUTE_OF_DAY, "22:00-06:00",
+				"Time range [22:00-06:00] is descending");
+		assertStrictRejected(ChronoField.MINUTE_OF_DAY, "24-14", "Time range [24-14] is descending");
+	}
+
+	@Test
+	public void parseRange_strict_minuteOfDay_empty() {
+		assertStrictRejected(ChronoField.MINUTE_OF_DAY, "07:00", "Time range [07:00] is empty");
+		assertStrictRejected(ChronoField.MINUTE_OF_DAY, "07:00-07:00",
+				"Time range [07:00-07:00] is empty");
+	}
+
+	@Test
+	public void parseRange_strict_minuteOfDay_afterEndOfDay() {
+		assertStrictRejected(ChronoField.MINUTE_OF_DAY, "23:00-24:30",
+				"Time range [23:00-24:30] ends after 24:00");
+	}
+
+	@Test
+	public void parseRange_strict_ascending() {
+		// @formatter:off
+		final Object[][] cases = new Object[][] {
+			{ ChronoField.MONTH_OF_YEAR, "Jan-Dec", rangeOf(1, 12) },
+			{ ChronoField.MONTH_OF_YEAR, "Jun", rangeOf(6) },
+			{ ChronoField.DAY_OF_MONTH, "10-20", rangeOf(10, 20) },
+			{ ChronoField.DAY_OF_WEEK, "Mon-Fri", rangeOf(1, 5) },
+			{ ChronoField.DAY_OF_WEEK, "Sat", rangeOf(6) },
+			{ ChronoField.MINUTE_OF_DAY, "06:00-22:00", rangeOf(6 * 60, 22 * 60) },
+			{ ChronoField.MINUTE_OF_DAY, "0-24", rangeOf(0, 24 * 60) },
+		};
+		// @formatter:on
+		for ( Object[] c : cases ) {
+			ChronoField field = (ChronoField) c[0];
+			String range = (String) c[1];
+			assertThat(format("Strict %s range [%s] parsed", field, range),
+					DateUtils.parseRange(field, range, Locale.ENGLISH, true), equalTo(c[2]));
+			assertThat(format("Lenient %s range [%s] parsed the same", field, range),
+					DateUtils.parseRange(field, range, Locale.ENGLISH), equalTo(c[2]));
+		}
+	}
+
+	@Test
+	public void parseRange_lenient_descendingReordered() {
+		assertThat("Lenient descending weekday range reordered",
+				DateUtils.parseRange(ChronoField.DAY_OF_WEEK, "Fri-Mon", Locale.ENGLISH, false),
+				equalTo(rangeOf(1, 5)));
+		assertThat("Lenient descending time range reordered",
+				DateUtils.parseRange(ChronoField.MINUTE_OF_DAY, "22:00-06:00", Locale.ENGLISH, false),
+				equalTo(rangeOf(6 * 60, 22 * 60)));
+	}
+
+	@Test
+	public void parseRangeSet_strict() {
+		assertThat("Strict ascending range set parsed",
+				DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, "0-8,14-24", null, ",", true),
+				equalTo(new IntRangeSet(rangeOf(0, 8 * 60), rangeOf(14 * 60, 24 * 60))));
+		try {
+			DateUtils.parseRangeSet(ChronoField.DAY_OF_WEEK, "Mon-Wed,Sat-Fri", Locale.ENGLISH, ",",
+					true);
+			fail("Strict range set with a descending range should be rejected");
+		} catch ( DateTimeException e ) {
+			assertThat("Error names the descending range", e.getMessage(),
+					equalTo("Range [Sat-Fri] is descending"));
+		}
+	}
+
+	@Test
+	public void parseRangeSet_strict_minuteOfDay_oneMinuteGap() {
+		final String[] inputs = new String[] { "06:00-09:00,09:01-12:00", "09:01-12:00,06:00-09:00",
+				"00:00-01:00,06:00-09:00,09:01-12:00" };
+		final String[][] named = new String[][] { { "06:00-09:00", "09:01-12:00" },
+				{ "09:01-12:00", "06:00-09:00" }, { "06:00-09:00", "09:01-12:00" } };
+		for ( int i = 0; i < inputs.length; i++ ) {
+			try {
+				DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, inputs[i], null, ",", true);
+				fail(format("Strict range set [%s] with a one minute gap should be rejected",
+						inputs[i]));
+			} catch ( DateTimeException e ) {
+				assertThat(format("Error names the ranges in [%s]", inputs[i]), e.getMessage(),
+						equalTo(format("Time ranges [%s] and [%s] are one minute apart and would merge",
+								named[i][0], named[i][1])));
+			}
+		}
+	}
+
+	@Test
+	public void parseRangeSet_strict_minuteOfDay_touchingOrWiderGap() {
+		assertThat(
+				"Touching ranges merge", DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY,
+						"06:00-09:00,09:00-12:00", null, ",", true),
+				equalTo(new IntRangeSet(rangeOf(360, 720))));
+		assertThat(
+				"Two minute gap kept", DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY,
+						"06:00-09:00,09:02-12:00", null, ",", true),
+				equalTo(new IntRangeSet(rangeOf(360, 540), rangeOf(542, 720))));
+		assertThat("Other fields still merge adjacent values", DateUtils
+				.parseRangeSet(ChronoField.DAY_OF_WEEK, "Mon-Tue,Wed-Fri", Locale.ENGLISH, ",", true),
+				equalTo(new IntRangeSet(rangeOf(1, 5))));
+	}
+
+	@Test
+	public void parseRangeSet_lenient_minuteOfDay_oneMinuteGapMerged() {
+		assertThat("Lenient one minute gap merged",
+				DateUtils.parseRangeSet(ChronoField.MINUTE_OF_DAY, "06:00-09:00,09:01-12:00", null),
+				equalTo(new IntRangeSet(rangeOf(360, 720))));
+	}
+
 }

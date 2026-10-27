@@ -27,8 +27,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.time.temporal.ChronoField;
@@ -243,6 +245,90 @@ public class CsvTemporalRangeTariffParserTests {
 					"9.19");
 			assertTemporalRangeTariff("Row 4", tariffs.get(3), "January-December", null, null, "23-24",
 					"11.21");
+		}
+	}
+
+	@Test
+	public void parse_strict_descendingRejected() throws IOException {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser(Locale.ENGLISH, false, true);
+		final String csv = "Month,Day,Weekday,Time,E\n,,Mon-Fri,07:00-18:00,1\n,,,22:00-06:00,1\n";
+
+		// WHEN
+		try {
+			p.parseTariffs(new StringReader(csv));
+			fail("Strict parser should reject a descending range");
+		} catch ( IllegalArgumentException e ) {
+			// THEN
+			assertThat("Error names the row and range", e.getMessage(), equalTo(
+					"Error parsing date range value in CSV row 3: Time range [22:00-06:00] is descending"));
+		}
+	}
+
+	@Test
+	public void parse_strict_multiRangeDescendingRejected() throws IOException {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser(Locale.ENGLISH, false, true);
+		final String csv = "Month,Day,Weekday,Time,E\n,,\"Mon-Wed,Sat-Fri\",,1\n";
+
+		// WHEN
+		try {
+			p.parseTariffs(new StringReader(csv));
+			fail("Strict parser should reject a descending range");
+		} catch ( IllegalArgumentException e ) {
+			// THEN
+			assertThat("Error names the row and range", e.getMessage(), equalTo(
+					"Error parsing date range value in CSV row 2: Range [Sat-Fri] is descending"));
+		}
+	}
+
+	@Test
+	public void parse_strict_valid() throws IOException {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser(Locale.ENGLISH, false, true);
+		final String csv = "Month,Day,Weekday,Time,E\n,,Mon-Fri,07:00-18:00,1\nDec,24-26,,8,1\n";
+
+		// WHEN
+		List<ChronoFieldsTariff> tariffs = p.parseTariffs(new StringReader(csv));
+
+		// THEN
+		assertThat("Strict mode enabled", p.isStrict(), equalTo(true));
+		assertThat("Tariffs parsed", tariffs, hasSize(2));
+		assertTemporalRangeTariff("Row 1", tariffs.get(0), null, null, "Mon-Fri", "07:00-18:00", "1");
+		assertTemporalRangeTariff("Row 2 whole hour widened", tariffs.get(1), "December", "24-26", null,
+				"8-9", "1");
+	}
+
+	@Test
+	public void parse_lenient_descendingReordered() throws IOException {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser(Locale.ENGLISH, false);
+		final String csv = "Month,Day,Weekday,Time,E\n,,Fri-Mon,22:00-06:00,1\n";
+
+		// WHEN
+		List<ChronoFieldsTariff> tariffs = p.parseTariffs(new StringReader(csv));
+
+		// THEN
+		assertThat("Strict mode disabled", p.isStrict(), equalTo(false));
+		assertThat("Tariffs parsed", tariffs, hasSize(1));
+		assertTemporalRangeTariff("Row 1 reordered", tariffs.get(0), null, null, "Mon-Fri",
+				"06:00-22:00", "1");
+	}
+
+	@Test
+	public void parse_strict_oneMinuteGapRejected() throws IOException {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser(Locale.ENGLISH, false, true);
+		final String csv = "Month,Day,Weekday,Time,E\n,,,\"06:00-09:00,09:01-12:00\",1\n";
+
+		// WHEN
+		try {
+			p.parseTariffs(new StringReader(csv));
+			fail("Strict parser should reject ranges one minute apart");
+		} catch ( IllegalArgumentException e ) {
+			// THEN
+			assertThat("Error names the row and ranges", e.getMessage(), equalTo(
+					"Error parsing date range value in CSV row 2: Time ranges [06:00-09:00] and [09:01-12:00] are one minute apart and would merge"));
 		}
 	}
 

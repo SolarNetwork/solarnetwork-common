@@ -51,7 +51,7 @@ import net.solarnetwork.util.IntRangeSet;
  * </p>
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 3.16
  */
 public class TemporalRangeSetsTariff implements Tariff, ChronoFieldsTariff {
@@ -109,11 +109,45 @@ public class TemporalRangeSetsTariff implements Tariff, ChronoFieldsTariff {
 	public TemporalRangeSetsTariff(@Nullable String monthRanges, @Nullable String dayOfMonthRanges,
 			@Nullable String dayOfWeekRanges, @Nullable String minuteOfDayRanges,
 			@Nullable List<Rate> rates, @Nullable Locale locale) {
+		this(monthRanges, dayOfMonthRanges, dayOfWeekRanges, minuteOfDayRanges, rates, locale, false);
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param monthRanges
+	 *        a comma-delimited list of month ranges (months are 1-12)
+	 * @param dayOfMonthRanges
+	 *        a comma-delimited list of day of month ranges (1-31)
+	 * @param dayOfWeekRanges
+	 *        a comma-delimited list of day of week ranges (1-7, with 1 =
+	 *        Monday, 7 = Sunday)
+	 * @param minuteOfDayRanges
+	 *        a comma-delimited list of minute of day ranges (0-1440)
+	 * @param rates
+	 *        a list of rates associated with the tariff
+	 * @param locale
+	 *        the locale
+	 * @param strict
+	 *        {@literal true} to reject descending ranges, and empty or
+	 *        out-of-day minute of day ranges, instead of reordering them
+	 * @throws java.time.DateTimeException
+	 *         if any range cannot be parsed
+	 * @see net.solarnetwork.util.DateUtils#parseRange(java.time.temporal.TemporalField,
+	 *      String, Locale, boolean)
+	 * @since 1.1
+	 */
+	public TemporalRangeSetsTariff(@Nullable String monthRanges, @Nullable String dayOfMonthRanges,
+			@Nullable String dayOfWeekRanges, @Nullable String minuteOfDayRanges,
+			@Nullable List<Rate> rates, @Nullable Locale locale, boolean strict) {
 		super();
-		this.monthRanges = parseRangeSet(ChronoField.MONTH_OF_YEAR, monthRanges, locale);
-		this.dayOfMonthRanges = parseRangeSet(ChronoField.DAY_OF_MONTH, dayOfMonthRanges, locale);
-		this.dayOfWeekRanges = parseRangeSet(ChronoField.DAY_OF_WEEK, dayOfWeekRanges, locale);
-		this.minuteOfDayRanges = parseRangeSet(ChronoField.MINUTE_OF_DAY, minuteOfDayRanges, locale);
+		this.monthRanges = parseRangeSet(ChronoField.MONTH_OF_YEAR, monthRanges, locale, ",", strict);
+		this.dayOfMonthRanges = parseRangeSet(ChronoField.DAY_OF_MONTH, dayOfMonthRanges, locale, ",",
+				strict);
+		this.dayOfWeekRanges = parseRangeSet(ChronoField.DAY_OF_WEEK, dayOfWeekRanges, locale, ",",
+				strict);
+		this.minuteOfDayRanges = parseRangeSet(ChronoField.MINUTE_OF_DAY, minuteOfDayRanges, locale, ",",
+				strict);
 		this.rates = (rates == null ? emptyMap()
 				: rates.stream().collect(
 						toMap(Rate::getId, Function.identity(), (k, v) -> v, LinkedHashMap::new)));
