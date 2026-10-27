@@ -23,12 +23,13 @@
 package net.solarnetwork.domain.tariff.test;
 
 import static net.solarnetwork.domain.tariff.test.CsvTemporalRangeTariffParserTests.assertTemporalRangeTariff;
+import static org.assertj.core.api.BDDAssertions.catchThrowable;
+import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -276,51 +277,66 @@ public class TariffUtilsTests {
 		final String csv = "Month,Day,Weekday,Time,E\n,,,22:00-06:00,1\n";
 
 		// WHEN
-		try {
-			TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH, false, true, true, null, csv);
-			fail("Strict CSV schedule should reject a descending range");
-		} catch ( IllegalArgumentException e ) {
-			// THEN
-			assertThat("Error names the range", e.getMessage(), is(
-					"Error parsing date range value in CSV row 2: Time range [22:00-06:00] is descending"));
-		}
-
-		// lenient still reorders
+		Throwable t = catchThrowable(() -> TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH,
+				false, true, true, null, csv));
 		TariffSchedule lenient = TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH, false, true,
 				null, csv);
-		assertThat("Lenient schedule parsed", lenient.rules(), hasSize(1));
+
+		// THEN
+		// @formatter:off
+		then(t)
+			.as("Strict CSV schedule rejects a descending range")
+			.isInstanceOf(IllegalArgumentException.class)
+			.as("Error names the range")
+			.hasMessage("Error parsing date range value in CSV row 2: Time range [22:00-06:00] is descending")
+			;
+		then(lenient.rules())
+			.as("Lenient schedule reorders the descending range")
+			.hasSize(1)
+			;
+		// @formatter:on
 	}
 
 	@Test
-	public void parseCsvTemporalRangeSchedule_strict_array() throws IOException {
+	public void parseCsvTemporalRangeSchedule_strict_array() {
 		// GIVEN
 		final String[][] csv = new String[][] { { "Month", "Day", "Weekday", "Time", "E" },
 				{ "Dec-Jan", "", "", "", "1" } };
 
 		// WHEN
-		try {
-			TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH, false, true, true, null, csv);
-			fail("Strict array schedule should reject a descending range");
-		} catch ( DateTimeException e ) {
-			// THEN
-			assertThat("Error names the range", e.getMessage(), is("Range [Dec-Jan] is descending"));
-		}
+		Throwable t = catchThrowable(() -> TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH,
+				false, true, true, null, csv));
+
+		// THEN
+		// @formatter:off
+		then(t)
+			.as("Strict array schedule rejects a descending range")
+			.isInstanceOf(DateTimeException.class)
+			.as("Error names the range")
+			.hasMessage("Range [Dec-Jan] is descending")
+			;
+		// @formatter:on
 	}
 
 	@Test
-	public void parseCsvTemporalRangeSchedule_strict_list() throws IOException {
+	public void parseCsvTemporalRangeSchedule_strict_list() {
 		// GIVEN
 		final List<List<Object>> csv = List.of(List.of("Month", "Day", "Weekday", "Time", "E"),
 				Arrays.asList(null, null, "Fri-Mon", null, "1"));
 
 		// WHEN
-		try {
-			TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH, false, true, true, null, csv);
-			fail("Strict list schedule should reject a descending range");
-		} catch ( DateTimeException e ) {
-			// THEN
-			assertThat("Error names the range", e.getMessage(), is("Range [Fri-Mon] is descending"));
-		}
+		Throwable t = catchThrowable(() -> TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH,
+				false, true, true, null, csv));
+
+		// THEN
+		// @formatter:off
+		then(t)
+			.as("Strict list schedule rejects a descending range")
+			.isInstanceOf(DateTimeException.class)
+			.as("Error names the range")
+			.hasMessage("Range [Fri-Mon] is descending")
+			;
+		// @formatter:on
 	}
 
 	@Test
@@ -334,9 +350,13 @@ public class TariffUtilsTests {
 				true, null, csv);
 
 		// THEN
-		List<Tariff> tariffs = new ArrayList<>();
-		tariffs.addAll(result.rules());
-		assertThat("One rule per row", tariffs, hasSize(1));
+		List<Tariff> tariffs = new ArrayList<>(result.rules());
+		// @formatter:off
+		then(tariffs)
+			.as("One rule per row")
+			.hasSize(1)
+			;
+		// @formatter:on
 		assertTemporalRangeTariff("Row 1", tariffs.get(0), null, null, "Mon-Fri", "07:00-18:00", "1");
 	}
 
