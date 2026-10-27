@@ -138,4 +138,38 @@ public class SimpleTemporalRangesTariffEvaluatorTests {
 		assertThat("Rule matches", result, equalTo(true));
 	}
 
+	@Test
+	public void multiRangeRule_innerRangeEndExclusive() {
+		// GIVEN
+		SimpleTemporalRangesTariffEvaluator e = new SimpleTemporalRangesTariffEvaluator();
+		TemporalRangeSetsTariff t = createTestMultiRangeTariff();
+
+		// THEN
+		assertThat("Inner range matches before end",
+				e.applies(t, LocalDateTime.of(2024, 3, 2, 7, 59), null), equalTo(true));
+		assertThat("Inner range end is exclusive",
+				e.applies(t, LocalDateTime.of(2024, 3, 2, 8, 0), null), equalTo(false));
+		assertThat("Between ranges does not match",
+				e.applies(t, LocalDateTime.of(2024, 3, 2, 12, 0), null), equalTo(false));
+		assertThat("Last range start is inclusive",
+				e.applies(t, LocalDateTime.of(2024, 3, 2, 16, 0), null), equalTo(true));
+		assertThat("Last range matches before end",
+				e.applies(t, LocalDateTime.of(2024, 3, 2, 20, 29), null), equalTo(true));
+		assertThat("Last range end is exclusive",
+				e.applies(t, LocalDateTime.of(2024, 3, 2, 20, 30), null), equalTo(false));
+	}
+
+	@Test
+	public void rule_minuteOfDay_endExclusive() {
+		// GIVEN
+		SimpleTemporalRangesTariffEvaluator e = new SimpleTemporalRangesTariffEvaluator();
+		TemporalRangesTariff t = createTestTariff();
+
+		// THEN
+		assertThat("Range matches before end", e.applies(t, LocalDateTime.of(2021, 5, 12, 20, 29), null),
+				equalTo(true));
+		assertThat("Range end is exclusive", e.applies(t, LocalDateTime.of(2021, 5, 12, 20, 30), null),
+				equalTo(false));
+	}
+
 }

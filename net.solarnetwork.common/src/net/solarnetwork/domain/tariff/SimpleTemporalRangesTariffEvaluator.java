@@ -27,6 +27,7 @@ import java.time.temporal.ChronoField;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.service.support.BasicIdentifiable;
+import net.solarnetwork.util.IntRange;
 import net.solarnetwork.util.IntRangeContainer;
 
 /**
@@ -37,12 +38,13 @@ import net.solarnetwork.util.IntRangeContainer;
  * Each of the fields in the given rule are compared to the given date. If a
  * range exists for a given field, and the associated value of that field in the
  * given date is not within that range, {@literal false} is returned. All ranges
- * are treated as inclusive, except the {@code MINUTE_OF_DAY} range whose
- * maximum value is treated as an exclusive value.
+ * are treated as inclusive, except {@code MINUTE_OF_DAY} ranges whose maximum
+ * values are treated as exclusive values. When a rule has more than one
+ * {@code MINUTE_OF_DAY} range, the maximum of each range is exclusive.
  * </p>
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.71
  */
 public final class SimpleTemporalRangesTariffEvaluator extends BasicIdentifiable
@@ -77,14 +79,22 @@ public final class SimpleTemporalRangesTariffEvaluator extends BasicIdentifiable
 			IntRangeContainer ranges = rule.rangeForChronoField(f);
 			if ( ranges != null ) {
 				int v = dateTime.get(f);
-				Integer max = ranges.max();
-				if ( !ranges.contains(v)
-						|| (f == ChronoField.MINUTE_OF_DAY && max != null && v == max) ) {
+				if ( f == ChronoField.MINUTE_OF_DAY ? !containsExclusive(ranges, v)
+						: !ranges.contains(v) ) {
 					return false;
 				}
 			}
 		}
 		return true;
+	}
+
+	private static boolean containsExclusive(IntRangeContainer ranges, int v) {
+		for ( IntRange r : ranges.ranges() ) {
+			if ( r.getMin() <= v && v < r.getMax() ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
