@@ -23,6 +23,7 @@
 package net.solarnetwork.domain.tariff.test;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import java.math.BigDecimal;
@@ -144,19 +145,41 @@ public class SimpleTemporalRangesTariffEvaluatorTests {
 		SimpleTemporalRangesTariffEvaluator e = new SimpleTemporalRangesTariffEvaluator();
 		TemporalRangeSetsTariff t = createTestMultiRangeTariff();
 
+		// WHEN
+		boolean innerBeforeEnd = e.applies(t, LocalDateTime.of(2024, 3, 2, 7, 59), null);
+		boolean innerAtEnd = e.applies(t, LocalDateTime.of(2024, 3, 2, 8, 0), null);
+		boolean betweenRanges = e.applies(t, LocalDateTime.of(2024, 3, 2, 12, 0), null);
+		boolean lastAtStart = e.applies(t, LocalDateTime.of(2024, 3, 2, 16, 0), null);
+		boolean lastBeforeEnd = e.applies(t, LocalDateTime.of(2024, 3, 2, 20, 29), null);
+		boolean lastAtEnd = e.applies(t, LocalDateTime.of(2024, 3, 2, 20, 30), null);
+
 		// THEN
-		assertThat("Inner range matches before end",
-				e.applies(t, LocalDateTime.of(2024, 3, 2, 7, 59), null), equalTo(true));
-		assertThat("Inner range end is exclusive",
-				e.applies(t, LocalDateTime.of(2024, 3, 2, 8, 0), null), equalTo(false));
-		assertThat("Between ranges does not match",
-				e.applies(t, LocalDateTime.of(2024, 3, 2, 12, 0), null), equalTo(false));
-		assertThat("Last range start is inclusive",
-				e.applies(t, LocalDateTime.of(2024, 3, 2, 16, 0), null), equalTo(true));
-		assertThat("Last range matches before end",
-				e.applies(t, LocalDateTime.of(2024, 3, 2, 20, 29), null), equalTo(true));
-		assertThat("Last range end is exclusive",
-				e.applies(t, LocalDateTime.of(2024, 3, 2, 20, 30), null), equalTo(false));
+		// @formatter:off
+		then(innerBeforeEnd)
+			.as("Inner range matches before end")
+			.isTrue()
+			;
+		then(innerAtEnd)
+			.as("Inner range end is exclusive")
+			.isFalse()
+			;
+		then(betweenRanges)
+			.as("Between ranges does not match")
+			.isFalse()
+			;
+		then(lastAtStart)
+			.as("Last range start is inclusive")
+			.isTrue()
+			;
+		then(lastBeforeEnd)
+			.as("Last range matches before end")
+			.isTrue()
+			;
+		then(lastAtEnd)
+			.as("Last range end is exclusive")
+			.isFalse()
+			;
+		// @formatter:on
 	}
 
 	@Test
@@ -165,11 +188,21 @@ public class SimpleTemporalRangesTariffEvaluatorTests {
 		SimpleTemporalRangesTariffEvaluator e = new SimpleTemporalRangesTariffEvaluator();
 		TemporalRangesTariff t = createTestTariff();
 
+		// WHEN
+		boolean beforeEnd = e.applies(t, LocalDateTime.of(2021, 5, 12, 20, 29), null);
+		boolean atEnd = e.applies(t, LocalDateTime.of(2021, 5, 12, 20, 30), null);
+
 		// THEN
-		assertThat("Range matches before end", e.applies(t, LocalDateTime.of(2021, 5, 12, 20, 29), null),
-				equalTo(true));
-		assertThat("Range end is exclusive", e.applies(t, LocalDateTime.of(2021, 5, 12, 20, 30), null),
-				equalTo(false));
+		// @formatter:off
+		then(beforeEnd)
+			.as("Range matches before end")
+			.isTrue()
+			;
+		then(atEnd)
+			.as("Range end is exclusive")
+			.isFalse()
+			;
+		// @formatter:on
 	}
 
 }
