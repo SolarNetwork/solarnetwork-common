@@ -703,30 +703,58 @@ public final class DateUtils {
 			return null;
 		}
 		final boolean checkGaps = strict && ChronoField.MINUTE_OF_DAY.equals(field);
-		final @Nullable IntRange @Nullable [] parsed = (checkGaps ? new IntRange[rangeComponents.length]
-				: null);
+		final @Nullable IntRange[] parsed = new IntRange[rangeComponents.length];
 		IntRangeSet result = new IntRangeSet();
 		for ( int i = 0; i < rangeComponents.length; i++ ) {
 			IntRange r = parseRange(field, rangeComponents[i].trim(), locale, strict);
 			if ( r == null ) {
 				continue;
 			}
-			if ( parsed != null ) {
-				// the set merges adjacent minutes, which would fill a one minute gap
-				// between exclusive-end ranges
-				for ( int j = 0; j < i; j++ ) {
-					IntRange p = parsed[j];
-					if ( p != null && (r.getMin() == p.getMax() + 1 || p.getMin() == r.getMax() + 1) ) {
-						throw new DateTimeException(String.format(
-								"Time ranges [%s] and [%s] are one minute apart and would merge",
-								rangeComponents[j].trim(), rangeComponents[i].trim()));
-					}
-				}
-				parsed[i] = r;
+			if ( checkGaps ) {
+				requireNoOneMinuteGap(r, i, parsed, rangeComponents);
 			}
+			parsed[i] = r;
 			result.addRange(r);
 		}
 		return result;
+	}
+
+	/**
+	 * Reject a minute of day range that is exactly one minute apart from an
+	 * earlier range in the same set.
+	 *
+	 * <p>
+	 * Minute of day ranges have an exclusive end, so {@code 06:00-09:00} and
+	 * {@code 09:01-12:00} leave 09:00 out. {@link IntRangeSet} treats ranges as
+	 * inclusive and merges adjacent ones, so adding both would include 09:00.
+	 * </p>
+	 *
+	 * @param range
+	 *        the range to check
+	 * @param index
+	 *        the index of {@code range} in {@code components}
+	 * @param parsed
+	 *        the ranges parsed so far, by component index
+	 * @param components
+	 *        the range set components, for the error message
+	 * @throws DateTimeException
+	 *         if {@code range} is one minute apart from an earlier range
+	 */
+	private static void requireNoOneMinuteGap(IntRange range, int index, @Nullable IntRange[] parsed,
+			String[] components) {
+		for ( int j = 0; j < index; j++ ) {
+			final IntRange other = parsed[j];
+			if ( other == null ) {
+				continue;
+			}
+			final boolean oneMinuteApart = (range.getMin() == other.getMax() + 1
+					|| other.getMin() == range.getMax() + 1);
+			if ( oneMinuteApart ) {
+				throw new DateTimeException(
+						String.format("Time ranges [%s] and [%s] are one minute apart and would merge",
+								components[j].trim(), components[index].trim()));
+			}
+		}
 	}
 
 	/**
