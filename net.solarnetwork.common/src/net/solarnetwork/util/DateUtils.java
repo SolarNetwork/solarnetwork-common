@@ -823,14 +823,14 @@ public final class DateUtils {
 	}
 
 	/**
-	 * Parse a hour of day range.
+	 * Parse a minute of day range.
 	 *
 	 * <p>
 	 * The range can be specified using numbers. Hours of 0 - 24 are allowed.
 	 * </p>
 	 *
 	 * @param range
-	 *        the range string to parse into a day of week range
+	 *        the range string to parse into a minute of day range
 	 * @param locale
 	 *        the locale to parse the range as
 	 * @return the range, with a minimum of {@literal 1} and maximum of
@@ -858,7 +858,7 @@ public final class DateUtils {
 	 * </p>
 	 *
 	 * @param range
-	 *        the range string to parse into a day of week range
+	 *        the range string to parse into a minute of day range
 	 * @param locale
 	 *        unused
 	 * @param fix24
