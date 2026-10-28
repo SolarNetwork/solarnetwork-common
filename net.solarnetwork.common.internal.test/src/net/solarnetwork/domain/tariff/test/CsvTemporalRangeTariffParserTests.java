@@ -23,12 +23,15 @@
 package net.solarnetwork.domain.tariff.test;
 
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.BDDAssertions.catchThrowable;
+import static org.assertj.core.api.BDDAssertions.then;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.time.temporal.ChronoField;
@@ -244,6 +247,115 @@ public class CsvTemporalRangeTariffParserTests {
 			assertTemporalRangeTariff("Row 4", tariffs.get(3), "January-December", null, null, "23-24",
 					"11.21");
 		}
+	}
+
+	@Test
+	public void parse_strict_descendingRejected() {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser(Locale.ENGLISH, false, true);
+		final String csv = "Month,Day,Weekday,Time,E\n,,Mon-Fri,07:00-18:00,1\n,,,22:00-06:00,1\n";
+
+		// WHEN
+		Throwable t = catchThrowable(() -> p.parseTariffs(new StringReader(csv)));
+
+		// THEN
+		// @formatter:off
+		then(t)
+			.as("Strict parser rejects a descending range")
+			.isInstanceOf(IllegalArgumentException.class)
+			.as("Error names the row and range")
+			.hasMessage("Error parsing date range value in CSV row 3: Time range [22:00-06:00] is descending")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void parse_strict_multiRangeDescendingRejected() {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser(Locale.ENGLISH, false, true);
+		final String csv = "Month,Day,Weekday,Time,E\n,,\"Mon-Wed,Sat-Fri\",,1\n";
+
+		// WHEN
+		Throwable t = catchThrowable(() -> p.parseTariffs(new StringReader(csv)));
+
+		// THEN
+		// @formatter:off
+		then(t)
+			.as("Strict parser rejects a descending range")
+			.isInstanceOf(IllegalArgumentException.class)
+			.as("Error names the row and range")
+			.hasMessage("Error parsing date range value in CSV row 2: Range [Sat-Fri] is descending")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void parse_strict_valid() throws IOException {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser(Locale.ENGLISH, false, true);
+		final String csv = "Month,Day,Weekday,Time,E\n,,Mon-Fri,07:00-18:00,1\nDec,24-26,,8,1\n";
+
+		// WHEN
+		List<ChronoFieldsTariff> tariffs = p.parseTariffs(new StringReader(csv));
+
+		// THEN
+		// @formatter:off
+		then(p.isStrict())
+			.as("Strict mode enabled")
+			.isTrue()
+			;
+		then(tariffs)
+			.as("Tariffs parsed")
+			.hasSize(2)
+			;
+		// @formatter:on
+		assertTemporalRangeTariff("Row 1", tariffs.get(0), null, null, "Mon-Fri", "07:00-18:00", "1");
+		assertTemporalRangeTariff("Row 2 whole hour widened", tariffs.get(1), "December", "24-26", null,
+				"8-9", "1");
+	}
+
+	@Test
+	public void parse_lenient_descendingReordered() throws IOException {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser(Locale.ENGLISH, false);
+		final String csv = "Month,Day,Weekday,Time,E\n,,Fri-Mon,22:00-06:00,1\n";
+
+		// WHEN
+		List<ChronoFieldsTariff> tariffs = p.parseTariffs(new StringReader(csv));
+
+		// THEN
+		// @formatter:off
+		then(p.isStrict())
+			.as("Strict mode disabled")
+			.isFalse()
+			;
+		then(tariffs)
+			.as("Tariffs parsed")
+			.hasSize(1)
+			;
+		// @formatter:on
+		assertTemporalRangeTariff("Row 1 reordered", tariffs.get(0), null, null, "Mon-Fri",
+				"06:00-22:00", "1");
+	}
+
+	@Test
+	public void parse_strict_oneMinuteGapRejected() {
+		// GIVEN
+		CsvTemporalRangeTariffParser p = new CsvTemporalRangeTariffParser(Locale.ENGLISH, false, true);
+		final String csv = "Month,Day,Weekday,Time,E\n,,,\"06:00-09:00,09:01-12:00\",1\n";
+
+		// WHEN
+		Throwable t = catchThrowable(() -> p.parseTariffs(new StringReader(csv)));
+
+		// THEN
+		// @formatter:off
+		then(t)
+			.as("Strict parser rejects ranges one minute apart")
+			.isInstanceOf(IllegalArgumentException.class)
+			.as("Error names the row and ranges")
+			.hasMessage("Error parsing date range value in CSV row 2: Time ranges [06:00-09:00] and [09:01-12:00] are one minute apart and would merge")
+			;
+		// @formatter:on
 	}
 
 }

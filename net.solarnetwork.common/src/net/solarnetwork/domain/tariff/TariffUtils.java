@@ -36,7 +36,7 @@ import net.solarnetwork.util.StringUtils;
  * Tariff utilities.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 3.16
  */
 public final class TariffUtils {
@@ -80,10 +80,54 @@ public final class TariffUtils {
 	public static @Nullable TariffSchedule parseCsvTemporalRangeSchedule(final @Nullable Locale locale,
 			final boolean preserveRateCase, final boolean firstMatchOnly,
 			final @Nullable TemporalTariffEvaluator evaluator, Object scheduleData) throws IOException {
+		return parseCsvTemporalRangeSchedule(locale, preserveRateCase, firstMatchOnly, false, evaluator,
+				scheduleData);
+	}
+
+	/**
+	 * Parse a CSV temporal range tariff schedule, optionally parsing the ranges
+	 * strictly.
+	 *
+	 * <p>
+	 * This method can parse either CSV data in the form of a string or
+	 * {@link Reader}, or a {@code String[][]} of data structured in the same
+	 * rows and columns as the CSV form.
+	 *
+	 * @param locale
+	 *        the locale to use when parsing the CSV; if not provided the
+	 *        default system locale will be used
+	 * @param preserveRateCase
+	 *        {@literal true} to preserve the case of rate names parsed from the
+	 *        CSV header row
+	 * @param firstMatchOnly
+	 *        {@literal true} if only the first tariff rule to match should be
+	 *        returned
+	 * @param strict
+	 *        {@literal true} to parse the ranges strictly, as described in
+	 *        {@link net.solarnetwork.util.DateUtils#parseRangeSet(java.time.temporal.TemporalField, String, Locale, String, boolean)}
+	 * @param evaluator
+	 *        an optional evaluator to use; if not provided then
+	 *        {@link net.solarnetwork.domain.tariff.SimpleTemporalRangesTariffEvaluator}
+	 *        will be used
+	 * @param scheduleData
+	 *        a {@code String} or {@link Reader} of CSV data, or the CSV rows as
+	 *        a {@code String[][]} or a {@code List} of {@code List} (like a
+	 *        JSON array of arrays in metadata)
+	 * @return the parsed schedule, or {@code null} if {@code scheduleData} is
+	 *         not one of the supported types, or its rows have no header row of
+	 *         at least 5 columns
+	 * @throws IOException
+	 *         if any parsing error occurs
+	 * @see CsvTemporalRangeTariffParser
+	 * @since 1.2
+	 */
+	public static @Nullable TariffSchedule parseCsvTemporalRangeSchedule(final @Nullable Locale locale,
+			final boolean preserveRateCase, final boolean firstMatchOnly, final boolean strict,
+			final @Nullable TemporalTariffEvaluator evaluator, Object scheduleData) throws IOException {
 		List<ChronoFieldsTariff> tariffs;
 		if ( scheduleData instanceof String || scheduleData instanceof Reader ) {
 			// parse as CSV
-			tariffs = new CsvTemporalRangeTariffParser(locale, preserveRateCase)
+			tariffs = new CsvTemporalRangeTariffParser(locale, preserveRateCase, strict)
 					.parseTariffs(scheduleData instanceof Reader ? (Reader) scheduleData
 							: new StringReader(scheduleData.toString()));
 		} else if ( scheduleData instanceof String[][] data ) {
@@ -108,7 +152,7 @@ public final class TariffUtils {
 						rates.add(new SimpleTariffRate(id, name, new BigDecimal(row[j])));
 					}
 					TemporalRangeSetsTariff tariff = new TemporalRangeSetsTariff(row[0], row[1], row[2],
-							wholeHourRange(row[3]), rates, locale);
+							wholeHourRange(row[3]), rates, locale, strict);
 					tariffs.add(tariff);
 				}
 			}
@@ -141,7 +185,7 @@ public final class TariffUtils {
 					}
 					tariffs.add(new TemporalRangeSetsTariff(stringValue(row.get(0)),
 							stringValue(row.get(1)), stringValue(row.get(2)),
-							wholeHourRange(stringValue(row.get(3))), rates, locale));
+							wholeHourRange(stringValue(row.get(3))), rates, locale, strict));
 				}
 			}
 		} else {
