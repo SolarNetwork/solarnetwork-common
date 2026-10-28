@@ -3,8 +3,8 @@
 ## Quick start
 
 Bundles build with Ant and Ivy through the shared harness in the sibling `../solarnetwork-build`
-repository: every `build.xml` imports `solarnetwork-build/solarnetwork-osgi-lib/lib-build.xml`. The
-build process looks like this:
+repository: every `build.xml` imports `solarnetwork-build/solarnetwork-osgi-lib/lib-build.xml`.
+Dependencies are declared in the `ivy.xml` file of each bundle. The build process looks like this:
 
 ```sh
 cd net.solarnetwork.common
@@ -16,6 +16,29 @@ ant clean test              # rebuild the bundle under test, then run its tests
 
 Ant must run on JDK 22+ to support Error Prone.
 
+
+## Inter-bundle dependency development with Ant
+
+When you are working on changes across multiple bundles, you can publish your dependency bundles
+to a local Ivy repository, like this:
+
+```sh
+ant publish -Dpublish.ivy=true
+```
+
+For example, let's say you have a fix in `net.solarnetwork.common` that you need while making
+changes in `net.solarnetwork.common.web.jakarta`. After you update the version of the `.common`
+bundle, you can publish that to the local Ivy repository, then compile the second:
+
+```sh
+# publish dep
+cd net.solarnetwork.common
+ant publish -Dpublish.ivy=true
+
+# compile bundle that needs dep (assumes ivy.xml declares dep for updated .common version)
+cd ../net.solarnetwork.common.web.jakarta
+ant compile
+```
 
 ## Conventions
 
@@ -106,7 +129,17 @@ statically imported and the AssertJ `BDDAssertions.and` method should be statica
 `@SuppressWarnings("static-access")` should be added to the test class to ignore warnings on the
 `and.` usage.
 
-Mockito `@Captor` argument captors should only be verified in the `// THEN` block. Tests of this
+### Mockito style
+
+Use `@Mock` and `@Captor` class fields where possible, with the required class-level
+`@RunWith(MockitoJUnitRunner.class)`.
+
+When both BDD AssertJ `then()` and BDD Mockito `then()` are used, the `BDDMockito.then()` method
+should be statically imported and the AssertJ `BDDAssertions.and` method should be statically
+imported; a `@SuppressWarnings("static-access")` should be added to the test class to ignore
+warnings on the `and.` usage.
+
+`@Captor` argument captors should only be verified in the `// THEN` block. Tests of this
 nature follow this pattern:
 
 ```java
@@ -127,6 +160,9 @@ and.then(ownershipCaptor.getValue())
     ;
 // @formatter:on
 ```
+
+> :bulb: Do not bother verifying Mockito `given()` statements with `then()` unless you need to
+> validate the contents of a `@Captor`.
 
 ### Other test info
 
