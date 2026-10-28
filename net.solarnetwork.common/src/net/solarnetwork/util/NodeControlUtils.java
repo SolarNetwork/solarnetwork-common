@@ -33,7 +33,7 @@ import net.solarnetwork.domain.NodeControlPropertyType;
  * Utilities for working with {@link NodeControlInfo}.
  *
  * @author Matt Magoffin
- * @version 1.0
+ * @version 1.1
  * @since 1.52
  */
 public final class NodeControlUtils {
@@ -235,7 +235,7 @@ public final class NodeControlUtils {
 		} else if ( value instanceof Number ) {
 			d = new BigDecimal(value.toString());
 		}
-		return d != null ? d.toString() : null;
+		return d != null ? d.toPlainString() : null;
 	}
 
 	/**
