@@ -124,7 +124,7 @@ public final class TariffUtils {
 	public static @Nullable TariffSchedule parseCsvTemporalRangeSchedule(final @Nullable Locale locale,
 			final boolean preserveRateCase, final boolean firstMatchOnly, final boolean strict,
 			final @Nullable TemporalTariffEvaluator evaluator, Object scheduleData) throws IOException {
-		List<ChronoFieldsTariff> tariffs;
+		final List<ChronoFieldsTariff> tariffs;
 		if ( scheduleData instanceof String || scheduleData instanceof Reader ) {
 			// parse as CSV
 			tariffs = new CsvTemporalRangeTariffParser(locale, preserveRateCase, strict)
@@ -132,7 +132,7 @@ public final class TariffUtils {
 							: new StringReader(scheduleData.toString()));
 		} else if ( scheduleData instanceof String[][] data ) {
 			tariffs = new ArrayList<>();
-			if ( data.length > 1 ) {
+			if ( data.length > 0 ) {
 				String[] headers = data[0];
 				if ( headers.length < 5 ) {
 					return null;
@@ -145,15 +145,14 @@ public final class TariffUtils {
 					final int colCount = Math.min(row.length, headers.length);
 					List<Tariff.Rate> rates = new ArrayList<>(row.length - 4);
 					for ( int j = 4; j < colCount; j++ ) {
-						String name = headers[j];
-						String id = StringUtils.simpleIdValue(name, preserveRateCase);
-						if ( id == null ) {
+						String name = stringValue(headers[j]);
+						String id = (name != null ? StringUtils.simpleIdValue(name, preserveRateCase)
+								: null);
+						final String val = stringValue(row[j]);
+						if ( name == null || id == null || val == null || val.isEmpty() ) {
 							continue;
 						}
-						final String val = stringValue(row[j]);
-						if ( val != null ) {
-							rates.add(new SimpleTariffRate(id, name, new BigDecimal(val)));
-						}
+						rates.add(new SimpleTariffRate(id, name, new BigDecimal(val)));
 					}
 					TemporalRangeSetsTariff tariff = new TemporalRangeSetsTariff(row[0], row[1], row[2],
 							wholeHourRange(row[3]), rates, locale, strict);
