@@ -70,7 +70,7 @@ import org.springframework.util.StringUtils;
  * Date and time utilities.
  *
  * @author matt
- * @version 2.8
+ * @version 2.9
  * @since 1.59
  */
 public final class DateUtils {
@@ -693,13 +693,13 @@ public final class DateUtils {
 	 */
 	public static @Nullable IntRangeSet parseRangeSet(TemporalField field, @Nullable String ranges,
 			@Nullable Locale locale, String rangeDelim, boolean strict) {
-		if ( ranges == null ) {
+		if ( ranges == null || ranges.isBlank() ) {
 			return null;
 		}
 		if ( locale == null ) {
 			locale = Locale.getDefault();
 		}
-		String[] rangeComponents = StringUtils.delimitedListToStringArray(ranges, rangeDelim);
+		String[] rangeComponents = StringUtils.delimitedListToStringArray(ranges.trim(), rangeDelim);
 		if ( rangeComponents.length < 1 ) {
 			return null;
 		}
