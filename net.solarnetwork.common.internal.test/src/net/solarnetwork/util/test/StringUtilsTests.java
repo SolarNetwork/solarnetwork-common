@@ -66,7 +66,7 @@ import net.solarnetwork.util.StringUtils;
  * Unit test for the StringUtils class.
  *
  * @author matt
- * @version 1.10
+ * @version 1.12
  */
 public class StringUtilsTests {
 
@@ -922,6 +922,81 @@ public class StringUtilsTests {
 		// THEN
 		assertThat("Shorter before longer", result1, is(equalTo(-1)));
 		assertThat("Longer after shorter", result2, is(equalTo(1)));
+	}
+
+	@Test
+	public void escapeHtml_null() {
+		// GIVEN
+		final String input = null;
+
+		// WHEN
+		final String result = StringUtils.escapeHtml(input);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null input returns null.")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void escapeHtml_empty() {
+		// GIVEN
+		final String input = "";
+
+		// WHEN
+		final String result = StringUtils.escapeHtml(input);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Empty input returns same output.")
+			.isSameAs(input)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void escapeHtml_nothingToEscape() {
+		// GIVEN
+		final String input = "This does not contain any HTML.";
+
+		// WHEN
+		final String result = StringUtils.escapeHtml(input);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Non-HTML input returns same output.")
+			.isSameAs(input)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void escapeHtml_escaped() {
+		// GIVEN
+		final String input = """
+				if ( 1 < 3 && 3 > 1 ) {
+					System.out.println("It's a tautology!");
+				}
+				""";
+
+		// WHEN
+		final String result = StringUtils.escapeHtml(input);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Text with HTML reserved characters are escaped.")
+			.isEqualTo("""
+				if ( 1 &lt; 3 &amp;&amp; 3 &gt; 1 ) {
+					System.out.println("It's a tautology!");
+				}
+				""");
+		// @formatter:on
 	}
 
 }

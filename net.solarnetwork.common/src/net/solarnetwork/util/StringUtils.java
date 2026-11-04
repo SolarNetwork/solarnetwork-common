@@ -47,7 +47,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  *
  * @author matt
- * @version 1.20
+ * @version 1.21
  */
 public final class StringUtils {
 
@@ -1191,6 +1191,42 @@ public final class StringUtils {
 			}
 		}
 		return 0;
+	}
+
+	/**
+	 * Escape text for use as HTML element content.
+	 *
+	 * @param text
+	 *        the text to escape
+	 * @return the escaped text, or {@code null} if {@code text} is {@code null}
+	 * @since 1.21
+	 */
+	public static @Nullable String escapeHtml(@Nullable String text) {
+		if ( text == null || text.isEmpty() ) {
+			return text;
+		}
+		StringBuilder buf = null;
+		for ( int i = 0, len = text.length(); i < len; i++ ) {
+			char c = text.charAt(i);
+			String rep = switch (c) {
+				case '&' -> "&amp;";
+				case '<' -> "&lt;";
+				case '>' -> "&gt;";
+				default -> null;
+			};
+			if ( rep == null ) {
+				if ( buf != null ) {
+					buf.append(c);
+				}
+				continue;
+			}
+			if ( buf == null ) {
+				buf = new StringBuilder(len + 16);
+				buf.append(text, 0, i);
+			}
+			buf.append(rep);
+		}
+		return (buf != null ? buf.toString() : text);
 	}
 
 }
