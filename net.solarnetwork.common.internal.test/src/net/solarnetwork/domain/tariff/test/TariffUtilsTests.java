@@ -319,6 +319,31 @@ public class TariffUtilsTests {
 	}
 
 	@Test
+	public void parseCsvTemporalRangeSchedule_strict_array_trimmed() throws IOException {
+		// GIVEN
+		final String[][] csv = new String[][] { { "Month", "Day", "Weekday", "Time", "E" },
+				{ " Jan - Dec ", " 1, 3-5", "Mon-Fri ", "07:00-18:00 ", " 1", "9 " }, null,
+				{ "", "", "Sat" } };
+
+		// WHEN
+		TariffSchedule result = TariffUtils.parseCsvTemporalRangeSchedule(Locale.ENGLISH, false, true,
+				true, null, csv);
+
+		// THEN
+		// @formatter:off
+		then(result.rules())
+			.as("Valid rules parsed")
+			.hasSize(1)
+			.element(0)
+			.satisfies(r -> {
+				assertTemporalRangeTariff("Valid row trimmed and parsed", r,
+						"Jan-Dec", "1,3-5", "Mon-Fri", "7-18", "1");
+			})
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void parseCsvTemporalRangeSchedule_strict_list() {
 		// GIVEN
 		final List<List<Object>> csv = List.of(List.of("Month", "Day", "Weekday", "Time", "E"),

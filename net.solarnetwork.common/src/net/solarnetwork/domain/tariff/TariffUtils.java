@@ -36,7 +36,7 @@ import net.solarnetwork.util.StringUtils;
  * Tariff utilities.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  * @since 3.16
  */
 public final class TariffUtils {
@@ -139,17 +139,21 @@ public final class TariffUtils {
 				}
 				for ( int i = 1; i < data.length; i++ ) {
 					String[] row = data[i];
-					if ( row.length < 5 ) {
+					if ( row == null || row.length < 5 ) {
 						continue;
 					}
+					final int colCount = Math.min(row.length, headers.length);
 					List<Tariff.Rate> rates = new ArrayList<>(row.length - 4);
-					for ( int j = 4; j < row.length; j++ ) {
+					for ( int j = 4; j < colCount; j++ ) {
 						String name = headers[j];
 						String id = StringUtils.simpleIdValue(name, preserveRateCase);
 						if ( id == null ) {
 							continue;
 						}
-						rates.add(new SimpleTariffRate(id, name, new BigDecimal(row[j])));
+						final String val = stringValue(row[j]);
+						if ( val != null ) {
+							rates.add(new SimpleTariffRate(id, name, new BigDecimal(val)));
+						}
 					}
 					TemporalRangeSetsTariff tariff = new TemporalRangeSetsTariff(row[0], row[1], row[2],
 							wholeHourRange(row[3]), rates, locale, strict);
