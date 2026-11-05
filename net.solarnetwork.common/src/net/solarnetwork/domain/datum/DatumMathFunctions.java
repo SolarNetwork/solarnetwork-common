@@ -37,7 +37,7 @@ import net.solarnetwork.util.StringUtils;
  * API for datum-related math helper functions.
  *
  * @author matt
- * @version 1.5
+ * @version 1.6
  * @since 2.1
  */
 public interface DatumMathFunctions {
@@ -869,6 +869,38 @@ public interface DatumMathFunctions {
 			return null;
 		}
 		return sqrt(sum.divide(new BigDecimal(squares.size()), MathContext.DECIMAL64));
+	}
+
+	/**
+	 * Get the absolute value of a number.
+	 *
+	 * @param n
+	 *        the number to get the absolute value for
+	 * @return the absolute value, or {@code null} if {@code n} is {@code null}
+	 * @since 1.6
+	 */
+	default @Nullable Number abs(@Nullable Number n) {
+		return NumberUtils.abs(n);
+	}
+
+	/**
+	 * Compare two numbers.
+	 *
+	 * <p>
+	 * {@code null} sorts before non-{@code null}, and two {@code null} values
+	 * are considered equal.
+	 * </p>
+	 *
+	 * @param l
+	 *        the first number
+	 * @param r
+	 *        the second number
+	 * @return a negative integer, zero, or a positive integer as {@code l} is
+	 *         less than, equal to, or greater than {@code r}
+	 * @since 1.6
+	 */
+	default int compare(@Nullable Number l, @Nullable Number r) {
+		return NumberUtils.compare(l, r);
 	}
 
 }

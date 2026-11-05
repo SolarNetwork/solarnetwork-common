@@ -36,7 +36,7 @@ import org.jspecify.annotations.Nullable;
  * Utilities for dealing with numbers.
  *
  * @author matt
- * @version 1.15
+ * @version 1.16
  * @since 1.42
  */
 public final class NumberUtils {
@@ -1368,6 +1368,114 @@ public final class NumberUtils {
 				.add(y1n)
 				.stripTrailingZeros();
 		// @formatter:on
+	}
+
+	/**
+	 * Compare two numbers.
+	 *
+	 * <p>
+	 * {@code null} sorts before non-{@code null}, and two {@code null} values
+	 * are considered equal. {@code Float} and {@code Double} NaN and infinite
+	 * values follow the {@link Double#compare(double, double)} order of
+	 * negative infinity, then all other values, then positive infinity, then
+	 * NaN.
+	 * </p>
+	 *
+	 * @param l
+	 *        the first number
+	 * @param r
+	 *        the second number
+	 * @return a negative integer, zero, or a positive integer as {@code l} is
+	 *         less than, equal to, or greater than {@code r}
+	 * @since 1.16
+	 */
+	@SuppressWarnings({ "NullAway", "unchecked" })
+	public static int compare(@Nullable Number l, @Nullable Number r) {
+		if ( l == r ) {
+			return 0;
+		} else if ( l == null ) {
+			return -1;
+		} else if ( r == null ) {
+			return 1;
+		} else if ( l.getClass().equals(r.getClass()) && l instanceof Comparable c ) {
+			return c.compareTo(r);
+		} else if ( isNotFinite(l) || isNotFinite(r) ) {
+			// NaN and infinity can't be converted to BigDecimal; compare finite values as 0
+			// so they sort after negative infinity and before positive infinity and NaN
+			return Double.compare(isNotFinite(l) ? l.doubleValue() : 0.0,
+					isNotFinite(r) ? r.doubleValue() : 0.0);
+		}
+		// turn both into BigDecimal and compare those (neither can be null here)
+		final BigDecimal d1 = bigDecimalForNumber(l);
+		final BigDecimal d2 = bigDecimalForNumber(r);
+		return d1.compareTo(d2);
+	}
+
+	/**
+	 * Test if a number is a {@code Float} or {@code Double} NaN or infinite
+	 * value.
+	 *
+	 * @param n
+	 *        the number to test
+	 * @return {@code true} if {@code n} is a NaN or infinite {@code Float} or
+	 *         {@code Double}
+	 */
+	private static boolean isNotFinite(Number n) {
+		return ((n instanceof Double || n instanceof Float) && !Double.isFinite(n.doubleValue()));
+	}
+
+	/**
+	 * Get the absolute value of a number.
+	 *
+	 * <p>
+	 * The result has the same type as {@code n}, except:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>{@code Integer.MIN_VALUE} returns a {@code Long}</li>
+	 * <li>{@code Long.MIN_VALUE} returns a {@code BigInteger}</li>
+	 * <li>{@code Short} and {@code Byte} return an {@code Integer}</li>
+	 * <li>other types not listed here return a {@code BigDecimal}</li>
+	 * </ul>
+	 *
+	 * @param n
+	 *        the number to get the absolute value for
+	 * @return the absolute value, or {@code null} if {@code n} is {@code null}
+	 * @since 1.16
+	 */
+	public static @Nullable Number abs(@Nullable Number n) {
+		if ( n == null ) {
+			return null;
+		}
+		if ( n instanceof Integer i ) {
+			if ( i != Integer.MIN_VALUE ) {
+				return Math.abs(i);
+			}
+			// no positive Integer for the minimum value, so use Long
+			return -i.longValue();
+		} else if ( n instanceof Long l ) {
+			if ( l != Long.MIN_VALUE ) {
+				return Math.abs(l);
+			}
+			// no positive Long for the minimum value, so use BigInteger
+			return BigInteger.valueOf(l).negate();
+		} else if ( n instanceof Short || n instanceof Byte ) {
+			return Math.abs(n.intValue());
+		} else if ( n instanceof Float f ) {
+			return Math.abs(f);
+		} else if ( n instanceof Double d ) {
+			return Math.abs(d);
+		} else if ( n instanceof BigInteger bi ) {
+			return bi.abs();
+		} else if ( n instanceof BigDecimal bd ) {
+			return bd.abs();
+		}
+
+		final BigDecimal d = bigDecimalForNumber(n);
+		if ( d == null ) {
+			return null;
+		}
+		return d.abs();
 	}
 
 }

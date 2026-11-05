@@ -44,7 +44,7 @@ import net.solarnetwork.util.NumberUtils;
  * Unit tests for the {@link NumberUtils} class.
  *
  * @author matt
- * @version 1.8
+ * @version 1.9
  */
 public class NumberUtilsTests {
 
@@ -1019,6 +1019,283 @@ public class NumberUtilsTests {
 				.isNull();
 		then(NumberUtils.parseNumber("123ABC1234567890123456789"))
 				.as("Unprefixed upper case hex parsed as null").isNull();
+	}
+
+	@Test
+	public void compare_nulls() {
+		// @formatter:off
+		then(NumberUtils.compare(null, null))
+			.as("Two nulls are equal")
+			.isZero()
+			;
+		then(NumberUtils.compare(null, 1))
+			.as("Null sorts before number")
+			.isNegative()
+			;
+		then(NumberUtils.compare(1, null))
+			.as("Number sorts after null")
+			.isPositive()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void compare_sameType() {
+		// GIVEN
+		final Integer n = 1000;
+
+		// THEN
+		// @formatter:off
+		then(NumberUtils.compare(n, n))
+			.as("Same instance is equal")
+			.isZero()
+			;
+		then(NumberUtils.compare(Integer.valueOf(1000), Integer.valueOf(1000)))
+			.as("Integer instances with same value are equal")
+			.isZero()
+			;
+		then(NumberUtils.compare(1, 2))
+			.as("Smaller Integer sorts first")
+			.isNegative()
+			;
+		then(NumberUtils.compare(2, 1))
+			.as("Larger Integer sorts last")
+			.isPositive()
+			;
+		then(NumberUtils.compare(1.5, 2.5))
+			.as("Smaller Double sorts first")
+			.isNegative()
+			;
+		then(NumberUtils.compare(new BigDecimal("1.0"), new BigDecimal("1.00")))
+			.as("BigDecimal values compared ignoring scale")
+			.isZero()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void compare_mixedTypes() {
+		// @formatter:off
+		then(NumberUtils.compare(1, 2L))
+			.as("Smaller Integer sorts before larger Long")
+			.isNegative()
+			;
+		then(NumberUtils.compare(2L, 1))
+			.as("Larger Long sorts after smaller Integer")
+			.isPositive()
+			;
+		then(NumberUtils.compare(1, new BigDecimal("1.0")))
+			.as("Integer and BigDecimal with same value are equal")
+			.isZero()
+			;
+		then(NumberUtils.compare(new BigInteger("123456789012345678901234567890"), Long.MAX_VALUE))
+			.as("BigInteger larger than any Long sorts after Long")
+			.isPositive()
+			;
+		then(NumberUtils.compare(0.1f, 0.1))
+			.as("Float and Double with same decimal value are equal")
+			.isZero()
+			;
+		then(NumberUtils.compare((short) 3, (byte) 2))
+			.as("Larger Short sorts after smaller Byte")
+			.isPositive()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void compare_notComparable() {
+		// @formatter:off
+		then(NumberUtils.compare(new AtomicInteger(1), new AtomicInteger(2)))
+			.as("Smaller AtomicInteger sorts first, compared by value")
+			.isNegative()
+			;
+		then(NumberUtils.compare(new AtomicInteger(2), new AtomicInteger(2)))
+			.as("AtomicInteger instances with same value are equal")
+			.isZero()
+			;
+		then(NumberUtils.compare(new AtomicLong(2), 1))
+			.as("Larger AtomicLong sorts after smaller Integer")
+			.isPositive()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void compare_nan() {
+		// @formatter:off
+		then(NumberUtils.compare(Double.NaN, 1))
+			.as("Double NaN sorts after Integer")
+			.isPositive()
+			;
+		then(NumberUtils.compare(1, Double.NaN))
+			.as("Integer sorts before Double NaN")
+			.isNegative()
+			;
+		then(NumberUtils.compare(Float.NaN, new BigDecimal("1e400")))
+			.as("Float NaN sorts after BigDecimal larger than any Double")
+			.isPositive()
+			;
+		then(NumberUtils.compare(Float.NaN, Double.NaN))
+			.as("Float NaN and Double NaN are equal")
+			.isZero()
+			;
+		then(NumberUtils.compare(Double.NaN, Float.POSITIVE_INFINITY))
+			.as("Double NaN sorts after Float positive infinity")
+			.isPositive()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void compare_infinity() {
+		// @formatter:off
+		then(NumberUtils.compare(Double.POSITIVE_INFINITY, Long.MAX_VALUE))
+			.as("Double positive infinity sorts after Long")
+			.isPositive()
+			;
+		then(NumberUtils.compare(Double.NEGATIVE_INFINITY, Long.MIN_VALUE))
+			.as("Double negative infinity sorts before Long")
+			.isNegative()
+			;
+		then(NumberUtils.compare(new BigDecimal("1e400"), Double.POSITIVE_INFINITY))
+			.as("BigDecimal larger than any Double sorts before Double positive infinity")
+			.isNegative()
+			;
+		then(NumberUtils.compare(new BigDecimal("-1e400"), Float.NEGATIVE_INFINITY))
+			.as("BigDecimal smaller than any Double sorts after Float negative infinity")
+			.isPositive()
+			;
+		then(NumberUtils.compare(Float.POSITIVE_INFINITY, Double.POSITIVE_INFINITY))
+			.as("Float and Double positive infinity are equal")
+			.isZero()
+			;
+		then(NumberUtils.compare(Float.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY))
+			.as("Float negative infinity sorts before Double positive infinity")
+			.isNegative()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void abs_null() {
+		then(NumberUtils.abs(null)).as("Null input returns null").isNull();
+	}
+
+	@Test
+	public void abs_integer() {
+		// @formatter:off
+		then(NumberUtils.abs(-5))
+			.as("Negative Integer returns positive Integer")
+			.isEqualTo(5)
+			;
+		then(NumberUtils.abs(5))
+			.as("Positive Integer returned as-is")
+			.isEqualTo(5)
+			;
+		then(NumberUtils.abs(Integer.MIN_VALUE))
+			.as("Integer minimum value returns positive Long, outside Integer range")
+			.isEqualTo(2147483648L)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void abs_long() {
+		// @formatter:off
+		then(NumberUtils.abs(-5L))
+			.as("Negative Long returns positive Long")
+			.isEqualTo(5L)
+			;
+		then(NumberUtils.abs(Long.MIN_VALUE))
+			.as("Long minimum value returns positive BigInteger, outside Long range")
+			.isEqualTo(new BigInteger("9223372036854775808"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void abs_float() {
+		// @formatter:off
+		then(NumberUtils.abs(-1.5f))
+			.as("Negative Float returns positive Float")
+			.isEqualTo(1.5f)
+			;
+		then(NumberUtils.abs(-0.0f))
+			.as("Negative zero Float returns positive zero Float")
+			.isEqualTo(0.0f)
+			;
+		then(NumberUtils.abs(Float.NEGATIVE_INFINITY))
+			.as("Float negative infinity returns positive infinity")
+			.isEqualTo(Float.POSITIVE_INFINITY)
+			;
+		then(NumberUtils.abs(Float.NaN))
+			.as("Float NaN returns NaN")
+			.isEqualTo(Float.NaN)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void abs_double() {
+		// @formatter:off
+		then(NumberUtils.abs(-1.5))
+			.as("Negative Double returns positive Double")
+			.isEqualTo(1.5)
+			;
+		then(NumberUtils.abs(-0.0))
+			.as("Negative zero Double returns positive zero Double")
+			.isEqualTo(0.0)
+			;
+		then(NumberUtils.abs(Double.NEGATIVE_INFINITY))
+			.as("Double negative infinity returns positive infinity")
+			.isEqualTo(Double.POSITIVE_INFINITY)
+			;
+		then(NumberUtils.abs(Double.NaN))
+			.as("Double NaN returns NaN")
+			.isEqualTo(Double.NaN)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void abs_bigNumbers() {
+		// @formatter:off
+		then(NumberUtils.abs(new BigInteger("-123456789012345678901234567890")))
+			.as("Negative BigInteger returns positive BigInteger")
+			.isEqualTo(new BigInteger("123456789012345678901234567890"))
+			;
+		then(NumberUtils.abs(new BigDecimal("-1.50")))
+			.as("Negative BigDecimal returns positive BigDecimal with same scale")
+			.isEqualTo(new BigDecimal("1.50"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void abs_otherTypes() {
+		// @formatter:off
+		then(NumberUtils.abs((short) -3))
+			.as("Negative Short returns positive Integer")
+			.isEqualTo(3)
+			;
+		then(NumberUtils.abs(Short.MIN_VALUE))
+			.as("Short minimum value returns positive Integer, outside Short range")
+			.isEqualTo(32768)
+			;
+		then(NumberUtils.abs((byte) -3))
+			.as("Negative Byte returns positive Integer")
+			.isEqualTo(3)
+			;
+		then(NumberUtils.abs(new AtomicInteger(-3)))
+			.as("Negative AtomicInteger returns positive value")
+			.hasToString("3")
+			;
+		then(NumberUtils.abs(new AtomicLong(-3)))
+			.as("Negative AtomicLong returns positive value")
+			.hasToString("3")
+			;
+		// @formatter:on
 	}
 
 }
