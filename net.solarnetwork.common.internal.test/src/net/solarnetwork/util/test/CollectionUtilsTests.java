@@ -44,6 +44,7 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -985,6 +986,101 @@ public class CollectionUtilsTests {
 		then(CollectionUtils.mapPropertyStringList("numbers", m))
 			.as("Set values converted to strings")
 			.containsExactly("1", "2")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void mapPropertyStringList_stringList() {
+		// GIVEN
+		final List<String> list = List.of("a", "b");
+
+		// THEN
+		// @formatter:off
+		then(CollectionUtils.mapPropertyStringList("list", Map.of("list", list)))
+			.as("String list returned as-is")
+			.isSameAs(list)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void mapPropertyStringList_mixedList() {
+		// GIVEN
+		final List<Object> middle = new ArrayList<>(List.of("a", 1, "b"));
+		// @formatter:off
+		final Map<String, Object> m = Map.ofEntries(
+				entry("middle", middle),
+				entry("last", List.of("a", "b", 2)),
+				entry("several", List.of("a", 1, 2.5, "b", 3L))
+			);
+		// @formatter:on
+
+		// THEN
+		// @formatter:off
+		then(CollectionUtils.mapPropertyStringList("middle", m))
+			.as("Non-string value within list converted to string")
+			.containsExactly("a", "1", "b")
+			;
+		then(middle)
+			.as("Source list not modified")
+			.containsExactly("a", 1, "b")
+			;
+		then(CollectionUtils.mapPropertyStringList("last", m))
+			.as("Non-string value at end of list converted to string")
+			.containsExactly("a", "b", "2")
+			;
+		then(CollectionUtils.mapPropertyStringList("several", m))
+			.as("All non-string values converted to strings")
+			.containsExactly("a", "1", "2.5", "b", "3")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void mapPropertyStringList_nulls() {
+		// GIVEN
+		// @formatter:off
+		final Map<String, Object> m = Map.ofEntries(
+				entry("middle", Arrays.asList("a", null, "b")),
+				entry("last", Arrays.asList("a", "b", null)),
+				entry("afterCopy", Arrays.asList("a", 1, null, "b")),
+				entry("mixed", Arrays.asList("a", null, 1, null, "b")),
+				entry("leading", Arrays.asList(null, "a", 1)),
+				entry("allNull", Arrays.asList(null, null)),
+				entry("stringArray", new String[] { "a", null, "b" })
+			);
+		// @formatter:on
+
+		// THEN
+		// @formatter:off
+		then(CollectionUtils.mapPropertyStringList("middle", m))
+			.as("Null within string list skipped")
+			.containsExactly("a", "b")
+			;
+		then(CollectionUtils.mapPropertyStringList("last", m))
+			.as("Null at end of string list skipped")
+			.containsExactly("a", "b")
+			;
+		then(CollectionUtils.mapPropertyStringList("afterCopy", m))
+			.as("Null after non-string value skipped")
+			.containsExactly("a", "1", "b")
+			;
+		then(CollectionUtils.mapPropertyStringList("mixed", m))
+			.as("All nulls skipped and non-string values converted to strings")
+			.containsExactly("a", "1", "b")
+			;
+		then(CollectionUtils.mapPropertyStringList("leading", m))
+			.as("Leading null skipped")
+			.containsExactly("a", "1")
+			;
+		then(CollectionUtils.mapPropertyStringList("allNull", m))
+			.as("List of only nulls resolves to empty list")
+			.isEmpty()
+			;
+		then(CollectionUtils.mapPropertyStringList("stringArray", m))
+			.as("Null within string array skipped")
+			.containsExactly("a", "b")
 			;
 		// @formatter:on
 	}

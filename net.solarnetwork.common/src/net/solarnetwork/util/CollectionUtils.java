@@ -590,7 +590,7 @@ public final class CollectionUtils {
 	 *
 	 * <p>
 	 * The property value can be a {@code Collection}, array, or a
-	 * comma-delimited single value.
+	 * comma-delimited single value. Only non-{@code null} values are returned.
 	 * </p>
 	 *
 	 * @param key
@@ -617,11 +617,17 @@ public final class CollectionUtils {
 			for ( int i = 1, len = l.size(); i < len; i++ ) {
 				var val = l.get(i);
 				if ( l != res ) {
-					res.add(val == null ? null : val instanceof String s ? s : val.toString());
-				} else if ( val != null && !(val instanceof String) ) {
+					if ( val != null ) {
+						res.add(val instanceof String s ? s : val.toString());
+					}
+				} else if ( !(val instanceof String) ) {
 					// found a non-string value, so copy to new list;
-					// all values to i have been validated as String or null already
-					res = new ArrayList<>(((List<String>) l).subList(0, i));
+					// all values to i have been validated as String already
+					res = new ArrayList<>(len);
+					res.addAll(((List<String>) l).subList(0, i));
+					if ( val != null ) {
+						res.add(val.toString());
+					}
 				}
 			}
 			result = res;
@@ -632,7 +638,8 @@ public final class CollectionUtils {
 					result.add(o.toString());
 				}
 			}
-		} else if ( propVal instanceof String[] a ) {
+		} else if ( propVal instanceof String[] a && !Arrays.asList(a).contains(null) ) {
+			// a String array with nulls falls through to the Object[] copy, which skips nulls
 			result = Arrays.asList(a);
 		} else if ( propVal instanceof Object[] a ) {
 			result = new ArrayList<>(a.length);
