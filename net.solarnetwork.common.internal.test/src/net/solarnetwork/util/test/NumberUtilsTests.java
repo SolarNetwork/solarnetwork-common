@@ -645,6 +645,80 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void mround_singleRounding() {
+		// @formatter:off
+		then(NumberUtils.mround(2.99, 2))
+			.as("2.99 / 2 = 1.495 rounds to 1, not up to 1.50 then 2")
+			.isEqualTo(new BigDecimal("2"))
+			;
+		then(NumberUtils.mround(new BigDecimal("2.4999"), 5))
+			.as("2.4999 / 5 = 0.49998 rounds to 0, not up to 0.5000 then 1")
+			.isEqualTo(new BigDecimal("0"))
+			;
+		then(NumberUtils.mround(new BigDecimal("-2.4999"), 5))
+			.as("-2.4999 / 5 = -0.49998 rounds to 0, not down to -0.5000 then -1")
+			.isEqualTo(new BigDecimal("0"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void mround_negativeScale() {
+		// GIVEN
+		// BigDecimal.valueOf() gives "round" double values from 1E7 a negative scale
+		final Double reading = 15000000.0;
+
+		// @formatter:off
+		then(NumberUtils.mround(reading, 1000))
+			.as("Value that is already a multiple is unchanged")
+			.isEqualTo(new BigDecimal("15000000"))
+			;
+		then(NumberUtils.mround(1.0E7, 3))
+			.as("Rounded to nearest multiple")
+			.isEqualTo(new BigDecimal("9999999"))
+			;
+		then(NumberUtils.floor(new BigDecimal("1E+3"), 300))
+			.as("Floor to multiple")
+			.isEqualTo(new BigDecimal("900"))
+			;
+		then(NumberUtils.ceil(new BigDecimal("1E+3"), 300))
+			.as("Ceiling to multiple")
+			.isEqualTo(new BigDecimal("1200"))
+			;
+		then(NumberUtils.down(new BigDecimal("-1E+3"), 300))
+			.as("Rounded towards zero to multiple")
+			.isEqualTo(new BigDecimal("-900"))
+			;
+		then(NumberUtils.up(new BigDecimal("-1E+3"), 300))
+			.as("Rounded away from zero to multiple")
+			.isEqualTo(new BigDecimal("-1200"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void mround_zeroSignificance() {
+		// @formatter:off
+		then(NumberUtils.mround(12.34, 0))
+			.as("Zero significance rounds to zero, like spreadsheet MROUND")
+			.isEqualTo(BigDecimal.ZERO)
+			;
+		then(NumberUtils.mround(-12.34, 0.0))
+			.as("Zero significance with a decimal scale rounds to zero")
+			.isEqualTo(BigDecimal.ZERO)
+			;
+		then(NumberUtils.floor(12.34, 0))
+			.as("Floor with zero significance rounds to zero")
+			.isEqualTo(BigDecimal.ZERO)
+			;
+		then(NumberUtils.ceil(-12.34, 0))
+			.as("Ceiling with zero significance rounds to zero")
+			.isEqualTo(BigDecimal.ZERO)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void round_0() {
 		assertThat("positive zero", NumberUtils.round(new BigDecimal("0.0"), 0),
 				is(new BigDecimal("0")));

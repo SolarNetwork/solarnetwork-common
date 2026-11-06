@@ -942,7 +942,8 @@ public final class NumberUtils {
 	 * <p>
 	 * This method supports rounding like supported by common spreadsheet
 	 * application formulas {@code CEILING}, {@code FLOOR}, and {@code MROUND},
-	 * which accept a significance factor to round to.
+	 * which accept a significance factor to round to. Like {@code MROUND}, a
+	 * significance of zero rounds every number to zero.
 	 * </p>
 	 *
 	 * @param n
@@ -965,11 +966,15 @@ public final class NumberUtils {
 		if ( mode == null ) {
 			mode = RoundingMode.HALF_UP;
 		}
+		// zero is the only multiple of zero
+		if ( s.signum() == 0 ) {
+			return BigDecimal.ZERO;
+		}
 		// optimize for significance of 1: avoid divide/multiply
 		if ( BigDecimal.ONE.compareTo(s) == 0 ) {
 			return d.setScale(0, mode);
 		}
-		return d.divide(s, mode).setScale(0, mode).multiply(s);
+		return d.divide(s, 0, mode).multiply(s);
 	}
 
 	/**
