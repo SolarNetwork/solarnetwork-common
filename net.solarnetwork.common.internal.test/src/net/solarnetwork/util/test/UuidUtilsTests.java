@@ -37,7 +37,7 @@ import net.solarnetwork.util.UuidUtils;
  * Test cases for the {@link UuidUtils} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class UuidUtilsTests {
 
@@ -119,6 +119,45 @@ public class UuidUtilsTests {
 		long n = (long) (f * 1_000_000);
 		assertThat("Timestamp is expected", ts,
 				is(equalTo(testInstant().truncatedTo(ChronoUnit.MILLIS).plusNanos(n))));
+	}
+
+	@Test
+	public void extractTimestamp_v1() {
+		// GIVEN
+		// RFC 9562 Appendix A.1 example
+		UUID uuid = UUID.fromString("C232AB00-9414-11EC-B3C8-9F6BDECED846");
+
+		// WHEN
+		Instant ts = UuidUtils.extractTimestamp(uuid);
+
+		// THEN
+		assertThat("Timestamp is expected", ts, is(equalTo(Instant.parse("2022-02-22T19:22:22Z"))));
+	}
+
+	@Test
+	public void extractTimestamp_v1_100nanos() {
+		// GIVEN
+		UUID uuid = UUID.fromString("33d51487-1351-11ed-b3c8-9f6bdeced846");
+
+		// WHEN
+		Instant ts = UuidUtils.extractTimestamp(uuid);
+
+		// THEN
+		assertThat("Timestamp is expected, with 100ns precision", ts,
+				is(equalTo(testInstant().minusNanos(testInstant().getNano() % 100))));
+	}
+
+	@Test
+	public void extractTimestamp_v1_epoch() {
+		// GIVEN
+		UUID uuid = new UUID(0x0000000000001000L, 0x8000000000000000L);
+
+		// WHEN
+		Instant ts = UuidUtils.extractTimestamp(uuid);
+
+		// THEN
+		assertThat("Zero timestamp is start of Gregorian calendar", ts,
+				is(equalTo(Instant.parse("1582-10-15T00:00:00Z"))));
 	}
 
 	@Test

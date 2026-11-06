@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
  * Utility functions for UUIDs.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 3.5
  */
 public final class UuidUtils {
@@ -42,6 +42,12 @@ public final class UuidUtils {
 	/** The V7 maximum additional time precision bits (12). */
 	public static final int V7_MAX_PRECISION = 12;
 
+	/**
+	 * The V1 epoch (1582-10-15T00:00:00Z) as 100-nanosecond intervals before
+	 * the Unix epoch.
+	 */
+	private static final long V1_EPOCH_OFFSET = 0x01B21DD213814000L;
+
 	private UuidUtils() {
 		// not available
 	}
@@ -50,7 +56,8 @@ public final class UuidUtils {
 	 * Extract the timestamp out of a UUID.
 	 *
 	 * <p>
-	 * Only UUID versions 1 and 7 are supported.
+	 * Only UUID versions 1 and 7 are supported. Version 1 timestamps have
+	 * 100-nanosecond precision.
 	 * </p>
 	 *
 	 * @param uuid
@@ -65,7 +72,8 @@ public final class UuidUtils {
 	 * Extract the timestamp out of a UUID.
 	 *
 	 * <p>
-	 * Only UUID versions 1 and 7 are supported.
+	 * Only UUID versions 1 and 7 are supported. Version 1 timestamps have
+	 * 100-nanosecond precision.
 	 * </p>
 	 *
 	 * @param uuid
@@ -83,7 +91,10 @@ public final class UuidUtils {
 		if ( uuid.version() == 7 ) {
 			return extractTimestampV7(uuid, additionalPrecisionBits);
 		} else if ( uuid.version() == 1 ) {
-			return Instant.ofEpochMilli(uuid.timestamp());
+			// timestamp is 100-nanosecond intervals since 1582-10-15T00:00:00Z
+			final long t = uuid.timestamp() - V1_EPOCH_OFFSET;
+			return Instant.ofEpochSecond(Math.floorDiv(t, 10_000_000L),
+					Math.floorMod(t, 10_000_000L) * 100L);
 		}
 		return null;
 	}
