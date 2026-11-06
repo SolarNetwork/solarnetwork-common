@@ -947,6 +947,32 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void narrowDouble_minBytePower() {
+		// GIVEN
+		final Double exactFloat = 1.5;
+		final Double inexactFloat = 0.1;
+
+		// @formatter:off
+		then(NumberUtils.narrow(exactFloat, 2))
+			.as("Min power 2 narrows to float")
+			.isEqualTo(1.5f)
+			;
+		then(NumberUtils.narrow(exactFloat, 3))
+			.as("Min power 3 keeps 64-bit double, not narrowed to float")
+			.isSameAs(exactFloat)
+			;
+		then(NumberUtils.narrow(exactFloat, 4))
+			.as("Min power above double size keeps double, not narrowed to float")
+			.isSameAs(exactFloat)
+			;
+		then(NumberUtils.narrow(inexactFloat, 4))
+			.as("Min power above double size keeps double, not widened to BigDecimal")
+			.isSameAs(inexactFloat)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void linearInterp() {
 		assertThat("interpolated simple", NumberUtils.linearInterpolate(20, 10, 50, 0, 4),
 				is(new BigDecimal("1")));

@@ -1085,6 +1085,10 @@ public final class NumberUtils {
 		} else if ( (n instanceof Float) || (n instanceof Byte) ) {
 			return n;
 		} else if ( n instanceof Double ) {
+			if ( minBytePower > 2 ) {
+				// no narrowing to float allowed, and never widen
+				return n;
+			}
 			float f = n.floatValue();
 			if ( Double.compare(f, n.doubleValue()) == 0 ) {
 				return f;
