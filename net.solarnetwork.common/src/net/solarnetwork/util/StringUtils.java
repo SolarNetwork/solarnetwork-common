@@ -197,8 +197,8 @@ public final class StringUtils {
 	 *
 	 * <p>
 	 * This will call the {@link Object#toString()} method on each object in the
-	 * set, using the natural iteration ordering of the set.No attempt to escape
-	 * delimiters within the set's values is done.
+	 * set, using the natural iteration ordering of the set. No attempt to
+	 * escape delimiters within the set's values is done.
 	 * </p>
 	 *
 	 * @param set
@@ -217,8 +217,11 @@ public final class StringUtils {
 			delim = "";
 		}
 		StringBuilder buf = new StringBuilder();
+		boolean first = true;
 		for ( Object o : set ) {
-			if ( buf.length() > 0 ) {
+			if ( first ) {
+				first = false;
+			} else {
 				buf.append(delim);
 			}
 			if ( o != null ) {
@@ -268,8 +271,11 @@ public final class StringUtils {
 			return null;
 		}
 		StringBuilder buf = new StringBuilder();
+		boolean first = true;
 		for ( Map.Entry<?, ?> me : map.entrySet() ) {
-			if ( buf.length() > 0 ) {
+			if ( first ) {
+				first = false;
+			} else {
 				buf.append(pairDelim);
 			}
 			if ( me.getKey() != null ) {

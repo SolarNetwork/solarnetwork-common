@@ -796,6 +796,68 @@ public class StringUtilsTests {
 	}
 
 	@Test
+	public void delimitedStringFromCollection() {
+		// GIVEN
+		List<String> list = Arrays.asList("a", "", "b");
+
+		// WHEN
+		String val = StringUtils.delimitedStringFromCollection(list, ",");
+
+		// THEN
+		assertThat("Delimited string generated", val, is(equalTo("a,,b")));
+	}
+
+	@Test
+	public void delimitedStringFromCollection_leadingEmpty() {
+		// GIVEN
+		List<String> list = Arrays.asList("", "a");
+
+		// WHEN
+		String val = StringUtils.delimitedStringFromCollection(list, ",");
+
+		// THEN
+		assertThat("Delimiter follows leading empty element", val, is(equalTo(",a")));
+	}
+
+	@Test
+	public void delimitedStringFromCollection_leadingNull() {
+		// GIVEN
+		List<String> list = Arrays.asList(null, "a", null);
+
+		// WHEN
+		String val = StringUtils.delimitedStringFromCollection(list, ",");
+
+		// THEN
+		assertThat("Null elements rendered as empty strings", val, is(equalTo(",a,")));
+	}
+
+	@Test
+	public void delimitedStringFromCollection_allEmpty() {
+		// GIVEN
+		List<String> list = Arrays.asList("", "", "");
+
+		// WHEN
+		String val = StringUtils.delimitedStringFromCollection(list, ",");
+
+		// THEN
+		assertThat("Delimiter between every element", val, is(equalTo(",,")));
+	}
+
+	@Test
+	public void delimitedStringFromMap_leadingEmptyPair() {
+		// GIVEN
+		Map<String, String> map = new LinkedHashMap<>(2);
+		map.put("", "");
+		map.put("a", "1");
+
+		// WHEN
+		String val = StringUtils.delimitedStringFromMap(map, "", ",");
+
+		// THEN
+		assertThat("Delimiter follows leading empty pair", val, is(equalTo(",a1")));
+	}
+
+	@Test
 	public void commaDelimitedStringFromIntRangeSet() {
 		// GIVEN
 		IntRangeSet set = new IntRangeSet(rangeOf(1), rangeOf(3), rangeOf(5, 10));
