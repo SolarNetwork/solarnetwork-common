@@ -54,6 +54,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Assert;
@@ -428,6 +429,33 @@ public class StringUtilsTests {
 	}
 
 	@Test
+	public void expandTemplateNoVariables() {
+		String template = "Hello world";
+		String result = StringUtils.expandTemplateString(template,
+				Collections.singletonMap("name", "world"));
+		assertThat("Template without variables returned as-is", result, sameInstance(template));
+	}
+
+	@Test
+	public void expandTemplateNestedBraces() {
+		// @formatter:off
+		then(StringUtils.expandTemplateString("Hello {name:\\d{3}x}", Collections.emptyMap()))
+			.as("Nested braces removed from default value")
+			.isEqualTo("Hello \\dx")
+			;
+		then(StringUtils.expandTemplateString("Hello {name:a{b{c}d}e}", Collections.emptyMap()))
+			.as("Multiple levels of nested braces removed from default value")
+			.isEqualTo("Hello ae")
+			;
+		then(StringUtils.expandTemplateString("Hello {name:\\d{3}x}",
+				Collections.singletonMap("name", "world")))
+			.as("Variable with nested braces in default value resolved")
+			.isEqualTo("Hello world")
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void sha256PropertyNoSalt() {
 		String result = StringUtils.sha256Base64Value("password", null);
 		assertThat(result, equalTo("{SHA-256}XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="));
@@ -450,6 +478,20 @@ public class StringUtilsTests {
 	}
 
 	@Test
+	public void sha256PropertyNullValue() {
+		String result = StringUtils.sha256Base64Value(null, null);
+		assertThat("Null value digested as empty string", result,
+				equalTo(StringUtils.sha256Base64Value("", null)));
+	}
+
+	@Test
+	public void sha256PropertyEmptySalt() {
+		String result = StringUtils.sha256Base64Value("password", new byte[0]);
+		assertThat("Empty salt treated as no salt", result,
+				equalTo("{SHA-256}XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="));
+	}
+
+	@Test
 	public void decodeBase64Sha256DigestNoSalt() {
 		KeyValuePair pair = StringUtils
 				.decodeBase64DigestComponents("{SHA-256}XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=");
@@ -469,6 +511,50 @@ public class StringUtilsTests {
 		System.arraycopy("password".getBytes("UTF-8"), 0, plain, 0, 8);
 		System.arraycopy(Hex.decodeHex(expectedSalt), 0, plain, 8, 8);
 		assertThat("Digest as hex", pair.getKey(), equalTo(DigestUtils.sha256Hex(plain)));
+	}
+
+	@Test
+	public void decodeBase64DigestNull() {
+		assertThat("Null input", StringUtils.decodeBase64DigestComponents(null), nullValue());
+	}
+
+	@Test
+	public void decodeBase64DigestNoPrefix() {
+		assertThat("Input without digest prefix",
+				StringUtils.decodeBase64DigestComponents("XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="),
+				nullValue());
+	}
+
+	@Test
+	public void decodeBase64Sha1DigestNoSalt() {
+		KeyValuePair pair = StringUtils.decodeBase64DigestComponents(
+				"{SHA}" + Base64.encodeBase64String(DigestUtils.sha1("password")));
+		assertThat("Digest as hex", pair.getKey(), equalTo(DigestUtils.sha1Hex("password")));
+		assertThat("No salt", pair.getValue(), nullValue());
+	}
+
+	@Test
+	public void decodeBase64Sha1DigestWithSalt() throws Exception {
+		byte[] salt = Hex.decodeHex("6ae3b4c425b8d0b6");
+		KeyValuePair pair = StringUtils.decodeBase64DigestComponents(
+				"{SSHA}" + Base64.encodeBase64String(concat(DigestUtils.sha1("password"), salt)));
+		assertThat("Digest as hex", pair.getKey(), equalTo(DigestUtils.sha1Hex("password")));
+		assertThat("Salt as hex", pair.getValue(), equalTo("6ae3b4c425b8d0b6"));
+	}
+
+	@Test
+	public void decodeBase64Md5DigestWithSalt() throws Exception {
+		byte[] salt = Hex.decodeHex("6ae3b4c425b8d0b6");
+		KeyValuePair pair = StringUtils.decodeBase64DigestComponents(
+				"{SMD5}" + Base64.encodeBase64String(concat(DigestUtils.md5("password"), salt)));
+		assertThat("Digest as hex", pair.getKey(), equalTo(DigestUtils.md5Hex("password")));
+		assertThat("Salt as hex", pair.getValue(), equalTo("6ae3b4c425b8d0b6"));
+	}
+
+	private static byte[] concat(byte[] a, byte[] b) {
+		byte[] result = Arrays.copyOf(a, a.length + b.length);
+		System.arraycopy(b, 0, result, a.length, b.length);
+		return result;
 	}
 
 	@Test
@@ -497,6 +583,22 @@ public class StringUtilsTests {
 		Set<String> secureKeys = Collections.singleton("c");
 		Map<String, String> masked = StringUtils.sha256MaskedMap(map, secureKeys);
 		assertThat("No change results in map argument", masked, sameInstance(map));
+	}
+
+	@Test
+	public void maskedMapEmptyMapArgument() {
+		Map<String, String> map = Collections.emptyMap();
+		Set<String> secureKeys = Collections.singleton("a");
+		Map<String, String> masked = StringUtils.sha256MaskedMap(map, secureKeys);
+		assertThat("Empty map argument results in map argument", masked, sameInstance(map));
+	}
+
+	@Test
+	public void maskedMapEmptyKeysArgument() {
+		Map<String, String> map = Collections.singletonMap("a", "b");
+		Set<String> secureKeys = Collections.emptySet();
+		Map<String, String> masked = StringUtils.sha256MaskedMap(map, secureKeys);
+		assertThat("Empty keys argument results in map argument", masked, sameInstance(map));
 	}
 
 	@Test
@@ -545,6 +647,22 @@ public class StringUtilsTests {
 		assertThat("Change results in map of same size", masked.keySet(), hasSize(map.size()));
 		assertThat("Null key unchanged", masked, hasEntry(null, "b"));
 		assertThat("Masked key", masked.get("c"), startsWith("{SSHA-256}"));
+	}
+
+	@Test
+	public void maskedMapNullValue() {
+		// GIVEN
+		Map<String, String> map = new LinkedHashMap<>(2);
+		map.put("a", null);
+		map.put("b", "c");
+
+		// WHEN
+		Map<String, String> masked = StringUtils.sha256MaskedMap(map, new HashSet<>(List.of("a", "b")));
+
+		// THEN
+		assertThat("Masked map created", masked, not(sameInstance(map)));
+		assertThat("Null value not masked", masked, hasEntry("a", null));
+		assertThat("Non-null value masked", masked.get("b"), startsWith("{SSHA-256}"));
 	}
 
 	@Test
@@ -648,6 +766,14 @@ public class StringUtilsTests {
 	@Test
 	public void utf8length_greek() {
 		String input = "\u03ba\u03cc\u03c3\u03bc\u03b5";
+
+		assertThat("UTF-8 byte count", StringUtils.utf8length(input),
+				is(equalTo(input.getBytes(ByteUtils.UTF8).length)));
+	}
+
+	@Test
+	public void utf8length_threeAndFourBytes() {
+		String input = "€😀";
 
 		assertThat("UTF-8 byte count", StringUtils.utf8length(input),
 				is(equalTo(input.getBytes(ByteUtils.UTF8).length)));
@@ -796,6 +922,43 @@ public class StringUtilsTests {
 	}
 
 	@Test
+	public void naturalOrder_nulls() {
+		assertThat(StringUtils.naturalSortCompare(null, null, true), is(equalTo(0)));
+		assertThat(StringUtils.naturalSortCompare(null, "a", true), is(lessThan(0)));
+		assertThat(StringUtils.naturalSortCompare("a", null, true), is(greaterThan(0)));
+	}
+
+	@Test
+	public void naturalOrder_tokenKinds() {
+		// @formatter:off
+		then(StringUtils.naturalSortCompare(":", "1", false))
+			.as("Punctuation between digits and upper case letters sorts before digits")
+			.isLessThan(0)
+			;
+		then(StringUtils.naturalSortCompare("_", "1", false))
+			.as("Punctuation between upper and lower case letters sorts before digits")
+			.isLessThan(0)
+			;
+		then(StringUtils.naturalSortCompare("~", "1", false))
+			.as("Punctuation after lower case letters sorts before digits")
+			.isLessThan(0)
+			;
+		then(StringUtils.naturalSortCompare("€", "1", false))
+			.as("Non-ASCII symbol sorts before digits")
+			.isLessThan(0)
+			;
+		then(StringUtils.naturalSortCompare("é", "1", false))
+			.as("Non-ASCII letter sorts after digits")
+			.isGreaterThan(0)
+			;
+		then(StringUtils.naturalSortCompare("café10", "café9", false))
+			.as("Number after non-ASCII letter compared numerically")
+			.isGreaterThan(0)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void delimitedStringFromCollection() {
 		// GIVEN
 		List<String> list = Arrays.asList("a", "", "b");
@@ -844,6 +1007,24 @@ public class StringUtilsTests {
 	}
 
 	@Test
+	public void delimitedStringFromCollection_null() {
+		assertThat("Null input produces null output",
+				StringUtils.delimitedStringFromCollection(null, ","), is(nullValue()));
+	}
+
+	@Test
+	public void commaDelimitedStringFromCollection() {
+		// GIVEN
+		List<String> list = Arrays.asList("a", "b");
+
+		// WHEN
+		String val = StringUtils.commaDelimitedStringFromCollection(list);
+
+		// THEN
+		assertThat("Comma delimited string generated", val, is(equalTo("a,b")));
+	}
+
+	@Test
 	public void delimitedStringFromMap_leadingEmptyPair() {
 		// GIVEN
 		Map<String, String> map = new LinkedHashMap<>(2);
@@ -855,6 +1036,41 @@ public class StringUtilsTests {
 
 		// THEN
 		assertThat("Delimiter follows leading empty pair", val, is(equalTo(",a1")));
+	}
+
+	@Test
+	public void delimitedStringFromMap_null() {
+		assertThat("Null input produces null output", StringUtils.delimitedStringFromMap(null),
+				is(nullValue()));
+	}
+
+	@Test
+	public void delimitedStringFromMap_defaultDelimiters() {
+		// GIVEN
+		Map<String, Object> map = new LinkedHashMap<>(2);
+		map.put("a", 1);
+		map.put("b", 2);
+
+		// WHEN
+		String val = StringUtils.delimitedStringFromMap(map);
+
+		// THEN
+		assertThat("Delimited string generated", val, is(equalTo("a=1,b=2")));
+	}
+
+	@Test
+	public void delimitedStringFromMap_nullKeyAndValue() {
+		// GIVEN
+		Map<String, Object> map = new LinkedHashMap<>(3);
+		map.put(null, 1);
+		map.put("a", null);
+		map.put("b", 2);
+
+		// WHEN
+		String val = StringUtils.delimitedStringFromMap(map);
+
+		// THEN
+		assertThat("Null keys and values rendered as empty strings", val, is(equalTo("=1,a=,b=2")));
 	}
 
 	@Test
@@ -904,6 +1120,33 @@ public class StringUtilsTests {
 		// THEN
 		IntRangeSet expected = new IntRangeSet(rangeOf(2), rangeOf(4), rangeOf(8, 11), rangeOf(99));
 		assertThat("Set parsed", result, is(equalTo(expected)));
+	}
+
+	@Test
+	public void intRangeSetFromCommaDelimitedString_nullOrBlank() {
+		assertThat("Null input produces null output",
+				StringUtils.commaDelimitedStringToIntRangeSet(null), is(nullValue()));
+		assertThat("Blank input produces null output",
+				StringUtils.commaDelimitedStringToIntRangeSet("  "), is(nullValue()));
+	}
+
+	@Test
+	public void intRangeSetFromCommaDelimitedString_invalidSkipped() {
+		// GIVEN
+		String val = "x, 3, 5 - 6, 7-y";
+
+		// WHEN
+		IntRangeSet result = StringUtils.commaDelimitedStringToIntRangeSet(val);
+
+		// THEN
+		IntRangeSet expected = new IntRangeSet(rangeOf(3), rangeOf(5, 6));
+		assertThat("Invalid ranges skipped", result, is(equalTo(expected)));
+	}
+
+	@Test
+	public void intRangeSetFromCommaDelimitedString_allInvalid() {
+		assertThat("No valid ranges produces null output",
+				StringUtils.commaDelimitedStringToIntRangeSet("x,y-z"), is(nullValue()));
 	}
 
 	@Test
@@ -1134,6 +1377,20 @@ public class StringUtilsTests {
 				}
 				""");
 		// @formatter:on
+	}
+
+	@Test
+	public void parseBoolean_true() {
+		for ( String s : new String[] { "true", "TRUE", " yes ", "Y", "t", "1" } ) {
+			assertThat("Parsed as true: [" + s + "]", StringUtils.parseBoolean(s), is(equalTo(true)));
+		}
+	}
+
+	@Test
+	public void parseBoolean_false() {
+		for ( String s : new String[] { null, "", "false", "no", "0", "tru", "truee", "yesss" } ) {
+			assertThat("Parsed as false: [" + s + "]", StringUtils.parseBoolean(s), is(equalTo(false)));
+		}
 	}
 
 }

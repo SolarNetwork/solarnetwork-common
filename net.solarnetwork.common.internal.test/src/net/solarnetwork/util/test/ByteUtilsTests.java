@@ -32,9 +32,13 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.hamcrest.Matchers;
 import org.junit.Test;
+import net.solarnetwork.domain.BitDataType;
 import net.solarnetwork.util.ByteUtils;
 
 /**
@@ -637,6 +641,298 @@ public class ByteUtilsTests {
 		assertThat("Counts converted to formatted strings", result,
 				arrayContaining("0 B", "27 B", "999 B", "1000 B", "1023 B", "1.0 KiB", "1.7 KiB",
 						"108.0 KiB", "6.8 MiB", "432.0 MiB", "27.0 GiB", "1.7 TiB", "8.0 EiB"));
+	}
+
+	/** Test data with a leading pad byte so parsing starts at offset 1. */
+	private static final byte[] PARSE_DATA = new byte[] { (byte) 0x00, (byte) 0x81, (byte) 0x02,
+			(byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08 };
+
+	private static ByteBuffer parseDataBuffer(ByteOrder order) {
+		return ByteBuffer.wrap(PARSE_DATA, 1, PARSE_DATA.length - 1).slice().order(order);
+	}
+
+	@Test
+	public void encodeHexUpperCase() {
+		char[] dest = new char[] { 'x', 'x', 'x' };
+		char[] result = ByteUtils.encodeHexUpperCase((byte) 0xAB, dest, 1);
+		assertThat("Destination returned", result == dest, equalTo(true));
+		assertThat("Upper case hex encoded at index", new String(dest), equalTo("xAB"));
+	}
+
+	@Test
+	public void encodeHexLowerCase() {
+		char[] dest = new char[] { 'x', 'x', 'x' };
+		char[] result = ByteUtils.encodeHexLowerCase((byte) 0xAB, dest, 0);
+		assertThat("Destination returned", result == dest, equalTo(true));
+		assertThat("Lower case hex encoded at index", new String(dest), equalTo("abx"));
+	}
+
+	@Test
+	public void encodeHexString_outOfRange() {
+		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
+		assertThat("Null data", ByteUtils.encodeHexString(null, 0, 1, false), equalTo(""));
+		assertThat("Negative from", ByteUtils.encodeHexString(b, -1, 2, false), equalTo(""));
+		assertThat("From past end", ByteUtils.encodeHexString(b, 3, 4, false), equalTo(""));
+		assertThat("Negative to", ByteUtils.encodeHexString(b, 0, -1, false), equalTo(""));
+		assertThat("To equal to from", ByteUtils.encodeHexString(b, 1, 1, false), equalTo(""));
+		assertThat("To before from", ByteUtils.encodeHexString(b, 2, 1, false), equalTo(""));
+	}
+
+	@Test
+	public void decodeHexString_null() {
+		assertThat("Null decodes to empty bytes", ByteUtils.decodeHexString(null), equalTo(new byte[0]));
+	}
+
+	@Test
+	public void decodeHexPadStart_nullOrEmpty() {
+		assertThat("Null decodes to empty bytes", ByteUtils.decodeHexPadStart(null),
+				equalTo(new byte[0]));
+		assertThat("Empty decodes to empty bytes", ByteUtils.decodeHexPadStart(new char[0]),
+				equalTo(new byte[0]));
+	}
+
+	@Test
+	public void encode_null() {
+		byte[] dest = new byte[8];
+		Arrays.fill(dest, (byte) 0x7F);
+		ByteUtils.encodeInt16(null, dest, 0, BigEndian);
+		ByteUtils.encodeUnsignedInt16(null, dest, 2, BigEndian);
+		ByteUtils.encodeInt32(null, dest, 4, BigEndian);
+		assertThat("Null 16 and 32 bit values encoded as zero", dest, equalTo(new byte[8]));
+
+		Arrays.fill(dest, (byte) 0x7F);
+		ByteUtils.encodeUnsignedInt32(null, dest, 0, BigEndian);
+		assertThat("Null unsigned 32 bit value encoded as zero", Arrays.copyOf(dest, 4),
+				equalTo(new byte[4]));
+
+		Arrays.fill(dest, (byte) 0x7F);
+		ByteUtils.encodeInt64((Number) null, dest, 0, BigEndian);
+		assertThat("Null 64 bit value encoded as zero", dest, equalTo(new byte[8]));
+
+		Arrays.fill(dest, (byte) 0x7F);
+		ByteUtils.encodeUnsignedInt64((Number) null, dest, 0, BigEndian);
+		assertThat("Null unsigned 64 bit value encoded as zero", dest, equalTo(new byte[8]));
+	}
+
+	@Test
+	public void encodeInt64_number() {
+		byte[] dest = new byte[8];
+		ByteUtils.encodeInt64((Number) 0x0102030405060708L, dest, 0, LittleEndian);
+		assertThat("Number encoded", dest, equalTo(new byte[] { (byte) 0x08, (byte) 0x07, (byte) 0x06,
+				(byte) 0x05, (byte) 0x04, (byte) 0x03, (byte) 0x02, (byte) 0x01 }));
+	}
+
+	@Test
+	public void parseUnsignedInt64_zero() {
+		assertThat("All zero bytes", ByteUtils.parseUnsignedInt64((byte) 0, (byte) 0, (byte) 0, (byte) 0,
+				(byte) 0, (byte) 0, (byte) 0, (byte) 0), equalTo(BigInteger.ZERO));
+		assertThat("Only lowest byte", ByteUtils.parseUnsignedInt64((byte) 0, (byte) 0, (byte) 0,
+				(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0xFF), equalTo(BigInteger.valueOf(255)));
+	}
+
+	@Test
+	public void parseFloat64NaN() {
+		long bits = Double.doubleToRawLongBits(Double.NaN);
+		Double result = ByteUtils.parseFloat64((byte) (bits >>> 56), (byte) (bits >>> 48),
+				(byte) (bits >>> 40), (byte) (bits >>> 32), (byte) (bits >>> 24), (byte) (bits >>> 16),
+				(byte) (bits >>> 8), (byte) bits);
+		assertThat("Double value is NaN", result, nullValue());
+	}
+
+	@Test
+	public void parseBytes_null() {
+		assertThat("Null data parses to empty bytes", ByteUtils.parseBytes(null, 0, 2, BigEndian),
+				equalTo(new byte[0]));
+	}
+
+	@Test
+	public void parseInteger() {
+		byte[] data = new byte[] { (byte) 0xFF, (byte) 0xFE };
+		assertThat("Signed big endian", ByteUtils.parseInteger(data, 0, 2, BigEndian),
+				equalTo(BigInteger.valueOf(-2)));
+		assertThat("Signed little endian", ByteUtils.parseInteger(data, 0, 2, LittleEndian),
+				equalTo(BigInteger.valueOf((short) 0xFEFF)));
+	}
+
+	@Test
+	public void parseInteger_offsetPastEnd() {
+		byte[] data = new byte[] { (byte) 0xFF, (byte) 0xFE };
+		assertThat("No bytes parse as zero", ByteUtils.parseInteger(data, 4, 2, BigEndian),
+				equalTo(BigInteger.ZERO));
+	}
+
+	@Test
+	public void parseNumber_nullData() {
+		assertThat("Null data", ByteUtils.parseNumber(BitDataType.Int16, null, 0, BigEndian),
+				nullValue());
+	}
+
+	@Test
+	public void parseNumber_bit() {
+		assertThat("Zero bit", ByteUtils.parseNumber(BitDataType.Bit, PARSE_DATA, 0, BigEndian),
+				equalTo(0));
+		assertThat("Non-zero bit", ByteUtils.parseNumber(BitDataType.Bit, PARSE_DATA, 1, BigEndian),
+				equalTo(1));
+		assertThat("Non-zero boolean",
+				ByteUtils.parseNumber(BitDataType.Boolean, PARSE_DATA, 1, BigEndian), equalTo(1));
+	}
+
+	@Test
+	public void parseNumber_8bit() {
+		assertThat("Int8", ByteUtils.parseNumber(BitDataType.Int8, PARSE_DATA, 1, BigEndian),
+				equalTo((byte) 0x81));
+		assertThat("UInt8", ByteUtils.parseNumber(BitDataType.UInt8, PARSE_DATA, 1, BigEndian),
+				equalTo((short) 0x81));
+	}
+
+	@Test
+	public void parseNumber_16bit() {
+		short be = parseDataBuffer(ByteOrder.BIG_ENDIAN).getShort();
+		short le = parseDataBuffer(ByteOrder.LITTLE_ENDIAN).getShort();
+		assertThat("Int16 big endian",
+				ByteUtils.parseNumber(BitDataType.Int16, PARSE_DATA, 1, BigEndian), equalTo(be));
+		assertThat("Int16 little endian",
+				ByteUtils.parseNumber(BitDataType.Int16, PARSE_DATA, 1, LittleEndian), equalTo(le));
+		assertThat("UInt16 big endian",
+				ByteUtils.parseNumber(BitDataType.UInt16, PARSE_DATA, 1, BigEndian),
+				equalTo(Short.toUnsignedInt(be)));
+		assertThat("UInt16 little endian",
+				ByteUtils.parseNumber(BitDataType.UInt16, PARSE_DATA, 1, LittleEndian),
+				equalTo(Short.toUnsignedInt(le)));
+	}
+
+	@Test
+	public void parseNumber_32bit() {
+		int be = parseDataBuffer(ByteOrder.BIG_ENDIAN).getInt();
+		int le = parseDataBuffer(ByteOrder.LITTLE_ENDIAN).getInt();
+		assertThat("Int32 big endian",
+				ByteUtils.parseNumber(BitDataType.Int32, PARSE_DATA, 1, BigEndian), equalTo(be));
+		assertThat("Int32 little endian",
+				ByteUtils.parseNumber(BitDataType.Int32, PARSE_DATA, 1, LittleEndian), equalTo(le));
+		assertThat("UInt32 big endian",
+				ByteUtils.parseNumber(BitDataType.UInt32, PARSE_DATA, 1, BigEndian),
+				equalTo(Integer.toUnsignedLong(be)));
+		assertThat("UInt32 little endian",
+				ByteUtils.parseNumber(BitDataType.UInt32, PARSE_DATA, 1, LittleEndian),
+				equalTo(Integer.toUnsignedLong(le)));
+	}
+
+	@Test
+	public void parseNumber_64bit() {
+		long be = parseDataBuffer(ByteOrder.BIG_ENDIAN).getLong();
+		long le = parseDataBuffer(ByteOrder.LITTLE_ENDIAN).getLong();
+		assertThat("Int64 big endian",
+				ByteUtils.parseNumber(BitDataType.Int64, PARSE_DATA, 1, BigEndian), equalTo(be));
+		assertThat("Int64 little endian",
+				ByteUtils.parseNumber(BitDataType.Int64, PARSE_DATA, 1, LittleEndian), equalTo(le));
+		assertThat("UInt64 big endian",
+				ByteUtils.parseNumber(BitDataType.UInt64, PARSE_DATA, 1, BigEndian),
+				equalTo(new BigInteger(Long.toUnsignedString(be))));
+		assertThat("UInt64 little endian",
+				ByteUtils.parseNumber(BitDataType.UInt64, PARSE_DATA, 1, LittleEndian),
+				equalTo(new BigInteger(Long.toUnsignedString(le))));
+	}
+
+	@Test
+	public void parseNumber_float() {
+		byte[] data = new byte[13];
+		ByteBuffer.wrap(data, 1, 12).putFloat(1.5f).putDouble(-2.25);
+		assertThat("Float32 big endian", ByteUtils.parseNumber(BitDataType.Float32, data, 1, BigEndian),
+				equalTo(1.5f));
+		assertThat("Float64 big endian", ByteUtils.parseNumber(BitDataType.Float64, data, 5, BigEndian),
+				equalTo(-2.25));
+
+		ByteBuffer.wrap(data, 1, 12).order(ByteOrder.LITTLE_ENDIAN).putFloat(1.5f).putDouble(-2.25);
+		assertThat("Float32 little endian",
+				ByteUtils.parseNumber(BitDataType.Float32, data, 1, LittleEndian), equalTo(1.5f));
+		assertThat("Float64 little endian",
+				ByteUtils.parseNumber(BitDataType.Float64, data, 5, LittleEndian), equalTo(-2.25));
+	}
+
+	@Test
+	public void parseNumber_variableLengthIntegers() {
+		short be = parseDataBuffer(ByteOrder.BIG_ENDIAN).getShort();
+		assertThat("Integer", ByteUtils.parseNumber(BitDataType.Integer, PARSE_DATA, 1, 2, BigEndian),
+				equalTo(BigInteger.valueOf(be)));
+		assertThat("UnsignedInteger",
+				ByteUtils.parseNumber(BitDataType.UnsignedInteger, PARSE_DATA, 1, 2, BigEndian),
+				equalTo(BigInteger.valueOf(Short.toUnsignedInt(be))));
+		assertThat("Bytes", ByteUtils.parseNumber(BitDataType.Bytes, PARSE_DATA, 1, 2, BigEndian),
+				equalTo(BigInteger.valueOf(Short.toUnsignedInt(be))));
+	}
+
+	@Test
+	public void parseNumber_strings() {
+		byte[] data = "x1024".getBytes(StandardCharsets.US_ASCII);
+		assertThat("ASCII", ByteUtils.parseNumber(BitDataType.StringAscii, data, 1, 4, BigEndian),
+				equalTo(new BigDecimal("1024")));
+		assertThat("UTF-8", ByteUtils.parseNumber(BitDataType.StringUtf8, data, 1, 4, BigEndian),
+				equalTo(new BigDecimal("1024")));
+	}
+
+	@Test
+	public void parseNumber_notEnoughData() {
+		final int last = PARSE_DATA.length - 1;
+		assertThat("Bit",
+				ByteUtils.parseNumber(BitDataType.Bit, PARSE_DATA, PARSE_DATA.length, BigEndian),
+				nullValue());
+		assertThat("Int8",
+				ByteUtils.parseNumber(BitDataType.Int8, PARSE_DATA, PARSE_DATA.length, BigEndian),
+				nullValue());
+		assertThat("UInt8",
+				ByteUtils.parseNumber(BitDataType.UInt8, PARSE_DATA, PARSE_DATA.length, BigEndian),
+				nullValue());
+		assertThat("Int16", ByteUtils.parseNumber(BitDataType.Int16, PARSE_DATA, last, BigEndian),
+				nullValue());
+		assertThat("UInt16", ByteUtils.parseNumber(BitDataType.UInt16, PARSE_DATA, last, BigEndian),
+				nullValue());
+		assertThat("Int32", ByteUtils.parseNumber(BitDataType.Int32, PARSE_DATA, last - 2, BigEndian),
+				nullValue());
+		assertThat("UInt32", ByteUtils.parseNumber(BitDataType.UInt32, PARSE_DATA, last - 2, BigEndian),
+				nullValue());
+		assertThat("Float32",
+				ByteUtils.parseNumber(BitDataType.Float32, PARSE_DATA, last - 2, BigEndian),
+				nullValue());
+		assertThat("Int64", ByteUtils.parseNumber(BitDataType.Int64, PARSE_DATA, 2, BigEndian),
+				nullValue());
+		assertThat("UInt64", ByteUtils.parseNumber(BitDataType.UInt64, PARSE_DATA, 2, BigEndian),
+				nullValue());
+		assertThat("Float64", ByteUtils.parseNumber(BitDataType.Float64, PARSE_DATA, 2, BigEndian),
+				nullValue());
+		for ( BitDataType t : new BitDataType[] { BitDataType.Integer, BitDataType.UnsignedInteger,
+				BitDataType.Bytes, BitDataType.StringAscii, BitDataType.StringUtf8 } ) {
+			assertThat(t.name(), ByteUtils.parseNumber(t, PARSE_DATA, last, 2, BigEndian), nullValue());
+		}
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void parseNumber_fixedLength_variableLengthType() {
+		ByteUtils.parseNumber(BitDataType.Integer, PARSE_DATA, 0, BigEndian);
+	}
+
+	@Test
+	public void objectArray_null() {
+		assertThat("Null input", ByteUtils.objectArray(null), nullValue());
+	}
+
+	@Test
+	public void byteArray_null() {
+		assertThat("Null input", ByteUtils.byteArray(null), nullValue());
+	}
+
+	@Test
+	public void byteArray_nullElements() {
+		Byte[] data = new Byte[] { 1, null, 3 };
+		assertThat("Default null value", ByteUtils.byteArray(data), equalTo(new byte[] { 1, 0, 3 }));
+		assertThat("Explicit null value", ByteUtils.byteArray(data, (byte) -1),
+				equalTo(new byte[] { 1, -1, 3 }));
+	}
+
+	@Test
+	public void humanReadableByteCount_negative() {
+		assertThat("Negative small count", ByteUtils.humanReadableByteCount(-27), equalTo("-27 B"));
+		assertThat("Minimum count", ByteUtils.humanReadableByteCount(Long.MIN_VALUE),
+				equalTo(String.format("%.1f %ciB", -8191 / 1024.0, 'E')));
 	}
 
 }

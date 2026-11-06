@@ -22,6 +22,7 @@
 
 package net.solarnetwork.util.test;
 
+import static org.assertj.core.api.BDDAssertions.thenExceptionOfType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayWithSize;
@@ -30,6 +31,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import java.lang.reflect.InvocationTargetException;
 import org.junit.Test;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectFactory;
@@ -39,7 +41,7 @@ import net.solarnetwork.util.ArrayUtils;
  * Test cases for the {@link ArrayUtils} class.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class ArrayUtilsTests {
 
@@ -54,6 +56,13 @@ public class ArrayUtilsTests {
 		public FooBean(int index) {
 			super();
 			this.index = index;
+		}
+	}
+
+	public static class ThrowingBean {
+
+		public ThrowingBean() {
+			throw new IllegalStateException("Not today.");
 		}
 	}
 
@@ -160,6 +169,32 @@ public class ArrayUtilsTests {
 		for ( int i = 1; i < 3; i += 1 ) {
 			assertThat("Item.index " + i, result[i].index, equalTo(-1));
 		}
+	}
+
+	@Test
+	public void adjustArrayLengthLonger_noDefaultConstructor() {
+		// @formatter:off
+		thenExceptionOfType(RuntimeException.class)
+			.isThrownBy(() -> ArrayUtils.arrayOfLength(new Integer[0], 1, Integer.class, null))
+			.as("Missing no-argument constructor wrapped in RuntimeException")
+			.withCauseInstanceOf(NoSuchMethodException.class)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void adjustArrayLengthLonger_constructorThrows() {
+		// @formatter:off
+		thenExceptionOfType(RuntimeException.class)
+			.isThrownBy(() -> ArrayUtils.arrayOfLength(new ThrowingBean[0], 1, ThrowingBean.class,
+					null))
+			.as("Constructor exception wrapped in RuntimeException")
+			.withCauseInstanceOf(InvocationTargetException.class)
+			.havingCause()
+			.havingCause()
+			.isInstanceOf(IllegalStateException.class)
+			;
+		// @formatter:on
 	}
 
 	@Test

@@ -26,12 +26,22 @@ import static java.util.Map.entry;
 import static net.solarnetwork.test.CommonTestUtils.randomLong;
 import static net.solarnetwork.test.CommonTestUtils.randomString;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.BDDAssertions.thenExceptionOfType;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.RandomAccess;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.junit.Test;
+import org.springframework.beans.PropertyBatchUpdateException;
 import net.solarnetwork.domain.Location;
 import net.solarnetwork.domain.Request;
 import net.solarnetwork.domain.SerializeIgnore;
@@ -581,6 +591,362 @@ public class ClassUtilsTests {
 			return active;
 		}
 
+	}
+
+	/**
+	 * A test bean for setting and copying properties.
+	 */
+	public static class CopyBean {
+
+		private String name;
+		private Integer count;
+		private Child child;
+		private String writeOnly;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public Integer getCount() {
+			return count;
+		}
+
+		public void setCount(Integer count) {
+			this.count = count;
+		}
+
+		public Child getChild() {
+			return child;
+		}
+
+		public void setChild(Child child) {
+			this.child = child;
+		}
+
+		public String getReadOnly() {
+			return "read-only";
+		}
+
+		public void setWriteOnly(String writeOnly) {
+			this.writeOnly = writeOnly;
+		}
+
+		public String writeOnlyValue() {
+			return writeOnly;
+		}
+
+	}
+
+	/**
+	 * A nested test bean.
+	 */
+	public static class Child {
+
+		private String value;
+
+		public String getValue() {
+			return value;
+		}
+
+		public void setValue(String value) {
+			this.value = value;
+		}
+
+	}
+
+	@Test
+	public void instantiateClass() {
+		// WHEN
+		Collection<?> result = ClassUtils.instantiateClass(ArrayList.class.getName(), Collection.class);
+
+		// THEN
+		then(result).as("Instance of named class created").isInstanceOf(ArrayList.class);
+	}
+
+	@Test
+	public void instantiateClass_nonBootstrapType() {
+		// WHEN
+		CopyBean result = ClassUtils.instantiateClass(CopyBean.class.getName(), CopyBean.class);
+
+		// THEN
+		then(result).as("Instance of named class created").isInstanceOf(CopyBean.class);
+	}
+
+	@Test
+	public void instantiateClass_noDefaultConstructor() {
+		// @formatter:off
+		thenExceptionOfType(RuntimeException.class)
+			.isThrownBy(() -> ClassUtils.instantiateClass(Integer.class.getName(), Number.class))
+			.as("Instantiation failure wrapped")
+			.withMessageContaining("Unable to instantiate class")
+			.withCauseInstanceOf(NoSuchMethodException.class)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void loadClass_notAssignable() {
+		// @formatter:off
+		thenExceptionOfType(RuntimeException.class)
+			.isThrownBy(() -> ClassUtils.loadClass(String.class.getName(), Number.class))
+			.as("Class not of requested type")
+			.withMessageContaining("is not a")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void loadClass_notFound() {
+		// @formatter:off
+		thenExceptionOfType(RuntimeException.class)
+			.isThrownBy(() -> ClassUtils.loadClass("not.a.RealClass", Object.class))
+			.as("Missing class wrapped")
+			.withMessageContaining("Unable to load class")
+			.withCauseInstanceOf(ClassNotFoundException.class)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void setBeanProperties() {
+		// GIVEN
+		CopyBean bean = new CopyBean();
+
+		// WHEN
+		ClassUtils.setBeanProperties(bean, Map.of("name", "foo", "count", 1, "child.value", "bar"));
+
+		// THEN
+		then(bean.getName()).as("Property set").isEqualTo("foo");
+		then(bean.getCount()).as("Property set").isEqualTo(1);
+		then(bean.getChild()).as("Nested path auto-grown").isNotNull().extracting(Child::getValue)
+				.as("Nested property set").isEqualTo("bar");
+	}
+
+	@Test
+	public void setBeanProperties_ignoreErrors() {
+		// GIVEN
+		CopyBean bean = new CopyBean();
+
+		// WHEN
+		ClassUtils.setBeanProperties(bean, Map.of("name", "foo", "count", "not a number", "unknown", 1),
+				true);
+
+		// THEN
+		then(bean.getName()).as("Valid property set").isEqualTo("foo");
+		then(bean.getCount()).as("Invalid property ignored").isNull();
+	}
+
+	@Test
+	public void setBeanProperties_ignoreUnknown() {
+		// GIVEN
+		CopyBean bean = new CopyBean();
+
+		// WHEN
+		ClassUtils.setBeanProperties(bean, Map.of("name", "foo", "unknown", 1), true);
+
+		// THEN
+		then(bean.getName()).as("Valid property set").isEqualTo("foo");
+	}
+
+	@Test
+	public void setBeanProperties_notIgnoreErrors() {
+		// GIVEN
+		CopyBean bean = new CopyBean();
+
+		// @formatter:off
+		thenExceptionOfType(PropertyBatchUpdateException.class)
+			.as("Invalid property value error thrown")
+			.isThrownBy(() -> ClassUtils.setBeanProperties(bean, Map.of("count", "not a number"),
+					false))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void setBeanProperties_nullArguments() {
+		// GIVEN
+		CopyBean bean = new CopyBean();
+
+		// WHEN
+		ClassUtils.setBeanProperties(null, Map.of("name", "foo"), false);
+		ClassUtils.setBeanProperties(bean, null, false);
+
+		// THEN
+		then(bean.getName()).as("Nothing set").isNull();
+	}
+
+	@Test
+	public void getSimpleBeanProperties_defaultIgnore() {
+		// GIVEN
+		CopyBean bean = new CopyBean();
+		bean.setName("foo");
+		bean.setChild(new Child());
+		bean.setWriteOnly("secret");
+
+		// WHEN
+		Map<String, Object> result = ClassUtils.getSimpleBeanProperties(bean, null);
+
+		// THEN
+		then(result).as("Class, non-simple, null, and write-only properties left out")
+				.containsOnly(entry("name", "foo"), entry("readOnly", "read-only"));
+	}
+
+	@Test
+	public void getSimpleBeanProperties_map_nullsAndDateTypes() {
+		// GIVEN
+		final Instant ts = Instant.parse("2024-01-02T03:04:05.678Z");
+		final Map<String, Object> map = new HashMap<>();
+		map.put(null, "no key");
+		map.put("nothing", null);
+		map.put("char", 'c');
+		map.put("byte", (byte) 1);
+		map.put("date", Date.from(ts));
+		map.put("zoned", ts.atZone(ZoneOffset.ofHours(12)));
+		map.put("offset", ts.atOffset(ZoneOffset.ofHours(-5)));
+
+		// WHEN
+		Map<String, Object> result = ClassUtils.getSimpleBeanProperties(map, null);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null keys and values left out, dates converted to epoch milliseconds")
+			.containsOnly(
+				entry("char", 'c'),
+				entry("byte", (byte) 1),
+				entry("date", ts.toEpochMilli()),
+				entry("zoned", ts.toEpochMilli()),
+				entry("offset", ts.toEpochMilli())
+			)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void getBeanProperties_map_nulls() {
+		// GIVEN
+		final Map<String, Object> map = new HashMap<>();
+		map.put(null, "no key");
+		map.put("nothing", null);
+		map.put("a", 1);
+
+		// WHEN
+		Map<String, Object> result = ClassUtils.getBeanProperties(map, null);
+
+		// THEN
+		then(result).as("Null keys and values left out").containsOnly(entry("a", 1));
+	}
+
+	@Test
+	public void getBeanProperties_writeOnly() {
+		// GIVEN
+		CopyBean bean = new CopyBean();
+		bean.setWriteOnly("secret");
+
+		// WHEN
+		Map<String, Object> result = ClassUtils.getBeanProperties(bean, null);
+
+		// THEN
+		then(result).as("Write-only and null properties left out")
+				.containsOnly(entry("readOnly", "read-only"));
+	}
+
+	@Test
+	public void copyBeanProperties() {
+		// GIVEN
+		CopyBean src = new CopyBean();
+		src.setName("  ");
+		src.setCount(2);
+		CopyBean dest = new CopyBean();
+		dest.setChild(new Child());
+
+		// WHEN
+		ClassUtils.copyBeanProperties(src, dest, null);
+
+		// THEN
+		then(dest.getName()).as("Blank string copied").isEqualTo("  ");
+		then(dest.getCount()).as("Value copied").isEqualTo(2);
+		then(dest.getChild()).as("Null value not copied").isNotNull();
+	}
+
+	@Test
+	public void copyBeanProperties_emptyStringToNull() {
+		// GIVEN
+		CopyBean src = new CopyBean();
+		src.setName("  ");
+		src.setCount(2);
+		CopyBean dest = new CopyBean();
+		dest.setName("keep");
+
+		// WHEN
+		ClassUtils.copyBeanProperties(src, dest, null, true);
+
+		// THEN
+		then(dest.getName()).as("Blank string treated as null and not copied").isEqualTo("keep");
+		then(dest.getCount()).as("Value copied").isEqualTo(2);
+	}
+
+	@Test
+	public void copyBeanProperties_ignore() {
+		// GIVEN
+		CopyBean src = new CopyBean();
+		src.setName("foo");
+		src.setCount(2);
+		CopyBean dest = new CopyBean();
+
+		// WHEN
+		ClassUtils.copyBeanProperties(src, dest, Set.of("count"), false);
+
+		// THEN
+		then(dest.getName()).as("Value copied").isEqualTo("foo");
+		then(dest.getCount()).as("Ignored property not copied").isNull();
+	}
+
+	@Test
+	public void getResourceAsString_allSkipped() {
+		// WHEN
+		final String s = ClassUtils.getResourceAsString("test-file.txt", getClass(),
+				Pattern.compile(".*"));
+
+		// THEN
+		then(s).as("Empty string when every line skipped").isEmpty();
+	}
+
+	@Test
+	public void getResourceAsString_notFound() {
+		// @formatter:off
+		thenExceptionOfType(RuntimeException.class)
+			.isThrownBy(() -> ClassUtils.getResourceAsString("not-a-file.txt", getClass()))
+			.as("Missing resource")
+			.withMessageContaining("not found")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void getAllInterfacesForClassAsSet_noExclusions() {
+		// WHEN
+		final Set<Class<?>> interfaces = ClassUtils
+				.getAllInterfacesForClassAsSet(SerializableSimpleLocation.class, null);
+
+		// THEN
+		then(interfaces).as("Java interfaces included without exclusions, subclass first")
+				.containsExactly(Serializable.class, Location.class, Cloneable.class);
+	}
+
+	@Test
+	public void getAllInterfacesForClassAsSet_interface() {
+		// WHEN
+		final Set<Class<?>> interfaces = ClassUtils.getAllInterfacesForClassAsSet(List.class, null);
+
+		// THEN
+		then(interfaces).as("Interface itself and super interfaces included")
+				.contains(List.class, Collection.class, Iterable.class)
+				.doesNotContain(AbstractList.class, RandomAccess.class);
 	}
 
 }

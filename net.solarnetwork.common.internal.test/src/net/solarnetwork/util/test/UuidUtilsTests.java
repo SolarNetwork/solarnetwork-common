@@ -25,6 +25,7 @@ package net.solarnetwork.util.test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -158,6 +159,43 @@ public class UuidUtilsTests {
 		// THEN
 		assertThat("Zero timestamp is start of Gregorian calendar", ts,
 				is(equalTo(Instant.parse("1582-10-15T00:00:00Z"))));
+	}
+
+	@Test
+	public void extractTimestamp_v7_precisionOutOfRange() {
+		// GIVEN
+		UUID uuid = UUID.fromString("018264bd-3e5b-7743-b2e1-27eea30afb54");
+
+		// WHEN
+		Instant ts = UuidUtils.extractTimestamp(uuid, UuidUtils.V7_MAX_PRECISION + 1);
+
+		// THEN
+		assertThat("Precision bits above maximum ignored", ts,
+				is(equalTo(testInstant().truncatedTo(ChronoUnit.MILLIS))));
+	}
+
+	@Test
+	public void extractTimestamp_v4() {
+		// GIVEN
+		UUID uuid = UUID.fromString("9b2f6d5e-1c4a-4f3b-8a7d-2e6c5b4a3f21");
+
+		// WHEN
+		Instant ts = UuidUtils.extractTimestamp(uuid);
+
+		// THEN
+		assertThat("Unsupported UUID version has no timestamp", ts, is(nullValue()));
+	}
+
+	@Test
+	public void extractTimestampV7_v1() {
+		// GIVEN
+		UUID uuid = UUID.fromString("e4b0c7a0-1351-11ed-8000-000000000000");
+
+		// WHEN
+		Instant ts = UuidUtils.extractTimestampV7(uuid, 0);
+
+		// THEN
+		assertThat("Non-V7 UUID has no V7 timestamp", ts, is(nullValue()));
 	}
 
 	@Test

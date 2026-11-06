@@ -47,6 +47,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
@@ -57,6 +59,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 import org.junit.Test;
 import net.solarnetwork.domain.KeyValuePair;
 import net.solarnetwork.util.CollectionUtils;
@@ -1176,6 +1179,323 @@ public class CollectionUtilsTests {
 			.isEqualTo(new BigDecimal(aLargeDecimal))
 			;
 		// @formatter:on
+	}
+
+	@Test
+	public void coveringIntRanges_null() {
+		then(CollectionUtils.coveringIntRanges(null, 1)).as("Null input").isNull();
+	}
+
+	@Test
+	public void dictionaryForMap() {
+		// GIVEN
+		Map<String, Integer> map = Map.of("a", 1, "b", 2);
+
+		// WHEN
+		Dictionary<String, Integer> result = CollectionUtils.dictionaryForMap(map);
+
+		// THEN
+		then(result).as("Dictionary created").isNotNull();
+		then(CollectionUtils.mapForDictionary(result)).as("Dictionary has all map entries")
+				.isEqualTo(map);
+		then(CollectionUtils.dictionaryForMap(null)).as("Null input").isNull();
+	}
+
+	/** Map with values of various types for testing the getMap* methods. */
+	private static final Map<String, Object> GET_MAP_DATA = Map.of("short", (short) 1, "int", 2, "long",
+			3L, "float", 4.5f, "double", 5.5, "decimal", new BigDecimal("6.5"), "bigint",
+			BigInteger.valueOf(7), "str", "8", "decstr", "8.5", "bad", "not a number");
+
+	@Test
+	public void getMapShort() {
+		then(CollectionUtils.getMapShort("short", null)).as("Null map").isNull();
+		then(CollectionUtils.getMapShort("nope", GET_MAP_DATA)).as("Missing key").isNull();
+		then(CollectionUtils.getMapShort("short", GET_MAP_DATA)).as("Short").isEqualTo((short) 1);
+		then(CollectionUtils.getMapShort("int", GET_MAP_DATA)).as("Other number").isEqualTo((short) 2);
+		then(CollectionUtils.getMapShort("str", GET_MAP_DATA)).as("Parsed string").isEqualTo((short) 8);
+		then(CollectionUtils.getMapShort("bad", GET_MAP_DATA)).as("Invalid string").isNull();
+	}
+
+	@Test
+	public void getMapInteger() {
+		then(CollectionUtils.getMapInteger("int", GET_MAP_DATA)).as("Integer").isEqualTo(2);
+		then(CollectionUtils.getMapInteger("long", GET_MAP_DATA)).as("Other number").isEqualTo(3);
+		then(CollectionUtils.getMapInteger("str", GET_MAP_DATA)).as("Parsed string").isEqualTo(8);
+		then(CollectionUtils.getMapInteger("bad", GET_MAP_DATA)).as("Invalid string").isNull();
+	}
+
+	@Test
+	public void getMapLong() {
+		then(CollectionUtils.getMapLong("long", GET_MAP_DATA)).as("Long").isEqualTo(3L);
+		then(CollectionUtils.getMapLong("int", GET_MAP_DATA)).as("Other number").isEqualTo(2L);
+		then(CollectionUtils.getMapLong("str", GET_MAP_DATA)).as("Parsed string").isEqualTo(8L);
+		then(CollectionUtils.getMapLong("bad", GET_MAP_DATA)).as("Invalid string").isNull();
+	}
+
+	@Test
+	public void getMapFloat() {
+		then(CollectionUtils.getMapFloat("float", null)).as("Null map").isNull();
+		then(CollectionUtils.getMapFloat("nope", GET_MAP_DATA)).as("Missing key").isNull();
+		then(CollectionUtils.getMapFloat("float", GET_MAP_DATA)).as("Float").isEqualTo(4.5f);
+		then(CollectionUtils.getMapFloat("double", GET_MAP_DATA)).as("Other number").isEqualTo(5.5f);
+		then(CollectionUtils.getMapFloat("decstr", GET_MAP_DATA)).as("Parsed string").isEqualTo(8.5f);
+		then(CollectionUtils.getMapFloat("bad", GET_MAP_DATA)).as("Invalid string").isNull();
+	}
+
+	@Test
+	public void getMapDouble() {
+		then(CollectionUtils.getMapDouble("double", null)).as("Null map").isNull();
+		then(CollectionUtils.getMapDouble("nope", GET_MAP_DATA)).as("Missing key").isNull();
+		then(CollectionUtils.getMapDouble("double", GET_MAP_DATA)).as("Double").isEqualTo(5.5);
+		then(CollectionUtils.getMapDouble("float", GET_MAP_DATA)).as("Other number").isEqualTo(4.5);
+		then(CollectionUtils.getMapDouble("decstr", GET_MAP_DATA)).as("Parsed string").isEqualTo(8.5);
+		then(CollectionUtils.getMapDouble("bad", GET_MAP_DATA)).as("Invalid string").isNull();
+	}
+
+	@Test
+	public void getMapBigDecimal() {
+		then(CollectionUtils.getMapBigDecimal("decimal", null)).as("Null map").isNull();
+		then(CollectionUtils.getMapBigDecimal("decstr", GET_MAP_DATA)).as("Parsed string")
+				.isEqualTo(new BigDecimal("8.5"));
+		then(CollectionUtils.getMapBigDecimal("bad", GET_MAP_DATA)).as("Invalid string").isNull();
+	}
+
+	@Test
+	public void getMapBigInteger() {
+		then(CollectionUtils.getMapBigInteger("bigint", null)).as("Null map").isNull();
+		then(CollectionUtils.getMapBigInteger("nope", GET_MAP_DATA)).as("Missing key").isNull();
+		then(CollectionUtils.getMapBigInteger("bigint", GET_MAP_DATA)).as("BigInteger")
+				.isEqualTo(BigInteger.valueOf(7));
+		then(CollectionUtils.getMapBigInteger("decimal", GET_MAP_DATA)).as("Other number")
+				.isEqualTo(BigInteger.valueOf(6));
+		then(CollectionUtils.getMapBigInteger("str", GET_MAP_DATA)).as("Parsed string")
+				.isEqualTo(BigInteger.valueOf(8));
+		then(CollectionUtils.getMapBigInteger("bad", GET_MAP_DATA)).as("Invalid string").isNull();
+	}
+
+	@Test
+	public void mapProperty_defaults() {
+		final Integer def = -1;
+		then(CollectionUtils.mapProperty(null, Integer.class, def, GET_MAP_DATA)).as("Null key")
+				.isEqualTo(def);
+		then(CollectionUtils.mapProperty("int", Integer.class, def, null)).as("Null map").isEqualTo(def);
+		then(CollectionUtils.mapProperty("nope", Integer.class, def, GET_MAP_DATA)).as("Missing key")
+				.isEqualTo(def);
+		then(CollectionUtils.mapProperty("bad", Integer.class, def, GET_MAP_DATA))
+				.as("Unparsable number").isEqualTo(def);
+		then(CollectionUtils.mapProperty("int", Instant.class, Instant.EPOCH, GET_MAP_DATA))
+				.as("Unsupported conversion").isEqualTo(Instant.EPOCH);
+	}
+
+	@Test
+	public void mapProperty_strings() {
+		then(CollectionUtils.mapProperty("int", String.class, "def", GET_MAP_DATA))
+				.as("Value converted to string").isEqualTo("2");
+		then(CollectionUtils.mapProperty("e", String.class, "def", Map.of("e", "")))
+				.as("Empty string is null, not default").isNull();
+		then(CollectionUtils.mapProperty("str", Integer.class, null, GET_MAP_DATA))
+				.as("String parsed as number").isEqualTo(8);
+	}
+
+	@Test
+	public void mapPropertyStringMap() {
+		then(CollectionUtils.mapPropertyStringMap(null, Map.of("a", "b=c"))).as("Null key").isNull();
+		then(CollectionUtils.mapPropertyStringMap("a", null)).as("Null map").isNull();
+		then(CollectionUtils.mapPropertyStringMap("a", Map.of())).as("Missing key").isNull();
+		then(CollectionUtils.mapPropertyStringMap("a", Map.of("a", "b=c,d=e")))
+				.as("String parsed as map").containsOnly(entry("b", "c"), entry("d", "e"));
+		then(CollectionUtils.mapPropertyStringMap("a", Map.of("a", Map.of("b", "c")))).as("Map returned")
+				.containsOnly(entry("b", "c"));
+	}
+
+	@Test
+	public void mapPropertyStringList_types() {
+		then(CollectionUtils.mapPropertyStringList(null, Map.of("a", "b"))).as("Null key").isNull();
+		then(CollectionUtils.mapPropertyStringList("a", null)).as("Null map").isNull();
+		then(CollectionUtils.mapPropertyStringList("a", Map.of())).as("Missing key").isNull();
+		then(CollectionUtils.mapPropertyStringList("a", Map.of("a", List.of("b", "c"))))
+				.as("String list").containsExactly("b", "c");
+		then(CollectionUtils.mapPropertyStringList("a", Map.of("a", List.of(1, 2))))
+				.as("Non-string list converted").containsExactly("1", "2");
+		then(CollectionUtils.mapPropertyStringList("a", Map.of("a", new String[] { "b", "c" })))
+				.as("String array").containsExactly("b", "c");
+		then(CollectionUtils.mapPropertyStringList("a", Map.of("a", new Object[] { 1, null, "c" })))
+				.as("Object array, nulls skipped").containsExactly("1", "c");
+		then(CollectionUtils.mapPropertyStringList("a", Map.of("a", "b, c"))).as("Delimited string")
+				.containsExactly("b", "c");
+	}
+
+	@Test
+	public void mapPropertyNumber_noParser() {
+		then(CollectionUtils.mapPropertyNumber("a", 5, null, null, Map.of("a", "1")))
+				.as("String not parsed without parser").isEqualTo(5);
+		then(CollectionUtils.mapPropertyNumber("a", 5, null, null, Map.of("a", 1)))
+				.as("Number returned without mapper").isEqualTo(1);
+		then(CollectionUtils.mapPropertyNumber("a", 5, null, n -> null, Map.of("a", 1)))
+				.as("Default returned when mapper returns null").isEqualTo(5);
+	}
+
+	@Test
+	public void valuesMatching_skipNullAndEmpty() {
+		// GIVEN
+		Set<String> set = new HashSet<>(asList(null, "", "foo", "bar"));
+
+		// WHEN
+		Set<String> result = CollectionUtils.valuesMatching(set, Pattern.compile("o"));
+
+		// THEN
+		then(result).as("Null and empty values skipped").containsOnly("foo");
+	}
+
+	@Test
+	public void filteredSubset_nullSubset() {
+		// GIVEN
+		Set<String> superSet = Set.of("a", "b");
+
+		// WHEN
+		Set<String> result = CollectionUtils.filteredSubset(superSet, null, HashSet::new);
+
+		// THEN
+		then(result).as("Null subset returns superset").isSameAs(superSet);
+	}
+
+	@Test
+	public void sort_props_nullsAndEqual() {
+		// GIVEN
+		Map<String, Object> m1 = new HashMap<>(Map.of("a", 2, "id", 1));
+		Map<String, Object> m2 = new HashMap<>(Map.of("id", 2));
+		Map<String, Object> m3 = new HashMap<>(Map.of("a", 1, "id", 3));
+		Map<String, Object> m4 = new HashMap<>(Map.of("a", 2, "id", 4));
+
+		// WHEN
+		Collection<Map<String, Object>> result = CollectionUtils.sort(asList(m1, m2, m3, m4), "a");
+
+		// THEN
+		then(result).as("Null values first, equal values keep their order").containsExactly(m2, m3, m1,
+				m4);
+	}
+
+	@Test
+	public void sort_props_nullLast() {
+		// GIVEN
+		Map<String, Object> m1 = new HashMap<>(Map.of("a", 2));
+		Map<String, Object> m2 = new HashMap<>();
+
+		// WHEN
+		Collection<Map<String, Object>> result = CollectionUtils.sort(asList(m1, m2), "a");
+
+		// THEN
+		then(result).as("Null value sorted before non-null").containsExactly(m2, m1);
+	}
+
+	@Test
+	public void transformMapValues_nothingToTransform() {
+		final Map<String, String> map = Map.of("a", "1");
+		then(CollectionUtils.transformMap((Map<String, String>) null, Set.of("a"), v -> v))
+				.as("Null map").isNull();
+		then(CollectionUtils.transformMap(Map.<String, String> of(), Set.of("a"), v -> v))
+				.as("Empty map").isEmpty();
+		then(CollectionUtils.transformMap(map, null, v -> v)).as("Null keys").isSameAs(map);
+		then(CollectionUtils.transformMap(map, Set.<String> of(), v -> v)).as("Empty keys")
+				.isSameAs(map);
+		then(CollectionUtils.transformMap(map, Set.of("b"), v -> v)).as("Key not in map").isSameAs(map);
+	}
+
+	@Test
+	public void transformMap_skipNullKeysAndErrors() {
+		// GIVEN
+		Map<String, String> map = new LinkedHashMap<>();
+		map.put("a", "1");
+		map.put("b", "2");
+		map.put("c", "not a number");
+
+		// WHEN
+		Map<String, Integer> result = CollectionUtils.transformMap(map, null,
+				(k, v) -> "b".equals(k) ? null : k.toUpperCase(), (k, v) -> Integer.valueOf(v));
+
+		// THEN
+		then(result).as("Null keys and transform errors skipped").containsOnly(entry("A", 1));
+	}
+
+	@Test
+	public void transformMap_emptyResult() {
+		// WHEN
+		Map<String, String> result = CollectionUtils.transformMap(Map.of("a", "1"), null, (k, v) -> null,
+				(k, v) -> v);
+
+		// THEN
+		then(result).as("Empty result returned as null").isNull();
+	}
+
+	@Test
+	public void differsNumerically_sameSizeDifferentKeys() {
+		then(CollectionUtils.differsNumerically(Map.of("a", 1), Map.of("b", 1)))
+				.as("Different keys differ").isTrue();
+	}
+
+	@Test
+	public void differsNumerically_nullValues() {
+		// GIVEN
+		Map<String, Object> m1 = new HashMap<>();
+		m1.put("a", null);
+		Map<String, Object> m2 = new HashMap<>();
+		m2.put("a", null);
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("Both null values equal").isFalse();
+		then(CollectionUtils.differsNumerically(m1, Map.of("a", 1))).as("Null and number differ")
+				.isTrue();
+		then(CollectionUtils.differsNumerically(Map.of("a", 1), m1)).as("Number and null differ")
+				.isTrue();
+	}
+
+	@Test
+	public void differsNumerically_noParser() {
+		then(CollectionUtils.differsNumerically(Map.of("a", "x"), Map.of("a", "x"), null, null))
+				.as("Equal strings without parser").isFalse();
+		then(CollectionUtils.differsNumerically(Map.of("a", "1"), Map.of("a", "2"), null, null))
+				.as("Different strings without parser").isTrue();
+		then(CollectionUtils.differsNumerically(Map.of("a", "1"), Map.of("a", 1), null, null))
+				.as("String and number without parser").isTrue();
+	}
+
+	/** A nested map for testing the valueAtPath methods. */
+	private static final Map<String, Object> PATH_DATA = Map.of("a",
+			Map.of("b", Map.of("c", 1), "e", Map.of()), "s", "str");
+
+	@Test
+	public void valueAtPath_keys() {
+		then(CollectionUtils.valueAtPath(new String[] { "a", "b", "c" }, PATH_DATA)).as("Nested value")
+				.isEqualTo(1);
+		then(CollectionUtils.valueAtPath(new String[] { "", "a", "", "b", "c" }, PATH_DATA))
+				.as("Empty keys skipped").isEqualTo(1);
+		then(CollectionUtils.valueAtPath(new String[] { "x", "a" }, 1, PATH_DATA))
+				.as("Starting index skips prefix keys")
+				.isEqualTo(Map.of("b", Map.of("c", 1), "e", Map.of()));
+		then(CollectionUtils.valueAtPath(new String[] { "a" }, 1, PATH_DATA))
+				.as("Starting index past end returns data").isSameAs(PATH_DATA);
+		then(CollectionUtils.valueAtPath(new String[] { "s", "x" }, PATH_DATA))
+				.as("Path through non-map value").isNull();
+		then(CollectionUtils.valueAtPath(new String[] { "a", "e", "x" }, PATH_DATA))
+				.as("Path through empty map").isNull();
+	}
+
+	@Test
+	public void valueAtPath_keys_noKeysOrData() {
+		then(CollectionUtils.valueAtPath((String[]) null, PATH_DATA)).as("Null keys").isNull();
+		then(CollectionUtils.valueAtPath(new String[0], PATH_DATA)).as("Empty keys").isNull();
+		then(CollectionUtils.valueAtPath(new String[] { "a" }, null)).as("Null data").isNull();
+		then(CollectionUtils.valueAtPath(new String[] { "a" }, Map.of())).as("Empty data").isNull();
+	}
+
+	@Test
+	public void valueAtPath_keys_type() {
+		then(CollectionUtils.valueAtPath(new String[] { "a", "b", "c" }, PATH_DATA, Integer.class))
+				.as("Value of matching type").isEqualTo(1);
+		then(CollectionUtils.valueAtPath(new String[] { "s" }, PATH_DATA, Integer.class))
+				.as("Value of other type").isNull();
+		then(CollectionUtils.valueAtPath(new String[] { "x" }, 0, PATH_DATA, Integer.class))
+				.as("Missing value").isNull();
 	}
 
 }

@@ -23,6 +23,7 @@
 package net.solarnetwork.util.test;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.assertj.core.api.BDDAssertions.thenExceptionOfType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
@@ -32,6 +33,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -100,6 +102,22 @@ public class NumberUtilsTests {
 	public void unsignedNumberLong() {
 		assertThat(NumberUtils.unsignedNumber(Long.valueOf(0xFEDCABCDFEDCABCDL)),
 				equalTo((Number) new BigInteger("18364742281742560205")));
+	}
+
+	@Test
+	public void unsignedNumber_byte() {
+		assertThat(NumberUtils.unsignedNumber(Byte.valueOf((byte) 0xAB)),
+				equalTo((Number) Integer.valueOf(171)));
+	}
+
+	@Test
+	public void unsignedNumber_null() {
+		assertThat(NumberUtils.unsignedNumber(null), is(nullValue()));
+	}
+
+	@Test
+	public void decimalArray_null() {
+		assertThat(NumberUtils.decimalArray((String[]) null), is(nullValue()));
 	}
 
 	@Test
@@ -176,6 +194,12 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void calculateCrcNullData() {
+		int result = NumberUtils.crc16(null, 0, 1);
+		assertThat("CRC", result, equalTo(0x0000));
+	}
+
+	@Test
 	public void fractionalPartFromNull() {
 		BigInteger bi = NumberUtils.fractionalPartToInteger(null);
 		assertThat("Result", bi, equalTo(BigInteger.ZERO));
@@ -222,6 +246,40 @@ public class NumberUtilsTests {
 	public void fractionalPartScaledRoundedNegative() {
 		BigInteger bi = NumberUtils.fractionalPartToInteger(new BigDecimal("-3.99999999999999"), 9);
 		assertThat("Result", bi, equalTo(new BigInteger(String.valueOf("-999999999"))));
+	}
+
+	@Test
+	public void fractionalPartFromNull_maxScale() {
+		BigInteger bi = NumberUtils.fractionalPartToInteger(null, 9);
+		assertThat("Result", bi, equalTo(BigInteger.ZERO));
+	}
+
+	@Test
+	public void wholePartFromNull() {
+		BigInteger bi = NumberUtils.wholePartToInteger(null);
+		assertThat("Result", bi, equalTo(BigInteger.ZERO));
+	}
+
+	@Test
+	public void fractionalPartScaledToInteger() {
+		// @formatter:off
+		then(NumberUtils.fractionalPartScaledToInteger(new BigDecimal("1.2345"), 3))
+			.as("Fractional part scaled and truncated")
+			.isEqualTo(new BigInteger("234"))
+			;
+		then(NumberUtils.fractionalPartScaledToInteger(new BigDecimal("-1.2345"), 3))
+			.as("Negative fractional part scaled and truncated")
+			.isEqualTo(new BigInteger("-234"))
+			;
+		then(NumberUtils.fractionalPartScaledToInteger(new BigDecimal("1.2345"), 9))
+			.as("Fractional part scaled past its precision")
+			.isEqualTo(new BigInteger("234500000"))
+			;
+		then(NumberUtils.fractionalPartScaledToInteger(null, 9))
+			.as("Null decimal returns zero")
+			.isEqualTo(BigInteger.ZERO)
+			;
+		// @formatter:on
 	}
 
 	@Test
@@ -344,6 +402,28 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void integerToBitSet_negative() {
+		// @formatter:off
+		thenExceptionOfType(IllegalArgumentException.class)
+			.as("Negative integer not allowed")
+			.isThrownBy(() -> NumberUtils.bitSetForBigInteger(new BigInteger("-1")))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void scaled_null() {
+		BigDecimal s = NumberUtils.scaled(null, 4);
+		assertThat("Scaled null", s, is(nullValue()));
+	}
+
+	@Test
+	public void scaled_zero() {
+		BigDecimal s = NumberUtils.scaled(1.5, 0);
+		assertThat("Scaled zero returns value unchanged", s, equalTo(new BigDecimal("1.5")));
+	}
+
+	@Test
 	public void scaled_negative() {
 		BigDecimal s = NumberUtils.scaled(1, -4);
 		assertThat("Scaled negative", s, equalTo(new BigDecimal("0.0001")));
@@ -428,6 +508,28 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void humanReadableCount_negative() {
+		// @formatter:off
+		then(NumberUtils.humanReadableCount(-999L))
+			.as("Negative count above -1000 not scaled")
+			.isEqualTo("-999 B")
+			;
+		then(NumberUtils.humanReadableCount(-1500L))
+			.as("Negative count scaled to kB")
+			.isEqualTo(String.format("%.1f kB", -1.5))
+			;
+		then(NumberUtils.humanReadableCount(-1_000_000L))
+			.as("Negative count scaled to MB")
+			.isEqualTo(String.format("%.1f MB", -1.0))
+			;
+		then(NumberUtils.humanReadableCount(Long.MIN_VALUE))
+			.as("Minimum count scaled to EB")
+			.isEqualTo(String.format("%.1f EB", -9.2))
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void min_short() {
 		assertThat("Short input returns Integer", NumberUtils.min((short) 1, (short) 2), is(1));
 		assertThat("Short input returns Integer", NumberUtils.min((short) 2, (short) 1), is(1));
@@ -472,6 +574,44 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void min_float() {
+		assertThat("Float input returns Float", NumberUtils.min(1.5f, 2.5f), is(1.5f));
+		assertThat("Float input returns Float", NumberUtils.min(2.5f, 1.5f), is(1.5f));
+	}
+
+	@Test
+	public void min_double() {
+		assertThat("Double input returns Double", NumberUtils.min(1.5, 2.5), is(1.5));
+		assertThat("Double input returns Double", NumberUtils.min(2.5, 1.5), is(1.5));
+	}
+
+	@Test
+	public void min_mixedLongAndBigInteger() {
+		assertThat("Mixed Long input returns BigDecimal", NumberUtils.min(1L, 2.5),
+				is(new BigDecimal("1")));
+		assertThat("Mixed BigInteger input returns BigDecimal",
+				NumberUtils.min(new BigInteger("1"), 2.5), is(new BigDecimal("1")));
+	}
+
+	@Test
+	public void min_nulls() {
+		// @formatter:off
+		then(NumberUtils.min(null, null))
+			.as("Both null returns null")
+			.isNull()
+			;
+		then(NumberUtils.min(null, 1))
+			.as("Null first returns second")
+			.isEqualTo(1)
+			;
+		then(NumberUtils.min(1, null))
+			.as("Null second returns first")
+			.isEqualTo(1)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void max_short() {
 		assertThat("Short input returns Integer", NumberUtils.max((short) 1, (short) 2), is(2));
 		assertThat("Short input returns Integer", NumberUtils.max((short) 2, (short) 1), is(2));
@@ -513,6 +653,44 @@ public class NumberUtilsTests {
 				is(new BigDecimal("2.2")));
 		assertThat("Mixed input returns BigDecimal", NumberUtils.max(new BigDecimal("2.2"), 1),
 				is(new BigDecimal("2.2")));
+	}
+
+	@Test
+	public void max_float() {
+		assertThat("Float input returns Float", NumberUtils.max(1.5f, 2.5f), is(2.5f));
+		assertThat("Float input returns Float", NumberUtils.max(2.5f, 1.5f), is(2.5f));
+	}
+
+	@Test
+	public void max_double() {
+		assertThat("Double input returns Double", NumberUtils.max(1.5, 2.5), is(2.5));
+		assertThat("Double input returns Double", NumberUtils.max(2.5, 1.5), is(2.5));
+	}
+
+	@Test
+	public void max_mixedLongAndBigInteger() {
+		assertThat("Mixed Long input returns BigDecimal", NumberUtils.max(3L, 2.5),
+				is(new BigDecimal("3")));
+		assertThat("Mixed BigInteger input returns BigDecimal",
+				NumberUtils.max(new BigInteger("3"), 2.5), is(new BigDecimal("3")));
+	}
+
+	@Test
+	public void max_nulls() {
+		// @formatter:off
+		then(NumberUtils.max(null, null))
+			.as("Both null returns null")
+			.isNull()
+			;
+		then(NumberUtils.max(null, 1))
+			.as("Null first returns second")
+			.isEqualTo(1)
+			;
+		then(NumberUtils.max(1, null))
+			.as("Null second returns first")
+			.isEqualTo(1)
+			;
+		// @formatter:on
 	}
 
 	@Test
@@ -730,6 +908,24 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void mround_nulls() {
+		// @formatter:off
+		then(NumberUtils.mround(null, 5, RoundingMode.HALF_UP))
+			.as("Null number returns null")
+			.isNull()
+			;
+		then(NumberUtils.mround(12.5, null, RoundingMode.HALF_UP))
+			.as("Null significance returns null")
+			.isNull()
+			;
+		then(NumberUtils.mround(12.5, 5, null))
+			.as("Null mode rounds half up")
+			.isEqualTo(new BigDecimal("15"))
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void round_0() {
 		assertThat("positive zero", NumberUtils.round(new BigDecimal("0.0"), 0),
 				is(new BigDecimal("0")));
@@ -880,6 +1076,24 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void round_nulls() {
+		// @formatter:off
+		then(NumberUtils.round(null, 2, RoundingMode.HALF_UP))
+			.as("Null number returns null")
+			.isNull()
+			;
+		then(NumberUtils.round(new BigDecimal("1.245"), null, RoundingMode.HALF_UP))
+			.as("Null digits returns null")
+			.isNull()
+			;
+		then(NumberUtils.round(new BigDecimal("1.245"), 2, null))
+			.as("Null mode rounds half up")
+			.isEqualTo(new BigDecimal("1.25"))
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void narrowBigInteger() {
 		assertThat("narrowed to byte", NumberUtils.narrow(new BigInteger("7"), 0), is((byte) 7));
 		assertThat("narrowed to short", NumberUtils.narrow(new BigInteger("723"), 0), is((short) 723));
@@ -984,6 +1198,127 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void narrowByte() {
+		Byte b = (byte) 11;
+		assertThat("byte cannot be narrowed", NumberUtils.narrow(b, 0), is(sameInstance(b)));
+	}
+
+	@Test
+	public void narrow_otherType() {
+		assertThat("other number type narrowed", NumberUtils.narrow(new AtomicInteger(11), 0),
+				is((byte) 11));
+	}
+
+	@Test
+	public void narrow_null() {
+		// @formatter:off
+		then(NumberUtils.narrow((Number) null, 0))
+			.as("Null Number returns null")
+			.isNull()
+			;
+		then(NumberUtils.narrow((BigInteger) null, 0))
+			.as("Null BigInteger returns null")
+			.isNull()
+			;
+		then(NumberUtils.narrow((BigDecimal) null, 0))
+			.as("Null BigDecimal returns null")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void narrow_minBytePowerAboveType() {
+		// GIVEN
+		final Short s = (short) 11;
+		final Integer i = 11;
+		final Long l = 11L;
+		final BigInteger bi = new BigInteger("11");
+		final BigDecimal bd = new BigDecimal("11");
+
+		// @formatter:off
+		then(NumberUtils.narrow(s, 2))
+			.as("Min power above short size keeps short")
+			.isSameAs(s)
+			;
+		then(NumberUtils.narrow(i, 3))
+			.as("Min power above int size keeps int")
+			.isSameAs(i)
+			;
+		then(NumberUtils.narrow(l, 4))
+			.as("Min power above long size keeps long")
+			.isSameAs(l)
+			;
+		then(NumberUtils.narrow(bi, 4))
+			.as("Min power above long size keeps BigInteger")
+			.isSameAs(bi)
+			;
+		then(NumberUtils.narrow(bd, 4))
+			.as("Min power above double size keeps BigDecimal")
+			.isSameAs(bd)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void narrowBigDecimal_minBytePower() {
+		// @formatter:off
+		then(NumberUtils.narrow(new BigDecimal("7"), 3))
+			.as("Min power 3 narrows whole number to long")
+			.isEqualTo(7L)
+			;
+		then(NumberUtils.narrow(new BigDecimal("1.5"), 3))
+			.as("Min power 3 narrows fraction to double, not float")
+			.isEqualTo(1.5)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void floatValueExact() {
+		// @formatter:off
+		then(NumberUtils.floatValueExact(new BigDecimal("1.5")))
+			.as("Exact float")
+			.isEqualTo(1.5f)
+			;
+		then(NumberUtils.floatValueExact(null))
+			.as("Null returns null")
+			.isNull()
+			;
+		thenExceptionOfType(ArithmeticException.class)
+			.as("Value with more precision than float")
+			.isThrownBy(() -> NumberUtils.floatValueExact(new BigDecimal("0.123456789")))
+			;
+		thenExceptionOfType(ArithmeticException.class)
+			.as("Value outside float range")
+			.isThrownBy(() -> NumberUtils.floatValueExact(new BigDecimal("1e40")))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void doubleValueExact() {
+		// @formatter:off
+		then(NumberUtils.doubleValueExact(new BigDecimal("1.5")))
+			.as("Exact double")
+			.isEqualTo(1.5)
+			;
+		then(NumberUtils.doubleValueExact(null))
+			.as("Null returns null")
+			.isNull()
+			;
+		thenExceptionOfType(ArithmeticException.class)
+			.as("Value with more precision than double")
+			.isThrownBy(() -> NumberUtils.doubleValueExact(new BigDecimal("0.12345678901234567890")))
+			;
+		thenExceptionOfType(ArithmeticException.class)
+			.as("Value outside double range")
+			.isThrownBy(() -> NumberUtils.doubleValueExact(new BigDecimal("1e400")))
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void linearInterp() {
 		assertThat("interpolated simple", NumberUtils.linearInterpolate(20, 10, 50, 0, 4),
 				is(new BigDecimal("1")));
@@ -991,6 +1326,32 @@ public class NumberUtilsTests {
 				NumberUtils.linearInterpolate(11, 3, 17, 12, 47), is(new BigDecimal("32")));
 		assertThat("interpolated to fraction", NumberUtils.linearInterpolate(13, 1, 99, 0, 10),
 				is(new BigDecimal("1.224489795918")));
+	}
+
+	@Test
+	public void linearInterp_nulls() {
+		// @formatter:off
+		then(NumberUtils.linearInterpolate(null, 10, 50, 0, 4))
+			.as("Null x returns null")
+			.isNull()
+			;
+		then(NumberUtils.linearInterpolate(20, null, 50, 0, 4))
+			.as("Null x1 returns null")
+			.isNull()
+			;
+		then(NumberUtils.linearInterpolate(20, 10, null, 0, 4))
+			.as("Null x2 returns null")
+			.isNull()
+			;
+		then(NumberUtils.linearInterpolate(20, 10, 50, null, 4))
+			.as("Null y1 returns null")
+			.isNull()
+			;
+		then(NumberUtils.linearInterpolate(20, 10, 50, 0, null))
+			.as("Null y2 returns null")
+			.isNull()
+			;
+		// @formatter:on
 	}
 
 	@Test
@@ -1140,6 +1501,146 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void convertNumber_double() {
+		final Double n = 12.5;
+		// @formatter:off
+		then(NumberUtils.convertNumber(n, Double.class))
+			.as("Double converts as-is")
+			.isSameAs(n)
+			;
+		then(NumberUtils.convertNumber(23, Double.class))
+			.as("Integer converts")
+			.isEqualTo(23.0)
+			;
+		then(NumberUtils.convertNumber(new BigDecimal("34.5"), Double.class))
+			.as("BigDecimal converts")
+			.isEqualTo(34.5)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void convertNumber_float() {
+		final Float n = 12.5f;
+		// @formatter:off
+		then(NumberUtils.convertNumber(n, Float.class))
+			.as("Float converts as-is")
+			.isSameAs(n)
+			;
+		then(NumberUtils.convertNumber(23, Float.class))
+			.as("Integer converts")
+			.isEqualTo(23.0f)
+			;
+		then(NumberUtils.convertNumber(new BigDecimal("34.5"), Float.class))
+			.as("BigDecimal converts")
+			.isEqualTo(34.5f)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void convertNumber_null() {
+		assertThat("Null converts to null", NumberUtils.convertNumber(null, Integer.class),
+				is(nullValue()));
+	}
+
+	@Test
+	public void convertNumber_unsupportedType() {
+		// @formatter:off
+		thenExceptionOfType(IllegalArgumentException.class)
+			.as("Unsupported number type")
+			.isThrownBy(() -> NumberUtils.convertNumber(1, AtomicInteger.class))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void divide() {
+		// @formatter:off
+		then(NumberUtils.divide(7, 2, Integer.class))
+			.as("Integer division truncates")
+			.isEqualTo(3)
+			;
+		then(NumberUtils.divide(7L, 2L, Long.class))
+			.as("Long division truncates")
+			.isEqualTo(3L)
+			;
+		then(NumberUtils.divide(7f, 2f, Float.class))
+			.as("Float division")
+			.isEqualTo(3.5f)
+			;
+		then(NumberUtils.divide(7.0, 2.0, Double.class))
+			.as("Double division")
+			.isEqualTo(3.5)
+			;
+		then(NumberUtils.divide(new BigDecimal("7"), 2, BigDecimal.class))
+			.as("BigDecimal division")
+			.isEqualTo(new BigDecimal("3.5"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void subtract() {
+		// @formatter:off
+		then(NumberUtils.subtract(5, 2))
+			.as("Integer subtraction")
+			.isEqualTo(3)
+			;
+		then(NumberUtils.subtract(5L, 2L))
+			.as("Long subtraction")
+			.isEqualTo(3L)
+			;
+		then(NumberUtils.subtract(5.5f, 2f))
+			.as("Float subtraction")
+			.isEqualTo(3.5f)
+			;
+		then(NumberUtils.subtract(5.5, 2.0))
+			.as("Double subtraction")
+			.isEqualTo(3.5)
+			;
+		then(NumberUtils.subtract(new BigDecimal("5.5"), 2))
+			.as("BigDecimal subtraction")
+			.isEqualTo(new BigDecimal("3.5"))
+			;
+		then(NumberUtils.subtract(new BigInteger("5"), 2))
+			.as("BigInteger subtraction")
+			.isEqualTo(new BigInteger("3"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void multiply() {
+		// @formatter:off
+		then(NumberUtils.multiply(5, 2))
+			.as("Integer multiplication")
+			.isEqualTo(10)
+			;
+		then(NumberUtils.multiply(5L, 2L))
+			.as("Long multiplication")
+			.isEqualTo(10L)
+			;
+		then(NumberUtils.multiply(1.5f, 2f))
+			.as("Float multiplication")
+			.isEqualTo(3.0f)
+			;
+		then(NumberUtils.multiply(1.5, 2.0))
+			.as("Double multiplication")
+			.isEqualTo(3.0)
+			;
+		then(NumberUtils.multiply(new BigDecimal("5.5"), 2))
+			.as("BigDecimal multiplication")
+			.isEqualTo(new BigDecimal("11.0"))
+			;
+		then(NumberUtils.multiply(new BigInteger("5"), 2))
+			.as("BigInteger multiplication")
+			.isEqualTo(new BigInteger("10"))
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void parseNumber_withType() {
 		// @formatter:off
 		then(NumberUtils.parseNumber("123", Integer.class))
@@ -1251,6 +1752,11 @@ public class NumberUtilsTests {
 				.isNull();
 		then(NumberUtils.parseNumber("123ABC1234567890123456789"))
 				.as("Unprefixed upper case hex parsed as null").isNull();
+	}
+
+	@Test
+	public void parseNumber_empty() {
+		assertThat("Empty string parsed as null", NumberUtils.parseNumber(""), is(nullValue()));
 	}
 
 	@Test
