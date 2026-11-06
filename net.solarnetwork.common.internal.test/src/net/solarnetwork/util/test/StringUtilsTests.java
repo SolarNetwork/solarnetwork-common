@@ -950,6 +950,34 @@ public class StringUtilsTests {
 	}
 
 	@Test
+	public void compareComponentsIgnoreCase_onlyDelimiters() {
+		// GIVEN
+		// "/" splits into an empty array
+		String left = "/";
+		String right = "/a";
+
+		// WHEN
+		int result1 = StringUtils.compareComponentsIgnoreCase(left, right, "/");
+		int result2 = StringUtils.compareComponentsIgnoreCase(right, left, "/");
+
+		// THEN
+		assertThat("Shorter before longer", result1, is(equalTo(-1)));
+		assertThat("Longer after shorter", result2, is(equalTo(1)));
+	}
+
+	@Test
+	public void compareComponentsIgnoreCase_onlyDelimiters_sort() {
+		// GIVEN
+		List<String> paths = Arrays.asList("/b", "/", "/a");
+
+		// WHEN
+		paths.sort((l, r) -> StringUtils.compareComponentsIgnoreCase(l, r, "/"));
+
+		// THEN
+		assertThat("Root path sorted first", paths, is(equalTo(Arrays.asList("/", "/a", "/b"))));
+	}
+
+	@Test
 	public void escapeHtml_null() {
 		// GIVEN
 		final String input = null;

@@ -1187,13 +1187,10 @@ public final class StringUtils {
 			int res = ac[i].compareToIgnoreCase(bc[i]);
 			if ( res != 0 ) {
 				return res;
-			} else if ( acLen != bcLen && i + 1 == acLen ) {
-				return -1;
-			} else if ( acLen != bcLen && i + 1 == bcLen ) {
-				return 1;
 			}
 		}
-		return 0;
+		// all common components equal (or none, e.g. splitting "/" by "/")
+		return Integer.compare(acLen, bcLen);
 	}
 
 	/**
