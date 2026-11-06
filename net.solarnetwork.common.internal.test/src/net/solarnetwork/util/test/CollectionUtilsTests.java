@@ -69,7 +69,7 @@ import net.solarnetwork.util.StringUtils;
  * Test cases for the {@link CollectionUtils} class.
  *
  * @author matt
- * @version 1.6
+ * @version 1.7
  */
 public class CollectionUtilsTests {
 
@@ -805,6 +805,44 @@ public class CollectionUtilsTests {
 		// THEN
 		then(CollectionUtils.differsNumerically(m1, m2))
 				.as("Status values parsed as numbers, one NaN, differ").isTrue();
+	}
+
+	@Test
+	public void mapProperty_shortAndByte() {
+		// GIVEN
+		final Short aDefault = (short) -1;
+		// @formatter:off
+		final Map<String, Object> m = Map.ofEntries(
+				entry("short", (short) 1),
+				entry("int", 2),
+				entry("string-num", "3"),
+				entry("string-invalid", "this is foobar")
+			);
+		// @formatter:on
+
+		// THEN
+		// @formatter:off
+		then(CollectionUtils.mapProperty("short", Short.class, aDefault, m))
+			.as("Short instance returned directly")
+			.isEqualTo((short) 1)
+			;
+		then(CollectionUtils.mapProperty("int", Short.class, aDefault, m))
+			.as("Integer converted to Short")
+			.isEqualTo((short) 2)
+			;
+		then(CollectionUtils.mapProperty("string-num", Short.class, aDefault, m))
+			.as("String number parsed as Short")
+			.isEqualTo((short) 3)
+			;
+		then(CollectionUtils.mapProperty("string-invalid", Short.class, aDefault, m))
+			.as("Invalid string returns default value")
+			.isSameAs(aDefault)
+			;
+		then(CollectionUtils.mapProperty("string-num", Byte.class, null, m))
+			.as("String number parsed as Byte")
+			.isEqualTo((byte) 3)
+			;
+		// @formatter:on
 	}
 
 	@Test

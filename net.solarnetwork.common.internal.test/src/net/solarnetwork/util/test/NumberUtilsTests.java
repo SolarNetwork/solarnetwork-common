@@ -1046,6 +1046,86 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void convertNumber_short() {
+		final Short n = 123;
+		// @formatter:off
+		then(NumberUtils.convertNumber(n, Short.class))
+			.as("Short converts as-is")
+			.isSameAs(n)
+			;
+		then(NumberUtils.convertNumber(234, Short.class))
+			.as("Integer converts")
+			.isEqualTo((short) 234)
+			;
+		then(NumberUtils.convertNumber(34.5, Short.class))
+			.as("Double converts")
+			.isEqualTo((short) 34)
+			;
+		then(NumberUtils.convertNumber(new BigDecimal("56.7"), Short.class))
+			.as("BigDecimal converts")
+			.isEqualTo((short) 56)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void convertNumber_byte() {
+		final Byte n = 12;
+		// @formatter:off
+		then(NumberUtils.convertNumber(n, Byte.class))
+			.as("Byte converts as-is")
+			.isSameAs(n)
+			;
+		then(NumberUtils.convertNumber(23, Byte.class))
+			.as("Integer converts")
+			.isEqualTo((byte) 23)
+			;
+		then(NumberUtils.convertNumber(new BigInteger("34"), Byte.class))
+			.as("BigInteger converts")
+			.isEqualTo((byte) 34)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void parseNumber_withType() {
+		// @formatter:off
+		then(NumberUtils.parseNumber("123", Integer.class))
+			.as("Integer parsed")
+			.isEqualTo(123)
+			;
+		then(NumberUtils.parseNumber("123", Long.class))
+			.as("Long parsed")
+			.isEqualTo(123L)
+			;
+		then(NumberUtils.parseNumber("12.5", Float.class))
+			.as("Float parsed")
+			.isEqualTo(12.5f)
+			;
+		then(NumberUtils.parseNumber("12.5", Double.class))
+			.as("Double parsed")
+			.isEqualTo(12.5)
+			;
+		then(NumberUtils.parseNumber("12.50", BigDecimal.class))
+			.as("BigDecimal parsed")
+			.isEqualTo(new BigDecimal("12.50"))
+			;
+		then(NumberUtils.parseNumber("123", BigInteger.class))
+			.as("BigInteger parsed")
+			.isEqualTo(new BigInteger("123"))
+			;
+		then(NumberUtils.parseNumber("123", Short.class))
+			.as("Short parsed")
+			.isEqualTo((short) 123)
+			;
+		then(NumberUtils.parseNumber("-12", Byte.class))
+			.as("Byte parsed")
+			.isEqualTo((byte) -12)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void parseNumber_int() {
 		assertThat("Int parsed", NumberUtils.parseNumber("123"), is(equalTo(123)));
 		assertThat("Negative int parsed", NumberUtils.parseNumber("-123"), is(equalTo(-123)));

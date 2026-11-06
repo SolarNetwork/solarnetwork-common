@@ -531,7 +531,8 @@ public final class NumberUtils {
 	 * @param numberString
 	 *        the String to parse
 	 * @param numberType
-	 *        the type of Number to return
+	 *        the type of Number to return; unsupported types are parsed as a
+	 *        {@link Double}
 	 * @return the new Number instance
 	 * @since 1.8
 	 */
@@ -546,6 +547,10 @@ public final class NumberUtils {
 			return new BigDecimal(numberString);
 		} else if ( BigInteger.class.isAssignableFrom(numberType) ) {
 			return new BigInteger(numberString);
+		} else if ( Short.class.isAssignableFrom(numberType) ) {
+			return Short.valueOf(numberString);
+		} else if ( Byte.class.isAssignableFrom(numberType) ) {
+			return Byte.valueOf(numberString);
 		}
 		return Double.valueOf(numberString);
 	}
@@ -619,6 +624,10 @@ public final class NumberUtils {
 				return (T) number;
 			}
 			return (T) BigInteger.valueOf(number.longValue());
+		} else if ( Short.class.isAssignableFrom(numberType) ) {
+			return (T) (Short) (number instanceof Short ? number : number.shortValue());
+		} else if ( Byte.class.isAssignableFrom(numberType) ) {
+			return (T) (Byte) (number instanceof Byte ? number : number.byteValue());
 		}
 		throw new IllegalArgumentException("Cannot convert to type " + numberType);
 	}
