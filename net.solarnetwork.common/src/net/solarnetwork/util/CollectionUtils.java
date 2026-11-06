@@ -1055,7 +1055,7 @@ public final class CollectionUtils {
 					for ( Map.Entry<K, V> me : map.entrySet() ) {
 						K key = me.getKey();
 						V val = me.getValue();
-						if ( val != null && transformKeys.contains(key.toString()) ) {
+						if ( val != null && key != null && transformKeys.contains(key) ) {
 							V encVal = transformer.apply(val);
 							if ( encVal == null ) {
 								maskedMap.remove(key);

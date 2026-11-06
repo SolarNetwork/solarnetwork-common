@@ -526,6 +526,28 @@ public class StringUtilsTests {
 	}
 
 	@Test
+	public void maskedMapNonStringKeys() {
+		Map<Integer, String> map = new LinkedHashMap<>();
+		map.put(1, "b");
+		map.put(2, "d");
+		Map<Integer, String> masked = StringUtils.sha256MaskedMap(map, Set.of(2));
+		assertThat("Change results in map of same size", masked.keySet(), hasSize(map.size()));
+		assertThat("Unchanged key", masked, hasEntry(1, "b"));
+		assertThat("Masked key", masked.get(2), startsWith("{SSHA-256}"));
+	}
+
+	@Test
+	public void maskedMapNullKey() {
+		Map<String, String> map = new LinkedHashMap<>();
+		map.put(null, "b");
+		map.put("c", "d");
+		Map<String, String> masked = StringUtils.sha256MaskedMap(map, Set.of("c"));
+		assertThat("Change results in map of same size", masked.keySet(), hasSize(map.size()));
+		assertThat("Null key unchanged", masked, hasEntry(null, "b"));
+		assertThat("Masked key", masked.get("c"), startsWith("{SSHA-256}"));
+	}
+
+	@Test
 	public void simpleIdValue_null() {
 		String id = StringUtils.simpleIdValue(null);
 		assertThat("Null ID generated", id, nullValue());

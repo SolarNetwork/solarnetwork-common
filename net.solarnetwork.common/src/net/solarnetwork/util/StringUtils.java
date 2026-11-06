@@ -730,7 +730,7 @@ public final class StringUtils {
 					for ( Map.Entry<K, V> me : map.entrySet() ) {
 						K key = me.getKey();
 						V val = me.getValue();
-						if ( val != null && maskKeys.contains(key.toString()) ) {
+						if ( val != null && key != null && maskKeys.contains(key) ) {
 							String maskedVal = StringUtils.sha256Base64Value(val.toString());
 							((Map) maskedMap).put(key, maskedVal);
 						} else {

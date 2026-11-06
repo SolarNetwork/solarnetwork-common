@@ -543,6 +543,51 @@ public class CollectionUtilsTests {
 	}
 
 	@Test
+	public void transformMapValues_nonStringKeys() {
+		// GIVEN
+		Map<Integer, String> input = new LinkedHashMap<>(4);
+		input.put(1, "1");
+		input.put(2, "2");
+
+		// WHEN
+		Map<Integer, String> result = CollectionUtils.transformMap(input, Set.of(2),
+				(s) -> s + "-xformed");
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Value for non-string key transformed")
+			.containsOnly(
+				entry(1, "1"),
+				entry(2, "2-xformed")
+			)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void transformMapValues_nullKey() {
+		// GIVEN
+		Map<String, String> input = new LinkedHashMap<>(4);
+		input.put(null, "1");
+		input.put("a", "2");
+
+		// WHEN
+		Map<String, String> result = CollectionUtils.transformMap(input, Set.of("a"),
+				(s) -> s + "-xformed");
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Null key left as-is, other key transformed")
+			.hasSize(2)
+			.containsEntry(null, "1")
+			.containsEntry("a", "2-xformed")
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void transformMap() {
 		// GIVEN
 		final Map<String, Object> input = new LinkedHashMap<>(8);
