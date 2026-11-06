@@ -622,6 +622,11 @@ public final class NumberUtils {
 		} else if ( BigInteger.class.isAssignableFrom(numberType) ) {
 			if ( number instanceof BigInteger ) {
 				return (T) number;
+			} else if ( number instanceof BigDecimal d ) {
+				return (T) d.toBigInteger();
+			} else if ( (number instanceof Double || number instanceof Float)
+					&& Double.isFinite(number.doubleValue()) ) {
+				return (T) new BigDecimal(number.toString()).toBigInteger();
 			}
 			return (T) BigInteger.valueOf(number.longValue());
 		} else if ( Short.class.isAssignableFrom(numberType) ) {

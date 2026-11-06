@@ -1057,6 +1057,47 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void convertNumber_bigInteger_large() {
+		final BigInteger expected = BigInteger.TEN.pow(30);
+		// @formatter:off
+		then(NumberUtils.convertNumber(new BigDecimal("1E+30"), BigInteger.class))
+			.as("BigDecimal larger than long converts")
+			.isEqualTo(expected)
+			;
+		then(NumberUtils.convertNumber(new BigDecimal("-1.5E+30"), BigInteger.class))
+			.as("Negative BigDecimal larger than long converts")
+			.isEqualTo(expected.multiply(BigInteger.valueOf(-15)).divide(BigInteger.TEN))
+			;
+		then(NumberUtils.convertNumber(1e30, BigInteger.class))
+			.as("Double larger than long converts")
+			.isEqualTo(expected)
+			;
+		then(NumberUtils.convertNumber(1e30f, BigInteger.class))
+			.as("Float larger than long converts")
+			.isEqualTo(expected)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void convertNumber_bigInteger_nonFinite() {
+		// @formatter:off
+		then(NumberUtils.convertNumber(Double.NaN, BigInteger.class))
+			.as("NaN converts like long")
+			.isEqualTo(BigInteger.ZERO)
+			;
+		then(NumberUtils.convertNumber(Double.POSITIVE_INFINITY, BigInteger.class))
+			.as("Positive infinity converts like long")
+			.isEqualTo(BigInteger.valueOf(Long.MAX_VALUE))
+			;
+		then(NumberUtils.convertNumber(Float.NEGATIVE_INFINITY, BigInteger.class))
+			.as("Negative infinity converts like long")
+			.isEqualTo(BigInteger.valueOf(Long.MIN_VALUE))
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void convertNumber_short() {
 		final Short n = 123;
 		// @formatter:off
