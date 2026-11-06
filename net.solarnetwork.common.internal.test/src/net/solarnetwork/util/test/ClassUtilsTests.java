@@ -515,6 +515,50 @@ public class ClassUtilsTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void getSimpleBeanProperties_map_enumWithBody() {
+		// GIVEN
+		// a constant with a body is an anonymous subclass, which is not itself an enum
+		final var d = Map.of("square", Shape.Square, "circle", Shape.Circle);
+
+		// WHEN
+		final Map<String, Object> result = ClassUtils.getSimpleBeanProperties(d, Set.of(), false);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Map generated with enum values as strings")
+			.isNotNull()
+			.containsOnly(
+				entry("square", "Square"),
+				entry("circle", "Circle")
+			)
+			;
+		// @formatter:on
+	}
+
+	/**
+	 * A test enum with a constant that has a body.
+	 */
+	public static enum Shape {
+
+		Square,
+
+		Circle {
+
+			@Override
+			public boolean isRound() {
+				return true;
+			}
+
+		};
+
+		public boolean isRound() {
+			return false;
+		}
+
+	}
+
 	/**
 	 * A test bean with boolean properties.
 	 */

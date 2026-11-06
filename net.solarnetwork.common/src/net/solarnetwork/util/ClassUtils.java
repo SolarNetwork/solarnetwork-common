@@ -246,7 +246,7 @@ public final class ClassUtils {
 					continue;
 				}
 				final Object propValue = e.getValue();
-				result.put(propName, simpleBeanPropertyValue(propType, propValue));
+				result.put(propName, simpleBeanPropertyValue(propValue));
 			}
 		} else if ( o != null ) {
 			BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(o);
@@ -273,17 +273,18 @@ public final class ClassUtils {
 						continue;
 					}
 				}
-				result.put(propName, simpleBeanPropertyValue(propType, propValue));
+				result.put(propName, simpleBeanPropertyValue(propValue));
 			}
 		}
 		return result;
 	}
 
 	private static boolean isSimpleBeanPropertyType(@Nullable Class<?> propType) {
+		// note isEnum() is false for an enum constant with a body, so test for Enum
 		// @formatter:off
 		return propType != null && (
 				propType.isPrimitive()
-				|| propType.isEnum()
+				|| Enum.class.isAssignableFrom(propType)
 				|| String.class.isAssignableFrom(propType)
 				|| Number.class.isAssignableFrom(propType)
 				|| Boolean.class.isAssignableFrom(propType)
@@ -297,9 +298,9 @@ public final class ClassUtils {
 		// @formatter:on
 	}
 
-	private static Object simpleBeanPropertyValue(Class<?> propType, Object propValue) {
-		if ( propType.isEnum() ) {
-			return propValue.toString();
+	private static Object simpleBeanPropertyValue(Object propValue) {
+		if ( propValue instanceof Enum<?> e ) {
+			return e.toString();
 		} else if ( propValue instanceof Date d ) {
 			return d.getTime();
 		} else if ( propValue instanceof Instant d ) {
