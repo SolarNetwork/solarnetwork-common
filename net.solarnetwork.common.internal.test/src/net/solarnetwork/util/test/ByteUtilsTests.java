@@ -88,6 +88,20 @@ public class ByteUtilsTests {
 	}
 
 	@Test
+	public void encodeHexString_toIndexPastEnd() {
+		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
+		String r = ByteUtils.encodeHexString(b, 1, 5, true);
+		assertThat("Bytes subrange up to end of data encode to hex string", r, equalTo("99 FF"));
+	}
+
+	@Test
+	public void encodeHexString_toIndexMax() {
+		byte[] b = new byte[] { (byte) 0x11, (byte) 0x99, (byte) 0xFF };
+		String r = ByteUtils.encodeHexString(b, 0, Integer.MAX_VALUE, false);
+		assertThat("Bytes up to end of data encode to hex string", r, equalTo("1199FF"));
+	}
+
+	@Test
 	public void decodeHexString_basic() {
 		// GIVEN
 		String s = "1F2B01";

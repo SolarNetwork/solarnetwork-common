@@ -153,7 +153,8 @@ public final class ByteUtils {
 	 * @param fromIndex
 	 *        the starting index within {@code data} to encode (inclusive)
 	 * @param toIndex
-	 *        the ending index within {@code data} to encode (exclusive)
+	 *        the ending index within {@code data} to encode (exclusive); if
+	 *        past the end of {@code data} then {@code data.length} is used
 	 * @param space
 	 *        {@literal true} to add a single space character between each hex
 	 *        pair
@@ -172,7 +173,8 @@ public final class ByteUtils {
 	 * @param fromIndex
 	 *        the starting index within {@code data} to encode (inclusive)
 	 * @param toIndex
-	 *        the ending index within {@code data} to encode (exclusive)
+	 *        the ending index within {@code data} to encode (exclusive); if
+	 *        past the end of {@code data} then {@code data.length} is used
 	 * @param space
 	 *        {@literal true} to add a single space character between each hex
 	 * @param lowerCase
@@ -187,10 +189,11 @@ public final class ByteUtils {
 			return "";
 		}
 		final char[] digits = (lowerCase ? DIGITS_LOWER : DIGITS_UPPER);
+		final int endIndex = Math.min(toIndex, data.length);
 		StringBuilder hexData = new StringBuilder(
-				2 * (toIndex - fromIndex) + (space ? (toIndex - fromIndex) : 0));
+				2 * (endIndex - fromIndex) + (space ? (endIndex - fromIndex) : 0));
 		char[] buffer = new char[2];
-		for ( int i = fromIndex; i < toIndex; i++ ) {
+		for ( int i = fromIndex; i < endIndex; i++ ) {
 			if ( space && i > fromIndex ) {
 				hexData.append(' ');
 			}
