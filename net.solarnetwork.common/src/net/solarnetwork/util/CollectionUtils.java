@@ -612,8 +612,19 @@ public final class CollectionUtils {
 		}
 		final List<String> result;
 		if ( propVal instanceof List<?> l && (l.isEmpty() || l.get(0) instanceof String) ) {
-			// assume all values are strings
-			result = (List<String>) l;
+			// re-check all values are strings
+			var res = (List<String>) l;
+			for ( int i = 1, len = l.size(); i < len; i++ ) {
+				var val = l.get(i);
+				if ( l != res ) {
+					res.add(val == null ? null : val instanceof String s ? s : val.toString());
+				} else if ( val != null && !(val instanceof String) ) {
+					// found a non-string value, so copy to new list;
+					// all values to i have been validated as String or null already
+					res = new ArrayList<>(((List<String>) l).subList(0, i));
+				}
+			}
+			result = res;
 		} else if ( propVal instanceof Collection<?> c ) {
 			result = new ArrayList<>(c.size());
 			for ( Object o : c ) {
