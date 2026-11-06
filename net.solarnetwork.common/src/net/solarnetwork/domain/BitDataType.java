@@ -26,7 +26,7 @@ package net.solarnetwork.domain;
  * An enumeration of common bit-centric data types.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.54
  */
 public enum BitDataType implements KeyedValue {
@@ -80,10 +80,10 @@ public enum BitDataType implements KeyedValue {
 	Bytes("b", -1, "Bytes", false),
 
 	/** Bytes interpreted as a UTF-8 encoded string. */
-	StringUtf8("s", -1, "String (ASCII)", false),
+	StringUtf8("s", -1, "String (UTF-8)", false),
 
 	/** Bytes interpreted as an ASCII encoded string. */
-	StringAscii("a", -1, "String (UTF-8)", false);
+	StringAscii("a", -1, "String (ASCII)", false);
 
 	private final String key;
 	private final int bitLength;
