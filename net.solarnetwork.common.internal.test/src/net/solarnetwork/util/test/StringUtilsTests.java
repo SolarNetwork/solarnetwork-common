@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -541,6 +542,23 @@ public class StringUtilsTests {
 		assertThat("Empty ID generated from whitespace", StringUtils.simpleIdValue(" \t "), equalTo(""));
 		assertThat("Empty ID generated from whitespace, preserving case",
 				StringUtils.simpleIdValue(" \t ", true), equalTo(""));
+	}
+
+	@Test
+	public void simpleIdValue_defaultLocaleIgnored() {
+		// GIVEN
+		final Locale defaultLocale = Locale.getDefault();
+		// Turkish lower-cases I to a dotless ı
+		Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+		try {
+			// WHEN
+			String id = StringUtils.simpleIdValue("ID Info");
+
+			// THEN
+			assertThat("ID lower-cased independent of default locale", id, equalTo("id_info"));
+		} finally {
+			Locale.setDefault(defaultLocale);
+		}
 	}
 
 	@Test

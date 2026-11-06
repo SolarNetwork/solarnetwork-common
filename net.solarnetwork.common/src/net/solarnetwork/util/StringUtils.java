@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -768,10 +769,10 @@ public final class StringUtils {
 	 *
 	 * <ol>
 	 * <li>leading and trailing whitespace is removed</li>
-	 * <li>change to lower case</li>
+	 * <li>change to lower case, independent of the default locale</li>
 	 * <li>replace any runs of characters other than {@literal a-zA-Z0-9_} with
 	 * a {@literal _}</li>
-	 * <li>
+	 * <li>remove any leading and trailing {@literal _}</li>
 	 * </ol>
 	 *
 	 * @param text
@@ -792,26 +793,28 @@ public final class StringUtils {
 	 *
 	 * <ol>
 	 * <li>leading and trailing whitespace is removed</li>
-	 * <li>change to lower case (if {@code lowerCase} is {@literal true}</li>
+	 * <li>change to lower case, independent of the default locale, unless
+	 * {@code lowerCase} is {@literal true}</li>
 	 * <li>replace any runs of characters other than {@literal a-zA-Z0-9_} with
 	 * a {@literal _}</li>
-	 * <li>
+	 * <li>remove any leading and trailing {@literal _}</li>
 	 * </ol>
 	 *
 	 * @param text
 	 *        the text to derive the simple ID from
-	 * @param preserveRateCase
-	 *        {@literal true} to lower-case the text
+	 * @param lowerCase
+	 *        {@literal true} to keep the case of the text, {@literal false} to
+	 *        change it to lower case
 	 * @return the simple ID, or {@code null} if {@code text} is {@code null}
 	 * @since 1.14
 	 */
-	public static @Nullable String simpleIdValue(@Nullable String text, boolean preserveRateCase) {
+	public static @Nullable String simpleIdValue(@Nullable String text, boolean lowerCase) {
 		if ( text == null || text.isEmpty() ) {
 			return text;
 		}
 		text = text.trim();
-		if ( !preserveRateCase ) {
-			text = text.toLowerCase();
+		if ( !lowerCase ) {
+			text = text.toLowerCase(Locale.ROOT);
 		}
 		String s = NOT_SIMPLE_ID_CHARACTER_PATTERN.matcher(text).replaceAll("_");
 		if ( !s.isEmpty() && (s.charAt(0) == '_' || s.charAt(s.length() - 1) == '_') ) {
@@ -821,7 +824,7 @@ public final class StringUtils {
 	}
 
 	/**
-	 * Calcualte the UTF-8 byte length of a given string.
+	 * Calculate the UTF-8 byte length of a given string.
 	 *
 	 * <p>
 	 * This is faster than converting the string to a byte array in the UTF-8
