@@ -1,6 +1,6 @@
 <project basedir=".">
 
-	<property name="test.bundle.name" value="net.solarentwork.common"/>
+	<property name="test.bundle.name" value="net.solarnetwork.common"/>
 
 	<property name="bundle.deps" value="true"/>
 	<dirset id="bundle.deps" dir="${basedir}/..">
