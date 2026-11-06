@@ -36,7 +36,7 @@ import net.solarnetwork.domain.datum.DatumStringFunctions;
  * Test cases for the {@link DatumStringFunctions} interface.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class DatumStringFunctionsTests implements DatumStringFunctions {
 
@@ -187,7 +187,7 @@ public class DatumStringFunctionsTests implements DatumStringFunctions {
 	@Test
 	public void numberValue_decimalString() {
 		// GIVEN
-		final String input = "3.14159265";
+		final String input = "4567890.125";
 
 		// THEN
 		// @formatter:off
@@ -195,7 +195,7 @@ public class DatumStringFunctionsTests implements DatumStringFunctions {
 			.as("String decimal input returns number")
 			.isInstanceOf(Double.class)
 			.asInstanceOf(DOUBLE)
-			.isEqualByComparingTo(3.14159265)
+			.isEqualByComparingTo(4567890.125)
 			;
 		// @formatter:on
 	}

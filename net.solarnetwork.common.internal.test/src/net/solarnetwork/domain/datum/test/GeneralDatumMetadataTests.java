@@ -379,7 +379,7 @@ public class GeneralDatumMetadataTests {
 		KeyValuePair[] data = new KeyValuePair[] {
 				new KeyValuePair("a", "b"),
 				new KeyValuePair("b", "123"),
-				new KeyValuePair("c", "123.456"),
+				new KeyValuePair("c", "123.25"),
 				new KeyValuePair("d", "129837198237918273912873"),
 				new KeyValuePair("e", "18927318902731.12930128301298301293"),
 		};
@@ -389,7 +389,7 @@ public class GeneralDatumMetadataTests {
 		// THEN
 		assertThat("Info string value populated as string", meta.getInfo(), hasEntry("a", "b"));
 		assertThat("Info int value populated as int", meta.getInfo(), hasEntry("b", 123));
-		assertThat("Info float value populated as float", meta.getInfo(), hasEntry("c", 123.456f));
+		assertThat("Info float value populated as float", meta.getInfo(), hasEntry("c", 123.25f));
 		assertThat("Info big int value populated as BigInteger", meta.getInfo(),
 				hasEntry("d", new BigInteger("129837198237918273912873")));
 		assertThat("Info big decimal value populated as BigDecimal", meta.getInfo(),

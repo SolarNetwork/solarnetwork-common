@@ -1210,6 +1210,7 @@ public class CollectionUtilsTests {
 		// GIVEN
 		final Number aDefault = new BigDecimal("1.234");
 		final Float anInstance = randomFloat();
+		final Float aStringFloat = 1234.5f;
 		final Long aLong = randomLong();
 		final String aStringNum = String.valueOf(randomLong());
 		final String aStringInvalid = "this is foobar";
@@ -1222,7 +1223,7 @@ public class CollectionUtilsTests {
 				entry("string-empty", ""),
 				entry("string-invalid", aStringInvalid),
 				entry("inst", anInstance),
-				entry("string", anInstance.toString()),
+				entry("string", aStringFloat.toString()),
 				entry("large-integer", aLargeInteger),
 				entry("large-decimal", aLargeDecimal)
 			);
@@ -1263,8 +1264,8 @@ public class CollectionUtilsTests {
 			.isSameAs(anInstance)
 			;
 		then(CollectionUtils.mapPropertyNumber("string", aDefault, m))
-			.as("String parsed as instance")
-			.isEqualTo(anInstance)
+			.as("String parsed as float")
+			.isEqualTo(aStringFloat)
 			;
 		then(CollectionUtils.mapPropertyNumber("large-integer", aDefault, m))
 			.as("Large integer returned as BigInteger (not narrowed to 32-bit)")

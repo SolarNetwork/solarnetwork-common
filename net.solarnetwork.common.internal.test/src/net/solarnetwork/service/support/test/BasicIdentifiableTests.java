@@ -36,13 +36,13 @@ import net.solarnetwork.service.support.BasicIdentifiable;
  * Test cases for the {@link BasicIdentifiable} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class BasicIdentifiableTests {
 
 	private static final int TEST_INT = 123;
-	private static final float TEST_FLOAT = 456.1f;
-	private static final double TEST_DOUBLE = 456.7890123456;
+	private static final float TEST_FLOAT = 456.25f;
+	private static final double TEST_DOUBLE = 4567890.125;
 	private static final BigDecimal TEST_DECIMAL = new BigDecimal("19023870129381.1092380129");
 
 	@Test

@@ -1130,13 +1130,26 @@ public final class NumberUtils {
 		} else if ( (n instanceof Float) || (n instanceof Byte) ) {
 			return n;
 		} else if ( n instanceof Double ) {
-			if ( minBytePower > 2 ) {
-				// no narrowing to float allowed, and never widen
+			final double d = n.doubleValue();
+			if ( minBytePower < 3 ) {
+				float f = (float) d;
+				if ( Double.compare(f, d) == 0 ) {
+					return f;
+				}
+			}
+			if ( minBytePower > 3 || !Double.isFinite(d) ) {
+				// never widen
 				return n;
 			}
-			float f = n.floatValue();
-			if ( Double.compare(f, n.doubleValue()) == 0 ) {
-				return f;
+			// otherwise narrow only a whole number, to an integer type; the BigDecimal
+			// fallback below would accept a float that only prints the same, like 0.1f
+			// for 0.1d
+			try {
+				Number res = narrow(new BigDecimal(d).toBigIntegerExact(), minBytePower);
+				return (res instanceof BigInteger ? n : res);
+			} catch ( ArithmeticException e ) {
+				// not a whole number
+				return n;
 			}
 		} else if ( n instanceof Long ) {
 			if ( minBytePower < 4 ) {
@@ -1308,6 +1321,11 @@ public final class NumberUtils {
 	/**
 	 * Attempt to convert a {@link BigDecimal} exactly to a {@code float}.
 	 *
+	 * <p>
+	 * The {@code float} must equal {@code n} exactly, not just print the same:
+	 * for example {@literal 0.1} cannot be converted.
+	 * </p>
+	 *
 	 * @param n
 	 *        the number to convert
 	 * @return the converted value, or {@code null} if {@code n} is {@code null}
@@ -1321,7 +1339,7 @@ public final class NumberUtils {
 		}
 		float result = n.floatValue();
 		if ( !(Float.isNaN(result) || Float.isInfinite(result)) ) {
-			if ( new BigDecimal(String.valueOf(result)).compareTo(n) == 0 ) {
+			if ( new BigDecimal(result).compareTo(n) == 0 ) {
 				return result;
 			}
 		}
@@ -1330,6 +1348,11 @@ public final class NumberUtils {
 
 	/**
 	 * Attempt to convert a {@link BigDecimal} exactly to a {@code double}.
+	 *
+	 * <p>
+	 * The {@code double} must equal {@code n} exactly, not just print the same:
+	 * for example {@literal 0.1} cannot be converted.
+	 * </p>
 	 *
 	 * @param n
 	 *        the number to convert
@@ -1344,7 +1367,7 @@ public final class NumberUtils {
 		}
 		double result = n.doubleValue();
 		if ( !(Double.isNaN(result) || Double.isInfinite(result)) ) {
-			if ( new BigDecimal(String.valueOf(result)).compareTo(n) == 0 ) {
+			if ( new BigDecimal(result).compareTo(n) == 0 ) {
 				return result;
 			}
 		}

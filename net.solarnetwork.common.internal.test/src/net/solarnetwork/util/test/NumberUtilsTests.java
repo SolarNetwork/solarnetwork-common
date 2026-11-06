@@ -1109,12 +1109,11 @@ public class NumberUtilsTests {
 		assertThat("narrowed to byte", NumberUtils.narrow(new BigDecimal("7"), 0), is((byte) 7));
 		assertThat("narrowed to short", NumberUtils.narrow(new BigDecimal("723"), 0), is((short) 723));
 		assertThat("narrowed to int", NumberUtils.narrow(new BigDecimal("72356789"), 0), is(72356789));
-		assertThat("narrowed to float", NumberUtils.narrow(BigDecimal.valueOf(123.00005), 0),
-				is((float) 123.00005));
+		assertThat("narrowed to float", NumberUtils.narrow(new BigDecimal("123.5"), 0), is(123.5f));
 		assertThat("narrowed to long", NumberUtils.narrow(new BigDecimal("7235678972356789"), 0),
 				is(7235678972356789L));
-		assertThat("narrowed to double", NumberUtils.narrow(BigDecimal.valueOf(723567897.2356789), 0),
-				is(723567897.2356789));
+		assertThat("narrowed to double", NumberUtils.narrow(new BigDecimal("723567897.25"), 0),
+				is(723567897.25));
 		BigDecimal n = new BigDecimal("72356789723567897235678972356789");
 		assertThat("too big to narrow", NumberUtils.narrow(n, 0), is(sameInstance(n)));
 	}
@@ -1198,6 +1197,53 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void narrowDouble_inexactFloat() {
+		// GIVEN
+		final Double fraction = 0.1;
+		final Double beyondLong = 1e20;
+
+		// @formatter:off
+		then(NumberUtils.narrow(fraction, 0))
+			.as("Double not exactly equal to a float kept, even though the float prints the same")
+			.isSameAs(fraction)
+			;
+		then(NumberUtils.narrow(16777217.0, 0))
+			.as("Whole double beyond float precision narrowed to int")
+			.isEqualTo(16777217)
+			;
+		then(NumberUtils.narrow(1e15, 2))
+			.as("Whole double beyond float precision narrowed to long, not a float that prints the same")
+			.isEqualTo(1_000_000_000_000_000L)
+			;
+		then(NumberUtils.narrow(beyondLong, 2))
+			.as("Whole double beyond long range kept, not a float that prints the same")
+			.isSameAs(beyondLong)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void narrowDouble_minBytePower3_wholeNumber() {
+		// GIVEN
+		final Double nan = Double.NaN;
+
+		// @formatter:off
+		then(NumberUtils.narrow(123.0, 3))
+			.as("Min power 3 narrows whole double to long, not float")
+			.isEqualTo(123L)
+			;
+		then(NumberUtils.narrow(16777217.0, 3))
+			.as("Min power 3 narrows whole double beyond float precision to long")
+			.isEqualTo(16_777_217L)
+			;
+		then(NumberUtils.narrow(nan, 3))
+			.as("Min power 3 keeps NaN")
+			.isSameAs(nan)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void narrowByte() {
 		Byte b = (byte) 11;
 		assertThat("byte cannot be narrowed", NumberUtils.narrow(b, 0), is(sameInstance(b)));
@@ -1275,6 +1321,27 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void narrowBigDecimal_inexact() {
+		// GIVEN
+		final BigDecimal fraction = new BigDecimal("0.1");
+
+		// @formatter:off
+		then(NumberUtils.narrow(fraction, 0))
+			.as("Decimal not exactly equal to a float or double kept, even though they print the same")
+			.isSameAs(fraction)
+			;
+		then(NumberUtils.narrow(new BigDecimal("1000000000000000"), 2))
+			.as("Whole number narrowed to long, not a float that prints the same")
+			.isEqualTo(1_000_000_000_000_000L)
+			;
+		then(NumberUtils.narrow(new BigDecimal("16777217.5"), 0))
+			.as("Decimal exactly equal to a double but not a float narrowed to double")
+			.isEqualTo(16777217.5)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void floatValueExact() {
 		// @formatter:off
 		then(NumberUtils.floatValueExact(new BigDecimal("1.5")))
@@ -1314,6 +1381,34 @@ public class NumberUtilsTests {
 		thenExceptionOfType(ArithmeticException.class)
 			.as("Value outside double range")
 			.isThrownBy(() -> NumberUtils.doubleValueExact(new BigDecimal("1e400")))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void floatValueExact_printsSame() {
+		// @formatter:off
+		thenExceptionOfType(ArithmeticException.class)
+			.as("Fraction not exactly equal to the float that prints the same")
+			.isThrownBy(() -> NumberUtils.floatValueExact(new BigDecimal("0.1")))
+			;
+		thenExceptionOfType(ArithmeticException.class)
+			.as("Whole number not exactly equal to the float that prints the same")
+			.isThrownBy(() -> NumberUtils.floatValueExact(new BigDecimal("1000000000000000")))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void doubleValueExact_printsSame() {
+		// @formatter:off
+		thenExceptionOfType(ArithmeticException.class)
+			.as("Fraction not exactly equal to the double that prints the same")
+			.isThrownBy(() -> NumberUtils.doubleValueExact(new BigDecimal("0.1")))
+			;
+		thenExceptionOfType(ArithmeticException.class)
+			.as("Whole number not exactly equal to the double that prints the same")
+			.isThrownBy(() -> NumberUtils.doubleValueExact(new BigDecimal("1e23")))
 			;
 		// @formatter:on
 	}
@@ -1816,13 +1911,12 @@ public class NumberUtilsTests {
 		assertThat("Negative long parsed", NumberUtils.parseNumber("-1234567890123456789"),
 				is(equalTo(-1234567890123456789L)));
 
-		assertThat("Float parsed", NumberUtils.parseNumber("12.3"), is(equalTo(12.3f)));
-		assertThat("Negative float parsed", NumberUtils.parseNumber("-12.3"), is(equalTo(-12.3f)));
+		assertThat("Float parsed", NumberUtils.parseNumber("12.5"), is(equalTo(12.5f)));
+		assertThat("Negative float parsed", NumberUtils.parseNumber("-12.5"), is(equalTo(-12.5f)));
 
-		assertThat("Double parsed", NumberUtils.parseNumber("12.34567890123"),
-				is(equalTo(12.34567890123)));
-		assertThat("Negative double parsed", NumberUtils.parseNumber("-12.34567890123"),
-				is(equalTo(-12.34567890123)));
+		assertThat("Double parsed", NumberUtils.parseNumber("16777217.5"), is(equalTo(16777217.5)));
+		assertThat("Negative double parsed", NumberUtils.parseNumber("-16777217.5"),
+				is(equalTo(-16777217.5)));
 	}
 
 	@Test
@@ -1835,16 +1929,29 @@ public class NumberUtilsTests {
 
 	@Test
 	public void parseNumber_float() {
-		assertThat("Float parsed", NumberUtils.parseNumber("12.3"), is(equalTo(12.3f)));
-		assertThat("Negative float parsed", NumberUtils.parseNumber("-12.3"), is(equalTo(-12.3f)));
+		assertThat("Float parsed", NumberUtils.parseNumber("12.5"), is(equalTo(12.5f)));
+		assertThat("Negative float parsed", NumberUtils.parseNumber("-12.5"), is(equalTo(-12.5f)));
 	}
 
 	@Test
 	public void parseNumber_double() {
-		assertThat("Double parsed", NumberUtils.parseNumber("12.34567890123"),
-				is(equalTo(12.34567890123)));
-		assertThat("Negative double parsed", NumberUtils.parseNumber("-12.34567890123"),
-				is(equalTo(-12.34567890123)));
+		assertThat("Double parsed", NumberUtils.parseNumber("16777217.5"), is(equalTo(16777217.5)));
+		assertThat("Negative double parsed", NumberUtils.parseNumber("-16777217.5"),
+				is(equalTo(-16777217.5)));
+	}
+
+	@Test
+	public void parseNumber_inexactDecimal() {
+		// @formatter:off
+		then(NumberUtils.parseNumber("12.3"))
+			.as("Decimal not exactly equal to the float that prints the same kept as BigDecimal")
+			.isEqualTo(new BigDecimal("12.3"))
+			;
+		then(NumberUtils.parseNumber("12.34567890123"))
+			.as("Decimal not exactly equal to the double that prints the same kept as BigDecimal")
+			.isEqualTo(new BigDecimal("12.34567890123"))
+			;
+		// @formatter:on
 	}
 
 	@Test
