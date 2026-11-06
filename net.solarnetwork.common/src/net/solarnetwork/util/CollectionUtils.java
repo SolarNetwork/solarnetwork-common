@@ -78,12 +78,12 @@ public final class CollectionUtils {
 	 * </p>
 	 *
 	 * <p>
-	 * This can be useful when you want to coalesce many discreet ranges into a
+	 * This can be useful when you want to coalesce many discrete ranges into a
 	 * smaller number of larger ranges, such as when querying a device for data
 	 * in address registers, to reduce the number of overall requests required
 	 * to read the complete set of registers. Instead of reading many small
 	 * ranges of registers, fewer large ranges of registers can be requested.
-	 * For example, if the a set {@code s} passed to this method contained these
+	 * For example, if a set {@code s} passed to this method contained these
 	 * ranges:
 	 * </p>
 	 *
@@ -96,8 +96,8 @@ public final class CollectionUtils {
 	 * </ul>
 	 *
 	 * <p>
-	 * then calling this method like {@code minimizeIntRanges(s, 32)} would
-	 * return a new set with these ranges:
+	 * then calling this method like {@code coveringIntRanges(s, 32)} would
+	 * return a list with these ranges:
 	 * </p>
 	 *
 	 * <ul>
@@ -109,8 +109,7 @@ public final class CollectionUtils {
 	 *        the set of integers to reduce
 	 * @param maxRangeLength
 	 *        the maximum length of any combined range in the resulting set
-	 * @return a new set of ranges possibly combined, or {@code set} if there
-	 *         are less than two ranges to start with, or {@code null} if
+	 * @return the covering ranges in ascending order, or {@code null} if
 	 *         {@code set} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if {@code maxRangeLength} is less than {@literal 1}
@@ -472,12 +471,12 @@ public final class CollectionUtils {
 	}
 
 	/**
-	 * Get a BigDecimal value out of a Map.
+	 * Get a BigInteger value out of a Map.
 	 *
 	 * <p>
-	 * If the key exists but is not a BigDecimal, {@link Object#toString()} will
-	 * be called on that object and {@link BigDecimal#BigDecimal(String)} will
-	 * be returned.
+	 * If the key exists but is not a Number, {@link Object#toString()} will be
+	 * called on that object and {@link BigInteger#BigInteger(String)} will be
+	 * returned.
 	 * </p>
 	 *
 	 * @param key
@@ -516,11 +515,12 @@ public final class CollectionUtils {
 	 * @param type
 	 *        the type of the value
 	 * @param defaultResult
-	 *        the default instant to return if the property is not available
+	 *        the default value to return if the property is not available
 	 * @param map
 	 *        the map to inspect, {@code null} is allowed
-	 * @return the property value, or {@code null} if not available or cannot be
-	 *         converted to the given type or if a string value is empty
+	 * @return the property value, or {@code defaultResult} if not available or
+	 *         cannot be converted to the given type, or {@code null} if
+	 *         {@code type} is {@code String} and the value is an empty string
 	 * @since 1.7
 	 */
 	@SuppressWarnings("unchecked")
@@ -642,8 +642,8 @@ public final class CollectionUtils {
 	 * <p>
 	 * The property value can be a number value, which will be treated as
 	 * milliseconds since the epoch, or an ISO timestamp suitable for passing to
-	 * {@link Instant#parse(CharSequence)} (for example {@code PT2H} for "2
-	 * hours").
+	 * {@link Instant#parse(CharSequence)} (for example
+	 * {@code 2024-01-02T03:04:05Z}).
 	 * </p>
 	 *
 	 * @param key
@@ -685,7 +685,7 @@ public final class CollectionUtils {
 	 * Resolve a {@link Number} from a setting on a configuration.
 	 *
 	 * <p>
-	 * String values will be parsed witH
+	 * String values will be parsed with
 	 * {@link StringUtils#numberValue(String)}, and narrowed to 32-bit (if
 	 * possible) using {@link NumberUtils#narrow32(Number)}.
 	 * </p>
@@ -779,7 +779,7 @@ public final class CollectionUtils {
 	 *         available
 	 * @since 1.7
 	 */
-	public static @Nullable Duration mapPropertyDuration(final String key,
+	public static @Nullable Duration mapPropertyDuration(final @Nullable String key,
 			final @Nullable Duration defaultResult, final @Nullable Map<String, ?> map) {
 		if ( key == null || map == null ) {
 			return defaultResult;

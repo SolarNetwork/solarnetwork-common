@@ -177,9 +177,9 @@ public final class ByteUtils {
 	 *        past the end of {@code data} then {@code data.length} is used
 	 * @param space
 	 *        {@literal true} to add a single space character between each hex
+	 *        pair
 	 * @param lowerCase
 	 *        {@literal true} to use lower case, {@literal false} for upper case
-	 *        pair
 	 * @return the string, never {@code null}
 	 */
 	public static String encodeHexString(final byte @Nullable [] data, final int fromIndex,
@@ -1084,7 +1084,7 @@ public final class ByteUtils {
 	}
 
 	/**
-	 * Convert an array of bytes to Byte objects.
+	 * Convert an array of Byte objects to bytes.
 	 *
 	 * <p>
 	 * {@literal 0} will be used for any {@code null} object values.
@@ -1101,7 +1101,7 @@ public final class ByteUtils {
 	}
 
 	/**
-	 * Convert an array of bytes to Byte objects.
+	 * Convert an array of Byte objects to bytes.
 	 *
 	 * @param array
 	 *        the array to convert

@@ -138,7 +138,6 @@ public final class ObjectUtils {
 	 * example, the generated exception message would be
 	 * {@code "The bar [123] argument must not be null."}.</p>
 	 *
-	 *
 	 * @param <T>
 	 *        the argument type
 	 * @param arg
@@ -147,12 +146,12 @@ public final class ObjectUtils {
 	 *        the name of {@code arg} to report in the
 	 *        {@link IllegalArgumentException} if {@code arg} is {@code null}
 	 * @param args
-	 *        if provided, treat {@code name} as a format template and use
-	 *        these arguments to generate a formatted name
+	 *        if provided, treat {@code argumentName} as a format template and
+	 *        use these arguments to generate a formatted name
 	 * @return {@code arg}
 	 * @throws IllegalArgumentException
 	 *         if {@code arg} is {@code null}
-	 *         @since 1.5
+	 * @since 1.5
 	 */
 	public static <T> @NonNull T requireNonNullArgument(final @Nullable T arg, final String argumentName,
 			Object... args) throws IllegalArgumentException {
@@ -177,7 +176,7 @@ public final class ObjectUtils {
 	 * <!-- @formatter:off -->
 	 * <blockquote><pre>
 	 * public Foo(Bar[] bar) {
-	 * 	this.bar = ObjectUtils.requireNonNullArgument(bar, "bar");
+	 * 	this.bar = ObjectUtils.requireNonEmptyArgument(bar, "bar");
 	 * }
 	 * </pre></blockquote>
 	 * <!-- @formatter:on -->
@@ -216,7 +215,7 @@ public final class ObjectUtils {
 	 * <!-- @formatter:off -->
 	 * <blockquote><pre>
 	 * public Foo(List&lt;Bar&gt; bar) {
-	 * 	this.bar = ObjectUtils.requireNonNullArgument(bar, "bar");
+	 * 	this.bar = ObjectUtils.requireNonEmptyArgument(bar, "bar");
 	 * }
 	 * </pre></blockquote>
 	 * <!-- @formatter:on -->
@@ -294,10 +293,10 @@ public final class ObjectUtils {
 	 *        the value to require to be non-null
 	 * @param name
 	 *        the name of {@code prop} to report in the
-	 *        {@link IllegalStateException} if {@code arg} is {@code null}
+	 *        {@link IllegalStateException} if {@code prop} is {@code null}
 	 * @return {@code prop}
 	 * @throws IllegalStateException
-	 *         if {@code arg} is {@code null}
+	 *         if {@code prop} is {@code null}
 	 * @since 1.3
 	 * @see #nonnull(Object, String)
 	 */
@@ -312,7 +311,7 @@ public final class ObjectUtils {
 	 * <p>
 	 * This is similar to {@link #requireNonNullArgument(Object, String)} but an
 	 * {@link IllegalStateException} is thrown instead of a
-	 * {@link IllegalArgumentException}. Example use:
+	 * {@link IllegalArgumentException}.
 	 * </p>
 	 *
 	 * @param <T>
@@ -321,10 +320,10 @@ public final class ObjectUtils {
 	 *        the value to require to be non-null
 	 * @param name
 	 *        the name of {@code prop} to report in the
-	 *        {@link IllegalStateException} if {@code arg} is {@code null}
+	 *        {@link IllegalStateException} if {@code prop} is {@code null}
 	 * @return {@code prop}
 	 * @throws IllegalStateException
-	 *         if {@code arg} is {@code null}
+	 *         if {@code prop} is {@code null}
 	 * @since 1.4
 	 * @see #nonnull(Object, String, Object...)
 	 */
@@ -361,7 +360,7 @@ public final class ObjectUtils {
 	 * <p>The exception message would be {@code "BarService 123 is not available."}.</p>
 	 *
 	 * <p>
-	 * This is intended to help with null static analysis were we can reason
+	 * This is intended to help with null static analysis where we can reason
 	 * that a property can not be null but static analysis is unable to (and
 	 * would raise an error).
 	 * </p>
@@ -372,13 +371,13 @@ public final class ObjectUtils {
 	 *        the value to require to be non-null
 	 * @param name
 	 *        the name of {@code prop} to report in the
-	 *        {@link IllegalStateException} if {@code arg} is {@code null}
+	 *        {@link IllegalStateException} if {@code prop} is {@code null}
 	 * @param args
 	 *        if provided, treat {@code name} as a format template and use
 	 *        these arguments to generate a formatted name
 	 * @return {@code prop}
 	 * @throws IllegalStateException
-	 *         if {@code arg} is {@code null}
+	 *         if {@code prop} is {@code null}
 	 * @since 1.5
 	 */
 	public static <T> @NonNull T nonnull(final @Nullable T prop, final String name,

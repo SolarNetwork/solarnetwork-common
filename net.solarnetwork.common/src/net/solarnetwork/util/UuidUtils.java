@@ -140,10 +140,10 @@ public final class UuidUtils {
 		long now = ts.toEpochMilli();
 
 		// @formatter:off
-		long lower = 0x8000000000000000L;
+		long lower = 0x8000000000000000L; // variant
 		long upper = (
 				((now & 0xFFFFFFFFFFFFL) << 16) // truncate epoch to 48 bits
-				| 0x7000L // variant
+				| 0x7000L // version
 				);
 		// @formatter:on
 		return new UUID(upper, lower);

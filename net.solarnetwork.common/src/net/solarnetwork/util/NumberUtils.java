@@ -1080,7 +1080,7 @@ public final class NumberUtils {
 	 * @param n
 	 *        the number to narrow
 	 * @param minBytePower
-	 *        a minimum power-of-two byte size to narrow to; to; for example
+	 *        a minimum power-of-two byte size to narrow to; for example
 	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
 	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
 	 *        most a {@link Long} or {@link Double}
@@ -1165,7 +1165,7 @@ public final class NumberUtils {
 	 * @param n
 	 *        the number to narrow
 	 * @param minBytePower
-	 *        a minimum power-of-two byte size to narrow to; to; for example
+	 *        a minimum power-of-two byte size to narrow to; for example
 	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
 	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
 	 *        most a {@link Long} or {@link Double}
@@ -1219,7 +1219,7 @@ public final class NumberUtils {
 	 * @param n
 	 *        the number to narrow
 	 * @param minBytePower
-	 *        a minimum power-of-two byte size to narrow to; to; for example
+	 *        a minimum power-of-two byte size to narrow to; for example
 	 *        {@literal 1} would narrow to at most a {@link Short}, {@literal 2}
 	 *        to at most an {@link Integer} or {@link Float}, {@literal 3} to at
 	 *        most a {@link Long} or {@link Double}
