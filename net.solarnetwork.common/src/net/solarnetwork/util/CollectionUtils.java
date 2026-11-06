@@ -1245,8 +1245,8 @@ public final class CollectionUtils {
 				}
 			}
 
-			if ( n1 == n2 ) {
-				// both numbers null or same instance; check non-numbers values if possible
+			if ( n1 == null && n2 == null ) {
+				// both numbers null; check non-numbers values if possible
 				if ( o1 != null && o2 != null && !o1.equals(o2) ) {
 					// non-number values differ
 					return true;

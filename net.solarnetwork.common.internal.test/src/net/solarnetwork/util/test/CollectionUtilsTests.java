@@ -869,6 +869,40 @@ public class CollectionUtilsTests {
 	}
 
 	@Test
+	public void differsNumerically_withDifferentNonNumberStrings() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, "a");
+		Map<String, Object> m2 = Map.of(PROP_1, "b");
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2)).as("Non-number values differ").isTrue();
+		then(CollectionUtils.differsNumerically(m1, Map.of(PROP_1, "a"))).as("Non-number values equal")
+				.isFalse();
+	}
+
+	@Test
+	public void differsNumerically_mapped_stringAndLong() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, "1", PROP_2, "1000");
+		Map<String, Object> m2 = Map.of(PROP_1, 1L, PROP_2, 1000L);
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2, StringUtils::numberValue, NumberUtils::narrow32))
+				.as("String and Long values narrowed to equal Integer values").isFalse();
+	}
+
+	@Test
+	public void differsNumerically_mapped_intAndLong() {
+		// GIVEN
+		Map<String, Object> m1 = Map.of(PROP_1, 1, PROP_2, 1000);
+		Map<String, Object> m2 = Map.of(PROP_1, 1L, PROP_2, 1000L);
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, m2, StringUtils::numberValue, NumberUtils::narrow32))
+				.as("Integer and Long values narrowed to equal Integer values").isFalse();
+	}
+
+	@Test
 	public void mapProperty_shortAndByte() {
 		// GIVEN
 		final Short aDefault = (short) -1;
