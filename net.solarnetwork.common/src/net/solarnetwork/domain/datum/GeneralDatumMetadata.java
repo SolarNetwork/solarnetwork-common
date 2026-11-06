@@ -43,7 +43,7 @@ import net.solarnetwork.util.StringUtils;
  * Metadata about general node datum streams of data.
  *
  * @author matt
- * @version 2.3
+ * @version 2.4
  */
 @JsonPropertyOrder({ "m", "pm", "t" })
 @JsonIgnoreProperties({ "empty", "infoKeys" })
@@ -545,6 +545,10 @@ public class GeneralDatumMetadata extends DatumSupport
 		}
 		Object result = null;
 		String[] components = path.split("/", 0);
+		if ( components.length < 1 ) {
+			// path is only delimiters, e.g. "/", so has no top-level component
+			return null;
+		}
 		int idx = 0;
 		if ( components[0].isEmpty() ) {
 			idx += 1;

@@ -33,7 +33,7 @@ import net.solarnetwork.util.CollectionUtils;
  * {@link CollectionUtils}.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class CollectionUtils_ValueAtPathTests {
 
@@ -397,6 +397,32 @@ public class CollectionUtils_ValueAtPathTests {
 
 		// THEN
 		then(result).as("Null resolved after skipping all path components").isNull();
+	}
+
+	@Test
+	public void valueAtPath_delimiterOnly() {
+		// GIVEN
+		final Map<String, Object> data = getTestInstance();
+
+		// WHEN
+		final Object result = CollectionUtils.valueAtPath("/", data);
+
+		// THEN
+		then(result).as("Delimiter-only path resolves the root data").isSameAs(data);
+	}
+
+	@Test
+	public void valueAtPath_delimiterOnly_typed() {
+		// GIVEN
+		final Map<String, Object> data = getTestInstance();
+
+		// WHEN
+		final Map<?, ?> result = CollectionUtils.valueAtPath("//", data, Map.class);
+		final String str = CollectionUtils.valueAtPath("/", data, String.class);
+
+		// THEN
+		then(result).as("Delimiter-only path resolves the root data").isSameAs(data);
+		then(str).as("Root data of wrong type resolves to null").isNull();
 	}
 
 }

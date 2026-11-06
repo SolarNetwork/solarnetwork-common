@@ -49,7 +49,7 @@ import net.solarnetwork.domain.datum.GeneralDatumMetadata;
  * Test cases for {@link GeneralDatumMetadata}.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class GeneralDatumMetadataTests {
 
@@ -354,6 +354,19 @@ public class GeneralDatumMetadataTests {
 
 		// THEN
 		assertThat("No value found", t, nullValue());
+	}
+
+	@Test
+	public void metadataAtPath_delimiterOnlyPath() {
+		// GIVEN
+		GeneralDatumMetadata meta = getTestInstance();
+
+		// WHEN
+		Object o = meta.metadataAtPath("/");
+
+		// THEN
+		assertThat("No value found without top-level component", o, nullValue());
+		assertThat("No value at path", meta.hasMetadataAtPath("//"), equalTo(false));
 	}
 
 	@Test

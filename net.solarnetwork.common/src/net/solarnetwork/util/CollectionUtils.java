@@ -56,7 +56,7 @@ import org.springframework.beans.PropertyAccessorFactory;
  * Utility methods for dealing with collections.
  *
  * @author matt
- * @version 1.9
+ * @version 1.10
  * @since 1.58
  */
 public final class CollectionUtils {
@@ -1441,6 +1441,10 @@ public final class CollectionUtils {
 			return null;
 		}
 		final String[] keys = path.split("/", 0);
+		if ( keys.length < 1 ) {
+			// path is only delimiters, e.g. "/", which is the root path
+			return data;
+		}
 		int idx = startingIndex;
 		if ( keys[0].isEmpty() ) {
 			idx += 1;
@@ -1489,17 +1493,14 @@ public final class CollectionUtils {
 	 * @see #valueAtPath(String[], int, Map)
 	 * @since 1.9
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> @Nullable T valueAtPath(final @Nullable String path, final int startingIndex,
 			final @Nullable Map<String, ?> data, final Class<T> clazz) {
-		if ( path == null || path.isEmpty() || data == null || data.isEmpty() ) {
-			return null;
+		Object o = valueAtPath(path, startingIndex, data);
+		if ( o != null && clazz.isAssignableFrom(o.getClass()) ) {
+			return (T) o;
 		}
-		final String[] keys = path.split("/", 0);
-		int idx = startingIndex;
-		if ( keys[0].isEmpty() ) {
-			idx += 1;
-		}
-		return valueAtPath(keys, idx, data, clazz);
+		return null;
 	}
 
 	/**
