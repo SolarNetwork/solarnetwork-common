@@ -66,7 +66,7 @@ import net.solarnetwork.util.StringUtils;
  * Unit test for the StringUtils class.
  *
  * @author matt
- * @version 1.12
+ * @version 1.13
  */
 public class StringUtilsTests {
 
@@ -534,6 +534,13 @@ public class StringUtilsTests {
 	public void simpleIdValue_empty() {
 		String id = StringUtils.simpleIdValue("");
 		assertThat("Empty ID generated", id, equalTo(""));
+	}
+
+	@Test
+	public void simpleIdValue_whitespace() {
+		assertThat("Empty ID generated from whitespace", StringUtils.simpleIdValue(" \t "), equalTo(""));
+		assertThat("Empty ID generated from whitespace, preserving case",
+				StringUtils.simpleIdValue(" \t ", true), equalTo(""));
 	}
 
 	@Test

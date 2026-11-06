@@ -47,7 +47,7 @@ import net.solarnetwork.domain.KeyValuePair;
  * Common string helper utilities.
  *
  * @author matt
- * @version 1.21
+ * @version 1.22
  */
 public final class StringUtils {
 
@@ -814,7 +814,7 @@ public final class StringUtils {
 			text = text.toLowerCase();
 		}
 		String s = NOT_SIMPLE_ID_CHARACTER_PATTERN.matcher(text).replaceAll("_");
-		if ( s.charAt(0) == '_' || s.charAt(s.length() - 1) == '_' ) {
+		if ( !s.isEmpty() && (s.charAt(0) == '_' || s.charAt(s.length() - 1) == '_') ) {
 			s = UNDERSCORE_PREFIX_OR_SUFFIX.matcher(s).replaceAll("");
 		}
 		return s;
