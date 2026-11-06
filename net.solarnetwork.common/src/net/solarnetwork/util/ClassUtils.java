@@ -55,7 +55,7 @@ import net.solarnetwork.domain.SerializeIgnore;
  * Utility methods for dealing with classes at runtime.
  *
  * @author matt
- * @version 2.2
+ * @version 2.3
  */
 public final class ClassUtils {
 
@@ -286,6 +286,7 @@ public final class ClassUtils {
 				|| propType.isEnum()
 				|| String.class.isAssignableFrom(propType)
 				|| Number.class.isAssignableFrom(propType)
+				|| Boolean.class.isAssignableFrom(propType)
 				|| Character.class.isAssignableFrom(propType)
 				|| Byte.class.isAssignableFrom(propType)
 				|| Date.class.isAssignableFrom(propType)

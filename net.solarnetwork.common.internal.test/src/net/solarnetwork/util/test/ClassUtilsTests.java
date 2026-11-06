@@ -44,7 +44,7 @@ import net.solarnetwork.util.ClassUtils;
  * Test cases for the {@link ClassUtils} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class ClassUtilsTests {
 
@@ -471,6 +471,72 @@ public class ClassUtilsTests {
 			)
 			;
 		// @formatter:on
+	}
+
+	@Test
+	public void getSimpleBeanProperties_boolean() {
+		// GIVEN
+		final BeanWithBoolean d = new BeanWithBoolean(Boolean.TRUE, true);
+
+		// WHEN
+		final Map<String, Object> result = ClassUtils.getSimpleBeanProperties(d, Set.of(), false);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Map generated with Boolean and boolean properties")
+			.isNotNull()
+			.containsOnly(
+				entry("enabled", Boolean.TRUE),
+				entry("active", true)
+			)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void getSimpleBeanProperties_map_boolean() {
+		// GIVEN
+		final var d = Map.of("enabled", Boolean.TRUE, "source", randomString());
+
+		// WHEN
+		final Map<String, Object> result = ClassUtils.getSimpleBeanProperties(d, Set.of(), false);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Map generated with Boolean value")
+			.isNotNull()
+			.containsOnly(
+				entry("enabled", Boolean.TRUE),
+				entry("source", d.get("source"))
+			)
+			;
+		// @formatter:on
+	}
+
+	/**
+	 * A test bean with boolean properties.
+	 */
+	public static final class BeanWithBoolean {
+
+		private final Boolean enabled;
+		private final boolean active;
+
+		private BeanWithBoolean(Boolean enabled, boolean active) {
+			super();
+			this.enabled = enabled;
+			this.active = active;
+		}
+
+		public Boolean getEnabled() {
+			return enabled;
+		}
+
+		public boolean isActive() {
+			return active;
+		}
+
 	}
 
 }
