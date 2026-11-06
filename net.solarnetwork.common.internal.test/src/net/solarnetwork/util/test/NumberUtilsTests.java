@@ -1641,6 +1641,134 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void subtract_mixedTypes() {
+		// @formatter:off
+		then(NumberUtils.subtract(5, 2.5))
+			.as("Integer result truncated after full-precision subtraction")
+			.isEqualTo(2)
+			;
+		then(NumberUtils.subtract(5L, 2.5f))
+			.as("Long result truncated after full-precision subtraction")
+			.isEqualTo(2L)
+			;
+		then(NumberUtils.subtract(new BigInteger("5"), 2.7))
+			.as("BigInteger result truncated after full-precision subtraction")
+			.isEqualTo(new BigInteger("2"))
+			;
+		then(NumberUtils.subtract(5.5f, new BigDecimal("0.25")))
+			.as("Float result")
+			.isEqualTo(5.25f)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void subtract_shortAndByte() {
+		// @formatter:off
+		then(NumberUtils.subtract((short) 5, 2))
+			.as("Short result")
+			.isEqualTo((short) 3)
+			;
+		then(NumberUtils.subtract((byte) 5, 2))
+			.as("Byte result")
+			.isEqualTo((byte) 3)
+			;
+		then(NumberUtils.subtract(Short.MIN_VALUE, 1))
+			.as("Short result cast, so overflow wraps")
+			.isEqualTo(Short.MAX_VALUE)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void subtract_nonFinite() {
+		// @formatter:off
+		then(NumberUtils.subtract(5.0, Double.NaN))
+			.as("NaN result")
+			.isEqualTo(Double.NaN)
+			;
+		then(NumberUtils.subtract(Float.POSITIVE_INFINITY, 1))
+			.as("Infinite result")
+			.isEqualTo(Float.POSITIVE_INFINITY)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void subtract_otherType() {
+		// @formatter:off
+		then(NumberUtils.subtract(new AtomicInteger(5), 2))
+			.as("Full-precision result returned for type not supported by convertNumber()")
+			.isEqualTo(new BigDecimal("3"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void multiply_mixedTypes() {
+		// @formatter:off
+		then(NumberUtils.multiply(5, 2.5))
+			.as("Integer result truncated after full-precision multiplication")
+			.isEqualTo(12)
+			;
+		then(NumberUtils.multiply(5L, 2.5f))
+			.as("Long result truncated after full-precision multiplication")
+			.isEqualTo(12L)
+			;
+		then(NumberUtils.multiply(new BigInteger("5"), 2.7))
+			.as("BigInteger result truncated after full-precision multiplication")
+			.isEqualTo(new BigInteger("13"))
+			;
+		then(NumberUtils.multiply(1.5f, new BigDecimal("0.5")))
+			.as("Float result")
+			.isEqualTo(0.75f)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void multiply_shortAndByte() {
+		// @formatter:off
+		then(NumberUtils.multiply((short) 5, 2))
+			.as("Short result")
+			.isEqualTo((short) 10)
+			;
+		then(NumberUtils.multiply((byte) 5, 2))
+			.as("Byte result")
+			.isEqualTo((byte) 10)
+			;
+		then(NumberUtils.multiply((short) 200, 200))
+			.as("Short result cast, so overflow wraps")
+			.isEqualTo((short) 40_000)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void multiply_nonFinite() {
+		// @formatter:off
+		then(NumberUtils.multiply(Double.POSITIVE_INFINITY, 2))
+			.as("Infinite result")
+			.isEqualTo(Double.POSITIVE_INFINITY)
+			;
+		then(NumberUtils.multiply(2f, Float.NaN))
+			.as("NaN result")
+			.isEqualTo(Float.NaN)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void multiply_otherType() {
+		// @formatter:off
+		then(NumberUtils.multiply(new AtomicLong(5), 2))
+			.as("Full-precision result returned for type not supported by convertNumber()")
+			.isEqualTo(new BigDecimal("10"))
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void parseNumber_withType() {
 		// @formatter:off
 		then(NumberUtils.parseNumber("123", Integer.class))

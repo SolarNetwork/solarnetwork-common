@@ -675,58 +675,89 @@ public final class NumberUtils {
 	 * Subtract two Number instances.
 	 *
 	 * <p>
-	 * The returned Number will be an instance of the {@code start} class.
+	 * The subtraction is performed at full precision, and the result then
+	 * converted to the type of {@code start} via
+	 * {@link #convertNumber(Number, Class)}, like a cast. For example
+	 * {@code subtract(5, 2.5)} returns the {@code Integer} {@literal 2}. If the
+	 * result cannot be converted to that type, for example when {@code start}
+	 * is an {@code AtomicInteger}, the full-precision result is returned: a
+	 * {@link BigDecimal}, or a {@code Double} if either value is NaN or
+	 * infinite.
 	 * </p>
 	 *
 	 * @param start
 	 *        the starting number to subtract from
 	 * @param offset
 	 *        the amount to subtract
-	 * @return a Number instance of the same type as {@code start}
+	 * @return the result, as the same type as {@code start} if possible
 	 * @since 1.8
 	 */
 	public static Number subtract(Number start, Number offset) {
-		if ( start instanceof Integer ) {
-			return Integer.valueOf(start.intValue() - offset.intValue());
-		} else if ( start instanceof Float ) {
-			return Float.valueOf(start.floatValue() - offset.floatValue());
-		} else if ( start instanceof Long ) {
-			return Long.valueOf(start.longValue() - offset.longValue());
-		} else if ( start instanceof BigDecimal ) {
-			return ((BigDecimal) start).subtract((bigDecimalForNumber(offset)));
-		} else if ( start instanceof BigInteger ) {
-			return ((BigInteger) start).subtract(bigIntegerForNumber(offset));
-		}
-		return Double.valueOf(start.doubleValue() - offset.doubleValue());
+		final BigDecimal a = finiteDecimal(start);
+		final BigDecimal b = finiteDecimal(offset);
+		final Number result = (a != null && b != null ? a.subtract(b)
+				: Double.valueOf(start.doubleValue() - offset.doubleValue()));
+		return arithmeticResult(result, start);
 	}
 
 	/**
 	 * Multiply two Number instances.
 	 *
 	 * <p>
-	 * The returned Number will be an instance of the {@code a} class.
+	 * The multiplication is performed at full precision, and the result then
+	 * converted to the type of {@code a} via
+	 * {@link #convertNumber(Number, Class)}, like a cast. For example
+	 * {@code multiply(5, 2.5)} returns the {@code Integer} {@literal 12}. If
+	 * the result cannot be converted to that type, for example when {@code a}
+	 * is an {@code AtomicInteger}, the full-precision result is returned: a
+	 * {@link BigDecimal}, or a {@code Double} if either value is NaN or
+	 * infinite.
 	 * </p>
 	 *
 	 * @param a
 	 *        first number
 	 * @param b
 	 *        second number
-	 * @return a Number instance of the same type as {@code a}
+	 * @return the result, as the same type as {@code a} if possible
 	 * @since 1.8
 	 */
 	public static Number multiply(Number a, Number b) {
-		if ( a instanceof Integer ) {
-			return Integer.valueOf(a.intValue() * b.intValue());
-		} else if ( a instanceof Float ) {
-			return Float.valueOf(a.floatValue() * b.floatValue());
-		} else if ( a instanceof Long ) {
-			return Long.valueOf(a.longValue() * b.longValue());
-		} else if ( a instanceof BigDecimal ) {
-			return ((BigDecimal) a).multiply((bigDecimalForNumber(b)));
-		} else if ( a instanceof BigInteger ) {
-			return ((BigInteger) a).multiply(bigIntegerForNumber(b));
+		final BigDecimal da = finiteDecimal(a);
+		final BigDecimal db = finiteDecimal(b);
+		final Number result = (da != null && db != null ? da.multiply(db)
+				: Double.valueOf(a.doubleValue() * b.doubleValue()));
+		return arithmeticResult(result, a);
+	}
+
+	/**
+	 * Get a {@link BigDecimal} for a number that can be represented as one.
+	 *
+	 * @param n
+	 *        the number
+	 * @return the decimal, or {@code null} if {@code n} is a NaN or infinite
+	 *         value
+	 */
+	private static @Nullable BigDecimal finiteDecimal(Number n) {
+		return (isNotFinite(n) ? null : bigDecimalForNumber(n));
+	}
+
+	/**
+	 * Convert an arithmetic result to the type of a given number.
+	 *
+	 * @param result
+	 *        the result to convert
+	 * @param type
+	 *        the number whose type to convert to
+	 * @return the converted result, or {@code result} if it cannot be converted
+	 */
+	private static Number arithmeticResult(Number result, Number type) {
+		try {
+			final Number n = convertNumber(result, type.getClass());
+			return (n != null ? n : result);
+		} catch ( IllegalArgumentException e ) {
+			// type not supported, or result not representable, like NaN as BigDecimal
+			return result;
 		}
-		return Double.valueOf(a.doubleValue() * b.doubleValue());
 	}
 
 	/**
