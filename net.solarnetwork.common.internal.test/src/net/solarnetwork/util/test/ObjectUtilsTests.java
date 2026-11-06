@@ -46,7 +46,7 @@ import net.solarnetwork.util.ObjectUtils;
  * Test cases for the {@link ObjectUtils} class.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class ObjectUtilsTests {
 
@@ -101,6 +101,23 @@ public class ObjectUtilsTests {
 			})
 			.as("Formatted name is included at start of exception message")
 			.withMessageStartingWith("The Foo %s".formatted(formatArg))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void requireNonNullArgument_formatted_nullArgs() {
+		// GIVEN
+		final String arg = null;
+
+		// THEN
+		// @formatter:off
+		thenExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> {
+				ObjectUtils.requireNonNullArgument(arg, "Foo %s", (Object[]) null);
+			})
+			.as("Name used as-is without format arguments")
+			.withMessage("The Foo %s argument must not be null.")
 			;
 		// @formatter:on
 	}

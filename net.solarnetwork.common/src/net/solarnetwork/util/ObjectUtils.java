@@ -31,7 +31,7 @@ import org.jspecify.annotations.Nullable;
  * Utilities for dealing with objects.
  *
  * @author matt
- * @version 1.5
+ * @version 1.6
  */
 public final class ObjectUtils {
 
@@ -154,7 +154,7 @@ public final class ObjectUtils {
 	 * @since 1.5
 	 */
 	public static <T> @NonNull T requireNonNullArgument(final @Nullable T arg, final String argumentName,
-			Object... args) throws IllegalArgumentException {
+			Object @Nullable... args) throws IllegalArgumentException {
 		if ( arg == null ) {
 			throw new IllegalArgumentException("The %s argument must not be null."
 					.formatted(args != null ? argumentName.formatted(args) : argumentName));
@@ -401,7 +401,7 @@ public final class ObjectUtils {
 	 *         {@code NullPointerException}, or returns {@code null}
 	 * @since 1.4
 	 */
-	public static <T> @Nullable T nullable(final Supplier<T> fn) {
+	public static <T> @Nullable T nullable(final @Nullable Supplier<T> fn) {
 		if ( fn == null ) {
 			return null;
 		}
