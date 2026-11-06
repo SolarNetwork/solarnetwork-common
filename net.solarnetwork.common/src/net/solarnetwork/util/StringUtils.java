@@ -551,7 +551,7 @@ public final class StringUtils {
 		if ( s != null ) {
 			s = s.trim();
 			if ( s.length() < 5 ) {
-				s = s.toLowerCase();
+				s = s.toLowerCase(Locale.ROOT);
 				if ( s.equals("true") || s.equals("yes") || s.equals("y") || s.equals("t")
 						|| s.equals("1") ) {
 					result = true;
@@ -663,7 +663,7 @@ public final class StringUtils {
 		if ( !m.matches() ) {
 			return null;
 		}
-		String type = m.group(1).toUpperCase();
+		String type = m.group(1).toUpperCase(Locale.ROOT);
 		String len = m.group(2);
 		int algLen = 0;
 		if ( len != null ) {
