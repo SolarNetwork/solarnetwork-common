@@ -232,14 +232,16 @@ public class NumberUtilsTests {
 
 	@Test
 	public void offset_nullOffset() {
-		Number n = NumberUtils.offset(new BigDecimal("1.23"), null);
-		assertThat("Result unchanged from null offset", n, sameInstance(n));
+		BigDecimal v = new BigDecimal("1.23");
+		Number n = NumberUtils.offset(v, null);
+		assertThat("Result unchanged from null offset", n, sameInstance(v));
 	}
 
 	@Test
 	public void offset_zeroOffset() {
-		Number n = NumberUtils.offset(new BigDecimal("1.23"), BigDecimal.ZERO);
-		assertThat("Result unchanged from 0 offset", n, sameInstance(n));
+		BigDecimal v = new BigDecimal("1.23");
+		Number n = NumberUtils.offset(v, BigDecimal.ZERO);
+		assertThat("Result unchanged from 0 offset", n, sameInstance(v));
 	}
 
 	@Test
@@ -256,14 +258,22 @@ public class NumberUtilsTests {
 
 	@Test
 	public void multiplied_nullMultiple() {
-		Number n = NumberUtils.multiplied(new BigDecimal("1.23"), null);
-		assertThat("Result unchanged from null multiple", n, sameInstance(n));
+		BigDecimal v = new BigDecimal("1.23");
+		Number n = NumberUtils.multiplied(v, null);
+		assertThat("Result unchanged from null multiple", n, sameInstance(v));
 	}
 
 	@Test
 	public void multiplied_zeroMultiple() {
 		Number n = NumberUtils.multiplied(new BigDecimal("1.23"), BigDecimal.ZERO);
-		assertThat("Result unchanged from 0 multiple", n, sameInstance(n));
+		assertThat("Result zero from 0 multiple", n, equalTo(new BigDecimal("0.00")));
+	}
+
+	@Test
+	public void multiplied_oneMultiple() {
+		BigDecimal v = new BigDecimal("1.23");
+		Number n = NumberUtils.multiplied(v, BigDecimal.ONE);
+		assertThat("Result unchanged from 1 multiple", n, sameInstance(v));
 	}
 
 	@Test
@@ -280,8 +290,9 @@ public class NumberUtilsTests {
 
 	@Test
 	public void maximumDecimalScale_negativeScale() {
-		Number n = NumberUtils.maximumDecimalScale(new BigDecimal("1.23"), -1);
-		assertThat("Result unchanged from negative maximumDecimalScale", n, sameInstance(n));
+		BigDecimal v = new BigDecimal("1.23");
+		Number n = NumberUtils.maximumDecimalScale(v, -1);
+		assertThat("Result unchanged from negative maximumDecimalScale", n, sameInstance(v));
 	}
 
 	@Test
