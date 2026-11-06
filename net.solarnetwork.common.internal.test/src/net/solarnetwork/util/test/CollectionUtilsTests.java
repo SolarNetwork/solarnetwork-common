@@ -138,6 +138,22 @@ public class CollectionUtilsTests {
 		assertThat("Resulting ranges", result, contains(rangeOf(0, 28), rangeOf(404, 418)));
 	}
 
+	@Test
+	public void coveringIntRanges_extremes() {
+		IntRangeSet set = new IntRangeSet(rangeOf(Integer.MIN_VALUE), rangeOf(Integer.MAX_VALUE));
+		List<IntRange> result = CollectionUtils.coveringIntRanges(set, 64);
+		assertThat("Values further apart than Integer.MAX_VALUE not combined", result,
+				contains(rangeOf(Integer.MIN_VALUE), rangeOf(Integer.MAX_VALUE)));
+	}
+
+	@Test
+	public void coveringIntRanges_treeSet_extremes() {
+		SortedSet<Integer> treeSet = new TreeSet<>(asList(Integer.MIN_VALUE, Integer.MAX_VALUE));
+		List<IntRange> result = CollectionUtils.coveringIntRanges(treeSet, 64);
+		assertThat("Values further apart than Integer.MAX_VALUE not combined", result,
+				contains(rangeOf(Integer.MIN_VALUE), rangeOf(Integer.MAX_VALUE)));
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void coveringIntRanges_zeroMax() {
 		CollectionUtils.coveringIntRanges(new IntRangeSet(), 0);

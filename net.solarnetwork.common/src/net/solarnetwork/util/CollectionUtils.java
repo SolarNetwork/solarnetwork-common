@@ -132,7 +132,7 @@ public final class CollectionUtils {
 			final int min = set.first();
 			final int[] meta = new int[] { min, min };
 			((IntOrderedIterable) set).forEachOrdered(v -> {
-				int d = v - meta[0];
+				long d = (long) v - meta[0];
 				if ( d >= maxRangeLength ) {
 					result.add(IntRange.rangeOf(meta[0], meta[1]));
 					meta[0] = v;
@@ -149,7 +149,7 @@ public final class CollectionUtils {
 			int b = a;
 			while ( itr.hasNext() ) {
 				v = itr.next();
-				int d = v - a;
+				long d = (long) v - a;
 				if ( d >= maxRangeLength ) {
 					result.add(IntRange.rangeOf(a, b));
 					a = v;
