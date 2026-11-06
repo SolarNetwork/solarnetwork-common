@@ -846,6 +846,52 @@ public class CollectionUtilsTests {
 	}
 
 	@Test
+	public void mapPropertyStringList_emptyCollection() {
+		// GIVEN
+		// @formatter:off
+		final Map<String, Object> m = Map.ofEntries(
+				entry("list", List.of()),
+				entry("set", Set.of())
+			);
+		// @formatter:on
+
+		// THEN
+		// @formatter:off
+		then(CollectionUtils.mapPropertyStringList("list", m))
+			.as("Empty list resolves to empty list")
+			.isEmpty()
+			;
+		then(CollectionUtils.mapPropertyStringList("set", m))
+			.as("Empty set resolves to empty list")
+			.isEmpty()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void mapPropertyStringList_set() {
+		// GIVEN
+		// @formatter:off
+		final Map<String, Object> m = Map.ofEntries(
+				entry("strings", new LinkedHashSet<>(List.of("x", "y"))),
+				entry("numbers", new LinkedHashSet<>(List.of(1, 2)))
+			);
+		// @formatter:on
+
+		// THEN
+		// @formatter:off
+		then(CollectionUtils.mapPropertyStringList("strings", m))
+			.as("Set values resolved in iteration order")
+			.containsExactly("x", "y")
+			;
+		then(CollectionUtils.mapPropertyStringList("numbers", m))
+			.as("Set values converted to strings")
+			.containsExactly("1", "2")
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void mapPropertyDuration() {
 		// GIVEN
 		final Duration aDefault = Duration.ofSeconds(1);

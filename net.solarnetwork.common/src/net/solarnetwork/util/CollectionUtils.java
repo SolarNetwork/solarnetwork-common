@@ -589,8 +589,8 @@ public final class CollectionUtils {
 	 * Resolve a list from a service property value.
 	 *
 	 * <p>
-	 * The property value can be a {@code List}, array, or a comma-delimited
-	 * single value.
+	 * The property value can be a {@code Collection}, array, or a
+	 * comma-delimited single value.
 	 * </p>
 	 *
 	 * @param key
@@ -611,16 +611,14 @@ public final class CollectionUtils {
 			return null;
 		}
 		final List<String> result;
-		if ( propVal instanceof List<?> l && !l.isEmpty() ) {
-			if ( l.get(0) instanceof String ) {
-				// assume all values are strings
-				result = (List<String>) l;
-			} else {
-				result = new ArrayList<>(l.size());
-				for ( Object o : l ) {
-					if ( o != null ) {
-						result.add(o.toString());
-					}
+		if ( propVal instanceof List<?> l && (l.isEmpty() || l.get(0) instanceof String) ) {
+			// assume all values are strings
+			result = (List<String>) l;
+		} else if ( propVal instanceof Collection<?> c ) {
+			result = new ArrayList<>(c.size());
+			for ( Object o : c ) {
+				if ( o != null ) {
+					result.add(o.toString());
 				}
 			}
 		} else if ( propVal instanceof String[] a ) {
