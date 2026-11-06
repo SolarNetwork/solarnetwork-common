@@ -271,7 +271,7 @@ public final class ByteUtils {
 	 *         if {@code dest} is not long enough to hold the number's byte
 	 *         value
 	 */
-	public static void encodeInt8(final Number n, byte[] dest, int offset) {
+	public static void encodeInt8(final @Nullable Number n, byte[] dest, int offset) {
 		dest[offset] = (n != null ? n.byteValue() : 0);
 	}
 
@@ -288,7 +288,7 @@ public final class ByteUtils {
 	 *         if {@code dest} is not long enough to hold the number's byte
 	 *         value
 	 */
-	public static void encodeUnsignedInt8(final Number n, byte[] dest, int offset) {
+	public static void encodeUnsignedInt8(final @Nullable Number n, byte[] dest, int offset) {
 		dest[offset] = (n != null ? (byte) (n.shortValue() & (short) 0xFF) : 0);
 	}
 

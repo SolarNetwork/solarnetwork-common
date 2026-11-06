@@ -143,6 +143,27 @@ public class ByteUtilsTests {
 	}
 
 	@Test
+	public void encodeInt8_null() {
+		byte[] dest = new byte[] { (byte) 0x7F };
+		ByteUtils.encodeInt8(null, dest, 0);
+		assertThat("Null encoded as zero", dest, equalTo(new byte[] { (byte) 0 }));
+	}
+
+	@Test
+	public void encodeUnsignedInt8() {
+		byte[] dest = new byte[1];
+		ByteUtils.encodeUnsignedInt8(200, dest, 0);
+		assertThat("Encoded value", dest, equalTo(new byte[] { (byte) 0xC8 }));
+	}
+
+	@Test
+	public void encodeUnsignedInt8_null() {
+		byte[] dest = new byte[] { (byte) 0x7F };
+		ByteUtils.encodeUnsignedInt8(null, dest, 0);
+		assertThat("Null encoded as zero", dest, equalTo(new byte[] { (byte) 0 }));
+	}
+
+	@Test
 	public void encodeInt16() {
 		byte[] dest = new byte[2];
 		ByteUtils.encodeInt16((short) -29917, dest, 0, BigEndian);
