@@ -1546,6 +1546,21 @@ public class CollectionUtilsTests {
 	}
 
 	@Test
+	public void differsNumerically_nullAndNonNumber() {
+		// GIVEN
+		Map<String, Object> m1 = new HashMap<>();
+		m1.put("a", null);
+
+		// THEN
+		then(CollectionUtils.differsNumerically(m1, Map.of("a", "x")))
+				.as("Null and non-number string differ").isTrue();
+		then(CollectionUtils.differsNumerically(Map.of("a", "x"), m1))
+				.as("Non-number string and null differ").isTrue();
+		then(CollectionUtils.differsNumerically(m1, Map.of("a", "1"), null, null))
+				.as("Null and string without parser differ").isTrue();
+	}
+
+	@Test
 	public void differsNumerically_noParser() {
 		then(CollectionUtils.differsNumerically(Map.of("a", "x"), Map.of("a", "x"), null, null))
 				.as("Equal strings without parser").isFalse();

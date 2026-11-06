@@ -42,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.BiFunction;
@@ -1264,8 +1265,8 @@ public final class CollectionUtils {
 			}
 
 			if ( n1 == null && n2 == null ) {
-				// both numbers null; check non-numbers values if possible
-				if ( o1 != null && o2 != null && !o1.equals(o2) ) {
+				// both numbers null; check non-number values
+				if ( !Objects.equals(o1, o2) ) {
 					// non-number values differ
 					return true;
 				}
