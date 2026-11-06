@@ -41,7 +41,7 @@ import net.solarnetwork.util.ByteUtils;
  * Test cases for the {@link ByteUtils} class.
  * 
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class ByteUtilsTests {
 
@@ -516,6 +516,43 @@ public class ByteUtilsTests {
 		assertThat("Result bytes reversed",
 				Arrays.equals(result, new byte[] { (byte) 0x0d, (byte) 0x0b, (byte) 0x09, (byte) 0x07 }),
 				equalTo(true));
+	}
+
+	@Test
+	public void parseBytes_truncated() {
+		byte[] data = new byte[] { (byte) 0x01, (byte) 0x03, (byte) 0x05, (byte) 0x07 };
+		byte[] result = ByteUtils.parseBytes(data, 2, 4, BigEndian);
+		assertThat("Result truncated to available bytes", result,
+				equalTo(new byte[] { (byte) 0x05, (byte) 0x07 }));
+	}
+
+	@Test
+	public void parseBytes_offsetPastEnd() {
+		byte[] data = new byte[] { (byte) 0x01, (byte) 0x03, (byte) 0x05, (byte) 0x07 };
+		byte[] result = ByteUtils.parseBytes(data, 6, 2, BigEndian);
+		assertThat("Offset past end of data returns empty result", result, equalTo(new byte[0]));
+	}
+
+	@Test
+	public void parseBytes_LittleEndian_offsetPastEnd() {
+		byte[] data = new byte[] { (byte) 0x01, (byte) 0x03, (byte) 0x05, (byte) 0x07 };
+		byte[] result = ByteUtils.parseBytes(data, 6, 2, LittleEndian);
+		assertThat("Offset past end of data returns empty result", result, equalTo(new byte[0]));
+	}
+
+	@Test
+	public void parseBytes_lengthOverflow() {
+		byte[] data = new byte[] { (byte) 0x01, (byte) 0x03, (byte) 0x05, (byte) 0x07 };
+		byte[] result = ByteUtils.parseBytes(data, 2, Integer.MAX_VALUE, BigEndian);
+		assertThat("Result truncated to available bytes", result,
+				equalTo(new byte[] { (byte) 0x05, (byte) 0x07 }));
+	}
+
+	@Test
+	public void parseUnsignedInteger_offsetPastEnd() {
+		byte[] data = new byte[] { (byte) 0x01, (byte) 0x03, (byte) 0x05, (byte) 0x07 };
+		BigInteger result = ByteUtils.parseUnsignedInteger(data, 6, 2, BigEndian);
+		assertThat("Offset past end of data parses as zero", result, equalTo(BigInteger.ZERO));
 	}
 
 	@Test

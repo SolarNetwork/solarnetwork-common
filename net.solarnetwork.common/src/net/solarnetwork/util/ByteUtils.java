@@ -41,7 +41,7 @@ import net.solarnetwork.domain.ByteOrdering;
  * </p>
  *
  * @author matt
- * @version 1.5
+ * @version 1.6
  * @since 1.54
  */
 public final class ByteUtils {
@@ -939,6 +939,11 @@ public final class ByteUtils {
 	/**
 	 * Parse any number of byte values as a series of bytes.
 	 *
+	 * <p>
+	 * If {@code data} has fewer than {@code length} bytes available from
+	 * {@code offset}, only the available bytes are returned.
+	 * </p>
+	 *
 	 * @param data
 	 *        the data
 	 * @param offset
@@ -952,8 +957,8 @@ public final class ByteUtils {
 	@SuppressWarnings({ "null", "NullAway" })
 	public static byte[] parseBytes(byte @Nullable [] data, int offset, int length,
 			final ByteOrdering byteOrder) {
-		final int len = (data == null || data.length < 1 ? 0
-				: offset + length <= data.length ? length : data.length - offset);
+		final int len = (data == null || data.length < 1 || offset >= data.length ? 0
+				: Math.min(length, data.length - offset));
 		byte[] bytes = new byte[len];
 		if ( len > 0 ) {
 			if ( byteOrder == ByteOrdering.BigEndian ) {
