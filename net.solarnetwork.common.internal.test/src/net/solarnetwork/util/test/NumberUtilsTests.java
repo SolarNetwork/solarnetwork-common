@@ -361,7 +361,7 @@ public class NumberUtilsTests {
 	@Test
 	public void multiplied_nonFinite() {
 		// @formatter:off
-		then(NumberUtils.multiplied(Float.NaN, BigDecimal.TWO))
+		then(NumberUtils.multiplied(Float.NaN, new BigDecimal("2")))
 			.as("NaN times multiple is NaN")
 			.isEqualTo(Double.NaN)
 			;
