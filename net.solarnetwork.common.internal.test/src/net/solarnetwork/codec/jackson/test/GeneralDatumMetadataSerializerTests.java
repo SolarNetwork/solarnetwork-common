@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import net.solarnetwork.codec.jackson.GeneralDatumMetadataSerializer;
 import net.solarnetwork.domain.datum.GeneralDatumMetadata;
 import tools.jackson.databind.ObjectMapper;
@@ -39,9 +41,52 @@ import tools.jackson.databind.module.SimpleModule;
  * Test cases for the {@link GeneralDatumMetadataSerializer} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class GeneralDatumMetadataSerializerTests {
+
+	/**
+	 * A bean with unwrapped metadata.
+	 */
+	@JsonPropertyOrder({ "id", "meta" })
+	public static class MetadataHolder {
+
+		private final Long id;
+		private final GeneralDatumMetadata meta;
+
+		public MetadataHolder(Long id, GeneralDatumMetadata meta) {
+			super();
+			this.id = id;
+			this.meta = meta;
+		}
+
+		public Long getId() {
+			return id;
+		}
+
+		@JsonUnwrapped
+		public GeneralDatumMetadata getMeta() {
+			return meta;
+		}
+
+	}
+
+	/**
+	 * A bean with unwrapped metadata using a property name prefix.
+	 */
+	public static class PrefixedMetadataHolder extends MetadataHolder {
+
+		public PrefixedMetadataHolder(Long id, GeneralDatumMetadata meta) {
+			super(id, meta);
+		}
+
+		@Override
+		@JsonUnwrapped(prefix = "meta_")
+		public GeneralDatumMetadata getMeta() {
+			return super.getMeta();
+		}
+
+	}
 
 	private ObjectMapper mapper;
 
@@ -149,6 +194,62 @@ public class GeneralDatumMetadataSerializerTests {
 				"""
 				{
 					"t": ["f", "g"]
+				}
+				"""
+			)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void serialize_unwrapped() throws IOException {
+		// GIVEN
+		final GeneralDatumMetadata meta = new GeneralDatumMetadata();
+		meta.setM(Map.of("a", "b"));
+		meta.setPm(Map.of("c", Map.of("d", "e")));
+		meta.setT(new LinkedHashSet<>(List.of("f", "g")));
+
+		// WHEN
+		String json = mapper.writeValueAsString(new MetadataHolder(1L, meta));
+
+		// THEN
+		// @formatter:off
+		then(json)
+			.isEqualToIgnoringWhitespace(
+				"""
+				{
+					"id": 1,
+					"m": {"a": "b"},
+					"pm": {
+						"c": {"d": "e"}
+					},
+					"t": ["f", "g"]
+				}
+				"""
+			)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void serialize_unwrapped_prefix() throws IOException {
+		// GIVEN
+		final GeneralDatumMetadata meta = new GeneralDatumMetadata();
+		meta.setM(Map.of("a", "b"));
+		meta.setT(new LinkedHashSet<>(List.of("f", "g")));
+
+		// WHEN
+		String json = mapper.writeValueAsString(new PrefixedMetadataHolder(1L, meta));
+
+		// THEN
+		// @formatter:off
+		then(json)
+			.isEqualToIgnoringWhitespace(
+				"""
+				{
+					"id": 1,
+					"meta_m": {"a": "b"},
+					"meta_t": ["f", "g"]
 				}
 				"""
 			)

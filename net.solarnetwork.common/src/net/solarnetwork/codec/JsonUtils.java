@@ -65,6 +65,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import net.solarnetwork.domain.BasicIdentityLocation;
 import net.solarnetwork.domain.Bitmaskable;
@@ -101,7 +102,7 @@ import net.solarnetwork.util.StringUtils;
  * </ul>
  *
  * @author matt
- * @version 2.14
+ * @version 2.15
  * @since 1.72
  */
 public final class JsonUtils {
@@ -530,22 +531,40 @@ public final class JsonUtils {
 	 */
 	public static void writeMetadata(JsonGenerator generator, @Nullable GeneralDatumMetadata meta)
 			throws IOException {
+		writeMetadata(generator, meta, NameTransformer.NOP);
+	}
+
+	/**
+	 * Write metadata to a JSON generator, transforming the property names.
+	 *
+	 * @param generator
+	 *        The generator to write to.
+	 * @param meta
+	 *        The metadata to write.
+	 * @param names
+	 *        The property name transformer.
+	 * @throws IOException
+	 *         if any IO error occurs
+	 * @since 2.15
+	 */
+	static void writeMetadata(JsonGenerator generator, @Nullable GeneralDatumMetadata meta,
+			NameTransformer names) throws IOException {
 		if ( meta == null ) {
 			return;
 		}
 		Map<String, Object> m = meta.getM();
 		if ( m != null ) {
-			generator.writeObjectField("m", m);
+			generator.writeObjectField(names.transform("m"), m);
 		}
 
 		Map<String, Map<String, Object>> pm = meta.getPm();
 		if ( pm != null ) {
-			generator.writeObjectField("pm", pm);
+			generator.writeObjectField(names.transform("pm"), pm);
 		}
 
 		Set<String> t = meta.getT();
 		if ( t != null ) {
-			generator.writeArrayFieldStart("t");
+			generator.writeArrayFieldStart(names.transform("t"));
 			for ( String tag : t ) {
 				generator.writeString(tag);
 			}

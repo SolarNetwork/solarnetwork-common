@@ -79,6 +79,7 @@ import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.util.NameTransformer;
 
 /**
  * Utilities for JSON data.
@@ -97,7 +98,7 @@ import tools.jackson.databind.module.SimpleModule;
  * </ul>
  *
  * @author matt
- * @version 1.6
+ * @version 1.7
  * @since 4.13
  */
 public final class JsonUtils {
@@ -445,22 +446,40 @@ public final class JsonUtils {
 	 */
 	public static void writeMetadata(JsonGenerator generator, @Nullable GeneralDatumMetadata meta)
 			throws JacksonException {
+		writeMetadata(generator, meta, NameTransformer.NOP);
+	}
+
+	/**
+	 * Write metadata to a JSON generator, transforming the property names.
+	 *
+	 * @param generator
+	 *        The generator to write to.
+	 * @param meta
+	 *        The metadata to write.
+	 * @param names
+	 *        The property name transformer.
+	 * @throws JacksonException
+	 *         if any IO error occurs
+	 * @since 1.7
+	 */
+	static void writeMetadata(JsonGenerator generator, @Nullable GeneralDatumMetadata meta,
+			NameTransformer names) throws JacksonException {
 		if ( meta == null ) {
 			return;
 		}
 		Map<String, Object> m = meta.getM();
 		if ( m != null ) {
-			generator.writePOJOProperty("m", m);
+			generator.writePOJOProperty(names.transform("m"), m);
 		}
 
 		Map<String, Map<String, Object>> pm = meta.getPm();
 		if ( pm != null ) {
-			generator.writePOJOProperty("pm", pm);
+			generator.writePOJOProperty(names.transform("pm"), pm);
 		}
 
 		Set<String> t = meta.getT();
 		if ( t != null ) {
-			generator.writeArrayPropertyStart("t");
+			generator.writeArrayPropertyStart(names.transform("t"));
 			for ( String tag : t ) {
 				generator.writeString(tag);
 			}
