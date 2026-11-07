@@ -67,7 +67,7 @@ public final class StringUtils {
 	 *
 	 * @since 1.11
 	 */
-	public static Pattern INTEGER_PATTERN = Pattern.compile("[+-]?\\d+");
+	public static final Pattern INTEGER_PATTERN = Pattern.compile("[+-]?\\d+");
 
 	/**
 	 * A pattern to match base-16 integer values.
@@ -80,14 +80,14 @@ public final class StringUtils {
 	 *
 	 * @since 1.20
 	 */
-	public static Pattern HEX_INTEGER_PATTERN = Pattern.compile("0[xX]([0-9a-fA-F]+)");
+	public static final Pattern HEX_INTEGER_PATTERN = Pattern.compile("0[xX]([0-9a-fA-F]+)");
 
 	/**
 	 * A pattern to match decimal number values.
 	 *
 	 * @since 1.11
 	 */
-	public static Pattern DECIMAL_PATTERN = Pattern.compile("[+-]?\\d+(\\.\\d+)?([Ee][+-]?\\d+)?");
+	public static final Pattern DECIMAL_PATTERN = Pattern.compile("[+-]?\\d+(\\.\\d+)?([Ee][+-]?\\d+)?");
 
 	/**
 	 * Replace variables in a string template with corresponding values.
