@@ -63,7 +63,7 @@ import net.solarnetwork.util.IntRangeSet;
  * Test cases for the {@link DateUtils} class.
  *
  * @author matt
- * @version 1.7
+ * @version 1.8
  */
 public class DateUtilsTests {
 
@@ -1309,6 +1309,101 @@ public class DateUtilsTests {
 			assertThat(String.format("LocalDateTime %s returned for 1D floor", d), result,
 					is(equalTo(expected)));
 		}
+	}
+
+	@Test
+	public void dateFloor_LocalDateTime_period_zone() {
+		// GIVEN
+		final LocalDateTime d = LocalDateTime.of(2026, 11, 7, 10, 0); // a Saturday
+
+		// @formatter:off
+		final Object[][] cases = new Object[][] {
+			{ Period.ofDays(1), LocalDateTime.of(2026, 11, 7, 0, 0) },
+			{ Period.ofWeeks(1), LocalDateTime.of(2026, 11, 2, 0, 0) },
+			{ Period.ofMonths(1), LocalDateTime.of(2026, 11, 1, 0, 0) },
+			{ Period.ofYears(1), LocalDateTime.of(2026, 1, 1, 0, 0) },
+		};
+		// @formatter:on
+
+		for ( String zoneId : new String[] { "Pacific/Auckland", "America/Los_Angeles" } ) {
+			final ZoneId zone = ZoneId.of(zoneId);
+			for ( Object[] c : cases ) {
+				final Period amount = (Period) c[0];
+
+				// WHEN
+				Temporal result = DateUtils.dateFloor(d, amount, zone);
+
+				// THEN
+				// @formatter:off
+				then(result)
+					.as("LocalDateTime %s floored by %s to start of day in %s", d, amount, zone)
+					.isEqualTo(c[1])
+					;
+				// @formatter:on
+			}
+		}
+	}
+
+	@Test
+	public void dateFloor_LocalDate_period_zone() {
+		// GIVEN
+		final LocalDate d = LocalDate.of(2026, 11, 7);
+
+		for ( String zoneId : new String[] { "Pacific/Auckland", "America/Los_Angeles" } ) {
+			final ZoneId zone = ZoneId.of(zoneId);
+
+			// WHEN
+			Temporal day = DateUtils.dateFloor(d, Period.ofDays(1), zone);
+			Temporal month = DateUtils.dateFloor(d, Period.ofMonths(1), zone);
+
+			// THEN
+			// @formatter:off
+			then(day)
+				.as("LocalDate floored by day in %s is unchanged", zone)
+				.isEqualTo(d)
+				;
+			then(month)
+				.as("LocalDate floored by month in %s", zone)
+				.isEqualTo(LocalDate.of(2026, 11, 1))
+				;
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void dateFloor_ZonedDateTime_period_zone() {
+		// GIVEN
+		final ZoneId zone = ZoneId.of("Pacific/Auckland");
+		final ZonedDateTime d = ZonedDateTime.of(2026, 11, 7, 10, 0, 0, 0, zone);
+
+		// WHEN
+		Temporal result = DateUtils.dateFloor(d, Period.ofDays(1), zone);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("ZonedDateTime floored by day to start of day in zone")
+			.isEqualTo(ZonedDateTime.of(2026, 11, 7, 0, 0, 0, 0, zone))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void dateFloor_Instant_period_zone() {
+		// GIVEN
+		final ZoneId zone = ZoneId.of("Pacific/Auckland");
+		final Instant d = Instant.parse("2026-11-06T21:00:00Z"); // 2026-11-07 10:00 in zone
+
+		// WHEN
+		Temporal result = DateUtils.dateFloor(d, Period.ofDays(1), zone);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Instant floored by day to start of day in zone")
+			.isEqualTo(Instant.parse("2026-11-06T11:00:00Z"))
+			;
+		// @formatter:on
 	}
 
 	private static void assertStrictRejected(ChronoField field, String range, String message) {

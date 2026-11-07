@@ -70,7 +70,7 @@ import org.springframework.util.StringUtils;
  * Date and time utilities.
  *
  * @author matt
- * @version 2.9
+ * @version 2.10
  * @since 1.59
  */
 public final class DateUtils {
@@ -1634,7 +1634,7 @@ public final class DateUtils {
 	 *        the amount to floor the date within
 	 * @param zone
 	 *        the time zone to use for {@link Period} based amounts
-	 * @return the floored date
+	 * @return the floored date, at the start of a day in {@code zone}
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be floored to the given duration
 	 * @since 2.7
@@ -1655,7 +1655,7 @@ public final class DateUtils {
 		if ( adj != null ) {
 			d = d.with(adj);
 		}
-		Instant floored = d.toInstant().truncatedTo(ChronoUnit.DAYS);
+		Instant floored = d.truncatedTo(ChronoUnit.DAYS).toInstant();
 		return convert(floored, date, zone);
 	}
 
