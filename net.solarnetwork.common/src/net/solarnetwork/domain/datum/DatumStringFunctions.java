@@ -33,7 +33,7 @@ import net.solarnetwork.util.NumberUtils;
  * API for datum-related string helper functions.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 4.7
  */
 public interface DatumStringFunctions {
@@ -43,9 +43,10 @@ public interface DatumStringFunctions {
 	 *
 	 * <p>
 	 * The cache maximum number of elements is 100 by default, but can be
-	 * overridden with the {@code net.solarentwork.util.datum.regexCacheSize}
+	 * overridden with the {@code net.solarnetwork.domain.datum.regexCacheSize}
 	 * system property. For example:
-	 * {@code -D net.solarentwork.util.datum.regexCacheSize=20}.
+	 * {@code -D net.solarnetwork.domain.datum.regexCacheSize=20}. A value that
+	 * is not a non-negative integer is ignored.
 	 * </p>
 	 *
 	 * <p>
@@ -54,8 +55,27 @@ public interface DatumStringFunctions {
 	 * </p>
 	 */
 	static ConcurrentLruCache<String, Pattern> PATTERN_CACHE = new ConcurrentLruCache<>(
-			Integer.parseInt(System.getProperty("net.solarentwork.util.datum.regexCacheSize", "100")),
-			k -> Pattern.compile(k));
+			patternCacheSize(), k -> Pattern.compile(k));
+
+	/**
+	 * Get the {@link #PATTERN_CACHE} maximum number of elements.
+	 *
+	 * @return the size from the system property, or {@code 100} if that is not
+	 *         set or is not a non-negative integer
+	 */
+	private static int patternCacheSize() {
+		try {
+			// an invalid size must not stop this interface from initializing
+			int size = Integer.parseInt(
+					System.getProperty("net.solarnetwork.domain.datum.regexCacheSize", "100").trim());
+			if ( size >= 0 ) {
+				return size;
+			}
+		} catch ( NumberFormatException e ) {
+			// use the default
+		}
+		return 100;
+	}
 
 	/**
 	 * Test if a string matches a regular expression.

@@ -29,7 +29,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import java.io.IOException;
+import java.io.InputStream;
 import org.junit.Test;
+import org.springframework.util.ConcurrentLruCache;
 import net.solarnetwork.domain.datum.DatumStringFunctions;
 
 /**
@@ -226,6 +229,93 @@ public class DatumStringFunctionsTests implements DatumStringFunctions {
 			.isEqualTo(12)
 			;
 		// @formatter:on
+	}
+
+	@Test
+	public void patternCache_sizeProperty() throws Exception {
+		// WHEN
+		ConcurrentLruCache<?, ?> cache = newPatternCache("20");
+
+		// THEN
+		// @formatter:off
+		then(cache.capacity())
+			.as("Cache size from system property")
+			.isEqualTo(20)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void patternCache_sizeProperty_invalid() throws Exception {
+		for ( String size : new String[] { "", "abc", "-1" } ) {
+			// WHEN
+			ConcurrentLruCache<?, ?> cache = newPatternCache(size);
+
+			// THEN
+			// @formatter:off
+			then(cache.capacity())
+				.as("Default cache size used for invalid system property [%s]", size)
+				.isEqualTo(100)
+				;
+			// @formatter:on
+		}
+	}
+
+	/**
+	 * Load a new copy of {@link DatumStringFunctions}, so its
+	 * {@link DatumStringFunctions#PATTERN_CACHE} is created with a given cache
+	 * size system property value.
+	 */
+	private static ConcurrentLruCache<?, ?> newPatternCache(String size) throws Exception {
+		final String prop = "net.solarnetwork.domain.datum.regexCacheSize";
+		final String orig = System.getProperty(prop);
+		System.setProperty(prop, size);
+		try {
+			Class<?> c = Class.forName(DatumStringFunctions.class.getName(), true,
+					new ChildFirstClassLoader(DatumStringFunctions.class.getName()));
+			return (ConcurrentLruCache<?, ?>) c.getField("PATTERN_CACHE").get(null);
+		} finally {
+			if ( orig != null ) {
+				System.setProperty(prop, orig);
+			} else {
+				System.clearProperty(prop);
+			}
+		}
+	}
+
+	/**
+	 * A class loader that defines one class itself, so that class is
+	 * initialized again, and delegates all other classes to its parent.
+	 */
+	private static final class ChildFirstClassLoader extends ClassLoader {
+
+		private final String className;
+
+		private ChildFirstClassLoader(String className) {
+			super(DatumStringFunctionsTests.class.getClassLoader());
+			this.className = className;
+		}
+
+		@Override
+		protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+			if ( !name.equals(className) ) {
+				return super.loadClass(name, resolve);
+			}
+			synchronized ( getClassLoadingLock(name) ) {
+				Class<?> c = findLoadedClass(name);
+				if ( c == null ) {
+					try (InputStream in = getParent()
+							.getResourceAsStream(name.replace('.', '/') + ".class")) {
+						byte[] data = in.readAllBytes();
+						c = defineClass(name, data, 0, data.length);
+					} catch ( IOException e ) {
+						throw new ClassNotFoundException(name, e);
+					}
+				}
+				return c;
+			}
+		}
+
 	}
 
 }
