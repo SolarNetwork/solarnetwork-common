@@ -1189,6 +1189,60 @@ public class DateUtilsTests {
 	}
 
 	@Test
+	public void dateTruncate_localDate_timeUnits() {
+		// GIVEN
+		final LocalDate d = LocalDate.of(2024, 8, 14);
+
+		for ( ChronoUnit unit : new ChronoUnit[] { ChronoUnit.DAYS, ChronoUnit.HALF_DAYS,
+				ChronoUnit.HOURS, ChronoUnit.SECONDS } ) {
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, unit);
+
+			// THEN
+			// @formatter:off
+			then(result)
+				.as("LocalDate truncated to %s is unchanged", unit)
+				.isEqualTo(d)
+				;
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void dateTruncate_localDate_unitTooLarge() {
+		// WHEN
+		Throwable t = catchThrowable(
+				() -> DateUtils.dateTruncate(LocalDate.of(2024, 8, 14), ChronoUnit.DECADES));
+
+		// THEN
+		// @formatter:off
+		then(t)
+			.as("LocalDate truncated to unit larger than a day rejected")
+			.isInstanceOf(IllegalArgumentException.class)
+			.as("Message names date and unit")
+			.hasMessageStartingWith("Cannot truncate date 2024-08-14 to Decades: ")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void dateTruncate_unsupportedType() {
+		// WHEN
+		Throwable t = catchThrowable(
+				() -> DateUtils.dateTruncate(LocalTime.of(12, 30), ChronoUnit.DAYS));
+
+		// THEN
+		// @formatter:off
+		then(t)
+			.as("Unsupported date type rejected")
+			.isInstanceOf(IllegalArgumentException.class)
+			.as("Message names date type and unit")
+			.hasMessage("Cannot truncate date type class java.time.LocalTime to Days: unsupported type.")
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void dateFloor_Instant_duration_15min() {
 		// calculate for times at every 5 minutes
 		final Duration amount = Duration.ofMinutes(15);

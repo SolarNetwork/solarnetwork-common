@@ -1433,13 +1433,16 @@ public final class DateUtils {
 				return ((OffsetDateTime) date).truncatedTo(unit);
 			} else if ( date instanceof LocalDateTime ) {
 				return ((LocalDateTime) date).truncatedTo(unit);
+			} else if ( date instanceof LocalDate ) {
+				// truncate the start of the day, to accept the same units as LocalDateTime
+				return ((LocalDate) date).atStartOfDay().truncatedTo(unit).toLocalDate();
 			}
 		} catch ( DateTimeException e ) {
 			throw new IllegalArgumentException(
 					String.format("Cannot truncate date %s to %s: %s", date, unit, e.getMessage()));
 		}
 		throw new IllegalArgumentException(String
-				.format("Cannot trundate date type %s to %s: unsupported type.", date.getClass(), unit));
+				.format("Cannot truncate date type %s to %s: unsupported type.", date.getClass(), unit));
 	}
 
 	/**
