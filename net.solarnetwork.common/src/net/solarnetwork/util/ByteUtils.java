@@ -213,6 +213,8 @@ public final class ByteUtils {
 	 * @param s
 	 *        the string to decode
 	 * @return the bytes, never {@code null}
+	 * @throws IllegalArgumentException
+	 *         if {@code s} contains a non-hex character
 	 * @see #decodeHexPadStart(char[])
 	 */
 	public static byte[] decodeHexString(@Nullable String s) {
@@ -233,6 +235,8 @@ public final class ByteUtils {
 	 * @param chars
 	 *        the characters to decode
 	 * @return the bytes, never {@code null}
+	 * @throws IllegalArgumentException
+	 *         if {@code chars} contains a non-hex character
 	 */
 	public static byte[] decodeHexPadStart(final char @Nullable [] chars) {
 		if ( chars == null || chars.length < 1 ) {
@@ -244,18 +248,27 @@ public final class ByteUtils {
 		int i = 0;
 		int j = 0;
 		if ( !even ) {
-			data[i] = (byte) (Character.digit(chars[j], 16) & 0xFF);
+			data[i] = (byte) hexDigit(chars, j);
 			i++;
 			j++;
 		}
 		for ( ; j < len; i++ ) {
-			int n = Character.digit(chars[j], 16) << 4;
+			int n = hexDigit(chars, j) << 4;
 			j++;
-			n |= Character.digit(chars[j], 16);
+			n |= hexDigit(chars, j);
 			j++;
 			data[i] = (byte) (n & 0xFF);
 		}
 		return data;
+	}
+
+	private static int hexDigit(final char[] chars, final int index) {
+		final int d = Character.digit(chars[index], 16);
+		if ( d < 0 ) {
+			throw new IllegalArgumentException(
+					"Invalid hex character [" + chars[index] + "] at index " + index);
+		}
+		return d;
 	}
 
 	/**

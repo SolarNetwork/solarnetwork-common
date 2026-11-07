@@ -24,6 +24,7 @@ package net.solarnetwork.util.test;
 
 import static net.solarnetwork.domain.ByteOrdering.BigEndian;
 import static net.solarnetwork.domain.ByteOrdering.LittleEndian;
+import static org.assertj.core.api.BDDAssertions.thenIllegalArgumentException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.closeTo;
@@ -689,6 +690,32 @@ public class ByteUtilsTests {
 				equalTo(new byte[0]));
 		assertThat("Empty decodes to empty bytes", ByteUtils.decodeHexPadStart(new char[0]),
 				equalTo(new byte[0]));
+	}
+
+	@Test
+	public void decodeHexString_invalid() {
+		// @formatter:off
+		thenIllegalArgumentException()
+			.as("Non-hex characters throw")
+			.isThrownBy(() -> ByteUtils.decodeHexString("zz"))
+			.withMessageContaining("index 0")
+			;
+		thenIllegalArgumentException()
+			.as("Non-hex second character of a pair throws")
+			.isThrownBy(() -> ByteUtils.decodeHexString("1g"))
+			.withMessageContaining("index 1")
+			;
+		thenIllegalArgumentException()
+			.as("Non-hex odd-length first character throws")
+			.isThrownBy(() -> ByteUtils.decodeHexString("g12"))
+			.withMessageContaining("index 0")
+			;
+		thenIllegalArgumentException()
+			.as("Whitespace throws")
+			.isThrownBy(() -> ByteUtils.decodeHexPadStart("12 34".toCharArray()))
+			.withMessageContaining("index 2")
+			;
+		// @formatter:on
 	}
 
 	@Test
