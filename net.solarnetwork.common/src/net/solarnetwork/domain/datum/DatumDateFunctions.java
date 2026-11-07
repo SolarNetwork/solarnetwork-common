@@ -141,7 +141,7 @@ public interface DatumDateFunctions {
 	 * @since 1.4
 	 */
 	default ZonedDateTime startOfDay(@Nullable String zoneId) {
-		return startOfDay(ZoneId.of(zoneId));
+		return startOfDay(tz(zoneId));
 	}
 
 	/**

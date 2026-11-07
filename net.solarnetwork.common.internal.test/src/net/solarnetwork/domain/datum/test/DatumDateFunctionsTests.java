@@ -1068,6 +1068,33 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 	}
 
 	@Test
+	public void startOfDay_nullZoneId() {
+		// GIVEN
+		final Instant date = Instant.parse("2020-02-03T04:05:06.789Z");
+		final DatumDateFunctions fns = new DatumDateFunctions() {
+
+			@Override
+			public InstantSource clock() {
+				return InstantSource.fixed(date);
+			}
+
+		};
+
+		// WHEN
+		ZonedDateTime result = fns.startOfDay((String) null);
+
+		// THEN
+		assertThat("ZonedDateTime at midnight in system time zone for null zone ID", result,
+				is(equalTo(date.atZone(ZoneId.systemDefault()).truncatedTo(DAYS))));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void startOfDay_invalidZoneId() {
+		// WHEN
+		startOfDay("Not/Azone");
+	}
+
+	@Test
 	public void epoch_Instant() {
 		//GIVEN
 		final Instant date = Instant.now();
