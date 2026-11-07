@@ -570,7 +570,7 @@ public interface DatumDateFunctions {
 	 *        the period to floor the date within; must be a value supported by
 	 *        {@link #duration(String)}
 	 * @param zoneId
-	 *        the zone IDto use for {@link Period} amounts; must be supported by
+	 *        the ID of the zone to floor the date in; must be supported by
 	 *        {@link #tz(String)}
 	 * @return the floored date
 	 * @throws IllegalArgumentException
@@ -595,7 +595,7 @@ public interface DatumDateFunctions {
 	 *        the period to floor the date within; must be a value supported by
 	 *        {@link #duration(String)}
 	 * @param zone
-	 *        the zone to use for {@link Period} amounts
+	 *        the zone to floor the date in
 	 * @return the floored date
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be floored to the given duration, or the
@@ -617,7 +617,7 @@ public interface DatumDateFunctions {
 	 * @param duration
 	 *        the period to floor the date within
 	 * @param zoneId
-	 *        the zone IDto use for {@link Period} amounts; must be supported by
+	 *        the ID of the zone to floor the date in; must be supported by
 	 *        {@link #tz(String)}
 	 * @return the floored date, or {@code null} if {@code date} is
 	 *         {@code null}, or {@code date} if {@code amount} is not a
@@ -642,7 +642,7 @@ public interface DatumDateFunctions {
 	 * @param duration
 	 *        the amount to floor the date within
 	 * @param zone
-	 *        the zone to use for {@link Period} amounts
+	 *        the zone to floor the date in
 	 * @return the floored date, or {@code null} if {@code date} is
 	 *         {@code null}, or {@code date} if {@code amount} is not a
 	 *         supported amount type ({@link Period} or {@link Duration})

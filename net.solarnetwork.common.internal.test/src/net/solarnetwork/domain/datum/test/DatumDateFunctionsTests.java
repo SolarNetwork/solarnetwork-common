@@ -1182,6 +1182,19 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 	}
 
 	@Test
+	public void dateFloor_Instant_zone() {
+		// GIVEN
+		final Instant date = Instant.parse("2026-11-07T05:15:00Z"); // 10:45 in Asia/Kolkata
+
+		// WHEN
+		Temporal result = dateFloor(date, "PT1H", "Asia/Kolkata");
+
+		// THEN
+		assertThat("Floored Instant to start of hour in zone", result,
+				is(equalTo(Instant.parse("2026-11-07T04:30:00Z"))));
+	}
+
+	@Test
 	public void currentTimeFunctions_clock() {
 		// GIVEN
 		final Instant date = Instant.parse("2020-02-03T04:05:06.789Z");

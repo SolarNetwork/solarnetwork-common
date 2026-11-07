@@ -1406,6 +1406,115 @@ public class DateUtilsTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void dateFloor_LocalDateTime_duration_zone() {
+		// GIVEN
+		final LocalDateTime d = LocalDateTime.of(2026, 11, 7, 10, 50);
+
+		// @formatter:off
+		final Object[][] cases = new Object[][] {
+			{ Duration.ofMinutes(15), LocalDateTime.of(2026, 11, 7, 10, 45) },
+			{ Duration.ofHours(1), LocalDateTime.of(2026, 11, 7, 10, 0) },
+			{ Duration.ofHours(2), LocalDateTime.of(2026, 11, 7, 10, 0) },
+			{ Duration.ofDays(1), LocalDateTime.of(2026, 11, 7, 0, 0) },
+		};
+		// @formatter:on
+
+		// zones with half-hour, quarter-hour, and odd whole-hour offsets
+		for ( String zoneId : new String[] { "Asia/Kolkata", "Asia/Kathmandu", "Pacific/Auckland" } ) {
+			final ZoneId zone = ZoneId.of(zoneId);
+			for ( Object[] c : cases ) {
+				final Duration amount = (Duration) c[0];
+
+				// WHEN
+				Temporal result = DateUtils.dateFloor(d, amount, zone);
+
+				// THEN
+				// @formatter:off
+				then(result)
+					.as("LocalDateTime %s floored by %s in %s", d, amount, zone)
+					.isEqualTo(c[1])
+					;
+				// @formatter:on
+			}
+		}
+	}
+
+	@Test
+	public void dateFloor_ZonedDateTime_duration_zone() {
+		// GIVEN
+		final ZoneId zone = ZoneId.of("Asia/Kolkata");
+		final ZonedDateTime d = ZonedDateTime.of(2026, 11, 7, 10, 45, 0, 0, zone);
+
+		// WHEN
+		Temporal result = DateUtils.dateFloor(d, Duration.ofHours(1), zone);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("ZonedDateTime floored by hour to start of hour in zone")
+			.isEqualTo(ZonedDateTime.of(2026, 11, 7, 10, 0, 0, 0, zone))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void dateFloor_Instant_duration_zone() {
+		// GIVEN
+		final ZoneId zone = ZoneId.of("Asia/Kolkata");
+		final Instant d = Instant.parse("2026-11-07T05:15:00Z"); // 10:45 in zone
+
+		// WHEN
+		Temporal result = DateUtils.dateFloor(d, Duration.ofHours(1), zone);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Instant floored by hour to start of hour in zone")
+			.isEqualTo(Instant.parse("2026-11-07T04:30:00Z"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void dateFloor_ZonedDateTime_duration_dstOverlap() {
+		// GIVEN
+		final ZoneId zone = ZoneId.of("America/Los_Angeles");
+		// 1:30 occurs twice on 2026-11-01: take the later one, in standard time
+		final ZonedDateTime d = ZonedDateTime.of(2026, 11, 1, 1, 30, 0, 0, zone)
+				.withLaterOffsetAtOverlap();
+
+		// WHEN
+		Temporal result = DateUtils.dateFloor(d, Duration.ofHours(1), zone);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Later 1:30 floored to later 1:00, not to the 1:00 an hour earlier")
+			.isEqualTo(Instant.parse("2026-11-01T09:00:00Z").atZone(zone))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void dateFloor_ZonedDateTime_duration_dstGap() {
+		// GIVEN
+		final ZoneId zone = ZoneId.of("America/Los_Angeles");
+		// 2:00 to 3:00 is skipped on 2026-03-08
+		final ZonedDateTime d = ZonedDateTime.of(2026, 3, 8, 3, 30, 0, 0, zone);
+
+		// WHEN
+		Temporal result = DateUtils.dateFloor(d, Duration.ofHours(2), zone);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Floor to skipped 2:00 moved to end of gap")
+			.isEqualTo(ZonedDateTime.of(2026, 3, 8, 3, 0, 0, 0, zone))
+			;
+		// @formatter:on
+	}
+
 	private static void assertStrictRejected(ChronoField field, String range, String message) {
 		// WHEN
 		Throwable t = catchThrowable(() -> DateUtils.parseRange(field, range, Locale.ENGLISH, true));

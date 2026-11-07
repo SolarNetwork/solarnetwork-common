@@ -1570,12 +1570,14 @@ public final class DateUtils {
 	 * @param amount
 	 *        the amount to floor the date within
 	 * @param zone
-	 *        the time zone to use for {@link Period} based amounts
+	 *        the time zone to floor the date in
 	 * @return the floored date, or {@code null} if {@code date} is
 	 *         {@code null}, or {@code date} if {@code amount} is not a
 	 *         supported amount type ({@link Period} or {@link Duration})
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be floored to the given duration
+	 * @see #dateFloor(Temporal, Duration, ZoneId)
+	 * @see #dateFloor(Temporal, Period, ZoneId)
 	 * @since 2.7
 	 */
 	public static @Nullable Temporal dateFloor(@Nullable Temporal date, @Nullable TemporalAmount amount,
@@ -1591,12 +1593,19 @@ public final class DateUtils {
 	/**
 	 * Round a date down by a given duration.
 	 *
+	 * <p>
+	 * The date is floored on the local time-line of {@code zone}, to a whole
+	 * multiple of {@code amount} since 1970-01-01T00:00 local time, so for
+	 * example {@code PT1H} floors to the start of the local hour even in a zone
+	 * with a half-hour offset.
+	 * </p>
+	 *
 	 * @param date
 	 *        the date to round down (backwards)
 	 * @param amount
 	 *        the amount to floor the date within
 	 * @param zone
-	 *        the time zone to use for {@link Period} based amounts
+	 *        the time zone to floor the date in
 	 * @return the floored date
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be floored to the given duration
@@ -1610,8 +1619,13 @@ public final class DateUtils {
 		if ( ts == null ) {
 			return null;
 		}
-		Instant floored = Clock.tick(Clock.fixed(ts, zone), amount).instant();
-		return convert(floored, date, zone);
+		// floor the local date-time, not the instant, so the floor aligns to local time
+		ZonedDateTime d = ts.atZone(zone);
+		Instant local = d.toLocalDateTime().toInstant(ZoneOffset.UTC);
+		LocalDateTime floored = LocalDateTime.ofInstant(
+				Clock.tick(Clock.fixed(local, ZoneOffset.UTC), amount).instant(), ZoneOffset.UTC);
+		// keep the offset of date when the floored time occurs twice, as in a DST overlap
+		return convert(ZonedDateTime.ofLocal(floored, zone, d.getOffset()).toInstant(), date, zone);
 	}
 
 	/**
@@ -1633,7 +1647,7 @@ public final class DateUtils {
 	 * @param amount
 	 *        the amount to floor the date within
 	 * @param zone
-	 *        the time zone to use for {@link Period} based amounts
+	 *        the time zone to floor the date in
 	 * @return the floored date, at the start of a day in {@code zone}
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be floored to the given duration
