@@ -1046,6 +1046,40 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void mround_nonFinite() {
+		// GIVEN
+		final Double nan = Double.NaN;
+		final Float negInf = Float.NEGATIVE_INFINITY;
+
+		// @formatter:off
+		then(NumberUtils.mround(nan, 0.5))
+			.as("NaN returned unchanged")
+			.isSameAs(nan)
+			;
+		then(NumberUtils.ceil(negInf, 1))
+			.as("Infinity returned unchanged")
+			.isSameAs(negInf)
+			;
+		then(NumberUtils.floor(negInf, 1))
+			.as("Infinity returned unchanged")
+			.isSameAs(negInf)
+			;
+		then(NumberUtils.up(nan, 1))
+			.as("NaN returned unchanged")
+			.isSameAs(nan)
+			;
+		then(NumberUtils.down(nan, 1))
+			.as("NaN returned unchanged")
+			.isSameAs(nan)
+			;
+		then(NumberUtils.mround(nan, null))
+			.as("Null significance still returns null")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void round_0() {
 		assertThat("positive zero", NumberUtils.round(new BigDecimal("0.0"), 0),
 				is(new BigDecimal("0")));

@@ -330,6 +330,22 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	}
 
 	@Test
+	public void rms_nan() {
+		List<Number> values = Arrays.asList(3, Double.NaN, 4, Float.NaN);
+		Number result = round(rms(values), 5);
+		assertThat("RMS calculated ignoring NaN elements", result,
+				is(equalTo(new BigDecimal("3.53553"))));
+	}
+
+	@Test
+	public void rms_infinite() {
+		List<Number> values = Arrays.asList(3, Double.NEGATIVE_INFINITY, 4);
+		Number result = rms(values);
+		assertThat("RMS is positive infinity when an element is infinite", result,
+				is(equalTo(Double.POSITIVE_INFINITY)));
+	}
+
+	@Test
 	public void sum() {
 		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
 		Number result = sum(values);
@@ -346,6 +362,31 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	public void sum_empty() {
 		Number result = sum(emptyList());
 		assertThat("Sum is null for empty input", result, is(nullValue()));
+	}
+
+	@Test
+	public void sum_nan() {
+		List<Number> values = Arrays.asList(1.0, Double.NaN, 2.0, Float.NaN);
+		Number result = sum(values);
+		assertThat("Sum calculated ignoring NaN elements", result, is(equalTo(new BigDecimal("3.0"))));
+	}
+
+	@Test
+	public void sum_infinite() {
+		assertThat("Sum is positive infinity with a positive infinite element",
+				sum(Arrays.asList(1.0, Double.POSITIVE_INFINITY, Double.NaN)),
+				is(equalTo(Double.POSITIVE_INFINITY)));
+		assertThat("Sum is negative infinity with a negative infinite element",
+				sum(Arrays.asList(1.0, Float.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY)),
+				is(equalTo(Double.NEGATIVE_INFINITY)));
+	}
+
+	@Test
+	public void sum_oppositeInfinite() {
+		List<Number> values = Arrays.asList(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 5);
+		Number result = sum(values);
+		assertThat("Sum is NaN with both positive and negative infinite elements", result,
+				is(equalTo(Double.NaN)));
 	}
 
 	@Test
@@ -398,6 +439,31 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	}
 
 	@Test
+	public void avg_nan() {
+		List<Number> values = Arrays.asList(1.0, Double.NaN, 3.0);
+		Number result = avg(values);
+		assertThat("Average calculated ignoring NaN elements", result,
+				is(equalTo(new BigDecimal("2.0"))));
+	}
+
+	@Test
+	public void avg_onlyNan() {
+		List<Number> values = Arrays.asList(Double.NaN, Float.NaN);
+		Number result = avg(values);
+		assertThat("Average is null when all elements are NaN", result, is(nullValue()));
+	}
+
+	@Test
+	public void avg_infinite() {
+		assertThat("Average is negative infinity with a negative infinite element",
+				avg(Arrays.asList(1.0, Double.NEGATIVE_INFINITY, 3.0)),
+				is(equalTo(Double.NEGATIVE_INFINITY)));
+		assertThat("Average is NaN with both positive and negative infinite elements",
+				avg(Arrays.asList(Double.POSITIVE_INFINITY, 1.0, Float.NEGATIVE_INFINITY)),
+				is(equalTo(Double.NaN)));
+	}
+
+	@Test
 	public void min() {
 		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
 		Number result = min(values);
@@ -417,6 +483,25 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	}
 
 	@Test
+	public void min_nan() {
+		List<Number> values = Arrays.asList(2.0, Double.NaN, 1.0);
+		Number result = min(values);
+		assertThat("Min found ignoring NaN elements", result, is(equalTo(new BigDecimal("1.0"))));
+	}
+
+	@Test
+	public void min_infinite() {
+		assertThat("Min is negative infinity with a negative infinite element",
+				min(Arrays.asList(1.0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY)),
+				is(equalTo(Double.NEGATIVE_INFINITY)));
+		assertThat("Min ignores positive infinity when there are finite elements",
+				min(Arrays.asList(Double.POSITIVE_INFINITY, 1.0)), is(equalTo(new BigDecimal("1.0"))));
+		assertThat("Min is positive infinity when there are no finite elements",
+				min(Arrays.asList(Float.POSITIVE_INFINITY, Double.NaN)),
+				is(equalTo(Double.POSITIVE_INFINITY)));
+	}
+
+	@Test
 	public void max() {
 		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
 		Number result = max(values);
@@ -433,6 +518,40 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	public void max_empty() {
 		Number result = max(emptyList());
 		assertThat("Maximum is null for empty input", result, is(nullValue()));
+	}
+
+	@Test
+	public void max_nan() {
+		List<Number> values = Arrays.asList(1.0, Float.NaN, 2.0);
+		Number result = max(values);
+		assertThat("Max found ignoring NaN elements", result, is(equalTo(new BigDecimal("2.0"))));
+	}
+
+	@Test
+	public void max_infinite() {
+		assertThat("Max is positive infinity with a positive infinite element",
+				max(Arrays.asList(1.0, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY)),
+				is(equalTo(Double.POSITIVE_INFINITY)));
+		assertThat("Max ignores negative infinity when there are finite elements",
+				max(Arrays.asList(Double.NEGATIVE_INFINITY, 1.0)), is(equalTo(new BigDecimal("1.0"))));
+		assertThat("Max is negative infinity when there are no finite elements",
+				max(Arrays.asList(Float.NEGATIVE_INFINITY, Double.NaN)),
+				is(equalTo(Double.NEGATIVE_INFINITY)));
+	}
+
+	@Test
+	public void significanceRounding_nonFinite() {
+		assertThat("Ceiling of NaN is NaN", ceil(Double.NaN), is(equalTo(Double.NaN)));
+		assertThat("Floor of infinity is infinity", floor(Double.POSITIVE_INFINITY),
+				is(equalTo(Double.POSITIVE_INFINITY)));
+		assertThat("Ceiling of NaN to significance is NaN", ceil(Float.NaN, 0.5),
+				is(equalTo(Float.NaN)));
+		assertThat("Floor of infinity to significance is infinity", floor(Double.NEGATIVE_INFINITY, 0.5),
+				is(equalTo(Double.NEGATIVE_INFINITY)));
+		assertThat("Up of NaN to significance is NaN", up(Double.NaN, 0.5), is(equalTo(Double.NaN)));
+		assertThat("Down of infinity to significance is infinity", down(Float.POSITIVE_INFINITY, 0.5),
+				is(equalTo(Float.POSITIVE_INFINITY)));
+		assertThat("Multiple round of NaN is NaN", mround(Double.NaN, 0.5), is(equalTo(Double.NaN)));
 	}
 
 }

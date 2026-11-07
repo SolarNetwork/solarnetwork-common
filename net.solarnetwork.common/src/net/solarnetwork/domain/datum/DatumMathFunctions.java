@@ -28,7 +28,6 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.NumberUtils;
@@ -545,22 +544,39 @@ public interface DatumMathFunctions {
 	}
 
 	/**
-	 * Compute the sum a group of numbers.
+	 * Compute the sum of a group of numbers.
+	 *
+	 * <p>
+	 * {@code null} and NaN values are ignored. Infinite values are not: the sum
+	 * is then an infinite {@link Double}, or NaN if both positive and negative
+	 * infinite values are present.
+	 * </p>
 	 *
 	 * @param set
 	 *        the numbers to sum; if {@code null} or empty then {@code null}
 	 *        will be returned
-	 * @return the sum of {@code set}
+	 * @return the sum of {@code set}, as a {@link BigDecimal} unless infinite
+	 *         values are present
 	 */
 	default @Nullable Number sum(@Nullable Collection<? extends Number> set) {
 		BigDecimal result = null;
 		if ( set != null && !set.isEmpty() ) {
 			result = BigDecimal.ZERO;
+			// infinite values can't be converted to BigDecimal, so sum them separately: their
+			// sum is positive or negative infinity, or NaN when both are present
+			double infinities = 0.0;
 			for ( Number n : set ) {
-				if ( n == null ) {
+				if ( n == null || isNaN(n) ) {
+					continue;
+				}
+				if ( isInfinite(n) ) {
+					infinities += n.doubleValue();
 					continue;
 				}
 				result = result.add(NumberUtils.bigDecimalForNumber(n));
+			}
+			if ( infinities != 0.0 ) {
+				return infinities;
 			}
 		}
 		return result;
@@ -569,26 +585,36 @@ public interface DatumMathFunctions {
 	/**
 	 * Compute the average (mean) of a group of numbers.
 	 *
+	 * <p>
+	 * {@code null} and NaN values are ignored. Infinite values are not: the
+	 * average is then an infinite {@link Double}, or NaN if both positive and
+	 * negative infinite values are present.
+	 * </p>
+	 *
 	 * @param set
-	 *        the numbers to average; {@code null} values are ignored; if
-	 *        {@code null}, empty, or only {@code null} values then {@code null}
-	 *        will be returned
-	 * @return the average of {@code set}
+	 *        the numbers to average; if {@code null}, empty, or only
+	 *        {@code null} and NaN values then {@code null} will be returned
+	 * @return the average of {@code set}, as a {@link BigDecimal} unless
+	 *         infinite values are present
 	 */
 	default @Nullable Number avg(@Nullable Collection<? extends Number> set) {
-		BigDecimal sum = (BigDecimal) sum(set);
+		Number result = sum(set);
 		// set cannot be null here if sum is non-null, but we check again to avoid NullAway warning
-		if ( sum == null || set == null ) {
+		if ( result == null || set == null ) {
 			return null;
+		}
+		if ( !(result instanceof BigDecimal sum) ) {
+			// infinite or NaN, from infinite values
+			return result;
 		}
 		int nonNullCount = 0;
 		for ( Number n : set ) {
-			if ( n != null ) {
+			if ( n != null && !isNaN(n) ) {
 				nonNullCount += 1;
 			}
 		}
 		if ( nonNullCount < 1 ) {
-			// only null values, so nothing to average
+			// only null and NaN values, so nothing to average
 			return null;
 		} else if ( nonNullCount == 1 ) {
 			return sum;
@@ -605,17 +631,35 @@ public interface DatumMathFunctions {
 	/**
 	 * Find the maximum value in a group of numbers.
 	 *
+	 * <p>
+	 * {@code null} and NaN values are ignored. Positive infinity is the maximum
+	 * of any group that contains it, and negative infinity is the maximum only
+	 * of a group with no other values.
+	 * </p>
+	 *
 	 * @param set
 	 *        the numbers to find the maximum in; if {@code null} or empty then
 	 *        {@code null} will be returned
-	 * @return the maximum of {@code set}
+	 * @return the maximum of {@code set}, as a {@link BigDecimal} unless it is
+	 *         infinite
 	 */
 	default @Nullable Number max(@Nullable Collection<? extends Number> set) {
 		if ( set == null ) {
 			return null;
 		}
 		BigDecimal max = null;
+		boolean negativeInfinity = false;
 		for ( Number n : set ) {
+			if ( n == null || isNaN(n) ) {
+				continue;
+			}
+			if ( isInfinite(n) ) {
+				if ( n.doubleValue() > 0 ) {
+					return Double.POSITIVE_INFINITY;
+				}
+				negativeInfinity = true;
+				continue;
+			}
 			BigDecimal d = decimal(n);
 			if ( d == null ) {
 				continue;
@@ -624,23 +668,44 @@ public interface DatumMathFunctions {
 				max = d;
 			}
 		}
+		if ( max == null && negativeInfinity ) {
+			return Double.NEGATIVE_INFINITY;
+		}
 		return max;
 	}
 
 	/**
 	 * Find the minimum value in a group of numbers.
 	 *
+	 * <p>
+	 * {@code null} and NaN values are ignored. Negative infinity is the minimum
+	 * of any group that contains it, and positive infinity is the minimum only
+	 * of a group with no other values.
+	 * </p>
+	 *
 	 * @param set
 	 *        the numbers to find the minimum in; if {@code null} or empty then
 	 *        {@code null} will be returned
-	 * @return the minimum of {@code set}
+	 * @return the minimum of {@code set}, as a {@link BigDecimal} unless it is
+	 *         infinite
 	 */
 	default @Nullable Number min(@Nullable Collection<? extends Number> set) {
 		if ( set == null ) {
 			return null;
 		}
 		BigDecimal min = null;
+		boolean positiveInfinity = false;
 		for ( Number n : set ) {
+			if ( n == null || isNaN(n) ) {
+				continue;
+			}
+			if ( isInfinite(n) ) {
+				if ( n.doubleValue() < 0 ) {
+					return Double.NEGATIVE_INFINITY;
+				}
+				positiveInfinity = true;
+				continue;
+			}
 			BigDecimal d = decimal(n);
 			if ( d == null ) {
 				continue;
@@ -648,6 +713,9 @@ public interface DatumMathFunctions {
 			if ( min == null || d.compareTo(min) < 0 ) {
 				min = d;
 			}
+		}
+		if ( min == null && positiveInfinity ) {
+			return Double.POSITIVE_INFINITY;
 		}
 		return min;
 	}
@@ -870,24 +938,33 @@ public interface DatumMathFunctions {
 	/**
 	 * Compute the root-mean-square of a group of numbers.
 	 *
+	 * <p>
+	 * {@code null} and NaN values are ignored. If any value is infinite, the
+	 * result is positive infinity.
+	 * </p>
+	 *
 	 * @param set
-	 *        the numbers to calculate the RMS for; {@code null} values are
-	 *        ignored; if {@code null}, empty, or only {@code null} values then
-	 *        {@code null} will be returned
+	 *        the numbers to calculate the RMS for; if {@code null}, empty, or
+	 *        only {@code null} and NaN values then {@code null} will be
+	 *        returned
 	 * @return the RMS of {@code set}
 	 */
 	default @Nullable Number rms(@Nullable Collection<? extends Number> set) {
 		if ( set == null || set.isEmpty() ) {
 			return null;
 		}
-		// skip null values, as sum() and avg() do
-		List<Number> squares = set.stream().filter(Objects::nonNull).map(n -> pow(n, 2))
+		// skip null and NaN values, as sum() and avg() do
+		List<Number> squares = set.stream().map(n -> pow(n, 2)).filter(n -> n != null && !isNaN(n))
 				.collect(Collectors.toList());
-		BigDecimal sum = NumberUtils.bigDecimalForNumber(sum(squares));
+		Number sum = sum(squares);
 		if ( sum == null ) {
 			return null;
 		}
-		return sqrt(sum.divide(new BigDecimal(squares.size()), MathContext.DECIMAL64));
+		if ( !(sum instanceof BigDecimal d) ) {
+			// positive infinity, from infinite values
+			return sum;
+		}
+		return sqrt(d.divide(new BigDecimal(squares.size()), MathContext.DECIMAL64));
 	}
 
 	/**
@@ -920,6 +997,31 @@ public interface DatumMathFunctions {
 	 */
 	default int compare(@Nullable Number l, @Nullable Number r) {
 		return NumberUtils.compare(l, r);
+	}
+
+	/**
+	 * Test if a number is a {@code Float} or {@code Double} NaN value, which
+	 * the group functions like {@link #sum(Collection)} ignore.
+	 *
+	 * @param n
+	 *        the number to test
+	 * @return {@code true} if {@code n} is a NaN {@code Float} or
+	 *         {@code Double}
+	 */
+	private static boolean isNaN(Number n) {
+		return ((n instanceof Double || n instanceof Float) && Double.isNaN(n.doubleValue()));
+	}
+
+	/**
+	 * Test if a number is a {@code Float} or {@code Double} infinite value.
+	 *
+	 * @param n
+	 *        the number to test
+	 * @return {@code true} if {@code n} is an infinite {@code Float} or
+	 *         {@code Double}
+	 */
+	private static boolean isInfinite(Number n) {
+		return ((n instanceof Double || n instanceof Float) && Double.isInfinite(n.doubleValue()));
 	}
 
 }

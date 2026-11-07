@@ -1072,11 +1072,17 @@ public final class NumberUtils {
 	 * @param mode
 	 *        the rounding mode to use
 	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
-	 *         {@code n} or {@code significance} are {@code null}
+	 *         {@code n} or {@code significance} are {@code null}; a NaN or
+	 *         infinite {@code Float} or {@code Double} {@code n} is returned
+	 *         unchanged
 	 * @since 1.10
 	 */
 	public static @Nullable Number mround(@Nullable Number n, @Nullable Number significance,
 			@Nullable RoundingMode mode) {
+		if ( n != null && isNotFinite(n) ) {
+			// NaN and infinity can't be converted to BigDecimal, and have no multiple to round to
+			return (significance != null ? n : null);
+		}
 		BigDecimal d = bigDecimalForNumber(n);
 		BigDecimal s = bigDecimalForNumber(significance);
 		if ( d == null || s == null ) {
