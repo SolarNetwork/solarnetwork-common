@@ -376,6 +376,28 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	}
 
 	@Test
+	public void avg_nullElement() {
+		List<Double> values = Arrays.asList(1.0, null, 3.0);
+		Number result = avg(values);
+		assertThat("Average calculated ignoring null elements", result,
+				is(equalTo(new BigDecimal("2.0"))));
+	}
+
+	@Test
+	public void avg_singleNullElement() {
+		List<Double> values = Arrays.asList((Double) null);
+		Number result = avg(values);
+		assertThat("Average is null when the only element is null", result, is(nullValue()));
+	}
+
+	@Test
+	public void avg_allNullElements() {
+		List<Double> values = Arrays.asList(null, null);
+		Number result = avg(values);
+		assertThat("Average is null when all elements are null", result, is(nullValue()));
+	}
+
+	@Test
 	public void min() {
 		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
 		Number result = min(values);

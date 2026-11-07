@@ -570,24 +570,28 @@ public interface DatumMathFunctions {
 	 * Compute the average (mean) of a group of numbers.
 	 *
 	 * @param set
-	 *        the numbers to average; if {@code null} or empty then {@code null}
+	 *        the numbers to average; {@code null} values are ignored; if
+	 *        {@code null}, empty, or only {@code null} values then {@code null}
 	 *        will be returned
 	 * @return the average of {@code set}
 	 */
 	default @Nullable Number avg(@Nullable Collection<? extends Number> set) {
 		BigDecimal sum = (BigDecimal) sum(set);
-		if ( sum == null ) {
+		// set cannot be null here if sum is non-null, but we check again to avoid NullAway warning
+		if ( sum == null || set == null ) {
 			return null;
-		}
-		// set cannot be empty here if because sum is non-null, but we check again to avoid NullAway warning
-		if ( set == null || set.size() == 1 ) {
-			return sum;
 		}
 		int nonNullCount = 0;
 		for ( Number n : set ) {
 			if ( n != null ) {
 				nonNullCount += 1;
 			}
+		}
+		if ( nonNullCount < 1 ) {
+			// only null values, so nothing to average
+			return null;
+		} else if ( nonNullCount == 1 ) {
+			return sum;
 		}
 		BigDecimal count = new BigDecimal(nonNullCount);
 		try {
