@@ -2122,6 +2122,52 @@ public class NumberUtilsTests {
 						"-123456789012345678901234567890123456789.123456789012345678901234567890123456789"))));
 	}
 
+	@Test(timeout = 10_000)
+	public void parseNumber_hugeExponent() {
+		// @formatter:off
+		then(NumberUtils.parseNumber("1e100000000"))
+			.as("Whole number with huge exponent kept as BigDecimal, not expanded to BigInteger")
+			.isEqualTo(new BigDecimal("1e100000000"))
+			;
+		then(NumberUtils.parseNumber("-1.5e100000000"))
+			.as("Negative whole number with huge exponent kept as BigDecimal")
+			.isEqualTo(new BigDecimal("-1.5e100000000"))
+			;
+		// @formatter:on
+	}
+
+	@Test(timeout = 10_000)
+	public void parseNumber_hugeNegativeExponent() {
+		// @formatter:off
+		then(NumberUtils.parseNumber("1e-100000000"))
+			.as("Fraction with huge negative exponent kept as BigDecimal")
+			.isEqualTo(new BigDecimal("1e-100000000"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void parseNumber_maxIntegerDigits() {
+		// @formatter:off
+		then(NumberUtils.parseNumber("1e999"))
+			.as("Whole number with 1000 digits parsed as BigInteger")
+			.isEqualTo(BigInteger.TEN.pow(999))
+			;
+		then(NumberUtils.parseNumber("1e1000"))
+			.as("Whole number with more than 1000 digits kept as BigDecimal")
+			.isEqualTo(new BigDecimal("1e1000"))
+			;
+		then(NumberUtils.parseNumber("12.000"))
+			.as("Whole number with decimal zeros parsed as integer")
+			.isEqualTo(12)
+			;
+		then(NumberUtils.parseNumber("0.000"))
+			.as("Zero with decimal zeros parsed as integer")
+			.isEqualTo(0)
+			;
+		// @formatter:on
+	}
+
 	@Test
 	public void parseNumber_hex() {
 		then(NumberUtils.parseNumber("0x123abc1234567890123456789")).as("Hex parsed into BigIneteger")

@@ -78,6 +78,12 @@ public final class NumberUtils {
 			// @formatter:on
 	};
 
+	/**
+	 * The maximum number of integer digits {@link #parseNumber(String)} will
+	 * convert to a {@link BigInteger}.
+	 */
+	private static final int MAX_PARSE_INTEGER_DIGITS = 1000;
+
 	private NumberUtils() {
 		// do not construct me
 	}
@@ -570,7 +576,10 @@ public final class NumberUtils {
 	 *
 	 * <p>
 	 * The resulting number will be narrowed to 32-bit types if possible,
-	 * otherwise a {@link BigDecimal} or {@link BigInteger} will be returned.
+	 * otherwise a {@link BigDecimal} or {@link BigInteger} will be returned. A
+	 * whole number with more than 1000 digits, such as {@literal 1e1000}, is
+	 * returned as a {@link BigDecimal}, because a {@link BigInteger} of a huge
+	 * exponent like {@literal 1e100000000} takes minutes to create.
 	 * </p>
 	 *
 	 * @param numberString
@@ -587,10 +596,18 @@ public final class NumberUtils {
 		Number n = null;
 		try {
 			d = new BigDecimal(numberString);
-			try {
-				n = d.toBigIntegerExact();
-			} catch ( ArithmeticException e ) {
-				// keep decimal
+			// only try BigInteger for a reasonable number of integer digits: with none
+			// the value is a fraction or zero, which narrow() handles, and the
+			// conversion takes time proportional to the exponent
+			final long intDigits = (long) d.precision() - d.scale();
+			if ( intDigits > 0 && intDigits <= MAX_PARSE_INTEGER_DIGITS ) {
+				try {
+					n = d.toBigIntegerExact();
+				} catch ( ArithmeticException e ) {
+					// keep decimal
+					n = d;
+				}
+			} else {
 				n = d;
 			}
 		} catch ( Exception e ) {
