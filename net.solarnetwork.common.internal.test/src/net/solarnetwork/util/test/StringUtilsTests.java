@@ -1172,6 +1172,29 @@ public class StringUtilsTests {
 	}
 
 	@Test
+	public void intRangeSetFromCommaDelimitedString_zero() {
+		assertThat("Zero range parsed", StringUtils.commaDelimitedStringToIntRangeSet("0-2,5"),
+				is(equalTo(new IntRangeSet(rangeOf(0, 2), rangeOf(5)))));
+		assertThat("Zero parsed", StringUtils.commaDelimitedStringToIntRangeSet("0"),
+				is(equalTo(new IntRangeSet(rangeOf(0)))));
+		assertThat("Negative skipped", StringUtils.commaDelimitedStringToIntRangeSet("-1,2"),
+				is(equalTo(new IntRangeSet(rangeOf(2)))));
+	}
+
+	@Test
+	public void intRangeSetFromCommaDelimitedString_roundTripZero() {
+		// GIVEN
+		IntRangeSet set = new IntRangeSet(rangeOf(0, 2), rangeOf(7));
+
+		// WHEN
+		IntRangeSet result = StringUtils
+				.commaDelimitedStringToIntRangeSet(StringUtils.commaDelimitedStringFromIntRangeSet(set));
+
+		// THEN
+		assertThat("Set with zero survives round trip", result, is(equalTo(set)));
+	}
+
+	@Test
 	public void compareComponentsIgnoreCase_equalComponentCount() {
 		// GIVEN
 		String left = "a/b/c";

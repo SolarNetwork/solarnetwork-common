@@ -1080,7 +1080,8 @@ public final class StringUtils {
 	 * The {@code value} format is a comma-delimited list of integer or integer
 	 * ranges. Integer ranges may be specified by using a dash delimiter. For
 	 * example {@literal 4-6,10} would result in a set including 4, 5, 6, and
-	 * 10.
+	 * 10. Only non-negative integers are supported, as the dash is the range
+	 * delimiter; any other values are skipped.
 	 * </p>
 	 *
 	 * @param value
@@ -1100,7 +1101,7 @@ public final class StringUtils {
 			try {
 				int a = Integer.parseInt(components[0]);
 				int b = (components.length > 1 ? Integer.parseInt(components[1]) : a);
-				if ( a > 0 && b > 0 ) {
+				if ( a >= 0 && b >= 0 ) {
 					set.addRange(a, b);
 				}
 			} catch ( IllegalArgumentException e ) {
