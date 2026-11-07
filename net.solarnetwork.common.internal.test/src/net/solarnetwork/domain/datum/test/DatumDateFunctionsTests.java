@@ -430,6 +430,36 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 	}
 
 	@Test
+	public void durBetween_LocalDate() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 8, 6);
+		LocalDate d2 = LocalDate.of(2024, 8, 8);
+
+		// WHEN
+		Duration result = durationBetween(d1, d2);
+
+		// THEN
+		assertThat("Duration between two LocalDate returned", result, is(equalTo(Duration.ofDays(2))));
+	}
+
+	@Test
+	public void durBetween_LocalDate_LocalDateTime() {
+		// GIVEN
+		LocalDate d1 = LocalDate.of(2024, 8, 6);
+		LocalDateTime d2 = LocalDateTime.of(2024, 8, 6, 14, 15);
+
+		// WHEN
+		Duration result = durationBetween(d1, d2);
+		Duration reverse = durationBetween(d2, d1);
+
+		// THEN
+		assertThat("Duration from LocalDate start of day to LocalDateTime returned", result,
+				is(equalTo(Duration.ofHours(14).plusMinutes(15))));
+		assertThat("Duration from LocalDateTime to LocalDate start of day returned", reverse,
+				is(equalTo(Duration.ofHours(-14).minusMinutes(15))));
+	}
+
+	@Test
 	public void secsBetween_LocalDateTime() {
 		// GIVEN
 		LocalDateTime d1 = LocalDateTime.of(2024, 8, 6, 14, 15);

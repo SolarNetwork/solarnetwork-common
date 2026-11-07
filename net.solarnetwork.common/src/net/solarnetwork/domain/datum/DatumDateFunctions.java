@@ -1000,6 +1000,10 @@ public interface DatumDateFunctions {
 	/**
 	 * Calculate the duration between two dates.
 	 *
+	 * <p>
+	 * A {@link LocalDate} is treated as the start of its day.
+	 * </p>
+	 *
 	 * @param date1
 	 *        the first date
 	 * @param date2
@@ -1013,6 +1017,14 @@ public interface DatumDateFunctions {
 	default @Nullable Duration durationBetween(@Nullable Temporal date1, @Nullable Temporal date2) {
 		if ( date1 == null || date2 == null ) {
 			return null;
+		}
+		if ( date1 instanceof LocalDate ) {
+			// try converting to something with time, at start of day
+			date1 = ((LocalDate) date1).atStartOfDay();
+		}
+		if ( date2 instanceof LocalDate ) {
+			// try converting to something with time, at start of day
+			date2 = ((LocalDate) date2).atStartOfDay();
 		}
 		try {
 			return Duration.between(date1, date2);
