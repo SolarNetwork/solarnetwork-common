@@ -186,10 +186,11 @@ public interface DatumMathFunctions {
 	 * @param value
 	 *        the object to get as a {@link BigDecimal}
 	 * @return the decimal instance, or {@code null} if {@code value} is
-	 *         {@code null} or cannot be parsed as a decimal
+	 *         {@code null}, a NaN or infinite {@code Float} or {@code Double},
+	 *         or cannot be parsed as a decimal
 	 */
 	default @Nullable BigDecimal decimal(@Nullable Object value) {
-		if ( value == null ) {
+		if ( value == null || isNotFinite(value) ) {
 			return null;
 		}
 		Number n = null;
@@ -207,11 +208,12 @@ public interface DatumMathFunctions {
 	 * @param value
 	 *        the object to get as a {@link BigInteger}
 	 * @return the integer instance, or {@code null} if {@code value} is
-	 *         {@code null} or cannot be parsed as an integer
+	 *         {@code null}, a NaN or infinite {@code Float} or {@code Double},
+	 *         or cannot be parsed as an integer
 	 * @since 1.1
 	 */
 	default @Nullable BigInteger integer(@Nullable Object value) {
-		if ( value == null ) {
+		if ( value == null || isNotFinite(value) ) {
 			return null;
 		}
 		Number n = null;
@@ -871,10 +873,14 @@ public interface DatumMathFunctions {
 	 *        the power of 10 to scale by; a negative value shifts the decimal
 	 *        point left this many places; a positive value shifts the decimal
 	 *        point right this many places
-	 * @return the scaled value
+	 * @return the scaled value, or {@code null} if {@code n} is {@code null} or
+	 *         a NaN or infinite {@code Float} or {@code Double}
 	 * @since 1.3
 	 */
 	default @Nullable BigDecimal scaled(@Nullable Number n, int scale) {
+		if ( isNotFinite(n) ) {
+			return null;
+		}
 		return NumberUtils.scaled(n, scale);
 	}
 
@@ -888,11 +894,15 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to extract the whole part from
-	 * @return the whole part as an integer, or zero if {@code n} is
-	 *         {@code null}
+	 * @return the whole part as an integer, zero if {@code n} is {@code null},
+	 *         or {@code null} if {@code n} is a NaN or infinite {@code Float}
+	 *         or {@code Double}
 	 * @since 1.3
 	 */
 	default @Nullable BigInteger wholePart(@Nullable Number n) {
+		if ( isNotFinite(n) ) {
+			return null;
+		}
 		return NumberUtils.wholePartToInteger(decimal(n));
 	}
 
@@ -905,11 +915,15 @@ public interface DatumMathFunctions {
 	 *
 	 * @param n
 	 *        the number to extract the fractional part from
-	 * @return the fractional part as an integer, or zero if {@code n} is
-	 *         {@code null}
+	 * @return the fractional part as an integer, zero if {@code n} is
+	 *         {@code null}, or {@code null} if {@code n} is a NaN or infinite
+	 *         {@code Float} or {@code Double}
 	 * @since 1.3
 	 */
 	default @Nullable BigInteger fracPart(@Nullable Number n) {
+		if ( isNotFinite(n) ) {
+			return null;
+		}
 		return NumberUtils.fractionalPartToInteger(decimal(n));
 	}
 
@@ -927,11 +941,15 @@ public interface DatumMathFunctions {
 	 *        the number to extract the fractional part from
 	 * @param scale
 	 *        the maximum power-of-10 scale
-	 * @return the fractional part as an integer, or zero if {@code n} is
-	 *         {@code null}
+	 * @return the fractional part as an integer, zero if {@code n} is
+	 *         {@code null}, or {@code null} if {@code n} is a NaN or infinite
+	 *         {@code Float} or {@code Double}
 	 * @since 1.3
 	 */
 	default @Nullable BigInteger fracPart(@Nullable Number n, int scale) {
+		if ( isNotFinite(n) ) {
+			return null;
+		}
 		return NumberUtils.fractionalPartToInteger(decimal(n), scale);
 	}
 
@@ -1022,6 +1040,20 @@ public interface DatumMathFunctions {
 	 */
 	private static boolean isInfinite(Number n) {
 		return ((n instanceof Double || n instanceof Float) && Double.isInfinite(n.doubleValue()));
+	}
+
+	/**
+	 * Test if a value is a {@code Float} or {@code Double} NaN or infinite
+	 * value, which can't be converted to a {@link BigDecimal}.
+	 *
+	 * @param value
+	 *        the value to test
+	 * @return {@code true} if {@code value} is a NaN or infinite {@code Float}
+	 *         or {@code Double}
+	 */
+	private static boolean isNotFinite(@Nullable Object value) {
+		return ((value instanceof Double || value instanceof Float)
+				&& !Double.isFinite(((Number) value).doubleValue()));
 	}
 
 }

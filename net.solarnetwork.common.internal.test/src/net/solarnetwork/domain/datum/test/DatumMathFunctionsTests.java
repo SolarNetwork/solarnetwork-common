@@ -79,6 +79,28 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	}
 
 	@Test
+	public void integer_nonFinite() {
+		assertThat("NaN integer returns null", integer(Double.NaN), is(nullValue()));
+		assertThat("Infinite integer returns null", integer(Float.POSITIVE_INFINITY), is(nullValue()));
+	}
+
+	@Test
+	public void decimal_nonFinite() {
+		assertThat("NaN decimal returns null", decimal(Float.NaN), is(nullValue()));
+		assertThat("Infinite decimal returns null", decimal(Double.NEGATIVE_INFINITY), is(nullValue()));
+	}
+
+	@Test
+	public void bitwise_nonFinite() {
+		assertThat("And of NaN returns null", and(Double.NaN, 1), is(nullValue()));
+		assertThat("And with NaN mask returns number", and(3, Double.NaN),
+				is(equalTo(BigInteger.valueOf(3))));
+		assertThat("Shift of infinity returns null", shiftLeft(Double.POSITIVE_INFINITY, 1),
+				is(nullValue()));
+		assertThat("Test bit of NaN is false", testBit(Double.NaN, 0), is(equalTo(false)));
+	}
+
+	@Test
 	public void and() {
 		assertThat("and computed", and(0b1010_1010, 0b1100_1100), is(BigInteger.valueOf(0b1000_1000)));
 	}
@@ -184,9 +206,22 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	}
 
 	@Test
+	public void scaled_nonFinite() {
+		assertThat("Scaled NaN returns null", scaled(Double.NaN, 2), is(nullValue()));
+		assertThat("Scaled infinity returns null", scaled(Float.NEGATIVE_INFINITY, -2), is(nullValue()));
+	}
+
+	@Test
 	public void wholePart() {
 		BigInteger bi = wholePart(new BigDecimal("123.12345"));
 		assertThat("Result", bi, equalTo(new BigInteger("123")));
+	}
+
+	@Test
+	public void wholePart_nonFinite() {
+		assertThat("Whole part of NaN returns null", wholePart(Double.NaN), is(nullValue()));
+		assertThat("Whole part of infinity returns null", wholePart(Float.NEGATIVE_INFINITY),
+				is(nullValue()));
 	}
 
 	@Test
@@ -205,6 +240,13 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	public void fracPart_negative() {
 		BigInteger bi = fracPart(new BigDecimal("-123.12345"), 9);
 		assertThat("Result", bi, equalTo(new BigInteger("-12345")));
+	}
+
+	@Test
+	public void fracPart_nonFinite() {
+		assertThat("Fractional part of NaN returns null", fracPart(Double.NaN), is(nullValue()));
+		assertThat("Fractional part of infinity returns null", fracPart(Double.POSITIVE_INFINITY, 2),
+				is(nullValue()));
 	}
 
 	@Test
