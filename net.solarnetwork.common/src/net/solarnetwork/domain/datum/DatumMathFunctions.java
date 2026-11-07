@@ -754,28 +754,39 @@ public interface DatumMathFunctions {
 	}
 
 	/**
-	 * Returns the value of {@code n} raised to the power of {@code p}.
+	 * Returns the value of {@code n} raised to the power of {@code e}.
+	 *
+	 * <p>
+	 * If {@code n} is a {@link Float} or {@link Double}, or {@code e} is not a
+	 * whole number between -999,999,999 and 999,999,999, the result is
+	 * calculated with {@link Math#pow(double, double)} and returned as a
+	 * {@link Double}. Otherwise the result is a {@link BigDecimal} calculated
+	 * with {@link MathContext#DECIMAL64} precision.
+	 * </p>
 	 *
 	 * @param n
 	 *        the number to raise
 	 * @param e
 	 *        the power to raise to
-	 * @return {@code n} raised to the power of {@code p}, or {@code null} if
+	 * @return {@code n} raised to the power of {@code e}, or {@code null} if
 	 *         any argument is {@code null}
 	 * @since 1.4
 	 */
 	default @Nullable Number pow(@Nullable Number n, @Nullable Number e) {
 		if ( n == null || e == null ) {
-			return n;
+			return null;
 		}
-		if ( n instanceof Double || n instanceof Float ) {
-			return Math.pow(n.doubleValue(), e.doubleValue());
+		final double ed = e.doubleValue();
+		if ( n instanceof Double || n instanceof Float || ed != Math.rint(ed)
+				|| Math.abs(ed) > 999_999_999 ) {
+			// BigDecimal only supports whole exponents, within a limited range
+			return Math.pow(n.doubleValue(), ed);
 		}
 		BigDecimal d = NumberUtils.bigDecimalForNumber(n);
 		if ( d == null ) {
 			return n;
 		}
-		return d.pow(e.intValue(), MathContext.DECIMAL64);
+		return d.pow((int) ed, MathContext.DECIMAL64);
 	}
 
 	/**

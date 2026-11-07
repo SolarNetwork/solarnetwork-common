@@ -38,7 +38,7 @@ import net.solarnetwork.domain.datum.DatumMathFunctions;
  * Test cases for the {@link DatumMathFunctions} interface.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  */
 public class DatumMathFunctionsTests implements DatumMathFunctions {
 
@@ -259,6 +259,40 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	public void pow_decimal() {
 		Number result = pow(new BigDecimal("2.0"), 3);
 		assertThat("Power of decimal value calcualted", result, is(equalTo(new BigDecimal("8.000"))));
+	}
+
+	@Test
+	public void pow_integer_fractionalExponent() {
+		Number result = pow(4, 0.5);
+		assertThat("Power of integer value with fractional exponent calculated", result,
+				is(equalTo(2.0)));
+	}
+
+	@Test
+	public void pow_decimal_fractionalExponent() {
+		Number result = pow(new BigDecimal("2"), new BigDecimal("0.5"));
+		assertThat("Power of decimal value with fractional exponent calculated", result,
+				is(equalTo(Math.pow(2.0, 0.5))));
+	}
+
+	@Test
+	public void pow_integer_integralDecimalExponent() {
+		Number result = pow(2, 3.0);
+		assertThat("Power of integer value with whole decimal exponent calculated as decimal", result,
+				is(equalTo(new BigDecimal("8"))));
+	}
+
+	@Test
+	public void pow_integer_hugeExponent() {
+		Number result = pow(2, 1e10);
+		assertThat("Power of integer value with exponent too large for decimal calculated", result,
+				is(equalTo(Double.POSITIVE_INFINITY)));
+	}
+
+	@Test
+	public void pow_nullExponent() {
+		Number result = pow(4, null);
+		assertThat("Power with null exponent is null", result, is(nullValue()));
 	}
 
 	@Test
