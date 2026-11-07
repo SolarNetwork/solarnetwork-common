@@ -24,6 +24,7 @@ package net.solarnetwork.util;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
@@ -674,28 +675,52 @@ public final class NumberUtils {
 	 * Class is allowed.
 	 * </p>
 	 *
+	 * <p>
+	 * The division is performed at full precision, rounded to 34 significant
+	 * digits if the quotient does not terminate, and the result then converted
+	 * to {@code numberType} via {@link #convertNumber(Number, Class)}, like a
+	 * cast. For example {@code divide(10, 2.5, Integer.class)} returns the
+	 * {@code Integer} {@literal 4}. If the result cannot be converted to that
+	 * type, the full-precision result is returned: a {@link BigDecimal}, or a
+	 * {@code Double} if either value is NaN or infinite.
+	 * </p>
+	 *
+	 * <p>
+	 * Division by zero throws an {@link ArithmeticException}, unless
+	 * {@code numberType} is {@code Float} or {@code Double}, which return
+	 * infinity or NaN like Java floating-point division.
+	 * </p>
+	 *
 	 * @param dividend
 	 *        the dividend value
 	 * @param divisor
 	 *        the divisor value
 	 * @param numberType
-	 *        the type of Number to treat the dividend and divisor as
-	 * @return a Number instance of type {@code numberType}
+	 *        the type of Number to return
+	 * @return the result, as type {@code numberType} if possible
+	 * @throws ArithmeticException
+	 *         if {@code divisor} is zero and {@code numberType} is not
+	 *         {@code Float} or {@code Double}
 	 * @since 1.8
 	 */
 	public static Number divide(Number dividend, Number divisor, Class<?> numberType) {
-		if ( Integer.class.isAssignableFrom(numberType) ) {
-			return dividend.intValue() / divisor.intValue();
-		} else if ( Float.class.isAssignableFrom(numberType) ) {
-			return dividend.floatValue() / divisor.floatValue();
-		} else if ( Long.class.isAssignableFrom(numberType) ) {
-			return dividend.longValue() / divisor.longValue();
-		} else if ( dividend instanceof BigDecimal ) {
-			return ((BigDecimal) dividend).divide((bigDecimalForNumber(divisor)));
-		} else if ( BigInteger.class.isAssignableFrom(numberType) ) {
-			return new BigDecimal((BigInteger) dividend).divide((bigDecimalForNumber(divisor)));
+		final BigDecimal a = finiteDecimal(dividend);
+		final BigDecimal b = finiteDecimal(divisor);
+		Number result;
+		if ( a != null && b != null && b.signum() != 0 ) {
+			try {
+				result = a.divide(b);
+			} catch ( ArithmeticException e ) {
+				// non-terminating decimal expansion
+				result = a.divide(b, MathContext.DECIMAL128);
+			}
+		} else if ( b != null && b.signum() == 0 && !(Float.class.isAssignableFrom(numberType)
+				|| Double.class.isAssignableFrom(numberType)) ) {
+			throw new ArithmeticException("Division by zero");
+		} else {
+			result = Double.valueOf(dividend.doubleValue() / divisor.doubleValue());
 		}
-		return dividend.doubleValue() / divisor.doubleValue();
+		return arithmeticResult(result, numberType);
 	}
 
 	/**
@@ -724,7 +749,7 @@ public final class NumberUtils {
 		final BigDecimal b = finiteDecimal(offset);
 		final Number result = (a != null && b != null ? a.subtract(b)
 				: Double.valueOf(start.doubleValue() - offset.doubleValue()));
-		return arithmeticResult(result, start);
+		return arithmeticResult(result, start.getClass());
 	}
 
 	/**
@@ -753,7 +778,7 @@ public final class NumberUtils {
 		final BigDecimal db = finiteDecimal(b);
 		final Number result = (da != null && db != null ? da.multiply(db)
 				: Double.valueOf(a.doubleValue() * b.doubleValue()));
-		return arithmeticResult(result, a);
+		return arithmeticResult(result, a.getClass());
 	}
 
 	/**
@@ -769,17 +794,19 @@ public final class NumberUtils {
 	}
 
 	/**
-	 * Convert an arithmetic result to the type of a given number.
+	 * Convert an arithmetic result to a given number type.
 	 *
 	 * @param result
 	 *        the result to convert
 	 * @param type
-	 *        the number whose type to convert to
+	 *        the number type to convert to
 	 * @return the converted result, or {@code result} if it cannot be converted
 	 */
-	private static Number arithmeticResult(Number result, Number type) {
+	@SuppressWarnings("unchecked")
+	private static Number arithmeticResult(Number result, Class<?> type) {
 		try {
-			final Number n = convertNumber(result, type.getClass());
+			// a non-Number type matches none of the conversions, so throws
+			final Number n = convertNumber(result, (Class<? extends Number>) type);
 			return (n != null ? n : result);
 		} catch ( IllegalArgumentException e ) {
 			// type not supported, or result not representable, like NaN as BigDecimal

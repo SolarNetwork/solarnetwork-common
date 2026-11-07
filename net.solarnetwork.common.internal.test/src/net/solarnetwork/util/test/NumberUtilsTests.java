@@ -1822,6 +1822,122 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void divide_bigInteger() {
+		// @formatter:off
+		then(NumberUtils.divide(10, 4, BigInteger.class))
+			.as("Integer dividend divided as BigInteger truncates")
+			.isEqualTo(BigInteger.TWO)
+			;
+		then(NumberUtils.divide(BigInteger.TEN, 4, BigInteger.class))
+			.as("BigInteger dividend divided as BigInteger truncates")
+			.isEqualTo(BigInteger.TWO)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void divide_nonTerminating() {
+		// @formatter:off
+		then(NumberUtils.divide(BigDecimal.ONE, 3, BigDecimal.class))
+			.as("Non-terminating quotient rounded to 34 digits")
+			.isEqualTo(new BigDecimal("0.3333333333333333333333333333333333"))
+			;
+		then(NumberUtils.divide(new BigDecimal("1.000"), 8, BigDecimal.class))
+			.as("Terminating quotient exact")
+			.isEqualTo(new BigDecimal("0.125"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void divide_resultType() {
+		// @formatter:off
+		then(NumberUtils.divide(1, 4, BigDecimal.class))
+			.as("Integer dividend divided as BigDecimal")
+			.isEqualTo(new BigDecimal("0.25"))
+			;
+		then(NumberUtils.divide(new BigDecimal("7"), 2, Double.class))
+			.as("BigDecimal dividend divided as Double")
+			.isEqualTo(3.5)
+			;
+		then(NumberUtils.divide(7, 2, Short.class))
+			.as("Divided as Short truncates")
+			.isEqualTo((short) 3)
+			;
+		then(NumberUtils.divide(7, 2, AtomicInteger.class))
+			.as("Unsupported type returns full-precision result")
+			.isEqualTo(new BigDecimal("3.5"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void divide_mixedTypes() {
+		// @formatter:off
+		then(NumberUtils.divide(10, 2.5, Integer.class))
+			.as("Divided at full precision, then converted to Integer")
+			.isEqualTo(4)
+			;
+		then(NumberUtils.divide(5, 0.5, Long.class))
+			.as("Fractional divisor not truncated to zero")
+			.isEqualTo(10L)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void divide_byZero() {
+		// @formatter:off
+		thenExceptionOfType(ArithmeticException.class)
+			.as("Integer division by zero throws")
+			.isThrownBy(() -> NumberUtils.divide(1, 0, Integer.class))
+			;
+		thenExceptionOfType(ArithmeticException.class)
+			.as("Short division by zero throws")
+			.isThrownBy(() -> NumberUtils.divide(1, 0, Short.class))
+			;
+		thenExceptionOfType(ArithmeticException.class)
+			.as("BigDecimal division by zero throws")
+			.isThrownBy(() -> NumberUtils.divide(1, 0, BigDecimal.class))
+			;
+		then(NumberUtils.divide(1f, 0, Float.class))
+			.as("Float division by zero is infinity")
+			.isEqualTo(Float.POSITIVE_INFINITY)
+			;
+		then(NumberUtils.divide(-1, 0.0, Double.class))
+			.as("Double division by zero is infinity")
+			.isEqualTo(Double.NEGATIVE_INFINITY)
+			;
+		then(NumberUtils.divide(0, 0, Double.class))
+			.as("Double zero divided by zero is NaN")
+			.isEqualTo(Double.NaN)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void divide_nonFinite() {
+		// @formatter:off
+		then(NumberUtils.divide(Double.NaN, 2, Double.class))
+			.as("NaN divided is NaN")
+			.isEqualTo(Double.NaN)
+			;
+		then(NumberUtils.divide(Double.POSITIVE_INFINITY, 2, Float.class))
+			.as("Infinity divided as Float is infinity")
+			.isEqualTo(Float.POSITIVE_INFINITY)
+			;
+		then(NumberUtils.divide(Double.POSITIVE_INFINITY, 2, BigDecimal.class))
+			.as("Infinity cannot be BigDecimal, so returned as Double")
+			.isEqualTo(Double.POSITIVE_INFINITY)
+			;
+		then(NumberUtils.divide(1, Double.POSITIVE_INFINITY, Integer.class))
+			.as("Finite divided by infinity is zero")
+			.isEqualTo(0)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void subtract() {
 		// @formatter:off
 		then(NumberUtils.subtract(5, 2))
