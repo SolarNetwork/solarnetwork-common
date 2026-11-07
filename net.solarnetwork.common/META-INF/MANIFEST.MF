@@ -4,7 +4,7 @@ Bundle-Name: Core SolarNetwork Support
 Bundle-SymbolicName: net.solarnetwork.common
 Automatic-Module-Name: net.solarnetwork.common
 Bundle-Description: Common supporting infrastructure for SolarNode and SolarNet applications.
-Bundle-Version: 4.59.1
+Bundle-Version: 4.59.2
 Bundle-Vendor: SolarNetwork
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: 
@@ -40,6 +40,7 @@ Import-Package:
  com.fasterxml.jackson.databind.node;version="[2.20,3.0)",
  com.fasterxml.jackson.databind.ser.std;version="[2.20,3.0)",
  com.fasterxml.jackson.databind.type;version="[2.20,3.0)",
+ com.fasterxml.jackson.databind.util;version="[2.20,3.0)",
  com.fasterxml.jackson.dataformat.cbor;version="[2.20,3.0)";resolution:=optional,
  com.fasterxml.jackson.datatype.jsr310;version="[2.20,3.0)";resolution:=optional,
  com.fasterxml.jackson.datatype.jsr310.deser;version="[2.20,3.0)";resolution:=optional,
@@ -100,4 +101,5 @@ Import-Package:
  tools.jackson.databind.node;version="[3.0,4.0)",
  tools.jackson.databind.ser.std;version="[3.0,4.0)",
  tools.jackson.databind.type;version="[3.0,4.0)",
+ tools.jackson.databind.util;version="[3.0,4.0)",
  tools.jackson.dataformat.cbor;version="[3.0,4.0)";resolution:=optional
