@@ -1348,58 +1348,64 @@ public class DateUtilsTests {
 
 	@Test
 	public void dateFloor_Instant_duration_15min() {
-		// calculate for times at every 5 minutes
+		// calculate for times at every 5 minutes, 30 seconds past the minute
 		final Duration amount = Duration.ofMinutes(15);
+		final Instant start = LocalDateTime.of(2025, 4, 16, 9, 0).atZone(UTC).toInstant();
 		for ( int i = 0; i < 360; i += 5 ) {
 			// GIVEN
-			Instant d = LocalDateTime.of(2025, 4, 16, 9, 0).atZone(UTC).toInstant();
+			Instant d = start.plusSeconds(i * 60L + 30);
 
 			// WHEN
 			Temporal result = DateUtils.dateFloor(d, amount, UTC);
 
 			// THEN
-			assertThat("Instant returned for 15min floor", result,
-					is(equalTo(d.minusSeconds(d.getEpochSecond() % amount.getSeconds()))));
+			Instant expected = start.plusSeconds((i / 15) * 15 * 60L);
+			assertThat(String.format("Instant %s returned for 15min floor", d), result,
+					is(equalTo(expected)));
 		}
 	}
 
 	@Test
 	public void dateFloor_ZonedDateTime_duration_15min() {
-		// calculate for times at every 5 minutes
+		// calculate for times at every 5 minutes, 30 seconds past the minute
 		final Duration amount = Duration.ofMinutes(15);
+		final ZonedDateTime start = LocalDateTime.of(2025, 4, 16, 9, 0).atZone(UTC);
 		for ( int i = 0; i < 360; i += 5 ) {
 			// GIVEN
-			ZonedDateTime d = LocalDateTime.of(2025, 4, 16, 9, 0).atZone(UTC);
+			ZonedDateTime d = start.plusMinutes(i).plusSeconds(30);
 
 			// WHEN
 			Temporal result = DateUtils.dateFloor(d, amount, UTC);
 
 			// THEN
-			assertThat("ZonedDateTime returned for 15min floor", result,
-					is(equalTo(d.minusSeconds(d.toEpochSecond() % amount.getSeconds()))));
+			ZonedDateTime expected = start.plusMinutes((i / 15) * 15);
+			assertThat(String.format("ZonedDateTime %s returned for 15min floor", d), result,
+					is(equalTo(expected)));
 		}
 	}
 
 	@Test
 	public void dateFloor_LocalDateTime_duration_15min() {
-		// calculate for times at every 5 minutes
+		// calculate for times at every 5 minutes, 30 seconds past the minute
 		final Duration amount = Duration.ofMinutes(15);
+		final LocalDateTime start = LocalDateTime.of(2025, 4, 16, 9, 0);
 		for ( int i = 0; i < 360; i += 5 ) {
 			// GIVEN
-			LocalDateTime d = LocalDateTime.of(2025, 4, 16, 9, 0);
+			LocalDateTime d = start.plusMinutes(i).plusSeconds(30);
 
 			// WHEN
 			Temporal result = DateUtils.dateFloor(d, amount, UTC);
 
 			// THEN
-			assertThat("LocalDateTime returned for 15min floor", result, is(
-					equalTo(d.minusSeconds(d.toInstant(UTC).getEpochSecond() % amount.getSeconds()))));
+			LocalDateTime expected = start.plusMinutes((i / 15) * 15);
+			assertThat(String.format("LocalDateTime %s returned for 15min floor", d), result,
+					is(equalTo(expected)));
 		}
 	}
 
 	@Test
 	public void dateFloor_LocalDateTime_period_year() {
-		// calculate for times at every 5 minutes
+		// calculate for dates a year apart
 		final Period amount = Period.ofYears(1);
 		for ( int i = 0; i < 21; i += 1 ) {
 			// GIVEN
@@ -1417,7 +1423,7 @@ public class DateUtilsTests {
 
 	@Test
 	public void dateFloor_LocalDateTime_period_month() {
-		// calculate for times at every 5 minutes
+		// calculate for dates a month apart
 		final Period amount = Period.ofMonths(1);
 		for ( int i = 0; i < 21; i += 1 ) {
 			// GIVEN
@@ -1435,7 +1441,7 @@ public class DateUtilsTests {
 
 	@Test
 	public void dateFloor_LocalDateTime_period_week() {
-		// calculate for times at every 5 minutes
+		// calculate for dates a day apart
 		final Period amount = Period.ofWeeks(1);
 		for ( int i = 0; i < 21; i += 1 ) {
 			// GIVEN
@@ -1453,7 +1459,7 @@ public class DateUtilsTests {
 
 	@Test
 	public void dateFloor_LocalDateTime_period_day() {
-		// calculate for times at every 5 minutes
+		// calculate for dates a day apart
 		final Period amount = Period.ofDays(1);
 		for ( int i = 0; i < 21; i += 1 ) {
 			// GIVEN
