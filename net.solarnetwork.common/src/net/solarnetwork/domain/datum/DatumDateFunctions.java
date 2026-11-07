@@ -206,7 +206,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Get the date and time right now in the system time zone.
+	 * Get the date and time right now in a given time zone.
 	 *
 	 * @param zoneId
 	 *        the time zone, or {@code null} to use the system time zone
@@ -219,7 +219,7 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Get the date and time right now in the system time zone.
+	 * Get the date and time right now in a given time zone.
 	 *
 	 * @param zone
 	 *        the time zone, or {@code null} to use the system time zone
@@ -307,7 +307,7 @@ public interface DatumDateFunctions {
 	 *
 	 * @param date
 	 *        the temporal to convert
-	 * @return the converted instant, or {@code null} if {code temporal} is
+	 * @return the converted instant, or {@code null} if {@code date} is
 	 *         {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported
@@ -317,14 +317,13 @@ public interface DatumDateFunctions {
 	}
 
 	/**
-	 * Convert a {@link Temporal} into an {@link Instant} in the system time
-	 * zone.
+	 * Convert a {@link Temporal} into an {@link Instant} in a given time zone.
 	 *
 	 * @param date
 	 *        the temporal to convert
 	 * @param zoneId
 	 *        the zone ID to use
-	 * @return the converted instant, or {@code null} if {code temporal} is
+	 * @return the converted instant, or {@code null} if {@code date} is
 	 *         {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported or {@code zoneId} is not
@@ -341,7 +340,7 @@ public interface DatumDateFunctions {
 	 *        the temporal to convert
 	 * @param zone
 	 *        the time zone, or {@code null} to use the system time zone
-	 * @return the converted instant, or {@code null} if {code temporal} is
+	 * @return the converted instant, or {@code null} if {@code date} is
 	 *         {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported
@@ -418,7 +417,7 @@ public interface DatumDateFunctions {
 	 *        the hour-of-day (0-23)
 	 * @param minute
 	 *        the minute-of-hour (0-59)
-	 * @return the local date, not null
+	 * @return the local date and time, not null
 	 * @throws IllegalArgumentException
 	 *         if the value of any field is out of range, or if the day-of-month
 	 *         is invalid for the month-year
@@ -448,7 +447,7 @@ public interface DatumDateFunctions {
 	 *        the minute-of-hour (0-59)
 	 * @param second
 	 *        the second-of-minute (0-59)
-	 * @return the local date, not null
+	 * @return the local date and time, not null
 	 * @throws IllegalArgumentException
 	 *         if the value of any field is out of range, or if the day-of-month
 	 *         is invalid for the month-year
@@ -498,8 +497,8 @@ public interface DatumDateFunctions {
 	 *        the date to truncate
 	 * @param unit
 	 *        the unit to truncate to
-	 * @return the truncated date, or {@code null} if {@code date} or
-	 *         {@code unit} are {@code null}
+	 * @return the truncated date, or {@code date} if {@code date} or
+	 *         {@code unit} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be truncated to the given unit, or the unit
 	 *         cannot be parsed
@@ -517,8 +516,8 @@ public interface DatumDateFunctions {
 	 *        the date to truncate
 	 * @param unit
 	 *        the unit to truncate to
-	 * @return the truncated date, or {@code null} if {@code date} or
-	 *         {@code unit} are {@code null}
+	 * @return the truncated date, or {@code date} if {@code date} or
+	 *         {@code unit} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be truncated to the given unit
 	 */
@@ -579,7 +578,7 @@ public interface DatumDateFunctions {
 	 *         duration cannot be parsed
 	 * @see #tz(String)
 	 * @see #duration(String)
-	 * @see #dateFloor(Temporal, TemporalAmount ZoneId)
+	 * @see #dateFloor(Temporal, TemporalAmount, ZoneId)
 	 * @since 1.4
 	 */
 	default @Nullable Temporal dateFloor(@Nullable Temporal date, String duration,
@@ -756,8 +755,6 @@ public interface DatumDateFunctions {
 	 * @param date
 	 *        the date
 	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
-	 * @throws IllegalArgumentException
-	 *         if {@code zoneId} is not valid
 	 * @since 1.4
 	 */
 	default @Nullable ZonedDateTime dateTz(@Nullable Long date) {
@@ -801,8 +798,6 @@ public interface DatumDateFunctions {
 	 * @param date
 	 *        the date
 	 * @return the zoned date, or {@code null} if {@code date} is {@code null}
-	 * @throws IllegalArgumentException
-	 *         if {@code zoneId} is not valid
 	 * @since 1.4
 	 */
 	default @Nullable ZonedDateTime dateTz(@Nullable Instant date) {

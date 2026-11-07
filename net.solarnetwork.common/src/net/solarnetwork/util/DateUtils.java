@@ -1255,8 +1255,8 @@ public final class DateUtils {
 	 *
 	 * @param date
 	 *        the temporal to convert
-	 * @return the converted instant, or {@code null} if {code temporal} or
-	 *         {@code zone} are {@code null}
+	 * @return the converted instant, or {@code null} if {@code date} is
+	 *         {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported
 	 * @since 2.4
@@ -1266,15 +1266,14 @@ public final class DateUtils {
 	}
 
 	/**
-	 * Convert a {@link Temporal} into an {@link Instant} in the system time
-	 * zone.
+	 * Convert a {@link Temporal} into an {@link Instant} in a given time zone.
 	 *
 	 * @param date
 	 *        the temporal to convert
 	 * @param zoneId
 	 *        the zone ID to use
-	 * @return the converted instant, or {@code null} if {code temporal} or
-	 *         {@code zone} are {@code null}
+	 * @return the converted instant, or {@code null} if {@code date} is
+	 *         {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported or {@code zoneId} is not
 	 *         valid
@@ -1291,8 +1290,8 @@ public final class DateUtils {
 	 *        the temporal to convert
 	 * @param zone
 	 *        the time zone, or {@code null} to use the system time zone
-	 * @return the converted instant, or {@code null} if {code temporal} or
-	 *         {@code zone} are {@code null}
+	 * @return the converted instant, or {@code null} if {@code date} is
+	 *         {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the temporal type is not supported
 	 * @since 2.4
@@ -1398,8 +1397,8 @@ public final class DateUtils {
 	 *        the date to truncate
 	 * @param unit
 	 *        the unit to truncate to
-	 * @return the truncated date, or {@code null} if {@code date} or
-	 *         {@code unit} are {@code null}
+	 * @return the truncated date, or {@code date} if {@code date} or
+	 *         {@code unit} is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the date cannot be truncated to the given unit
 	 * @since 2.4

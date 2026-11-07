@@ -976,8 +976,8 @@ public final class NumberUtils {
 	}
 
 	/**
-	 * Round a number towards zero to the nearest integer multiple of a specific
-	 * significance.
+	 * Round a number away from zero to the nearest integer multiple of a
+	 * specific significance.
 	 *
 	 * <p>
 	 * This method rounds using the {@link RoundingMode#UP} mode.

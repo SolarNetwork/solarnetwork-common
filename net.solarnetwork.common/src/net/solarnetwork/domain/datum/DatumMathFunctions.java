@@ -170,9 +170,9 @@ public interface DatumMathFunctions {
 	 *        the integer number
 	 * @param bit
 	 *        the bit to test
-	 * @return the result of {@code ((n & (1 << bit)) != 0)}, or {@code n} as an
-	 *         integer if {@code bit} is {@code null} or {@code null} if
-	 *         {@code n} cannot be converted to an integer
+	 * @return the result of {@code ((n & (1 << bit)) != 0)}, or {@code false}
+	 *         if {@code n} or {@code bit} is {@code null} or {@code n} cannot
+	 *         be converted to an integer
 	 * @since 1.1
 	 */
 	default boolean testBit(@Nullable Number n, @Nullable Number bit) {
@@ -309,7 +309,7 @@ public interface DatumMathFunctions {
 	}
 
 	/**
-	 * Round a number towards zero to the nearest integer.
+	 * Round a number away from zero to the nearest integer.
 	 *
 	 * <p>
 	 * This method is a shortcut for calling {@code roundUp(n, 0)}.
@@ -325,8 +325,12 @@ public interface DatumMathFunctions {
 	}
 
 	/**
-	 * Round a number towards zero to the nearest integer multiple of a specific
-	 * significance.
+	 * Round a number away from zero to the nearest integer multiple of a
+	 * specific significance.
+	 *
+	 * <p>
+	 * This method rounds using the {@link RoundingMode#UP} mode.
+	 * </p>
 	 *
 	 * @param n
 	 *        the number to round

@@ -117,7 +117,7 @@ public interface DatumStringFunctions {
 	 *        the regular expression to match; may include capture groups
 	 * @param replacement
 	 *        the match replacement; may include capture group back references
-	 *        it the form {@code $N} where {@code N} is the 1-based capture
+	 *        in the form {@code $N} where {@code N} is the 1-based capture
 	 *        group number; if {@code null} an empty string will be used
 	 * @return the {@code source} string after replacing all {@code regex}
 	 *         matches with {@code replacement}; if {@code source} or
