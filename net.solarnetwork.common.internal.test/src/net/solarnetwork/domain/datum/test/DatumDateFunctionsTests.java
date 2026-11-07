@@ -56,7 +56,7 @@ import net.solarnetwork.util.NumberUtils;
  * Test cases for the {@link DatumDateFunctions} interface.
  *
  * @author matt
- * @version 1.5
+ * @version 1.6
  */
 public class DatumDateFunctionsTests implements DatumDateFunctions {
 
@@ -605,6 +605,51 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 	}
 
 	@Test
+	public void monthsBetween_LocalDateTime_earlierTimeOfDay() {
+		// GIVEN
+		LocalDateTime d1 = LocalDateTime.of(2024, 1, 15, 12, 0);
+		LocalDateTime d2 = LocalDateTime.of(2024, 3, 10, 6, 0);
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+
+		// THEN
+		// 16.5 of 31 days in January, all of February, 9.25 of 31 days in March
+		assertThat("Months between two LocalDateTime with an earlier end time of day returned",
+				NumberUtils.round(result, 4), is(equalTo(new BigDecimal("1.8306"))));
+	}
+
+	@Test
+	public void monthsBetween_LocalDateTime_acrossMonthBoundary() {
+		// GIVEN
+		LocalDateTime d1 = LocalDateTime.of(2024, 1, 31, 23, 0);
+		LocalDateTime d2 = LocalDateTime.of(2024, 2, 1, 1, 0);
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+
+		// THEN
+		// 1 of 744 hours in January, 1 of 696 hours in February
+		assertThat("Months between two LocalDateTime across a month boundary returned",
+				NumberUtils.round(result, 6), is(equalTo(new BigDecimal("0.002781"))));
+	}
+
+	@Test
+	public void monthsBetween_ZonedDateTime_earlierTimeOfDay() {
+		// GIVEN
+		ZoneId zone = ZoneId.of("Pacific/Auckland");
+		ZonedDateTime d1 = ZonedDateTime.of(2024, 1, 15, 12, 0, 0, 0, zone);
+		ZonedDateTime d2 = ZonedDateTime.of(2024, 3, 10, 6, 0, 0, 0, zone);
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+
+		// THEN
+		assertThat("Months between two ZonedDateTime with an earlier end time of day returned",
+				NumberUtils.round(result, 4), is(equalTo(new BigDecimal("1.8306"))));
+	}
+
+	@Test
 	public void yearsBetween_LocalDate_withinYear() {
 		// GIVEN
 		LocalDate d1 = LocalDate.of(2024, 2, 1);
@@ -671,6 +716,21 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 		// THEN
 		assertThat("Years between two LocalDate returned", NumberUtils.round(result, 2),
 				is(equalTo(new BigDecimal("1.55"))));
+	}
+
+	@Test
+	public void yearsBetween_LocalDateTime_earlierTimeOfDay() {
+		// GIVEN
+		LocalDateTime d1 = LocalDateTime.of(2024, 6, 15, 12, 0);
+		LocalDateTime d2 = LocalDateTime.of(2026, 3, 1, 6, 0);
+
+		// WHEN
+		double result = yearsBetween(d1, d2);
+
+		// THEN
+		// 199.5 of 366 days in 2024, all of 2025, 59.25 of 365 days in 2026
+		assertThat("Years between two LocalDateTime with an earlier end time of day returned",
+				NumberUtils.round(result, 4), is(equalTo(new BigDecimal("1.7074"))));
 	}
 
 	@Test(expected = IllegalArgumentException.class)

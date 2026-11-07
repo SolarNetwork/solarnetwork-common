@@ -36,6 +36,7 @@ import java.time.ZonedDateTime;
 import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjusters;
@@ -48,7 +49,7 @@ import net.solarnetwork.util.DateUtils;
  * API for datum-related date helper functions.
  *
  * @author matt
- * @version 1.6
+ * @version 1.7
  * @since 3.17
  */
 public interface DatumDateFunctions {
@@ -1158,42 +1159,41 @@ public interface DatumDateFunctions {
 			sign = -1;
 		}
 
-		// calculate starting fraction of first start month
-		Temporal date1NextMonthStart = date1.with(TemporalAdjusters.firstDayOfNextMonth());
+		// calculate starting fraction of first start month; month boundaries start at midnight,
+		Temporal date1MonthStart = atStartOfDay(date1.with(TemporalAdjusters.firstDayOfMonth()));
+		Temporal date1NextMonthStart = atStartOfDay(date1.with(TemporalAdjusters.firstDayOfNextMonth()));
 
 		if ( ((Comparable<Temporal>) date1NextMonthStart).compareTo(date2) > 0 ) {
 			// within a single month
 			f1 = (double) between(ChronoUnit.SECONDS, date1, date2)
-					/ (double) between(ChronoUnit.SECONDS,
-							date1.with(TemporalAdjusters.firstDayOfMonth()), date1NextMonthStart);
+					/ (double) between(ChronoUnit.SECONDS, date1MonthStart, date1NextMonthStart);
 		} else {
 			f1 = (double) between(ChronoUnit.SECONDS, date1, date1NextMonthStart)
-					/ (double) between(ChronoUnit.SECONDS,
-							date1.with(TemporalAdjusters.firstDayOfMonth()), date1NextMonthStart);
+					/ (double) between(ChronoUnit.SECONDS, date1MonthStart, date1NextMonthStart);
 
-			Temporal date2MonthStart = date2.with(TemporalAdjusters.firstDayOfMonth());
+			Temporal date2MonthStart = atStartOfDay(date2.with(TemporalAdjusters.firstDayOfMonth()));
 
 			// calculate whole months between month boundaries
 			wholeMonths = Math.max(date1NextMonthStart.until(date2MonthStart, ChronoUnit.MONTHS), 0);
 
 			f2 = (double) between(ChronoUnit.SECONDS, date2MonthStart, date2)
 					/ (double) between(ChronoUnit.SECONDS, date2MonthStart,
-							date2MonthStart.with(TemporalAdjusters.firstDayOfNextMonth()));
+							atStartOfDay(date2MonthStart.with(TemporalAdjusters.firstDayOfNextMonth())));
 		}
 
 		return sign * (f1 + wholeMonths + f2);
 	}
 
 	/**
-	 * Calculate the fractional number of months between two dates, with second
+	 * Calculate the fractional number of years between two dates, with second
 	 * resolution.
 	 *
 	 * @param date1
 	 *        the first date
 	 * @param date2
 	 *        the second date
-	 * @return the number of months between the two dates, or {@code 0} if
-	 *         either argument is {@code null}
+	 * @return the number of years between the two dates, or {@code 0} if either
+	 *         argument is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the duration cannot be calculated
 	 * @since 1.2
@@ -1217,30 +1217,41 @@ public interface DatumDateFunctions {
 			sign = -1;
 		}
 
-		// calculate starting fraction of first start month
-		Temporal date1NextYearStart = date1.with(TemporalAdjusters.firstDayOfNextYear());
+		// calculate starting fraction of first start year; year boundaries start at midnight,
+		Temporal date1YearStart = atStartOfDay(date1.with(TemporalAdjusters.firstDayOfYear()));
+		Temporal date1NextYearStart = atStartOfDay(date1.with(TemporalAdjusters.firstDayOfNextYear()));
 
 		if ( ((Comparable<Temporal>) date1NextYearStart).compareTo(date2) > 0 ) {
-			// within a single month
+			// within a single year
 			f1 = (double) between(ChronoUnit.SECONDS, date1, date2)
-					/ (double) between(ChronoUnit.SECONDS,
-							date1.with(TemporalAdjusters.firstDayOfYear()), date1NextYearStart);
+					/ (double) between(ChronoUnit.SECONDS, date1YearStart, date1NextYearStart);
 		} else {
 			f1 = (double) between(ChronoUnit.SECONDS, date1, date1NextYearStart)
-					/ (double) between(ChronoUnit.SECONDS,
-							date1.with(TemporalAdjusters.firstDayOfYear()), date1NextYearStart);
+					/ (double) between(ChronoUnit.SECONDS, date1YearStart, date1NextYearStart);
 
-			Temporal date2YearStart = date2.with(TemporalAdjusters.firstDayOfYear());
+			Temporal date2YearStart = atStartOfDay(date2.with(TemporalAdjusters.firstDayOfYear()));
 
-			// calculate whole months between month boundaries
+			// calculate whole years between year boundaries
 			wholeYears = Math.max(date1NextYearStart.until(date2YearStart, ChronoUnit.YEARS), 0);
 
 			f2 = (double) between(ChronoUnit.SECONDS, date2YearStart, date2)
 					/ (double) between(ChronoUnit.SECONDS, date2YearStart,
-							date2YearStart.with(TemporalAdjusters.firstDayOfNextYear()));
+							atStartOfDay(date2YearStart.with(TemporalAdjusters.firstDayOfNextYear())));
 		}
 
 		return sign * (f1 + wholeYears + f2);
+	}
+
+	/**
+	 * Get a date at the start of its day, if it has a time component.
+	 *
+	 * @param date
+	 *        the date
+	 * @return the date at midnight, or {@code date} if it has no time component
+	 */
+	private static Temporal atStartOfDay(Temporal date) {
+		return (date.isSupported(ChronoField.NANO_OF_DAY) ? date.with(ChronoField.NANO_OF_DAY, 0)
+				: date);
 	}
 
 	/**
