@@ -84,10 +84,9 @@ public class StringUtilsTests {
 
 	@Test
 	public void commaDelimitedStringToSetBlankInput() {
-		Set<String> result = StringUtils.commaDelimitedStringToSet("   ");
-		assertNotNull(result);
-		assertEquals(1, result.size());
-		assertEquals("", result.iterator().next()); // empty because of trim
+		assertNull(StringUtils.commaDelimitedStringToSet("   "));
+		assertNull(StringUtils.commaDelimitedStringToSet("\t \n"));
+		assertNull(StringUtils.delimitedStringToSet("  ", ";"));
 	}
 
 	private void verifySetAB(Set<String> result) {
@@ -145,10 +144,9 @@ public class StringUtilsTests {
 
 	@Test
 	public void commaDelimitedStringToListBlankInput() {
-		List<String> result = StringUtils.commaDelimitedStringToList("   ");
-		assertNotNull(result);
-		assertEquals(1, result.size());
-		assertEquals("", result.iterator().next()); // empty because of trim
+		assertNull(StringUtils.commaDelimitedStringToList("   "));
+		assertNull(StringUtils.commaDelimitedStringToList("\t \n"));
+		assertNull(StringUtils.delimitedStringToList("  ", ";"));
 	}
 
 	private void verifyListAB(List<String> result) {

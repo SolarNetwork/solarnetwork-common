@@ -294,8 +294,8 @@ public final class StringUtils {
 	 *
 	 * @param list
 	 *        the comma-delimited string
-	 * @return the Set, or {@code null} if {@code list} is {@code null} or an
-	 *         empty string
+	 * @return the Set, or {@code null} if {@code list} is {@code null}, empty,
+	 *         or only whitespace
 	 * @see #delimitedStringToSet(String, String)
 	 */
 	public static @Nullable Set<String> commaDelimitedStringToSet(final @Nullable String list) {
@@ -317,15 +317,19 @@ public final class StringUtils {
 	 *        the delimited text
 	 * @param delim
 	 *        the delimiter to split the list with
-	 * @return the Set, or {@code null} if {@code list} is {@code null} or an
-	 *         empty string
+	 * @return the Set, or {@code null} if {@code list} is {@code null}, empty,
+	 *         or only whitespace
 	 */
 	public static @Nullable Set<String> delimitedStringToSet(final @Nullable String list,
 			final String delim) {
-		if ( list == null || list.length() < 1 ) {
+		if ( list == null ) {
 			return null;
 		}
-		String[] data = list.trim().split("\\s*" + Pattern.quote(delim) + "\\s*");
+		final String trimmed = list.trim();
+		if ( trimmed.isEmpty() ) {
+			return null;
+		}
+		String[] data = trimmed.split("\\s*" + Pattern.quote(delim) + "\\s*");
 		Set<String> s = new LinkedHashSet<>(data.length);
 		for ( String d : data ) {
 			s.add(d);
@@ -338,8 +342,8 @@ public final class StringUtils {
 	 *
 	 * @param list
 	 *        the comma-delimited string
-	 * @return the List, or {@code null} if {@code list} is {@code null} or an
-	 *         empty string
+	 * @return the List, or {@code null} if {@code list} is {@code null}, empty,
+	 *         or only whitespace
 	 * @see #delimitedStringToList(String, String)
 	 * @since 1.16
 	 */
@@ -361,16 +365,20 @@ public final class StringUtils {
 	 *        the delimited text
 	 * @param delim
 	 *        the delimiter to split the list with
-	 * @return the List, or {@code null} if {@code list} is {@code null} or an
-	 *         empty string
+	 * @return the List, or {@code null} if {@code list} is {@code null}, empty,
+	 *         or only whitespace
 	 * @since 1.16
 	 */
 	public static @Nullable List<String> delimitedStringToList(final @Nullable String list,
 			final String delim) {
-		if ( list == null || list.length() < 1 ) {
+		if ( list == null ) {
 			return null;
 		}
-		String[] data = list.trim().split("\\s*" + Pattern.quote(delim) + "\\s*");
+		final String trimmed = list.trim();
+		if ( trimmed.isEmpty() ) {
+			return null;
+		}
+		String[] data = trimmed.split("\\s*" + Pattern.quote(delim) + "\\s*");
 		List<String> s = new ArrayList<>(data.length);
 		for ( String d : data ) {
 			s.add(d);
