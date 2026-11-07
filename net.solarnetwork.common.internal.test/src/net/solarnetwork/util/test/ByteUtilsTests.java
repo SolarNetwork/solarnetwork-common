@@ -24,6 +24,7 @@ package net.solarnetwork.util.test;
 
 import static net.solarnetwork.domain.ByteOrdering.BigEndian;
 import static net.solarnetwork.domain.ByteOrdering.LittleEndian;
+import static org.assertj.core.api.BDDAssertions.thenExceptionOfType;
 import static org.assertj.core.api.BDDAssertions.thenIllegalArgumentException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
@@ -609,6 +610,42 @@ public class ByteUtilsTests {
 		BigDecimal dec = ByteUtils.parseDecimalCharacterString(data, 0, data.length, LittleEndian,
 				ByteUtils.ASCII);
 		assertThat(dec, equalTo(new BigDecimal("4201")));
+	}
+
+	@Test
+	public void parseAsciiString_padded() {
+		byte[] data = "12\0\0".getBytes(StandardCharsets.US_ASCII);
+		assertThat("Trailing NUL padding ignored",
+				ByteUtils.parseDecimalCharacterString(data, 0, data.length, BigEndian, ByteUtils.ASCII),
+				equalTo(new BigDecimal("12")));
+
+		data = " 12.5 ".getBytes(StandardCharsets.US_ASCII);
+		assertThat("Whitespace padding ignored",
+				ByteUtils.parseDecimalCharacterString(data, 0, data.length, BigEndian, ByteUtils.ASCII),
+				equalTo(new BigDecimal("12.5")));
+
+		data = "21\0\0".getBytes(StandardCharsets.US_ASCII);
+		assertThat("NUL padding leading after little-endian reversal ignored", ByteUtils
+				.parseDecimalCharacterString(data, 0, data.length, LittleEndian, ByteUtils.ASCII),
+				equalTo(new BigDecimal("12")));
+	}
+
+	@Test
+	public void parseAsciiString_invalid() {
+		final byte[] text = "abc".getBytes(StandardCharsets.US_ASCII);
+		final byte[] nul = new byte[4];
+		// @formatter:off
+		thenExceptionOfType(NumberFormatException.class)
+			.as("Non-numeric text throws")
+			.isThrownBy(() -> ByteUtils.parseDecimalCharacterString(text, 0, text.length,
+					BigEndian, ByteUtils.ASCII))
+			;
+		thenExceptionOfType(NumberFormatException.class)
+			.as("Only padding throws")
+			.isThrownBy(() -> ByteUtils.parseDecimalCharacterString(nul, 0, nul.length,
+					BigEndian, ByteUtils.ASCII))
+			;
+		// @formatter:on
 	}
 
 	@Test

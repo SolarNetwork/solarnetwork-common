@@ -584,6 +584,11 @@ public final class ByteUtils {
 	 *         {@code null} or not long enough for the requested data type
 	 * @throws IllegalArgumentException
 	 *         if {@code dataType} is not supported
+	 * @throws NumberFormatException
+	 *         if {@code dataType} is a string type and the string is not a
+	 *         decimal number
+	 * @see #parseDecimalCharacterString(byte[], int, int, ByteOrdering,
+	 *      Charset)
 	 */
 	public static @Nullable Number parseNumber(final BitDataType dataType, final byte @Nullable [] data,
 			final int offset, final int length, final ByteOrdering byteOrder) {
@@ -1053,7 +1058,9 @@ public final class ByteUtils {
 	 * {@code charset}, whose string value contains a string decimal number. For
 	 * example, a big-endian ASCII encoded byte array of
 	 * {@literal 0x31 0x30 0x32 0x34} is interpreted as the string
-	 * {@literal "1024"} which is then parsed as a {@link BigDecimal}.
+	 * {@literal "1024"} which is then parsed as a {@link BigDecimal}. Leading
+	 * and trailing NUL, whitespace, and other control characters are ignored,
+	 * as fixed-length string fields are often padded with them.
 	 * </p>
 	 *
 	 * @param data
@@ -1067,11 +1074,14 @@ public final class ByteUtils {
 	 * @param charset
 	 *        the character set to interpret the bytes as
 	 * @return the number
+	 * @throws NumberFormatException
+	 *         if the string, without padding, is not a decimal number
 	 */
 	public static BigDecimal parseDecimalCharacterString(final byte @Nullable [] data, final int offset,
 			final int length, final ByteOrdering byteOrder, final Charset charset) {
 		byte[] bytes = parseBytes(data, offset, length, byteOrder);
-		String s = new String(bytes, charset);
+		// trim() removes all characters up to U+0020, which includes NUL padding
+		String s = new String(bytes, charset).trim();
 		return new BigDecimal(s);
 	}
 
