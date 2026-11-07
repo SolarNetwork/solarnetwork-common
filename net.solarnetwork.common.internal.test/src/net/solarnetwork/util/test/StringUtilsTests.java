@@ -551,6 +551,28 @@ public class StringUtilsTests {
 		assertThat("Salt as hex", pair.getValue(), equalTo("6ae3b4c425b8d0b6"));
 	}
 
+	@Test
+	public void decodeBase64DigestUnknownType() {
+		// GIVEN
+		final byte[] data = DigestUtils.sha1("password");
+
+		// WHEN
+		KeyValuePair pair = StringUtils
+				.decodeBase64DigestComponents("{FOO}" + Base64.encodeBase64String(data));
+
+		// THEN
+		// @formatter:off
+		then(pair.getKey())
+			.as("Unknown type returns all bytes as digest")
+			.isEqualTo(Hex.encodeHexString(data))
+			;
+		then(pair.getValue())
+			.as("Unknown type returns no salt")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
 	private static byte[] concat(byte[] a, byte[] b) {
 		byte[] result = Arrays.copyOf(a, a.length + b.length);
 		System.arraycopy(b, 0, result, a.length, b.length);

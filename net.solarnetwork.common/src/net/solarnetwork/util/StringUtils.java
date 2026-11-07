@@ -655,10 +655,18 @@ public final class StringUtils {
 	 * strings.
 	 * </p>
 	 *
+	 * <p>
+	 * The digest length is derived from the {@code key} type, which must end
+	 * with {@code SHA} or {@code MD5}. For any other type the salt cannot be
+	 * separated, so all decoded bytes are returned as the digest, with no salt.
+	 * </p>
+	 *
 	 * @param digest
 	 *        a Base64-encoded digest string, in the form returned by
 	 *        {@link #sha256Base64Value(String)}
-	 * @return a key/value pair of the
+	 * @return a key/value pair of the hex-encoded digest and salt, or
+	 *         {@code null} if {@code digest} is {@code null} or does not have a
+	 *         <code>{key}</code> prefix
 	 * @since 1.7
 	 */
 	public static final @Nullable KeyValuePair decodeBase64DigestComponents(@Nullable String digest) {
@@ -689,7 +697,7 @@ public final class StringUtils {
 			digestByteLen = 16;
 		}
 
-		if ( digestByteLen < data.length ) {
+		if ( digestByteLen > 0 && digestByteLen < data.length ) {
 			byte[] tmp = new byte[digestByteLen];
 			System.arraycopy(data, 0, tmp, 0, digestByteLen);
 			salt = new byte[data.length - digestByteLen];
