@@ -214,4 +214,18 @@ public class DatumStringFunctionsTests implements DatumStringFunctions {
 		// @formatter:on
 	}
 
+	@Test
+	public void numberValue_paddedString() {
+		// GIVEN
+		final String input = "  12 ";
+
+		// THEN
+		// @formatter:off
+		then(numberValue(input))
+			.as("String input with leading and trailing whitespace returns number")
+			.isEqualTo(12)
+			;
+		// @formatter:on
+	}
+
 }

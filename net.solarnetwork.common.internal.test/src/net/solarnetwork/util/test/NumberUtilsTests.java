@@ -2337,6 +2337,33 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void parseNumber_whitespace() {
+		// @formatter:off
+		then(NumberUtils.parseNumber("  12 "))
+			.as("Leading and trailing spaces ignored")
+			.isEqualTo(12)
+			;
+		then(NumberUtils.parseNumber("\t-12.5\n"))
+			.as("Leading and trailing tab and newline ignored")
+			.isEqualTo(-12.5f)
+			;
+		then(NumberUtils.parseNumber(" 0x1F "))
+			.as("Leading and trailing spaces ignored around hex")
+			.isEqualTo(31)
+			;
+		then(NumberUtils.parseNumber("1 2"))
+			.as("Inner whitespace not ignored")
+			.isNull()
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void parseNumber_whitespaceOnly() {
+		then(NumberUtils.parseNumber(" \t\n")).as("Whitespace-only string parsed as null").isNull();
+	}
+
+	@Test
 	public void compare_nulls() {
 		// @formatter:off
 		then(NumberUtils.compare(null, null))

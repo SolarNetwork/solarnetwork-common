@@ -580,7 +580,8 @@ public final class NumberUtils {
 	 * otherwise a {@link BigDecimal} or {@link BigInteger} will be returned. A
 	 * whole number with more than 1000 digits, such as {@literal 1e1000}, is
 	 * returned as a {@link BigDecimal}, because a {@link BigInteger} of a huge
-	 * exponent like {@literal 1e100000000} takes minutes to create.
+	 * exponent like {@literal 1e100000000} takes minutes to create. Leading and
+	 * trailing whitespace is ignored.
 	 * </p>
 	 *
 	 * @param numberString
@@ -590,7 +591,11 @@ public final class NumberUtils {
 	 * @since 1.14
 	 */
 	public static @Nullable Number parseNumber(@Nullable String numberString) {
-		if ( numberString == null || numberString.isEmpty() ) {
+		if ( numberString == null ) {
+			return null;
+		}
+		numberString = numberString.trim();
+		if ( numberString.isEmpty() ) {
 			return null;
 		}
 		BigDecimal d;
