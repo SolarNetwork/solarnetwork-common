@@ -612,6 +612,39 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void min_mixedNonFinite() {
+		// GIVEN
+		final BigDecimal beyondDouble = new BigDecimal("1e400");
+
+		// @formatter:off
+		then(NumberUtils.min(Float.NaN, 1))
+			.as("NaN returned, as Math.min() does")
+			.isEqualTo(Float.NaN)
+			;
+		then(NumberUtils.min(1, Double.NaN))
+			.as("NaN returned, as Math.min() does")
+			.isEqualTo(Double.NaN)
+			;
+		then(NumberUtils.min(1, Double.POSITIVE_INFINITY))
+			.as("Finite value less than positive infinity")
+			.isEqualTo(1)
+			;
+		then(NumberUtils.min(Double.NEGATIVE_INFINITY, BigDecimal.ONE))
+			.as("Negative infinity less than finite value")
+			.isEqualTo(Double.NEGATIVE_INFINITY)
+			;
+		then(NumberUtils.min(Float.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY))
+			.as("Negative infinity less than positive infinity")
+			.isEqualTo(Double.NEGATIVE_INFINITY)
+			;
+		then(NumberUtils.min(Double.POSITIVE_INFINITY, beyondDouble))
+			.as("Finite value beyond double range less than positive infinity")
+			.isSameAs(beyondDouble)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void max_short() {
 		assertThat("Short input returns Integer", NumberUtils.max((short) 1, (short) 2), is(2));
 		assertThat("Short input returns Integer", NumberUtils.max((short) 2, (short) 1), is(2));
@@ -689,6 +722,39 @@ public class NumberUtilsTests {
 		then(NumberUtils.max(1, null))
 			.as("Null second returns first")
 			.isEqualTo(1)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void max_mixedNonFinite() {
+		// GIVEN
+		final BigDecimal beyondDouble = new BigDecimal("-1e400");
+
+		// @formatter:off
+		then(NumberUtils.max(Float.NaN, 1))
+			.as("NaN returned, as Math.max() does")
+			.isEqualTo(Float.NaN)
+			;
+		then(NumberUtils.max(1, Double.NaN))
+			.as("NaN returned, as Math.max() does")
+			.isEqualTo(Double.NaN)
+			;
+		then(NumberUtils.max(1, Double.NEGATIVE_INFINITY))
+			.as("Finite value greater than negative infinity")
+			.isEqualTo(1)
+			;
+		then(NumberUtils.max(Double.POSITIVE_INFINITY, BigDecimal.ONE))
+			.as("Positive infinity greater than finite value")
+			.isEqualTo(Double.POSITIVE_INFINITY)
+			;
+		then(NumberUtils.max(Double.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY))
+			.as("Positive infinity greater than negative infinity")
+			.isEqualTo(Float.POSITIVE_INFINITY)
+			;
+		then(NumberUtils.max(Double.NEGATIVE_INFINITY, beyondDouble))
+			.as("Finite value beyond double range greater than negative infinity")
+			.isSameAs(beyondDouble)
 			;
 		// @formatter:on
 	}

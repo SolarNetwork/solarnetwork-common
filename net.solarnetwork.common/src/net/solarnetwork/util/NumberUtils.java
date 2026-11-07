@@ -794,6 +794,11 @@ public final class NumberUtils {
 	/**
 	 * Return the minimum between two number values.
 	 *
+	 * <p>
+	 * If either number is a {@code Float} or {@code Double} NaN, that NaN is
+	 * returned, as {@link Math#min(double, double)} does.
+	 * </p>
+	 *
 	 * @param n1
 	 *        the first number
 	 * @param n2
@@ -828,6 +833,11 @@ public final class NumberUtils {
 		if ( (n1 instanceof BigInteger) && (n2 instanceof BigInteger) ) {
 			return ((BigInteger) n1).min((BigInteger) n2);
 		}
+		if ( isNotFinite(n1) || isNotFinite(n2) ) {
+			// NaN and infinity can't be converted to BigDecimal
+			return (Double.isNaN(n1.doubleValue()) ? n1
+					: Double.isNaN(n2.doubleValue()) ? n2 : compare(n1, n2) <= 0 ? n1 : n2);
+		}
 		final BigDecimal l = bigDecimalForNumber(n1);
 		final BigDecimal r = bigDecimalForNumber(n2);
 		return (l != null && r != null ? l.min(r) : null);
@@ -835,6 +845,11 @@ public final class NumberUtils {
 
 	/**
 	 * Return the maximum between two number values.
+	 *
+	 * <p>
+	 * If either number is a {@code Float} or {@code Double} NaN, that NaN is
+	 * returned, as {@link Math#max(double, double)} does.
+	 * </p>
 	 *
 	 * @param n1
 	 *        the first number
@@ -869,6 +884,11 @@ public final class NumberUtils {
 		}
 		if ( (n1 instanceof BigInteger) && (n2 instanceof BigInteger) ) {
 			return ((BigInteger) n1).max((BigInteger) n2);
+		}
+		if ( isNotFinite(n1) || isNotFinite(n2) ) {
+			// NaN and infinity can't be converted to BigDecimal
+			return (Double.isNaN(n1.doubleValue()) ? n1
+					: Double.isNaN(n2.doubleValue()) ? n2 : compare(n1, n2) >= 0 ? n1 : n2);
 		}
 		final BigDecimal l = bigDecimalForNumber(n1);
 		final BigDecimal r = bigDecimalForNumber(n2);
