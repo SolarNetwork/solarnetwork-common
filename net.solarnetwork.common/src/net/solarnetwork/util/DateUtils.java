@@ -35,6 +35,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.time.Period;
 import java.time.Year;
 import java.time.YearMonth;
@@ -1306,18 +1307,18 @@ public final class DateUtils {
 		if ( date instanceof Instant ) {
 			return (Instant) date;
 		}
-		if ( date instanceof LocalDate ) {
-			return ((LocalDate) date).atStartOfDay().atZone(zone).toInstant();
-		} else if ( date instanceof LocalDateTime ) {
-			return ((LocalDateTime) date).atZone(zone).toInstant();
-		} else if ( date instanceof ZonedDateTime ) {
-			return ((ZonedDateTime) date).toInstant();
-		} else if ( date instanceof OffsetDateTime ) {
-			return ((OffsetDateTime) date).toInstant();
-		} else if ( date instanceof YearMonth ) {
-			return ((YearMonth) date).atDay(1).atStartOfDay().atZone(zone).toInstant();
-		} else if ( date instanceof Year ) {
-			return ((Year) date).atMonth(1).atDay(1).atStartOfDay().atZone(zone).toInstant();
+		if ( date instanceof LocalDate d ) {
+			return d.atStartOfDay().atZone(zone).toInstant();
+		} else if ( date instanceof LocalDateTime d ) {
+			return d.atZone(zone).toInstant();
+		} else if ( date instanceof ZonedDateTime d ) {
+			return d.toInstant();
+		} else if ( date instanceof OffsetDateTime d ) {
+			return d.toInstant();
+		} else if ( date instanceof YearMonth d ) {
+			return d.atDay(1).atStartOfDay().atZone(zone).toInstant();
+		} else if ( date instanceof Year d ) {
+			return d.atMonth(1).atDay(1).atStartOfDay().atZone(zone).toInstant();
 		}
 		throw new IllegalArgumentException("Unsupported temporal type [" + date.getClass() + "]");
 	}
@@ -1425,17 +1426,21 @@ public final class DateUtils {
 				return result;
 			}
 
-			if ( date instanceof ZonedDateTime ) {
-				return ((ZonedDateTime) date).truncatedTo(unit);
-			} else if ( date instanceof Instant ) {
-				return ((Instant) date).truncatedTo(unit);
-			} else if ( date instanceof OffsetDateTime ) {
-				return ((OffsetDateTime) date).truncatedTo(unit);
-			} else if ( date instanceof LocalDateTime ) {
-				return ((LocalDateTime) date).truncatedTo(unit);
-			} else if ( date instanceof LocalDate ) {
+			if ( date instanceof ZonedDateTime d ) {
+				return d.truncatedTo(unit);
+			} else if ( date instanceof Instant d ) {
+				return d.truncatedTo(unit);
+			} else if ( date instanceof OffsetDateTime d ) {
+				return d.truncatedTo(unit);
+			} else if ( date instanceof LocalDateTime d ) {
+				return d.truncatedTo(unit);
+			} else if ( date instanceof LocalDate d ) {
 				// truncate the start of the day, to accept the same units as LocalDateTime
-				return ((LocalDate) date).atStartOfDay().truncatedTo(unit).toLocalDate();
+				return d.atStartOfDay().truncatedTo(unit).toLocalDate();
+			} else if ( date instanceof LocalTime t ) {
+				return t.truncatedTo(unit);
+			} else if ( date instanceof OffsetTime t ) {
+				return t.truncatedTo(unit);
 			}
 		} catch ( DateTimeException e ) {
 			throw new IllegalArgumentException(
@@ -1553,8 +1558,8 @@ public final class DateUtils {
 	public static Temporal convert(Instant date, Temporal type, ZoneId zone) {
 		if ( type instanceof ZonedDateTime ) {
 			return date.atZone(zone);
-		} else if ( type instanceof OffsetDateTime ) {
-			return date.atOffset(((OffsetDateTime) type).getOffset());
+		} else if ( type instanceof OffsetDateTime d ) {
+			return date.atOffset(d.getOffset());
 		} else if ( type instanceof LocalDateTime ) {
 			return date.atZone(zone).toLocalDateTime();
 		} else if ( type instanceof LocalDate ) {

@@ -43,7 +43,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetTime;
 import java.time.Period;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -1226,10 +1228,112 @@ public class DateUtilsTests {
 	}
 
 	@Test
+	public void dateTruncate_localTime() {
+		// GIVEN
+		final LocalTime d = LocalTime.of(14, 34, 56, 789);
+
+		// @formatter:off
+		final Object[][] cases = new Object[][] {
+			{ ChronoUnit.SECONDS, LocalTime.of(14, 34, 56) },
+			{ ChronoUnit.MINUTES, LocalTime.of(14, 34) },
+			{ ChronoUnit.HOURS, LocalTime.of(14, 0) },
+			{ ChronoUnit.HALF_DAYS, LocalTime.of(12, 0) },
+			{ ChronoUnit.DAYS, LocalTime.MIDNIGHT },
+		};
+		// @formatter:on
+
+		for ( Object[] c : cases ) {
+			final ChronoUnit unit = (ChronoUnit) c[0];
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, unit);
+
+			// THEN
+			// @formatter:off
+			then(result)
+				.as("LocalTime truncated to %s", unit)
+				.isEqualTo(c[1])
+				;
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void dateTruncate_localTime_unitTooLarge() {
+		for ( ChronoUnit unit : new ChronoUnit[] { ChronoUnit.WEEKS, ChronoUnit.MONTHS,
+				ChronoUnit.DECADES } ) {
+			// WHEN
+			Throwable t = catchThrowable(() -> DateUtils.dateTruncate(LocalTime.of(14, 34), unit));
+
+			// THEN
+			// @formatter:off
+			then(t)
+				.as("LocalTime truncated to %s rejected", unit)
+				.isInstanceOf(IllegalArgumentException.class)
+				.as("Message names time and unit")
+				.hasMessageStartingWith("Cannot truncate date 14:34 to %s: ", unit)
+				;
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void dateTruncate_offsetTime() {
+		// GIVEN
+		final ZoneOffset offset = ZoneOffset.ofHoursMinutes(5, 30);
+		final OffsetTime d = OffsetTime.of(14, 34, 56, 789, offset);
+
+		// @formatter:off
+		final Object[][] cases = new Object[][] {
+			{ ChronoUnit.SECONDS, OffsetTime.of(14, 34, 56, 0, offset) },
+			{ ChronoUnit.MINUTES, OffsetTime.of(14, 34, 0, 0, offset) },
+			{ ChronoUnit.HOURS, OffsetTime.of(14, 0, 0, 0, offset) },
+			{ ChronoUnit.HALF_DAYS, OffsetTime.of(12, 0, 0, 0, offset) },
+			{ ChronoUnit.DAYS, OffsetTime.of(LocalTime.MIDNIGHT, offset) },
+		};
+		// @formatter:on
+
+		for ( Object[] c : cases ) {
+			final ChronoUnit unit = (ChronoUnit) c[0];
+
+			// WHEN
+			Temporal result = DateUtils.dateTruncate(d, unit);
+
+			// THEN
+			// @formatter:off
+			then(result)
+				.as("OffsetTime truncated to %s in its local time, keeping its offset", unit)
+				.isEqualTo(c[1])
+				;
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void dateTruncate_offsetTime_unitTooLarge() {
+		final OffsetTime d = OffsetTime.of(14, 34, 0, 0, ZoneOffset.ofHoursMinutes(5, 30));
+		for ( ChronoUnit unit : new ChronoUnit[] { ChronoUnit.WEEKS, ChronoUnit.MONTHS,
+				ChronoUnit.DECADES } ) {
+			// WHEN
+			Throwable t = catchThrowable(() -> DateUtils.dateTruncate(d, unit));
+
+			// THEN
+			// @formatter:off
+			then(t)
+				.as("OffsetTime truncated to %s rejected", unit)
+				.isInstanceOf(IllegalArgumentException.class)
+				.as("Message names time and unit")
+				.hasMessageStartingWith("Cannot truncate date 14:34+05:30 to %s: ", unit)
+				;
+			// @formatter:on
+		}
+	}
+
+	@Test
 	public void dateTruncate_unsupportedType() {
 		// WHEN
 		Throwable t = catchThrowable(
-				() -> DateUtils.dateTruncate(LocalTime.of(12, 30), ChronoUnit.DAYS));
+				() -> DateUtils.dateTruncate(YearMonth.of(2024, 8), ChronoUnit.DAYS));
 
 		// THEN
 		// @formatter:off
@@ -1237,7 +1341,7 @@ public class DateUtilsTests {
 			.as("Unsupported date type rejected")
 			.isInstanceOf(IllegalArgumentException.class)
 			.as("Message names date type and unit")
-			.hasMessage("Cannot truncate date type class java.time.LocalTime to Days: unsupported type.")
+			.hasMessage("Cannot truncate date type class java.time.YearMonth to Days: unsupported type.")
 			;
 		// @formatter:on
 	}
