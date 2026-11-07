@@ -315,6 +315,21 @@ public class DatumMathFunctionsTests implements DatumMathFunctions {
 	}
 
 	@Test
+	public void rms_nullElement() {
+		List<Integer> values = Arrays.asList(3, 4, null);
+		Number result = round(rms(values), 5);
+		assertThat("RMS calculated ignoring null elements", result,
+				is(equalTo(new BigDecimal("3.53553"))));
+	}
+
+	@Test
+	public void rms_allNullElements() {
+		List<Integer> values = Arrays.asList(null, null);
+		Number result = rms(values);
+		assertThat("RMS is null when all elements are null", result, is(nullValue()));
+	}
+
+	@Test
 	public void sum() {
 		List<Double> values = Arrays.asList(1.0, 2.0, 3.0);
 		Number result = sum(values);

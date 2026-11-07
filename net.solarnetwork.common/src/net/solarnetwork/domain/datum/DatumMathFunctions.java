@@ -28,6 +28,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.util.NumberUtils;
@@ -863,10 +864,11 @@ public interface DatumMathFunctions {
 	}
 
 	/**
-	 * Compute the root-mean-squared a group of numbers.
+	 * Compute the root-mean-square of a group of numbers.
 	 *
 	 * @param set
-	 *        the numbers to calculate the RMS for; if {@code null} then
+	 *        the numbers to calculate the RMS for; {@code null} values are
+	 *        ignored; if {@code null}, empty, or only {@code null} values then
 	 *        {@code null} will be returned
 	 * @return the RMS of {@code set}
 	 */
@@ -874,7 +876,9 @@ public interface DatumMathFunctions {
 		if ( set == null || set.isEmpty() ) {
 			return null;
 		}
-		List<Number> squares = set.stream().map(n -> pow(n, 2)).collect(Collectors.toList());
+		// skip null values, as sum() and avg() do
+		List<Number> squares = set.stream().filter(Objects::nonNull).map(n -> pow(n, 2))
+				.collect(Collectors.toList());
 		BigDecimal sum = NumberUtils.bigDecimalForNumber(sum(squares));
 		if ( sum == null ) {
 			return null;
