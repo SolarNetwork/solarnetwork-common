@@ -650,6 +650,51 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 	}
 
 	@Test
+	public void monthsBetween_Instant_zone() {
+		// GIVEN
+		ZoneId zone = ZoneId.of("Pacific/Auckland");
+		Instant d1 = ZonedDateTime.of(2024, 2, 1, 0, 0, 0, 0, zone).toInstant();
+		Instant d2 = ZonedDateTime.of(2024, 3, 1, 0, 0, 0, 0, zone).toInstant();
+
+		// WHEN
+		double result = monthsBetween(d1, d2, zone);
+
+		// THEN
+		// all of February in the zone, which in UTC would be 0.998795 months
+		assertThat("Months between two Instant in zone returned", result, is(equalTo(1.0)));
+	}
+
+	@Test
+	public void monthsBetween_Instant_systemZone() {
+		// GIVEN
+		ZoneId zone = ZoneId.systemDefault();
+		Instant d1 = Instant.parse("2024-01-14T23:00:00Z");
+		Instant d2 = Instant.parse("2025-03-09T17:00:00Z");
+		double expected = monthsBetween(d1.atZone(zone), d2.atZone(zone));
+
+		// WHEN
+		double result = monthsBetween(d1, d2);
+		double resultNullZone = monthsBetween(d1, d2, null);
+
+		// THEN
+		assertThat("Months between two Instant in system zone returned", result, is(equalTo(expected)));
+		assertThat("Months between two Instant with null zone in system zone returned", resultNullZone,
+				is(equalTo(expected)));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void monthsBetween_mixedTypes() {
+		// WHEN
+		monthsBetween(LocalDate.of(2024, 1, 15), LocalDateTime.of(2024, 3, 10, 6, 0));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void monthsBetween_LocalTime() {
+		// WHEN
+		monthsBetween(LocalTime.of(1, 0), LocalTime.of(2, 0));
+	}
+
+	@Test
 	public void yearsBetween_LocalDate_withinYear() {
 		// GIVEN
 		LocalDate d1 = LocalDate.of(2024, 2, 1);
@@ -731,6 +776,51 @@ public class DatumDateFunctionsTests implements DatumDateFunctions {
 		// 199.5 of 366 days in 2024, all of 2025, 59.25 of 365 days in 2026
 		assertThat("Years between two LocalDateTime with an earlier end time of day returned",
 				NumberUtils.round(result, 4), is(equalTo(new BigDecimal("1.7074"))));
+	}
+
+	@Test
+	public void yearsBetween_Instant_zone() {
+		// GIVEN
+		ZoneId zone = ZoneId.of("Pacific/Auckland");
+		Instant d1 = ZonedDateTime.of(2025, 1, 1, 0, 0, 0, 0, zone).toInstant();
+		Instant d2 = ZonedDateTime.of(2026, 1, 1, 0, 0, 0, 0, zone).toInstant();
+
+		// WHEN
+		double result = yearsBetween(d1, d2, zone);
+
+		// THEN
+		// all of 2025 in the zone, which in UTC would be 0.999996 years
+		assertThat("Years between two Instant in zone returned", result, is(equalTo(1.0)));
+	}
+
+	@Test
+	public void yearsBetween_Instant_systemZone() {
+		// GIVEN
+		ZoneId zone = ZoneId.systemDefault();
+		Instant d1 = Instant.parse("2024-01-14T23:00:00Z");
+		Instant d2 = Instant.parse("2025-03-09T17:00:00Z");
+		double expected = yearsBetween(d1.atZone(zone), d2.atZone(zone));
+
+		// WHEN
+		double result = yearsBetween(d1, d2);
+		double resultNullZone = yearsBetween(d1, d2, null);
+
+		// THEN
+		assertThat("Years between two Instant in system zone returned", result, is(equalTo(expected)));
+		assertThat("Years between two Instant with null zone in system zone returned", resultNullZone,
+				is(equalTo(expected)));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void yearsBetween_mixedTypes() {
+		// WHEN
+		yearsBetween(LocalDate.of(2024, 1, 15), LocalDateTime.of(2024, 3, 10, 6, 0));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void yearsBetween_LocalTime() {
+		// WHEN
+		yearsBetween(LocalTime.of(1, 0), LocalTime.of(2, 0));
 	}
 
 	@Test(expected = IllegalArgumentException.class)

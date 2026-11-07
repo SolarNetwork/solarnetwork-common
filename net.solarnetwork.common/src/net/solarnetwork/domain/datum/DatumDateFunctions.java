@@ -39,6 +39,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
@@ -1130,6 +1131,10 @@ public interface DatumDateFunctions {
 	 * Calculate the fractional number of months between two dates, with second
 	 * resolution.
 	 *
+	 * <p>
+	 * {@link Instant} dates are treated as dates in the system time zone.
+	 * </p>
+	 *
 	 * @param date1
 	 *        the first date
 	 * @param date2
@@ -1138,50 +1143,58 @@ public interface DatumDateFunctions {
 	 *         either argument is {@code null}
 	 * @throws IllegalArgumentException
 	 *         if the duration cannot be calculated
+	 * @see #monthsBetween(Temporal, Temporal, ZoneId)
 	 * @since 1.2
 	 */
-	@SuppressWarnings("unchecked")
 	default double monthsBetween(@Nullable Temporal date1, @Nullable Temporal date2) {
-		if ( date1 == null || date2 == null ) {
-			return 0.0;
-		}
+		return monthsBetween(date1, date2, null);
+	}
 
-		long sign = 1;
-		double f1 = 0.0;
-		long wholeMonths = 0;
-		double f2 = 0.0;
+	/**
+	 * Calculate the fractional number of months between two dates, with second
+	 * resolution.
+	 *
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @param zone
+	 *        the time zone to use for {@link Instant} dates, or {@code null}
+	 *        for the system time zone
+	 * @return the number of months between the two dates, or {@code 0} if
+	 *         either argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated, such as between a
+	 *         {@code LocalDate} and a {@code LocalDateTime}
+	 * @since 1.7
+	 */
+	default double monthsBetween(@Nullable Temporal date1, @Nullable Temporal date2,
+			@Nullable ZoneId zone) {
+		return fractionalBetween(ChronoUnit.MONTHS, TemporalAdjusters.firstDayOfMonth(),
+				TemporalAdjusters.firstDayOfNextMonth(), date1, date2, zone);
+	}
 
-		if ( ((Comparable<Temporal>) date1).compareTo(date2) > 0 ) {
-			// swap date order and negate result
-			Temporal t = date1;
-			date1 = date2;
-			date2 = t;
-			sign = -1;
-		}
-
-		// calculate starting fraction of first start month; month boundaries start at midnight,
-		Temporal date1MonthStart = atStartOfDay(date1.with(TemporalAdjusters.firstDayOfMonth()));
-		Temporal date1NextMonthStart = atStartOfDay(date1.with(TemporalAdjusters.firstDayOfNextMonth()));
-
-		if ( ((Comparable<Temporal>) date1NextMonthStart).compareTo(date2) > 0 ) {
-			// within a single month
-			f1 = (double) between(ChronoUnit.SECONDS, date1, date2)
-					/ (double) between(ChronoUnit.SECONDS, date1MonthStart, date1NextMonthStart);
-		} else {
-			f1 = (double) between(ChronoUnit.SECONDS, date1, date1NextMonthStart)
-					/ (double) between(ChronoUnit.SECONDS, date1MonthStart, date1NextMonthStart);
-
-			Temporal date2MonthStart = atStartOfDay(date2.with(TemporalAdjusters.firstDayOfMonth()));
-
-			// calculate whole months between month boundaries
-			wholeMonths = Math.max(date1NextMonthStart.until(date2MonthStart, ChronoUnit.MONTHS), 0);
-
-			f2 = (double) between(ChronoUnit.SECONDS, date2MonthStart, date2)
-					/ (double) between(ChronoUnit.SECONDS, date2MonthStart,
-							atStartOfDay(date2MonthStart.with(TemporalAdjusters.firstDayOfNextMonth())));
-		}
-
-		return sign * (f1 + wholeMonths + f2);
+	/**
+	 * Calculate the fractional number of years between two dates, with second
+	 * resolution.
+	 *
+	 * <p>
+	 * {@link Instant} dates are treated as dates in the system time zone.
+	 * </p>
+	 *
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @return the number of years between the two dates, or {@code 0} if either
+	 *         argument is {@code null}
+	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated
+	 * @see #yearsBetween(Temporal, Temporal, ZoneId)
+	 * @since 1.2
+	 */
+	default double yearsBetween(@Nullable Temporal date1, @Nullable Temporal date2) {
+		return yearsBetween(date1, date2, null);
 	}
 
 	/**
@@ -1192,54 +1205,113 @@ public interface DatumDateFunctions {
 	 *        the first date
 	 * @param date2
 	 *        the second date
+	 * @param zone
+	 *        the time zone to use for {@link Instant} dates, or {@code null}
+	 *        for the system time zone
 	 * @return the number of years between the two dates, or {@code 0} if either
 	 *         argument is {@code null}
 	 * @throws IllegalArgumentException
+	 *         if the duration cannot be calculated, such as between a
+	 *         {@code LocalDate} and a {@code LocalDateTime}
+	 * @since 1.7
+	 */
+	default double yearsBetween(@Nullable Temporal date1, @Nullable Temporal date2,
+			@Nullable ZoneId zone) {
+		return fractionalBetween(ChronoUnit.YEARS, TemporalAdjusters.firstDayOfYear(),
+				TemporalAdjusters.firstDayOfNextYear(), date1, date2, zone);
+	}
+
+	/**
+	 * Calculate the fractional number of calendar units, such as months,
+	 * between two dates, with second resolution.
+	 *
+	 * @param unit
+	 *        the unit to count
+	 * @param firstDay
+	 *        the adjuster to the first day of the unit containing a date
+	 * @param firstDayOfNext
+	 *        the adjuster to the first day of the unit after a date
+	 * @param date1
+	 *        the first date
+	 * @param date2
+	 *        the second date
+	 * @param zone
+	 *        the time zone to use for {@link Instant} dates, or {@code null}
+	 *        for the system time zone
+	 * @return the number of units between the two dates, or {@code 0} if either
+	 *         argument is {@code null}
+	 * @throws IllegalArgumentException
 	 *         if the duration cannot be calculated
-	 * @since 1.2
 	 */
 	@SuppressWarnings("unchecked")
-	default double yearsBetween(@Nullable Temporal date1, @Nullable Temporal date2) {
+	private static double fractionalBetween(ChronoUnit unit, TemporalAdjuster firstDay,
+			TemporalAdjuster firstDayOfNext, @Nullable Temporal date1, @Nullable Temporal date2,
+			@Nullable ZoneId zone) {
 		if ( date1 == null || date2 == null ) {
 			return 0.0;
 		}
 
 		long sign = 1;
 		double f1 = 0.0;
-		long wholeYears = 0;
+		long wholeUnits = 0;
 		double f2 = 0.0;
 
-		if ( ((Comparable<Temporal>) date1).compareTo(date2) > 0 ) {
-			// swap date order and negate result
-			Temporal t = date1;
-			date1 = date2;
-			date2 = t;
-			sign = -1;
+		try {
+			Temporal from = atZone(date1, zone);
+			Temporal to = atZone(date2, zone);
+
+			if ( ((Comparable<Temporal>) from).compareTo(to) > 0 ) {
+				// swap date order and negate result
+				Temporal t = from;
+				from = to;
+				to = t;
+				sign = -1;
+			}
+
+			// calculate starting fraction of first unit; unit boundaries start at midnight
+			Temporal fromUnitStart = atStartOfDay(from.with(firstDay));
+			Temporal fromNextUnitStart = atStartOfDay(from.with(firstDayOfNext));
+
+			if ( ((Comparable<Temporal>) fromNextUnitStart).compareTo(to) > 0 ) {
+				// within a single unit
+				f1 = (double) between(ChronoUnit.SECONDS, from, to)
+						/ (double) between(ChronoUnit.SECONDS, fromUnitStart, fromNextUnitStart);
+			} else {
+				f1 = (double) between(ChronoUnit.SECONDS, from, fromNextUnitStart)
+						/ (double) between(ChronoUnit.SECONDS, fromUnitStart, fromNextUnitStart);
+
+				Temporal toUnitStart = atStartOfDay(to.with(firstDay));
+
+				// calculate whole units between unit boundaries
+				wholeUnits = Math.max(fromNextUnitStart.until(toUnitStart, unit), 0);
+
+				f2 = (double) between(ChronoUnit.SECONDS, toUnitStart, to)
+						/ (double) between(ChronoUnit.SECONDS, toUnitStart,
+								atStartOfDay(toUnitStart.with(firstDayOfNext)));
+			}
+		} catch ( DateTimeException | ClassCastException e ) {
+			// such as dates of different types, or without a day
+			throw new IllegalArgumentException(
+					format("Cannot calculate number of %s between [%s] and [%s]: %s", unit, date1, date2,
+							e.getMessage()));
 		}
 
-		// calculate starting fraction of first start year; year boundaries start at midnight,
-		Temporal date1YearStart = atStartOfDay(date1.with(TemporalAdjusters.firstDayOfYear()));
-		Temporal date1NextYearStart = atStartOfDay(date1.with(TemporalAdjusters.firstDayOfNextYear()));
+		return sign * (f1 + wholeUnits + f2);
+	}
 
-		if ( ((Comparable<Temporal>) date1NextYearStart).compareTo(date2) > 0 ) {
-			// within a single year
-			f1 = (double) between(ChronoUnit.SECONDS, date1, date2)
-					/ (double) between(ChronoUnit.SECONDS, date1YearStart, date1NextYearStart);
-		} else {
-			f1 = (double) between(ChronoUnit.SECONDS, date1, date1NextYearStart)
-					/ (double) between(ChronoUnit.SECONDS, date1YearStart, date1NextYearStart);
-
-			Temporal date2YearStart = atStartOfDay(date2.with(TemporalAdjusters.firstDayOfYear()));
-
-			// calculate whole years between year boundaries
-			wholeYears = Math.max(date1NextYearStart.until(date2YearStart, ChronoUnit.YEARS), 0);
-
-			f2 = (double) between(ChronoUnit.SECONDS, date2YearStart, date2)
-					/ (double) between(ChronoUnit.SECONDS, date2YearStart,
-							atStartOfDay(date2YearStart.with(TemporalAdjusters.firstDayOfNextYear())));
-		}
-
-		return sign * (f1 + wholeYears + f2);
+	/**
+	 * Get an {@link Instant} as a date in a time zone.
+	 *
+	 * @param date
+	 *        the date
+	 * @param zone
+	 *        the time zone, or {@code null} for the system time zone
+	 * @return {@code date} in {@code zone} if it is an {@code Instant},
+	 *         otherwise {@code date}
+	 */
+	private static Temporal atZone(Temporal date, @Nullable ZoneId zone) {
+		return (date instanceof Instant ts ? ts.atZone(zone != null ? zone : ZoneId.systemDefault())
+				: date);
 	}
 
 	/**
