@@ -33,7 +33,7 @@ import net.solarnetwork.domain.datum.NumberDatumSamplePropertyConfig;
  * Test cases for the {@link NumberDatumSamplePropertyConfig} class.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class NumberDatumSamplePropertyConfigTests {
 
@@ -94,6 +94,18 @@ public class NumberDatumSamplePropertyConfigTests {
 				Instantaneous, "bar");
 		c.setUnitIntercept(new BigDecimal("15"));
 		assertThat("y = M(x + B) applied", c.applyTransformations(10), equalTo(new BigDecimal("25")));
+	}
+
+	@Test
+	public void nonFinite() {
+		NumberDatumSamplePropertyConfig<String> c = new NumberDatumSamplePropertyConfig<String>("foo",
+				Instantaneous, "bar");
+		assertThat("NaN returned with default transforms", c.applyTransformations(Float.NaN),
+				equalTo(Float.NaN));
+		c.setSlope(new BigDecimal("-1"));
+		c.setIntercept(new BigDecimal("15"));
+		assertThat("y = mx + b applied to infinity", c.applyTransformations(Double.POSITIVE_INFINITY),
+				equalTo(Double.NEGATIVE_INFINITY));
 	}
 
 }

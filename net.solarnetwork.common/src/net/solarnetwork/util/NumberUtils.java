@@ -391,7 +391,8 @@ public final class NumberUtils {
 	 *        the number to apply the maximum scale to
 	 * @param maxDecimalScale
 	 *        the maximum scale, or {@literal -1} for no maximum
-	 * @return the value, possibly rounded to {@code decimalScale}
+	 * @return the value, possibly rounded to {@code decimalScale}; a NaN or
+	 *         infinite {@code Float} or {@code Double} is returned unchanged
 	 * @since 1.3
 	 */
 	public static @Nullable Number maximumDecimalScale(@Nullable Number value, int maxDecimalScale) {
@@ -406,12 +407,18 @@ public final class NumberUtils {
 	 * @param multiple
 	 *        the value to multiply {@code value} by; if {@code null} then
 	 *        {@code value} is returned unchanged
-	 * @return the value, or {@code null} if {@code value} is {@code null}
+	 * @return the value, or {@code null} if {@code value} is {@code null}; for
+	 *         a NaN or infinite {@code Float} or {@code Double} the result is a
+	 *         {@code Double}
 	 * @since 1.3
 	 */
 	public static @Nullable Number multiplied(@Nullable Number value, @Nullable BigDecimal multiple) {
 		if ( value == null || multiple == null || BigDecimal.ONE.compareTo(multiple) == 0 ) {
 			return value;
+		}
+		if ( isNotFinite(value) ) {
+			// NaN and infinity can't be converted to BigDecimal
+			return value.doubleValue() * multiple.doubleValue();
 		}
 		final BigDecimal v = bigDecimalForNumber(value);
 		return (v != null ? v.multiply(multiple) : null);
@@ -425,11 +432,14 @@ public final class NumberUtils {
 	 * @param offset
 	 *        the value to add to {@code value}; if {@code null} then
 	 *        {@code value} is returned unchanged
-	 * @return the value, or {@code null} if {@code value} is {@code null}
+	 * @return the value, or {@code null} if {@code value} is {@code null}; a
+	 *         NaN or infinite {@code Float} or {@code Double} is returned
+	 *         unchanged
 	 * @since 1.3
 	 */
 	public static @Nullable Number offset(@Nullable Number value, @Nullable BigDecimal offset) {
-		if ( value == null || offset == null || BigDecimal.ZERO.compareTo(offset) == 0 ) {
+		if ( value == null || offset == null || BigDecimal.ZERO.compareTo(offset) == 0
+				|| isNotFinite(value) ) {
 			return value;
 		}
 		final BigDecimal v = bigDecimalForNumber(value);
@@ -1101,11 +1111,16 @@ public final class NumberUtils {
 	 * @param mode
 	 *        the rounding mode
 	 * @return the rounded number as a {@link BigDecimal}, or {@code null} if
-	 *         {@code n} or {@code digits} is {@code null}
+	 *         {@code n} or {@code digits} is {@code null}; a NaN or infinite
+	 *         {@code Float} or {@code Double} is returned unchanged
 	 * @since 1.10
 	 */
 	public static @Nullable Number round(@Nullable Number n, @Nullable Number digits,
 			@Nullable RoundingMode mode) {
+		if ( n != null && isNotFinite(n) ) {
+			// NaN and infinity can't be converted to BigDecimal, and have no digits to round
+			return (digits != null ? n : null);
+		}
 		BigDecimal d = bigDecimalForNumber(n);
 		if ( d == null || digits == null ) {
 			return null;

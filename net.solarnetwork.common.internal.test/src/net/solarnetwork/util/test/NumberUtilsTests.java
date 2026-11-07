@@ -309,6 +309,24 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void offset_nonFinite() {
+		// GIVEN
+		final Float nan = Float.NaN;
+		final Double negInf = Double.NEGATIVE_INFINITY;
+
+		// @formatter:off
+		then(NumberUtils.offset(nan, BigDecimal.ONE))
+			.as("NaN plus offset returned unchanged")
+			.isSameAs(nan)
+			;
+		then(NumberUtils.offset(negInf, BigDecimal.TEN))
+			.as("Infinity plus offset returned unchanged")
+			.isSameAs(negInf)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void multiplied_nullValue() {
 		Number n = NumberUtils.multiplied(null, BigDecimal.ZERO);
 		assertThat("Result", n, nullValue());
@@ -341,6 +359,24 @@ public class NumberUtilsTests {
 	}
 
 	@Test
+	public void multiplied_nonFinite() {
+		// @formatter:off
+		then(NumberUtils.multiplied(Float.NaN, BigDecimal.TWO))
+			.as("NaN times multiple is NaN")
+			.isEqualTo(Double.NaN)
+			;
+		then(NumberUtils.multiplied(Double.POSITIVE_INFINITY, new BigDecimal("-2")))
+			.as("Infinity times negative multiple changes sign")
+			.isEqualTo(Double.NEGATIVE_INFINITY)
+			;
+		then(NumberUtils.multiplied(Double.POSITIVE_INFINITY, BigDecimal.ZERO))
+			.as("Infinity times zero is NaN")
+			.isEqualTo(Double.NaN)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void maximumDecimalScale_nullValue() {
 		Number n = NumberUtils.maximumDecimalScale(null, 0);
 		assertThat("Result", n, nullValue());
@@ -363,6 +399,24 @@ public class NumberUtilsTests {
 	public void maximumDecimalScale_scaleRoundedUp() {
 		Number n = NumberUtils.maximumDecimalScale(new BigDecimal("1.28"), 1);
 		assertThat("Result rounded up", n, equalTo(new BigDecimal("1.3")));
+	}
+
+	@Test
+	public void maximumDecimalScale_nonFinite() {
+		// GIVEN
+		final Float nan = Float.NaN;
+		final Double inf = Double.POSITIVE_INFINITY;
+
+		// @formatter:off
+		then(NumberUtils.maximumDecimalScale(nan, 2))
+			.as("NaN returned unchanged")
+			.isSameAs(nan)
+			;
+		then(NumberUtils.maximumDecimalScale(inf, -1))
+			.as("Infinity returned unchanged with no maximum")
+			.isSameAs(inf)
+			;
+		// @formatter:on
 	}
 
 	@Test
@@ -1155,6 +1209,32 @@ public class NumberUtilsTests {
 		then(NumberUtils.round(new BigDecimal("1.245"), 2, null))
 			.as("Null mode rounds half up")
 			.isEqualTo(new BigDecimal("1.25"))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void round_nonFinite() {
+		// GIVEN
+		final Double nan = Double.NaN;
+		final Float negInf = Float.NEGATIVE_INFINITY;
+
+		// @formatter:off
+		then(NumberUtils.round(nan, 2))
+			.as("NaN returned unchanged")
+			.isSameAs(nan)
+			;
+		then(NumberUtils.roundUp(negInf, 2))
+			.as("Infinity returned unchanged")
+			.isSameAs(negInf)
+			;
+		then(NumberUtils.roundDown(negInf, 2))
+			.as("Infinity returned unchanged")
+			.isSameAs(negInf)
+			;
+		then(NumberUtils.round(nan, null))
+			.as("Null digits still returns null")
+			.isNull()
 			;
 		// @formatter:on
 	}
