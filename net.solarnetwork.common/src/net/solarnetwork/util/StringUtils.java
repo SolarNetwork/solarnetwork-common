@@ -523,7 +523,7 @@ public final class StringUtils {
 	 *         match was found
 	 */
 	public static @Nullable Matcher matches(final Pattern @Nullable [] patterns, @Nullable String text) {
-		if ( patterns == null || patterns.length < 0 || text == null ) {
+		if ( patterns == null || patterns.length < 1 || text == null ) {
 			return null;
 		}
 		for ( Pattern pattern : patterns ) {
