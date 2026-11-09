@@ -170,6 +170,9 @@ public class RegisteredService<T> {
 	 *        the registration
 	 */
 	public void setReg(@Nullable ServiceRegistration<?> reg) {
+		if (reg == null ) {
+			return;
+		}
 		if ( regList == null ) {
 			regList = new ArrayList<ServiceRegistration<?>>(1);
 		} else {

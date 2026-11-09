@@ -122,7 +122,7 @@ public abstract class BaseServiceListener<T, R extends RegisteredService<T>> {
 			for ( Iterator<R> itr = registeredServices.iterator(); itr.hasNext(); ) {
 				R regService = itr.next();
 				if ( regService.isSameAs(tracked, properties) ) {
-					log.debug("Unregistering service [{}] with props {}", tracked);
+					log.debug("Unregistering service [{}] with props {}", tracked, properties);
 					regService.unregister();
 					itr.remove();
 					break;
