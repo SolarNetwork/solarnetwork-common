@@ -30,6 +30,7 @@ import static org.junit.Assert.fail;
 import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -220,6 +221,27 @@ public class DynamicServiceProxyTests {
 			// THEN
 			// expected, and service released
 		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void invoke_nonPublicServiceClass() throws Throwable {
+		// GIVEN
+		TestServiceReference<Supplier> ref = new TestServiceReference<>(1, 0);
+		expect(bundleContext.getServiceReferences(Supplier.class.getName(), null))
+				.andReturn(new ServiceReference<?>[] { ref });
+		// the class of a lambda is not public
+		Supplier<String> service = () -> "foo";
+		expect(bundleContext.getService(ref)).andReturn(service);
+		expect(bundleContext.ungetService(ref)).andReturn(true);
+
+		// WHEN
+		replayAll();
+		DynamicServiceProxy<Supplier> proxy = new DynamicServiceProxy<>(bundleContext, Supplier.class);
+		Object result = proxy.invoke(null, Supplier.class.getMethod("get"), null);
+
+		// THEN
+		assertThat("Method invoked on non-public service class", result, is(equalTo("foo")));
 	}
 
 }

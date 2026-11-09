@@ -124,11 +124,9 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 								+ serviceFilter + ", property filters " + propertyFilters);
 			}
 			try {
-				T delegate = use.service();
-				Method delegateMethod = delegate.getClass().getMethod(method.getName(),
-						method.getParameterTypes());
+				// use the interface method, so non-public service classes work
 				try {
-					return delegateMethod.invoke(delegate, args);
+					return method.invoke(use.service(), args);
 				} catch ( InvocationTargetException proxyException ) {
 					log.debug("Exception calling proxy method " + method.getName());
 					if ( proxyException.getCause() != null ) {
