@@ -22,11 +22,15 @@
 
 package net.solarnetwork.common.osgi.service.test;
 
+import static org.easymock.EasyMock.expect;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import java.util.Arrays;
+import org.easymock.EasyMock;
 import org.junit.Test;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 import net.solarnetwork.common.osgi.service.ServiceReferenceRankComparator;
 import net.solarnetwork.common.osgi.test.TestServiceReference.SerializableServiceRef;
 
@@ -34,7 +38,7 @@ import net.solarnetwork.common.osgi.test.TestServiceReference.SerializableServic
  * Test cases for the {@link ServiceReferenceRankComparator} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class ServiceReferenceRankComparatorTests {
 
@@ -116,6 +120,22 @@ public class ServiceReferenceRankComparatorTests {
 		SerializableServiceRef[] array = new SerializableServiceRef[] { r1, r2, r3, r4 };
 		Arrays.sort(array, comparator);
 		assertThat("Sorted order", array, arrayContaining(r2, r3, r1, r4));
+	}
+
+	private static ServiceReference<?> ref(long id, Object rank) {
+		ServiceReference<?> ref = EasyMock.createMock(ServiceReference.class);
+		expect(ref.getProperty(Constants.SERVICE_ID)).andReturn(id).anyTimes();
+		expect(ref.getProperty(Constants.SERVICE_RANKING)).andReturn(rank).anyTimes();
+		EasyMock.replay(ref);
+		return ref;
+	}
+
+	@Test
+	public void rankNotInteger() {
+		// like the OSGi framework, a ranking that is not an Integer counts as 0
+		ServiceReference<?> r1 = ref(0, 10L);
+		ServiceReference<?> r2 = ref(1, 5);
+		assertThat(comparator.compare(r1, r2), equalTo(DESCENDING_ORDER));
 	}
 
 }
