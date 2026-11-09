@@ -130,7 +130,7 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 	public <S> RegisteredService<S> registerService(S service, @Nullable Map<String, ?> properties,
 			Class<?> @Nullable... classes) {
 		final String[] classNames;
-		if ( classes != null ) {
+		if ( classes != null && classes.length > 0 ) {
 			classNames = Arrays.stream(classes).map(c -> c.getName()).toArray(String[]::new);
 		} else {
 			Set<Class<?>> interfaces = ClassUtils.getAllNonJavaInterfacesForClassAsSet(

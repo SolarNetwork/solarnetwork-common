@@ -76,7 +76,9 @@ public interface ServiceRegistry {
 	 *        optional properties to associate with the service
 	 * @param classes
 	 *        optional classes to register the service as; if not provided the
-	 *        class of {@code service} will be used
+	 *        first non-JDK interface implemented by {@code service} will be
+	 *        used, falling back to the {@code service} class itself if no
+	 *        interfaces are available
 	 * @return the registered service
 	 * @throws IllegalArgumentException
 	 *         if {@code service} is {@code null}

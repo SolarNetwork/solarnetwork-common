@@ -22,9 +22,14 @@
 
 package net.solarnetwork.common.osgi.service.test;
 
+import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isNull;
+import static org.easymock.EasyMock.same;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,8 +40,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import net.solarnetwork.common.osgi.service.OsgiRegisteredService;
 import net.solarnetwork.common.osgi.service.OsgiServiceRegistry;
 import net.solarnetwork.common.osgi.test.TestServiceReference.SerializableServiceRef;
+import net.solarnetwork.service.RegisteredService;
 
 /**
  * Test cases for the {@link OsgiServiceRegistry} class.
@@ -46,20 +54,31 @@ import net.solarnetwork.common.osgi.test.TestServiceReference.SerializableServic
  */
 public class OsgiServiceRegistryTests {
 
-	private BundleContext bundleContext;
+	public interface TestService {
 
+	}
+
+	public static class TestServiceImpl implements TestService {
+
+	}
+
+	private BundleContext bundleContext;
+	private ServiceRegistration<TestServiceImpl> serviceRegistration;
+
+	@SuppressWarnings("unchecked")
 	@Before
 	public void setup() {
 		bundleContext = EasyMock.createMock(BundleContext.class);
+		serviceRegistration = EasyMock.createMock(ServiceRegistration.class);
 	}
 
 	@After
 	public void teardown() {
-		EasyMock.verify(bundleContext);
+		EasyMock.verify(bundleContext, serviceRegistration);
 	}
 
 	private void replayAll() {
-		EasyMock.replay(bundleContext);
+		EasyMock.replay(bundleContext, serviceRegistration);
 	}
 
 	@Test
@@ -111,6 +130,25 @@ public class OsgiServiceRegistryTests {
 
 		// THEN
 		assertThat("Available services returned", result, contains(uuid1, uuid3));
+	}
+
+	@Test
+	public void registerService_noClasses() {
+		// GIVEN
+		final TestServiceImpl service = new TestServiceImpl();
+		EasyMock.<ServiceRegistration<?>> expect(bundleContext.registerService(
+				aryEq(new String[] { TestService.class.getName() }), same(service), isNull()))
+				.andReturn(serviceRegistration);
+
+		// WHEN
+		replayAll();
+		OsgiServiceRegistry registry = new OsgiServiceRegistry(bundleContext);
+		RegisteredService<TestServiceImpl> result = registry.registerService(service, null);
+
+		// THEN
+		assertThat("Registered as service interface",
+				((OsgiRegisteredService<TestServiceImpl>) result).serviceRegistration(),
+				is(sameInstance(serviceRegistration)));
 	}
 
 }
