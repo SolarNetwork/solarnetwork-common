@@ -416,6 +416,62 @@ public class HikariDataSourceManagedServiceFactoryTests {
 	}
 
 	@Test
+	public void configurationDeleted_thenRegisterAnother() throws Exception {
+		// given
+		configurationUpdated_unregisgerService();
+		resetAll();
+
+		// when
+		// then a configuration added after a delete is still registered
+		configurationUpdated_regisgerService();
+	}
+
+	@Test
+	public void configurationDeleted_whileWaitingForFactory() throws Exception {
+		// given
+		final String uuid = UUID.randomUUID().toString();
+		final String pid = net.solarnetwork.common.jdbc.pool.hikari.Activator.SERVICE_PID + "-" + uuid;
+		final String dsFactoryFilter = "(osgi.jdbc.driver.class=org.apache.derby.jdbc.EmbeddedDriver)";
+		final String jdbcUrl = "jdbc:derby:memory:" + uuid + ";create=true";
+
+		Map<String, Object> props = new LinkedHashMap<>(8);
+		props.put(HikariDataSourceManagedServiceFactory.DATA_SOURCE_FACTORY_FILTER_PROPERTY,
+				dsFactoryFilter);
+		props.put("dataSource.url", jdbcUrl);
+		props.put("serviceProperty.db", "test");
+
+		Capture<ServiceListener> dataSourceFactoryListenerCaptor = Capture.newInstance(CaptureType.ALL);
+
+		// no DataSourceFactory registered, so register ServiceListener to wait for one
+		expect(bundleContext.getServiceReferences(DataSourceFactory.class, dsFactoryFilter))
+				.andReturn(Collections.emptySet());
+		bundleContext.addServiceListener(capture(dataSourceFactoryListenerCaptor),
+				eq("(&(objectClass=org.osgi.service.jdbc.DataSourceFactory)" + dsFactoryFilter + ")"));
+
+		replayAll();
+		factory.updated(pid, new Hashtable<String, Object>(props));
+		final ServiceListener dataSourceFactoryListener = dataSourceFactoryListenerCaptor.getValues()
+				.get(0);
+		resetAll();
+
+		// deleting the configuration removes the listener
+		bundleContext.removeServiceListener(capture(dataSourceFactoryListenerCaptor));
+
+		// when
+		replayAll();
+		factory.deleted(pid);
+
+		// a DataSourceFactory event that arrives after the delete is ignored
+		ServiceEvent event = new ServiceEvent(ServiceEvent.REGISTERED, dataSourceFactoryRef);
+		dataSourceFactoryListener.serviceChanged(event);
+
+		// then
+		assertThat("Same ServiceListener removed as added",
+				dataSourceFactoryListenerCaptor.getValues().get(1),
+				sameInstance(dataSourceFactoryListener));
+	}
+
+	@Test
 	public void configurationUpdated_regisgerServiceWithMultiValuedProperty() throws Exception {
 		// given
 		final String uuid = UUID.randomUUID().toString();

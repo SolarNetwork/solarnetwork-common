@@ -44,7 +44,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.jspecify.annotations.Nullable;
@@ -121,7 +120,6 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 	private final BundleContext bundleContext;
 	private final Executor executor;
-	private final AtomicBoolean destroyed;
 	private Set<String> ignoredPropertyPrefixes = DEFAULT_IGNORED_PROPERTY_PREFIXES;
 
 	private final ConcurrentMap<String, ManagedHikariDataSource> instances;
@@ -156,7 +154,6 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 		super();
 		this.bundleContext = requireNonNullArgument(bundleContext, "bundleContext");
 		this.executor = requireNonNullArgument(executor, "executor");
-		this.destroyed = new AtomicBoolean(false);
 		this.instances = new ConcurrentHashMap<>(4, 0.9f, 1);
 	}
 
@@ -168,9 +165,6 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	@Override
 	public void updated(String pid, @SuppressWarnings("rawtypes") Dictionary properties)
 			throws ConfigurationException {
-		if ( destroyed.get() ) {
-			return;
-		}
 		@SuppressWarnings("unchecked")
 		final Map<String, ?> props = nonnull(CollectionUtils.mapForDictionary(properties), "Properties");
 		final Map<String, ?> logProps = props.entrySet().stream()
@@ -216,26 +210,20 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 	@Override
 	public void deleted(String pid) {
-		if ( destroyed.compareAndSet(false, true) ) {
-			executor.execute(new Runnable() {
+		executor.execute(new Runnable() {
 
-				@Override
-				public void run() {
-					try {
-						doDelete(pid);
-					} catch ( Throwable t ) {
-						log.warn("Error deleting managed HikariCP DataSource {}: {} ", pid, t.toString(),
-								t);
-					}
+			@Override
+			public void run() {
+				try {
+					doDelete(pid);
+				} catch ( Throwable t ) {
+					log.warn("Error deleting managed HikariCP DataSource {}: {} ", pid, t.toString(), t);
 				}
-			});
-		}
+			}
+		});
 	}
 
 	private void doUpdate(String pid, Map<String, ?> properties) {
-		if ( destroyed.get() ) {
-			return;
-		}
 		instances.compute(pid, (k, v) -> {
 			if ( v == null ) {
 				// create new
@@ -361,7 +349,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	private void doDelete(String pid) {
 		instances.computeIfPresent(pid, (k, v) -> {
 			v.unregister();
-			log.info("Unregistered managed HikariCP DataSource {} {}", pid);
+			log.info("Unregistered managed HikariCP DataSource {}", pid);
 			return null;
 		});
 	}
@@ -382,6 +370,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 		private @Nullable ServiceRegistration<DataSource> poolDataSourceReg;
 		private @Nullable ServiceRegistration<PingTest> pingTestReg;
 		private boolean dataSourceFactoryListening;
+		private volatile boolean deleted;
 
 		private ManagedHikariDataSource(String pid, @Nullable String dataSourceFactoryFilter,
 				String jdbcUrl, @Nullable String pingTestQuery, Dictionary<String, ?> serviceProps,
@@ -404,7 +393,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 		@Override
 		public void serviceChanged(ServiceEvent event) {
-			if ( event.getType() == ServiceEvent.REGISTERED && !isRegistered() ) {
+			if ( event.getType() == ServiceEvent.REGISTERED && !isRegistered() && !deleted ) {
 				final ServiceReference<?> ref = event.getServiceReference();
 				Object service = bundleContext.getService(ref);
 				if ( service instanceof DataSourceFactory ) {
@@ -415,9 +404,6 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 						@Override
 						public void run() {
 							try {
-								if ( destroyed.get() ) {
-									return;
-								}
 								createDataSource((DataSourceFactory) service);
 							} finally {
 								bundleContext.ungetService(ref);
@@ -431,6 +417,10 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 		}
 
 		private synchronized void createDataSource(DataSourceFactory dataSourceFactory) {
+			if ( deleted ) {
+				// configuration deleted while waiting for the factory
+				return;
+			}
 			try {
 				DataSource ds = dataSourceFactory.createDataSource(dataSourceProps);
 				if ( exceptionHandlerSupport ) {
@@ -564,6 +554,11 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 		}
 
 		private synchronized void unregister() {
+			deleted = true;
+			if ( dataSourceFactoryListening ) {
+				bundleContext.removeServiceListener(this);
+				dataSourceFactoryListening = false;
+			}
 			if ( pingTestReg != null ) {
 				log.info("Unregistering PingTest for pooled JDBC DataSource {} with props {}", jdbcUrl,
 						serviceProps);
