@@ -23,6 +23,7 @@
 package net.solarnetwork.common.osgi.event;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +34,8 @@ import org.jspecify.annotations.Nullable;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.DestructionAwareBeanPostProcessor;
 import org.springframework.util.AntPathMatcher;
@@ -42,12 +45,22 @@ import org.springframework.util.PathMatcher;
  * Adapts the OSGi {@link EventAdmin} API to a non-OSGi, Spring based
  * application context environment.
  *
+ * <p>
+ * Handler topics are Ant-style patterns, matched by {@link AntPathMatcher}, not
+ * OSGi topic wildcards: for example {@code a/*} matches {@code a/b} but not
+ * {@code a/b/c}, which {@code a/**} matches. A handler receives each event
+ * once, even if more than one of its topics match. An exception thrown by a
+ * handler is logged, and does not stop delivery to other handlers.
+ * </p>
+ *
  * @author matt
- * @version 1.1
+ * @version 1.2
  * @since 1.36
  */
 public class SimpleEventAdmin
 		implements EventAdmin, DestructionAwareBeanPostProcessor, EventHandlerRegistrar {
+
+	private static final Logger log = LoggerFactory.getLogger(SimpleEventAdmin.class);
 
 	private final PathMatcher pathMatcher = new AntPathMatcher();
 	private final ConcurrentMap<String, Set<EventHandler>> eventHandlers = new ConcurrentHashMap<>();
@@ -93,14 +106,7 @@ public class SimpleEventAdmin
 	@Override
 	public void registerEventHandler(EventHandler handler, String... topics) {
 		for ( String topic : topics ) {
-			// note: in 1.8, computeIfAbsent would be better; for now assuming this is called during
-			// application initialization (by Spring) and from a single thread only
-			Set<EventHandler> handlers = eventHandlers.get(topic);
-			if ( handlers == null ) {
-				handlers = new CopyOnWriteArraySet<EventHandler>();
-				eventHandlers.put(topic, handlers);
-			}
-			handlers.add(handler);
+			eventHandlers.computeIfAbsent(topic, k -> new CopyOnWriteArraySet<>()).add(handler);
 		}
 	}
 
@@ -113,31 +119,44 @@ public class SimpleEventAdmin
 
 	@Override
 	public void postEvent(final Event event) {
-		for ( Map.Entry<String, Set<EventHandler>> me : eventHandlers.entrySet() ) {
-			String topic = event.getTopic();
-			if ( pathMatcher.match(me.getKey(), topic) ) {
-				for ( final EventHandler handler : me.getValue() ) {
-					executor.execute(new Runnable() {
-
-						@Override
-						public void run() {
-							handler.handleEvent(event);
-						}
-					});
-				}
-			}
+		for ( final EventHandler handler : matchingHandlers(event) ) {
+			executor.execute(() -> handleEvent(handler, event));
 		}
 	}
 
 	@Override
 	public void sendEvent(Event event) {
-		for ( Map.Entry<String, Set<EventHandler>> me : eventHandlers.entrySet() ) {
-			String topic = event.getTopic();
-			if ( pathMatcher.match(me.getKey(), topic) ) {
-				for ( EventHandler handler : me.getValue() ) {
-					handler.handleEvent(event);
-				}
-			}
+		for ( EventHandler handler : matchingHandlers(event) ) {
+			handleEvent(handler, event);
 		}
 	}
+
+	/**
+	 * Get the handlers with a topic matching an event.
+	 *
+	 * @param event
+	 *        the event
+	 * @return the matching handlers, without duplicates
+	 */
+	private Set<EventHandler> matchingHandlers(Event event) {
+		final String topic = event.getTopic();
+		final Set<EventHandler> result = new LinkedHashSet<>(8);
+		for ( Map.Entry<String, Set<EventHandler>> me : eventHandlers.entrySet() ) {
+			if ( pathMatcher.match(me.getKey(), topic) ) {
+				result.addAll(me.getValue());
+			}
+		}
+		return result;
+	}
+
+	private static void handleEvent(EventHandler handler, Event event) {
+		try {
+			handler.handleEvent(event);
+		} catch ( RuntimeException e ) {
+			// like OSGi EventAdmin, log the exception and continue delivery to other handlers
+			log.error("Event handler {} threw exception handling event {}", handler, event.getTopic(),
+					e);
+		}
+	}
+
 }
