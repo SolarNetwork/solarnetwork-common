@@ -74,7 +74,9 @@ import net.solarnetwork.service.OptionalService;
  *
  * <p>
  * The exposed proxy will also implement the {@link FilterableService}
- * interface.
+ * interface. The proxy handles the {@link FilterableService} methods itself,
+ * along with {@code equals()}, {@code hashCode()}, and {@code toString()},
+ * without resolving a service.
  * </p>
  *
  * @param <T>
@@ -112,31 +114,43 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		final Class<?> declaringClass = method.getDeclaringClass();
+		if ( declaringClass == Object.class ) {
+			if ( "equals".equals(method.getName()) ) {
+				Object other = args[0];
+				return (other != null && Proxy.isProxyClass(other.getClass())
+						&& Proxy.getInvocationHandler(other) == this);
+			}
+			// hashCode and toString
+			return invokeMethod(this, method, args);
+		} else if ( declaringClass == FilterableService.class ) {
+			return invokeMethod(this, method, args);
+		}
+
+		// call on the service!
+		ServiceUse<T> use = getServiceInstance();
+		if ( use == null ) {
+			throw new DynamicServiceUnavailableException(
+					"No " + serviceClass.getName() + " service available matching service filter "
+							+ serviceFilter + ", property filters " + propertyFilters);
+		}
 		try {
-			Method ownMethod = this.getClass().getMethod(method.getName(), method.getParameterTypes());
-			return ownMethod.invoke(this, args);
-		} catch ( NoSuchMethodException e ) {
-			// call on the service!
-			ServiceUse<T> use = getServiceInstance();
-			if ( use == null ) {
-				throw new DynamicServiceUnavailableException(
-						"No " + serviceClass.getName() + " service available matching service filter "
-								+ serviceFilter + ", property filters " + propertyFilters);
+			// use the interface method, so non-public service classes work
+			return invokeMethod(use.service(), method, args);
+		} finally {
+			bundleContext.ungetService(use.ref());
+		}
+	}
+
+	private static Object invokeMethod(Object target, Method method, Object[] args) throws Throwable {
+		try {
+			return method.invoke(target, args);
+		} catch ( InvocationTargetException proxyException ) {
+			log.debug("Exception calling proxy method " + method.getName());
+			if ( proxyException.getCause() != null ) {
+				throw proxyException.getCause();
 			}
-			try {
-				// use the interface method, so non-public service classes work
-				try {
-					return method.invoke(use.service(), args);
-				} catch ( InvocationTargetException proxyException ) {
-					log.debug("Exception calling proxy method " + method.getName());
-					if ( proxyException.getCause() != null ) {
-						throw proxyException.getCause();
-					}
-					throw proxyException;
-				}
-			} finally {
-				bundleContext.ungetService(use.ref());
-			}
+			throw proxyException;
 		}
 	}
 

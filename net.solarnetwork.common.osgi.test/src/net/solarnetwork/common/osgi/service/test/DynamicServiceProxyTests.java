@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 import java.util.Collections;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Supplier;
@@ -35,10 +36,13 @@ import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.wiring.BundleWiring;
 import net.solarnetwork.common.osgi.service.DynamicServiceProxy;
 import net.solarnetwork.common.osgi.test.TestServiceReference;
+import net.solarnetwork.service.FilterableService;
 
 /**
  * Test cases for the {@link DynamicServiceProxy} class.
@@ -49,19 +53,29 @@ import net.solarnetwork.common.osgi.test.TestServiceReference;
 public class DynamicServiceProxyTests {
 
 	private BundleContext bundleContext;
+	private Bundle bundle;
+	private BundleWiring bundleWiring;
 
 	@Before
 	public void setup() {
 		bundleContext = EasyMock.createMock(BundleContext.class);
+		bundle = EasyMock.createMock(Bundle.class);
+		bundleWiring = EasyMock.createMock(BundleWiring.class);
 	}
 
 	@After
 	public void teardown() {
-		EasyMock.verify(bundleContext);
+		EasyMock.verify(bundleContext, bundle, bundleWiring);
 	}
 
 	private void replayAll() {
-		EasyMock.replay(bundleContext);
+		EasyMock.replay(bundleContext, bundle, bundleWiring);
+	}
+
+	private void expectProxyClassLoader() {
+		expect(bundleContext.getBundle()).andReturn(bundle);
+		expect(bundle.adapt(BundleWiring.class)).andReturn(bundleWiring);
+		expect(bundleWiring.getClassLoader()).andReturn(getClass().getClassLoader());
 	}
 
 	@Test
@@ -242,6 +256,70 @@ public class DynamicServiceProxyTests {
 
 		// THEN
 		assertThat("Method invoked on non-public service class", result, is(equalTo("foo")));
+	}
+
+	/**
+	 * A service API with a method that matches a {@link DynamicServiceProxy}
+	 * method.
+	 */
+	public interface ServiceFilterProvider {
+
+		String getServiceFilter();
+
+	}
+
+	@Test
+	public void invoke_serviceMethodMatchesProxyMethod() throws Throwable {
+		// GIVEN
+		TestServiceReference<ServiceFilterProvider> ref = new TestServiceReference<>(1, 0);
+		expect(bundleContext.getServiceReferences(ServiceFilterProvider.class.getName(), null))
+				.andReturn(new ServiceReference<?>[] { ref });
+		ServiceFilterProvider service = () -> "(foo=bar)";
+		expect(bundleContext.getService(ref)).andReturn(service);
+		expect(bundleContext.ungetService(ref)).andReturn(true);
+
+		// WHEN
+		replayAll();
+		DynamicServiceProxy<ServiceFilterProvider> proxy = new DynamicServiceProxy<>(bundleContext,
+				ServiceFilterProvider.class);
+		Object result = proxy.invoke(null, ServiceFilterProvider.class.getMethod("getServiceFilter"),
+				null);
+
+		// THEN
+		assertThat("Method invoked on service, not proxy", result, is(equalTo("(foo=bar)")));
+	}
+
+	@Test
+	public void getObject_equals() throws Exception {
+		// GIVEN
+		expectProxyClassLoader();
+
+		// WHEN
+		replayAll();
+		DynamicServiceProxy<CharSequence> proxy = new DynamicServiceProxy<>(bundleContext,
+				CharSequence.class);
+		CharSequence obj = proxy.getObject();
+
+		// THEN
+		assertThat("Proxy equals itself", obj, is(equalTo(obj)));
+		assertThat("Proxy does not equal other object", obj.equals("foo"), is(false));
+	}
+
+	@Test
+	public void getObject_filterableService() throws Exception {
+		// GIVEN
+		expectProxyClassLoader();
+
+		// WHEN
+		replayAll();
+		DynamicServiceProxy<CharSequence> proxy = new DynamicServiceProxy<>(bundleContext,
+				CharSequence.class);
+		FilterableService obj = (FilterableService) proxy.getObject();
+		obj.setPropertyFilter("foo", "bar");
+
+		// THEN
+		assertThat("Filter set on proxy", proxy.getPropertyFilters(), is(equalTo(Map.of("foo", "bar"))));
+		assertThat("Filter value from proxy", obj.getPropertyValue("foo"), is(equalTo("bar")));
 	}
 
 }
