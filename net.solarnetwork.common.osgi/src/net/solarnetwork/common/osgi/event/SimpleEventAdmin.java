@@ -100,7 +100,7 @@ public class SimpleEventAdmin
 
 	@Override
 	public boolean requiresDestruction(Object bean) {
-		return true;
+		return (bean instanceof EventHandler);
 	}
 
 	@Override
