@@ -170,7 +170,7 @@ public class RegisteredService<T> {
 	 *        the registration
 	 */
 	public void setReg(@Nullable ServiceRegistration<?> reg) {
-		if (reg == null ) {
+		if ( reg == null ) {
 			return;
 		}
 		if ( regList == null ) {
