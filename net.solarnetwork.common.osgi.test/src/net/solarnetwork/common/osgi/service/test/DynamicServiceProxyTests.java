@@ -125,4 +125,52 @@ public class DynamicServiceProxyTests {
 		assertThat("Method invoked on matching service", result, is(equalTo(3)));
 	}
 
+	public static final class ThrowingCharSequence implements CharSequence {
+
+		@Override
+		public int length() {
+			return 0;
+		}
+
+		@Override
+		public char charAt(int index) {
+			throw new IndexOutOfBoundsException(index);
+		}
+
+		@Override
+		public CharSequence subSequence(int start, int end) {
+			return this;
+		}
+
+		@Override
+		public boolean isEmpty() {
+			throw new UnsupportedOperationException("Test getter failure");
+		}
+
+	}
+
+	@Test
+	public void invoke_propertyGetterThrows_skipAndRelease() throws Throwable {
+		// GIVEN
+		TestServiceReference<CharSequence> ref1 = new TestServiceReference<>(1, 1);
+		TestServiceReference<CharSequence> ref2 = new TestServiceReference<>(2, 0);
+		expect(bundleContext.getServiceReferences(CharSequence.class.getName(), null))
+				.andReturn(new ServiceReference<?>[] { ref1, ref2 });
+		expect(bundleContext.getService(ref1)).andReturn(new ThrowingCharSequence());
+		expect(bundleContext.ungetService(ref1)).andReturn(true);
+		expect(bundleContext.getService(ref2)).andReturn("foo");
+		expect(bundleContext.ungetService(ref2)).andReturn(true);
+
+		// WHEN
+		replayAll();
+		DynamicServiceProxy<CharSequence> proxy = new DynamicServiceProxy<>(bundleContext,
+				CharSequence.class);
+		proxy.setPropertyFilters(Collections.singletonMap("empty", false));
+		Object result = proxy.invoke(null, CharSequence.class.getMethod("length"), null);
+
+		// THEN
+		assertThat("Service with failing getter skipped and released, next match invoked", result,
+				is(equalTo(3)));
+	}
+
 }

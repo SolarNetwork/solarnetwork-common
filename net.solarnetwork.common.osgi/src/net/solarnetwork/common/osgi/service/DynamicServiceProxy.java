@@ -39,6 +39,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleWiring;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.FactoryBean;
@@ -222,7 +223,16 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 					// ignore empty filter values, so this is a matching property... skip to the next filter
 					continue;
 				}
-				Object serviceValue = accessor.getPropertyValue(me.getKey());
+				Object serviceValue;
+				try {
+					serviceValue = accessor.getPropertyValue(me.getKey());
+				} catch ( BeansException e ) {
+					log.warn(
+							"Error reading property [{}] of {} service {}, treating as not matching: {}",
+							me.getKey(), serviceClassName, service.getClass().getName(),
+							e.getMostSpecificCause().toString());
+					return false;
+				}
 				if ( requiredValue == null ) {
 					if ( serviceValue == null ) {
 						continue;
