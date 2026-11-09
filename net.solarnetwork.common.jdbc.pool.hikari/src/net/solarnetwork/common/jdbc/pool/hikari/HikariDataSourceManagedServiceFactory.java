@@ -44,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.jspecify.annotations.Nullable;
@@ -124,6 +125,11 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 	private final ConcurrentMap<String, ManagedHikariDataSource> instances;
 
+	// the latest configuration version for each PID, to skip stale queued updates
+	private final AtomicLong configVersionCounter;
+	private final ConcurrentMap<String, Long> configVersions;
+	private volatile boolean destroyed;
+
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
@@ -155,6 +161,26 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 		this.bundleContext = requireNonNullArgument(bundleContext, "bundleContext");
 		this.executor = requireNonNullArgument(executor, "executor");
 		this.instances = new ConcurrentHashMap<>(4, 0.9f, 1);
+		this.configVersionCounter = new AtomicLong();
+		this.configVersions = new ConcurrentHashMap<>(4, 0.9f, 1);
+	}
+
+	/**
+	 * Shut down the factory, unregistering and closing all managed DataSource
+	 * instances.
+	 *
+	 * <p>
+	 * Once shut down, configuration updates are ignored.
+	 * </p>
+	 *
+	 * @since 1.4
+	 */
+	public synchronized void shutdown() {
+		destroyed = true;
+		configVersions.clear();
+		for ( String pid : instances.keySet() ) {
+			doDelete(pid);
+		}
 	}
 
 	@Override
@@ -165,12 +191,17 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 	@Override
 	public void updated(String pid, @SuppressWarnings("rawtypes") Dictionary properties)
 			throws ConfigurationException {
+		if ( destroyed ) {
+			return;
+		}
 		@SuppressWarnings("unchecked")
 		final Map<String, ?> props = nonnull(CollectionUtils.mapForDictionary(properties), "Properties");
 		final Map<String, ?> logProps = props.entrySet().stream()
 				.filter(e -> !e.getKey().contains("password")).collect(Collectors.toMap(Entry::getKey,
 						Entry::getValue, (l, r) -> r, LinkedHashMap::new));
 		log.info("Configuring managed HikariCP DataSource {} with properties {}", pid, logProps);
+		final Long version = configVersionCounter.incrementAndGet();
+		configVersions.put(pid, version);
 		executor.execute(new Runnable() {
 
 			private int errorCount = 0;
@@ -178,7 +209,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 			@Override
 			public void run() {
 				try {
-					doUpdate(pid, props);
+					doUpdate(pid, version, props);
 				} catch ( Throwable t ) {
 					errorCount++;
 					if ( errorCount >= CONFIGURATION_MAX_RETRY ) {
@@ -210,6 +241,8 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 	@Override
 	public void deleted(String pid) {
+		// any queued update for this PID is now stale
+		configVersions.remove(pid);
 		executor.execute(new Runnable() {
 
 			@Override
@@ -223,8 +256,13 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 		});
 	}
 
-	private void doUpdate(String pid, Map<String, ?> properties) {
+	private synchronized void doUpdate(String pid, Long version, Map<String, ?> properties) {
 		instances.compute(pid, (k, v) -> {
+			// check within compute(), so a delete for the same PID cannot run in between
+			if ( destroyed || !version.equals(configVersions.get(pid)) ) {
+				log.debug("Ignoring stale configuration update for managed HikariCP DataSource {}", pid);
+				return v;
+			}
 			if ( v == null ) {
 				// create new
 				Properties poolProps = new Properties();

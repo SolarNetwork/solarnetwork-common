@@ -34,7 +34,7 @@ import org.osgi.service.cm.ManagedServiceFactory;
  * Bundle activator for the connection pool.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class Activator implements BundleActivator {
 
@@ -44,6 +44,7 @@ public class Activator implements BundleActivator {
 	 */
 	public static final String SERVICE_PID = "net.solarnetwork.jdbc.pool.hikari";
 
+	private @Nullable HikariDataSourceManagedServiceFactory factory = null;
 	private @Nullable ServiceRegistration<ManagedServiceFactory> msf = null;
 
 	/**
@@ -58,6 +59,7 @@ public class Activator implements BundleActivator {
 		Hashtable<String, Object> properties = new Hashtable<>();
 		properties.put(Constants.SERVICE_PID, SERVICE_PID);
 		HikariDataSourceManagedServiceFactory dsmsf = new HikariDataSourceManagedServiceFactory(context);
+		factory = dsmsf;
 		msf = context.registerService(ManagedServiceFactory.class, dsmsf, properties);
 	}
 
@@ -66,6 +68,11 @@ public class Activator implements BundleActivator {
 		if ( msf != null ) {
 			msf.unregister();
 			msf = null;
+		}
+		if ( factory != null ) {
+			// close the managed connection pools
+			factory.shutdown();
+			factory = null;
 		}
 	}
 

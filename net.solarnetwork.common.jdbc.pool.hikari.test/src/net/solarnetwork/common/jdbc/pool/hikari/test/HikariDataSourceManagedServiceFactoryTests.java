@@ -34,10 +34,12 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -78,6 +80,7 @@ public class HikariDataSourceManagedServiceFactoryTests {
 	private ServiceRegistration<PingTest> pingTestReg;
 
 	private String factoryPid;
+	private DataSource registeredDataSource;
 
 	@SuppressWarnings("unchecked")
 	@Before
@@ -165,8 +168,9 @@ public class HikariDataSourceManagedServiceFactoryTests {
 		java.sql.Date result = jdbcTemplate.queryForObject("VALUES CURRENT_DATE", java.sql.Date.class);
 		assertThat("Date returned from JDBC", result, notNullValue());
 
-		// save PID for other tests
+		// save PID and DataSource for other tests
 		factoryPid = pid;
+		registeredDataSource = dataSource;
 	}
 
 	@Test
@@ -469,6 +473,109 @@ public class HikariDataSourceManagedServiceFactoryTests {
 		assertThat("Same ServiceListener removed as added",
 				dataSourceFactoryListenerCaptor.getValues().get(1),
 				sameInstance(dataSourceFactoryListener));
+	}
+
+	@Test
+	public void shutdown() throws Exception {
+		// given
+		configurationUpdated_regisgerService();
+		final DataSource dataSource = registeredDataSource;
+		resetAll();
+
+		dataSourceReg.unregister();
+
+		// when
+		replayAll();
+		factory.shutdown();
+
+		// configuration updates after shutdown are ignored
+		Map<String, Object> props = new LinkedHashMap<>(4);
+		props.put("dataSource.url", "jdbc:derby:memory:" + UUID.randomUUID() + ";create=true");
+		factory.updated(factoryPid + "-2", new Hashtable<String, Object>(props));
+
+		// then
+		assertThat("Pool closed", ((HikariDataSource) dataSource).isClosed(), is(true));
+	}
+
+	@Test
+	public void configurationDeleted_beforeQueuedUpdate() throws Exception {
+		// given
+		final List<Runnable> tasks = new ArrayList<>(2);
+		factory = new HikariDataSourceManagedServiceFactory(bundleContext, tasks::add);
+
+		final String uuid = UUID.randomUUID().toString();
+		final String pid = net.solarnetwork.common.jdbc.pool.hikari.Activator.SERVICE_PID + "-" + uuid;
+		final String dsFactoryFilter = "(osgi.jdbc.driver.class=org.apache.derby.jdbc.EmbeddedDriver)";
+
+		Map<String, Object> props = new LinkedHashMap<>(8);
+		props.put(HikariDataSourceManagedServiceFactory.DATA_SOURCE_FACTORY_FILTER_PROPERTY,
+				dsFactoryFilter);
+		props.put("dataSource.url", "jdbc:derby:memory:" + uuid + ";create=true");
+		props.put("serviceProperty.db", "test");
+
+		// when
+		replayAll();
+		factory.updated(pid, new Hashtable<String, Object>(props));
+		factory.deleted(pid);
+
+		// the executor runs the delete before the update
+		tasks.get(1).run();
+		tasks.get(0).run();
+
+		// then
+		// the deleted configuration is not registered
+	}
+
+	@Test
+	public void configurationUpdated_staleQueuedUpdateIgnored() throws Exception {
+		// given
+		final List<Runnable> tasks = new ArrayList<>(2);
+		factory = new HikariDataSourceManagedServiceFactory(bundleContext, tasks::add);
+
+		final String uuid = UUID.randomUUID().toString();
+		final String pid = net.solarnetwork.common.jdbc.pool.hikari.Activator.SERVICE_PID + "-" + uuid;
+		final String dsFactoryFilter = "(osgi.jdbc.driver.class=org.apache.derby.jdbc.EmbeddedDriver)";
+		final String jdbcUrlAttributes = "create=true";
+		final String jdbcUrl = "jdbc:derby:memory:" + uuid + ";" + jdbcUrlAttributes;
+
+		Map<String, Object> props1 = new LinkedHashMap<>(8);
+		props1.put(HikariDataSourceManagedServiceFactory.DATA_SOURCE_FACTORY_FILTER_PROPERTY,
+				dsFactoryFilter);
+		props1.put("dataSource.url", jdbcUrl);
+		props1.put("serviceProperty.db", "test");
+		props1.put("maximumPoolSize", "5");
+
+		Map<String, Object> props2 = new LinkedHashMap<>(props1);
+		props2.put("maximumPoolSize", "7");
+
+		Capture<DataSource> dataSourceCaptor = Capture.newInstance();
+
+		expect(bundleContext.getServiceReferences(DataSourceFactory.class, dsFactoryFilter))
+				.andReturn(Collections.singleton(dataSourceFactoryRef));
+		expect(bundleContext.getService(dataSourceFactoryRef)).andReturn(dataSourceFactory);
+		expect(bundleContext.ungetService(dataSourceFactoryRef)).andReturn(true);
+
+		EmbeddedDataSource ds = new EmbeddedDataSource();
+		ds.setDatabaseName("memory:" + uuid);
+		ds.setConnectionAttributes(jdbcUrlAttributes);
+		expect(dataSourceFactory.createDataSource(EasyMock.anyObject())).andReturn(ds);
+
+		expect(bundleContext.registerService(eq(DataSource.class), capture(dataSourceCaptor),
+				EasyMock.anyObject())).andReturn(dataSourceReg);
+
+		// when
+		replayAll();
+		factory.updated(pid, new Hashtable<String, Object>(props1));
+		factory.updated(pid, new Hashtable<String, Object>(props2));
+
+		// the executor runs the second update before the first
+		tasks.get(1).run();
+		tasks.get(0).run();
+
+		// then
+		HikariDataSource dataSource = (HikariDataSource) dataSourceCaptor.getValue();
+		assertThat("Latest configuration applied, stale update ignored", dataSource.getMaximumPoolSize(),
+				is(equalTo(7)));
 	}
 
 	@Test
