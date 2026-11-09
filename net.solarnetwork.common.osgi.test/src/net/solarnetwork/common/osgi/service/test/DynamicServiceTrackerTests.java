@@ -32,9 +32,13 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.fail;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.UUID;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
@@ -568,6 +572,68 @@ public class DynamicServiceTrackerTests {
 		// THEN
 		assertThat("Service with failing getter skipped and released, next match returned", s,
 				is(sameInstance(service2)));
+	}
+
+	public static final class GroupsService implements Serializable {
+
+		private static final long serialVersionUID = 5107268441232415416L;
+
+		public SortedSet<String> getGroups() {
+			return new TreeSet<>(Set.of("a"));
+		}
+
+	}
+
+	@Test
+	public void filterComparisonThrows_release() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref = new SerializableServiceRef(1, 0);
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(new ServiceReference<?>[] { ref });
+		expect(bundleContext.<Serializable> getService(ref)).andReturn(new GroupsService());
+		expect(bundleContext.ungetService(ref)).andReturn(true);
+
+		DynamicServiceTracker<GroupsService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+
+		// WHEN
+		replayAll();
+
+		// a number cannot be compared to the service's sorted set of strings
+		tracker.setPropertyFilter("groups", 1);
+		try {
+			tracker.service();
+			fail("Filter comparison exception should be thrown");
+		} catch ( ClassCastException e ) {
+			// THEN
+			// expected, and service released
+		}
+	}
+
+	@Test
+	public void list_filterComparisonThrows_release() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref = new SerializableServiceRef(1, 0);
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(new ServiceReference<?>[] { ref });
+		expect(bundleContext.<Serializable> getService(ref)).andReturn(new GroupsService());
+		expect(bundleContext.ungetService(ref)).andReturn(true);
+
+		DynamicServiceTracker<GroupsService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+
+		// WHEN
+		replayAll();
+
+		// a number cannot be compared to the service's sorted set of strings
+		tracker.setPropertyFilter("groups", 1);
+		try {
+			tracker.services();
+			fail("Filter comparison exception should be thrown");
+		} catch ( ClassCastException e ) {
+			// THEN
+			// expected, and service released
+		}
 	}
 
 }

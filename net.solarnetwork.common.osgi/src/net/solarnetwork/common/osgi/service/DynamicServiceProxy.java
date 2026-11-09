@@ -190,13 +190,19 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 			}
 			for ( ServiceReference<?> ref : refs ) {
 				Object service = bundleContext.getService(ref);
-				final boolean match = serviceMatchesFilters(service);
+				boolean match = false;
+				try {
+					match = serviceMatchesFilters(service);
+				} finally {
+					// a matching service stays in use until the proxied call completes
+					if ( !match && service != null ) {
+						bundleContext.ungetService(ref);
+					}
+				}
 				if ( match ) {
 					log.debug("Found {} service matching properties {}: {}",
 							new Object[] { serviceClassName, propertyFilters, service });
 					return new ServiceUse<>(ref, (T) service);
-				} else if ( service != null ) {
-					bundleContext.ungetService(ref);
 				}
 			}
 		}

@@ -198,9 +198,13 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 			}
 			for ( ServiceReference<?> ref : refs ) {
 				Object service = bundleContext.getService(ref);
-				final boolean match = serviceMatchesFilters(service);
-				if ( service != null ) {
-					bundleContext.ungetService(ref);
+				final boolean match;
+				try {
+					match = serviceMatchesFilters(service);
+				} finally {
+					if ( service != null ) {
+						bundleContext.ungetService(ref);
+					}
 				}
 				if ( match ) {
 					log.debug("Found {} service matching properties {}: {}",
@@ -269,9 +273,13 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 		List<T> results = new ArrayList<T>(refs.length);
 		for ( ServiceReference<?> ref : refs ) {
 			Object service = bundleContext.getService(ref);
-			final boolean match = serviceMatchesFilters(service);
-			if ( service != null ) {
-				bundleContext.ungetService(ref);
+			final boolean match;
+			try {
+				match = serviceMatchesFilters(service);
+			} finally {
+				if ( service != null ) {
+					bundleContext.ungetService(ref);
+				}
 			}
 			if ( match ) {
 				log.debug("Found {} service matching properties {}: {}",

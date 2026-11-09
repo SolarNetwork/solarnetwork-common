@@ -28,6 +28,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 import java.util.Collections;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
@@ -171,6 +173,53 @@ public class DynamicServiceProxyTests {
 		// THEN
 		assertThat("Service with failing getter skipped and released, next match invoked", result,
 				is(equalTo(3)));
+	}
+
+	public static final class GroupsCharSequence implements CharSequence {
+
+		@Override
+		public int length() {
+			return 0;
+		}
+
+		@Override
+		public char charAt(int index) {
+			throw new IndexOutOfBoundsException(index);
+		}
+
+		@Override
+		public CharSequence subSequence(int start, int end) {
+			return this;
+		}
+
+		public SortedSet<String> getGroups() {
+			return new TreeSet<>(Collections.singleton("a"));
+		}
+
+	}
+
+	@Test
+	public void invoke_filterComparisonThrows_release() throws Throwable {
+		// GIVEN
+		TestServiceReference<CharSequence> ref = new TestServiceReference<>(1, 0);
+		expect(bundleContext.getServiceReferences(CharSequence.class.getName(), null))
+				.andReturn(new ServiceReference<?>[] { ref });
+		expect(bundleContext.getService(ref)).andReturn(new GroupsCharSequence());
+		expect(bundleContext.ungetService(ref)).andReturn(true);
+
+		// WHEN
+		replayAll();
+		DynamicServiceProxy<CharSequence> proxy = new DynamicServiceProxy<>(bundleContext,
+				CharSequence.class);
+		// a number cannot be compared to the service's sorted set of strings
+		proxy.setPropertyFilters(Collections.singletonMap("groups", 1));
+		try {
+			proxy.invoke(null, CharSequence.class.getMethod("length"), null);
+			fail("Filter comparison exception should be thrown");
+		} catch ( ClassCastException e ) {
+			// THEN
+			// expected, and service released
+		}
 	}
 
 }
