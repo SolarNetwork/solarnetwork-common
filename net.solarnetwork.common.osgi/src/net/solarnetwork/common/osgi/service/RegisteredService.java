@@ -24,9 +24,9 @@ package net.solarnetwork.common.osgi.service;
 
 import static net.solarnetwork.util.ObjectUtils.requireNonNullArgument;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 import org.osgi.framework.ServiceRegistration;
 
@@ -36,8 +36,10 @@ import org.osgi.framework.ServiceRegistration;
  * @param <T>
  *        the service object type
  * @author matt
- * @version 1.0
+ * @version 1.1
+ * @deprecated without replacement
  */
+@Deprecated(forRemoval = true, since = "3.2.0")
 public class RegisteredService<T> {
 
 	private final T config;
@@ -104,22 +106,10 @@ public class RegisteredService<T> {
 			return false;
 		}
 		for ( Map.Entry<String, ?> me : m1.entrySet() ) {
-			if ( !m2.containsKey(me.getKey()) ) {
+			// deepEquals handles primitive arrays too
+			if ( !m2.containsKey(me.getKey())
+					|| !Objects.deepEquals(me.getValue(), m2.get(me.getKey())) ) {
 				return false;
-			}
-			Object mine = me.getValue();
-			Object other = m2.get(me.getKey());
-			if ( mine == null && other != null ) {
-				return false;
-			} else if ( mine != null ) {
-				if ( mine.getClass().isArray() ) {
-					if ( !(other != null && other.getClass().isArray()
-							&& Arrays.deepEquals((Object[]) mine, (Object[]) other)) ) {
-						return false;
-					}
-				} else if ( !mine.equals(other) ) {
-					return false;
-				}
 			}
 		}
 		return true;
@@ -127,13 +117,22 @@ public class RegisteredService<T> {
 
 	/**
 	 * Unregister the service.
+	 *
+	 * <p>
+	 * All registrations are unregistered, ignoring any that are already
+	 * unregistered.
+	 * </p>
 	 */
 	public void unregister() {
 		if ( regList == null ) {
 			return;
 		}
 		for ( ServiceRegistration<?> reg : regList ) {
-			reg.unregister();
+			try {
+				reg.unregister();
+			} catch ( IllegalStateException e ) {
+				// already unregistered, e.g. because its bundle stopped
+			}
 		}
 	}
 

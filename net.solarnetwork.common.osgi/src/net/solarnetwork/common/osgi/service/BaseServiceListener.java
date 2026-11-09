@@ -43,8 +43,10 @@ import org.slf4j.LoggerFactory;
  * @param <R>
  *        the registered service type
  * @author matt
- * @version 1.0
+ * @version 1.1
+ * @deprecated without replacement
  */
+@Deprecated(forRemoval = true, since = "3.2.0")
 public abstract class BaseServiceListener<T, R extends RegisteredService<T>> {
 
 	private final BundleContext bundleContext;
