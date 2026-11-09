@@ -78,7 +78,7 @@ import net.solarnetwork.util.StringUtils;
  * Managed service factory for {@link HikariDataSource} instances.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class HikariDataSourceManagedServiceFactory implements ManagedServiceFactory {
 
@@ -405,7 +405,8 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 		@Override
 		public void serviceChanged(ServiceEvent event) {
 			if ( event.getType() == ServiceEvent.REGISTERED && !isRegistered() ) {
-				Object service = bundleContext.getService(event.getServiceReference());
+				final ServiceReference<?> ref = event.getServiceReference();
+				Object service = bundleContext.getService(ref);
 				if ( service instanceof DataSourceFactory ) {
 					log.info("DataSourceFactory discovered for managed DataSource {} with props {}",
 							jdbcUrl, serviceProps);
@@ -413,12 +414,18 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 
 						@Override
 						public void run() {
-							if ( destroyed.get() ) {
-								return;
+							try {
+								if ( destroyed.get() ) {
+									return;
+								}
+								createDataSource((DataSourceFactory) service);
+							} finally {
+								bundleContext.ungetService(ref);
 							}
-							createDataSource((DataSourceFactory) service);
 						}
 					});
+				} else if ( service != null ) {
+					bundleContext.ungetService(ref);
 				}
 			}
 		}
@@ -508,6 +515,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				return;
 			}
 			// first try to get immediately
+			ServiceReference<DataSourceFactory> dsFactoryRef = null;
 			DataSourceFactory dsFactory = null;
 			Collection<ServiceReference<DataSourceFactory>> dsFactoryRefs;
 			try {
@@ -516,7 +524,7 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 				Iterator<ServiceReference<DataSourceFactory>> itr = (dsFactoryRefs != null
 						? dsFactoryRefs.iterator()
 						: null);
-				ServiceReference<DataSourceFactory> dsFactoryRef = (itr != null ? itr.next() : null);
+				dsFactoryRef = (itr != null ? itr.next() : null);
 				dsFactory = (dsFactoryRef != null ? bundleContext.getService(dsFactoryRef) : null);
 				if ( dsFactory == null ) {
 					throw new NoSuchElementException();
@@ -530,9 +538,13 @@ public class HikariDataSourceManagedServiceFactory implements ManagedServiceFact
 						e);
 			}
 
-			if ( dsFactory != null ) {
+			if ( dsFactory != null && dsFactoryRef != null ) {
 				// we've got a factory, so get the DataSource and register immediately
-				createDataSource(dsFactory);
+				try {
+					createDataSource(dsFactory);
+				} finally {
+					bundleContext.ungetService(dsFactoryRef);
+				}
 			}
 
 			if ( dataSource == null && !dataSourceFactoryListening ) {

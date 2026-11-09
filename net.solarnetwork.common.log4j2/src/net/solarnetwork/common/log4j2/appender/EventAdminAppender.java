@@ -48,7 +48,7 @@ import org.osgi.service.event.EventAdmin;
  * Publish log events to an {@link EventAdmin}.
  * 
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 @Plugin(name = "EventAdminAppender", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE)
 public class EventAdminAppender extends AbstractAppender {
@@ -153,16 +153,6 @@ public class EventAdminAppender extends AbstractAppender {
 			}
 		}
 
-		EventAdmin ea = null;
-		try {
-			ea = ctx.getService(eventAdminRef);
-		} catch ( IllegalStateException | IllegalArgumentException e ) {
-			// no longer valid
-		}
-		if ( ea == null ) {
-			return;
-		}
-
 		Map<String, Object> evtData = new LinkedHashMap<>(8);
 		evtData.put(TIMESTAMP_EVENT_PROP, event.getTimeMillis());
 		evtData.put(LEVEL_EVENT_PROP, event.getLevel().name());
@@ -182,7 +172,30 @@ public class EventAdminAppender extends AbstractAppender {
 			}
 		}
 		Event evt = new Event(LOG_EVENT_TOPIC, evtData);
-		ea.postEvent(evt);
+
+		// use local copies so the same reference is released as was obtained
+		final BundleContext bc = ctx;
+		final ServiceReference<EventAdmin> ref = eventAdminRef;
+		EventAdmin ea = null;
+		try {
+			ea = bc.getService(ref);
+		} catch ( IllegalStateException | IllegalArgumentException e ) {
+			// no longer valid
+		}
+		if ( ea == null ) {
+			// service no longer registered: look it up again on the next event
+			eventAdminRef = null;
+			return;
+		}
+		try {
+			ea.postEvent(evt);
+		} finally {
+			try {
+				bc.ungetService(ref);
+			} catch ( IllegalStateException e ) {
+				// context no longer valid; ignore
+			}
+		}
 	}
 
 }

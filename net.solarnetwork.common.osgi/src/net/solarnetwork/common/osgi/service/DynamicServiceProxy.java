@@ -79,7 +79,7 @@ import net.solarnetwork.service.OptionalService;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>, FilterableService {
 
@@ -116,24 +116,37 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 			return ownMethod.invoke(this, args);
 		} catch ( NoSuchMethodException e ) {
 			// call on the service!
-			T delegate = getServiceInstance();
-			if ( delegate == null ) {
+			ServiceUse<T> use = getServiceInstance();
+			if ( use == null ) {
 				throw new DynamicServiceUnavailableException(
 						"No " + serviceClass.getName() + " service available matching service filter "
 								+ serviceFilter + ", property filters " + propertyFilters);
 			}
-			Method delegateMethod = delegate.getClass().getMethod(method.getName(),
-					method.getParameterTypes());
 			try {
-				return delegateMethod.invoke(delegate, args);
-			} catch ( InvocationTargetException proxyException ) {
-				log.debug("Exception calling proxy method " + method.getName());
-				if ( proxyException.getCause() != null ) {
-					throw proxyException.getCause();
+				T delegate = use.service();
+				Method delegateMethod = delegate.getClass().getMethod(method.getName(),
+						method.getParameterTypes());
+				try {
+					return delegateMethod.invoke(delegate, args);
+				} catch ( InvocationTargetException proxyException ) {
+					log.debug("Exception calling proxy method " + method.getName());
+					if ( proxyException.getCause() != null ) {
+						throw proxyException.getCause();
+					}
+					throw proxyException;
 				}
-				throw proxyException;
+			} finally {
+				bundleContext.ungetService(use.ref());
 			}
 		}
+	}
+
+	/**
+	 * A service obtained from the bundle context, to release when no longer
+	 * used.
+	 */
+	private static record ServiceUse<T>(ServiceReference<?> ref, T service) {
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -159,7 +172,7 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 	}
 
 	@SuppressWarnings("unchecked")
-	private @Nullable T getServiceInstance() {
+	private @Nullable ServiceUse<T> getServiceInstance() {
 		final String serviceClassName = serviceClass.getName();
 		ServiceReference<?>[] refs;
 		try {
@@ -180,7 +193,9 @@ public class DynamicServiceProxy<T> implements InvocationHandler, FactoryBean<T>
 				if ( match ) {
 					log.debug("Found {} service matching properties {}: {}",
 							new Object[] { serviceClassName, propertyFilters, service });
-					return (T) service;
+					return new ServiceUse<>(ref, (T) service);
+				} else if ( service != null ) {
+					bundleContext.ungetService(ref);
 				}
 			}
 		}

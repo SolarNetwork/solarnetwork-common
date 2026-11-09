@@ -66,7 +66,7 @@ import net.solarnetwork.test.CallingThreadExecutorService;
  * Test cases for the {@link HikariDataSourceManagedServiceFactory} class.
  *
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class HikariDataSourceManagedServiceFactoryTests {
 
@@ -131,6 +131,7 @@ public class HikariDataSourceManagedServiceFactoryTests {
 				.andReturn(Collections.singleton(dataSourceFactoryRef));
 
 		expect(bundleContext.getService(dataSourceFactoryRef)).andReturn(dataSourceFactory);
+		expect(bundleContext.ungetService(dataSourceFactoryRef)).andReturn(true);
 
 		EmbeddedDataSource ds = new EmbeddedDataSource();
 		ds.setDatabaseName("memory:" + uuid);
@@ -195,6 +196,7 @@ public class HikariDataSourceManagedServiceFactoryTests {
 				.andReturn(Collections.singleton(dataSourceFactoryRef));
 
 		expect(bundleContext.getService(dataSourceFactoryRef)).andReturn(dataSourceFactory);
+		expect(bundleContext.ungetService(dataSourceFactoryRef)).andReturn(true);
 
 		EmbeddedDataSource ds = new EmbeddedDataSource();
 		ds.setDatabaseName("memory:" + uuid);
@@ -264,6 +266,7 @@ public class HikariDataSourceManagedServiceFactoryTests {
 				.andReturn(Collections.singleton(dataSourceFactoryRef));
 
 		expect(bundleContext.getService(dataSourceFactoryRef)).andReturn(dataSourceFactory);
+		expect(bundleContext.ungetService(dataSourceFactoryRef)).andReturn(true);
 
 		EmbeddedDataSource ds = new EmbeddedDataSource();
 		ds.setDatabaseName("memory:" + uuid);
@@ -343,6 +346,7 @@ public class HikariDataSourceManagedServiceFactoryTests {
 
 		// after REGISTERED event is received, the process continues
 		expect(bundleContext.getService(dataSourceFactoryRef)).andReturn(dataSourceFactory);
+		expect(bundleContext.ungetService(dataSourceFactoryRef)).andReturn(true);
 
 		EmbeddedDataSource ds = new EmbeddedDataSource();
 		ds.setDatabaseName("memory:" + uuid);
@@ -437,6 +441,7 @@ public class HikariDataSourceManagedServiceFactoryTests {
 				.andReturn(Collections.singleton(dataSourceFactoryRef));
 
 		expect(bundleContext.getService(dataSourceFactoryRef)).andReturn(dataSourceFactory);
+		expect(bundleContext.ungetService(dataSourceFactoryRef)).andReturn(true);
 
 		EmbeddedDataSource ds = new EmbeddedDataSource();
 		ds.setDatabaseName("memory:" + uuid);

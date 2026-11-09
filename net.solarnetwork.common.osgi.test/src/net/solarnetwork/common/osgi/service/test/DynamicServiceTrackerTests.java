@@ -49,7 +49,7 @@ import net.solarnetwork.common.osgi.test.TestServiceReference.SerializableServic
  * Test cases for the {@link DynamicServiceTracker} class.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  */
 public class DynamicServiceTrackerTests {
 
@@ -79,6 +79,7 @@ public class DynamicServiceTrackerTests {
 				.andReturn(services);
 		UUID uuid = UUID.randomUUID();
 		expect(bundleContext.<Serializable> getService(ref)).andReturn(uuid);
+		expect(bundleContext.ungetService(ref)).andReturn(true);
 
 		// WHEN
 		replayAll();
@@ -101,6 +102,7 @@ public class DynamicServiceTrackerTests {
 				.andReturn(services);
 		UUID uuid = UUID.randomUUID();
 		expect(bundleContext.<Serializable> getService(ref)).andReturn(uuid);
+		expect(bundleContext.ungetService(ref)).andReturn(true);
 
 		// WHEN
 		replayAll();
@@ -124,6 +126,7 @@ public class DynamicServiceTrackerTests {
 				.andReturn(services);
 		UUID uuid = UUID.randomUUID();
 		expect(bundleContext.<Serializable> getService(ref)).andReturn(uuid);
+		expect(bundleContext.ungetService(ref)).andReturn(true);
 
 		// WHEN
 		replayAll();
@@ -155,6 +158,7 @@ public class DynamicServiceTrackerTests {
 				return UUID.fromString(uuid); // again, no holder ref to UUID instance
 			}
 		}).times(2);
+		expect(bundleContext.ungetService(ref)).andReturn(true).times(2);
 
 		// WHEN
 		replayAll();
@@ -209,6 +213,7 @@ public class DynamicServiceTrackerTests {
 				.andReturn(services);
 		TestService service = new TestService();
 		expect(bundleContext.<Serializable> getService(ref)).andReturn(service);
+		expect(bundleContext.ungetService(ref)).andReturn(true);
 
 		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
 				Serializable.class);
@@ -287,6 +292,7 @@ public class DynamicServiceTrackerTests {
 				.andReturn(services);
 		TestService service = new TestService();
 		expect(bundleContext.<Serializable> getService(ref)).andReturn(service);
+		expect(bundleContext.ungetService(ref)).andReturn(true);
 
 		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
 				Serializable.class);
@@ -365,6 +371,7 @@ public class DynamicServiceTrackerTests {
 				.andReturn(services);
 		TestService service = new TestService();
 		expect(bundleContext.<Serializable> getService(ref)).andReturn(service);
+		expect(bundleContext.ungetService(ref)).andReturn(true);
 
 		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
 				Serializable.class);
@@ -380,6 +387,37 @@ public class DynamicServiceTrackerTests {
 		// THEN
 		List<TestService> l = stream(s.spliterator(), false).collect(toList());
 		assertThat("Service not returned because empty filter does not match", l, hasSize(0));
+	}
+
+	@Test
+	public void list_matchingAndNotMatching() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref1 = new SerializableServiceRef(1, 1);
+		SerializableServiceRef ref2 = new SerializableServiceRef(2, 0);
+		ServiceReference<?>[] services = new ServiceReference<?>[] { ref1, ref2 };
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(services);
+		TestService service1 = new TestService();
+		service1.uid = "foo";
+		expect(bundleContext.<Serializable> getService(ref1)).andReturn(service1);
+		expect(bundleContext.ungetService(ref1)).andReturn(true);
+		TestService service2 = new TestService();
+		service2.uid = "bar";
+		expect(bundleContext.<Serializable> getService(ref2)).andReturn(service2);
+		expect(bundleContext.ungetService(ref2)).andReturn(true);
+
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+
+		// WHEN
+		replayAll();
+
+		tracker.setPropertyFilter("uid", "bar");
+		Iterable<TestService> s = tracker.services();
+
+		// THEN
+		List<TestService> l = stream(s.spliterator(), false).collect(toList());
+		assertThat("Only matching service returned, all services released", l, contains(service2));
 	}
 
 }

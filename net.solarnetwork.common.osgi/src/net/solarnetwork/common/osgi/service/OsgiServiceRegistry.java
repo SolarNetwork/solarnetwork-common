@@ -44,8 +44,14 @@ import net.solarnetwork.util.ObjectUtils;
 /**
  * OSGi implementation of {@link ServiceRegistry}.
  *
+ * <p>
+ * Services returned by the {@code services()} methods are released back to the
+ * OSGi framework before they are returned, so repeated lookups do not
+ * accumulate service use counts.
+ * </p>
+ *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.1
  */
 public class OsgiServiceRegistry implements ServiceRegistry {
@@ -83,6 +89,7 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 				if ( s == null ) {
 					continue;
 				}
+				bundleContext.ungetService(ref);
 				results.add(s);
 			} catch ( Exception e ) {
 				// ignore and continue
@@ -109,6 +116,7 @@ public class OsgiServiceRegistry implements ServiceRegistry {
 				if ( s == null ) {
 					continue;
 				}
+				bundleContext.ungetService(ref);
 				results.add(s);
 			} catch ( Exception e ) {
 				// ignore and continue

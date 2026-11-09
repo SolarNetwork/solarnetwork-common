@@ -69,6 +69,15 @@ import net.solarnetwork.service.OptionalServiceCollection;
  * </p>
  *
  * <p>
+ * Each candidate service is released back to the OSGi framework once it has
+ * been compared to the configured filters, so repeated lookups do not
+ * accumulate service use counts. Returned services are thus not held in use by
+ * this tracker, which suits services registered as plain objects; a service
+ * that depends on a per-bundle {@code ServiceFactory} instance staying in use
+ * is not supported.
+ * </p>
+ *
+ * <p>
  * Conceptually this is very similar to what OSGi Blueprint service references
  * provide, just with more features such as filtering on service JavaBean
  * properties.
@@ -77,7 +86,7 @@ import net.solarnetwork.service.OptionalServiceCollection;
  * @param <T>
  *        the tracked service type
  * @author matt
- * @version 1.1
+ * @version 1.2
  */
 public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalServiceCollection<T>,
 		FilterableService, OptionalService.OptionalFilterableService<T>,
@@ -175,6 +184,9 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 			for ( ServiceReference<?> ref : refs ) {
 				Object service = bundleContext.getService(ref);
 				final boolean match = serviceMatchesFilters(service);
+				if ( service != null ) {
+					bundleContext.ungetService(ref);
+				}
 				if ( match ) {
 					log.debug("Found {} service matching properties {}: {}",
 							new Object[] { serviceClassName, propertyFilters, service });
@@ -243,6 +255,9 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 		for ( ServiceReference<?> ref : refs ) {
 			Object service = bundleContext.getService(ref);
 			final boolean match = serviceMatchesFilters(service);
+			if ( service != null ) {
+				bundleContext.ungetService(ref);
+			}
 			if ( match ) {
 				log.debug("Found {} service matching properties {}: {}",
 						new Object[] { serviceClassName, propertyFilters, service });
