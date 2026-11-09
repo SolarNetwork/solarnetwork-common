@@ -44,6 +44,7 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import net.solarnetwork.service.FilterableService;
 import net.solarnetwork.service.OptionalService;
 import net.solarnetwork.service.OptionalServiceCollection;
+import net.solarnetwork.settings.SettingsChangeObserver;
 
 /**
  * Utility for dynamically obtaining an OSGi service based on comparing bean
@@ -65,7 +66,10 @@ import net.solarnetwork.service.OptionalServiceCollection;
  * which the service will be re-resolved when {@link #service()} is later
  * invoked. Using "sticky" mode is suitable when the runtime service is not
  * expected to change much, or at all, during the life of this tracker, and the
- * speed of resolving the service it critical.
+ * speed of resolving the service is critical. If the configuration of this
+ * tracker might change over its lifetime, then the
+ * {@link #configurationChanged(Map)} method should be called to clear any
+ * cached sticky service.
  * </p>
  *
  * <p>
@@ -90,7 +94,7 @@ import net.solarnetwork.service.OptionalServiceCollection;
  */
 public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalServiceCollection<T>,
 		FilterableService, OptionalService.OptionalFilterableService<T>,
-		OptionalServiceCollection.OptionalFilterableServiceCollection<T> {
+		OptionalServiceCollection.OptionalFilterableServiceCollection<T>, SettingsChangeObserver {
 
 	private static final Logger log = LoggerFactory.getLogger(DynamicServiceTracker.class);
 
@@ -150,6 +154,16 @@ public class DynamicServiceTracker<T> implements OptionalService<T>, OptionalSer
 	 */
 	public DynamicServiceTracker(BundleContext bundleContext, @Nullable Class<?> serviceClass) {
 		this(bundleContext, serviceClass != null ? serviceClass.getName() : null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @since 1.2
+	 */
+	@Override
+	public synchronized void configurationChanged(@Nullable Map<String, Object> properties) {
+		stickyService = null;
 	}
 
 	@Override

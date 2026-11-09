@@ -34,6 +34,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
@@ -418,6 +419,155 @@ public class DynamicServiceTrackerTests {
 		// THEN
 		List<TestService> l = stream(s.spliterator(), false).collect(toList());
 		assertThat("Only matching service returned, all services released", l, contains(service2));
+	}
+
+	@Test
+	public void sticky_configurationChanged_propertyFilter() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref1 = new SerializableServiceRef(1, 0);
+		SerializableServiceRef ref2 = new SerializableServiceRef(2, 0);
+		ServiceReference<?>[] services = new ServiceReference<?>[] { ref1, ref2 };
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(services).times(2);
+		TestService service1 = new TestService();
+		service1.uid = "foo";
+		expect(bundleContext.<Serializable> getService(ref1)).andReturn(service1).times(2);
+		expect(bundleContext.ungetService(ref1)).andReturn(true).times(2);
+		TestService service2 = new TestService();
+		service2.uid = "bar";
+		expect(bundleContext.<Serializable> getService(ref2)).andReturn(service2);
+		expect(bundleContext.ungetService(ref2)).andReturn(true);
+
+		// WHEN
+		replayAll();
+
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+		tracker.setSticky(true);
+		tracker.setPropertyFilter("uid", "foo");
+		TestService s1 = tracker.service();
+		TestService s2 = tracker.service();
+
+		// change the filter map directly, as a propertyFilters['uid'] setting does
+		tracker.getPropertyFilters().put("uid", "bar");
+		tracker.configurationChanged(Map.of("propertyFilters['uid']", "bar"));
+		TestService s3 = tracker.service();
+
+		// THEN
+		assertThat("Service returned via ref", s1, is(sameInstance(service1)));
+		assertThat("Service returned via sticky cache", s2, is(sameInstance(service1)));
+		assertThat("Service resolved again after configuration change", s3, is(sameInstance(service2)));
+	}
+
+	@Test
+	public void sticky_configurationChanged_whileNotSticky() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref1 = new SerializableServiceRef(1, 0);
+		SerializableServiceRef ref2 = new SerializableServiceRef(2, 0);
+		ServiceReference<?>[] services = new ServiceReference<?>[] { ref1, ref2 };
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(services).times(2);
+		TestService service1 = new TestService();
+		service1.uid = "foo";
+		expect(bundleContext.<Serializable> getService(ref1)).andReturn(service1).times(2);
+		expect(bundleContext.ungetService(ref1)).andReturn(true).times(2);
+		TestService service2 = new TestService();
+		service2.uid = "bar";
+		expect(bundleContext.<Serializable> getService(ref2)).andReturn(service2);
+		expect(bundleContext.ungetService(ref2)).andReturn(true);
+
+		// WHEN
+		replayAll();
+
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+		tracker.setSticky(true);
+		tracker.setPropertyFilter("uid", "foo");
+		TestService s1 = tracker.service();
+
+		tracker.setSticky(false);
+		tracker.getPropertyFilters().put("uid", "bar");
+		tracker.configurationChanged(Map.of("propertyFilters['uid']", "bar"));
+		tracker.setSticky(true);
+		TestService s2 = tracker.service();
+
+		// THEN
+		assertThat("Service returned via ref", s1, is(sameInstance(service1)));
+		assertThat("Service resolved again after configuration change while not sticky", s2,
+				is(sameInstance(service2)));
+	}
+
+	@Test
+	public void sticky_configurationChanged_serviceFilter() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref1 = new SerializableServiceRef(1, 0);
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(new ServiceReference<?>[] { ref1 });
+		TestService service1 = new TestService();
+		expect(bundleContext.<Serializable> getService(ref1)).andReturn(service1);
+		expect(bundleContext.ungetService(ref1)).andReturn(true);
+
+		final String filter = "(foo=bar)";
+		SerializableServiceRef ref2 = new SerializableServiceRef(2, 0);
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), filter))
+				.andReturn(new ServiceReference<?>[] { ref2 });
+		TestService service2 = new TestService();
+		expect(bundleContext.<Serializable> getService(ref2)).andReturn(service2);
+		expect(bundleContext.ungetService(ref2)).andReturn(true);
+
+		// WHEN
+		replayAll();
+
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+		tracker.setSticky(true);
+		TestService s1 = tracker.service();
+		tracker.setServiceFilter(filter);
+		tracker.configurationChanged(Map.of("serviceFilter", filter));
+		TestService s2 = tracker.service();
+
+		// THEN
+		assertThat("Service returned via ref", s1, is(sameInstance(service1)));
+		assertThat("Service resolved again after configuration change", s2, is(sameInstance(service2)));
+	}
+
+	public static final class ThrowingService implements Serializable {
+
+		private static final long serialVersionUID = 3069377004717433226L;
+
+		public String getUid() {
+			throw new UnsupportedOperationException("Test getter failure");
+		}
+
+	}
+
+	@Test
+	public void propertyGetterThrows_skipAndRelease() throws Exception {
+		// GIVEN
+		SerializableServiceRef ref1 = new SerializableServiceRef(1, 1);
+		SerializableServiceRef ref2 = new SerializableServiceRef(2, 0);
+		ServiceReference<?>[] services = new ServiceReference<?>[] { ref1, ref2 };
+		expect(bundleContext.getServiceReferences(Serializable.class.getName(), null))
+				.andReturn(services);
+		expect(bundleContext.<Serializable> getService(ref1)).andReturn(new ThrowingService());
+		expect(bundleContext.ungetService(ref1)).andReturn(true);
+		TestService service2 = new TestService();
+		service2.uid = "foo";
+		expect(bundleContext.<Serializable> getService(ref2)).andReturn(service2);
+		expect(bundleContext.ungetService(ref2)).andReturn(true);
+
+		DynamicServiceTracker<TestService> tracker = new DynamicServiceTracker<>(bundleContext,
+				Serializable.class);
+
+		// WHEN
+		replayAll();
+
+		tracker.setPropertyFilter("uid", "foo");
+		TestService s = tracker.service();
+
+		// THEN
+		assertThat("Service with failing getter skipped and released, next match returned", s,
+				is(sameInstance(service2)));
 	}
 
 }
