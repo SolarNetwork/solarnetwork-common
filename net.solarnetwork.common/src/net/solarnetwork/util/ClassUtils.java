@@ -482,10 +482,11 @@ public final class ClassUtils {
 		}
 	}
 
-	private static boolean isExcludedByPackagePrefix(Class<?> clazz, @Nullable Set<String> excluding) {
-		if ( excluding != null ) {
+	private static boolean isExcludedByPackagePrefix(Class<?> clazz,
+			String @Nullable [] excludedPrefixes) {
+		if ( excludedPrefixes != null ) {
 			final String fqn = clazz.getName();
-			for ( String prefix : excluding ) {
+			for ( String prefix : excludedPrefixes ) {
 				if ( fqn.startsWith(prefix) ) {
 					return true;
 				}
@@ -509,19 +510,19 @@ public final class ClassUtils {
 	 *        the set to add to
 	 * @param visited
 	 *        the interfaces visited so far, including excluded ones
-	 * @param excluding
-	 *        a set of class name prefix values to exclude from the results
+	 * @param excludedPrefixes
+	 *        class name prefix values to exclude from the results
 	 */
 	private static void addInterfaceAndSuperInterfaces(Class<?> ifc, Set<Class<?>> interfaces,
-			Set<Class<?>> visited, @Nullable Set<String> excluding) {
+			Set<Class<?>> visited, String @Nullable [] excludedPrefixes) {
 		if ( !visited.add(ifc) ) {
 			return;
 		}
-		if ( !isExcludedByPackagePrefix(ifc, excluding) ) {
+		if ( !isExcludedByPackagePrefix(ifc, excludedPrefixes) ) {
 			interfaces.add(ifc);
 		}
 		for ( Class<?> superIfc : ifc.getInterfaces() ) {
-			addInterfaceAndSuperInterfaces(superIfc, interfaces, visited, excluding);
+			addInterfaceAndSuperInterfaces(superIfc, interfaces, visited, excludedPrefixes);
 		}
 	}
 
@@ -568,13 +569,16 @@ public final class ClassUtils {
 		if ( clazz == null ) {
 			return interfaces;
 		}
+		final String[] excludedPrefixes = (excluding != null && !excluding.isEmpty()
+				? excluding.toArray(String[]::new)
+				: null);
 		final Set<Class<?>> visited = new HashSet<>();
 		if ( clazz.isInterface() ) {
-			addInterfaceAndSuperInterfaces(clazz, interfaces, visited, excluding);
+			addInterfaceAndSuperInterfaces(clazz, interfaces, visited, excludedPrefixes);
 		} else {
 			for ( Class<?> c = clazz; c != null; c = c.getSuperclass() ) {
 				for ( Class<?> ifc : c.getInterfaces() ) {
-					addInterfaceAndSuperInterfaces(ifc, interfaces, visited, excluding);
+					addInterfaceAndSuperInterfaces(ifc, interfaces, visited, excludedPrefixes);
 				}
 			}
 		}
