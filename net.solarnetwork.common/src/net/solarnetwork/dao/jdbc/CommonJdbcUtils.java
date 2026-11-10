@@ -168,7 +168,7 @@ public final class CommonJdbcUtils {
 	 */
 	public static int prepareOptimizedArrayParameter(Connection con, PreparedStatement stmt,
 			int parameterOffset, Long @Nullable [] value, boolean setNull) throws SQLException {
-		return prepareOptimizedArrayParameter(con, stmt, parameterOffset, "text", value, setNull);
+		return prepareOptimizedArrayParameter(con, stmt, parameterOffset, "bigint", value, setNull);
 	}
 
 	/**
