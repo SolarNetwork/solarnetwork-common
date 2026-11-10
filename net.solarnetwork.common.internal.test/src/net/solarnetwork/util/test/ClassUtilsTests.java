@@ -54,7 +54,7 @@ import net.solarnetwork.util.ClassUtils;
  * Test cases for the {@link ClassUtils} class.
  *
  * @author matt
- * @version 1.2
+ * @version 1.3
  */
 public class ClassUtilsTests {
 
@@ -73,6 +73,30 @@ public class ClassUtilsTests {
 			implements SerializableLocation {
 
 		private static final long serialVersionUID = -2811665308323747576L;
+
+	}
+
+	public interface TopIfc {
+
+	}
+
+	public interface LeftIfc extends TopIfc {
+
+	}
+
+	public interface RightIfc extends TopIfc {
+
+	}
+
+	public interface DiamondIfc extends LeftIfc, RightIfc {
+
+	}
+
+	private static class DiamondImpl implements DiamondIfc, RightIfc {
+
+	}
+
+	private static final class DiamondSubImpl extends DiamondImpl implements LeftIfc {
 
 	}
 
@@ -947,6 +971,87 @@ public class ClassUtilsTests {
 		then(interfaces).as("Interface itself and super interfaces included")
 				.contains(List.class, Collection.class, Iterable.class)
 				.doesNotContain(AbstractList.class, RandomAccess.class);
+	}
+
+	@Test
+	public void getAllInterfacesForClassAsSet_diamond() {
+		// WHEN
+		final Set<Class<?>> interfaces = ClassUtils.getAllInterfacesForClassAsSet(DiamondImpl.class,
+				null);
+
+		// THEN
+		then(interfaces).as("Shared super interface included once, depth-first order")
+				.containsExactly(DiamondIfc.class, LeftIfc.class, TopIfc.class, RightIfc.class);
+	}
+
+	@Test
+	public void getAllInterfacesForClassAsSet_diamond_subclass() {
+		// WHEN
+		final Set<Class<?>> interfaces = ClassUtils.getAllInterfacesForClassAsSet(DiamondSubImpl.class,
+				null);
+
+		// THEN
+		then(interfaces).as("Subclass interfaces first, then superclass interfaces not already included")
+				.containsExactly(LeftIfc.class, TopIfc.class, DiamondIfc.class, RightIfc.class);
+	}
+
+	@Test
+	public void getAllInterfacesForClassAsSet_diamond_interface() {
+		// WHEN
+		final Set<Class<?>> interfaces = ClassUtils.getAllInterfacesForClassAsSet(DiamondIfc.class,
+				null);
+
+		// THEN
+		then(interfaces).as("Interface itself first, then super interfaces depth-first")
+				.containsExactly(DiamondIfc.class, LeftIfc.class, TopIfc.class, RightIfc.class);
+	}
+
+	@Test
+	public void getAllInterfacesForClassAsSet_excludedSuperInterfacesIncluded() {
+		// WHEN
+		final Set<Class<?>> interfaces = ClassUtils.getAllInterfacesForClassAsSet(DiamondImpl.class,
+				Set.of(LeftIfc.class.getName()));
+
+		// THEN
+		then(interfaces).as("Excluded interface left out, but its super interface still included")
+				.containsExactly(DiamondIfc.class, TopIfc.class, RightIfc.class);
+	}
+
+	@Test
+	public void getAllInterfacesForClassAsSet_excludedInterfaceItself() {
+		// WHEN
+		final Set<Class<?>> interfaces = ClassUtils.getAllInterfacesForClassAsSet(DiamondIfc.class,
+				Set.of(DiamondIfc.class.getName()));
+
+		// THEN
+		then(interfaces).as("Excluded interface left out, but its super interfaces still included")
+				.containsExactly(LeftIfc.class, TopIfc.class, RightIfc.class);
+	}
+
+	@Test
+	public void getAllInterfacesForClassAsSet_null() {
+		// WHEN
+		final Set<Class<?>> interfaces = ClassUtils.getAllInterfacesForClassAsSet(null, null);
+
+		// THEN
+		then(interfaces).as("No class produces empty set").isEmpty();
+	}
+
+	@Test
+	public void getAllNonJavaInterfacesForClassAsSet_newModifiableSet() {
+		// GIVEN
+		final Set<Class<?>> interfaces = ClassUtils
+				.getAllNonJavaInterfacesForClassAsSet(DiamondImpl.class);
+
+		// WHEN
+		interfaces.remove(TopIfc.class);
+
+		// THEN
+		then(interfaces).as("Returned set can be modified")
+				.containsExactly(DiamondIfc.class, LeftIfc.class, RightIfc.class);
+		then(ClassUtils.getAllNonJavaInterfacesForClassAsSet(DiamondImpl.class))
+				.as("Each call returns a new set")
+				.containsExactly(DiamondIfc.class, LeftIfc.class, TopIfc.class, RightIfc.class);
 	}
 
 }

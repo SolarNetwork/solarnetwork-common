@@ -33,7 +33,6 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -55,7 +54,7 @@ import net.solarnetwork.domain.SerializeIgnore;
  * Utility methods for dealing with classes at runtime.
  *
  * @author matt
- * @version 2.3
+ * @version 2.4
  */
 public final class ClassUtils {
 
@@ -483,22 +482,47 @@ public final class ClassUtils {
 		}
 	}
 
-	private static void addClassesToSetUnlessExcludedByPackagePrefix(
-			@Nullable Collection<Class<?>> classes, Set<Class<?>> set, @Nullable Set<String> excluding) {
-		if ( classes == null ) {
-			return;
-		}
+	private static boolean isExcludedByPackagePrefix(Class<?> clazz, @Nullable Set<String> excluding) {
 		if ( excluding != null ) {
-			for ( Class<?> clazz : classes ) {
-				String fqn = clazz.getName();
-				for ( String prefix : excluding ) {
-					if ( fqn.startsWith(prefix) ) {
-						return;
-					}
+			final String fqn = clazz.getName();
+			for ( String prefix : excluding ) {
+				if ( fqn.startsWith(prefix) ) {
+					return true;
 				}
 			}
 		}
-		set.addAll(classes);
+		return false;
+	}
+
+	/**
+	 * Add an interface and all its super-interfaces to a set, depth-first.
+	 *
+	 * <p>
+	 * Each interface is expanded only once: when an interface has already been
+	 * visited, all its super-interfaces have been too. Excluded interfaces are
+	 * not added, but their super-interfaces are still visited.
+	 * </p>
+	 *
+	 * @param ifc
+	 *        the interface to add
+	 * @param interfaces
+	 *        the set to add to
+	 * @param visited
+	 *        the interfaces visited so far, including excluded ones
+	 * @param excluding
+	 *        a set of class name prefix values to exclude from the results
+	 */
+	private static void addInterfaceAndSuperInterfaces(Class<?> ifc, Set<Class<?>> interfaces,
+			Set<Class<?>> visited, @Nullable Set<String> excluding) {
+		if ( !visited.add(ifc) ) {
+			return;
+		}
+		if ( !isExcludedByPackagePrefix(ifc, excluding) ) {
+			interfaces.add(ifc);
+		}
+		for ( Class<?> superIfc : ifc.getInterfaces() ) {
+			addInterfaceAndSuperInterfaces(superIfc, interfaces, visited, excluding);
+		}
 	}
 
 	/**
@@ -525,6 +549,12 @@ public final class ClassUtils {
 	 * hierarchy order.
 	 * </p>
 	 *
+	 * <p>
+	 * An excluded interface is left out of the results, but the interfaces it
+	 * extends are still included unless they are excluded too. The returned set
+	 * is a new, modifiable set.
+	 * </p>
+	 *
 	 * @param clazz
 	 *        the class to get all implemented interfaces for
 	 * @param excluding
@@ -534,18 +564,19 @@ public final class ClassUtils {
 	 */
 	public static Set<Class<?>> getAllInterfacesForClassAsSet(@Nullable Class<?> clazz,
 			@Nullable Set<String> excluding) {
-		Set<Class<?>> interfaces = new LinkedHashSet<Class<?>>();
-		while ( clazz != null ) {
-			if ( clazz.isInterface() ) {
-				Set<Class<?>> classes = Collections.<Class<?>> singleton(clazz);
-				addClassesToSetUnlessExcludedByPackagePrefix(classes, interfaces, excluding);
+		final Set<Class<?>> interfaces = new LinkedHashSet<>();
+		if ( clazz == null ) {
+			return interfaces;
+		}
+		final Set<Class<?>> visited = new HashSet<>();
+		if ( clazz.isInterface() ) {
+			addInterfaceAndSuperInterfaces(clazz, interfaces, visited, excluding);
+		} else {
+			for ( Class<?> c = clazz; c != null; c = c.getSuperclass() ) {
+				for ( Class<?> ifc : c.getInterfaces() ) {
+					addInterfaceAndSuperInterfaces(ifc, interfaces, visited, excluding);
+				}
 			}
-			Class<?>[] ifcs = clazz.getInterfaces();
-			for ( Class<?> ifc : ifcs ) {
-				addClassesToSetUnlessExcludedByPackagePrefix(
-						getAllInterfacesForClassAsSet(ifc, excluding), interfaces, excluding);
-			}
-			clazz = clazz.getSuperclass();
 		}
 		return interfaces;
 	}
