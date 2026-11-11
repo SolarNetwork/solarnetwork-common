@@ -956,6 +956,24 @@ public class CommonJdbcUtilsTests {
 	}
 
 	@Test
+	public void getCodedValueSet_nullElement() throws SQLException {
+		// GIVEN
+		given(rs.getArray(1)).willReturn(array);
+		given(array.getArray()).willReturn(new Integer[] { 2, null, 1 });
+
+		// WHEN
+		final Set<TestCodedValue> result = CommonJdbcUtils.getCodedValueSet(rs, 1, TestCodedValue.class);
+
+		// THEN
+		// @formatter:off
+		and.then(result)
+			.as("Values in array order, with null elements ignored")
+			.containsExactly(TestCodedValue.Two, TestCodedValue.One)
+			;
+		// @formatter:on
+	}
+
+	@Test
 	public void getTimestampInstant() throws SQLException {
 		// GIVEN
 		final Instant ts = Instant.now();

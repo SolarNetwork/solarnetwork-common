@@ -1678,17 +1678,24 @@ public final class CommonJdbcUtils {
 	 *        the column number
 	 * @param clazz
 	 *        the enum class
+	 * @return the coded values, in array order without duplicates, or
+	 *         {@code null} if the column value is {@code null}; {@code null}
+	 *         array elements and unknown codes are ignored
 	 * @throws SQLException
 	 *         if any SQL error occurs
 	 */
 	public static <T extends Enum<T> & CodedValue> @Nullable Set<T> getCodedValueSet(ResultSet rs,
 			int colNum, Class<T> clazz) throws SQLException {
-		Number[] codes = getArray(rs, colNum);
+		@Nullable
+		Number @Nullable [] codes = getArray(rs, colNum);
 		if ( codes == null ) {
 			return null;
 		}
 		Set<T> result = new LinkedHashSet<>(codes.length);
 		for ( Number code : codes ) {
+			if ( code == null ) {
+				continue;
+			}
 			int c = code.intValue();
 			for ( T e : clazz.getEnumConstants() ) {
 				if ( c == e.getCode() ) {
