@@ -687,4 +687,14 @@ public class CommonSqlUtilsTests {
 		and.then(result).as("Reserved characters escaped").isEqualTo("a\\_b\\%c");
 	}
 
+	@Test
+	public void safeLikeValue_backslash() {
+		// WHEN
+		final String result = safeLikeValue("a\\b_c");
+
+		// THEN
+		and.then(result).as("Backslash escaped along with other reserved characters")
+				.isEqualTo("a\\\\b\\_c");
+	}
+
 }

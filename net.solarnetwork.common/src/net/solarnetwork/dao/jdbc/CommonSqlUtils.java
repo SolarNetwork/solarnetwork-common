@@ -25,7 +25,6 @@ package net.solarnetwork.dao.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 import net.solarnetwork.dao.DateRangeCriteria;
@@ -385,14 +384,7 @@ public final class CommonSqlUtils {
 		if ( value == null ) {
 			return null;
 		}
-		Matcher m = LIKE_PATTERN_RESERVED.matcher(value);
-		StringBuilder buf = new StringBuilder();
-		while ( m.find() ) {
-			String c = m.group(1);
-			m.appendReplacement(buf, "\\\\" + c);
-		}
-		m.appendTail(buf);
-		return buf.toString();
+		return LIKE_PATTERN_RESERVED.matcher(value).replaceAll("\\\\$1");
 	}
 
 }
