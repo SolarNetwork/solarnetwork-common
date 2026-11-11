@@ -181,8 +181,8 @@ public final class CommonSqlUtils {
 	 * @param buf
 	 *        the buffer to append the SQL to
 	 * @return the number of JDBC query parameters generated
-	 * @see #prepareArrayParameter(Connection, PreparedStatement, int, String,
-	 *      Object[])
+	 * @see CommonJdbcUtils#prepareArrayParameter(Connection, PreparedStatement,
+	 *      int, String, Object[])
 	 */
 	public static int whereArrayColContains(Object @Nullable [] array, String colName,
 			StringBuilder buf) {
@@ -209,8 +209,8 @@ public final class CommonSqlUtils {
 	 * @param buf
 	 *        the buffer to append the SQL to
 	 * @return the number of JDBC query parameters generated
-	 * @see #prepareOptimizedArrayParameter(Connection, PreparedStatement, int,
-	 *      String, Object[])
+	 * @see CommonJdbcUtils#prepareOptimizedArrayParameter(Connection,
+	 *      PreparedStatement, int, String, Object[])
 	 */
 	public static int whereOptimizedArrayContains(Object @Nullable [] array, String colName,
 			StringBuilder buf) {
