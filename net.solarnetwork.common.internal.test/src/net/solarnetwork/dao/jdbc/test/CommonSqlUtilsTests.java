@@ -207,6 +207,35 @@ public class CommonSqlUtilsTests {
 	}
 
 	@Test
+	public void forUpdate_tables_emptyName() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// WHEN
+		forUpdate(true, new String[] { "foo", "", "bar" }, buf);
+
+		// THEN
+		// @formatter:off
+		and.then(buf)
+			.as("Empty table name skipped")
+			.hasToString("\nFOR UPDATE OF foo, bar SKIP LOCKED")
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void forUpdate_tables_allNamesEmpty() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// WHEN
+		forUpdate(false, new String[] { "", "" }, buf);
+
+		// THEN
+		and.then(buf).as("OF omitted when all table names empty").hasToString("\nFOR UPDATE");
+	}
+
+	@Test
 	public void limitOffset_null() {
 		// GIVEN
 		final StringBuilder buf = new StringBuilder();
