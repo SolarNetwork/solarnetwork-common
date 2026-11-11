@@ -308,6 +308,55 @@ public class CommonSqlUtilsTests {
 	}
 
 	@Test
+	public void limitOffsetLiteral_offset() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// WHEN
+		limitOffsetLiteral(new TestPagination(null, 20L), buf);
+
+		// THEN
+		and.then(buf).as("Literal OFFSET appended without max").hasToString("\nOFFSET 20");
+	}
+
+	@Test
+	public void limitOffsetLiteral_notPositiveMax_offset() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// WHEN
+		limitOffsetLiteral(new TestPagination(0, 20L), buf);
+
+		// THEN
+		and.then(buf).as("Literal OFFSET appended on new line when max not positive")
+				.hasToString("\nOFFSET 20");
+	}
+
+	@Test
+	public void limitOffsetLiteral_max_negativeOffset() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// WHEN
+		limitOffsetLiteral(new TestPagination(10, -5L), buf);
+
+		// THEN
+		and.then(buf).as("Literal OFFSET omitted when not positive").hasToString("\nLIMIT 10");
+	}
+
+	@Test
+	public void limitOffsetLiteral_notPositive() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// WHEN
+		limitOffsetLiteral(new TestPagination(0, 0L), buf);
+
+		// THEN
+		and.then(buf).as("Nothing appended for non-positive values").isEmpty();
+	}
+
+	@Test
 	public void whereArrayColContains_null() {
 		// GIVEN
 		final StringBuilder buf = new StringBuilder();

@@ -157,15 +157,18 @@ public final class CommonSqlUtils {
 	 *        the buffer to append the SQL to
 	 */
 	public static void limitOffsetLiteral(@Nullable PaginationCriteria filter, StringBuilder buf) {
-		if ( filter != null && filter.getMax() != null ) {
-			int max = filter.getMax();
-			if ( max > 0 ) {
-				buf.append("\nLIMIT ").append(max);
-			}
-			Long offset = filter.getOffset();
-			if ( offset != null ) {
-				buf.append(" OFFSET ").append(offset);
-			}
+		if ( filter == null ) {
+			return;
+		}
+		boolean limit = false;
+		Integer max = filter.getMax();
+		if ( max != null && max > 0 ) {
+			buf.append("\nLIMIT ").append(max);
+			limit = true;
+		}
+		Long offset = filter.getOffset();
+		if ( offset != null && offset > 0 ) {
+			buf.append(limit ? ' ' : '\n').append("OFFSET ").append(offset);
 		}
 	}
 
