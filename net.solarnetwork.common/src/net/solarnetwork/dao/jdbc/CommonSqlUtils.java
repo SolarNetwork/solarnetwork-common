@@ -22,6 +22,7 @@
 
 package net.solarnetwork.dao.jdbc;
 
+import static net.solarnetwork.util.ObjectUtils.requireNonEmptyArgument;
 import static net.solarnetwork.util.StringUtils.nonEmptyString;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -187,11 +188,14 @@ public final class CommonSqlUtils {
 	 * @param buf
 	 *        the buffer to append the SQL to
 	 * @return the number of JDBC query parameters generated
+	 * @throws IllegalArgumentException
+	 *         if {@code colName} is {@code null} or empty
 	 * @see CommonJdbcUtils#prepareArrayParameter(Connection, PreparedStatement,
 	 *      int, String, Object[])
 	 */
 	public static int whereArrayColContains(Object @Nullable [] array, String colName,
 			StringBuilder buf) {
+		requireNonEmptyArgument(colName, "colName");
 		if ( array != null && array.length > 0 ) {
 			buf.append("\tAND ").append(colName).append(" @> ?\n");
 			return 1;
@@ -215,11 +219,14 @@ public final class CommonSqlUtils {
 	 * @param buf
 	 *        the buffer to append the SQL to
 	 * @return the number of JDBC query parameters generated
+	 * @throws IllegalArgumentException
+	 *         if {@code colName} is {@code null} or empty
 	 * @see CommonJdbcUtils#prepareOptimizedArrayParameter(Connection,
 	 *      PreparedStatement, int, String, Object[])
 	 */
 	public static int whereOptimizedArrayContains(Object @Nullable [] array, String colName,
 			StringBuilder buf) {
+		requireNonEmptyArgument(colName, "colName");
 		int paramCount = 0;
 		if ( array != null && array.length > 0 ) {
 			buf.append("\tAND ").append(colName).append(" = ");
@@ -244,8 +251,11 @@ public final class CommonSqlUtils {
 	 * @param buf
 	 *        the buffer to append the SQL to
 	 * @return the number of JDBC query parameters generated
+	 * @throws IllegalArgumentException
+	 *         if {@code colName} is {@code null} or empty
 	 */
 	public static int whereEqual(@Nullable Object object, String colName, StringBuilder buf) {
+		requireNonEmptyArgument(colName, "colName");
 		int paramCount = 0;
 		if ( object != null ) {
 			buf.append("\tAND ").append(colName).append(" = ?\n");
@@ -264,8 +274,11 @@ public final class CommonSqlUtils {
 	 * @param buf
 	 *        the buffer to append the SQL to
 	 * @return the number of JDBC query parameters generated
+	 * @throws IllegalArgumentException
+	 *         if {@code colName} is {@code null} or empty
 	 */
 	public static int whereLike(@Nullable Object object, String colName, StringBuilder buf) {
+		requireNonEmptyArgument(colName, "colName");
 		int paramCount = 0;
 		if ( object != null ) {
 			buf.append("\tAND ").append(colName).append(" LIKE ?\n");
@@ -291,8 +304,11 @@ public final class CommonSqlUtils {
 	 * @param buf
 	 *        the buffer to append the SQL to
 	 * @return the number of JDBC query parameters generated
+	 * @throws IllegalArgumentException
+	 *         if {@code colName} is {@code null} or empty
 	 */
 	public static int whereOptimizedLike(Object @Nullable [] array, String colName, StringBuilder buf) {
+		requireNonEmptyArgument(colName, "colName");
 		int paramCount = 0;
 		if ( array != null && array.length > 0 ) {
 			buf.append("\tAND ").append(colName).append(" LIKE ");
@@ -323,8 +339,11 @@ public final class CommonSqlUtils {
 	 * @param buf
 	 *        the buffer to append the SQL to
 	 * @return the number of JDBC query parameters generated
+	 * @throws IllegalArgumentException
+	 *         if {@code colName} is {@code null} or empty
 	 */
 	public static int whereDateRange(DateRangeCriteria filter, String colName, StringBuilder buf) {
+		requireNonEmptyArgument(colName, "colName");
 		int paramCount = 0;
 		if ( filter.getStartDate() != null ) {
 			buf.append("\tAND ").append(colName).append(" >= ?\n");

@@ -400,6 +400,21 @@ public class CommonSqlUtilsTests {
 	}
 
 	@Test
+	public void whereArrayColContains_emptyColName() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// THEN
+		// @formatter:off
+		and.thenThrownBy(() -> whereArrayColContains(new Object[] { "a" }, "", buf))
+			.as("Empty column name rejected")
+			.isInstanceOf(IllegalArgumentException.class)
+			;
+		// @formatter:on
+		and.then(buf).as("Nothing appended").isEmpty();
+	}
+
+	@Test
 	public void whereArrayColContains_null() {
 		// GIVEN
 		final StringBuilder buf = new StringBuilder();
@@ -436,6 +451,21 @@ public class CommonSqlUtilsTests {
 		// THEN
 		and.then(result).as("Array parameter generated").isEqualTo(1);
 		and.then(buf).as("Array contains clause appended").hasToString("\tAND foo @> ?\n");
+	}
+
+	@Test
+	public void whereOptimizedArrayContains_emptyColName() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// THEN
+		// @formatter:off
+		and.thenThrownBy(() -> whereOptimizedArrayContains(new Object[] { "a" }, "", buf))
+			.as("Empty column name rejected")
+			.isInstanceOf(IllegalArgumentException.class)
+			;
+		// @formatter:on
+		and.then(buf).as("Nothing appended").isEmpty();
 	}
 
 	@Test
@@ -497,6 +527,21 @@ public class CommonSqlUtilsTests {
 	}
 
 	@Test
+	public void whereEqual_emptyColName() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// THEN
+		// @formatter:off
+		and.thenThrownBy(() -> whereEqual("a", "", buf))
+			.as("Empty column name rejected")
+			.isInstanceOf(IllegalArgumentException.class)
+			;
+		// @formatter:on
+		and.then(buf).as("Nothing appended").isEmpty();
+	}
+
+	@Test
 	public void whereEqual_null() {
 		// GIVEN
 		final StringBuilder buf = new StringBuilder();
@@ -523,6 +568,21 @@ public class CommonSqlUtilsTests {
 	}
 
 	@Test
+	public void whereLike_emptyColName() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// THEN
+		// @formatter:off
+		and.thenThrownBy(() -> whereLike("a", "", buf))
+			.as("Empty column name rejected")
+			.isInstanceOf(IllegalArgumentException.class)
+			;
+		// @formatter:on
+		and.then(buf).as("Nothing appended").isEmpty();
+	}
+
+	@Test
 	public void whereLike_null() {
 		// GIVEN
 		final StringBuilder buf = new StringBuilder();
@@ -546,6 +606,21 @@ public class CommonSqlUtilsTests {
 		// THEN
 		and.then(result).as("Parameter generated").isEqualTo(1);
 		and.then(buf).as("LIKE clause appended").hasToString("\tAND foo LIKE ?\n");
+	}
+
+	@Test
+	public void whereOptimizedLike_emptyColName() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// THEN
+		// @formatter:off
+		and.thenThrownBy(() -> whereOptimizedLike(new Object[] { "a" }, "", buf))
+			.as("Empty column name rejected")
+			.isInstanceOf(IllegalArgumentException.class)
+			;
+		// @formatter:on
+		and.then(buf).as("Nothing appended").isEmpty();
 	}
 
 	@Test
@@ -604,6 +679,21 @@ public class CommonSqlUtilsTests {
 			.hasToString("\tAND foo LIKE ANY(?)\n")
 			;
 		// @formatter:on
+	}
+
+	@Test
+	public void whereDateRange_emptyColName() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+
+		// THEN
+		// @formatter:off
+		and.thenThrownBy(() -> whereDateRange(new TestDateRange(Instant.now(), null), "", buf))
+			.as("Empty column name rejected")
+			.isInstanceOf(IllegalArgumentException.class)
+			;
+		// @formatter:on
+		and.then(buf).as("Nothing appended").isEmpty();
 	}
 
 	@Test
