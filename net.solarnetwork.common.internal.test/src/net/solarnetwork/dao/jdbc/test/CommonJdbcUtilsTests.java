@@ -801,6 +801,50 @@ public class CommonJdbcUtilsTests {
 		and.then(results.getResults()).as("Result results is data").isSameAs(data);
 	}
 
+	@Test
+	public void executeFilterQuery_noMax_offset() {
+		// GIVEN
+		final List<TestEntity> data = List.of(new TestEntity(randomLong()),
+				new TestEntity(randomLong()));
+		given(jdbcOps.query(sqlWithCount, mapper)).willReturn(data);
+
+		// WHEN
+		final TestCriteria filter = new TestCriteria(null, 10L, false);
+		final FilterResults<TestEntity, Long> results = CommonJdbcUtils.executeFilterQuery(jdbcOps,
+				filter, sqlWithCount, mapper);
+
+		// THEN
+		then(sqlWithCount).should(never()).countPreparedStatementCreator();
+		and.then(results).as("Result returned").isNotNull();
+		and.then(results.getReturnedResultCount()).as("Result count from data").isEqualTo(data.size());
+		and.then(results.getStartingOffset()).as("Result offset from criteria").isEqualTo(10L);
+		and.then(results.getTotalResults())
+				.as("Result total is offset plus data count when no max provided by criteria")
+				.isEqualTo(10L + data.size());
+		and.then(results.getResults()).as("Result results is data").isSameAs(data);
+	}
+
+	@Test
+	public void executeFilterQuery_noMax_offset_noResults() {
+		// GIVEN
+		final List<TestEntity> data = List.of();
+		given(jdbcOps.query(sqlWithCount, mapper)).willReturn(data);
+
+		// WHEN
+		final TestCriteria filter = new TestCriteria(null, 10L, false);
+		final FilterResults<TestEntity, Long> results = CommonJdbcUtils.executeFilterQuery(jdbcOps,
+				filter, sqlWithCount, mapper);
+
+		// THEN
+		then(sqlWithCount).should(never()).countPreparedStatementCreator();
+		and.then(results).as("Result returned").isNotNull();
+		and.then(results.getReturnedResultCount()).as("Result count from data").isZero();
+		and.then(results.getStartingOffset()).as("Result offset from criteria").isEqualTo(10L);
+		and.then(results.getTotalResults())
+				.as("Result total unknown when no results returned past offset without max").isNull();
+		and.then(results.getResults()).as("Result results is data").isSameAs(data);
+	}
+
 	private void givenGeneratedKeys(@Nullable Map<String, Object> keys) {
 		given(jdbcOps.update(same(sql), any(KeyHolder.class))).willAnswer(inv -> {
 			if ( keys != null ) {
