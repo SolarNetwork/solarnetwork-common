@@ -777,6 +777,8 @@ public final class CommonJdbcUtils {
 	/**
 	 * Prepare a SQL query {@code CodedValue} parameter as a {@code INTEGER}.
 	 *
+	 * @param con
+	 *        the JDBC connection
 	 * @param stmt
 	 *        the JDBC statement
 	 * @param parameterOffset
