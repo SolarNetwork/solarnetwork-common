@@ -1423,7 +1423,7 @@ public final class CommonJdbcUtils {
 	 *         if a casting error occurs
 	 */
 	@SuppressWarnings({ "unchecked", "TypeParameterUnusedInFormals" })
-	public static <T> @Nullable T arrayValue(Object o) {
+	public static <T> @Nullable T arrayValue(@Nullable Object o) {
 		if ( o instanceof Array a ) {
 			try {
 				return (T) a.getArray();
@@ -1596,6 +1596,14 @@ public final class CommonJdbcUtils {
 	/**
 	 * Standardized utility to execute a filter based query.
 	 *
+	 * <p>
+	 * If {@code filter} has no maximum result count, the query is assumed to
+	 * return all results starting from the filter's offset, so the total result
+	 * count is the offset plus the number of returned results. If no results
+	 * are returned for a positive offset, the total result count is not known
+	 * and will be {@code null}.
+	 * </p>
+	 *
 	 * @param <M>
 	 *        the filter result type
 	 * @param <K>
@@ -1622,11 +1630,15 @@ public final class CommonJdbcUtils {
 
 		List<M> results = jdbcTemplate.query(sql, mapper);
 
+		long offset = (filter.getOffset() != null ? filter.getOffset() : 0L);
 		if ( filter.getMax() == null ) {
-			totalCount = (long) results.size();
+			if ( offset < 1 ) {
+				totalCount = (long) results.size();
+			} else if ( !results.isEmpty() ) {
+				totalCount = offset + results.size();
+			}
 		}
 
-		long offset = (filter.getOffset() != null ? filter.getOffset() : 0L);
 		return new BasicFilterResults<>(results, totalCount, offset, results.size());
 	}
 
