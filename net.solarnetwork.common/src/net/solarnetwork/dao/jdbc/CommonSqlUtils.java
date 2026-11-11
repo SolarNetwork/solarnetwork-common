@@ -22,6 +22,7 @@
 
 package net.solarnetwork.dao.jdbc;
 
+import static net.solarnetwork.util.StringUtils.nonEmptyString;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
@@ -39,6 +40,10 @@ import net.solarnetwork.domain.SortDescriptor;
  * @since 4.60
  */
 public final class CommonSqlUtils {
+
+	private CommonSqlUtils() {
+		// not available
+	}
 
 	/**
 	 * Regular expression for a line starting with a {@literal --} SQL style
@@ -360,7 +365,11 @@ public final class CommonSqlUtils {
 		}
 		boolean appended = false;
 		for ( SortDescriptor sort : sorts ) {
-			String sqlName = sortKeyMapping.get(sort.getSortKey());
+			String sortKey = nonEmptyString(sort.getSortKey());
+			if ( sortKey == null ) {
+				continue;
+			}
+			String sqlName = nonEmptyString(sortKeyMapping.get(sortKey));
 			if ( sqlName != null ) {
 				appended = true;
 				buf.append(", ").append(sqlName);

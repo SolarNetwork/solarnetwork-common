@@ -94,6 +94,20 @@ public class CommonSqlUtilsTests {
 
 	}
 
+	private record TestSort(@Nullable String sortKey, boolean descending) implements SortDescriptor {
+
+		@Override
+		public @Nullable String getSortKey() {
+			return sortKey;
+		}
+
+		@Override
+		public boolean isDescending() {
+			return descending;
+		}
+
+	}
+
 	@Test
 	public void sqlComment_match() {
 		for ( String line : new String[] { "-- comment", "  -- indented comment", "\t--tab" } ) {
@@ -707,6 +721,20 @@ public class CommonSqlUtilsTests {
 		// THEN
 		and.then(result).as("No joining characters added").isZero();
 		and.then(buf).as("Nothing appended").isEmpty();
+	}
+
+	@Test
+	public void orderBySorts_nullSortKey() {
+		// GIVEN
+		final StringBuilder buf = new StringBuilder();
+		final List<SortDescriptor> sorts = List.of(new TestSort(null, false), new TestSort("a", true));
+
+		// WHEN
+		final int result = orderBySorts(sorts, Map.of("a", "t.a"), buf);
+
+		// THEN
+		and.then(result).as("Joining characters added").isEqualTo(2);
+		and.then(buf).as("Sort without key skipped").hasToString(", t.a DESC");
 	}
 
 	@Test
