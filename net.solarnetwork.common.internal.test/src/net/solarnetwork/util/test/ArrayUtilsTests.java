@@ -22,6 +22,7 @@
 
 package net.solarnetwork.util.test;
 
+import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenExceptionOfType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
@@ -41,7 +42,7 @@ import net.solarnetwork.util.ArrayUtils;
  * Test cases for the {@link ArrayUtils} class.
  *
  * @author matt
- * @version 1.3
+ * @version 1.4
  */
 public class ArrayUtilsTests {
 
@@ -287,6 +288,47 @@ public class ArrayUtilsTests {
 	public void isOnlyNull_notAllNull() {
 		assertThat("Array with a non-null element is falsy",
 				ArrayUtils.isOnlyNull(new String[] { null, "hi", null }), is(false));
+	}
+
+	@Test
+	public void copyArray_null() {
+		// GIVEN
+		final String[] array = null;
+
+		// THEN
+		then(ArrayUtils.copyArray(array)).as("Null input returns null").isNull();
+	}
+
+	@Test
+	public void copyArray_empty() {
+		// GIVEN
+		final String[] array = new String[0];
+
+		// THEN
+		// @formatter:off
+		then(ArrayUtils.copyArray(array))
+			.as("Copy returned")
+			.isNotSameAs(array)
+			.as("Copy is equal")
+			.isEqualTo(array)
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void copyArray() {
+		// GIVEN
+		final String[] array = new String[] { "a", "b", "c" };
+
+		// THEN
+		// @formatter:off
+		then(ArrayUtils.copyArray(array))
+			.as("Copy returned")
+			.isNotSameAs(array)
+			.as("Copy is equal")
+			.isEqualTo(array)
+			;
+		// @formatter:on
 	}
 
 }

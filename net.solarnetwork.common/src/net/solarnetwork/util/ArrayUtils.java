@@ -37,7 +37,7 @@ import org.springframework.beans.factory.ObjectFactory;
  * Utilities for dealing with arrays.
  *
  * @author matt
- * @version 1.4
+ * @version 1.5
  * @since 1.42
  */
 public final class ArrayUtils {
@@ -278,4 +278,18 @@ public final class ArrayUtils {
 		return true;
 	}
 
+	/**
+	 * Copy an array.
+	 * 
+	 * @param <T>
+	 *        the array type
+	 * @param array
+	 *        the array to copy
+	 * @return a copy of {@code array}, or {@code null} if {@code array} is
+	 *         {@code null}
+	 * @since 1.5
+	 */
+	public static <T> T @Nullable [] copyArray(T @Nullable [] array) {
+		return (array != null ? array.clone() : null);
+	}
 }
