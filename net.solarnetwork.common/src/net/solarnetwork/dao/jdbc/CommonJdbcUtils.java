@@ -59,7 +59,7 @@ import net.solarnetwork.util.ObjectUtils;
  * Common JDBC utilities for SolarNetwork.
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 4.60
  */
 public final class CommonJdbcUtils {
@@ -1355,12 +1355,18 @@ public final class CommonJdbcUtils {
 				// give up
 			}
 			throw e;
+		} finally {
+			a.free();
 		}
 	}
 
 	/**
 	 * Get an array result column value.
-	 *
+	 * 
+	 * <p>
+	 * This is just an alias for {@link #getArray(ResultSet, int)}.
+	 * </p>
+	 * 
 	 * @param <T>
 	 *        the expected array type
 	 * @param rs
