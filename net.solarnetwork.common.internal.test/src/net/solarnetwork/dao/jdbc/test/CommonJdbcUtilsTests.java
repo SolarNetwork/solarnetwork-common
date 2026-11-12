@@ -453,6 +453,7 @@ public class CommonJdbcUtilsTests {
 		final Long[] result = CommonJdbcUtils.array(rs, 1);
 
 		// THEN
+		then(array).should().free();
 		and.then(result).as("Array value returned").isSameAs(value);
 	}
 
@@ -466,6 +467,7 @@ public class CommonJdbcUtilsTests {
 		final Long[] result = CommonJdbcUtils.arrayValue(array);
 
 		// THEN
+		then(array).shouldHaveNoMoreInteractions();
 		and.then(result).as("Array value returned").isSameAs(value);
 	}
 
@@ -797,7 +799,7 @@ public class CommonJdbcUtilsTests {
 				.as("Result offset defaults to 0 when not provided by criteria").isEqualTo(0L);
 		and.then(results.getTotalResults())
 				.as("Result total is data count when no max provided by criteria")
-				.isEqualTo((long) data.size());
+				.isEqualTo(data.size());
 		and.then(results.getResults()).as("Result results is data").isSameAs(data);
 	}
 
