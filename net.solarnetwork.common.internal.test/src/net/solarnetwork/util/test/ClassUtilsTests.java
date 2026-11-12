@@ -1047,8 +1047,8 @@ public class ClassUtilsTests {
 		interfaces.remove(TopIfc.class);
 
 		// THEN
-		then(interfaces).as("Returned set can be modified")
-				.containsExactly(DiamondIfc.class, LeftIfc.class, RightIfc.class);
+		then(interfaces).as("Returned set can be modified").containsExactly(DiamondIfc.class,
+				LeftIfc.class, RightIfc.class);
 		then(ClassUtils.getAllNonJavaInterfacesForClassAsSet(DiamondImpl.class))
 				.as("Each call returns a new set")
 				.containsExactly(DiamondIfc.class, LeftIfc.class, TopIfc.class, RightIfc.class);
