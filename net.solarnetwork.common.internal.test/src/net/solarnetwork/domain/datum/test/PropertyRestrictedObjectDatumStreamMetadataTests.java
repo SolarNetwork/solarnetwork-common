@@ -32,6 +32,7 @@ import static net.solarnetwork.test.CommonTestUtils.randomString;
 import static org.assertj.core.api.BDDAssertions.from;
 import static org.assertj.core.api.BDDAssertions.then;
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
@@ -39,6 +40,7 @@ import net.solarnetwork.domain.datum.DatumProperties;
 import net.solarnetwork.domain.datum.DatumPropertiesStatistics;
 import net.solarnetwork.domain.datum.DatumPropertiesStatistics.AccumulatingStatistic;
 import net.solarnetwork.domain.datum.DatumPropertiesStatistics.InstantaneousStatistic;
+import net.solarnetwork.domain.datum.DatumSamples;
 import net.solarnetwork.domain.datum.ObjectDatumKind;
 import net.solarnetwork.domain.datum.PropertyRestrictedObjectDatumStreamMetadata;
 
@@ -326,6 +328,45 @@ public class PropertyRestrictedObjectDatumStreamMetadataTests {
 			.returns(aStats[0][2], from(m -> m.stat(stats, AccumulatingStatistic.End, 0)))
 			.as("Mapping Accumulating value returned (invalid)")
 			.returns(null, from(m -> m.stat(stats, AccumulatingStatistic.Difference, 1)))
+			;
+		// @formatter:on
+	}
+
+	@Test
+	public void restricted_datumSamples() {
+		// GIVEN
+		final var srcMeta = new BasicObjectDatumStreamMetadata(randomUUID(), "UTC", ObjectDatumKind.Node,
+				randomLong(), randomString(), new String[] { "one", "two", "three" },
+				new String[] { "four", "five" }, new String[] { "six", "seven" });
+
+		final var iData = new BigDecimal[] { randomDecimal(), randomDecimal(), randomDecimal() };
+		final var aData = new BigDecimal[] { randomDecimal(), randomDecimal() };
+		final var sData = new String[] { randomString(), randomString() };
+		final var tags = new String[] { randomString() };
+
+		final var data = new DatumProperties();
+		data.setInstantaneous(iData);
+		data.setAccumulating(aData);
+		data.setStatus(sData);
+		data.setTags(tags);
+
+		final var meta = new PropertyRestrictedObjectDatumStreamMetadata(srcMeta,
+				Set.of("two", "three", "five", "seven"));
+
+		// WHEN
+		final DatumSamples result = meta.datumSamples(data);
+
+		// THEN
+		// @formatter:off
+		then(result)
+			.as("Restricted instantaneous names paired with their mapped values")
+			.returns(Map.of("two", iData[1], "three", iData[2]), from(DatumSamples::getInstantaneous))
+			.as("Restricted accumulating names paired with their mapped values")
+			.returns(Map.of("five", aData[1]), from(DatumSamples::getAccumulating))
+			.as("Restricted status names paired with their mapped values")
+			.returns(Map.of("seven", sData[1]), from(DatumSamples::getStatus))
+			.as("Tags copied")
+			.returns(Set.of(tags), from(DatumSamples::getTags))
 			;
 		// @formatter:on
 	}
