@@ -34,7 +34,7 @@ import net.solarnetwork.domain.datum.DatumPropertiesStatistics.InstantaneousStat
  * Metadata about a datum stream.
  *
  * @author matt
- * @version 2.3
+ * @version 2.4
  * @since 2.0
  */
 public interface DatumStreamMetadata {
@@ -314,7 +314,7 @@ public interface DatumStreamMetadata {
 				String[] names = propertyNamesForType(type);
 				if ( names != null ) {
 					for ( int i = 0; i < names.length; i++ ) {
-						samples.putSampleValue(type, names[i], props.value(type, i));
+						samples.putSampleValue(type, names[i], value(props, type, i));
 					}
 				}
 			}
