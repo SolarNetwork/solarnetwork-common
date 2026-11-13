@@ -321,7 +321,6 @@ public class CommonJdbcUtilsTests {
 			.willReturn(n5)
 			;
 		// @formatter:on
-		given(arrayRs.getArray(2)).willThrow(new SQLException("Not an array"));
 		given(arrayRs.getString(2)).willReturn("NaN", "Infinity", "-Infinity");
 
 		// WHEN
@@ -334,6 +333,8 @@ public class CommonJdbcUtilsTests {
 			.containsExactly(n1, null, null, null, n5)
 			;
 		// @formatter:on
+		// non-finite values not read as arrays, which the Postgres driver queries the database for
+		then(arrayRs).should(never()).getArray(2);
 		then(arrayRs).should().close();
 	}
 
@@ -391,7 +392,6 @@ public class CommonJdbcUtilsTests {
 		given(nested1Rs.next()).willReturn(true, true, false);
 		given(nested1Rs.getInt(1)).willReturn(1, 2);
 		given(nested1Rs.getBigDecimal(2)).willReturn(n11).willThrow(new SQLException("NaN"));
-		given(nested1Rs.getArray(2)).willThrow(new SQLException("Not an array"));
 		given(nested1Rs.getString(2)).willReturn("NaN");
 
 		given(nested2.getResultSet()).willReturn(nested2Rs);
@@ -415,6 +415,8 @@ public class CommonJdbcUtilsTests {
 		then(arrayRs).should().close();
 		then(nested1Rs).should().close();
 		then(nested2Rs).should().close();
+		then(nested1).should().free();
+		then(nested2).should().free();
 	}
 
 	@Test

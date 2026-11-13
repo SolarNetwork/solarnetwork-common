@@ -1307,11 +1307,11 @@ public final class CommonJdbcUtils {
 	 * try to extract 1- or 2-dimensional arrays of {@link BigDecimal}, by
 	 * iterating over the {@link Array#getResultSet()}. If an individual
 	 * {@code ResultSet} row value throws an exception when attempting to read
-	 * the value as a {@link BigDecimal}, it will be inspected as a nested array
-	 * value, and processed as a nested array. If the row value is not an array,
-	 * it is inspected as a string value, and if equal to {@code "Infinity"} or
-	 * {@code "-Infinity"} or {@code "NaN"} then {@code null} will be used
-	 * instead, and processing will continue.
+	 * the value as a {@link BigDecimal}, it is inspected as a string value, and
+	 * if equal to {@code "Infinity"} or {@code "-Infinity"} or {@code "NaN"}
+	 * then {@code null} will be used instead, and processing will continue.
+	 * Otherwise it will be inspected as a nested array value, and processed as
+	 * a nested array.
 	 * </p>
 	 *
 	 * @param <T>
@@ -1364,7 +1364,9 @@ public final class CommonJdbcUtils {
 	 * Get an array result column value.
 	 * 
 	 * <p>
-	 * This is just an alias for {@link #getArray(ResultSet, int)}.
+	 * This is just an alias for {@link #getArray(ResultSet, int)} with non-null
+	 * assumed. Use {@link #getArray(ResultSet, int)} if {@code null} values are
+	 * anticipated.
 	 * </p>
 	 * 
 	 * @param <T>
@@ -1397,19 +1399,24 @@ public final class CommonJdbcUtils {
 				try {
 					result.add(arrayResultSet.getBigDecimal(2));
 				} catch ( SQLException e ) {
+					// check for a non-finite value before trying as a 2d-array, as the
+					// Postgres driver queries the database to fail reading a number as an array
+					String s = arrayResultSet.getString(2);
+					if ( "Infinity".equals(s) || "-Infinity".equals(s) || "NaN".equals(s) ) {
+						result.add(null);
+						continue;
+					}
 					// try as 2d-array
 					try {
 						Array a2 = arrayResultSet.getArray(2);
-						List<Object> nested = parseBigDecimalArray(a2);
-						result.add(nested.toArray(BigDecimal[]::new));
-					} catch ( SQLException e2 ) {
-						// try as a string instead
-						String s = arrayResultSet.getString(2);
-						if ( "Infinity".equals(s) || "-Infinity".equals(s) || "NaN".equals(s) ) {
-							result.add(null);
-						} else {
-							throw e;
+						try {
+							List<Object> nested = parseBigDecimalArray(a2);
+							result.add(nested.toArray(BigDecimal[]::new));
+						} finally {
+							a2.free();
 						}
+					} catch ( SQLException e2 ) {
+						throw e;
 					}
 				}
 			}
