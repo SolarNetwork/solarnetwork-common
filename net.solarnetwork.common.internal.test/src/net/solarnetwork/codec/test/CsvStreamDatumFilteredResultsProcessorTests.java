@@ -33,7 +33,6 @@ import static net.solarnetwork.util.NumberUtils.decimalArray;
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import java.io.IOException;
-import java.io.Serial;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -44,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 import org.springframework.util.MimeType;
 import net.solarnetwork.codec.CsvStreamDatumFilteredResultsProcessor;
@@ -52,9 +50,9 @@ import net.solarnetwork.domain.datum.AggregateStreamDatum;
 import net.solarnetwork.domain.datum.BasicAggregateStreamDatum;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamDataSet;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
+import net.solarnetwork.domain.datum.BasicReadingStreamDatum;
 import net.solarnetwork.domain.datum.BasicStreamDatum;
 import net.solarnetwork.domain.datum.DatumProperties;
-import net.solarnetwork.domain.datum.DatumPropertiesStatistics;
 import net.solarnetwork.domain.datum.ObjectDatumKind;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.ReadingStreamDatum;
@@ -67,20 +65,6 @@ import net.solarnetwork.domain.datum.StreamDatum;
  * @version 1.0
  */
 public class CsvStreamDatumFilteredResultsProcessorTests {
-
-	/** A reading datum implementation for testing. */
-	private static final class TestReadingStreamDatum extends BasicAggregateStreamDatum
-			implements ReadingStreamDatum {
-
-		@Serial
-		private static final long serialVersionUID = -4651787207447915011L;
-
-		private TestReadingStreamDatum(UUID streamId, Instant timestamp, DatumProperties properties,
-				@Nullable Instant endTimestamp, DatumPropertiesStatistics statistics) {
-			super(streamId, timestamp, properties, endTimestamp, statistics);
-		}
-
-	}
 
 	private ObjectDatumStreamMetadata nodeMeta(Long nodeId, String sourceId, String[] i, String[] a,
 			String[] s) {
@@ -656,7 +640,7 @@ public class CsvStreamDatumFilteredResultsProcessorTests {
 				.atZone(ZoneId.of("Pacific/Auckland"));
 
 		// @formatter:off
-		ReadingStreamDatum d1 = new TestReadingStreamDatum(meta.getStreamId(), start.toInstant(),
+		ReadingStreamDatum d1 = new BasicReadingStreamDatum(meta.getStreamId(), start.toInstant(),
 				propertiesOf(
 						decimalArray("1.23", "2.34"),
 						decimalArray("3"), null, null),
@@ -698,7 +682,7 @@ public class CsvStreamDatumFilteredResultsProcessorTests {
 				.atZone(ZoneId.of("Pacific/Auckland"));
 
 		// @formatter:off
-		final ReadingStreamDatum d1 = new TestReadingStreamDatum(meta.getStreamId(), start.toInstant(),
+		final ReadingStreamDatum d1 = new BasicReadingStreamDatum(meta.getStreamId(), start.toInstant(),
 				propertiesOf(
 						decimalArray("1.23", "2.34"),
 						decimalArray("3"), null, null),
@@ -742,7 +726,7 @@ public class CsvStreamDatumFilteredResultsProcessorTests {
 				.atZone(ZoneId.of("Pacific/Auckland"));
 
 		// @formatter:off
-		final ReadingStreamDatum d1 = new TestReadingStreamDatum(meta.getStreamId(), start.toInstant(),
+		final ReadingStreamDatum d1 = new BasicReadingStreamDatum(meta.getStreamId(), start.toInstant(),
 				propertiesOf(
 						decimalArray("1.23", "2.34"),
 						decimalArray("3"), null, null),

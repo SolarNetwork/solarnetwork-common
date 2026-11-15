@@ -35,7 +35,6 @@ import static org.assertj.core.api.BDDAssertions.thenThrownBy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Serial;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -59,9 +58,9 @@ import net.solarnetwork.domain.datum.AggregateStreamDatum;
 import net.solarnetwork.domain.datum.BasicAggregateStreamDatum;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamDataSet;
 import net.solarnetwork.domain.datum.BasicObjectDatumStreamMetadata;
+import net.solarnetwork.domain.datum.BasicReadingStreamDatum;
 import net.solarnetwork.domain.datum.BasicStreamDatum;
 import net.solarnetwork.domain.datum.DatumProperties;
-import net.solarnetwork.domain.datum.DatumPropertiesStatistics;
 import net.solarnetwork.domain.datum.ObjectDatumKind;
 import net.solarnetwork.domain.datum.ObjectDatumStreamMetadata;
 import net.solarnetwork.domain.datum.ReadingStreamDatum;
@@ -89,20 +88,6 @@ import tools.jackson.dataformat.cbor.CBORMapper;
 public class ObjectMapperStreamDatumFilteredResultsProcessorTests {
 
 	private static final MimeType CBOR_MIME_TYPE = MimeType.valueOf("application/cbor");
-
-	/** A reading datum implementation for testing. */
-	private static final class TestReadingStreamDatum extends BasicAggregateStreamDatum
-			implements ReadingStreamDatum {
-
-		@Serial
-		private static final long serialVersionUID = 2817213429512637446L;
-
-		private TestReadingStreamDatum(UUID streamId, Instant timestamp, DatumProperties properties,
-				@Nullable Instant endTimestamp, DatumPropertiesStatistics statistics) {
-			super(streamId, timestamp, properties, endTimestamp, statistics);
-		}
-
-	}
 
 	@Parameter
 	public boolean useCbor;
@@ -740,7 +725,7 @@ public class ObjectMapperStreamDatumFilteredResultsProcessorTests {
 				.atZone(ZoneId.of("Pacific/Auckland"));
 
 		// @formatter:off
-		ReadingStreamDatum d1 = new TestReadingStreamDatum(meta.getStreamId(),
+		ReadingStreamDatum d1 = new BasicReadingStreamDatum(meta.getStreamId(),
 				start.minusMinutes(1).toInstant(),
 				propertiesOf(
 						decimalArray("1.23", "2.34"),
@@ -784,7 +769,7 @@ public class ObjectMapperStreamDatumFilteredResultsProcessorTests {
 				.atZone(ZoneId.of("Pacific/Auckland"));
 
 		// @formatter:off
-		final ReadingStreamDatum d1 = new TestReadingStreamDatum(meta.getStreamId(),
+		final ReadingStreamDatum d1 = new BasicReadingStreamDatum(meta.getStreamId(),
 				start.minusMinutes(1).toInstant(),
 				propertiesOf(
 						decimalArray("1.23", "2.34"),
@@ -830,7 +815,7 @@ public class ObjectMapperStreamDatumFilteredResultsProcessorTests {
 				.atZone(ZoneId.of("Pacific/Auckland"));
 
 		// @formatter:off
-		final ReadingStreamDatum d1 = new TestReadingStreamDatum(meta.getStreamId(),
+		final ReadingStreamDatum d1 = new BasicReadingStreamDatum(meta.getStreamId(),
 				start.minusMinutes(1).toInstant(),
 				propertiesOf(
 						decimalArray("1.23", "2.34"),
@@ -876,7 +861,7 @@ public class ObjectMapperStreamDatumFilteredResultsProcessorTests {
 				.atZone(ZoneId.of("Pacific/Auckland"));
 
 		// @formatter:off
-		ReadingStreamDatum d1 = new TestReadingStreamDatum(meta.getStreamId(),
+		ReadingStreamDatum d1 = new BasicReadingStreamDatum(meta.getStreamId(),
 				start.minusMinutes(1).toInstant(),
 				propertiesOf(
 						decimalArray("1.23", "2.34"),
