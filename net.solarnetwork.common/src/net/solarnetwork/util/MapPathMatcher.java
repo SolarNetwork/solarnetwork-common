@@ -67,7 +67,7 @@ import net.solarnetwork.util.SearchFilter.VisitorCallback;
  * </p>
  *
  * @author matt
- * @version 1.0
+ * @version 1.1
  * @since 1.67
  */
 public class MapPathMatcher {
@@ -437,6 +437,11 @@ public class MapPathMatcher {
 													.getCompareOperator() == CompareOperator.APPROX ) {
 												if ( value != null && value.toString()
 														.matches(me.getValue().toString()) ) {
+													match = true;
+												}
+											} else if ( node
+													.getCompareOperator() == CompareOperator.PRESENT ) {
+												if ( value != null ) {
 													match = true;
 												}
 											} else if ( isComparableOp(node.getCompareOperator()) ) {
